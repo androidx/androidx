@@ -191,6 +191,33 @@ public final class ActionsConstraints {
                     .setOnClickListenerAllowed(true)
                     .build();
 
+    /**
+     * Constraints for content action buttons which enforces the following on the list of actions:
+     *
+     * <ul>
+     *     <li>Maximum of {@code 2} actions
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM}, {@link Action#TYPE_COMPOSE_MESSAGE}, or
+     *     {@link Action#TYPE_MEDIA_PLAYBACK}
+     *     <li>Must have an icon
+     *     <li>Up to {@code 2} actions may have custom titles (with
+     *     {@link CarTextConstraints#COLOR_ONLY})
+     *     <li>Maximum of {@code 1} primary action ({@link Action#FLAG_PRIMARY})
+     *     <li>Background colors are optional
+     *     <li>Can have a click listener
+     * </ul>
+     *
+     * <p>Titles and primary actions are supported starting in Car API 9. The host may ignore titles
+     * depending on how it displays the actions, so an icon is always required.
+     */
+    public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_CONTENT_BUTTONS =
+            new ActionsConstraints.Builder(ACTIONS_CONSTRAINTS_FAB)
+                    .setMaxCustomTitles(2)
+                    .setMaxPrimaryActions(1)
+                    .setTitleTextConstraints(CarTextConstraints.COLOR_ONLY)
+                    .setRequireActionIcons(true)
+                    .setRequireActionBackgroundColor(false)
+                    .build();
+
     /** Constraints for TabTemplate. */
     @RequiresCarApi(6)
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_TABS =

@@ -387,4 +387,92 @@ public class ActionsConstraintsTest {
                 () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
                         Collections.singletonList(Action.BACK)));
     }
+
+    @Test
+    public void validateContentButtonsActionConstraints() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action iconActionWithColor = TestUtils.createAction(carIcon, CarColor.BLUE);
+        Action titledPrimaryAction =
+                new Action.Builder()
+                        .setTitle("Navigate")
+                        .setIcon(carIcon)
+                        .setFlags(Action.FLAG_PRIMARY)
+                        .build();
+        Action titledSecondaryAction =
+                new Action.Builder()
+                        .setTitle("Call")
+                        .setIcon(carIcon)
+                        .build();
+
+        // Positive case: legacy FAB action (icon + background color)
+        ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS.validateOrThrow(
+                Arrays.asList(iconActionWithColor, Action.COMPOSE_MESSAGE));
+
+        // Positive case: up to 2 titled actions, 1 primary, without background color
+        ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS.validateOrThrow(
+                Arrays.asList(titledPrimaryAction, titledSecondaryAction));
+
+        // Negative case: icon is required
+        Action titledActionWithoutIcon =
+                new Action.Builder()
+                        .setTitle("Call")
+                        .build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(Collections.singletonList(titledActionWithoutIcon)));
+
+        // Positive case: color span in title is allowed (CarTextConstraints.COLOR_ONLY)
+        Action actionWithColorSpan =
+                new Action.Builder()
+                        .setTitle(TestUtils.getCharSequenceWithColorSpan("Title"))
+                        .setIcon(carIcon)
+                        .build();
+        ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS.validateOrThrow(
+                Collections.singletonList(actionWithColorSpan));
+
+        // Negative case: non-color span in title is disallowed
+        Action actionWithClickableSpan =
+                new Action.Builder()
+                        .setTitle(TestUtils.getCharSequenceWithClickableSpan("Title"))
+                        .setIcon(carIcon)
+                        .build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(Collections.singletonList(actionWithClickableSpan)));
+
+        // Over max allowed actions (3 > 2)
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(
+                                Arrays.asList(
+                                        titledPrimaryAction,
+                                        titledSecondaryAction,
+                                        iconActionWithColor)));
+
+        // Over max allowed primary actions (2 > 1)
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(
+                                Arrays.asList(titledPrimaryAction, titledPrimaryAction)));
+
+        // Standard actions not in FAB allowed types (e.g. Action.APP_ICON, Action.BACK, Action.PAN)
+        // are disallowed
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(Collections.singletonList(Action.APP_ICON)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(Collections.singletonList(Action.BACK)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_CONTENT_BUTTONS
+                        .validateOrThrow(Collections.singletonList(Action.PAN)));
+    }
 }
