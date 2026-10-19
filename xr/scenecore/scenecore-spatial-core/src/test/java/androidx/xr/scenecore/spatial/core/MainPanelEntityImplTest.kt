@@ -32,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
@@ -252,5 +253,87 @@ class MainPanelEntityImplTest : AndroidXrEntityImplTest() {
 
         // Cleanup
         mainPanelEntity.removeOnSetSizeCompleteListener(listener)
+    }
+
+    @Test
+    fun mainPanelEntitySetSizeInPixels_afterWindowManagerBoundsUpdate_callsExtensions() {
+        val targetSize = PixelDimensions(1536, 1536)
+        mainPanelEntity.sizeInPixels = targetSize
+
+        val shadowXrExtensions = ShadowXrExtensions.extract(xrExtensions)
+        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity))
+            .isEqualTo(targetSize.width)
+        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity))
+            .isEqualTo(targetSize.height)
+
+        // Simulate the system updating the Activity's WindowManager bounds externally without a
+        // SpatialState callback.
+        xrExtensions.setMainWindowSize(activity, 2532, 1740, { it.run() }, {})
+        RuntimeEnvironment.setQualifiers("w2532dp-h1740dp")
+
+        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity)).isEqualTo(2532)
+        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity)).isEqualTo(1740)
+
+        // Setting sizeInPixels back to targetSize (1536x1536) must detect that WindowManager
+        // bounds changed and call extensions.setMainWindowSize.
+        mainPanelEntity.sizeInPixels = targetSize
+
+        Truth.assertThat(shadowXrExtensions.getMainWindowWidth(activity))
+            .isEqualTo(targetSize.width)
+        Truth.assertThat(shadowXrExtensions.getMainWindowHeight(activity))
+            .isEqualTo(targetSize.height)
+    }
+
+    @Test
+    fun mainPanelEntitySetSizeInPixels_sameAsCurrentWindowManagerBounds_isNoOp() {
+        RuntimeEnvironment.setQualifiers("w1536dp-h1536dp")
+        val targetSize = PixelDimensions(1536, 1536)
+
+        xrExtensions.setMainWindowSize(activity, 1536, 1536, { it.run() }, {})
+
+        var listenerInvoked = false
+        val listener = Runnable { listenerInvoked = true }
+        mainPanelEntity.addOnSetSizeCompleteListener(MoreExecutors.directExecutor(), listener)
+
+        mainPanelEntity.sizeInPixels = targetSize
+
+        // Setting to current WindowManager bounds is a no-op: does not enter pending state or call
+        // listeners.
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isFalse()
+        Truth.assertThat(listenerInvoked).isFalse()
+
+        mainPanelEntity.removeOnSetSizeCompleteListener(listener)
+    }
+
+    @Test
+    fun mainPanelEntitySetSizeInPixels_whileInFlight_coalescesSameTargetSize() {
+        val shadowExtensions =
+            android.extensions.xr.ShadowXrExtensions.extract(xrExtensions.underlyingObject)
+        shadowExtensions.deferSetMainWindowSizeCallbacks(true)
+
+        val targetSize = PixelDimensions(1536, 1536)
+        mainPanelEntity.sizeInPixels = targetSize
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
+
+        // Setting the same target size while in-flight should return early without queueing extra
+        // work.
+        mainPanelEntity.sizeInPixels = targetSize
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isTrue()
+
+        // Flush callback to complete the in-flight request.
+        shadowExtensions.flushSetMainWindowSizeCallbacks(activity)
+        Truth.assertThat(mainPanelEntity.isWaitingForSetSize).isFalse()
+
+        // Setting targetSize again when idle and already at targetSize is a no-op.
+        RuntimeEnvironment.setQualifiers("w1536dp-h1536dp")
+        var listenerInvoked = false
+        val listener = Runnable { listenerInvoked = true }
+        mainPanelEntity.addOnSetSizeCompleteListener(MoreExecutors.directExecutor(), listener)
+        mainPanelEntity.sizeInPixels = targetSize
+
+        Truth.assertThat(listenerInvoked).isFalse()
+
+        mainPanelEntity.removeOnSetSizeCompleteListener(listener)
+        shadowExtensions.deferSetMainWindowSizeCallbacks(false)
     }
 }
