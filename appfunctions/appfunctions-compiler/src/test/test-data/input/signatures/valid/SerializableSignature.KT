@@ -1,6 +1,5 @@
 package com.test
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSignature
 import androidx.appfunctions.metadata.AppFunctionMetadata

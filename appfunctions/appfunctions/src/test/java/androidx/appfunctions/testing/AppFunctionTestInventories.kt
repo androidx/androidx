@@ -16,20 +16,11 @@
 
 package androidx.appfunctions.internal
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
-
-/** Test implementation for [androidx.appfunctions.AppFunctionUriGrantTest] */
-@RequiresApi(Build.VERSION_CODES.S)
-class `$AggregatedAppFunctionInventory_Impl` : AggregatedAppFunctionInventory() {
-    override val inventories: List<AppFunctionInventory>
-        get() = listOf(AppFunctionUriGrantTestInventory(), AppFunctionTextResourceTestInventory())
-}
 
 internal class AppFunctionTextResourceTestInventory : AppFunctionInventory {
     override val functionIdToMetadataMap: Map<String, CompileTimeAppFunctionMetadata>
