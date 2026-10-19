@@ -107,5 +107,16 @@ public abstract class CompositionContext internal constructor() {
 
     internal abstract fun reportRemovedComposition(composition: ControlledComposition)
 
+    /**
+     * Schedules [action] to run when the [Recomposer] finishes the next composition frame.
+     *
+     * The frame includes all subcompositions. See [Composer.scheduleFrameEndCallback] for the
+     * timing rules. [action] always runs on the applier thread.
+     *
+     * @return A [CancellationHandle] that removes [action] from the queue. The handle is
+     *   thread-safe. It does not stop an [action] that is already running.
+     * @throws kotlin.coroutines.cancellation.CancellationException if the [Recomposer] that owns
+     *   the associated composition is shutting down or has shut down.
+     */
     public abstract fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle
 }
