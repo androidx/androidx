@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.ClickableNode
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -40,9 +41,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.SemanticsProperties.LinkTestMarker
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
@@ -104,42 +109,45 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     val shouldMeasureLinks: () -> Boolean
         get() = { text == textLayoutResult?.layoutInput?.text }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun createRangeMeasurePolicy(link: LinkRange): TextRangeScopeMeasurePolicy {
+        return TextRangeScopeMeasurePolicy {
+            val layoutResult =
+                textLayoutResult
+                    ?: return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+            val updatedRange =
+                calculateVisibleLinkRange(link, layoutResult)
+                    ?: return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+
+            // There's nothing to measure when the link text is empty or when the link is
+            // entirely cut off by the maxLines of the text.
+            if (updatedRange.start >= updatedRange.end) {
+                return@TextRangeScopeMeasurePolicy layout(0, 0) { IntOffset.Zero }
+            }
+
+            val bounds =
+                if (
+                    ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
+                        isSingleLine(updatedRange, layoutResult)
+                ) {
+                    getSingleLineBounds(updatedRange, layoutResult)
+                } else {
+                    layoutResult
+                        .getPathForRange(updatedRange.start, updatedRange.end)
+                        .getBounds()
+                        .roundToIntRect()
+                }
+            layout(bounds.width, bounds.height) { bounds.topLeft }
+        }
+    }
+
     /**
      * Causes the modified element to be measured with fixed constraints equal to the bounds of the
      * text range and placed over that range of text.
      */
     @OptIn(ExperimentalFoundationApi::class)
     private fun Modifier.textRange(link: LinkRange): Modifier {
-        return this.then(
-            TextRangeLayoutModifier {
-                val layoutResult =
-                    textLayoutResult
-                        ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-                val updatedRange =
-                    calculateVisibleLinkRange(link, layoutResult)
-                        ?: return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-
-                // There's nothing to measure when the link text is empty or when the link is
-                // entirely cut off by the maxLines of the text.
-                if (updatedRange.start >= updatedRange.end) {
-                    return@TextRangeLayoutModifier layout(0, 0) { IntOffset.Zero }
-                }
-
-                val bounds =
-                    if (
-                        ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled &&
-                            isSingleLine(updatedRange, layoutResult)
-                    ) {
-                        getSingleLineBounds(updatedRange, layoutResult)
-                    } else {
-                        layoutResult
-                            .getPathForRange(updatedRange.start, updatedRange.end)
-                            .getBounds()
-                            .roundToIntRect()
-                    }
-                layout(bounds.width, bounds.height) { bounds.topLeft }
-            }
-        )
+        return this.then(TextRangeLayoutModifier(createRangeMeasurePolicy(link)))
     }
 
     /** Returns whether [range] is laid out on a single line. */
@@ -323,25 +331,39 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                         null
                     }
 
-                Box(
-                    Modifier.clipLink(range)
-                        .semantics {
-                            // adding this to identify links in tests, see
-                            // performFirstLinkClick
-                            this[LinkTestMarker] = Unit
-                        }
-                        .textRange(range)
-                        .then(
-                            if (interactionSource != null) Modifier.hoverable(interactionSource)
-                            else Modifier
-                        )
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = interactionSource,
-                            onClick = { handleLink(range.item, uriHandler) },
-                        )
-                )
+                if (ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled) {
+                    Box(
+                        Modifier.clipLink(range)
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .then(
+                                TextLinkElement(
+                                    measurePolicy = createRangeMeasurePolicy(range),
+                                    interactionSource = interactionSource,
+                                    onClick = { handleLink(range.item, uriHandler) },
+                                )
+                            )
+                    )
+                } else {
+                    Box(
+                        Modifier.clipLink(range)
+                            .semantics {
+                                // adding this to identify links in tests, see
+                                // performFirstLinkClick
+                                this[LinkTestMarker] = Unit
+                            }
+                            .textRange(range)
+                            .then(
+                                if (interactionSource != null) Modifier.hoverable(interactionSource)
+                                else Modifier
+                            )
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .combinedClickable(
+                                indication = null,
+                                interactionSource = interactionSource,
+                                onClick = { handleLink(range.item, uriHandler) },
+                            )
+                    )
+                }
 
                 if (shouldTrackInteractions && interactionSource != null) {
                     // the interaction source is not hoisted, we create and remember it in the
@@ -459,8 +481,16 @@ internal fun interface TextRangeScopeMeasurePolicy {
     fun TextRangeLayoutMeasureScope.measure(): TextRangeLayoutMeasureResult
 }
 
-internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasurePolicy) :
-    ParentDataModifier {
+/**
+ * Parent data of a layout node representing a text range, e.g. a link. The text's measure policy
+ * measures and places such a node according to [measurePolicy].
+ */
+internal interface TextRangeLayoutParentData {
+    val measurePolicy: TextRangeScopeMeasurePolicy
+}
+
+internal class TextRangeLayoutModifier(override var measurePolicy: TextRangeScopeMeasurePolicy) :
+    ParentDataModifier, TextRangeLayoutParentData {
     override fun Density.modifyParentData(parentData: Any?) = this@TextRangeLayoutModifier
 }
 
@@ -527,4 +557,90 @@ private class TextAnnotatorScope(private val initialText: AnnotatedString) {
             annotation
         }
     }
+}
+
+private class TextLinkElement(
+    val measurePolicy: TextRangeScopeMeasurePolicy,
+    val interactionSource: MutableInteractionSource?,
+    val onClick: () -> Unit,
+) : ModifierNodeElement<TextLinkNode>() {
+    override fun create(): TextLinkNode =
+        TextLinkNode(
+            measurePolicy = measurePolicy,
+            interactionSource = interactionSource,
+            onClick = onClick,
+        )
+
+    override fun update(node: TextLinkNode) {
+        node.updateLink(
+            measurePolicy = measurePolicy,
+            interactionSource = interactionSource,
+            onClick = onClick,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "textLink"
+        properties["interactionSource"] = interactionSource
+        properties["onClick"] = onClick
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TextLinkElement) return false
+
+        if (measurePolicy != other.measurePolicy) return false
+        if (interactionSource != other.interactionSource) return false
+        if (onClick !== other.onClick) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = measurePolicy.hashCode()
+        result = 31 * result + (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
+}
+
+private class TextLinkNode(
+    override var measurePolicy: TextRangeScopeMeasurePolicy,
+    interactionSource: MutableInteractionSource?,
+    onClick: () -> Unit,
+) :
+    ClickableNode(
+        interactionSource = interactionSource,
+        indicationNodeFactory = null,
+        useLocalIndication = false,
+        enabled = true,
+        onClickLabel = null,
+        role = null,
+        onClick = onClick,
+    ),
+    ParentDataModifierNode,
+    TextRangeLayoutParentData {
+
+    fun updateLink(
+        measurePolicy: TextRangeScopeMeasurePolicy,
+        interactionSource: MutableInteractionSource?,
+        onClick: () -> Unit,
+    ) {
+        this.measurePolicy = measurePolicy
+        update(
+            interactionSource = interactionSource,
+            indicationNodeFactory = null,
+            useLocalIndication = false,
+            enabled = true,
+            onClickLabel = null,
+            role = null,
+            onClick = onClick,
+        )
+    }
+
+    override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
+        this[LinkTestMarker] = Unit
+    }
+
+    override fun Density.modifyParentData(parentData: Any?) = this@TextLinkNode
 }
