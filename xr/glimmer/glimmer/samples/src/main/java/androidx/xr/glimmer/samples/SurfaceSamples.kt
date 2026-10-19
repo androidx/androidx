@@ -97,7 +97,7 @@ fun CustomFocusedColorSurfaceSample() {
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         Modifier.surface(
-                focusedColor = SurfaceDefaults.focusedColor(Color(0xFF34E0A1)),
+                focusedColor = SurfaceDefaults.calculateFocusedColor(Color(0xFF34E0A1)),
                 interactionSource = interactionSource,
             )
             .focusable(interactionSource = interactionSource)

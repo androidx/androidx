@@ -81,7 +81,7 @@ class ToggleButtonTest {
             val colors = ToggleButtonDefaults.colors()
             val expectedCheckedBackgroundColor = GlimmerTheme.colors.primary.withTone(newTone = 70f)
             val expectedFocusedBackgroundColor =
-                SurfaceDefaults.focusedColor(GlimmerTheme.colors.surface)
+                SurfaceDefaults.calculateFocusedColor(GlimmerTheme.colors.surface)
             val expectedFocusedCheckedBackgroundColor =
                 GlimmerTheme.colors.primary.withTone(newTone = 82f)
             assertThat(colors.backgroundColor).isEqualTo(GlimmerTheme.colors.surface)
@@ -103,7 +103,7 @@ class ToggleButtonTest {
                     checkedBackgroundColor = Color.Green,
                 )
             assertThat(customColors.focusedBackgroundColor)
-                .isEqualTo(SurfaceDefaults.focusedColor(Color.Red))
+                .isEqualTo(SurfaceDefaults.calculateFocusedColor(Color.Red))
             assertThat(customColors.focusedCheckedBackgroundColor)
                 .isEqualTo(Color.Green.withTone(newTone = 82f))
         }
@@ -113,13 +113,13 @@ class ToggleButtonTest {
     fun toggleButtonDefaults_focusedBackgroundColor() {
         rule.setGlimmerThemeContent {
             val expectedFocusedBackgroundColor =
-                SurfaceDefaults.focusedColor(GlimmerTheme.colors.surface)
+                SurfaceDefaults.calculateFocusedColor(GlimmerTheme.colors.surface)
             assertThat(ToggleButtonDefaults.focusedBackgroundColor())
                 .isEqualTo(expectedFocusedBackgroundColor)
 
             val customColor = Color.Red
             assertThat(ToggleButtonDefaults.focusedBackgroundColor(customColor))
-                .isEqualTo(SurfaceDefaults.focusedColor(customColor))
+                .isEqualTo(SurfaceDefaults.calculateFocusedColor(customColor))
         }
     }
 
