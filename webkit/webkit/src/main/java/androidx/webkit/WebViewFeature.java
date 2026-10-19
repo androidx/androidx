@@ -149,6 +149,7 @@ public class WebViewFeature {
             NAVIGATION_GET_RESPONSE_HEADERS,
             NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS,
             NAVIGATION_LISTENER_NAVIGATION_STATE,
+            NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1052,6 +1053,16 @@ public class WebViewFeature {
      */
     public static final String NAVIGATION_LISTENER_NAVIGATION_STATE =
             "NAVIGATION_LISTENER_NAVIGATION_STATE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}
+     * This feature covers
+     * {@link NavigationListener#onNavigationVisible(NavigationState)}
+     */
+    @NavigationListener.ExperimentalOnNavigationVisible
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_LISTENER_NAVIGATION_VISIBLE =
+            "WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
