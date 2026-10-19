@@ -46,6 +46,11 @@ import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
+import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.concurrent.futures.await
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
@@ -53,6 +58,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.lifecycle.LifecycleOwnerUtils
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -212,6 +218,17 @@ class CameraXServiceTest(private val implName: String, private val cameraXConfig
 
         // Assert.
         assertThat(latch.await(15, TimeUnit.SECONDS)).isTrue()
+        assertWithMessage("Recording finalized with error")
+            .that(service.recordVideoError)
+            .isIn(
+                listOf(
+                    ERROR_NONE,
+                    ERROR_FILE_SIZE_LIMIT_REACHED,
+                    ERROR_DURATION_LIMIT_REACHED,
+                    ERROR_INSUFFICIENT_STORAGE,
+                    ERROR_SOURCE_INACTIVE,
+                )
+            )
     }
 
     private fun createServiceIntent(action: String? = null) =

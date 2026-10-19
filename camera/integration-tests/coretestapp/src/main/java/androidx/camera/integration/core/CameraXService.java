@@ -138,6 +138,7 @@ public class CameraXService extends LifecycleService {
     private @Nullable CountDownLatch mAnalysisFrameLatch;
     private @Nullable CountDownLatch mTakePictureLatch;
     private @Nullable CountDownLatch mRecordVideoLatch;
+    private volatile int mRecordVideoError = ERROR_NONE;
     //--------------------------------------------------------------------------------------------//
 
     @Override
@@ -501,15 +502,18 @@ public class CameraXService extends LifecycleService {
                     Toast.makeText(CameraXService.this, msg, Toast.LENGTH_LONG).show();
 
                     mSavedMediaUri.add(uri);
-                    if (mRecordVideoLatch != null) {
-                        mRecordVideoLatch.countDown();
-                    }
                     break;
                 default:
                     String errMsg = "Video capture failed by (" + finalize.getError() + "): "
                             + finalize.getCause();
                     Log.e(TAG, errMsg, finalize.getCause());
                     Toast.makeText(CameraXService.this, errMsg, Toast.LENGTH_LONG).show();
+            }
+            // Always release the latch so tests fail fast with the actual error instead of
+            // timing out.
+            mRecordVideoError = finalize.getError();
+            if (mRecordVideoLatch != null) {
+                mRecordVideoLatch.countDown();
             }
             mActiveRecording = null;
             updateNotification();
@@ -553,8 +557,20 @@ public class CameraXService extends LifecycleService {
 
     @VisibleForTesting
     @NonNull CountDownLatch acquireRecordVideoCountDownLatch() {
+        mRecordVideoError = ERROR_NONE;
         mRecordVideoLatch = new CountDownLatch(1);
         return mRecordVideoLatch;
+    }
+
+    /**
+     * Returns the {@link VideoRecordEvent.Finalize} error code of the last finalized recording.
+     *
+     * <p>Only valid after the latch returned by {@link #acquireRecordVideoCountDownLatch()} has
+     * been released.
+     */
+    @VisibleForTesting
+    int getRecordVideoError() {
+        return mRecordVideoError;
     }
 
     @VisibleForTesting
