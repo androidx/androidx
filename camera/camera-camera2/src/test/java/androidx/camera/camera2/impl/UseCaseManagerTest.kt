@@ -56,7 +56,6 @@ import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -64,6 +63,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCamera2CameraControlCompat
 import androidx.camera.camera2.testing.FakeUseCaseCameraComponentBuilder
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis

@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.graph.LatestFrameMetadataImpl
 import androidx.camera.common.CameraFrameNumber
-import androidx.camera.common.CameraId as CommonCameraId
+import androidx.camera.common.CameraId
 import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.CaptureResultWrapper
 import androidx.camera.common.Metadata
@@ -62,8 +62,8 @@ public interface FrameMetadata : CaptureResultWrapper {
      */
     public val extraMetadata: Map<*, Any?>
 
-    override val cameraId: CommonCameraId
-        get() = CommonCameraId(camera.value)
+    override val cameraId: CameraId
+        get() = camera
 
     override val captureRequest: CaptureRequestWrapper
         get() = EmptyRequestMetadata

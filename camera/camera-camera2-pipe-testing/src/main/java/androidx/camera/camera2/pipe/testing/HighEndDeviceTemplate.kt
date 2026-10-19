@@ -28,10 +28,10 @@ import android.media.ImageReader
 import android.util.Range
 import android.util.Size
 import android.view.SurfaceHolder
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 
 /**

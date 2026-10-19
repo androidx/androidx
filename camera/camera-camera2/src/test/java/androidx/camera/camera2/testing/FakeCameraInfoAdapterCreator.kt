@@ -45,10 +45,10 @@ import androidx.camera.camera2.impl.ZoomControl
 import androidx.camera.camera2.internal.IntrinsicZoomCalculatorImpl
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider

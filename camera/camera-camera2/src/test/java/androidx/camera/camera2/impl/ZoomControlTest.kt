@@ -19,12 +19,12 @@ package androidx.camera.camera2.impl
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.pipe.CameraBackendId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeZoomCompat
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.testing.fakes.FakeCameraCaptureResult

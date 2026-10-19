@@ -16,7 +16,7 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 

@@ -18,11 +18,11 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.Metadata
 import java.lang.Class

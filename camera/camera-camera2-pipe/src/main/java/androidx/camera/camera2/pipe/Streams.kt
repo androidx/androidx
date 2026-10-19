@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.OutputStream.StreamUseCase.Companion.DEFAULT
 import androidx.camera.camera2.pipe.OutputStream.TimestampBase.Companion.TIMESTAMP_BASE_DEFAULT
 import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.compat.Api34Compat
+import androidx.camera.common.CameraId
 
 /**
  * A [CameraStream] is used on a [CameraGraph] to control what outputs that graph produces.

@@ -24,6 +24,7 @@ import android.util.Range
 import android.util.Size
 import androidx.annotation.RestrictTo
 import androidx.camera.common.CameraCharacteristicsMetadata
+import androidx.camera.common.CameraId
 
 /**
  * [CameraExtensionMetadata] is a compatibility wrapper around [CameraExtensionCharacteristics].

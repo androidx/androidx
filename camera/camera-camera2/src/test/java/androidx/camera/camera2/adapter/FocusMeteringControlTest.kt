@@ -39,7 +39,6 @@ import androidx.camera.camera2.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -49,6 +48,7 @@ import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeZoomCompat
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraControl
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult

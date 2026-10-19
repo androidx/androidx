@@ -20,13 +20,13 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.testing.EmulatorDeviceTemplate
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -29,7 +29,6 @@ import android.os.Build
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraConfig
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -39,6 +38,7 @@ import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraControl
 import androidx.camera.core.LowLightBoostState.ACTIVE
 import androidx.camera.core.LowLightBoostState.INACTIVE

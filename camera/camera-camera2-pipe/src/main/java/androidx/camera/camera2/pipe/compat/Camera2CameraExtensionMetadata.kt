@@ -26,10 +26,10 @@ import android.util.Size
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.lazyOrEmptySet
 import androidx.camera.camera2.pipe.core.lazyOrFalse
 import androidx.camera.camera2.pipe.core.lazyOrNull
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import java.lang.Class
 

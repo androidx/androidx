@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.CompletableDeferred
 
 /**

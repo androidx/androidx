@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraDevice.StateCallback
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.config.CameraPipeJob
 import androidx.camera.camera2.pipe.core.Debug
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.core.TimestampNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.CameraId
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 import javax.inject.Provider

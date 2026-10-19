@@ -29,7 +29,6 @@ import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
@@ -60,6 +59,7 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.common.CameraId
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat

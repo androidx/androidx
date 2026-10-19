@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.compat.CameraState
 import androidx.camera.camera2.pipe.compat.CameraStateClosed
@@ -25,6 +24,7 @@ import androidx.camera.camera2.pipe.compat.CameraStateOpen
 import androidx.camera.camera2.pipe.compat.CameraStateUnopened
 import androidx.camera.camera2.pipe.compat.ClosedReason
 import androidx.camera.camera2.pipe.compat.VirtualCamera
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

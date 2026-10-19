@@ -20,7 +20,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -44,6 +43,7 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds

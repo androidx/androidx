@@ -18,7 +18,6 @@ package androidx.camera.camera2.adapter
 
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Request
@@ -27,6 +26,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import androidx.camera.core.impl.CameraCaptureResult
 import java.lang.Class

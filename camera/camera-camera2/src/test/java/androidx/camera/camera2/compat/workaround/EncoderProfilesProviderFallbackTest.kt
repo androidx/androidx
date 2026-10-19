@@ -30,10 +30,10 @@ import android.media.CamcorderProfile.QUALITY_LOW
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P

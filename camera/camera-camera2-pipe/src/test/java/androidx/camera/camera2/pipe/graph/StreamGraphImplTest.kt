@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraBackendFactory
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelExternal
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
@@ -49,6 +48,7 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraId
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import javax.inject.Provider

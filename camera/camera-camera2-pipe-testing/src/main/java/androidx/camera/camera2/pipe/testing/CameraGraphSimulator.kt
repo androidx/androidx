@@ -21,7 +21,6 @@ import android.hardware.HardwareBuffer
 import android.hardware.camera2.CaptureResult
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraTimestamp
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.atomicfu.atomic

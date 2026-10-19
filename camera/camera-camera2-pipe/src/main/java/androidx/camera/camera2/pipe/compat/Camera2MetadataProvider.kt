@@ -17,8 +17,8 @@
 package androidx.camera.camera2.pipe.compat
 
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.common.CameraId
 
 /** Interface that can be used to query for [CameraMetadata] using an existing [CameraId]. */
 internal interface Camera2MetadataProvider {

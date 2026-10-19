@@ -17,10 +17,10 @@
 package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.CameraError
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.Camera2DeviceManager
 import androidx.camera.camera2.pipe.compat.VirtualCamera
 import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.common.CameraId
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 

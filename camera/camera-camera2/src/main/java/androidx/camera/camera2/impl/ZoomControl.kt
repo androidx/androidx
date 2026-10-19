@@ -28,7 +28,7 @@ import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.internal.ZoomMath.getLinearZoomFromZoomRatio
 import androidx.camera.camera2.internal.ZoomMath.getZoomRatioFromLinearZoom
 import androidx.camera.camera2.pipe.CameraDevices
-import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.common.CameraId
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ZoomState

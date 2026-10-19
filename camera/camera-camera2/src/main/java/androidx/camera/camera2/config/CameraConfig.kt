@@ -54,10 +54,10 @@ import androidx.camera.camera2.impl.ZoomControl
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.DoNotDisturbException
+import androidx.camera.common.CameraId
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal

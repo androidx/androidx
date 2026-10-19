@@ -20,12 +20,12 @@ import android.hardware.HardwareBuffer
 import android.hardware.camera2.CaptureResult
 import android.media.ImageReader
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageSource
+import androidx.camera.common.CameraId
 
 /**
  * The base interface for [CameraGraphSimulator] and [FrameGraphSimulator].

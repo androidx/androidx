@@ -23,9 +23,9 @@ import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEG
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.AttachedSurfaceInfo

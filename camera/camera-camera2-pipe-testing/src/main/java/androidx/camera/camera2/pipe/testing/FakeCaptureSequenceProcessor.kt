@@ -18,12 +18,12 @@ package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
 import androidx.annotation.GuardedBy
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraId
 import kotlinx.atomicfu.atomic
 
 /**
