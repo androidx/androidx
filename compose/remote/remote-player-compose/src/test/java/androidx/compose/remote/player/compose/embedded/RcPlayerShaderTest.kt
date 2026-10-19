@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -65,9 +66,10 @@ class RcPlayerShaderTest {
         rule.setContent {
             val state = rememberRcPlayerState(document)
             remoteContext = state.remoteContext
-            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+            Box(modifier = Modifier.size(100.dp).testTag("player")) { RcPlayer(state = state) }
         }
         rule.waitForIdle()
+        rule.onNodeWithTag("player").captureToImage()
 
         val bundle = PaintBundle().apply { setShader(shaderId) }
         val paintState = ComposeLocalPaint()

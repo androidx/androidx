@@ -324,7 +324,10 @@ private fun nativeShaderBrush(shader: Shader): Brush =
  * or below API 33 (RuntimeShader is API 33+); the caller then falls back to the solid color. The
  * caller wraps it as a Compose [Brush] (and keeps it for SHADER_MATRIX).
  */
-private fun buildRuntimeShader(shaderId: Int, remoteContext: RemoteContext): Shader? {
+private fun buildRuntimeShader(
+    shaderId: Int,
+    remoteContext: RemoteContext,
+): Shader? {
     if (shaderId == 0) return null
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     val data = remoteContext.mRemoteComposeState.getFromId(shaderId) as? ShaderData ?: return null
@@ -338,7 +341,24 @@ private fun buildRuntimeShader(shaderId: Int, remoteContext: RemoteContext): Sha
     return try {
         val shader = RuntimeShader(text)
         for (name in data.uniformFloatNames) {
-            shader.setFloatUniform(name, data.getUniformFloats(name))
+            val values = data.getUniformFloats(name)
+            // A single NaN-encoded value may reference a dynamic float list (e.g. a vec4 uniform);
+            // otherwise resolve each NaN-encoded variable to its current value.
+            val dynamicList =
+                values
+                    .singleOrNull()
+                    ?.takeIf { it.isNaN() }
+                    ?.let {
+                        remoteContext.collectionsAccess?.getDynamicFloats(Utils.idFromNan(it))
+                    }
+            shader.setFloatUniform(
+                name,
+                dynamicList
+                    ?: FloatArray(values.size) { k ->
+                        val v = values[k]
+                        if (v.isNaN()) remoteContext.getFloat(Utils.idFromNan(v)) else v
+                    },
+            )
         }
         for (name in data.uniformIntegerNames) {
             shader.setIntUniform(name, data.getUniformInts(name))
@@ -528,7 +548,7 @@ public fun updatePaintFromBundle(
                 // AGSL RuntimeShader on the paint, wrapped as a Compose Brush (mirrors the View
                 // player's AndroidPaintContext.setShader). Null (id 0 / missing data / pre-API-33)
                 // clears it. Keep the native shader so SHADER_MATRIX can set a local matrix.
-                val shaderId = array[i++]
+                val shaderId = derefId(array[i++], remoteContext)
                 val shader = buildRuntimeShader(shaderId, remoteContext)
                 paintState.nativeShader = shader
                 paintState.brush = shader?.let { nativeShaderBrush(it) }

@@ -19,6 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.EnterExitState
@@ -41,6 +42,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -102,7 +106,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.layout
@@ -115,9 +122,12 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
+import kotlin.math.ceil
+import kotlin.math.floor
 
 @Composable
 @Suppress("ModifierFactoryExtensionFunction")
@@ -138,6 +148,8 @@ internal fun ComponentModifiers.toModifier(
     ignoreVisibility: Boolean,
     ignoreClicks: Boolean,
 ): Modifier {
+    // Only components with draw operations can DRAW_CONTENT through a layer.
+    val contentLayer = if (drawOpsList != null) rememberGraphicsLayer() else null
     var modifier: Modifier = Modifier
     // Track whether a DrawContentOperation has already been attached to the modifier chain, so
     // that subsequent clip operations are hoisted before drawWithContent without bypassing
@@ -238,6 +250,7 @@ internal fun ComponentModifiers.toModifier(
                                 textMeasurer = textMeasurer,
                                 onDrawContent = { drawContent() },
                                 graph = graph,
+                                contentLayer = contentLayer,
                             )
                         }
                     } else {
@@ -271,6 +284,7 @@ internal fun ComponentModifiers.toModifier(
                 textMeasurer = textMeasurer,
                 onDrawContent = { drawContent() },
                 graph = graph,
+                contentLayer = contentLayer,
             )
         }
     }
@@ -511,6 +525,7 @@ internal fun RcPlayerAnimatedVisibility(
             }
         val innerModifier =
             sizeTrackerModifier.visibilityAnimationDraw(
+                component = component,
                 animSpec = animSpec,
                 isActive = isActive,
                 isEntering = isEntering,
@@ -537,22 +552,39 @@ private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
 
 @Composable
 private fun Modifier.visibilityAnimationDraw(
+    component: LayoutComponent,
     animSpec: AnimationSpec,
     isActive: Boolean,
     isEntering: Boolean,
     visProgressProvider: () -> Float,
 ): Modifier {
+    val remoteContext = LocalRemoteContext.current
+    val graph = LocalGraphContext.current
+    val textMeasurer = rememberTextMeasurer()
     val contentLayer = rememberGraphicsLayer()
 
     return this.drawWithContent {
         val visProgress = visProgressProvider()
         if (visProgress <= 0.0001f) {
+            // Hold invisible during AFTER-enter Phase 1, BEFORE-exit Phase 2, or when INVISIBLE
             return@drawWithContent
         }
         if (isActive) {
             val anim = if (isEntering) animSpec.enterAnimation else animSpec.exitAnimation
+            val fnId = if (isEntering) animSpec.enterFunctionId else animSpec.exitFunctionId
             val progress = (if (isEntering) visProgress else 1f - visProgress).coerceIn(0f, 1f)
             when (anim) {
+                AnimationSpec.ANIMATION.CUSTOM -> {
+                    executeCustomVisibilityAnimation(
+                        component = component,
+                        functionId = fnId,
+                        progress = progress,
+                        remoteContext = remoteContext,
+                        graph = graph,
+                        textMeasurer = textMeasurer,
+                        contentLayer = contentLayer,
+                    )
+                }
                 AnimationSpec.ANIMATION.ROTATE -> {
                     // A full turn, fading in on enter and out on exit.
                     contentLayer.alpha = if (isEntering) progress else 1f - progress
@@ -567,6 +599,111 @@ private fun Modifier.visibilityAnimationDraw(
             }
         } else {
             drawContent()
+        }
+    }
+}
+
+private val activeFunctionDepth = mutableObjectIntMapOf<FloatFunctionDefine>()
+
+private fun ContentDrawScope.executeCustomVisibilityAnimation(
+    component: LayoutComponent,
+    functionId: Int,
+    progress: Float,
+    remoteContext: RemoteContext,
+    graph: GraphContext?,
+    textMeasurer: TextMeasurer,
+    contentLayer: GraphicsLayer,
+) {
+    if (functionId == -1) {
+        drawContent()
+        return
+    }
+    val fn = remoteContext.getObject(functionId) as? FloatFunctionDefine
+    if (fn == null) {
+        drawContent()
+        return
+    }
+    val args = fn.args
+    val currentDepth =
+        synchronized(activeFunctionDepth) {
+            activeFunctionDepth.getOrDefault(fn, 0) + fn.executionDepth
+        }
+    var prevArgs: FloatArray? = null
+    var prevIdInt = 0
+    if (currentDepth > 0) {
+        prevArgs = FloatArray(args.size) { i -> remoteContext.getFloat(args[i]) }
+        prevIdInt = if (args.size >= 6) remoteContext.getInteger(args[5]) else 0
+    }
+
+    val rawX = component.x
+    val rawY = component.y
+    val compW = if (component.width > 0f) component.width else size.width
+    val compH = if (component.height > 0f) component.height else size.height
+    component.width = compW
+    component.height = compH
+    val x = floor(rawX)
+    val y = floor(rawY)
+    val w = ceil((rawX - x) + compW)
+    val h = ceil((rawY - y) + compH)
+
+    if (args.size >= 1) remoteContext.loadFloat(args[0], progress)
+    if (args.size >= 2) remoteContext.loadFloat(args[1], w)
+    if (args.size >= 3) remoteContext.loadFloat(args[2], h)
+    if (args.size >= 4) remoteContext.loadFloat(args[3], x)
+    if (args.size >= 5) remoteContext.loadFloat(args[4], y)
+    if (args.size >= 6) {
+        remoteContext.loadInteger(args[5], component.componentId)
+        remoteContext.loadFloat(args[5], component.componentId.toFloat())
+    }
+
+    val prevComponent = remoteContext.mLastComponent
+    remoteContext.mLastComponent = component
+    BitmapData.pushOffscreenScope(remoteContext)
+    synchronized(activeFunctionDepth) {
+        activeFunctionDepth[fn] = activeFunctionDepth.getOrDefault(fn, 0) + 1
+    }
+    val offscreenState = OffscreenDrawState()
+    drawContext.canvas.save()
+    drawContext.canvas.translate(-rawX, -rawY)
+    try {
+        executeOperations(
+            operations = fn.list,
+            remoteContext = remoteContext,
+            textMeasurer = textMeasurer,
+            paintState = ComposeLocalPaint(),
+            onDrawContent = {
+                if (offscreenState.isDrawingToOffscreen) {
+                    drawContext.canvas.save()
+                    drawContext.canvas.translate(rawX - x, rawY - y)
+                    try {
+                        this@executeCustomVisibilityAnimation.drawContent()
+                    } finally {
+                        drawContext.canvas.restore()
+                    }
+                } else {
+                    this@executeCustomVisibilityAnimation.drawContent()
+                }
+            },
+            graph = graph,
+            offscreenState = offscreenState,
+            contentLayer = contentLayer,
+            contentOrigin = Offset(rawX, rawY),
+        )
+    } finally {
+        drawContext.canvas.restore()
+        synchronized(activeFunctionDepth) {
+            val next = activeFunctionDepth.getOrDefault(fn, 1) - 1
+            if (next <= 0) activeFunctionDepth.remove(fn) else activeFunctionDepth[fn] = next
+        }
+        BitmapData.popOffscreenScope(remoteContext)
+        remoteContext.mLastComponent = prevComponent
+        if (prevArgs != null) {
+            for (i in args.indices) {
+                remoteContext.loadFloat(args[i], prevArgs[i])
+            }
+            if (args.size >= 6) {
+                remoteContext.loadInteger(args[5], prevIdInt)
+            }
         }
     }
 }
