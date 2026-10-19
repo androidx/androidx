@@ -64,6 +64,11 @@ public class IgnoreVideoRecordingProblematicDeviceRule : TestRule {
                 "Emulator API 30 crashes running this test.",
                 Build.VERSION.SDK_INT == 30 && AndroidUtil.isEmulator(),
             )
+            // Skip test for b/574140345
+            Assume.assumeFalse(
+                "Emulator API 37 video encoder fails to produce data in time.",
+                Build.VERSION.SDK_INT == 37 && AndroidUtil.isEmulator(),
+            )
         }
     }
 }
