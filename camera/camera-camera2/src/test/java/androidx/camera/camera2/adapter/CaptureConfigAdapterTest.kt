@@ -28,13 +28,20 @@ import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeCameraGraph
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeSurface
+import androidx.camera.common.CameraFrameNumber
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
@@ -47,6 +54,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -339,8 +347,74 @@ class CaptureConfigAdapterTest {
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
         }
 
+    @Test
+    fun mapToRequest_zslWithMissingCameraCaptureResult_closesDequeuedImageProxy() {
+        val fakeImageInfo = FakeImageInfo()
+        val fakeImageProxy = FakeImageProxy(fakeImageInfo)
+        val fakeZslControl =
+            object : ZslControl by ZslControlNoOpImpl() {
+                override fun dequeueImageFromBuffer(): ImageProxy? = fakeImageProxy
+            }
+        val adapter = createConfigAdapter(zslControl = fakeZslControl)
+        val captureConfig =
+            CaptureConfig.Builder()
+                .apply {
+                    addSurface(surface)
+                    templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                }
+                .build()
+
+        val request =
+            adapter.mapToRequest(
+                captureConfig,
+                RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                Camera2ImplConfig.Builder().build(),
+            )
+
+        assertThat(request.inputRequest).isNull()
+        assertThat(fakeImageProxy.isClosed).isTrue()
+    }
+
+    @Test
+    fun mapToRequest_zslOnRequestSequenceAborted_closesDequeuedImageProxy() {
+        val cameraCaptureResult =
+            CaptureResultAdapter(FakeRequestMetadata(), CameraFrameNumber(1L), FakeFrameInfo())
+        val fakeImageProxy =
+            FakeImageProxy(CameraCaptureResultImageInfo(cameraCaptureResult)).apply {
+                image = mock()
+            }
+        val fakeZslControl =
+            object : ZslControl by ZslControlNoOpImpl() {
+                override fun dequeueImageFromBuffer(): ImageProxy? = fakeImageProxy
+            }
+        val adapter = createConfigAdapter(zslControl = fakeZslControl)
+        val captureConfig =
+            CaptureConfig.Builder()
+                .apply {
+                    addSurface(surface)
+                    templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                }
+                .build()
+
+        val request =
+            adapter.mapToRequest(
+                captureConfig,
+                RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
+                Camera2ImplConfig.Builder().build(),
+            )
+
+        assertThat(request.inputRequest).isNotNull()
+        assertThat(fakeImageProxy.isClosed).isFalse()
+
+        val requestMetadata = FakeRequestMetadata()
+        request.listeners.forEach { it.onRequestSequenceAborted(requestMetadata) }
+
+        assertThat(fakeImageProxy.isClosed).isTrue()
+    }
+
     private fun createConfigAdapter(
-        templateParamsOverride: TemplateParamsOverride = NoOpTemplateParamsOverride
+        templateParamsOverride: TemplateParamsOverride = NoOpTemplateParamsOverride,
+        zslControl: ZslControl = ZslControlNoOpImpl(),
     ): CaptureConfigAdapter {
         val cameraStateAdapter = CameraStateAdapter(CameraSessionLifecycleAdapter())
         return CaptureConfigAdapter(
@@ -354,7 +428,7 @@ class CaptureConfigAdapterTest {
                     defaultSurfaceToStreamMap = mapOf(surface to StreamId(0)),
                 ),
             cameraProperties = fakeCameraProperties,
-            zslControl = ZslControlNoOpImpl(),
+            zslControl = zslControl,
             threads = fakeUseCaseThreads,
             templateParamsOverride = templateParamsOverride,
         )
