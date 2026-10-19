@@ -73,6 +73,15 @@ public abstract class RxWorker extends ListenableWorker {
         super(appContext, workerParams);
     }
 
+    /**
+     * Starts the work by calling {@link #createWork()} and subscribing to the returned
+     * {@link Single}.
+     * <p>
+     * This method is {@code final} and cannot be overridden. Override {@link #createWork()}
+     * instead to define your work.
+     *
+     * @return A {@link ListenableFuture} with the {@link Result} of the computation
+     */
     @Override
     public final @NonNull ListenableFuture<Result> startWork() {
         return convert(createWork());
