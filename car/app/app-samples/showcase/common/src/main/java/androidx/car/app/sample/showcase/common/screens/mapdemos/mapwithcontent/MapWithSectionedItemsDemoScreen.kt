@@ -40,6 +40,8 @@ import androidx.car.app.sample.showcase.common.utils.createBadge
 import androidx.car.app.sample.showcase.common.utils.createGridItem
 import androidx.car.app.sample.showcase.common.utils.createGridSection
 import androidx.car.app.sample.showcase.common.utils.createRow
+import androidx.car.app.sample.showcase.common.utils.withApiGuard
+import androidx.car.app.versioning.CarAppApiLevels
 
 /** Demonstrates how to present a [MapWithContentTemplate] alongside a [SectionedItemTemplate]. */
 @OptIn(ExperimentalCarApi::class)
@@ -62,6 +64,9 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
         val sectionedTemplate =
             with(SectionedItemTemplate.Builder()) {
                 setHeader(makeHeader())
+                carContext.withApiGuard(CarAppApiLevels.LEVEL_9) {
+                    setActions(makeStickyActionsSection())
+                }
                 addSection(makeGridSection())
                 addSection(makeListSection())
                 build()
@@ -82,10 +87,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     }
 
     private fun makeListSection(): RowSection {
-        val primaryAction =
-            createAction(title = navigateTitle, icon = icNavigate, flags = Action.FLAG_PRIMARY)
-        val secondaryAction = createAction(title = "", icon = icRoute)
-
         val hovToggle =
             Toggle.Builder { checked -> isHovEnabled = checked }.setChecked(isHovEnabled).build()
 
@@ -94,8 +95,23 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
             .addItem(createRow(title = "HOV", toggle = hovToggle))
             .addItem(createRow(title = "Last visit 5 days", image = icRefresh))
             .addItem(createRow(title = "(555) 555-0123", image = icInfo))
-            .addItem(createRow(title = " ", actions = listOf(primaryAction, secondaryAction)))
             .build()
+    }
+
+    private fun makeStickyActionsSection(): List<Action> {
+        val primaryAction =
+            createAction(
+                title = navigateTitle,
+                icon = icNavigate,
+                flags = Action.FLAG_PRIMARY,
+                clickListener = { makeToast("Clicked Primary Action!").show() },
+            )
+        val secondaryAction =
+            createAction(
+                icon = icRoute,
+                clickListener = { makeToast("Clicked Secondary Action!").show() },
+            )
+        return listOf(primaryAction, secondaryAction)
     }
 
     private fun makeGridSection(): GridSection {
