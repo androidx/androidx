@@ -37,7 +37,7 @@ public fun SubspaceModifier.scale(
 private class ScaleElement(private val scale: Float) : SubspaceModifierNodeElement<ScaleNode>() {
 
     init {
-        require(scale > 0.0f) { "scale values must be > 0.0f" }
+        require(scale.isFinite() && scale > 0.0f) { "scale values must be finite and > 0.0f" }
     }
 
     override fun create(): ScaleNode = ScaleNode(scale)
