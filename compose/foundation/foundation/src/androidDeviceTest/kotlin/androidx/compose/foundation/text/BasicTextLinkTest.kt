@@ -946,6 +946,47 @@ class BasicTextLinkTest {
     }
 
     @Test
+    fun multipleLinks_simultaneousStatefulStyles_appliedToBothLinks() {
+        assumeTrue(ComposeFoundationFlags.isLinkPerformanceOptimizationEnabled)
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url(
+                    "link1",
+                    TextLinkStyles(focusedStyle = SpanStyle(color = Color.Green)),
+                )
+            ) {
+                append("link1")
+            }
+            append(" and ")
+            withLink(
+                Url(
+                    "link2",
+                    TextLinkStyles(pressedStyle = SpanStyle(color = Color.Blue)),
+                )
+            ) {
+                append("link2")
+            }
+        }
+        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
+
+        val links = rule.onAllNodes(hasClickAction(), useUnmergedTree = true)
+        links[0].requestFocus()
+        links[1].performTouchInput { down(center) }
+
+        rule.waitForIdle()
+
+        val styles =
+            rule
+                .onNodeWithText("link1 and link2")
+                .fetchTextLayoutResult()
+                .layoutInput
+                .text
+                .spanStyles
+        val colors = styles.map { it.item.color }.filter { it != Color.Unspecified }
+        assertThat(colors).containsExactly(Color.Green, Color.Blue)
+    }
+
+    @Test
     fun linkAnnotation_url_customInteractionListener_called() {
         var clickedUrlAnnotation: Url? = null
         setupContent {
