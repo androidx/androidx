@@ -44,7 +44,11 @@ dependencies {
     compileOnly(project(":compose:runtime:runtime"))
     compileOnly(project(":compose:ui:ui-graphics"))
     compileOnly(project(":compose:ui:ui"))
-    implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.2.0")
+    // We are using the version provided by the R8 toolchain because we cannot use the D8
+    // that comes with AGP directly. If D8 is failing to build the inspector due to kotlin metadata
+    // errors try upgrading the version of D8 used in DexInspectorTask.
+    // Do not hardcode the version of kotlinMetadataJvm here.
+    implementation(libs.kotlinMetadataJvm)
     // we ignore its transitive dependencies, because ui-inspection should
     // depend on them as "compile-only" deps.
     implementation(project(":compose:ui:ui-tooling-data"), {

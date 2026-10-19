@@ -45,6 +45,7 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
                     !it.name.endsWith("AnnotationProcessorClasspath") &&
                     !it.name.endsWith("LintChecksClasspath") &&
                     !it.name.startsWith("benchmarkGenerator") &&
+                    !it.name.startsWith("importInspector") &&
                     !it.name.startsWith("kotlinAbi") &&
                     !it.name.startsWith("kotlinCompiler") &&
                     !it.name.startsWith("kotlinBuild") &&
