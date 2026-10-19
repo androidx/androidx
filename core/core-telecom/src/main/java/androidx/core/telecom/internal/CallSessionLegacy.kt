@@ -765,6 +765,19 @@ internal class CallSessionLegacy(
         }
     }
 
+    override fun onAbort() {
+        CoroutineScope(coroutineContext).launch {
+            try {
+                onDisconnectCallback(DisconnectCause(DisconnectCause.CANCELED))
+            } catch (e: Exception) {
+                throw e
+            } finally {
+                setConnectionDisconnect(DisconnectCause(DisconnectCause.CANCELED))
+                blockingSessionExecution.complete(Unit)
+            }
+        }
+    }
+
     override fun onReject(rejectReason: Int) {
         CoroutineScope(coroutineContext).launch {
             try {
