@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiHostApi::class)
-
 package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 
 /**
  * [Modifier.Node]s that implement ObserverNode can provide their own implementation of
@@ -38,13 +35,13 @@ public interface ObserverModifierNode : DelegatableNode {
 }
 
 internal class ObserverNodeOwnerScope(internal val observerNode: ObserverModifierNode) :
-    ObservationTarget {
-    override val isObservationValid: Boolean
+    OwnerScope {
+    override val isValidOwnerScope: Boolean
         get() = observerNode.node.isAttached
 
     companion object {
         internal val OnObserveReadsChanged: (ObserverNodeOwnerScope) -> Unit = {
-            if (it.isObservationValid) it.observerNode.onObservedReadsChanged()
+            if (it.isValidOwnerScope) it.observerNode.onObservedReadsChanged()
         }
     }
 }

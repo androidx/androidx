@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiHostApi::class)
-
 package androidx.compose.ui.node
 
 import androidx.collection.MutableObjectList
@@ -39,7 +37,6 @@ import androidx.compose.ui.layout.RulerScope
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.layout.VerticalRuler
 import androidx.compose.ui.layout.positionOnScreen
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -51,7 +48,7 @@ import androidx.compose.ui.unit.round
  * between the two are extracted here.
  */
 internal abstract class LookaheadCapablePlaceable :
-    Placeable(), MeasureScopeWithLayoutNode, MotionReferencePlacementDelegate, ObservationTarget {
+    Placeable(), MeasureScopeWithLayoutNode, MotionReferencePlacementDelegate, OwnerScope {
     abstract val position: IntOffset
     abstract val child: LookaheadCapablePlaceable?
     abstract val parent: LookaheadCapablePlaceable?
@@ -79,8 +76,8 @@ internal abstract class LookaheadCapablePlaceable :
      */
     override var isPlacedUnderMotionFrameOfReference: Boolean = false
 
-    override val isObservationValid: Boolean
-        get() = layoutNode.isObservationValid
+    override val isValidOwnerScope: Boolean
+        get() = layoutNode.isValidOwnerScope
 
     override fun updatePlacedUnderMotionFrameOfReference(newMFR: Boolean) {
         val parentNode = parent?.layoutNode
@@ -546,12 +543,12 @@ internal abstract class LookaheadCapablePlaceable :
 
     companion object {
         private val onCommitAffectingRuler: (PlaceableResult) -> Unit = { result ->
-            if (result.isObservationValid) {
+            if (result.isValidOwnerScope) {
                 result.placeable.captureRulersIfNeeded(result)
             }
         }
         private val onCommitAffectingSingleRuler: (PlaceableResult) -> Unit = { result ->
-            if (result.isObservationValid) {
+            if (result.isValidOwnerScope) {
                 val ruler = result.ruler
                 if (ruler != null) {
                     result.placeable.resetSingleRulerRead(ruler)
@@ -565,8 +562,8 @@ private class PlaceableResult(
     var result: MeasureResult,
     val placeable: LookaheadCapablePlaceable,
     val ruler: Ruler? = null,
-) : ObservationTarget {
-    override val isObservationValid: Boolean
+) : OwnerScope {
+    override val isValidOwnerScope: Boolean
         get() = placeable.coordinates.isAttached
 }
 

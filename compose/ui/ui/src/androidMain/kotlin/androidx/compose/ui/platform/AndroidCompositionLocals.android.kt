@@ -31,8 +31,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalWithComputedDefaultOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.res.ImageVectorCache
-import androidx.compose.ui.res.ResourceIdCache
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.window.PopupLayout
@@ -101,10 +99,16 @@ public val LocalResources: ProvidableCompositionLocal<Resources> =
     }
 
 internal val LocalImageVectorCache =
-    staticCompositionLocalOf<ImageVectorCache> { noLocalProvidedFor("LocalImageVectorCache") }
+    computedDefaultOf("LocalImageVectorCache") {
+        LocalAndroidComposeView.currentValue?.composeViewContext?.imageVectorCache
+            ?: noLocalProvidedFor("LocalImageVectorCache")
+    }
 
 internal val LocalResourceIdCache =
-    staticCompositionLocalOf<ResourceIdCache> { noLocalProvidedFor("LocalResourceIdCache") }
+    computedDefaultOf("LocalResourceIdCache") {
+        LocalAndroidComposeView.currentValue?.composeViewContext?.resourceIdCache
+            ?: noLocalProvidedFor("LocalResourceIdCache")
+    }
 
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",

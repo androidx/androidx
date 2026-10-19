@@ -17,7 +17,6 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 
 /**
  * Performs snapshot observation for blocks like draw and layout which should be re-invoked
@@ -27,49 +26,48 @@ import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
     "CallbackName", // TODO rename this and SnapshotStateObserver. b/173401548
     "NOTHING_TO_INLINE",
 )
-@OptIn(ExperimentalComposeUiHostApi::class)
 internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -> Unit) {
 
     private val observer = SnapshotStateObserver(onChangedExecutor)
 
     private val onCommitAffectingLookaheadMeasure: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRemeasure()
         }
     }
 
     private val onCommitAffectingMeasure: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestRemeasure()
         }
     }
 
     private val onCommitAffectingSemantics: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.invalidateSemantics()
         }
     }
 
     private val onCommitAffectingLayout: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestRelayout()
         }
     }
 
     private val onCommitAffectingLayoutModifier: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestRelayout()
         }
     }
 
     private val onCommitAffectingLayoutModifierInLookahead: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRelayout()
         }
     }
 
     private val onCommitAffectingLookahead: (LayoutNode) -> Unit = { layoutNode ->
-        if (layoutNode.isObservationValid) {
+        if (layoutNode.isValidOwnerScope) {
             layoutNode.requestLookaheadRelayout()
         }
     }
@@ -132,7 +130,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
      * state changes.
      */
     // inlined as used only in one place to not add extra function call overhead
-    internal inline fun <T : ObservationTarget> observeReads(
+    internal inline fun <T : OwnerScope> observeReads(
         target: T,
         noinline onChanged: (T) -> Unit,
         noinline block: () -> Unit,
@@ -141,7 +139,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     }
 
     internal fun clearInvalidObservations() {
-        observer.clearIf { !(it as ObservationTarget).isObservationValid }
+        observer.clearIf { !(it as OwnerScope).isValidOwnerScope }
     }
 
     internal fun clear(target: Any) {
