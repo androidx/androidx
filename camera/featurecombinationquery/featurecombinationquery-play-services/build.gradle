@@ -51,4 +51,7 @@ androidx {
     inceptionYear = "2024"
     description = "Camera feature combination components for the Camera Library, a " +
             "library providing camera feature combination with Google Play Services dependencies."
+    deviceTests {
+        maxShardCount = 1
+    }
 }
