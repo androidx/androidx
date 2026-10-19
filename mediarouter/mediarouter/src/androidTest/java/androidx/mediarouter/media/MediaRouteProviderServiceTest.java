@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaRoute2ProviderService;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,6 +50,7 @@ import android.os.Messenger;
 import android.text.TextUtils;
 
 import androidx.mediarouter.media.MediaRouteProviderService.ClientInfo;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -71,6 +73,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test for {@link MediaRouteProviderService}.
@@ -637,6 +640,49 @@ public class MediaRouteProviderServiceTest {
         registerClient(fakeClient2.mMessenger);
 
         assertTrue(client2Registered.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @SmallTest
+    @Test
+    @UiThreadTest
+    public void onBind_whenOnCreateMediaRouteProviderReturnsNull_returnsNullForV1Intent() {
+        AtomicInteger onCreateCount = new AtomicInteger();
+        MediaRouteProviderService service =
+                new MediaRouteProviderService() {
+                    @Override
+                    public @Nullable MediaRouteProvider onCreateMediaRouteProvider() {
+                        onCreateCount.incrementAndGet();
+                        return null;
+                    }
+                };
+        service.attachBaseContext(ApplicationProvider.getApplicationContext());
+
+        IBinder binder = service.onBind(new Intent(MediaRouteProviderProtocol.SERVICE_INTERFACE));
+
+        assertNull(binder);
+        assertEquals(1, onCreateCount.get());
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    @SmallTest
+    @Test
+    @UiThreadTest
+    public void onBind_whenOnCreateMediaRouteProviderReturnsNull_returnsNullForV2Intent() {
+        AtomicInteger onCreateCount = new AtomicInteger();
+        MediaRouteProviderService service =
+                new MediaRouteProviderService() {
+                    @Override
+                    public @Nullable MediaRouteProvider onCreateMediaRouteProvider() {
+                        onCreateCount.incrementAndGet();
+                        return null;
+                    }
+                };
+        service.attachBaseContext(ApplicationProvider.getApplicationContext());
+
+        IBinder binder = service.onBind(new Intent(MediaRoute2ProviderService.SERVICE_INTERFACE));
+
+        assertNull(binder);
+        assertEquals(1, onCreateCount.get());
     }
 
     private void registerClient(Messenger receiveMessenger) throws Exception {
