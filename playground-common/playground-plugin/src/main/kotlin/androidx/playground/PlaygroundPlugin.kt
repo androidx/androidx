@@ -29,24 +29,24 @@ class PlaygroundPlugin : Plugin<Settings> {
 
     private fun validateJvm(settings: Settings) {
         // validate JVM version to print an understandable error if it is not set to the
-        // required value (21)
+        // required value (25)
         val jvmVersion = System.getProperty("java.vm.specification.version")
-        check(jvmVersion == "21") {
+        check(jvmVersion == "25") {
             """
-                AndroidX build must be invoked with JDK 21.
+                AndroidX build must be invoked with JDK 25.
                 ${
                     if (settings.gradle.startParameter.projectProperties.containsKey(
                             "android.injected.invoked.from.ide"
                         )
                     ) {
                         """
-                            Make sure to set the Gradle JDK to JDK 21 in the project settings.
+                            Make sure to set the Gradle JDK to JDK 25 in the project settings.
                             File -> Settings (on Mac Android Studio -> Preferences) ->
                             Build, Execution, Deployment -> Build Tools ->
                             Gradle -> Gradle JDK"
                         """
                         } else {
-                        "Make sure your JAVA_HOME environment variable points to Java 21 JDK."
+                        "Make sure your JAVA_HOME environment variable points to Java 25 JDK."
                     }
                 }
                 Current version: $jvmVersion
