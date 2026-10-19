@@ -91,6 +91,62 @@ class ProjectedContextTest {
     }
 
     @Test
+    fun createProjectedDeviceContext_staleDeviceWithoutDisplay_returnsDeviceWithActiveDisplay() {
+        clearVirtualDevices()
+        createVirtualDevice()
+        val staleDeviceId = virtualDeviceManager.virtualDevices.last().deviceId
+        val activeDevice = createVirtualDevice()
+        val activeDeviceId = virtualDeviceManager.virtualDevices.last().deviceId
+        val activeDisplay = createVirtualDisplayForDevice(activeDevice)
+
+        val projectedContext = ProjectedContext.createProjectedDeviceContext(context)
+        val activityOptions = ProjectedContext.createProjectedActivityOptions(context)
+
+        assertThat(projectedContext.deviceId).isNotEqualTo(staleDeviceId)
+        assertThat(projectedContext.deviceId).isEqualTo(activeDeviceId)
+        assertThat(activityOptions.launchDisplayId).isEqualTo(activeDisplay.display.displayId)
+    }
+
+    @Test
+    fun createProjectedDeviceContext_newerDeviceWithoutDisplay_prefersDeviceWithActiveDisplay() {
+        val activeDeviceId = virtualDeviceManager.virtualDevices.single().deviceId
+        createVirtualDevice()
+        val deviceWithoutDisplayId = virtualDeviceManager.virtualDevices.last().deviceId
+
+        val projectedContext = ProjectedContext.createProjectedDeviceContext(context)
+
+        assertThat(projectedContext.deviceId).isNotEqualTo(deviceWithoutDisplayId)
+        assertThat(projectedContext.deviceId).isEqualTo(activeDeviceId)
+    }
+
+    @Test
+    fun createProjectedDeviceContext_multipleDevicesWithoutDisplays_returnsMostRecentlyCreatedDevice() {
+        clearVirtualDevices()
+        createVirtualDevice()
+        val olderDeviceId = virtualDeviceManager.virtualDevices.last().deviceId
+        createVirtualDevice()
+        val newerDeviceId = virtualDeviceManager.virtualDevices.last().deviceId
+
+        val projectedContext = ProjectedContext.createProjectedDeviceContext(context)
+
+        assertThat(projectedContext.deviceId).isNotEqualTo(olderDeviceId)
+        assertThat(projectedContext.deviceId).isEqualTo(newerDeviceId)
+    }
+
+    @Test
+    fun createProjectedDeviceContext_multipleDevicesWithDisplays_returnsMostRecentlyCreatedDevice() {
+        val olderDeviceId = virtualDeviceManager.virtualDevices.single().deviceId
+        val newerDevice = createVirtualDevice()
+        val newerDeviceId = virtualDeviceManager.virtualDevices.last().deviceId
+        createVirtualDisplayForDevice(newerDevice)
+
+        val projectedContext = ProjectedContext.createProjectedDeviceContext(context)
+
+        assertThat(projectedContext.deviceId).isNotEqualTo(olderDeviceId)
+        assertThat(projectedContext.deviceId).isEqualTo(newerDeviceId)
+    }
+
+    @Test
     fun createHostDeviceContext_returnsContext() {
         assertThat(ProjectedContext.createHostDeviceContext(context).deviceId)
             .isEqualTo(Context.DEVICE_ID_DEFAULT)
@@ -217,6 +273,14 @@ class ProjectedContextTest {
         }
 
     // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
+    private fun clearVirtualDevices() {
+        ReflectionHelpers.getStaticField<MutableList<*>>(
+                ShadowVirtualDeviceManager::class.java,
+                "mVirtualDevices",
+            )
+            .clear()
+    }
+
     private fun createVirtualDevice(): Any? {
         val virtualDeviceParamsBuilderClass =
             Class.forName("android.companion.virtual.VirtualDeviceParams\$Builder")
