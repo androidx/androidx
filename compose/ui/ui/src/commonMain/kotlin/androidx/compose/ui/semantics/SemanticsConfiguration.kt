@@ -18,114 +18,25 @@ package androidx.compose.ui.semantics
 
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.platform.simpleIdentityToString
-
-/**
- * Read-only view of semantics properties.
- *
- * [SemanticsConfiguration] implements this interface. [SemanticsNode.unmergedConfig] and
- * [SemanticsNode.mergedConfig] return it so that hosts can read semantics without mutating them.
- */
-@ExperimentalComposeUiHostApi
-public interface SemanticsPropertyProvider {
-
-    /**
-     * Returns the value for [key], or throws [IllegalStateException] if not set.
-     *
-     * @param key Property key to retrieve.
-     * @return Value associated with [key].
-     * @throws IllegalStateException if [key] is not present.
-     */
-    public operator fun <T> get(key: SemanticsPropertyKey<T>): T
-
-    /**
-     * Returns the value for [key], or runs [defaultValue] if not set.
-     *
-     * @param key Property key to retrieve.
-     * @param defaultValue Fallback supplier run when [key] is not present.
-     * @return Value associated with [key], or the result of [defaultValue].
-     */
-    public fun <T> getOrElse(key: SemanticsPropertyKey<T>, defaultValue: () -> T): T
-
-    /**
-     * Returns the value for [key], or runs [defaultValue] if not set.
-     *
-     * @param key Property key to retrieve.
-     * @param defaultValue Fallback supplier run when [key] is not present.
-     * @return Value associated with [key], or the result of [defaultValue].
-     */
-    public fun <T> getOrElseNullable(key: SemanticsPropertyKey<T>, defaultValue: () -> T?): T?
-
-    /**
-     * Returns whether [key] is present in this provider.
-     *
-     * @param key Property key to check.
-     * @return `true` if [key] is present, `false` otherwise.
-     */
-    public operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean
-
-    /**
-     * Keys in this provider whose [SemanticsPropertyKey.accessibilityExtraKey] is non-null.
-     *
-     * Hosts expose these values as accessibility extras. Returns an empty set if there are none.
-     */
-    public val accessibilityExtraKeys: Set<SemanticsPropertyKey<*>>
-
-    /**
-     * Whether this configuration declares that it merges the semantics of its descendants
-     * (`Modifier.semantics(mergeDescendants = true)`).
-     *
-     * This is the declared value only. [SemanticsNode.isMergingSemanticsOfDescendants] is `true`
-     * only when this value is `true` **and** the node was created with
-     * [SemanticsNode.mergingEnabled].
-     */
-    public val isMergingSemanticsOfDescendants: Boolean
-
-    /**
-     * Invokes [action] for each property key and value in this provider.
-     *
-     * @param action Callback invoked with each [SemanticsPropertyKey] and its associated value.
-     */
-    public fun forEachProperty(action: (key: SemanticsPropertyKey<*>, value: Any?) -> Unit)
-
-    /**
-     * Returns `true` if at least one property in this provider matches [predicate]. Stops at the
-     * first match.
-     *
-     * @param predicate Predicate invoked with each [SemanticsPropertyKey] and its associated value.
-     */
-    public fun anyProperty(
-        predicate: (key: SemanticsPropertyKey<*>, value: Any?) -> Boolean
-    ): Boolean
-}
 
 /**
  * Describes the semantic information associated with the owning component
  *
  * The information provided in the configuration is used to to generate the semantics tree.
  */
-@OptIn(ExperimentalComposeUiHostApi::class)
 public class SemanticsConfiguration :
-    SemanticsPropertyProvider,
-    SemanticsPropertyReceiver,
-    Iterable<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
+    SemanticsPropertyReceiver, Iterable<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
 
     internal val props: MutableScatterMap<SemanticsPropertyKey<*>, Any?> = mutableScatterMapOf()
     private var mapWrapper: Map<SemanticsPropertyKey<*>, Any?>? = null
 
-    internal var _accessibilityExtraKeys: MutableScatterSet<SemanticsPropertyKey<*>>? = null
-    private var setWrapper: Set<SemanticsPropertyKey<*>>? = null
-
-    @ExperimentalComposeUiHostApi
-    override val accessibilityExtraKeys: Set<SemanticsPropertyKey<*>>
-        get() {
-            val extraKeys = _accessibilityExtraKeys ?: return emptySet()
-            @Suppress("AsCollectionCall")
-            return setWrapper ?: extraKeys.asSet().also { setWrapper = it }
-        }
+    private var _accessibilityExtraKeys: MutableScatterSet<SemanticsPropertyKey<*>>? = null
+    internal val accessibilityExtraKeys: ScatterSet<SemanticsPropertyKey<*>>?
+        get() = _accessibilityExtraKeys
 
     /**
      * Retrieves the value for the given property, if one has been set. If a value has not been set,
@@ -133,7 +44,7 @@ public class SemanticsConfiguration :
      */
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
-    override public operator fun <T> get(key: SemanticsPropertyKey<T>): T {
+    public operator fun <T> get(key: SemanticsPropertyKey<T>): T {
         return props.getOrElse(key) {
             throw IllegalStateException("Key not present: $key - consider getOrElse or getOrNull")
         } as T
@@ -141,16 +52,13 @@ public class SemanticsConfiguration :
 
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
-    override public fun <T> getOrElse(key: SemanticsPropertyKey<T>, defaultValue: () -> T): T {
+    public fun <T> getOrElse(key: SemanticsPropertyKey<T>, defaultValue: () -> T): T {
         return props.getOrElse(key, defaultValue) as T
     }
 
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
-    override public fun <T> getOrElseNullable(
-        key: SemanticsPropertyKey<T>,
-        defaultValue: () -> T?,
-    ): T? {
+    public fun <T> getOrElseNullable(key: SemanticsPropertyKey<T>, defaultValue: () -> T?): T? {
         return props.getOrElse(key, defaultValue) as T?
     }
 
@@ -168,26 +76,13 @@ public class SemanticsConfiguration :
             props[key] = value
         }
 
-        addAccessibilityExtraKey(key)
-    }
-
-    private fun addAccessibilityExtraKey(key: SemanticsPropertyKey<*>) {
         if (key.accessibilityExtraKey != null) {
-            val extraKeys =
-                _accessibilityExtraKeys
-                    ?: mutableScatterSetOf<SemanticsPropertyKey<*>>().also {
-                        _accessibilityExtraKeys = it
-                    }
-            extraKeys.add(key)
+            if (_accessibilityExtraKeys == null) _accessibilityExtraKeys = mutableScatterSetOf()
+            _accessibilityExtraKeys?.add(key)
         }
     }
 
-    /** Invokes [block] for each key in [accessibilityExtraKeys] without allocating. */
-    internal inline fun forEachAccessibilityExtraKey(block: (SemanticsPropertyKey<*>) -> Unit) {
-        _accessibilityExtraKeys?.forEach(block)
-    }
-
-    override public operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean {
+    public operator fun <T> contains(key: SemanticsPropertyKey<T>): Boolean {
         return props.containsKey(key)
     }
 
@@ -202,20 +97,8 @@ public class SemanticsConfiguration :
      * If set to true, the descendants of the owning component's [SemanticsNode] will merge their
      * semantic information into the [SemanticsNode] representing the owning component.
      */
-    override public var isMergingSemanticsOfDescendants: Boolean = false
+    public var isMergingSemanticsOfDescendants: Boolean = false
     public var isClearingSemantics: Boolean = false
-
-    @ExperimentalComposeUiHostApi
-    override fun forEachProperty(action: (key: SemanticsPropertyKey<*>, value: Any?) -> Unit) {
-        props.forEach(action)
-    }
-
-    @ExperimentalComposeUiHostApi
-    override fun anyProperty(
-        predicate: (key: SemanticsPropertyKey<*>, value: Any?) -> Boolean
-    ): Boolean {
-        return props.any(predicate)
-    }
 
     // CONFIGURATION COMBINATION LOGIC
 
@@ -232,7 +115,6 @@ public class SemanticsConfiguration :
             val mergeResult = (key as SemanticsPropertyKey<Any?>).merge(existingValue, nextValue)
             if (mergeResult != null) {
                 props[key] = mergeResult
-                addAccessibilityExtraKey(key)
             }
         }
     }
@@ -258,7 +140,6 @@ public class SemanticsConfiguration :
         peer.props.forEach { key, nextValue ->
             if (!props.contains(key)) {
                 props[key] = nextValue
-                addAccessibilityExtraKey(key)
             } else if (nextValue is AccessibilityAction<*>) {
                 val value = props[key] as AccessibilityAction<*>
                 props[key] =
@@ -276,10 +157,6 @@ public class SemanticsConfiguration :
         copy.isMergingSemanticsOfDescendants = isMergingSemanticsOfDescendants
         copy.isClearingSemantics = isClearingSemantics
         copy.props.putAll(props)
-        _accessibilityExtraKeys?.let {
-            copy._accessibilityExtraKeys =
-                MutableScatterSet<SemanticsPropertyKey<*>>(it.size).apply { addAll(it) }
-        }
         return copy
     }
 
@@ -328,48 +205,6 @@ public class SemanticsConfiguration :
     }
 }
 
-private val NullDefault: () -> Nothing? = { null }
-
-/**
- * Returns the value for [key], or `null` if not present.
- *
- * @param key Property key to retrieve.
- * @return Value associated with [key], or `null` if not present.
- */
-@ExperimentalComposeUiHostApi
-public fun <T> SemanticsPropertyProvider.getOrNull(key: SemanticsPropertyKey<T>): T? {
-    return getOrElseNullable(key, NullDefault)
-}
-
-/** Retrieves the value for the given property, or `null` if the property is not present. */
-@Suppress("UNCHECKED_CAST")
 public fun <T> SemanticsConfiguration.getOrNull(key: SemanticsPropertyKey<T>): T? {
-    return props.getOrElse(key) { null } as T?
-}
-
-private val IsImportantForAccessibilityPredicate: (SemanticsPropertyKey<*>, Any?) -> Boolean =
-    { key, _ ->
-        key.isImportantForAccessibility
-    }
-
-/**
- * Returns `true` if this provider contains at least one key that [other] does not contain.
- *
- * Use this to detect deleted properties between an old and a new configuration of the same node:
- * `oldConfig.hasKeysMissingFrom(newConfig)`. Values are not compared.
- *
- * @param other The provider to check keys against.
- */
-@ExperimentalComposeUiHostApi
-public fun SemanticsPropertyProvider.hasKeysMissingFrom(other: SemanticsPropertyProvider): Boolean {
-    if (this is SemanticsConfiguration && other is SemanticsConfiguration) {
-        val otherProps = other.props
-        return props.any { key, _ -> !otherProps.containsKey(key) }
-    }
-    return anyProperty { key, _ -> key !in other }
-}
-
-@OptIn(ExperimentalComposeUiHostApi::class)
-internal fun SemanticsPropertyProvider.containsImportantForAccessibility(): Boolean {
-    return anyProperty(IsImportantForAccessibilityPredicate)
+    return getOrElseNullable(key) { null }
 }

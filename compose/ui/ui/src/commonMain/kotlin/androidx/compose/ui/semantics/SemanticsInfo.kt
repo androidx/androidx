@@ -23,7 +23,7 @@ import androidx.compose.ui.layout.LayoutInfo
  * This is an internal interface that can be used by [SemanticsListener]s to read semantic
  * information from layout nodes. The root [SemanticsInfo] can be accessed using
  * [SemanticsOwner.rootInfo], and particular [SemanticsInfo] can be looked up by their [semanticsId]
- * by using [SemanticsOwner.getSemanticsInfo].
+ * by using [SemanticsOwner.get].
  */
 internal interface SemanticsInfo : LayoutInfo {
     /** The semantics configuration (Semantic properties and actions) associated with this node. */

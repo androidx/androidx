@@ -17,32 +17,19 @@
 package androidx.compose.ui.semantics
 
 import android.graphics.Region
+import androidx.compose.ui.graphics.toComposeIntRect
+import androidx.compose.ui.unit.IntRect
 
 /** Wrapper around platform-specific [android.graphics.Region] class */
 private class SemanticRegionImpl : SemanticsRegion {
     val region = Region()
 
-    private val boundsRect = android.graphics.Rect()
-
-    override fun set(left: Int, top: Int, right: Int, bottom: Int) {
-        region.set(left, top, right, bottom)
+    override fun set(rect: IntRect) {
+        region.set(rect.left, rect.top, rect.right, rect.bottom)
     }
 
-    override fun updateBounds() {
-        region.getBounds(boundsRect)
-    }
-
-    override val boundsLeft: Int
-        get() = boundsRect.left
-
-    override val boundsTop: Int
-        get() = boundsRect.top
-
-    override val boundsRight: Int
-        get() = boundsRect.right
-
-    override val boundsBottom: Int
-        get() = boundsRect.bottom
+    override val bounds: IntRect
+        get() = region.bounds.toComposeIntRect()
 
     override val isEmpty: Boolean
         get() = region.isEmpty
@@ -51,8 +38,8 @@ private class SemanticRegionImpl : SemanticsRegion {
         return this.region.op((region as SemanticRegionImpl).region, Region.Op.INTERSECT)
     }
 
-    override fun difference(left: Int, top: Int, right: Int, bottom: Int): Boolean {
-        return region.op(left, top, right, bottom, Region.Op.DIFFERENCE)
+    override fun difference(rect: IntRect): Boolean {
+        return region.op(rect.left, rect.top, rect.right, rect.bottom, Region.Op.DIFFERENCE)
     }
 }
 

@@ -20,13 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.semantics.SemanticsPropertyProvider
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.getOrNull
 
@@ -126,8 +124,7 @@ public interface SemanticsModifierNode : DelegatableNode {
 public fun SemanticsModifierNode.invalidateSemantics(): Unit =
     requireLayoutNode().invalidateSemantics()
 
-@OptIn(ExperimentalComposeUiHostApi::class)
-internal val SemanticsPropertyProvider.useMinimumTouchTarget: Boolean
+internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
     get() = getOrNull(SemanticsActions.OnClick) != null
 
 /** Returns bounds in root taking touch target size and clipping into consideration */
