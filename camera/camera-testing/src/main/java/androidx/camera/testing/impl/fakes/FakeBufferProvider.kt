@@ -16,6 +16,7 @@
 
 package androidx.camera.testing.impl.fakes
 
+import androidx.annotation.GuardedBy
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures.immediateFailedFuture
@@ -29,56 +30,67 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 
 public class FakeBufferProvider(
-    private var state: BufferProvider.State = BufferProvider.State.ACTIVE,
+    @GuardedBy("lock") private var state: BufferProvider.State = BufferProvider.State.ACTIVE,
     private val bufferFactory: (Int) -> ListenableFuture<FakeInputBuffer> = {
         immediateFuture(FakeInputBuffer())
     },
 ) : BufferProvider<FakeInputBuffer> {
+    // The BufferProvider can be accessed from multiple threads, e.g. AudioSource adds its observer
+    // on its own executor while an encoder updates the state on another thread.
+    private val lock = Any()
     private val submittedBufferCalls = MockConsumer<FakeInputBuffer>()
-    private var acquiredBufferNum = 0
+    @GuardedBy("lock") private var acquiredBufferNum = 0
+    @GuardedBy("lock")
     private val observers = mutableMapOf<Observable.Observer<in BufferProvider.State>, Executor>()
 
     override fun acquireBuffer(): ListenableFuture<FakeInputBuffer> {
-        return if (state == BufferProvider.State.ACTIVE) {
-            val bufferFuture = bufferFactory.invoke(acquiredBufferNum++)
-            bufferFuture.addListener(
-                {
-                    try {
-                        val inputBuffer = bufferFuture.get()
-                        inputBuffer.terminationFuture.addListener(
-                            {
-                                if (inputBuffer.isSubmitted) {
-                                    submittedBufferCalls.accept(inputBuffer)
-                                }
-                            },
-                            directExecutor(),
-                        )
-                    } catch (_: ExecutionException) {
-                        // Ignored.
-                    }
-                },
-                directExecutor(),
-            )
-            bufferFuture
-        } else {
-            immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
-        }
+        val bufferIndex =
+            synchronized(lock) {
+                if (state != BufferProvider.State.ACTIVE) {
+                    return immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
+                }
+                acquiredBufferNum++
+            }
+        val bufferFuture = bufferFactory.invoke(bufferIndex)
+        bufferFuture.addListener(
+            {
+                try {
+                    val inputBuffer = bufferFuture.get()
+                    inputBuffer.terminationFuture.addListener(
+                        {
+                            if (inputBuffer.isSubmitted) {
+                                submittedBufferCalls.accept(inputBuffer)
+                            }
+                        },
+                        directExecutor(),
+                    )
+                } catch (_: ExecutionException) {
+                    // Ignored.
+                }
+            },
+            directExecutor(),
+        )
+        return bufferFuture
     }
 
     override fun fetchData(): ListenableFuture<BufferProvider.State> {
-        return immediateFuture(state)
+        return immediateFuture(synchronized(lock) { state })
     }
 
     override fun addObserver(
         executor: Executor,
         observer: Observable.Observer<in BufferProvider.State>,
     ) {
-        observers[observer] = executor
-        executor.execute { observer.onNewData(state) }
+        val currentState =
+            synchronized(lock) {
+                observers[observer] = executor
+                state
+            }
+        executor.execute { observer.onNewData(currentState) }
     }
 
     override fun removeObserver(observer: Observable.Observer<in BufferProvider.State>) {
-        observers.remove(observer)
+        synchronized(lock) { observers.remove(observer) }
     }
 
     public fun verifySubmittedBufferCall(
@@ -96,11 +108,17 @@ public class FakeBufferProvider(
         )
 
     public fun setState(newState: BufferProvider.State) {
-        if (state == newState) {
-            return
-        }
-        state = newState
-        for ((observer, executor) in observers) {
+        // Notify a snapshot of the observers outside the lock, so that an observer added or
+        // removed concurrently doesn't break the iteration.
+        val observersToNotify =
+            synchronized(lock) {
+                if (state == newState) {
+                    return
+                }
+                state = newState
+                observers.toList()
+            }
+        for ((observer, executor) in observersToNotify) {
             executor.execute { observer.onNewData(newState) }
         }
     }
