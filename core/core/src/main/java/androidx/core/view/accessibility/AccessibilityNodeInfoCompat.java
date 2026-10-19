@@ -78,6 +78,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityNodeInfo} in a backwards
@@ -1555,18 +1556,58 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Compat class for {@link AccessibilityNodeInfo.StructuredDataInfo}, which is a abstract base
+     * Compat class for {@link AccessibilityNodeInfo.StructuredDataInfo}, which is an abstract base
      * class for holding structured semantic information about a node.
+     *
+     * <p>On API levels where the platform class corresponding to a subclass isn't available,
+     * {@link AccessibilityNodeInfoCompat#setStructuredDataInfo(StructuredDataInfoCompat)} stores
+     * the information in the node's extras instead. Accessibility services can read it from there
+     * with {@link AccessibilityNodeInfoCompat#getStructuredDataInfo()}, but not with
+     * {@link AccessibilityNodeInfo#getStructuredDataInfo()}.
      *
      * @see AccessibilityNodeInfo.StructuredDataInfo
      */
     public abstract static class StructuredDataInfoCompat {
+        @VisibleForTesting
+        static final String STRUCTURED_DATA_TYPE_KEY =
+                "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TYPE_KEY";
+
+        @VisibleForTesting
+        static final String STRUCTURED_DATA_TAG_KEY =
+                "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TAG_KEY";
+
+        @VisibleForTesting
+        static final String STRUCTURED_DATA_ATTRIBUTES_KEY =
+                "androidx.view.accessibility.AccessibilityNodeInfoCompat."
+                        + "STRUCTURED_DATA_ATTRIBUTES_KEY";
+
+        /**
+         * The platform object holding this instance's data, or {@code null} if the platform class
+         * for this type isn't available, in which case this instance holds its own data.
+         */
         @Nullable
         final StructuredDataInfo mStructuredDataInfo;
+
+        /**
+         * Identifies this type in a node's extras and in {@link #equals(Object)}, or {@code null}
+         * if this instance can't be stored in a node's extras.
+         */
         @Nullable
-        final String mTag;
-        @NonNull
-        final Map<String, String> mAttributes = new HashMap<>();
+        private final String mExtrasType;
+
+        /**
+         * The tag of an instance without a platform object. Instances that wrap a platform object
+         * get their tag from it instead.
+         */
+        @Nullable
+        private final String mTag;
+
+        /**
+         * The attributes of an instance without a platform object. Instances that wrap a platform
+         * object get their attributes from it instead.
+         */
+        @Nullable
+        private Bundle mAttributes;
 
         /**
          * Instantiates a new StructuredDataInfoCompat.
@@ -1574,13 +1615,25 @@ public class AccessibilityNodeInfoCompat {
          * @param structuredDataInfo The underlying StructuredDataInfo to wrap.
          */
         protected StructuredDataInfoCompat(@Nullable StructuredDataInfo structuredDataInfo) {
-            this(structuredDataInfo, null);
+            this(structuredDataInfo, null, null, null);
         }
 
+        /**
+         * Instantiates a new StructuredDataInfoCompat that holds its data in
+         * {@code structuredDataInfo} if it's non-null, or in this instance otherwise.
+         *
+         * @param structuredDataInfo The underlying StructuredDataInfo to wrap, or {@code null} if
+         *     the platform class for this type isn't available.
+         * @param extrasType Identifies this type in a node's extras.
+         * @param tag The tag, if {@code structuredDataInfo} is {@code null}.
+         * @param attributes The attributes, if {@code structuredDataInfo} is {@code null}.
+         */
         StructuredDataInfoCompat(@Nullable StructuredDataInfo structuredDataInfo,
-                @Nullable String tag) {
+                @Nullable String extrasType, @Nullable String tag, @Nullable Bundle attributes) {
             mStructuredDataInfo = structuredDataInfo;
+            mExtrasType = extrasType;
             mTag = tag;
+            mAttributes = attributes;
         }
 
         /**
@@ -1588,7 +1641,8 @@ public class AccessibilityNodeInfoCompat {
          */
         @Nullable
         public String getTag() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                    && mStructuredDataInfo != null) {
                 return Api37Impl.getStructuredDataInfoTag(mStructuredDataInfo);
             }
 
@@ -1603,10 +1657,11 @@ public class AccessibilityNodeInfoCompat {
          */
         public void putAttribute(@NonNull String attributeKey,
                 @NonNull String value) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                    && mStructuredDataInfo != null) {
                 Api37Impl.putStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey, value);
             } else {
-                mAttributes.put(attributeKey, value);
+                getOrCreateAttributes().putString(attributeKey, value);
             }
         }
 
@@ -1616,9 +1671,10 @@ public class AccessibilityNodeInfoCompat {
          * @param attributeKey The attribute key.
          */
         public void removeAttribute(@NonNull String attributeKey) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                    && mStructuredDataInfo != null) {
                 Api37Impl.removeStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey);
-            } else {
+            } else if (mAttributes != null) {
                 mAttributes.remove(attributeKey);
             }
         }
@@ -1631,11 +1687,12 @@ public class AccessibilityNodeInfoCompat {
          */
         @Nullable
         public String getAttribute(@NonNull String attributeKey) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                    && mStructuredDataInfo != null) {
                 return Api37Impl.getStructuredDataInfoAttribute(mStructuredDataInfo, attributeKey);
             }
 
-            return mAttributes.get(attributeKey);
+            return mAttributes != null ? mAttributes.getString(attributeKey) : null;
         }
 
         /**
@@ -1645,35 +1702,31 @@ public class AccessibilityNodeInfoCompat {
          */
         @NonNull
         public Map<String, String> getAttributes() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
+                    && mStructuredDataInfo != null) {
                 return Collections.unmodifiableMap(
                         Api37Impl.getStructuredDataInfoAttributes(mStructuredDataInfo));
             }
 
-            return Collections.unmodifiableMap(mAttributes);
+            Map<String, String> attributes = new HashMap<>();
+            if (mAttributes != null) {
+                for (String key : mAttributes.keySet()) {
+                    String value = mAttributes.getString(key);
+                    if (value != null) {
+                        attributes.put(key, value);
+                    }
+                }
+            }
+            return Collections.unmodifiableMap(attributes);
         }
 
         @Override
         public int hashCode() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                return Api37Impl.structuredDataInfoHashCode(mStructuredDataInfo);
-            }
-
-            int result = mTag != null ? mTag.hashCode() : 0;
-            result = 31 * result + mAttributes.hashCode();
-            return result;
+            return Objects.hash(mExtrasType, getTag(), getAttributes());
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-                if (obj instanceof StructuredDataInfoCompat) {
-                    return Api37Impl.structuredDataInfoEquals(mStructuredDataInfo,
-                            ((StructuredDataInfoCompat) obj).mStructuredDataInfo);
-                }
-                return false;
-            }
-
+        public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -1681,14 +1734,72 @@ public class AccessibilityNodeInfoCompat {
                 return false;
             }
             StructuredDataInfoCompat other = (StructuredDataInfoCompat) obj;
-            if (mTag == null) {
-                if (other.mTag != null) {
-                    return false;
-                }
-            } else if (!mTag.equals(other.mTag)) {
-                return false;
+            // Instances of different subclasses with the same tag and attributes aren't equal.
+            return Objects.equals(mExtrasType, other.mExtrasType)
+                    && Objects.equals(getTag(), other.getTag())
+                    && getAttributes().equals(other.getAttributes());
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return getClass().getSimpleName() + "{tag=" + getTag()
+                    + ", attributes=" + getAttributes() + "}";
+        }
+
+        /**
+         * Stores this instance in a node's {@code extras}, unless it wraps a platform object or
+         * has no tag or extras type. Only subclasses in this library have an extras type, since
+         * {@link #readFromExtras(Bundle)} has to recreate them.
+         */
+        void writeToExtras(@NonNull Bundle extras) {
+            if (mStructuredDataInfo != null || mExtrasType == null || mTag == null) {
+                return;
             }
-            return mAttributes.equals(other.mAttributes);
+            extras.putString(STRUCTURED_DATA_TYPE_KEY, mExtrasType);
+            extras.putString(STRUCTURED_DATA_TAG_KEY, mTag);
+            extras.putBundle(STRUCTURED_DATA_ATTRIBUTES_KEY, getOrCreateAttributes());
+        }
+
+        /**
+         * Removes any instance stored by {@link #writeToExtras(Bundle)} from a node's
+         * {@code extras}.
+         */
+        static void removeFromExtras(@NonNull Bundle extras) {
+            extras.remove(STRUCTURED_DATA_TYPE_KEY);
+            extras.remove(STRUCTURED_DATA_TAG_KEY);
+            extras.remove(STRUCTURED_DATA_ATTRIBUTES_KEY);
+        }
+
+        /**
+         * Returns the instance stored in a node's {@code extras} by
+         * {@link #writeToExtras(Bundle)}, or {@code null} if there isn't one of a type known to
+         * this version of the library.
+         */
+        static @Nullable StructuredDataInfoCompat readFromExtras(@Nullable Bundle extras) {
+            if (extras == null) {
+                return null;
+            }
+            String type = extras.getString(STRUCTURED_DATA_TYPE_KEY);
+            String tag = extras.getString(STRUCTURED_DATA_TAG_KEY);
+            if (type == null || tag == null) {
+                return null;
+            }
+            Bundle attributes = extras.getBundle(STRUCTURED_DATA_ATTRIBUTES_KEY);
+            switch (type) {
+                case MathInfoCompat.EXTRAS_TYPE:
+                    return new MathInfoCompat(tag, attributes);
+                default:
+                    // A type this version of the library doesn't know, such as one stored by a
+                    // newer version of the library.
+                    return null;
+            }
+        }
+
+        private @NonNull Bundle getOrCreateAttributes() {
+            if (mAttributes == null) {
+                mAttributes = new Bundle();
+            }
+            return mAttributes;
         }
     }
 
@@ -1696,9 +1807,15 @@ public class AccessibilityNodeInfoCompat {
      * Compat class for {@link AccessibilityNodeInfo.MathInfo}, which is a class that holds
      * information about a node that represents a mathematical expression.
      *
+     * <p>On API levels below 37, where {@link AccessibilityNodeInfo.MathInfo} isn't available,
+     * this information is stored in the node's extras. See {@link StructuredDataInfoCompat}.
+     *
      * @see AccessibilityNodeInfo.MathInfo
      */
     public static class MathInfoCompat extends StructuredDataInfoCompat {
+        /** Identifies this type in a node's extras. */
+        static final String EXTRAS_TYPE = "math";
+
         @OptIn(markerClass = PreviewAccessibilityApi.class)
         @StringDef(
             value = {
@@ -1876,7 +1993,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public MathInfoCompat(@NonNull @MathTag String tag) {
             super(Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
-                    ? (StructuredDataInfo) Api37Impl.createMathInfo(tag) : null, tag);
+                    ? (StructuredDataInfo) Api37Impl.createMathInfo(tag) : null,
+                    EXTRAS_TYPE, tag, null);
         }
 
         /**
@@ -1886,7 +2004,18 @@ public class AccessibilityNodeInfoCompat {
          */
         public MathInfoCompat(@Nullable MathInfo mathInfo) {
             super(Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN
-                    ? (StructuredDataInfo) mathInfo : null);
+                    ? (StructuredDataInfo) mathInfo : null, EXTRAS_TYPE, null, null);
+        }
+
+        /**
+         * Instantiates a new MathInfoCompat that holds its own data rather than wrapping a
+         * platform object, such as one stored in a node's extras.
+         *
+         * @param tag The MathML tag for this node.
+         * @param attributes The attributes.
+         */
+        MathInfoCompat(@NonNull String tag, @Nullable Bundle attributes) {
+            super(null, EXTRAS_TYPE, tag, attributes);
         }
 
         /**
@@ -2675,18 +2804,6 @@ public class AccessibilityNodeInfoCompat {
     @VisibleForTesting
     static final String EXTRA_SELECTION_END_OFFSET_TYPE =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.SELECTION_END_OFFSET_TYPE";
-
-    private static final String STRUCTURED_DATA_TYPE_KEY =
-            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TYPE_KEY";
-
-    private static final String STRUCTURED_DATA_TAG_KEY =
-            "androidx.view.accessibility.AccessibilityNodeInfoCompat.STRUCTURED_DATA_TAG_KEY";
-
-    private static final String STRUCTURED_DATA_ATTRIBUTES_KEY =
-            "androidx.view.accessibility.AccessibilityNodeInfoCompat."
-                    + "STRUCTURED_DATA_ATTRIBUTES_KEY";
-
-    private static final String STRUCTURED_DATA_TYPE_MATH = "math";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -5246,6 +5363,10 @@ public class AccessibilityNodeInfoCompat {
      * Gets additional structured data properties of this node. This is only populated for nodes
      * that offer additional structured data, like a mathematical expression.
      *
+     * <p>This also returns structured data that
+     * {@link #setStructuredDataInfo(StructuredDataInfoCompat)} stored in this node's extras on API
+     * levels where the platform class for its type isn't available.
+     *
      * @return A subclass of {@link StructuredDataInfoCompat} representing the type and
      *         additional structured data for this node, or {@code null} if this node does not have
      *         additional structured data attached.
@@ -5254,69 +5375,42 @@ public class AccessibilityNodeInfoCompat {
     @Nullable
     public StructuredDataInfoCompat getStructuredDataInfo() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-            StructuredDataInfo structuredDataInfo = Api37Impl.getStructuredDataInfo(mInfo);
-            if (structuredDataInfo == null) {
-                return null;
-            }
-            if (structuredDataInfo instanceof MathInfo) {
-                return new MathInfoCompat((MathInfo) structuredDataInfo);
-            }
-            // Unknown structured data type, fallback to null.
-            return null;
-        }
-
-        if (mInfo.getExtras() != null) {
-            String type = mInfo.getExtras().getString(STRUCTURED_DATA_TYPE_KEY);
-            if (STRUCTURED_DATA_TYPE_MATH.equals(type)) {
-                String tag = mInfo.getExtras().getString(STRUCTURED_DATA_TAG_KEY);
-                if (tag != null) {
-                    MathInfoCompat mathInfo = new MathInfoCompat(tag);
-                    Bundle attributesBundle =
-                            mInfo.getExtras().getBundle(STRUCTURED_DATA_ATTRIBUTES_KEY);
-                    if (attributesBundle != null) {
-                        for (String key : attributesBundle.keySet()) {
-                            String value = attributesBundle.getString(key);
-                            if (value != null) {
-                                mathInfo.putAttribute(key, value);
-                            }
-                        }
-                    }
-                    return mathInfo;
-                }
+            StructuredDataInfoCompat structuredDataInfo =
+                    Api37Impl.getStructuredDataInfoCompat(mInfo);
+            if (structuredDataInfo != null) {
+                return structuredDataInfo;
             }
         }
 
-        return null;
+        return StructuredDataInfoCompat.readFromExtras(mInfo.getExtras());
     }
 
     /**
      * Sets additional structured data properties of this node, such as for a mathematical
      * expression.
      *
+     * <p>On API levels where the platform class for the type of {@code structuredDataInfoCompat}
+     * isn't available, it's stored in this node's extras instead, where accessibility services can
+     * read it with {@link #getStructuredDataInfo()}.
+     *
      * @param structuredDataInfoCompat The {@link StructuredDataInfoCompat} object (e.g., an
-     *                                 instance of {@link MathInfoCompat}) describing the node.
+     *                                 instance of {@link MathInfoCompat}) describing the node, or
+     *                                 {@code null} to clear it.
      * @see #getStructuredDataInfo()
      */
     public void setStructuredDataInfo(@Nullable StructuredDataInfoCompat structuredDataInfoCompat) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
             Api37Impl.setStructuredDataInfo(mInfo, structuredDataInfoCompat == null
                     ? null : structuredDataInfoCompat.mStructuredDataInfo);
-        } else {
-            if (mInfo.getExtras() != null) {
-                mInfo.getExtras().remove(STRUCTURED_DATA_TYPE_KEY);
-                mInfo.getExtras().remove(STRUCTURED_DATA_TAG_KEY);
-                mInfo.getExtras().remove(STRUCTURED_DATA_ATTRIBUTES_KEY);
-            }
-            if (structuredDataInfoCompat instanceof MathInfoCompat) {
-                Bundle extras = mInfo.getExtras();
-                extras.putString(STRUCTURED_DATA_TYPE_KEY, STRUCTURED_DATA_TYPE_MATH);
-                extras.putString(STRUCTURED_DATA_TAG_KEY, structuredDataInfoCompat.getTag());
-                Bundle attributesBundle = new Bundle();
-                for (Map.Entry<String, String> entry :
-                        structuredDataInfoCompat.getAttributes().entrySet()) {
-                    attributesBundle.putString(entry.getKey(), entry.getValue());
-                }
-                extras.putBundle(STRUCTURED_DATA_ATTRIBUTES_KEY, attributesBundle);
+        }
+
+        Bundle extras = mInfo.getExtras();
+        if (extras != null) {
+            // Always clear any previous value from the extras, so that it can't be returned after
+            // it's replaced by a value stored in the platform field.
+            StructuredDataInfoCompat.removeFromExtras(extras);
+            if (structuredDataInfoCompat != null) {
+                structuredDataInfoCompat.writeToExtras(extras);
             }
         }
     }
@@ -7153,81 +7247,48 @@ public class AccessibilityNodeInfoCompat {
         }
 
         @Nullable
-        public static StructuredDataInfo getStructuredDataInfo(
+        public static StructuredDataInfoCompat getStructuredDataInfoCompat(
                 @Nullable AccessibilityNodeInfo nodeInfo) {
             if (nodeInfo == null) {
                 return null;
             }
 
-            return nodeInfo.getStructuredDataInfo();
+            StructuredDataInfo structuredDataInfo = nodeInfo.getStructuredDataInfo();
+            if (structuredDataInfo instanceof MathInfo) {
+                return new MathInfoCompat((MathInfo) structuredDataInfo);
+            }
+            // No structured data, or a type this version of the library doesn't know.
+            return null;
         }
 
         @Nullable
         public static String getStructuredDataInfoTag(
-                @Nullable StructuredDataInfo structuredDataInfo) {
-            if (structuredDataInfo == null) {
-                return null;
-            }
-
+                @NonNull StructuredDataInfo structuredDataInfo) {
             return structuredDataInfo.getTag();
         }
 
         public static void putStructuredDataInfoAttribute(
-                @Nullable StructuredDataInfo structuredDataInfo,
+                @NonNull StructuredDataInfo structuredDataInfo,
                 @NonNull String attributeKey,
                 @NonNull String value) {
-            if (structuredDataInfo == null) {
-                return;
-            }
-
             structuredDataInfo.putAttribute(attributeKey, value);
         }
 
         public static void removeStructuredDataInfoAttribute(
-                @Nullable StructuredDataInfo structuredDataInfo, @NonNull String attributeKey) {
-            if (structuredDataInfo == null) {
-                return;
-            }
-
+                @NonNull StructuredDataInfo structuredDataInfo, @NonNull String attributeKey) {
             structuredDataInfo.removeAttribute(attributeKey);
         }
 
         @Nullable
         public static String getStructuredDataInfoAttribute(
-                @Nullable StructuredDataInfo structuredDataInfo, @NonNull String attributeKey) {
-            if (structuredDataInfo == null) {
-                return null;
-            }
-
+                @NonNull StructuredDataInfo structuredDataInfo, @NonNull String attributeKey) {
             return structuredDataInfo.getAttribute(attributeKey);
         }
 
         @NonNull
         public static Map<String, String> getStructuredDataInfoAttributes(
-                @Nullable StructuredDataInfo structuredDataInfo) {
-            if (structuredDataInfo == null) {
-                return Collections.emptyMap();
-            }
-
+                @NonNull StructuredDataInfo structuredDataInfo) {
             return structuredDataInfo.getAttributes();
-        }
-
-        public static int structuredDataInfoHashCode(
-                @Nullable StructuredDataInfo structuredDataInfo) {
-            if (structuredDataInfo == null) {
-                return 0;
-            }
-
-            return structuredDataInfo.hashCode();
-        }
-
-        public static boolean structuredDataInfoEquals(@Nullable Object a,
-                @Nullable Object b) {
-            if (a == null) {
-                return b == null;
-            }
-
-            return a.equals(b);
         }
     }
 }
