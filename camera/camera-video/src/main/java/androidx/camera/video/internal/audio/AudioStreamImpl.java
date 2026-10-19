@@ -70,6 +70,7 @@ public class AudioStreamImpl implements AudioStream {
     private final AtomicReference<Boolean> mNotifiedSilenceState = new AtomicReference<>(null);
     private final int mBufferSize;
     private final int mBytesPerFrame;
+    private final AudioTimestamp mAudioTimestamp = new AudioTimestamp();
     private @Nullable AudioStreamCallback mAudioStreamCallback;
     private @Nullable Executor mCallbackExecutor;
     private long mTotalFramesRead;
@@ -250,11 +251,10 @@ public class AudioStreamImpl implements AudioStream {
     private long generatePresentationTimeNs() {
         long presentationTimeNs = -1;
         if (!mShouldFallbackToSystemTime) {
-            AudioTimestamp audioTimestamp = new AudioTimestamp();
-            if (mAudioRecord.getTimestamp(audioTimestamp,
+            if (mAudioRecord.getTimestamp(mAudioTimestamp,
                     AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
                 presentationTimeNs = computeInterpolatedTimeNs(mSettings.getCaptureSampleRate(),
-                        mTotalFramesRead, audioTimestamp);
+                        mTotalFramesRead, mAudioTimestamp);
 
                 // Once timestamp difference is out of limit, fallback to system time.
                 long timestampDiff = Math.abs(presentationTimeNs - System.nanoTime());
