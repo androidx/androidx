@@ -16,8 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
@@ -56,15 +54,30 @@ public interface InteractionPolicy {
          * @return an [InteractionPolicy] that filters for click events.
          */
         public fun clickable(isEnabled: Boolean = true, onClick: () -> Unit): InteractionPolicy =
-            object : InteractionPolicy {
-                override val isEnabled: Boolean = isEnabled
+            ClickableInteractionPolicy(isEnabled, onClick)
+    }
+}
 
-                override fun onInputEvent(event: SpatialInputEvent) {
-                    if (event.action == Action.UP && event.hitPosition != null) {
-                        onClick()
-                    }
-                }
-            }
+private class ClickableInteractionPolicy(
+    override val isEnabled: Boolean,
+    private val onClick: () -> Unit,
+) : InteractionPolicy {
+    override fun onInputEvent(event: SpatialInputEvent) {
+        if (event.action == Action.UP && event.hitPosition != null) {
+            onClick()
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClickableInteractionPolicy) return false
+        return isEnabled == other.isEnabled && onClick === other.onClick
+    }
+
+    override fun hashCode(): Int {
+        var result = isEnabled.hashCode()
+        result = 31 * result + onClick.hashCode()
+        return result
     }
 }
 
@@ -108,8 +121,6 @@ internal class InteractableNode(
     CompositionLocalConsumerSubspaceModifierNode,
     CoreEntityNode,
     Consumer<InputEvent> {
-    private inline val density: Density
-        get() = currentValueOf(LocalDensity)
 
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Interactable requires a Session." }
@@ -137,7 +148,7 @@ internal class InteractableNode(
         }
     }
 
-    /** Updates the movable state of this CoreEntity. */
+    /** Updates the interactable state of this CoreEntity. */
     private fun updateState() {
         if (coreEntity !is InteractableCoreEntity) {
             return
@@ -150,7 +161,7 @@ internal class InteractableNode(
         }
     }
 
-    /** Enables the InteractableComponent and anchorPlacement for this CoreEntity. */
+    /** Enables the InteractableComponent for this CoreEntity. */
     private fun enableComponent() {
         check(component == null) { "InteractableComponent already enabled." }
         component = InteractableComponent.create(session = session, inputEventListener = this)

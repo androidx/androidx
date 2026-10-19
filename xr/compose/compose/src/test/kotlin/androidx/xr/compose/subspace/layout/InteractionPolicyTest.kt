@@ -44,6 +44,7 @@ import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.testing.InteractableComponentTester
 import androidx.xr.scenecore.testing.SceneCoreTestRule
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -591,5 +592,87 @@ class InteractionPolicyTest {
             composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode().components
         assertNotNull(components)
         assertEquals(0, components.size)
+    }
+
+    @Test
+    fun clickable_equalsAndHashCode() {
+        val onClick1: () -> Unit = {}
+        val onClick2: () -> Unit = {}
+        val policy1 = InteractionPolicy.clickable(isEnabled = true, onClick = onClick1)
+        val policy2 = InteractionPolicy.clickable(isEnabled = true, onClick = onClick1)
+        val policyDifferentEnabled =
+            InteractionPolicy.clickable(isEnabled = false, onClick = onClick1)
+        val policyDifferentOnClick =
+            InteractionPolicy.clickable(isEnabled = true, onClick = onClick2)
+
+        assertTrue(policy1 == policy2)
+        assertEquals(policy1.hashCode(), policy2.hashCode())
+        assertFalse(policy1 == policyDifferentEnabled)
+        assertFalse(policy1 == policyDifferentOnClick)
+    }
+
+    @Test
+    fun clickable_onInputEvent_invokesOnClickOnlyOnUpWithHitPosition() {
+        var clickCount = 0
+        val policy = InteractionPolicy.clickable(isEnabled = true, onClick = { clickCount++ })
+
+        // Action.DOWN with hitPosition should not invoke onClick
+        policy.onInputEvent(
+            SpatialInputEvent(
+                source = InputEvent.Source.HANDS,
+                action = InputEvent.Action.DOWN,
+                pointerType = InputEvent.Pointer.RIGHT,
+                timestamp = 100L,
+                hitPosition = Vector3.One,
+                origin = Vector3.Zero,
+                direction = Vector3.One,
+            )
+        )
+        assertEquals(0, clickCount)
+
+        // Action.UP with null hitPosition should not invoke onClick
+        policy.onInputEvent(
+            SpatialInputEvent(
+                source = InputEvent.Source.HANDS,
+                action = InputEvent.Action.UP,
+                pointerType = InputEvent.Pointer.RIGHT,
+                timestamp = 200L,
+                hitPosition = null,
+                origin = Vector3.Zero,
+                direction = Vector3.One,
+            )
+        )
+        assertEquals(0, clickCount)
+
+        // Action.UP with non-null hitPosition should invoke onClick
+        policy.onInputEvent(
+            SpatialInputEvent(
+                source = InputEvent.Source.HANDS,
+                action = InputEvent.Action.UP,
+                pointerType = InputEvent.Pointer.RIGHT,
+                timestamp = 300L,
+                hitPosition = Vector3.One,
+                origin = Vector3.Zero,
+                direction = Vector3.One,
+            )
+        )
+        assertEquals(1, clickCount)
+    }
+
+    @Test
+    fun interactable_equalsAndHashCode() {
+        val onEvent1: (SpatialInputEvent) -> Unit = {}
+        val onEvent2: (SpatialInputEvent) -> Unit = {}
+        val modifier1 = SubspaceModifier.interactable(enabled = true, onInputEvent = onEvent1)
+        val modifier2 = SubspaceModifier.interactable(enabled = true, onInputEvent = onEvent1)
+        val modifierDifferentEnabled =
+            SubspaceModifier.interactable(enabled = false, onInputEvent = onEvent1)
+        val modifierDifferentCallback =
+            SubspaceModifier.interactable(enabled = true, onInputEvent = onEvent2)
+
+        assertTrue(modifier1 == modifier2)
+        assertEquals(modifier1.hashCode(), modifier2.hashCode())
+        assertFalse(modifier1 == modifierDifferentEnabled)
+        assertFalse(modifier1 == modifierDifferentCallback)
     }
 }
