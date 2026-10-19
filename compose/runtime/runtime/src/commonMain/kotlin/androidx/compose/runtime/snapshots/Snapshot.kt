@@ -718,7 +718,10 @@ public sealed class Snapshot(
          * @param block The lambda to execute where no snapshot writes are allowed
          * @return The result of [block]
          */
+        @Suppress("BanInlineOptIn")
+        @OptIn(ExperimentalContracts::class)
         public inline fun <R> readOnly(crossinline block: () -> R): R {
+            contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
             val readOnlySnapshot = obtainTransparentReadOnlySnapshot(current)
             val previous = readOnlySnapshot?.makeCurrent()
             try {
