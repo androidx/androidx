@@ -72,18 +72,21 @@ public class FakeCameraMetadata(
     keys: Set<CameraCharacteristics.Key<*>>? = null,
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
-    override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     public val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     private val extensionMetadata: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
+    override val isRedacted: Boolean = false,
+    override val restrictedKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
+    override val dynamicKeys: Set<CameraCharacteristics.Key<*>> = emptySet(),
 ) : FakeMetadata(metadata), CameraMetadata {
 
     override val keys: Set<CameraCharacteristics.Key<*>> = keys ?: characteristics.keys
 
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?
+    override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?
 
-    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
+    override fun <T : Any> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
     override fun <T : Any> get(key: Metadata.Key<T>): T? {
@@ -98,7 +101,6 @@ public class FakeCameraMetadata(
         get() = super<FakeMetadata>.metadataKeys
 
     override val camera: CameraId = cameraId
-    override val isRedacted: Boolean = false
 
     override val physicalCameraIds: Set<CameraId> = physicalMetadata.keys
     override val supportedExtensions: Set<Int>
@@ -118,7 +120,9 @@ public class FakeCameraMetadata(
         return extensionMetadata[extension]!!
     }
 
-    override fun <T : Any> unwrapAs(type: Class<T>): T? = null
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> unwrapAs(type: Class<T>): T? =
+        if (type.isInstance(this)) this as T else null
 
     override fun toString(): String = "FakeCameraMetadata(camera: ${camera.value})"
 

@@ -58,7 +58,7 @@ internal class Camera2CameraMetadata(
     override val metadataKeys: Set<Metadata.Key<*>>
         get() = metadata.keys
 
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+    override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? {
         if (cacheBlocklist.contains(key)) {
             return characteristics.getOrThrow(key)
         }
@@ -87,13 +87,14 @@ internal class Camera2CameraMetadata(
         return result
     }
 
-    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
+    override fun <T : Any> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =
-        when (type) {
-            CameraCharacteristics::class.java -> characteristics as T
+        when {
+            type.isInstance(this) -> this as T
+            type == CameraCharacteristics::class.java -> characteristics as T
             else -> null
         }
 
@@ -106,11 +107,17 @@ internal class Camera2CameraMetadata(
     override val resultKeys: Set<CaptureResult.Key<*>>
         get() = _resultKeys.value
 
-    override val sessionKeys: Set<CaptureRequest.Key<*>>
-        get() = _sessionKeys.value
+    override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
+        get() = _sessionCaptureRequestKeys.value
 
     override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
         get() = _sessionCharacteristicsKeys.value
+
+    override val restrictedKeys: Set<CameraCharacteristics.Key<*>>
+        get() = _restrictedKeys.value
+
+    override val dynamicKeys: Set<CameraCharacteristics.Key<*>>
+        get() = cacheBlocklist
 
     override val physicalCameraIds: Set<CameraId>
         get() = _physicalCameraIds.value
@@ -275,7 +282,7 @@ internal class Camera2CameraMetadata(
             }
         }
 
-    private val _sessionKeys: Lazy<Set<CaptureRequest.Key<*>>> =
+    private val _sessionCaptureRequestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 emptySet()
@@ -286,6 +293,29 @@ internal class Camera2CameraMetadata(
                     }
                 } catch (e: AssertionError) {
                     Log.warn(e) { "Failed to getAvailableSessionKeys from Camera-${camera.value}" }
+                    emptySet()
+                }
+            }
+        }
+
+    private val _restrictedKeys: Lazy<Set<CameraCharacteristics.Key<*>>> =
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                emptySet()
+            } else {
+                try {
+                    Debug.trace("Camera-${camera.value}#keysNeedingPermission") {
+                        Api29Compat.getKeysNeedingPermission(characteristics).orEmpty().toSet()
+                    }
+                } catch (e: AssertionError) {
+                    Log.warn(e) {
+                        "Failed to getKeysNeedingPermission from Camera-${camera.value}"
+                    }
+                    emptySet()
+                } catch (e: RuntimeException) {
+                    Log.warn(e) {
+                        "Failed to getKeysNeedingPermission from Camera-${camera.value}"
+                    }
                     emptySet()
                 }
             }
