@@ -69,6 +69,7 @@ internal class StackInitialFocusNode(private var stackState: StackState) :
         )
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
+        // TODO(b/573251560): Implement this functionality directly on FocusTargetModifierNode
         focusProperties.onEnter = {
             val size = requireLayoutCoordinates().size
             requestFocusForChildInLocalBounds(
