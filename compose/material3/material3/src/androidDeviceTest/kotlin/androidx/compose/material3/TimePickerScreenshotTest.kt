@@ -24,10 +24,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.FontScale
+import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.then
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
@@ -84,6 +89,29 @@ class TimePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
 
         rule.assertAgainstGolden("timePicker_12h_rtl_${scheme.name}")
+    }
+
+    @Test
+    fun timePicker_12h_largeFont() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Locales(LocaleList("en-GB"))
+                    .then(DeviceConfigurationOverride.FontScale(2f))
+            ) {
+                Box(Modifier.testTag(TestTag)) {
+                    TimePicker(
+                        state =
+                            rememberTimePickerState(
+                                initialHour = 10,
+                                initialMinute = 23,
+                                is24Hour = false,
+                            )
+                    )
+                }
+            }
+        }
+
+        rule.assertAgainstGolden("timePicker_12h_largeFont_${scheme.name}")
     }
 
     @Test

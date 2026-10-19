@@ -62,6 +62,7 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldBuffer
@@ -211,6 +212,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastFirstOrNull
@@ -2778,6 +2781,14 @@ private fun PeriodToggleImpl(
     toggle: @Composable (() -> Unit)? = null,
 ) {
     val style = PeriodSelectorLabelTextFont.value
+    val lineHeight = (style.lineHeight.value / style.fontSize.value).em
+    val autoSize =
+        remember(style.fontSize) {
+            TextAutoSize.StepBased(
+                minFontSize = PeriodToggleMinFontSize,
+                maxFontSize = style.fontSize,
+            )
+        }
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     val useUpdatedToggle =
         ComposeMaterial3Flags.isUpdatedTimepickerToggleEnabled || shapes.orVibrant(false, true)
@@ -2832,6 +2843,7 @@ private fun PeriodToggleImpl(
                                     if (!state.isPm) style.copy(fontWeight = FontWeight.Bold)
                                     else style,
                                 text = getString(string = Strings.TimePickerAM),
+                                maxLines = 1,
                             )
                         }
                         SideControlItem(
@@ -2849,6 +2861,7 @@ private fun PeriodToggleImpl(
                                     if (state.isPm) style.copy(fontWeight = FontWeight.Bold)
                                     else style,
                                 text = getString(string = Strings.TimePickerPM),
+                                maxLines = 1,
                             )
                         }
                     } else {
@@ -2868,6 +2881,9 @@ private fun PeriodToggleImpl(
                                     if (!state.isPm) style.copy(fontWeight = FontWeight.Bold)
                                     else style,
                                 text = getString(string = Strings.TimePickerAM),
+                                lineHeight = lineHeight,
+                                maxLines = 1,
+                                autoSize = autoSize,
                             )
                         }
                         ToggleItem(
@@ -2886,6 +2902,9 @@ private fun PeriodToggleImpl(
                                     if (state.isPm) style.copy(fontWeight = FontWeight.Bold)
                                     else style,
                                 text = getString(string = Strings.TimePickerPM),
+                                lineHeight = lineHeight,
+                                maxLines = 1,
+                                autoSize = autoSize,
                             )
                         }
                     }
@@ -2902,7 +2921,13 @@ private fun PeriodToggleImpl(
                     },
                     colors = colors,
                 ) {
-                    Text(style = style, text = getString(string = Strings.TimePickerAM))
+                    Text(
+                        style = style,
+                        text = getString(string = Strings.TimePickerAM),
+                        lineHeight = lineHeight,
+                        maxLines = 1,
+                        autoSize = autoSize,
+                    )
                 }
                 Spacer(
                     Modifier.layoutId("Spacer")
@@ -2920,7 +2945,13 @@ private fun PeriodToggleImpl(
                     },
                     colors = colors,
                 ) {
-                    Text(style = style, text = getString(string = Strings.TimePickerPM))
+                    Text(
+                        style = style,
+                        text = getString(string = Strings.TimePickerPM),
+                        lineHeight = lineHeight,
+                        maxLines = 1,
+                        autoSize = autoSize,
+                    )
                 }
             }
         },
@@ -3008,7 +3039,7 @@ private fun ToggleItem(
                 },
             shapes = toggleButtonShapes,
             colors = toggleButtonColors,
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(horizontal = PeriodTogglePaddingSmall),
             content = content,
         )
     } else {
@@ -3020,7 +3051,7 @@ private fun ToggleItem(
                 Modifier.zIndex(if (checked) 0f else 1f).fillMaxSize().semantics {
                     selected = checked
                 },
-            contentPadding = PaddingValues(0.dp),
+            contentPadding = PaddingValues(horizontal = PeriodTogglePaddingSmall),
             shape = shape,
             onClick = onClick,
             content = content,
@@ -4063,6 +4094,8 @@ private val PeriodTogglePaddingSmall
     get() = 4.dp
 private val PeriodTogglePaddingLarge
     get() = 16.dp
+private val PeriodToggleMinFontSize
+    get() = 6.sp
 
 private val TimePickerMaxHeight
     get() = 384.dp
