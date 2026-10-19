@@ -138,7 +138,21 @@ public fun SubspaceModifier.resizable(
 public class SpatialResizeEvent(
     public val type: SpatialResizeEventType,
     public val size: IntVolumeSize,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SpatialResizeEvent) return false
+        return type == other.type && size == other.size
+    }
+
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + size.hashCode()
+        return result
+    }
+
+    override fun toString(): String = "SpatialResizeEvent(type=$type, size=$size)"
+}
 
 /** An enum representing the phases of resizing. */
 @JvmInline

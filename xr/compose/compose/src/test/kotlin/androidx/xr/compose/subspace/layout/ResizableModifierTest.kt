@@ -45,10 +45,12 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.DpVolumeSize
+import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.metersToDp
 import androidx.xr.scenecore.ResizableComponent
 import androidx.xr.scenecore.scene
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -525,5 +527,35 @@ class ResizableModifierTest {
                 resizePolicy = ResizePolicy.custom { _: SpatialResizeEvent -> }
             )
         assertNotEquals(modifier1, modifier3)
+    }
+
+    @Test
+    fun spatialResizeEvent_equalsAndHashCode() {
+        val event1 =
+            SpatialResizeEvent(
+                type = SpatialResizeEventType.Start,
+                size = IntVolumeSize(100, 200, 300),
+            )
+        val event2 =
+            SpatialResizeEvent(
+                type = SpatialResizeEventType.Start,
+                size = IntVolumeSize(100, 200, 300),
+            )
+        val eventDifferentType =
+            SpatialResizeEvent(
+                type = SpatialResizeEventType.End,
+                size = IntVolumeSize(100, 200, 300),
+            )
+        val eventDifferentSize =
+            SpatialResizeEvent(
+                type = SpatialResizeEventType.Start,
+                size = IntVolumeSize(150, 200, 300),
+            )
+
+        assertTrue(event1 == event2)
+        assertEquals(event1.hashCode(), event2.hashCode())
+        assertEquals(event1.toString(), event2.toString())
+        assertFalse(event1 == eventDifferentType)
+        assertFalse(event1 == eventDifferentSize)
     }
 }
