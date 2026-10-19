@@ -559,6 +559,27 @@ class BasicTextLinkTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun link_withoutStatefulStyles_onHover_handPointerIconUsed() {
+        with(PointerIconTestScope(rule)) {
+            setContent {
+                CompositionLocalProvider(LocalUriHandler provides uriHandler) {
+                    BasicText(
+                        buildAnnotatedString {
+                            append("text ")
+                            withLink(Url(Url1)) { append("link") }
+                        },
+                        modifier = Modifier.testTag("text"),
+                    )
+                }
+            }
+
+            rule.onNodeWithTag("text").performMouseInputOnFirstLink { enter(it) }
+            assertIcon(android.view.PointerIcon.TYPE_HAND)
+        }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHover_hoveredStyleUsed() {
         val textWithLink = buildAnnotatedString {
