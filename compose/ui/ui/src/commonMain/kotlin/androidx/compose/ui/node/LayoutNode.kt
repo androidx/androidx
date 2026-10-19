@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalComposeUiHostApi::class)
+
 package androidx.compose.ui.node
 
 import androidx.collection.MutableObjectList
@@ -49,6 +51,7 @@ import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.node.LayoutNode.Companion.NotPlacedPlaceOrder
 import androidx.compose.ui.node.LayoutNode.LayoutState.Idle
 import androidx.compose.ui.node.Nodes.PointerInput
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -85,7 +88,7 @@ internal class LayoutNode(
 ) :
     ComposeNodeLifecycleCallback,
     Remeasurement,
-    OwnerScope,
+    ObservationTarget,
     LayoutInfo,
     SemanticsInfo,
     ComposeUiNode,
@@ -647,7 +650,7 @@ internal class LayoutNode(
             return vector
         }
 
-    override val isValidOwnerScope: Boolean
+    override val isObservationValid: Boolean
         get() = isAttached
 
     override fun toString(): String {
