@@ -93,6 +93,7 @@ import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_NON
 import androidx.camera.integration.extensions.ValidationErrorCode.ERROR_CODE_SAVE_IMAGE_FAILED
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getCamera2ExtensionModeStringFromId
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getLensFacingCameraId
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.getSupportedExtensions
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickPreviewResolution
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.pickStillImageResolution
@@ -576,8 +577,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
 
     private fun isCameraSupportExtensions(cameraId: String): Boolean {
-        val characteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        return characteristics.supportedExtensions.isNotEmpty()
+        return getSupportedExtensions(cameraManager, cameraId).isNotEmpty()
     }
 
     private fun updateExtensionInfo() {
@@ -590,7 +590,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(currentCameraId)
         supportedExtensionModes.clear()
         supportedExtensionModes.add(EXTENSION_MODE_NONE)
-        supportedExtensionModes.addAll(extensionCharacteristics.supportedExtensions)
+        supportedExtensionModes.addAll(getSupportedExtensions(cameraManager, currentCameraId))
 
         cameraSensorRotationDegrees =
             cameraManager
@@ -598,6 +598,21 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 ?: 0
 
         currentExtensionIdx = getExtensionModeIndex(currentExtensionMode)
+
+        // The original extension mode might not be supported by the new camera after switching
+        // cameras. Falls back to the first supported extension mode, or to the non-extension mode
+        // if the camera doesn't support any extension mode.
+        if (currentExtensionIdx == -1) {
+            currentExtensionIdx = if (supportedExtensionModes.size > 1) 1 else 0
+            val fallbackExtensionMode = supportedExtensionModes[currentExtensionIdx]
+            Log.w(
+                TAG,
+                "Extension mode $currentExtensionMode is not supported by camera " +
+                    "$currentCameraId. Falls back to extension mode $fallbackExtensionMode.",
+            )
+            currentExtensionMode = fallbackExtensionMode
+        }
+
         extensionModeEnabled = currentExtensionMode != EXTENSION_MODE_NONE
     }
 

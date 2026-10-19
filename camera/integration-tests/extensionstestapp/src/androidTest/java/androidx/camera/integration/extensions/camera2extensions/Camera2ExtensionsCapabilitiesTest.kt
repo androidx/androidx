@@ -73,7 +73,7 @@ class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionMod
 
         extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
         characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        assumeCameraExtensionSupported(extensionMode, extensionsCharacteristics)
+        assumeCameraExtensionSupported(cameraManager, cameraId, extensionMode)
     }
 
     @Test

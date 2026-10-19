@@ -27,6 +27,7 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.lau
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewIdle
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
@@ -40,6 +41,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -77,6 +79,12 @@ class LifecycleStatusChangeStressTest(
                 RequireForegroundRule {
                     assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
                     CoreAppTestUtil.assumeCompatibleDevice()
+                    // Skips Samsung Galaxy A52s (SM-A528B) because repeated pause/resume stress
+                    // crashes the native camera HAL daemon on the device (b/570911697).
+                    assumeFalse(
+                        "Camera HAL crashes under pause/resume stress on SM-A528B (b/570911697)",
+                        Camera2ExtensionsUtil.isSamsungGalaxyA52s(),
+                    )
 
                     cameraProvider =
                         ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
