@@ -20,7 +20,6 @@ import androidx.appfunctions.compiler.core.AppFunctionComponentRegistryGenerator
 import androidx.appfunctions.compiler.core.AppFunctionComponentRegistryGenerator.AppFunctionComponent
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionComponentRegistryAnnotation
-import androidx.appfunctions.compiler.core.ensureQualifiedName
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
@@ -31,50 +30,10 @@ import com.google.devtools.ksp.symbol.KSAnnotated
  * Generates the registry of all symbols that are needed for later aggregation processing.
  *
  * This includes
- * * @AppFunctionDeclaration - The function declaration that are needed for generating the
- *   aggregated inventory, invoker and function signature XML file.
+ * * @AppFunctionSerializable - The serializable declarations that are needed for multi-module KDoc
+ *   lookup when generating XML files.
  * * @AppFunctionSchemaDefinition - The schema definition that are needed to generating a statically
  *   mapped inventory to look up AppFunctionMetadata with schema key.
- *
- * In case of `FUNCTION` components, the `componentDocStrings` are also populated in the registry.
- * Each docstring in the `componentDocStrings` list corresponds to the component name in
- * `componentNames` at the same index.
- *
- * For example, if there are two functions in the module "myLibrary":
- * ```
- * package com.android.example
- *
- * class NoteFunction: CreateNote {
- *   /** Creates a new note. */
- *   @AppFunctionDeclaration(isDescribedByKDoc = true)
- *   override suspend fun createNote(): Note { ... }
- * }
- *
- * class TaskFunction: CreateTask {
- *   /** Creates a new task. */
- *   @AppFunctionDeclaration(isDescribedByKDoc = true)
- *   override suspend fun createTask(): Task { ... }
- * }
- * ```
- *
- * A single registry would be generated:
- * ```
- * package appfunctions_aggregated_deps
- *
- * @AppFunctionComponentRegistry(
- *   componentCategory = "FUNCTION",
- *   componentNames = [
- *     "com.android.example.NoteFunction.createNote",
- *     "com.android.example.TaskFunction.createTask",
- *   ],
- *   componentDocStrings = [
- *     "Creates a new note.",
- *     "Creates a new task.",
- *   ],
- * )
- * @Generated
- * public class `$Mylibrary_FunctionComponentRegistry`
- * ```
  *
  * **Important:** [androidx.appfunctions.compiler.processors.AppFunctionComponentRegistryProcessor]
  * will process exactly once for each compilation unit to generate a single registry for looking up
@@ -89,7 +48,6 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
         if (hasProcessed) return emptyList()
         hasProcessed = true
 
-        generateFunctionComponentRegistry(resolver)
         generateSerializableComponentRegistry(resolver)
         generateSchemaDefinitionComponentRegistry(resolver)
 
@@ -129,38 +87,6 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
                 resolver.getModuleName().asString(),
                 AppFunctionComponentRegistryAnnotation.Category.SERIALIZABLE,
                 serializableComponents,
-            )
-    }
-
-    @OptIn(KspExperimental::class)
-    private fun generateFunctionComponentRegistry(resolver: Resolver) {
-        val annotatedAppFunctions =
-            AppFunctionSymbolResolver(resolver).resolveAnnotatedAppFunctions()
-        val functionComponents = annotatedAppFunctions.flatMap { annotatedAppFunction ->
-            buildList {
-                for (appFunction in annotatedAppFunction.appFunctions) {
-                    val function = appFunction.appFunctionDeclaration
-                    add(
-                        AppFunctionComponent(
-                            qualifiedName = function.ensureQualifiedName(),
-                            sourceFiles = annotatedAppFunction.getSourceFiles(),
-                            docString =
-                                if (appFunction.isDescribedByKDoc) {
-                                    function.docString ?: ""
-                                } else {
-                                    ""
-                                },
-                        )
-                    )
-                }
-            }
-        }
-
-        AppFunctionComponentRegistryGenerator(codeGenerator)
-            .generateRegistry(
-                resolver.getModuleName().asString(),
-                AppFunctionComponentRegistryAnnotation.Category.FUNCTION,
-                functionComponents,
             )
     }
 

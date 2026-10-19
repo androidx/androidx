@@ -17,16 +17,12 @@
 package androidx.appfunctions.compiler
 
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctionServiceEntryPoint
-import androidx.appfunctions.compiler.core.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.SymbolNotReadyException
 import androidx.appfunctions.compiler.core.logException
-import androidx.appfunctions.compiler.processors.AppFunctionAggregateProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionComponentRegistryProcessor
-import androidx.appfunctions.compiler.processors.AppFunctionIdProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionInventoryProcessor
-import androidx.appfunctions.compiler.processors.AppFunctionInvokerProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionSchemaInventoryProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionSerializableProcessor
 import androidx.appfunctions.compiler.processors.AppFunctionServiceEntryPointProcessor
@@ -74,28 +70,15 @@ class AppFunctionCompiler(
      */
     private fun shouldDeferAllProcessing(resolver: Resolver): List<KSAnnotated> {
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
-        val annotatedAppFunctions =
-            appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctions()
         val annotatedServiceEntryPoints =
             appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctionServiceEntryPoints()
         val annotatedSignatures =
             appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctionSignatures()
 
         val allSymbolsToDefer =
-            annotatedAppFunctions.flatMap(AnnotatedAppFunctions::getAllAnnotated) +
-                annotatedServiceEntryPoints.flatMap(
-                    AnnotatedAppFunctionServiceEntryPoint::getAllAnnotated
-                ) +
-                annotatedSignatures.map { it.classDeclaration }
-
-        for (annotatedAppFunction in annotatedAppFunctions) {
-            try {
-                annotatedAppFunction.validate()
-            } catch (e: SymbolNotReadyException) {
-                logger.logging(e.message.toString(), e.node)
-                return allSymbolsToDefer
-            }
-        }
+            annotatedServiceEntryPoints.flatMap(
+                AnnotatedAppFunctionServiceEntryPoint::getAllAnnotated
+            ) + annotatedSignatures.map { it.classDeclaration }
 
         for (annotatedServiceEntryPoint in annotatedServiceEntryPoints) {
             try {
@@ -124,9 +107,7 @@ class AppFunctionCompiler(
 
             val functionRegistryProcessor =
                 AppFunctionComponentRegistryProcessor(environment.codeGenerator)
-            val idProcessor = AppFunctionIdProcessor(environment.codeGenerator)
             val inventoryProcessor = AppFunctionInventoryProcessor(environment.codeGenerator)
-            val invokerProcessor = AppFunctionInvokerProcessor(environment.codeGenerator)
             val signatureProcessor =
                 AppFunctionSignatureProcessor(
                     options,
@@ -135,12 +116,6 @@ class AppFunctionCompiler(
                 )
             val entityProcessor =
                 AppFunctionSerializableProcessor(environment.codeGenerator, environment.logger)
-            val aggregateProcessor =
-                AppFunctionAggregateProcessor(
-                    options,
-                    environment.codeGenerator,
-                    environment.logger,
-                )
             val schemaInventoryProcessor =
                 AppFunctionSchemaInventoryProcessor(environment.codeGenerator, options)
             val entryPointProcessor =
@@ -152,12 +127,9 @@ class AppFunctionCompiler(
             return AppFunctionCompiler(
                 listOf(
                     functionRegistryProcessor,
-                    idProcessor,
                     inventoryProcessor,
-                    invokerProcessor,
                     signatureProcessor,
                     entityProcessor,
-                    aggregateProcessor,
                     schemaInventoryProcessor,
                     entryPointProcessor,
                 ),

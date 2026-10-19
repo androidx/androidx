@@ -120,9 +120,6 @@ object IntrospectionHelper {
         const val PROPERTY_COMPONENT_DOCSTRINGS = "componentDocStrings"
 
         object Category {
-            const val INVENTORY = "INVENTORY"
-            const val INVOKER = "INVOKER"
-            const val FUNCTION = "FUNCTION"
             const val SCHEMA_DEFINITION = "SCHEMA_DEFINITION"
             const val SERIALIZABLE = "SERIALIZABLE"
         }
@@ -178,11 +175,6 @@ object IntrospectionHelper {
 
     val APP_FUNCTION_FUNCTION_NOT_FOUND_EXCEPTION_CLASS =
         ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionFunctionNotFoundException")
-    val APP_FUNCTION_CANCELLED_EXCEPTION_CLASS =
-        ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionCancelledException")
-    val APP_FUNCTION_APP_UNKNOWN_EXCEPTION_CLASS =
-        ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAppUnknownException")
-    val APP_FUNCTION_EXCEPTION_CLASS = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionException")
     val APP_FUNCTION_SCHEMA_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionSchemaMetadata")
     val APP_FUNCTION_PARAMETER_METADATA_CLASS =
@@ -244,8 +236,6 @@ object IntrospectionHelper {
 
     val PATTERN_MATCHERS_HELPER_CLASS =
         ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "PatternMatchers")
-    val APP_FUNCTION_PENDING_INTENT_TYPE_METADATA_CLASS =
-        ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionPendingIntentTypeMetadata")
 
     val APP_FUNCTION_OBJECT_TYPE_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionObjectTypeMetadata")
@@ -263,24 +253,6 @@ object IntrospectionHelper {
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionComponentsMetadata")
     val APP_FUNCTION_RESPONSE_METADATA_CLASS =
         ClassName(APP_FUNCTIONS_METADATA_PACKAGE_NAME, "AppFunctionResponseMetadata")
-
-    val DEPENDENCIES_CLASS = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "Dependencies")
-    val CANCELLATION_EXCEPTION_CLASS = ClassName("kotlinx.coroutines", "CancellationException")
-    val EXCEPTION_CLASS = ClassName("kotlin", "Exception")
-
-    object ConfigurableAppFunctionFactoryClass {
-        val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "ConfigurableAppFunctionFactory")
-
-        object CreateEnclosingClassMethod {
-            const val METHOD_NAME = "createEnclosingClass"
-        }
-    }
-
-    object AppFunctionContextClass {
-        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionContext")
-        const val CONTEXT_PROPERTY_NAME = "context"
-    }
 
     object AppFunctionInventoryProviderInterface {
         object ResolveInventoryMethod {
@@ -381,23 +353,6 @@ object IntrospectionHelper {
         }
     }
 
-    object ServiceInternalHelper {
-        const val UNSAFE_GET_PARAMETER_VALUE_METHOD = "unsafeGetParameterValue"
-        const val UNSAFE_BUILD_RETURN_VALUE_METHOD = "unsafeBuildReturnValue"
-    }
-
-    object AppFunctionInvokerClass {
-        val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionInvoker")
-        const val SUPPORTED_FUNCTION_IDS_PROPERTY_NAME = "supportedFunctionIds"
-
-        object UnsafeInvokeMethod {
-            const val METHOD_NAME = "unsafeInvoke"
-            const val APPLICATION_CONTEXT_PARAM_NAME = "appFunctionContext"
-            const val FUNCTION_ID_PARAM_NAME = "functionIdentifier"
-            const val PARAMETERS_PARAM_NAME = "parameters"
-        }
-    }
-
     object AppFunctionSerializableFactoryClass {
         val CLASS_NAME =
             ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionSerializableFactory")
@@ -475,20 +430,6 @@ object IntrospectionHelper {
 
     object AppFunctionInventoryInterface {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AppFunctionInventory")
-    }
-
-    object AggregatedAppFunctionInventoryClass {
-        val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AggregatedAppFunctionInventory")
-
-        const val PROPERTY_INVENTORIES_NAME = "inventories"
-    }
-
-    object AggregatedAppFunctionInvokerClass {
-        val CLASS_NAME =
-            ClassName(APP_FUNCTIONS_INTERNAL_PACKAGE_NAME, "AggregatedAppFunctionInvoker")
-
-        const val PROPERTY_INVOKERS_NAME = "invokers"
     }
 
     object AppFunctionDataClass {

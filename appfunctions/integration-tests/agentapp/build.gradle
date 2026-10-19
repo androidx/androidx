@@ -157,6 +157,10 @@ ksp {
 
 
 // TODO(b/456071824): Remove this workaround
+// Setting `ext["kotlin.incremental"] = "false"` is required in addition to `configureEach` because
+// AGP's built-in Kotlin registers `KotlinCompile` tasks during variant creation and configures
+// `task.incremental` from `kotlin.incremental` after `configureEach` actions run.
+ext["kotlin.incremental"] = "false"
 tasks.withType(KotlinCompile).configureEach {
     incremental = false
 }

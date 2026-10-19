@@ -235,7 +235,7 @@ class AnnotatedAppFunctionServiceEntryPoint(
             )
         }
         for (appFunction in appFunctions) {
-            appFunction.validate(skipFirstParameterValidation = true)
+            appFunction.validate()
         }
     }
 
