@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.impl
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.camera.camera2.adapter.FakeTestUseCase
@@ -23,6 +24,8 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.TestDeferrableSurface
 import androidx.camera.camera2.adapter.asListenableFuture
+import androidx.camera.camera2.compat.workaround.InactiveSurfaceCloser
+import androidx.camera.camera2.compat.workaround.InactiveSurfaceCloserImpl
 import androidx.camera.camera2.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
@@ -417,6 +420,155 @@ class UseCaseSurfaceManagerTest {
         }
     }
 
+    @Test
+    fun stopAsync_afterSetupAsyncCompletes_leavesZeroUseCountAndCompletesStopDeferred() =
+        runBlocking {
+            // Arrange
+            val testDeferrableSurface = createTestDeferrableSurface()
+            val fakeTestUseCase = createFakeTestUseCase(testDeferrableSurface)
+            val fakeGraph = FakeCameraGraph()
+            val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+                mapOf(testDeferrableSurface to StreamId(0))
+            val useCaseSurfaceManager = createUseCaseSurfaceManager(listOf(fakeTestUseCase))
+
+            // Act
+            val setupResult =
+                useCaseSurfaceManager
+                    .setupAsync(
+                        graph = fakeGraph,
+                        sessionConfigAdapter =
+                            SessionConfigAdapter(useCases = listOf(fakeTestUseCase)),
+                        surfaceToStreamMap = deferrableSurfaceToStreamId,
+                    )
+                    .await()
+            val stopDeferred = useCaseSurfaceManager.stopAsync()
+            stopDeferred.await()
+
+            // Assert
+            assertThat(setupResult).isTrue()
+            assertThat(stopDeferred.isCompleted).isTrue()
+            assertThat(testDeferrableSurface.useCount).isEqualTo(0)
+        }
+
+    @Test
+    fun stopAsync_duringInFlightSetupAsync_closesInactiveSurfacesAndReturnsFalse() = runBlocking {
+        // Arrange
+        val surface1 = createTestDeferrableSurface()
+        val surface2 = createTestDeferrableSurface()
+        val useCase1 = createFakeTestUseCase(surface1)
+        val useCase2 = createFakeTestUseCase(surface2)
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(surface1 to StreamId(0), surface2 to StreamId(1))
+
+        lateinit var useCaseSurfaceManager: UseCaseSurfaceManager
+        var stopDeferred: Deferred<Unit>? = null
+        val delegateCloser = InactiveSurfaceCloserImpl()
+        var closeAllCount = 0
+        val racingCloser =
+            object : InactiveSurfaceCloser {
+                override fun configure(
+                    streamId: StreamId,
+                    deferrableSurface: DeferrableSurface,
+                    graph: CameraGraph,
+                ) {
+                    // Simulate stopAsync() arriving on another thread while setupAsync() is in
+                    // the middle of configuring streams.
+                    if (stopDeferred == null) {
+                        stopDeferred = useCaseSurfaceManager.stopAsync()
+                    }
+                    delegateCloser.configure(streamId, deferrableSurface, graph)
+                }
+
+                override fun onSurfaceInactive(deferrableSurface: DeferrableSurface) {
+                    delegateCloser.onSurfaceInactive(deferrableSurface)
+                }
+
+                override fun closeAll() {
+                    closeAllCount++
+                    delegateCloser.closeAll()
+                }
+            }
+
+        useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(useCase1, useCase2), racingCloser)
+
+        // Act
+        val setupResult =
+            useCaseSurfaceManager
+                .setupAsync(
+                    graph = fakeGraph,
+                    sessionConfigAdapter =
+                        SessionConfigAdapter(useCases = listOf(useCase1, useCase2)),
+                    surfaceToStreamMap = deferrableSurfaceToStreamId,
+                )
+                .await()
+
+        // Assert
+        assertThat(setupResult).isFalse()
+        assertThat(stopDeferred).isNotNull()
+        assertThat(stopDeferred!!.isCompleted).isTrue()
+        assertThat(closeAllCount).isEqualTo(2)
+        // Stream 0 was cleared by closeAll() and Stream 1 was skipped by the loop guard
+        assertThat(fakeGraph.setSurfaceResults[StreamId(0)]).isNull()
+        assertThat(fakeGraph.setSurfaceResults.containsKey(StreamId(1))).isFalse()
+        assertThat(surface1.useCount).isEqualTo(0)
+        assertThat(surface2.useCount).isEqualTo(0)
+    }
+
+    @Test
+    fun cancelSetupDeferred_duringInFlightSetupAsync_cleansUpSurfacesAndListener() = runBlocking {
+        // Arrange
+        val delayedSurface1 = createNeverCompletingDeferrableSurface()
+        val surface2 = createTestDeferrableSurface()
+        val useCase1 = createFakeTestUseCase(delayedSurface1)
+        val useCase2 = createFakeTestUseCase(surface2)
+        val fakeGraph = FakeCameraGraph()
+        val deferrableSurfaceToStreamId: Map<DeferrableSurface, StreamId> =
+            mapOf(delayedSurface1 to StreamId(0), surface2 to StreamId(1))
+
+        var setupDeferred: Deferred<Boolean>? = null
+        var closeAllCount = 0
+        val cancellingNoOpCloser =
+            object : InactiveSurfaceCloser {
+                override fun configure(
+                    streamId: StreamId,
+                    deferrableSurface: DeferrableSurface,
+                    graph: CameraGraph,
+                ) {
+                    setupDeferred?.cancel()
+                }
+
+                override fun onSurfaceInactive(deferrableSurface: DeferrableSurface) {}
+
+                override fun closeAll() {
+                    closeAllCount++
+                }
+            }
+
+        val useCaseSurfaceManager =
+            createUseCaseSurfaceManager(listOf(useCase1, useCase2), cancellingNoOpCloser)
+
+        // Act: start setupAsync (suspends waiting for delayedSurface1), then complete surface1
+        setupDeferred =
+            useCaseSurfaceManager.setupAsync(
+                graph = fakeGraph,
+                sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(useCase1, useCase2)),
+                surfaceToStreamMap = deferrableSurfaceToStreamId,
+            )
+        val realSurface1 = Surface(SurfaceTexture(0))
+        delayedSurface1.provideSurfaceDeferred.complete(realSurface1)
+
+        // Assert
+        assertThat(useCaseSurfaceManager.awaitSetupCompletion()).isFalse()
+        assertThat(closeAllCount).isEqualTo(1)
+        assertThat(fakeGraph.setSurfaceResults[StreamId(0)]).isNull()
+        assertThat(fakeGraph.setSurfaceResults.containsKey(StreamId(1))).isFalse()
+        assertThat(delayedSurface1.useCount).isEqualTo(0)
+        assertThat(surface2.useCount).isEqualTo(0)
+        realSurface1.release()
+    }
+
     private fun createFakeTestUseCase(
         deferrableSurface: DeferrableSurface,
         errorListener: SessionConfig.ErrorListener? = null,
@@ -442,11 +594,14 @@ class UseCaseSurfaceManagerTest {
     private fun createNeverCompletingDeferrableSurface() =
         NeverCompletingDeferrableSurface().also { testDeferrableSurfaces.add(it) }
 
-    private fun createUseCaseSurfaceManager(useCase: List<UseCase>) =
+    private fun createUseCaseSurfaceManager(
+        useCase: List<UseCase>,
+        inactiveSurfaceCloser: InactiveSurfaceCloser = NoOpInactiveSurfaceCloser,
+    ) =
         UseCaseSurfaceManager(
             useCaseThreads,
             CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-            NoOpInactiveSurfaceCloser,
+            inactiveSurfaceCloser,
             SessionConfigAdapter(useCases = useCase),
         )
 
