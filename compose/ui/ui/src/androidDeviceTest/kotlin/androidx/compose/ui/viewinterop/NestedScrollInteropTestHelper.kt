@@ -270,7 +270,6 @@ internal fun NestedScrollInteropTestApp(modifier: Modifier = Modifier, content: 
 @Composable
 internal fun NestedScrollDeepNested(
     modifier: Modifier,
-    enabled: Boolean,
     connection: NestedScrollConnection? = null,
 ) {
     // Box (Compose) + AndroidView (View) +
@@ -286,7 +285,6 @@ internal fun NestedScrollDeepNested(
                     }
                 }
             }
-            .also { ViewCompat.setNestedScrollingEnabled(it, enabled) }
     }
 }
 
@@ -312,7 +310,6 @@ internal fun ComposeInViewWithNestedScrollInterop() {
 @Composable
 internal fun NestedScrollInteropWithView(
     modifier: Modifier = Modifier,
-    enabled: Boolean,
     recyclerViewConsumptionTracker: RecyclerViewConsumptionTracker,
 ) {
     NestedScrollInteropTestApp(modifier) { context ->
@@ -337,7 +334,6 @@ internal fun NestedScrollInteropWithView(
                         }
                 }
             }
-            .also { ViewCompat.setNestedScrollingEnabled(it, enabled) }
     }
 }
 
@@ -364,7 +360,7 @@ internal fun ActivityScenario<*>.createActivityWithComposeContent(
 }
 
 @Composable
-internal fun RecyclerViewAndroidView(interopEnabled: Boolean) {
+internal fun RecyclerViewAndroidView() {
     AndroidView(
         factory = { context ->
             LayoutInflater.from(context)
@@ -375,7 +371,6 @@ internal fun RecyclerViewAndroidView(interopEnabled: Boolean) {
                         adapter = NestedScrollInteropAdapter()
                     }
                 }
-                .also { ViewCompat.setNestedScrollingEnabled(it, interopEnabled) }
         },
         modifier = Modifier.testTag(AndroidViewContainer),
     )
