@@ -117,6 +117,18 @@ class SceneCoreOpenXrNativeTest {
         assertThrows(IllegalStateException::class.java) {
             nativeWrapper.setTransactionParent(1L, 2L, 3L)
         }
+        // These throw before reaching the natives, which the current prebuilt doesn't have yet.
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.setTransactionSpaceAttachment(
+                1L,
+                2L,
+                3L,
+                ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+            )
+        }
+        assertThrows(IllegalStateException::class.java) {
+            nativeWrapper.removeTransactionSpaceAttachment(1L, 2L)
+        }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.submitSceneTransaction(1L) }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.cancelSceneTransaction(1L) }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.openTransaction() }
@@ -160,6 +172,10 @@ class SceneCoreOpenXrNativeTest {
         assertThat(nativeWrapper.setTransactionTransform(1L, 2L, Pose(), Vector3(1f, 1f, 1f)))
             .isFalse()
         assertThat(nativeWrapper.setTransactionParent(1L, 2L, 3L)).isFalse()
+        // TODO: b/538946673 - Also check setTransactionSpaceAttachment and
+        //  removeTransactionSpaceAttachment here once the scenecore-openxr prebuilt has their
+        //  natives. That's the only on-device check that their external declarations match the
+        //  exported symbols.
         assertThat(nativeWrapper.submitSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.cancelSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.requestSpatialContainerVisible(true)).isFalse()
