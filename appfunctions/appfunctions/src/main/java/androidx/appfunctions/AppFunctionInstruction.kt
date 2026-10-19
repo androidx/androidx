@@ -37,7 +37,6 @@ package androidx.appfunctions
  * ```
  * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun getWeather(
- *   context: AppFunctionContext,
  *   @AppFunctionInstruction("The city to get the weather for, e.g., 'San Francisco'.")
  *   city: String
  * )
@@ -47,7 +46,6 @@ package androidx.appfunctions
  * ```
  * @AppFunctionDeclaration(isDescribedByKDoc = false)
  * fun calculateDistance(
- *     context: AppFunctionContext,
  *     start: Location,
  *     destination: Location
  * ): @AppFunctionInstruction("The distance in miles.") Float
