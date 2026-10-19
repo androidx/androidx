@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:Suppress("UNCHECKED_CAST")
-
 package androidx.compose.ui.platform
 
 import android.os.Binder
-import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Size
@@ -33,13 +30,11 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.R
+import androidx.savedstate.SavedStateContainer
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.read
-import androidx.savedstate.savedState
+import androidx.savedstate.SavedStateValue
 import java.io.Serializable
-
-private const val KEY = "androidx.compose.ui.platform.DisposableSaveableStateRegistry"
 
 /** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
 internal fun DisposableSaveableStateRegistry(
@@ -74,35 +69,29 @@ internal fun DisposableSaveableStateRegistry(
 ): DisposableSaveableStateRegistry {
     val key = "SaveableStateRegistry:$id"
 
-    val androidxRegistry = savedStateRegistryOwner.savedStateRegistry
-    val bundle = androidxRegistry.consumeRestoredStateForKey(key)
-    val restored: Map<String, List<Any?>>? = bundle?.toMap()
-
-    val saveableStateRegistry = SaveableStateRegistry(restored) { canBeSavedToBundle(it) }
-    val registered =
-        if (androidxRegistry.getSavedStateProvider(key) != null) {
-            // Another View already has the same key, so the provider can't be registered. If
-            // registerSavedStateProvider is called, it will throw IllegalArgumentException and
-            // that is slower than checking in advance.
-            false
+    val parentContainer = savedStateRegistryOwner.savedStateRegistry.asContainer()
+    val registered: Boolean
+    val container =
+        if (key !in parentContainer) {
+            registered = true
+            parentContainer.getOrCreateContainer(key)
         } else {
-            try {
-                androidxRegistry.registerSavedStateProvider(key) {
-                    saveableStateRegistry.performSave().toBundle()
-                }
-                true
-            } catch (_: IllegalArgumentException) {
-                // this means there are two AndroidComposeViews composed into different parents with
-                // the
-                // same view id. currently we will just not save/restore state for the second
-                // AndroidComposeView.
-                // TODO: we should verify our strategy for such cases and improve it. b/162397322
-                false
-            }
+            // this means there are two AndroidComposeViews composed into different parents with
+            // the same view id. currently we will just not save/restore state for the second
+            // AndroidComposeView.
+            // TODO: we should verify our strategy for such cases and improve it. b/162397322
+            registered = false
+            SavedStateContainer()
         }
+    val saveableStateRegistry = SaveableStateRegistry(container) { canBeSavedToBundle(it) }
     return DisposableSaveableStateRegistry(saveableStateRegistry) {
         if (registered) {
-            androidxRegistry.unregisterSavedStateProvider(key)
+            parentContainer.removeSavedStateValue<
+                SavedStateContainer,
+                SavedStateValue<SavedStateContainer>,
+            >(
+                key
+            )
         }
     }
 }
@@ -119,7 +108,7 @@ internal class DisposableSaveableStateRegistry(
 }
 
 /**
- * Checks if [value] can be stored in a [Bundle].
+ * Checks if [value] can be stored in a [android.os.Bundle].
  *
  * **IMPORTANT:** Uses direct type checks instead of reflection to avoid class check overhead at
  * runtime.
@@ -160,15 +149,6 @@ private fun canBeSavedToBundle(value: Any): Boolean {
     }
 
     return false
-}
-
-@Suppress("DEPRECATION")
-private fun Bundle.toMap(): Map<String, List<Any?>> {
-    return read { getParcelableOrNull<ParcelableMapHolder>(KEY)?.map } ?: emptyMap()
-}
-
-private fun Map<String, List<Any?>>.toBundle(): Bundle {
-    return savedState { putParcelable(KEY, ParcelableMapHolder(this@toBundle)) }
 }
 
 /**
