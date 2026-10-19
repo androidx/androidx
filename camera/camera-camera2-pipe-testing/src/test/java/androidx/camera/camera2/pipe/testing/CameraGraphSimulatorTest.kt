@@ -604,6 +604,11 @@ class CameraGraphSimulatorTest {
         assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
         assertThat(lastImage).isNotNull()
 
+        val totalCaptureResultEvent = listener.onTotalCaptureResultFlow.first()
+        assertThat(totalCaptureResultEvent.frameNumber).isEqualTo(completedFrame.frameNumber)
+        assertThat(totalCaptureResultEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE])
+            .isEqualTo(1.8f)
+
         val completeEvent = listener.onCompleteFlow.first()
         assertThat(completeEvent.frameNumber).isEqualTo(completedFrame.frameNumber)
         assertThat(completeEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(1.8f)
