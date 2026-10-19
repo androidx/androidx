@@ -313,4 +313,40 @@ class CallSessionLegacyTest : BaseTelecomTest() {
             assertEquals(ToneGenerator.TONE_PROP_BEEP, disconnectCause.tone)
         }
     }
+
+    /**
+     * Verify that when the platform invokes [CallSessionLegacy.onAbort], the disconnect callback is
+     * invoked with [DisconnectCause.CANCELED] to match the transactional [CallSession] path.
+     */
+    @SmallTest
+    @Test
+    fun testOnAbort_invokesOnDisconnectWithCanceled() {
+        runBlocking {
+            var receivedCause: DisconnectCause? = null
+            val blockingSessionExecution = CompletableDeferred<Unit>()
+            val callSession =
+                CallSessionLegacy(
+                    getRandomParcelUuid(),
+                    mContext,
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    CallChannels(),
+                    coroutineContext,
+                    TestUtils.mOnAnswerLambda,
+                    { cause -> receivedCause = cause },
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                    { _, _ -> },
+                    MutableSharedFlow(),
+                    null,
+                    blockingSessionExecution,
+                )
+
+            callSession.onAbort()
+            blockingSessionExecution.await()
+
+            assertNotNull("onDisconnectCallback should be invoked on abort", receivedCause)
+            assertEquals(DisconnectCause.CANCELED, receivedCause?.code)
+            assertEquals(DisconnectCause.CANCELED, callSession.disconnectCause?.code)
+        }
+    }
 }
