@@ -19,13 +19,27 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
@@ -80,12 +94,19 @@ import androidx.compose.remote.player.compose.embedded.modifier.zIndex
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -266,6 +287,239 @@ internal fun rememberComponentVisibility(op: ComponentVisibilityOperation): Int 
     }
 }
 
+/** A tween, or a snap when there is neither a duration nor a delay. */
+private fun <T> visibilityTween(
+    durationMillis: Int,
+    delayMillis: Int,
+    easing: Easing,
+): FiniteAnimationSpec<T> =
+    if (durationMillis <= 0 && delayMillis <= 0) {
+        snap()
+    } else {
+        tween(durationMillis = durationMillis, delayMillis = delayMillis, easing = easing)
+    }
+
+private fun buildEnterTransition(
+    anim: AnimationSpec.ANIMATION,
+    visDur: Int,
+    visDelay: Int,
+    visEasing: Easing,
+    motDur: Int,
+    motDelay: Int,
+    motEasing: Easing,
+): EnterTransition {
+    val visualPart =
+        when (anim) {
+            AnimationSpec.ANIMATION.FADE_IN,
+            AnimationSpec.ANIMATION.FADE_OUT -> fadeIn(visibilityTween(visDur, visDelay, visEasing))
+            AnimationSpec.ANIMATION.SLIDE_LEFT ->
+                slideInHorizontally(visibilityTween(visDur, visDelay, visEasing)) { -it }
+            AnimationSpec.ANIMATION.SLIDE_RIGHT ->
+                slideInHorizontally(visibilityTween(visDur, visDelay, visEasing)) { it }
+            AnimationSpec.ANIMATION.SLIDE_TOP ->
+                slideInVertically(visibilityTween(visDur, visDelay, visEasing)) { -it }
+            AnimationSpec.ANIMATION.SLIDE_BOTTOM ->
+                slideInVertically(visibilityTween(visDur, visDelay, visEasing)) { it }
+            // Drawn by visibilityAnimationDraw, driven by the AnimatedVisibility scope's
+            // transition.
+            AnimationSpec.ANIMATION.ROTATE,
+            AnimationSpec.ANIMATION.PARTICLE,
+            AnimationSpec.ANIMATION.CUSTOM -> EnterTransition.None
+        }
+    val motionPart =
+        if (motDur > 0 || motDelay > 0) {
+            expandIn(
+                animationSpec = visibilityTween(motDur, motDelay, motEasing),
+                expandFrom = Alignment.TopStart,
+                clip = false,
+            )
+        } else {
+            EnterTransition.None
+        }
+    return visualPart + motionPart
+}
+
+private fun buildExitTransition(
+    anim: AnimationSpec.ANIMATION,
+    visDur: Int,
+    visDelay: Int,
+    visEasing: Easing,
+    motDur: Int,
+    motDelay: Int,
+    motEasing: Easing,
+): ExitTransition {
+    val visualPart =
+        when (anim) {
+            AnimationSpec.ANIMATION.FADE_IN,
+            AnimationSpec.ANIMATION.FADE_OUT ->
+                fadeOut(visibilityTween(visDur, visDelay, visEasing))
+            AnimationSpec.ANIMATION.SLIDE_LEFT ->
+                slideOutHorizontally(visibilityTween(visDur, visDelay, visEasing)) { -it }
+            AnimationSpec.ANIMATION.SLIDE_RIGHT ->
+                slideOutHorizontally(visibilityTween(visDur, visDelay, visEasing)) { it }
+            AnimationSpec.ANIMATION.SLIDE_TOP ->
+                slideOutVertically(visibilityTween(visDur, visDelay, visEasing)) { -it }
+            AnimationSpec.ANIMATION.SLIDE_BOTTOM ->
+                slideOutVertically(visibilityTween(visDur, visDelay, visEasing)) { it }
+            // See buildEnterTransition.
+            AnimationSpec.ANIMATION.ROTATE,
+            AnimationSpec.ANIMATION.PARTICLE,
+            AnimationSpec.ANIMATION.CUSTOM -> ExitTransition.None
+        }
+    val motionPart =
+        if (motDur > 0 || motDelay > 0) {
+            shrinkOut(
+                animationSpec = visibilityTween(motDur, motDelay, motEasing),
+                shrinkTowards = Alignment.TopStart,
+                clip = false,
+            )
+        } else {
+            ExitTransition.None
+        }
+    return visualPart + motionPart
+}
+
+@Composable
+internal fun RcPlayerAnimatedVisibility(
+    component: LayoutComponent,
+    visibilityOp: ComponentVisibilityOperation?,
+    animSpec: AnimationSpec?,
+    modifier: Modifier = Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    val sizeTrackerModifier =
+        remember(component) {
+            Modifier.onPlaced { coords ->
+                component.setWidth(coords.size.width.toFloat())
+                component.setHeight(coords.size.height.toFloat())
+            }
+        }
+    if (visibilityOp == null) {
+        content(modifier.then(sizeTrackerModifier))
+        return
+    }
+    val visible = rememberComponentVisibility(visibilityOp)
+    val canAnimate = animSpec != null && animSpec.isAnimationEnabled
+    if (!canAnimate) {
+        SideEffect { component.mVisibility = visible }
+        if (Component.Visibility.isGone(visible)) {
+            return
+        }
+        content(
+            modifier.then(sizeTrackerModifier).graphicsLayer {
+                alpha = if (Component.Visibility.isVisible(visible)) 1f else 0f
+            }
+        )
+        return
+    }
+
+    val visibilityTransition = updateTransition(targetState = visible, label = "RcVisibility")
+    val visDur = animSpec.visibilityDuration.toInt().coerceAtLeast(0)
+    val motDur = animSpec.motionDuration.toInt().coerceAtLeast(0)
+    val visEasing = mapEasing(animSpec.visibilityEasingType)
+    val motEasing = mapEasing(animSpec.motionEasingType)
+    val enterVisDelay = if (animSpec.enterSequence == AnimationSpec.SEQUENCE.AFTER) motDur else 0
+    val enterMotDelay = if (animSpec.enterSequence == AnimationSpec.SEQUENCE.BEFORE) visDur else 0
+    val exitVisDelay = if (animSpec.exitSequence == AnimationSpec.SEQUENCE.AFTER) motDur else 0
+    val exitMotDelay = if (animSpec.exitSequence == AnimationSpec.SEQUENCE.BEFORE) visDur else 0
+
+    // Held as State and only read in the draw phase (and in derivedStateOf below), so the
+    // animation invalidates drawing each frame rather than recomposing the component's subtree.
+    val visProgressState =
+        visibilityTransition.animateFloat(
+            transitionSpec = {
+                val isEntering = Component.Visibility.isVisible(targetState)
+                val delay = if (isEntering) enterVisDelay else exitVisDelay
+                visibilityTween(visDur, delay, visEasing)
+            },
+            label = "visProgress",
+        ) { state ->
+            if (Component.Visibility.isVisible(state)) 1f else 0f
+        }
+
+    val isActive = visibilityTransition.currentState != visibilityTransition.targetState
+    // Report the component to core as VISIBLE until its exit animation has faded it out. Read in
+    // composition (not inside the SideEffect) so a change of the derived value recomposes.
+    val coreVisibility =
+        remember(visibilityTransition, visProgressState) {
+                derivedStateOf {
+                    val active =
+                        visibilityTransition.currentState != visibilityTransition.targetState
+                    if (active && visProgressState.value > 0.0001f) {
+                        Component.Visibility.VISIBLE
+                    } else {
+                        visibilityTransition.targetState
+                    }
+                }
+            }
+            .value
+    SideEffect { component.mVisibility = coreVisibility }
+
+    val enterTransition =
+        remember(animSpec, visDur, motDur, enterVisDelay, enterMotDelay, visEasing, motEasing) {
+            buildEnterTransition(
+                anim = animSpec.enterAnimation,
+                visDur = visDur,
+                visDelay = enterVisDelay,
+                visEasing = visEasing,
+                motDur = motDur,
+                motDelay = enterMotDelay,
+                motEasing = motEasing,
+            )
+        }
+    val exitTransition =
+        remember(animSpec, visDur, motDur, exitVisDelay, exitMotDelay, visEasing, motEasing) {
+            buildExitTransition(
+                anim = animSpec.exitAnimation,
+                visDur = visDur,
+                visDelay = exitVisDelay,
+                visEasing = visEasing,
+                motDur = motDur,
+                motDelay = exitMotDelay,
+                motEasing = motEasing,
+            )
+        }
+
+    visibilityTransition.AnimatedVisibility(
+        visible = { !Component.Visibility.isGone(it) },
+        modifier = modifier,
+        enter = enterTransition,
+        exit = exitTransition,
+    ) {
+        DisposableEffect(component) {
+            onDispose {
+                if (Component.Visibility.isGone(visibilityTransition.targetState)) {
+                    component.mVisibility = Component.Visibility.GONE
+                }
+            }
+        }
+        val isEntering = Component.Visibility.isVisible(visibilityTransition.targetState)
+        // ROTATE, CUSTOM and PARTICLE are drawn by visibilityAnimationDraw and have no
+        // Enter/ExitTransition. Animating on this scope's transition keeps the content composed
+        // until the visibility animation finishes, instead of disposing it as soon as the exit
+        // starts.
+        val drawProgressState =
+            transition.animateFloat(
+                transitionSpec = {
+                    val delay =
+                        if (targetState == EnterExitState.Visible) enterVisDelay else exitVisDelay
+                    visibilityTween(visDur, delay, visEasing)
+                },
+                label = "drawProgress",
+            ) { state ->
+                if (state == EnterExitState.Visible) 1f else 0f
+            }
+        val innerModifier =
+            sizeTrackerModifier.visibilityAnimationDraw(
+                animSpec = animSpec,
+                isActive = isActive,
+                isEntering = isEntering,
+                visProgressProvider = { drawProgressState.value },
+            )
+        content(innerModifier)
+    }
+}
+
 @Composable
 private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
     val visible = rememberComponentVisibility(op)
@@ -279,6 +533,42 @@ private fun Modifier.visible(op: ComponentVisibilityOperation): Modifier {
             }
         }
         .graphicsLayer { alpha = if (visible == Component.Visibility.VISIBLE) 1f else 0f }
+}
+
+@Composable
+private fun Modifier.visibilityAnimationDraw(
+    animSpec: AnimationSpec,
+    isActive: Boolean,
+    isEntering: Boolean,
+    visProgressProvider: () -> Float,
+): Modifier {
+    val contentLayer = rememberGraphicsLayer()
+
+    return this.drawWithContent {
+        val visProgress = visProgressProvider()
+        if (visProgress <= 0.0001f) {
+            return@drawWithContent
+        }
+        if (isActive) {
+            val anim = if (isEntering) animSpec.enterAnimation else animSpec.exitAnimation
+            val progress = (if (isEntering) visProgress else 1f - visProgress).coerceIn(0f, 1f)
+            when (anim) {
+                AnimationSpec.ANIMATION.ROTATE -> {
+                    // A full turn, fading in on enter and out on exit.
+                    contentLayer.alpha = if (isEntering) progress else 1f - progress
+                    contentLayer.rotationZ =
+                        if (isEntering) (1f - progress) * 360f else -progress * 360f
+                    contentLayer.record { this@drawWithContent.drawContent() }
+                    drawLayer(contentLayer)
+                }
+                else -> {
+                    drawContent()
+                }
+            }
+        } else {
+            drawContent()
+        }
+    }
 }
 
 @Composable

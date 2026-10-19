@@ -91,6 +91,7 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
@@ -125,6 +126,7 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerFlowRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerImageLayout
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerRow
 import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayout
+import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
 import androidx.compose.remote.player.compose.embedded.state.hasAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberAnimatedRemoteFloat
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -794,20 +796,20 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         val remoteContext = LocalRemoteContext.current
         val graphContext = LocalGraphContext.current
 
-        val visibilityOp =
-            component.componentModifiers.list.fastFirstOrNull { it is ComponentVisibilityOperation }
-                as? ComponentVisibilityOperation
         // FitBoxLayout and StateLayout unconditionally override the visibility of their direct
         // candidate/page children (matching FitBoxLayout.addVisibilityOverride and
         // StateLayout.measure in remote-core).
         val visibilityDelegatedToParent =
             component.parent is FitBoxLayout || component.parent is StateLayout
-        if (visibilityOp != null && !visibilityDelegatedToParent) {
-            val visible = rememberComponentVisibility(visibilityOp)
-            if (visible == Component.Visibility.GONE) {
-                return
-            }
-        }
+        val visibilityOp =
+            if (visibilityDelegatedToParent) null
+            else
+                component.componentModifiers.list.fastFirstOrNull {
+                    it is ComponentVisibilityOperation
+                } as? ComponentVisibilityOperation
+        val animSpec =
+            component.componentModifiers.list.fastFirstOrNull { it is AnimationSpec }
+                as? AnimationSpec ?: component.animationSpec
 
         // Custom components whose plugin handles clicks itself (e.g. a native button) receive the
         // click actions via RcCustomComponent instead of a wrapping clickable.
@@ -816,7 +818,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
 
         val touchExpressions = componentTouchExpressionsMap[component.componentId].orEmpty()
         val placement = remember(component) { ComponentPlacementHolder() }
-        var modifier =
+        var outerModifier =
             Modifier.sharedElementTransition(component)
                 .then(
                     // Allow StateLayout to adopt its active child's measured dimensions rather than
@@ -827,11 +829,19 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                         Modifier
                     }
                 )
-                .rcComponentOuterInspector(component)
+                // The caller's modifier carries parent data (e.g. Row/Column weight and
+                // alignment), so it must be on the outermost layout node, which is
+                // AnimatedVisibility's when the component animates its visibility.
+                .then(modifier)
+
+        // Visibility is applied by RcPlayerAnimatedVisibility, inside the outer (placement)
+        // modifiers and outside the component's own modifiers.
+        val contentModifier =
+            Modifier.rcComponentOuterInspector(component)
                 .then(
                     component.componentModifiers.toModifier(
                         component.drawContentOperations?.list,
-                        ignoreVisibility = visibilityDelegatedToParent,
+                        ignoreVisibility = true,
                         ignoreClicks = customClickHandlers != null,
                     )
                 )
@@ -1033,7 +1043,6 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                         Modifier
                     }
                 )
-                .then(modifier)
 
         // Publish the component's measured dimensions and positions (read by ComponentValue
         // expressions and TouchExpression) from an onPlaced callback rather than a custom
@@ -1045,7 +1054,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         if (
             !sizeFeedbackOps.isNullOrEmpty() || touchExpressions.isNotEmpty() || hasTouchExpressions
         ) {
-            modifier =
+            outerModifier =
                 Modifier.onPlaced { coords ->
                         placement.outerCoords = coords
                         val posInParent = coords.positionInParent()
@@ -1124,36 +1133,56 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                             }
                         }
                     }
-                    .then(modifier)
+                    .then(outerModifier)
         }
 
-        when (component) {
-            is CanvasLayout -> RcPlayerCanvas(component, modifier)
-            is ColumnLayout -> RcPlayerColumn(component, modifier)
-            is FlowLayout -> RcPlayerFlowRow(component, modifier)
-            is RowLayout -> RcPlayerRow(component, modifier)
-            is CoreText -> RcPlayerText(component, modifier)
-            is TextLayout -> RcPlayerText(component, modifier)
-            is FitBoxLayout -> RcPlayerFitBoxLayout(component, modifier)
-            is StateLayout -> RcPlayerStateLayout(component, modifier)
-            is ImageLayout -> RcPlayerImageLayout(component, modifier)
-            is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)
-            // Last as others are often BoxLayout subclasses
-            is BoxLayout -> RcPlayerBox(component, modifier)
-            else -> {
-                // Unsupported layout type. Render nothing rather than crash; see
-                // operation_coverage.md. The modifier (incl. any drawContent) was still applied
-                // above.
-                println(
-                    "Warning: unsupported layout component ${component::class.java.simpleName}; rendering nothing"
-                )
-            }
+        RcPlayerAnimatedVisibility(
+            component = component,
+            visibilityOp = visibilityOp,
+            animSpec = animSpec,
+            modifier = outerModifier,
+        ) { visibilityModifier ->
+            RcPlayerLayoutComponent(
+                component,
+                visibilityModifier.then(contentModifier),
+                customClickHandlers,
+            )
         }
     } else {
         // Non-LayoutComponent component reached dispatch — skip gracefully instead of crashing.
         println(
             "Warning: unsupported component ${component?.let { it::class.java.simpleName }}; rendering nothing"
         )
+    }
+}
+
+@Composable
+private fun RcPlayerLayoutComponent(
+    component: LayoutComponent,
+    modifier: Modifier,
+    customClickHandlers: ClickActionHandlers?,
+) {
+    when (component) {
+        is CanvasLayout -> RcPlayerCanvas(component, modifier)
+        is ColumnLayout -> RcPlayerColumn(component, modifier)
+        is FlowLayout -> RcPlayerFlowRow(component, modifier)
+        is RowLayout -> RcPlayerRow(component, modifier)
+        is CoreText -> RcPlayerText(component, modifier)
+        is TextLayout -> RcPlayerText(component, modifier)
+        is FitBoxLayout -> RcPlayerFitBoxLayout(component, modifier)
+        is StateLayout -> RcPlayerStateLayout(component, modifier)
+        is ImageLayout -> RcPlayerImageLayout(component, modifier)
+        is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)
+        // Last as others are often BoxLayout subclasses
+        is BoxLayout -> RcPlayerBox(component, modifier)
+        else -> {
+            // Unsupported layout type. Render nothing rather than crash; see
+            // operation_coverage.md. The modifier (incl. any drawContent) was still applied
+            // above.
+            println(
+                "Warning: unsupported layout component ${component::class.java.simpleName}; rendering nothing"
+            )
+        }
     }
 }
 

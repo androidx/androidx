@@ -121,7 +121,7 @@ class RcPlayerSwitchDemoTest {
         rule.onNodeWithContentDescription("State C").performClick()
         rule.waitForIdle()
 
-        rule.mainClock.advanceTimeBy(100)
+        rule.mainClock.advanceTimeBy(500)
 
         rule
             .onRoot()
