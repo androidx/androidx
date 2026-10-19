@@ -20,8 +20,10 @@ import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,10 +31,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
@@ -203,5 +207,36 @@ class MenuTest {
         assertThat(trailingIconBounds.right.value)
             .isWithin(2f)
             .of(itemBounds.right.value - horizontalPadding.value - 4.dp.value)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expressiveDropdownMenuItem_longText_doesNotClipTrailingContent() {
+        rule.setContent {
+            Box(Modifier.width(200.dp)) {
+                DropdownMenuItem(
+                    onClick = {},
+                    // Text that wants more width than the item can offer, as with a long label
+                    // or a large font scale.
+                    text = { Box(Modifier.width(400.dp).height(20.dp).testTag("Text")) },
+                    shape = RectangleShape,
+                    leadingIcon = { Box(Modifier.size(24.dp).testTag("LeadingIcon")) },
+                    trailingContent = { Box(Modifier.size(24.dp).testTag("TrailingContent")) },
+                    modifier = Modifier.testTag("MenuItem"),
+                )
+            }
+        }
+
+        val itemBounds = rule.onNodeWithTag("MenuItem").getUnclippedBoundsInRoot()
+        val textBounds =
+            rule.onNodeWithTag("Text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val trailingBounds =
+            rule.onNodeWithTag("TrailingContent", useUnmergedTree = true).getUnclippedBoundsInRoot()
+
+        // Trailing content keeps its full width and stays inside the item.
+        rule.onNodeWithTag("TrailingContent", useUnmergedTree = true).assertWidthIsEqualTo(24.dp)
+        assertThat(trailingBounds.right.value).isAtMost(itemBounds.right.value)
+        // Text is constrained to the space before the trailing content.
+        assertThat(textBounds.right.value).isAtMost(trailingBounds.left.value)
     }
 }
