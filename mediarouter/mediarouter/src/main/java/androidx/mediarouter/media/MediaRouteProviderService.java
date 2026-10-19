@@ -1350,6 +1350,10 @@ public abstract class MediaRouteProviderService extends Service {
         @Override
         public IBinder onBind(Intent intent) {
             mService.ensureProvider();
+            if (mService.getMediaRouteProvider() == null) {
+                Log.i(TAG, "Rejecting bind request due to null provider");
+                return null;
+            }
             if (mMR2ProviderServiceAdapter == null) {
                 mMR2ProviderServiceAdapter = new MediaRoute2ProviderServiceAdapter(this);
                 if (mService.getBaseContext() != null) {
