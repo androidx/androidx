@@ -51,7 +51,6 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.view.ViewCompat
 import kotlin.OptIn
 import kotlin.math.roundToInt
 
@@ -89,11 +88,7 @@ fun ViewInComposeNestedScrollInteropSample() {
             )
     ) {
         AndroidView({ context ->
-            LayoutInflater.from(context).inflate(android.R.layout.activity_list_item, null).apply {
-                // Nested Scroll Interop will be Enabled when
-                // nested scroll is enabled for the root view
-                ViewCompat.setNestedScrollingEnabled(this, true)
-            }
+            LayoutInflater.from(context).inflate(android.R.layout.activity_list_item, null)
         })
     }
 }
@@ -143,7 +138,6 @@ private fun AndroidViewWithCompose(context: Context): View {
                 setContent { LazyColumnWithNestedScrollInteropEnabled() }
             }
         }
-        .also { ViewCompat.setNestedScrollingEnabled(it, true) }
 }
 
 @Composable

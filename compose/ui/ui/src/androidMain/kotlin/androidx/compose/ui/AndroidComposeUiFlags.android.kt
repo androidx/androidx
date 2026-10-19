@@ -147,4 +147,15 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isShowOnScreenContentPaddingEnabled: Boolean = true
+
+    /**
+     * Enables dispatching nested scroll events from [androidx.compose.ui.viewinterop.AndroidView]
+     * to parent Compose nested scroll connections when the root hosted `View` has
+     * `isNestedScrollingEnabled` set to `false` by default (such as `FrameLayout` or
+     * `FragmentContainerView` wrapping a scrolling child `View`).
+     */
+    // TODO(b/541378736): Cleanup feature flag once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNestedScrollInteropViewHolderFixEnabled: Boolean = true
 }
