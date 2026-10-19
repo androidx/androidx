@@ -36,6 +36,7 @@ public fun SubspaceModifier.alpha(
 
 private class AlphaElement(private var alpha: Float) : SubspaceModifierNodeElement<AlphaNode>() {
     init {
+        require(!alpha.isNaN()) { "alpha value cannot be NaN" }
         alpha = alpha.coerceIn(0.0f, 1.0f)
     }
 
