@@ -76,6 +76,7 @@ package androidx.compose.ui {
     property public boolean isDelayAndroidViewsHandlerCreationEnabled;
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isHardwareNavigationHandlingEnabled;
+    property public boolean isNestedScrollInteropMeasureAndLayoutEnabled;
     property public boolean isNestedScrollInteropViewHolderFixEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     property public boolean isPointerInteropFilterNodeEnabled;
@@ -87,6 +88,7 @@ package androidx.compose.ui {
     field public static boolean isDelayAndroidViewsHandlerCreationEnabled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isHardwareNavigationHandlingEnabled;
+    field public static boolean isNestedScrollInteropMeasureAndLayoutEnabled;
     field public static boolean isNestedScrollInteropViewHolderFixEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
     field public static boolean isPointerInteropFilterNodeEnabled;

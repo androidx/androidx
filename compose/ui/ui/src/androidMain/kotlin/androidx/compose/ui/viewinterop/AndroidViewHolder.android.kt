@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -592,6 +593,9 @@ internal open class AndroidViewHolder(
             )
         consumed[0] = composeToViewOffset(consumedByParent.x)
         consumed[1] = composeToViewOffset(consumedByParent.y)
+        if (type == ViewCompat.TYPE_TOUCH && consumedByParent != Offset.Zero) {
+            flushPendingMeasureAndLayout()
+        }
     }
 
     override fun onNestedScroll(
@@ -609,11 +613,15 @@ internal open class AndroidViewHolder(
         ) {
             return
         }
-        dispatcher.dispatchPostScroll(
-            consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
-            available = Offset(dxUnconsumed.toComposeOffset(), dyUnconsumed.toComposeOffset()),
-            source = toNestedScrollSource(type),
-        )
+        val consumedByParent =
+            dispatcher.dispatchPostScroll(
+                consumed = Offset(dxConsumed.toComposeOffset(), dyConsumed.toComposeOffset()),
+                available = Offset(dxUnconsumed.toComposeOffset(), dyUnconsumed.toComposeOffset()),
+                source = toNestedScrollSource(type),
+            )
+        if (type == ViewCompat.TYPE_TOUCH && consumedByParent != Offset.Zero) {
+            flushPendingMeasureAndLayout()
+        }
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
@@ -631,6 +639,25 @@ internal open class AndroidViewHolder(
             )
         consumed[0] = composeToViewOffset(consumedByParent.x)
         consumed[1] = composeToViewOffset(consumedByParent.y)
+        if (type == ViewCompat.TYPE_TOUCH && consumedByParent != Offset.Zero) {
+            flushPendingMeasureAndLayout()
+        }
+    }
+
+    /**
+     * Synchronously flushes pending snapshot state changes and remeasures/relayouts the Compose
+     * hierarchy so that any movement of this [AndroidViewHolder] caused by a parent
+     * [NestedScrollConnection] is reflected in its window location before returning to
+     * [androidx.core.view.NestedScrollingChildHelper].
+     */
+    private fun flushPendingMeasureAndLayout() {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isNestedScrollInteropMeasureAndLayoutEnabled) {
+            if (!Snapshot.isInSnapshot && Snapshot.current.hasPendingChanges()) {
+                Snapshot.sendApplyNotifications()
+                owner.measureAndLayout(sendPointerUpdate = false)
+            }
+        }
     }
 
     override fun onNestedFling(

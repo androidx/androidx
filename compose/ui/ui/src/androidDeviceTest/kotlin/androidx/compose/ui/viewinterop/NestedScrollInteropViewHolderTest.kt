@@ -31,21 +31,32 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tests.R
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -283,5 +294,142 @@ class NestedScrollInteropViewHolderTest {
             assertThat(connection.velocityConsumedDownChain)
                 .isEqualTo(recyclerViewConsumptionTracker.velocityConsumed)
         }
+    }
+
+    @Test
+    fun nestedScrollInteropIsOn_dynamicPaddingParent_updatesViewWindowOffsetSynchronously() {
+        var heightOffsetPx by mutableFloatStateOf(0f)
+        var maxOffsetPx = 0f
+        val preScrollDeltasY = mutableListOf<Float>()
+        val collapsingConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    preScrollDeltasY.add(available.y)
+                    val previousOffset = heightOffsetPx
+                    heightOffsetPx = (heightOffsetPx + available.y).coerceIn(-maxOffsetPx, 0f)
+                    return Offset(0f, heightOffsetPx - previousOffset)
+                }
+            }
+        rule.setContent {
+            maxOffsetPx = with(LocalDensity.current) { CollapsingHeaderHeight.toPx() }
+            DynamicTopPaddingBox(
+                topPaddingPxProvider = { (maxOffsetPx + heightOffsetPx).fastRoundToInt() },
+                modifier = Modifier.fillMaxSize().nestedScroll(collapsingConnection),
+            ) {
+                NestedScrollInteropWithView(
+                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                )
+            }
+        }
+
+        onView(withId(R.id.main_list)).perform(swipeUp())
+
+        rule.runOnIdle {
+            assertThat(preScrollDeltasY).isNotEmpty()
+            assertThat(preScrollDeltasY.all { it <= 0f }).isTrue()
+            assertThat(heightOffsetPx).isEqualTo(-maxOffsetPx)
+        }
+    }
+
+    @Test
+    fun nestedScrollInteropIsOn_dynamicPaddingParent_postScroll_updatesViewWindowOffsetSynchronously() {
+        var heightOffsetPx by mutableFloatStateOf(0f)
+        var maxOffsetPx = 0f
+        val postScrollDeltasY = mutableListOf<Float>()
+        val expandingConnection =
+            object : NestedScrollConnection {
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    postScrollDeltasY.add(available.y)
+                    val previousOffset = heightOffsetPx
+                    heightOffsetPx = (heightOffsetPx + available.y).coerceIn(-maxOffsetPx, 0f)
+                    return Offset(0f, heightOffsetPx - previousOffset)
+                }
+            }
+        rule.setContent {
+            maxOffsetPx = with(LocalDensity.current) { CollapsingHeaderHeight.toPx() }
+            heightOffsetPx = -maxOffsetPx
+            DynamicTopPaddingBox(
+                topPaddingPxProvider = { (maxOffsetPx + heightOffsetPx).fastRoundToInt() },
+                modifier = Modifier.fillMaxSize().nestedScroll(expandingConnection),
+            ) {
+                NestedScrollInteropWithView(
+                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                )
+            }
+        }
+
+        onView(withId(R.id.main_list)).perform(swipeDown())
+
+        rule.runOnIdle {
+            assertThat(postScrollDeltasY).isNotEmpty()
+            assertThat(postScrollDeltasY.all { it >= 0f }).isTrue()
+            assertThat(heightOffsetPx).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun nestedScrollInteropIsOn_offsetParent_updatesViewWindowOffsetSynchronously() {
+        var offsetPx by mutableFloatStateOf(0f)
+        var maxOffsetPx = 0f
+        val preScrollDeltasY = mutableListOf<Float>()
+        val offsettingConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    preScrollDeltasY.add(available.y)
+                    val previousOffset = offsetPx
+                    offsetPx = (offsetPx + available.y).coerceIn(-maxOffsetPx, 0f)
+                    return Offset(0f, offsetPx - previousOffset)
+                }
+            }
+        rule.setContent {
+            maxOffsetPx = with(LocalDensity.current) { CollapsingHeaderHeight.toPx() }
+            Box(
+                modifier =
+                    Modifier.fillMaxSize().nestedScroll(offsettingConnection).offset {
+                        IntOffset(0, offsetPx.fastRoundToInt())
+                    }
+            ) {
+                NestedScrollInteropWithView(
+                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                )
+            }
+        }
+
+        onView(withId(R.id.main_list)).perform(swipeUp())
+
+        rule.runOnIdle {
+            assertThat(preScrollDeltasY).isNotEmpty()
+            assertThat(preScrollDeltasY.all { it <= 0f }).isTrue()
+            assertThat(offsetPx).isEqualTo(-maxOffsetPx)
+        }
+    }
+
+    @Composable
+    private fun DynamicTopPaddingBox(
+        topPaddingPxProvider: () -> Int,
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit,
+    ) {
+        Box(
+            modifier.layout { measurable, constraints ->
+                val topPaddingPx = topPaddingPxProvider().coerceAtLeast(0)
+                val height = (constraints.maxHeight - topPaddingPx).coerceAtLeast(0)
+                val placeable =
+                    measurable.measure(constraints.copy(minHeight = 0, maxHeight = height))
+                layout(placeable.width, constraints.maxHeight) {
+                    placeable.place(0, topPaddingPx)
+                }
+            }
+        ) {
+            content()
+        }
+    }
+
+    private companion object {
+        val CollapsingHeaderHeight = 100.dp
     }
 }
