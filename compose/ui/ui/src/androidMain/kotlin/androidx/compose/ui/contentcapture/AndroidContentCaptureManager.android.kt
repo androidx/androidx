@@ -61,10 +61,7 @@ import kotlinx.coroutines.delay
 // TODO(b/318748747): Add an interface for ContentCaptureManager to the common module, and then this
 //  would be the AndroidImplementation. When we create a LocalContentCaptureManager in the future,
 //  we would expose the interface but not this implementation.
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    androidx.compose.ui.platform.ExperimentalComposeUiHostApi::class,
-)
+@OptIn(ExperimentalComposeUiApi::class)
 internal class AndroidContentCaptureManager(
     val view: AndroidComposeView,
     var onContentCaptureSession: () -> ContentCaptureSessionWrapper?,
@@ -296,7 +293,9 @@ internal class AndroidContentCaptureManager(
 
             // Content capture requires events to be sent when an item is added/removed.
             if (oldNode == null) {
-                if (SemanticsProperties.Text in newNode.unmergedConfig) {
+                newNode.unmergedConfig.props.forEachKey { key ->
+                    @Suppress("LABEL_NAME_CLASH")
+                    if (key != SemanticsProperties.Text) return@forEachKey
                     val newText =
                         newNode.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
                     sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
@@ -304,13 +303,21 @@ internal class AndroidContentCaptureManager(
                 return@forEachKey
             }
 
-            if (SemanticsProperties.Text in newNode.unmergedConfig) {
-                val oldText =
-                    oldNode.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
-                val newText =
-                    newNode.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
-                if (oldText != newText) {
-                    sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
+            newNode.unmergedConfig.props.forEachKey { key ->
+                when (key) {
+                    SemanticsProperties.Text -> {
+                        val oldText =
+                            oldNode.unmergedConfig
+                                .getOrNull(SemanticsProperties.Text)
+                                ?.firstOrNull()
+                        val newText =
+                            newNode.unmergedConfig
+                                .getOrNull(SemanticsProperties.Text)
+                                ?.firstOrNull()
+                        if (oldText != newText) {
+                            sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
+                        }
+                    }
                 }
             }
         }

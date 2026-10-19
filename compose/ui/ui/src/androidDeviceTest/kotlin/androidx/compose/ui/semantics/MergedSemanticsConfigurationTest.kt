@@ -58,7 +58,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("box").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -84,7 +84,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("box").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -110,7 +110,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("box").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -137,7 +137,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("box").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -164,7 +164,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("box").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -193,7 +193,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -223,7 +223,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -252,7 +252,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -285,7 +285,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -329,7 +329,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 
@@ -362,7 +362,7 @@ class MergedSemanticsConfigurationTest {
         // Act.
         val id = rule.onNodeWithTag("row").semanticsId()
         val (unmerged, merged) =
-            with(checkNotNull(semanticsOwner.getSemanticsInfo(id))) {
+            with(checkNotNull(semanticsOwner[id])) {
                 Pair(semanticsConfiguration, mergedSemanticsConfiguration())
             }
 

@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.internal.checkPreconditionNotNull
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties.VerticalScrollAxisRange
@@ -60,7 +59,6 @@ private const val TAG = "ScrollCapture"
  * known or not (e.g. `LazyColumn`). Pixels are captured by drawing the node directly after each
  * scroll operation.
  */
-@OptIn(ExperimentalComposeUiHostApi::class)
 @RequiresApi(31)
 internal class ComposeScrollCaptureCallback(
     private val node: SemanticsNode,
