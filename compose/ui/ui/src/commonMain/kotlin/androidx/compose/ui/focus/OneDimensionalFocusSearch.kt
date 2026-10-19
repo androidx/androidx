@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
 import androidx.compose.ui.focus.FocusDirection.Companion.Previous
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -139,7 +139,7 @@ private fun FocusTargetNode.searchChildren(
         "This function should only be used within a parent that has focus."
     }
     val children =
-        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
+        MutableObjectList<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     when (direction) {
         Next ->
@@ -167,7 +167,7 @@ private fun FocusTargetNode.pickChildForForwardSearch(
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
     val children =
-        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
+        MutableObjectList<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     return children.any { it.isEligibleForFocusSearch && it.forwardFocusSearch(onFound) }
 }
@@ -176,7 +176,7 @@ private fun FocusTargetNode.pickChildForBackwardSearch(
     onFound: (FocusTargetNode) -> Boolean
 ): Boolean {
     val children =
-        MutableVector<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
+        MutableObjectList<FocusTargetNode>().apply { visitChildren(Nodes.FocusTarget) { add(it) } }
     children.sortWith(FocusableChildrenComparator)
     children.forEachReversed {
         if (it.isEligibleForFocusSearch && it.backwardFocusSearch(onFound)) {
@@ -190,7 +190,7 @@ private fun FocusTargetNode.isRoot() = nearestAncestor(Nodes.FocusTarget) == nul
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-private inline fun <T> MutableVector<T>.forEachItemAfter(item: T, action: (T) -> Unit) {
+private inline fun <T> MutableObjectList<T>.forEachItemAfter(item: T, action: (T) -> Unit) {
     contract { callsInPlace(action) }
     var itemFound = false
     for (index in indices) {
@@ -205,7 +205,7 @@ private inline fun <T> MutableVector<T>.forEachItemAfter(item: T, action: (T) ->
 
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -> Unit) {
+private inline fun <T> MutableObjectList<T>.forEachItemBefore(item: T, action: (T) -> Unit) {
     contract { callsInPlace(action) }
     var itemFound = false
     for (index in indices.reversed()) {
@@ -260,8 +260,8 @@ private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
         error("Could not find a common ancestor between the two FocusModifiers.")
     }
 
-    private fun pathFromRoot(layoutNode: LayoutNode): MutableVector<LayoutNode> {
-        val path = mutableVectorOf<LayoutNode>()
+    private fun pathFromRoot(layoutNode: LayoutNode): MutableObjectList<LayoutNode> {
+        val path = mutableObjectListOf<LayoutNode>()
         var current: LayoutNode? = layoutNode
         while (current != null) {
             path.add(0, current)

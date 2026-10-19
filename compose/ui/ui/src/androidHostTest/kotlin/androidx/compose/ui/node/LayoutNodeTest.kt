@@ -663,7 +663,7 @@ class LayoutNodeTest {
     fun testRemoveBeyondIndex() {
         val node = LayoutNode()
         node.insertAt(0, LayoutNode())
-        Assert.assertThrows(NullPointerException::class.java) { node.removeAt(1, 1) }
+        Assert.assertThrows(IndexOutOfBoundsException::class.java) { node.removeAt(1, 1) }
     }
 
     // LayoutNode should error when removing at count < 0
@@ -679,14 +679,14 @@ class LayoutNodeTest {
     fun testRemoveWithIndexBeyondSize() {
         val node = LayoutNode()
         node.insertAt(0, LayoutNode())
-        Assert.assertThrows(NullPointerException::class.java) { node.removeAt(0, 2) }
+        Assert.assertThrows(IndexOutOfBoundsException::class.java) { node.removeAt(0, 2) }
     }
 
     // LayoutNode should error when there aren't enough items
     @Test
     fun testRemoveWithIndexEqualToSize() {
         val node = LayoutNode()
-        Assert.assertThrows(NullPointerException::class.java) { node.removeAt(0, 1) }
+        Assert.assertThrows(IndexOutOfBoundsException::class.java) { node.removeAt(0, 1) }
     }
 
     // LayoutNode should allow removing two items
