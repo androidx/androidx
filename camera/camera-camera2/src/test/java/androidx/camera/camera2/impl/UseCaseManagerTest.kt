@@ -40,6 +40,7 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.adapter.TestDeferrableSurface
+import androidx.camera.camera2.adapter.ZslControl
 import androidx.camera.camera2.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
@@ -918,6 +919,7 @@ class UseCaseManagerTest {
         characteristicsMap: Map<CameraCharacteristics.Key<*>, Any?> =
             mapOf(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap),
         cameraXConfig: CameraXConfig? = null,
+        zslControl: ZslControl = ZslControlNoOpImpl(),
     ): UseCaseManager {
         val cameraId = CameraId("0")
 
@@ -953,7 +955,7 @@ class UseCaseManagerTest {
                 requestListener = ComboRequestListener(),
                 cameraConfig = CameraConfig(cameraId),
                 cameraQuirks = cameraQuirks,
-                zslControl = ZslControlNoOpImpl(),
+                zslControl = zslControl,
                 templateParamsOverride = templateParamsOverride,
                 cameraMetadata = fakeCameraMetadata,
                 cameraXConfig = cameraXConfig,
@@ -965,7 +967,7 @@ class UseCaseManagerTest {
                 cameraPipe = cameraPipe,
                 cameraCoordinator = CameraCoordinatorAdapter(cameraPipe, cameraPipe.cameras()),
                 builder = builderProvider,
-                zslControl = ZslControlNoOpImpl(),
+                zslControl = zslControl,
                 lowLightBoostControl = lowLightBoostControl,
                 controls = controls as java.util.Set<UseCaseCameraControl>,
                 camera2CameraControl =
@@ -1120,5 +1122,106 @@ class UseCaseManagerTest {
         GarbageCollectionUtil.runFinalization()
 
         assertThat(weakRef.get()).isNotNull()
+    }
+
+    @Test
+    fun detachAllUseCases_clearsZslRingBuffer() = runTest {
+        initializeUseCaseThreads(this)
+        var clearRingBufferCallCount = 0
+        var isDisabledByDetach = false
+        val fakeZslControl =
+            object : ZslControl by ZslControlNoOpImpl() {
+                override fun clearRingBuffer() {
+                    clearRingBufferCallCount++
+                }
+
+                override fun setZslDisabledByDetach(disabled: Boolean) {
+                    isDisabledByDetach = disabled
+                }
+            }
+        val useCaseManager = createUseCaseManager(zslControl = fakeZslControl)
+        val preview = createPreview()
+
+        useCaseManager.attach(listOf(preview))
+        useCaseManager.activate(preview)
+        assertThat(isDisabledByDetach).isFalse()
+        clearRingBufferCallCount = 0
+
+        useCaseManager.deactivate(preview)
+        useCaseManager.detach(listOf(preview))
+
+        assertThat(isDisabledByDetach).isTrue()
+        assertThat(clearRingBufferCallCount).isAtLeast(1)
+    }
+
+    @Test
+    fun detachThenReattachBeforeCloseJobCompletes_keepsZslEnabled() = runTest {
+        initializeUseCaseThreads(this)
+        var clearRingBufferCallCount = 0
+        var isDisabledByDetach = false
+        val fakeZslControl =
+            object : ZslControl by ZslControlNoOpImpl() {
+                override fun clearRingBuffer() {
+                    clearRingBufferCallCount++
+                }
+
+                override fun setZslDisabledByDetach(disabled: Boolean) {
+                    isDisabledByDetach = disabled
+                }
+            }
+        val firstCameraCloseJob = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var buildCount = 0
+        val customBuilderProvider =
+            Provider<UseCaseCameraComponent.Builder> {
+                val delegateBuilder = FakeUseCaseCameraComponentBuilder()
+                object : UseCaseCameraComponent.Builder by delegateBuilder {
+                    override fun build(): UseCaseCameraComponent {
+                        buildCount++
+                        val isFirstCamera = buildCount == 1
+                        val delegateComponent = delegateBuilder.build()
+                        val delegateCamera = delegateComponent.getUseCaseCamera()
+                        val customCamera =
+                            object : UseCaseCamera by delegateCamera {
+                                override fun close(): kotlinx.coroutines.Job =
+                                    if (isFirstCamera) {
+                                        firstCameraCloseJob
+                                    } else {
+                                        delegateCamera.close()
+                                    }
+                            }
+                        return object : UseCaseCameraComponent by delegateComponent {
+                            override fun getUseCaseCamera(): UseCaseCamera = customCamera
+                        }
+                    }
+                }
+            }
+        val useCaseManager =
+            createUseCaseManager(
+                useCaseCameraComponentBuilderProvider = customBuilderProvider,
+                zslControl = fakeZslControl,
+            )
+        val preview = createPreview()
+
+        useCaseManager.attach(listOf(preview))
+        useCaseManager.activate(preview)
+        assertThat(isDisabledByDetach).isFalse()
+
+        // Detach all use cases (firstCameraCloseJob is still in-flight)
+        useCaseManager.deactivate(preview)
+        useCaseManager.detach(listOf(preview))
+        assertThat(isDisabledByDetach).isTrue()
+
+        // Re-attach before firstCameraCloseJob completes
+        useCaseManager.attach(listOf(preview))
+        useCaseManager.activate(preview)
+        assertThat(isDisabledByDetach).isFalse()
+        clearRingBufferCallCount = 0
+
+        // Complete the prior UseCaseCamera's close job; ZSL must remain enabled for the active
+        // session and its ring buffer must not be cleared.
+        firstCameraCloseJob.complete(Unit)
+
+        assertThat(isDisabledByDetach).isFalse()
+        assertThat(clearRingBufferCallCount).isEqualTo(0)
     }
 }

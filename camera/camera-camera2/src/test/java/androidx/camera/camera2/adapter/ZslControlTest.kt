@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
@@ -29,9 +30,15 @@ import androidx.camera.camera2.adapter.ZslControlImpl.Companion.RING_BUFFER_CAPA
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeFrameInfo
+import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
+import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -252,6 +259,87 @@ class ZslControlImplTest {
             .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
         assertThat(zslControlImpl.zslRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
         assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_ZERO_SHUTTER_LAG)
+    }
+
+    @Test
+    fun setZslDisabledByFlashMode_true_clearsRingBufferAndClosesImages() {
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true,
+                )
+            )
+        val fakeImageProxy = createValidZslImageProxy()
+        zslControlImpl.zslRingBuffer.enqueue(fakeImageProxy)
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isFalse()
+
+        zslControlImpl.setZslDisabledByFlashMode(true)
+
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isTrue()
+        assertThat(fakeImageProxy.isClosed).isTrue()
+    }
+
+    @Test
+    fun clearRingBuffer_closesBufferedImages() {
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true,
+                )
+            )
+        val fakeImageProxy = createValidZslImageProxy()
+        zslControlImpl.zslRingBuffer.enqueue(fakeImageProxy)
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isFalse()
+
+        zslControlImpl.clearRingBuffer()
+
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isTrue()
+        assertThat(fakeImageProxy.isClosed).isTrue()
+    }
+
+    @Test
+    fun setZslDisabledByDetach_true_clearsRingBufferAndClosesImages() {
+        zslControlImpl =
+            ZslControlImpl(
+                createCameraProperties(
+                    hasCapabilities = true,
+                    isYuvReprocessingSupported = false,
+                    isPrivateReprocessingSupported = true,
+                    isJpegValidOutputFormat = true,
+                )
+            )
+        val fakeImageProxy = createValidZslImageProxy()
+        zslControlImpl.zslRingBuffer.enqueue(fakeImageProxy)
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isFalse()
+
+        zslControlImpl.setZslDisabledByDetach(true)
+
+        assertThat(zslControlImpl.zslRingBuffer.isEmpty).isTrue()
+        assertThat(fakeImageProxy.isClosed).isTrue()
+    }
+
+    private fun createValidZslImageProxy(): FakeImageProxy {
+        val frameMetadata =
+            FakeFrameMetadata(
+                mapOf(
+                    CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                    CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                    CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED,
+                )
+            )
+        val cameraCaptureResult =
+            CaptureResultAdapter(
+                FakeRequestMetadata(),
+                CameraFrameNumber(1L),
+                FakeFrameInfo(metadata = frameMetadata),
+            )
+        return FakeImageProxy(CameraCaptureResultImageInfo(cameraCaptureResult))
     }
 
     private fun createCameraProperties(
