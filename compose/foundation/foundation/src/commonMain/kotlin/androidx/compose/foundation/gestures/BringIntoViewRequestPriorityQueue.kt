@@ -16,9 +16,9 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.gestures.ContentInViewNode.Request
 import androidx.compose.foundation.internal.checkPrecondition
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -40,7 +40,7 @@ import kotlinx.coroutines.CancellationException
  */
 @OptIn(ExperimentalContracts::class)
 internal class BringIntoViewRequestPriorityQueue {
-    private val requests = mutableVectorOf<Request>()
+    private val requests = mutableObjectListOf<Request>()
 
     val size: Int
         get() = requests.size
@@ -69,7 +69,7 @@ internal class BringIntoViewRequestPriorityQueue {
         // If the request is cancelled for any reason, remove it from the queue.
         request.continuation.invokeOnCancellation { requests.remove(request) }
 
-        for (i in requests.indices.reversed()) {
+        for (i in requests.size - 1 downTo 0) {
             val r = requests[i]
             val rBounds = r.currentBounds() ?: continue
             val intersection = requestBounds.intersect(rBounds)
@@ -109,7 +109,7 @@ internal class BringIntoViewRequestPriorityQueue {
     }
 
     fun resumeAndRemoveAll() {
-        for (i in requests.indices) {
+        for (i in 0 until requests.size) {
             requests[i].continuation.resume(Unit)
         }
         requests.clear()
@@ -119,7 +119,7 @@ internal class BringIntoViewRequestPriorityQueue {
         contract { callsInPlace(block) }
         while (requests.isNotEmpty()) {
             if (block(requests.last().currentBounds())) {
-                requests.removeAt(requests.lastIndex).continuation.resume(Unit)
+                requests.removeAt(requests.size - 1).continuation.resume(Unit)
             } else {
                 return
             }
@@ -128,9 +128,15 @@ internal class BringIntoViewRequestPriorityQueue {
 
     fun cancelAndRemoveAll(cause: Throwable?) {
         // The continuation completion handler will remove the request from the queue when it's
-        // cancelled, so we need to make a copy of the list before iterating to avoid concurrent
-        // mutation.
-        requests.map { it.continuation }.forEach { it.cancel(cause) }
+        // cancelled, shifting the next request into index i. Cancelling one request may also
+        // cancel (and remove) others, e.g. when they share a parent job. Only advance past
+        // requests that stayed in the queue; the precondition below reports them.
+        var i = 0
+        while (i < requests.size) {
+            val request = requests[i]
+            request.continuation.cancel(cause)
+            if (i < requests.size && requests[i] === request) i++
+        }
         checkPrecondition(requests.isEmpty()) { "uncancelled requests present" }
     }
 }

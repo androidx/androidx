@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.internal.requirePrecondition
-import androidx.compose.runtime.collection.mutableVectorOf
 
 /**
  * This data structure is used to save information about the number of "beyond bounds items" that we
@@ -45,7 +45,7 @@ import androidx.compose.runtime.collection.mutableVectorOf
  *    within the completion block of another layout call.
  */
 internal class LazyLayoutBeyondBoundsInfo {
-    private val beyondBoundsItems = mutableVectorOf<Interval>()
+    private val beyondBoundsItems = mutableObjectListOf<Interval>()
 
     /**
      * Create a beyond bounds interval. This can be used to specify which composed items we want to

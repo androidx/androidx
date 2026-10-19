@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.offsetOnMainAxis
@@ -27,7 +28,6 @@ import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.UnspecifiedNestedPrefetchCount
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collection.mutableVectorOf
 
 /**
  * Implementations of this interface control which indices of a LazyGrid should be prefetched
@@ -177,7 +177,7 @@ internal class DefaultLazyGridPrefetchStrategy(
 
     /** The list of handles associated with the items from the [lineToPrefetch] line. */
     private val currentLinePrefetchHandles =
-        mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
+        mutableObjectListOf<LazyLayoutPrefetchState.PrefetchHandle>()
 
     /**
      * Keeps the scrolling direction during the previous calculation in order to be able to detect

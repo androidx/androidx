@@ -19,8 +19,8 @@
 
 package androidx.compose.foundation.relocation
 
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.annotation.RememberInComposition
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.ModifierNodeElement
@@ -97,7 +97,7 @@ public fun Modifier.bringIntoViewRequester(
 ): Modifier = this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
 
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
-    val nodes = mutableVectorOf<BringIntoViewRequesterNode>()
+    val nodes = mutableObjectListOf<BringIntoViewRequesterNode>()
 
     override suspend fun bringIntoView(rect: Rect?) {
         nodes.forEach { it.bringIntoView { rect } }
