@@ -44,7 +44,6 @@ package androidx.appfunctions
  * /** Processes large data. */
  * @AppFunctionDeclaration(isDescribedByKDoc = true)
  * suspend fun processLargeData(
- *     context: AppFunctionContext,
  *     data: List<String>
  * ): List<Result> {
  *     // Switch to a background dispatcher for CPU-intensive work

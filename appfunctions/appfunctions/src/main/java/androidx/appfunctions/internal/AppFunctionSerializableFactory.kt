@@ -51,7 +51,7 @@ public interface AppFunctionSerializableFactory<T : Any> {
 
     // TODO: b/442726462 - Consider decoupling Serializable metadata generation from inventories.
     private fun getAppFunctionComponentsMetadata(): AppFunctionComponentsMetadata =
-        Dependencies.appFunctionInventory?.componentsMetadata ?: AppFunctionComponentsMetadata()
+        AppFunctionComponentsMetadata()
 
     /**
      * Returns an [AppFunctionData.Builder] instance with validation for the serializable specified

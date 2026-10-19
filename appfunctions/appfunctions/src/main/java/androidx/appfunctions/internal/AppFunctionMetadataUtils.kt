@@ -31,9 +31,8 @@ internal object AppFunctionMetadataUtils {
      * Finds [AppFunctionMetadata] for the given [functionIdentifier], return nulls if metadata is
      * not found.
      *
-     * This function first tries to find the metadata from [Dependencies.appFunctionInventory], if
-     * no inventory is present it queries AppSearch to find the metadata using
-     * [AppSearchAppFunctionReader].
+     * This function first tries to find the metadata from [inventory], if no inventory is present
+     * it queries AppSearch to find the metadata using [AppSearchAppFunctionReader].
      */
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     suspend fun getAppFunctionMetadata(
