@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -82,10 +83,10 @@ fun TextOverflowVisibleFixedSizeSample() {
 @Composable
 fun TextOverflowVisibleMinHeightSample() {
     val background = remember { mutableStateOf(Color.Cyan) }
-    val count = remember { mutableStateOf(1) }
+    val count = remember { mutableIntStateOf(1) }
     Box(modifier = Modifier.size(100.dp, 100.dp)) {
         Text(
-            text = "Hello".repeat(count.value),
+            text = "Hello".repeat(count.intValue),
             modifier =
                 Modifier.width(100.dp)
                     .heightIn(min = 70.dp)
@@ -93,7 +94,7 @@ fun TextOverflowVisibleMinHeightSample() {
                     .clickable {
                         background.value =
                             if (background.value == Color.Cyan) Color.Gray else Color.Cyan
-                        count.value = if (count.value == 1) 2 else 1
+                        count.intValue = if (count.intValue == 1) 2 else 1
                     },
             fontSize = 35.sp,
             overflow = TextOverflow.Visible,
