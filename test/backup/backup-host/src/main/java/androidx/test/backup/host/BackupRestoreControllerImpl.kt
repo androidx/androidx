@@ -38,11 +38,18 @@ import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 
+/**
+ * The [BackupRestoreController] of [applicationId] on the device [serialNumber].
+ *
+ * @param testApplicationId the package of the test APK whose runner runs device actions, or null to
+ *   look the runner up on the device
+ */
 internal class BackupRestoreControllerImpl(
     private val adbSession: AdbSession,
     override val serialNumber: String,
     override val apiLevel: Int,
     override val applicationId: String,
+    private val testApplicationId: String? = null,
     private val telemetryPublisher: ((key: String, value: String) -> Unit)? = null,
     private val cleanupTimeout: KotlinDuration = DEFAULT_CLEANUP_TIMEOUT,
     backupServiceProvider: () -> Service = { createBackupService(adbSession) },
@@ -199,7 +206,9 @@ internal class BackupRestoreControllerImpl(
     ): BackupActionResult {
         val instrumentationArgs =
             BackupActionWireProtocol.instrumentationArgs(actionClassName, args, waitForDebugger)
-        val runner = findRunner()
+        val runners = installedRunners()
+        val runner =
+            findRunner(runners) ?: return BackupActionResult.Failure(noRunnerMessage(runners))
         val command = BackupDeviceShell.instrumentCommand(runner, instrumentationArgs)
         val stdout =
             if (command.toByteArray(Charsets.UTF_8).size <= MAX_INLINE_COMMAND_BYTES) {
@@ -279,22 +288,39 @@ internal class BackupRestoreControllerImpl(
         }
     }
 
+    /** Returns the instrumentation components of the runners installed for the app. */
+    private suspend fun installedRunners(): List<String> =
+        shell.listInstrumentations(applicationId).filter {
+            it.substringAfter('/') == BackupActionWireProtocol.RUNNER_CLASS
+        }
+
     /**
-     * Returns the instrumentation component of the runner that is installed for the app: the only
-     * one, or else the one AGP gives the test APK.
+     * Returns the instrumentation component of the runner among [runners], the runners installed
+     * for the app: the one of [testApplicationId] when it is set, or null if it isn't among them,
+     * or else the only runner, or else the one AGP gives the test APK.
      *
      * Without any installed runner, `am instrument` then reports that the test APK is missing.
      */
-    private suspend fun findRunner(): String {
+    private fun findRunner(runners: List<String>): String? {
+        testApplicationId?.let {
+            return "$it/${BackupActionWireProtocol.RUNNER_CLASS}"
+                .takeIf { runner -> runner in runners }
+        }
         val defaultRunner = BackupActionWireProtocol.runnerComponent(applicationId)
-        val runners =
-            shell.listInstrumentations(applicationId).filter {
-                it.substringAfter('/') == BackupActionWireProtocol.RUNNER_CLASS
-            }
         if (runners.size > 1 && defaultRunner !in runners) {
             logger.warning("Several test APKs have a runner for $applicationId: $runners")
         }
         return runners.singleOrNull() ?: defaultRunner
+    }
+
+    /**
+     * Returns why [testApplicationId] can't run device actions, naming the test APKs of [runners].
+     */
+    private fun noRunnerMessage(runners: List<String>): String {
+        val testApks = runners.map { it.substringBefore('/') }.ifEmpty { listOf("none") }
+        return "Test APK $testApplicationId isn't installed or has no " +
+            "${BackupActionWireProtocol.RUNNER_CLASS} for $applicationId. Test APKs with one: " +
+            testApks.joinToString()
     }
 
     override suspend fun performBackup(

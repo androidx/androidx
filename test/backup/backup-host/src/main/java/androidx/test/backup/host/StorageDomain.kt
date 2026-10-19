@@ -16,6 +16,8 @@
 
 package androidx.test.backup.host
 
+import java.util.Collections
+
 /**
  * Defines target data coordinates in the device sandbox that are seeded and verified.
  *
@@ -38,7 +40,8 @@ public sealed class StorageDomain {
                 value is Int ||
                 value is Long ||
                 value is Float ||
-                value is Boolean
+                value is Boolean ||
+                (value is Set<*> && value.all { it is String })
         }
 
         fun isValidDatabaseType(value: Any): Boolean {
@@ -49,6 +52,10 @@ public sealed class StorageDomain {
                 value is Double ||
                 value is Boolean
         }
+
+        /** Returns what a string form adds for a domain in device-protected storage. */
+        private fun deviceProtectedSuffix(isDeviceProtectedStorage: Boolean): String =
+            if (isDeviceProtectedStorage) ", isDeviceProtectedStorage=true" else ""
 
         /**
          * Returns the string form of [value], or, if it is longer than [MAX_SHOWN_LENGTH]
@@ -85,23 +92,34 @@ public sealed class StorageDomain {
      * @property prefName The name of the SharedPreferences XML file (excluding the .xml extension).
      * @property key The specific preference key to seed or verify.
      * @property value The value associated with the preference key, or `null` if asserting missing
-     *   state. Supported types are: String, Int, Long, Float, Boolean, or null. A `null` value is
-     *   seeded by removing the key and verified by checking that the key is absent. Clearing app
-     *   data also removes the key, so a `null` value cannot detect a restore that loses data.
+     *   state. Supported types are: String, Int, Long, Float, Boolean, a Set of Strings, or null. A
+     *   set is stored with `putStringSet` and compared regardless of the order of its elements; the
+     *   preference keeps a copy of it. A `null` value is seeded by removing the key and verified by
+     *   checking that the key is absent. Clearing app data also removes the key, so a `null` value
+     *   cannot detect a restore that loses data.
+     * @property isDeviceProtectedStorage Whether the SharedPreferences file is in device-protected
+     *   storage, which is available before the user first unlocks the device, rather than in the
+     *   default storage of the app. That is credential-encrypted storage, unless the app sets
+     *   `android:defaultToDeviceProtectedStorage`.
      */
     public class Preference
     @JvmOverloads
     constructor(
         public val prefName: String,
         public val key: String,
-        public val value: Any? = null,
+        value: Any? = null,
+        public val isDeviceProtectedStorage: Boolean = false,
     ) : StorageDomain() {
 
+        public val value: Any? =
+            if (value is Set<*>) Collections.unmodifiableSet(LinkedHashSet(value)) else value
+
         init {
+            val value = this.value
             if (value != null) {
                 require(isValidPreferenceType(value)) {
                     "Unsupported SharedPreferences value type: ${value.javaClass.name}. " +
-                        "Supported types are: String, Int, Long, Float, Boolean."
+                        "Supported types are: String, Int, Long, Float, Boolean, Set<String>."
                 }
             }
         }
@@ -109,18 +127,23 @@ public sealed class StorageDomain {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Preference) return false
-            return (prefName == other.prefName) && (key == other.key) && (value == other.value)
+            return prefName == other.prefName &&
+                key == other.key &&
+                value == other.value &&
+                isDeviceProtectedStorage == other.isDeviceProtectedStorage
         }
 
         override fun hashCode(): Int {
             var result = prefName.hashCode()
             result = 31 * result + key.hashCode()
             result = 31 * result + (value?.hashCode() ?: 0)
+            result = 31 * result + isDeviceProtectedStorage.hashCode()
             return result
         }
 
         override fun toString(): String {
-            return "Preference(prefName='$prefName', key='$key', value=${shownValue(value)})"
+            return "Preference(prefName='$prefName', key='$key', value=${shownValue(value)}" +
+                "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
     }
 
@@ -139,13 +162,20 @@ public sealed class StorageDomain {
      *   names, but only with a value whose string form equals that of [primaryKeyVal]; otherwise
      *   construction fails with an [IllegalArgumentException]. When it is omitted, [primaryKeyVal]
      *   is written to that column.
+     * @property isDeviceProtectedStorage Whether the database is in device-protected storage, which
+     *   is available before the user first unlocks the device, rather than in the default storage
+     *   of the app. That is credential-encrypted storage, unless the app sets
+     *   `android:defaultToDeviceProtectedStorage`.
      */
-    public class Database(
+    public class Database
+    @JvmOverloads
+    constructor(
         public val dbName: String,
         public val table: String,
         public val primaryKeyCol: String,
         public val primaryKeyVal: Any,
         public val columnValues: Map<String, Any?>,
+        public val isDeviceProtectedStorage: Boolean = false,
     ) : StorageDomain() {
 
         init {
@@ -181,7 +211,8 @@ public sealed class StorageDomain {
                 table == other.table &&
                 primaryKeyCol == other.primaryKeyCol &&
                 primaryKeyVal == other.primaryKeyVal &&
-                columnValues == other.columnValues
+                columnValues == other.columnValues &&
+                isDeviceProtectedStorage == other.isDeviceProtectedStorage
         }
 
         override fun hashCode(): Int {
@@ -190,13 +221,15 @@ public sealed class StorageDomain {
             result = 31 * result + primaryKeyCol.hashCode()
             result = 31 * result + primaryKeyVal.hashCode()
             result = 31 * result + columnValues.hashCode()
+            result = 31 * result + isDeviceProtectedStorage.hashCode()
             return result
         }
 
         override fun toString(): String {
             return "Database(dbName='$dbName', table='$table', primaryKeyCol='$primaryKeyCol', " +
                 "primaryKeyVal=${shownValue(primaryKeyVal)}, " +
-                "columnValues=${columnValues.mapValues { shownValue(it.value) }})"
+                "columnValues=${columnValues.mapValues { shownValue(it.value) }}" +
+                "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
     }
 
@@ -206,17 +239,31 @@ public sealed class StorageDomain {
      * @property path The path of the file, relative to the app's files directory
      *   (`Context.getFilesDir()`), such as `"my_data.txt"`. An absolute path is used as is.
      * @property content The string content of the file.
+     * @property isDeviceProtectedStorage Whether the file is in device-protected storage, which is
+     *   available before the user first unlocks the device, rather than in the default storage of
+     *   the app. That is credential-encrypted storage, unless the app sets
+     *   `android:defaultToDeviceProtectedStorage`. A relative [path] then starts at the files
+     *   directory of device-protected storage.
      */
-    public class TextFile(public val path: String, public val content: String) : StorageDomain() {
+    public class TextFile
+    @JvmOverloads
+    constructor(
+        public val path: String,
+        public val content: String,
+        public val isDeviceProtectedStorage: Boolean = false,
+    ) : StorageDomain() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is TextFile) return false
-            return path == other.path && content == other.content
+            return path == other.path &&
+                content == other.content &&
+                isDeviceProtectedStorage == other.isDeviceProtectedStorage
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
             result = 31 * result + content.hashCode()
+            result = 31 * result + isDeviceProtectedStorage.hashCode()
             return result
         }
 
@@ -227,7 +274,8 @@ public sealed class StorageDomain {
                 } else {
                     "'${shownStart(content)}...' (${content.length} chars)"
                 }
-            return "TextFile(path='$path', content=$shownContent)"
+            return "TextFile(path='$path', content=$shownContent" +
+                "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
     }
 
@@ -237,25 +285,40 @@ public sealed class StorageDomain {
      * @property path The path of the file, relative to the app's files directory
      *   (`Context.getFilesDir()`), such as `"my_image.png"`. An absolute path is used as is.
      * @property content The raw byte array content of the file.
+     * @property isDeviceProtectedStorage Whether the file is in device-protected storage, which is
+     *   available before the user first unlocks the device, rather than in the default storage of
+     *   the app. That is credential-encrypted storage, unless the app sets
+     *   `android:defaultToDeviceProtectedStorage`. A relative [path] then starts at the files
+     *   directory of device-protected storage.
      */
-    public class BinaryFile(public val path: String, content: ByteArray) : StorageDomain() {
+    public class BinaryFile
+    @JvmOverloads
+    constructor(
+        public val path: String,
+        content: ByteArray,
+        public val isDeviceProtectedStorage: Boolean = false,
+    ) : StorageDomain() {
         public val content: ByteArray = content.clone()
             get() = field.clone()
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is BinaryFile) return false
-            return path == other.path && content.contentEquals(other.content)
+            return path == other.path &&
+                content.contentEquals(other.content) &&
+                isDeviceProtectedStorage == other.isDeviceProtectedStorage
         }
 
         override fun hashCode(): Int {
             var result = path.hashCode()
             result = 31 * result + content.contentHashCode()
+            result = 31 * result + isDeviceProtectedStorage.hashCode()
             return result
         }
 
         override fun toString(): String {
-            return "BinaryFile(path='$path', size=${content.size})"
+            return "BinaryFile(path='$path', size=${content.size}" +
+                "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
     }
 }
