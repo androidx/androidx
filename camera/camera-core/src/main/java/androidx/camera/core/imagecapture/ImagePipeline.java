@@ -114,12 +114,16 @@ public class ImagePipeline {
         mUseCaseConfig = useCaseConfig;
         mCaptureConfig = CaptureConfig.Builder.createFrom(useCaseConfig).build();
 
-        // Create nodes
+        // Create nodes. Only attach InternalImageProcessor if the effect provides an
+        // ImageProcessor. A SurfaceProcessor-based effect targeting IMAGE_CAPTURE is applied
+        // upstream on the shared stream when ImageCapture is a StreamSharing child; otherwise it
+        // is not applied to still captures.
         mCaptureNode = new CaptureNode();
         mProcessingNode = new ProcessingNode(
                 requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
                 cameraCharacteristics,
-                cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
+                cameraEffect != null && cameraEffect.getImageProcessor() != null
+                        ? new InternalImageProcessor(cameraEffect) : null);
 
         // Pass down [RAW_SENSOR, JPEG] to the pipeline if simultaneous capture is enabled.
         List<Integer> outputFormats = new ArrayList<>();

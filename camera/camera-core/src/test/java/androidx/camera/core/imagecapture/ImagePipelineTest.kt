@@ -25,6 +25,9 @@ import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
+import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
+import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -67,6 +70,8 @@ import androidx.camera.testing.impl.TestImageUtil.createRawFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.GrayscaleImageEffect
 import androidx.core.util.Pair
 import com.google.common.truth.Truth.assertThat
@@ -172,6 +177,27 @@ class ImagePipelineTest {
                     .mImageProcessor
             )
             .isNotNull()
+    }
+
+    @Test
+    fun createPipelineWithSurfaceProcessorEffect_processingNodeHasNoEffect() {
+        // Arrange: a SurfaceProcessor-based effect targeting IMAGE_CAPTURE has no ImageProcessor.
+        val surfaceEffect =
+            FakeSurfaceEffect(
+                PREVIEW or VIDEO_CAPTURE or IMAGE_CAPTURE,
+                FakeSurfaceProcessorInternal(mainThreadExecutor()),
+            )
+
+        // Act.
+        val pipeline =
+            ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics, surfaceEffect, false)
+
+        // Assert: no InternalImageProcessor is created for the still capture pipeline.
+        try {
+            assertThat(pipeline.processingNode.mImageProcessor).isNull()
+        } finally {
+            pipeline.close()
+        }
     }
 
     @Test
