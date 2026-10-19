@@ -90,4 +90,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Provides a class that can be used to hoist Compose state into a process."
+    deviceTests {
+        maxShardCount = 1
+    }
 }
