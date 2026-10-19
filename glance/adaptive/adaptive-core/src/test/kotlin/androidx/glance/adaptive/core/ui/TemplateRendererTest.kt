@@ -32,23 +32,33 @@ class TemplateRendererTest {
 
     private data class TestSurface(override val tag: String) : GlanceSurface
 
+    private enum class TestArchetype {
+        COMPACT
+    }
+
     private val constraints = HostConstraints(Dimensions(200, 100), TestSurface("test_surface"))
 
     @Test
-    fun render_receivesTemplateAndConstraints() {
+    fun render_receivesTemplateArchetypeAndConstraints() {
         var observedTemplate: TestTemplate? = null
+        var observedArchetype: TestArchetype? = null
         var observedConstraints: HostConstraints<TestSurface>? = null
 
         val renderer =
-            TemplateRenderer<TestTemplate, TestSurface, Unit> { template, hostConstraints ->
+            TemplateRenderer<TestTemplate, TestSurface, TestArchetype, Unit> {
+                template,
+                archetype,
+                hostConstraints ->
                 observedTemplate = template
+                observedArchetype = archetype
                 observedConstraints = hostConstraints
             }
 
         val template = TestTemplate("Morning Run")
-        renderer.render(template, constraints)
+        renderer.render(template, TestArchetype.COMPACT, constraints)
 
         assertThat(observedTemplate).isSameInstanceAs(template)
+        assertThat(observedArchetype).isEqualTo(TestArchetype.COMPACT)
         assertThat(observedConstraints).isEqualTo(constraints)
     }
 
@@ -60,39 +70,45 @@ class TemplateRendererTest {
     @Test
     fun render_hostChoosesOutputType() {
         val textRenderer =
-            TemplateRenderer<TestTemplate, TestSurface, String> { template, hostConstraints ->
-                "${template.title}@${hostConstraints.dimensions.widthDp}"
+            TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> {
+                template,
+                archetype,
+                hostConstraints ->
+                "${template.title}@${hostConstraints.dimensions.widthDp}/${archetype.name}"
             }
 
-        assertThat(textRenderer.render(TestTemplate("Morning Run"), constraints))
-            .isEqualTo("Morning Run@200")
+        assertThat(
+                textRenderer.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints)
+            )
+            .isEqualTo("Morning Run@200/COMPACT")
     }
 
     @Test
     fun render_outputTypeIsCovariant() {
-        val renderer: TemplateRenderer<TestTemplate, TestSurface, String> =
-            TemplateRenderer { template, _ ->
+        val renderer: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> =
+            TemplateRenderer { template, _, _ ->
                 template.title
             }
 
         // Compiles only because R is declared `out`.
-        val widened: TemplateRenderer<TestTemplate, TestSurface, CharSequence> = renderer
+        val widened: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, CharSequence> =
+            renderer
 
-        assertThat(widened.render(TestTemplate("Morning Run"), constraints))
+        assertThat(widened.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints))
             .isEqualTo("Morning Run")
     }
 
     @Test
-    fun render_templateAndSurfaceAreContravariant() {
-        val renderer: TemplateRenderer<AdaptiveGlanceTemplate, GlanceSurface, String> =
-            TemplateRenderer { _, hostConstraints ->
+    fun render_templateSurfaceAndArchetypeAreContravariant() {
+        val renderer: TemplateRenderer<AdaptiveGlanceTemplate, GlanceSurface, Any, String> =
+            TemplateRenderer { _, _, hostConstraints ->
                 hostConstraints.surface.tag
             }
 
-        // Compiles only because T and S are declared `in`.
-        val narrowed: TemplateRenderer<TestTemplate, TestSurface, String> = renderer
+        // Compiles only because T, S and A are declared `in`.
+        val narrowed: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> = renderer
 
-        assertThat(narrowed.render(TestTemplate("Morning Run"), constraints))
+        assertThat(narrowed.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints))
             .isEqualTo("test_surface")
     }
 }

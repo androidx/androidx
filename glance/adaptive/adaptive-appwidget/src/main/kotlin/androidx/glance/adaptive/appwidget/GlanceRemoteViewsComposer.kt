@@ -138,11 +138,15 @@ internal class GlanceRemoteViewsComposer(
      * Renders [data] for [target], dispatching the resulting
      * [androidx.glance.adaptive.appwidget.ui.AppWidgetRenderOutput] into a platform [RemoteViews].
      */
-    suspend fun compose(data: AdaptiveGlanceTemplate, target: RenderTarget): RemoteViews {
+    suspend fun compose(
+        data: AdaptiveGlanceTemplate,
+        target: RenderTarget,
+        widgetName: String? = null,
+    ): RemoteViews {
         val appContext = context.applicationContext ?: context
         val dimensions = target.dimensions
         val constraints = HostConstraints(dimensions = dimensions, surface = target.surface)
-        return AppWidgetTemplateRegistry.render(data, constraints)
+        return AppWidgetTemplateRegistry.render(data, constraints, widgetName)
             .toRemoteViews(appContext, dimensions)
     }
 

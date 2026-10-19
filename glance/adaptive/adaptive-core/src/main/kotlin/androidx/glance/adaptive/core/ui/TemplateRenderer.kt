@@ -17,13 +17,17 @@
 package androidx.glance.adaptive.core.ui
 
 import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
 /**
- * Rendering contract turning a template of type [T], placed under [HostConstraints] of surface type
- * [S], into host content of type [R].
+ * Rendering contract turning a template of type [T], laid out as archetype [A] under
+ * [HostConstraints] of surface type [S], into host content of type [R].
+ *
+ * The archetype is resolved by an [ArchetypeSelector] and handed in, not recomputed here: the
+ * selector decides *what* to show, the renderer only decides *how* to draw it.
  *
  * The output type is a parameter because this module deliberately carries no UI dependency: it
  * cannot name `@Composable`, `RemoteViews`, or any other host effect type. Leaving [R] open lets
@@ -38,17 +42,24 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
  *
  * @param T The template type implementing [AdaptiveGlanceTemplate].
  * @param S The surface type implementing [GlanceSurface].
+ * @param A The archetype type produced by the paired [ArchetypeSelector].
  * @param R The host content type produced by [render].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface TemplateRenderer<in T : AdaptiveGlanceTemplate, in S : GlanceSurface, out R> {
+public fun interface TemplateRenderer<
+    in T : AdaptiveGlanceTemplate,
+    in S : GlanceSurface,
+    in A : Any,
+    out R,
+> {
 
     /**
-     * Produces host content for [template] under [constraints].
+     * Produces host content for [template], laid out as [archetype], under [constraints].
      *
      * @param template Declarative template data payload.
+     * @param archetype Layout archetype resolved for [template] under [constraints].
      * @param constraints Target host placement: container size plus surface.
      * @return Host content of type [R].
      */
-    public fun render(template: T, constraints: HostConstraints<S>): R
+    public fun render(template: T, archetype: A, constraints: HostConstraints<S>): R
 }

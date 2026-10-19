@@ -21,8 +21,6 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
@@ -68,8 +66,6 @@ class WidgetTelemetryHandlerTest {
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         handler = WidgetTelemetryHandler(appWidgetManager)
         WidgetOptionsCache.clear()
-        AppWidgetTemplateRegistry.resetForTesting()
-        registerTestTemplate()
     }
 
     @Test
@@ -248,13 +244,6 @@ class WidgetTelemetryHandlerTest {
         receiver.onAppWidgetOptionsChanged(context, appWidgetManager, 709, mergedOptions)
 
         assertThat(onUpdateCalled).isFalse()
-    }
-
-    private fun registerTestTemplate() {
-        AppWidgetTemplateRegistry.register(
-            TestTemplate::class.java,
-            GlanceTemplateRenderer { _, _ -> {} },
-        )
     }
 
     /** Binds [appWidgetId] with [options] already stored, as a host would have left them. */
