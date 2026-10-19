@@ -18,6 +18,7 @@ package androidx.xr.compose.unit
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -84,7 +85,14 @@ class VolumeConstraintsTest {
 
         val toString = volumeConstraints.toString()
 
-        assertThat(toString).isEqualTo("width: 0-0, height: 0-0, depth=0-0")
+        assertThat(toString).isEqualTo("width: 0-0, height: 0-0, depth: 0-0")
+    }
+
+    @Test
+    fun volumeConstraints_negativeMinValues_throwsException() {
+        assertFailsWith<IllegalArgumentException> { VolumeConstraints(minWidth = -1) }
+        assertFailsWith<IllegalArgumentException> { VolumeConstraints(minHeight = -1) }
+        assertFailsWith<IllegalArgumentException> { VolumeConstraints(minDepth = -1) }
     }
 
     @Test
