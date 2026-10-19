@@ -650,6 +650,9 @@ abstract class VideoRecordingTestBase(
 
     @Test
     fun togglingMirrorModeDuringRecordingDoesNotInterruptRecording() {
+        // Toggling mirror mode resets VideoCapture and removes the codec surface during recording.
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Set initial mode to OFF
         val preview = Preview.Builder().setMirrorMode(MirrorMode.MIRROR_MODE_OFF).build()
         instrumentation.runOnMainSync {
