@@ -46,14 +46,14 @@ jobs:
           # Enforces a `Test: <stanza>` in the pull request
           checks: '["(.*)?Test:(.*)?"]'
 
-      - name: "Setup JDK 17 and 21"
+      - name: "Setup JDK 21 and 25"
         id: setup-java
         uses: actions/setup-java@v4
         with:
           distribution: "zulu"
           java-version: |
-            17
             21
+            25
 
       - name: "Set environment variables"
         shell: bash
