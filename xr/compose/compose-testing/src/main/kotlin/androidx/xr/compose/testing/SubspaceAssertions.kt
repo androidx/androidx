@@ -403,11 +403,11 @@ public fun SubspaceSemanticsNodeInteraction.assertRotationInRootIsEqualTo(
     val actual = getRotationInRoot()
     val angleDiff = Quaternion.angle(actual, expected)
 
-    if (abs(angleDiff) >= tolerance) {
+    if (abs(angleDiff) > tolerance) {
         val errorMessage =
             """
             Rotation assertion in root failed.
-            Angular difference of ${"%.4f".format(angleDiff)}° is greater than or equal to the allowed tolerance of ${"%.4f".format(tolerance)}°.
+            Angular difference of ${"%.4f".format(angleDiff)}° is greater than the allowed tolerance of ${"%.4f".format(tolerance)}°.
             Actual rotation in root:   $actual
             Expected rotation in root: $expected
             """
@@ -435,11 +435,11 @@ public fun SubspaceSemanticsNodeInteraction.assertRotationIsEqualTo(
     val actual = getRotation()
     val angleDiff = Quaternion.angle(actual, expected)
 
-    if (abs(angleDiff) >= tolerance) {
+    if (abs(angleDiff) > tolerance) {
         val errorMessage =
             """
             Rotation assertion failed.
-            Angular difference of ${"%.4f".format(angleDiff)}° is greater than or equal to the allowed tolerance of ${"%.4f".format(tolerance)}°.
+            Angular difference of ${"%.4f".format(angleDiff)}° is greater than the allowed tolerance of ${"%.4f".format(tolerance)}°.
             Actual rotation:   $actual
             Expected rotation: $expected
             """
