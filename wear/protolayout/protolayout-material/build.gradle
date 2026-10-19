@@ -72,4 +72,8 @@ androidx {
     description = "Material components library for ProtoLayout."
     addGoldenImageAssets()
     enableRobolectric()
+    deviceTests {
+        maxShardCount = 1
+    }
 }
+
