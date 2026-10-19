@@ -771,6 +771,37 @@ class RotateToLookAtUserTest {
             .isEqualTo("PitchLimits(minimumPitch=-10.0, maximumPitch=20.0)")
     }
 
+    @Test
+    fun rotateToLookAtUser_deviceTrackingDisabled_doesNotCrash() =
+        runTest(testDispatcher) {
+            val sessionCreateResult =
+                Session.create(
+                    context = composeTestRule.activity,
+                    coroutineContext = testDispatcher,
+                )
+            assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
+            val session = (sessionCreateResult as SessionCreateSuccess).session
+            session.configure(
+                Config.Builder(session.config)
+                    .setDeviceTracking(DeviceTrackingMode.DISABLED)
+                    .build()
+            )
+            composeTestRule.session = session
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("TheWatcher").rotateToLookAtUser()) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+        }
+
     private fun createSession() {
         val sessionCreateResult = runBlocking {
             Session.create(context = composeTestRule.activity, coroutineContext = testDispatcher)
