@@ -259,8 +259,7 @@ internal class AndroidAutofillManager(
         for (index in 0 until values.size) {
             val itemId = values.keyAt(index)
             val value = values[itemId]
-            semanticsOwner.getSemanticsInfo(itemId)?.semanticsConfiguration?.let { semanticsConfig
-                ->
+            semanticsOwner[itemId]?.semanticsConfiguration?.let { semanticsConfig ->
                 // Try to use the old and deprecated `onAutofillText`
                 @Suppress("DEPRECATION")
                 semanticsConfig

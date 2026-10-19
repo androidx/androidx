@@ -49,10 +49,8 @@ import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.autofill.createFromText
-import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.interactionBarrier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
@@ -115,10 +113,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    androidx.compose.ui.platform.ExperimentalComposeUiHostApi::class,
-)
+@OptIn(ExperimentalComposeUiApi::class)
 class SemanticsTests {
     private val TestTag = "semantics-test-tag"
 
@@ -573,15 +568,13 @@ class SemanticsTests {
         }
 
         val allChildren = rule.onNodeWithTag("tag", true).fetchSemanticsNode().children
-        val children = mutableListOf<SemanticsNode>()
-        rule.onNodeWithTag("tag", true).fetchSemanticsNode().collectAccessibilityChildren(children)
+        val children = rule.onNodeWithTag("tag", true).fetchSemanticsNode().replacedChildren
 
         assertTrue(children.isEmpty())
         assertTrue(allChildren.size == 3)
 
         val allChildrenMerged = rule.onNodeWithTag("tag").fetchSemanticsNode().children
-        val childrenMerged = mutableListOf<SemanticsNode>()
-        rule.onNodeWithTag("tag").fetchSemanticsNode().collectAccessibilityChildren(childrenMerged)
+        val childrenMerged = rule.onNodeWithTag("tag").fetchSemanticsNode().replacedChildren
 
         assertTrue(childrenMerged.isEmpty())
         assertTrue(allChildrenMerged.isEmpty())
@@ -605,7 +598,7 @@ class SemanticsTests {
     }
 
     @Test
-    fun collectAccessibilityChildren_includeFakeNodes() {
+    fun replacedChildren_includeFakeNodes() {
         val tag = "tag1"
         rule.setContent {
             SimpleTestLayout(Modifier.clickable(role = Role.Button, onClick = {}).testTag(tag)) {
@@ -614,8 +607,7 @@ class SemanticsTests {
         }
 
         val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
-        val children = mutableListOf<SemanticsNode>()
-        node.collectAccessibilityChildren(children)
+        val children = node.replacedChildren
         assertThat(children.count()).isEqualTo(2)
         assertThat(children.last().isFake).isTrue()
     }
@@ -649,14 +641,11 @@ class SemanticsTests {
         }
 
         val node = rule.onNodeWithTag(tag, true).fetchSemanticsNode()
-        val children = mutableListOf<SemanticsNode>()
-        node.collectAccessibilityChildren(children)
-        val fakeNode = children.first { it.isFake }
+        val fakeNode = node.replacedChildren.first { it.isFake }
 
         // Ensure that the fake node uses the properties of the parent.
         assertThat(fakeNode.size).isNotEqualTo(IntSize.Zero)
         assertThat(fakeNode.boundsInRoot).isNotEqualTo(Rect.Zero)
-        assertThat(fakeNode.touchBoundsInRoot).isNotEqualTo(Rect.Zero)
         assertThat(fakeNode.positionInRoot).isNotEqualTo(Offset.Zero)
         assertThat(fakeNode.boundsInWindow).isNotEqualTo(Rect.Zero)
         assertThat(fakeNode.positionInWindow).isNotEqualTo(Offset.Zero)
@@ -1179,9 +1168,8 @@ class SemanticsTests {
 
         rule.waitForIdle()
 
-        val bounds = MutableRect(0f, 0f, 0f, 0f)
-        rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().calculateBoundsInParent(bounds)
-        assertEquals(Rect(20.0f, 30.0f, 21.0f, 31.0f), bounds.toRect())
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
+        assertEquals(Rect(20.0f, 30.0f, 21.0f, 31.0f), bounds)
     }
 
     @Test
@@ -1198,9 +1186,8 @@ class SemanticsTests {
 
         rule.waitForIdle()
 
-        val bounds = MutableRect(0f, 0f, 0f, 0f)
-        rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().calculateBoundsInParent(bounds)
-        assertEquals(Rect(30.0f, 50.0f, 31.0f, 51.0f), bounds.toRect())
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
+        assertEquals(Rect(30.0f, 50.0f, 31.0f, 51.0f), bounds)
     }
 
     @Test
@@ -1227,9 +1214,8 @@ class SemanticsTests {
 
         rule.waitForIdle()
 
-        val bounds = MutableRect(0f, 0f, 0f, 0f)
-        rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().calculateBoundsInParent(bounds)
-        assertEquals(Rect(30.0f, 50.0f, 31.0f, 51.0f), bounds.toRect())
+        val bounds = rule.onNodeWithTag(TestTag, true).fetchSemanticsNode().boundsInParent
+        assertEquals(Rect(30.0f, 50.0f, 31.0f, 51.0f), bounds)
     }
 
     @Test
@@ -2075,7 +2061,6 @@ private val TestProperty =
 
 internal var SemanticsPropertyReceiver.testProperty by TestProperty
 
-@OptIn(androidx.compose.ui.platform.ExperimentalComposeUiHostApi::class)
 private fun SemanticsNodeInteraction.assertUnmergedTestPropertyEquals(value: String) =
     assert(SemanticsMatcher(value) { it.unmergedConfig.getOrNull(TestProperty) == value })
 

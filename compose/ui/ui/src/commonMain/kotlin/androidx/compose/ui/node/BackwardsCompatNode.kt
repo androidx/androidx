@@ -15,7 +15,6 @@
  */
 
 @file:Suppress("DEPRECATION")
-@file:OptIn(ExperimentalComposeUiHostApi::class)
 
 package androidx.compose.ui.node
 
@@ -58,7 +57,6 @@ import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -88,7 +86,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     FocusEventModifierNode,
     FocusPropertiesModifierNode,
     FocusRequesterModifierNode,
-    ObservationTarget,
+    OwnerScope,
     BuildDrawCacheParams,
     Modifier.Node() {
     init {
@@ -295,7 +293,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
         }
     }
 
-    override val isObservationValid: Boolean
+    override val isValidOwnerScope: Boolean
         get() = isAttached
 
     override fun MeasureScope.measure(

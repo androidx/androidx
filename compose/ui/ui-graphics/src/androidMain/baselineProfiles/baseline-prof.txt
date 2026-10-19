@@ -438,7 +438,7 @@ HSPLandroidx/compose/ui/node/OnPositionedDispatcher;->**(**)**
 Landroidx/compose/ui/node/OnUnplacedModifierNode;
 Landroidx/compose/ui/node/OwnedLayer;
 HSPLandroidx/compose/ui/node/Owner;->**(**)**
-Landroidx/compose/ui/node/ObservationTarget;
+Landroidx/compose/ui/node/OwnerScope;
 HSPLandroidx/compose/ui/node/OwnerSnapshotObserver;->**(**)**
 Landroidx/compose/ui/node/ParentDataModifierNode;
 SPLandroidx/compose/ui/node/ParentDataModifierNodeKt**->**(**)**
