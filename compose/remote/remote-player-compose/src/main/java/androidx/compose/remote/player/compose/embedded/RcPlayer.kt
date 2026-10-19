@@ -1135,6 +1135,16 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                         }
                     }
                     .then(outerModifier)
+        } else {
+            // Custom visibility animations pass the component's position to the animation
+            // function (see executeCustomVisibilityAnimation).
+            outerModifier =
+                Modifier.onPlaced { coords ->
+                        val pos = coords.positionInParent()
+                        component.setX(pos.x)
+                        component.setY(pos.y)
+                    }
+                    .then(outerModifier)
         }
 
         RcPlayerAnimatedVisibility(
