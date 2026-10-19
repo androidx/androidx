@@ -255,6 +255,104 @@ class SnapshotTestsJvm {
     }
 
     @Test
+    fun derivedStateCurrentRecordStaleHeadRegressionTest() {
+        val firstRecordRead = Semaphore(0)
+        val canProceedWithStaleRecord = Semaphore(0)
+        val pauseOnNextFirstRecordRead = AtomicBoolean(false)
+
+        val state =
+            object : StateObject {
+                private var next = TestRecord(currentSnapshot().snapshotId).also { it.value = 0 }
+
+                var intValue: Int
+                    get() = next.readable(this).value
+                    set(value) {
+                        next.withCurrent(this) {
+                            if (it.value != value) {
+                                next.overwritable(this, it) { this.value = value }
+                            }
+                        }
+                    }
+
+                override val firstStateRecord: StateRecord
+                    get() {
+                        val record = next
+                        if (pauseOnNextFirstRecordRead.compareAndSet(true, false)) {
+                            firstRecordRead.release()
+                            canProceedWithStaleRecord.acquire()
+                        }
+                        return record
+                    }
+
+                override fun prependStateRecord(value: StateRecord) {
+                    next = value as TestRecord
+                }
+            }
+
+        Snapshot.notifyObjectsInitialized()
+        val derived = derivedStateOf { state.intValue }
+
+        // Populate derived state's initial ResultRecord and dependency on `state`
+        kotlin.test.assertEquals(0, derived.value)
+
+        // Advance the global snapshot so the next read of `derived.value` checks `readableHash`
+        Snapshot.notifyObjectsInitialized()
+        pauseOnNextFirstRecordRead.set(true)
+
+        var readerException: Throwable? = null
+        var readerResult = -1
+
+        val readerThread = thread {
+            try {
+                readerResult = derived.value
+            } catch (e: Throwable) {
+                readerException = e
+            }
+        }
+
+        val writerThread = thread {
+            firstRecordRead.acquire()
+            // Prepend a new record and advance global snapshot so the old head record is retired
+            state.intValue = 1
+            Snapshot.notifyObjectsInitialized()
+            canProceedWithStaleRecord.release()
+        }
+
+        readerThread.join()
+        writerThread.join()
+
+        readerException?.let { throw it }
+        kotlin.test.assertEquals(1, readerResult)
+
+        // Also verify that when DerivedSnapshotState's own ResultRecord is reused by an open
+        // MutableSnapshot after a newer record was prepended, current(staleRecord, state, snapshot)
+        // resolves the head record under the sync fallback instead of throwing readError().
+        val source = mutableIntStateOf(10)
+        val derivedFromSource = derivedStateOf { source.intValue * 2 }
+        kotlin.test.assertEquals(20, derivedFromSource.value)
+
+        val derivedStateObject = derivedFromSource as StateObject
+        val staleDerivedRecord = derivedStateObject.firstStateRecord
+
+        source.intValue = 20
+        kotlin.test.assertEquals(40, derivedFromSource.value)
+
+        val snap = Snapshot.takeMutableSnapshot()
+        try {
+            snap.enter {
+                source.intValue = 30
+                kotlin.test.assertEquals(60, derivedFromSource.value)
+            }
+            // staleDerivedRecord was reused for `snap`, so its snapshotId is now in
+            // globalSnapshot.invalid while `derivedStateObject.firstStateRecord` remains valid.
+            val resolvedRecord = current(staleDerivedRecord, derivedStateObject, Snapshot.current)
+            kotlin.test.assertEquals(derivedStateObject.firstStateRecord, resolvedRecord)
+        } finally {
+            snap.dispose()
+        }
+    }
+
+    @Test
     fun readOnly_onlyAppliesToCurrentThread_globalScope() {
         val state = mutableStateOf(0)
         val threadAInsideReadOnly = Semaphore(0)
