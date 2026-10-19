@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
@@ -26,8 +28,6 @@ import androidx.compose.foundation.text.input.internal.Interval
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import androidx.compose.foundation.text.input.internal.TextStyleBuffer
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -187,11 +187,12 @@ internal constructor(
      * like underline or different background colors.
      */
     internal var composingAnnotations:
-        MutableVector<AnnotatedString.Range<AnnotatedString.Annotation>>? =
+        MutableObjectList<AnnotatedString.Range<AnnotatedString.Annotation>>? =
         if (!initialValue.composingAnnotations.isNullOrEmpty()) {
-            MutableVector(initialValue.composingAnnotations.size) {
-                initialValue.composingAnnotations[it]
-            }
+            MutableObjectList<AnnotatedString.Range<AnnotatedString.Annotation>>(
+                    initialValue.composingAnnotations.size
+                )
+                .apply { addAll(initialValue.composingAnnotations) }
         } else {
             null
         }
@@ -241,7 +242,7 @@ internal constructor(
         this.composingAnnotations?.clear()
         if (!annotations.isNullOrEmpty()) {
             if (this.composingAnnotations == null) {
-                this.composingAnnotations = mutableVectorOf()
+                this.composingAnnotations = mutableObjectListOf()
             }
             annotations.fastForEach {
                 // place the annotations at the correct indices in the buffer.
@@ -508,6 +509,8 @@ internal constructor(
         selection: TextRange = this.selection,
         composition: TextRange? = this.composition,
         composingAnnotations: List<PlacedAnnotation>? =
+            // TextFieldCharSequence stores annotations as a List.
+            @Suppress("AsCollectionCall")
             this.composingAnnotations?.asMutableList()?.takeIf { it.isNotEmpty() },
         outputAnnotations: List<PlacedAnnotation>? = null,
     ): TextFieldCharSequence =

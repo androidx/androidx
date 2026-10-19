@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.MutableObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.internal.throwIndexOutOfBoundsException
-import androidx.compose.runtime.collection.MutableVector
-import androidx.compose.runtime.collection.mutableVectorOf
 
 /**
  * The list consisting of multiple intervals.
@@ -91,7 +91,7 @@ public sealed interface IntervalList<out T> {
  * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
 public class MutableIntervalList<T> : IntervalList<T> {
-    private val intervals = mutableVectorOf<IntervalList.Interval<T>>()
+    private val intervals = mutableObjectListOf<IntervalList.Interval<T>>()
 
     override var size: Int = 0
         private set
@@ -175,29 +175,7 @@ public class MutableIntervalList<T> : IntervalList<T> {
  * Finds the index of the interval which contains the highest value of
  * [IntervalList.Interval.startIndex] that is less than or equal to the given [itemIndex].
  */
-private fun <T> MutableVector<IntervalList.Interval<T>>.binarySearch(itemIndex: Int): Int {
-    var left = 0
-    var right = lastIndex
-
-    while (left < right) {
-        val middle = left + (right - left) / 2
-
-        val middleValue = get(middle).startIndex
-        if (middleValue == itemIndex) {
-            return middle
-        }
-
-        if (middleValue < itemIndex) {
-            left = middle + 1
-
-            // Verify that the left will not be bigger than our value
-            if (itemIndex < get(left).startIndex) {
-                return middle
-            }
-        } else {
-            right = middle - 1
-        }
-    }
-
-    return left
+private fun <T> MutableObjectList<IntervalList.Interval<T>>.binarySearch(itemIndex: Int): Int {
+    val result = binarySearchBy(itemIndex) { it.startIndex }
+    return if (result >= 0) result else -result - 2
 }

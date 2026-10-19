@@ -46,6 +46,7 @@ import android.view.inputmethod.PreviewableHandwritingGesture
 import android.view.inputmethod.TextAttribute
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.PlatformTransferableContent
 import androidx.compose.foundation.content.TransferableContent
@@ -54,7 +55,6 @@ import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.input.getTextAfterSelection
 import androidx.compose.foundation.text.input.getTextBeforeSelection
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.platform.toClipMetadata
@@ -111,7 +111,7 @@ internal class StatelessInputConnection(
         get() = session.text
 
     /** Recording of editing operations for batch editing */
-    private val editCommands = mutableVectorOf<ImeEditCommandScope.() -> Unit>()
+    private val editCommands = mutableObjectListOf<ImeEditCommandScope.() -> Unit>()
 
     /**
      * Wraps this StatelessInputConnection to halt a possible infinite loop in [commitContent]

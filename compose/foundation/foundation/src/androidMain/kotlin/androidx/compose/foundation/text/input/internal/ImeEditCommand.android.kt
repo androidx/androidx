@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.PlacedAnnotation
@@ -24,7 +25,6 @@ import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.adjustTextRange
 import androidx.compose.foundation.text.input.delete
-import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceIn
@@ -129,7 +129,7 @@ internal class DefaultImeEditCommandScope(
     override val transformedLength: Int
         get() = batchEditTextFieldBuffer?.length ?: transformedTextFieldState.visualText.length
 
-    private val editCommands = mutableVectorOf<TextFieldBuffer.() -> Unit>()
+    private val editCommands = mutableObjectListOf<TextFieldBuffer.() -> Unit>()
 
     override fun beginBatchEdit(): Boolean {
         batchDepth++
