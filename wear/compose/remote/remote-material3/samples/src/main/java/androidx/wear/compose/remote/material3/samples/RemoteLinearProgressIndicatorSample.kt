@@ -25,9 +25,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
-import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -54,14 +52,7 @@ public fun RemoteLinearProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.width(140.rdp)
 ) {
     val progress = remember { MutableRemoteFloat { 0.25f.rf } }
-    val animatedProgress =
-        animateRemoteFloatAsState(
-            targetValue = progress,
-            animationSpec = remoteTween(durationMillis = 250),
-        )
     val toggleAction = valueChange(progress, (progress + 0.25f) % 1f)
-    RemoteLinearProgressIndicator(
-        modifier = modifier.clickable(toggleAction),
-        progress = animatedProgress,
-    )
+    // The indicator animates the progress changes.
+    RemoteLinearProgressIndicator(modifier = modifier.clickable(toggleAction), progress = progress)
 }

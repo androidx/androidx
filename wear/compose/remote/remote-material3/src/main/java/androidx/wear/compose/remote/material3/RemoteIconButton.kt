@@ -47,7 +47,7 @@ import androidx.compose.ui.graphics.Color
  * [RemoteIconButton] can be enabled or disabled. A disabled button will not respond to click
  * events.
  *
- * Example of a [RemoteIconButton] with shape animation of rounded corners on press:
+ * Example of a [RemoteIconButton]:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonSimpleSample
  * @param onClick Will be called when the user clicks the button.

@@ -17,6 +17,9 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.state.RemoteEasing
+import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.cubicEasing
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.wear.compose.material3.MotionScheme
 
 /**
@@ -54,6 +57,14 @@ internal object RemoteMotionTokens {
     val EasingStandard: RemoteEasing = RemoteEasing.Cubic(0.2f, 0.0f, 0.0f, 1.0f)
     val EasingStandardAccelerate: RemoteEasing = RemoteEasing.Cubic(0.3f, 0.0f, 1.0f, 1.0f)
     val EasingStandardDecelerate: RemoteEasing = RemoteEasing.Cubic(0.0f, 0.0f, 0.0f, 1.0f)
+
+    /**
+     * Evaluates [EasingStandard] at [progress] (in `0..1`). [cubicEasing] takes control points
+     * rather than a [RemoteEasing].
+     */
+    @Suppress("RestrictedApiAndroidX") // cubicEasing
+    fun easeStandard(progress: RemoteFloat): RemoteFloat =
+        cubicEasing(0.2f.rf, 0.0f.rf, 0.0f.rf, 1.0f.rf, progress)
 
     // Spring damping ratios and stiffnesses, matching androidx.wear.compose.material3.MotionScheme
     const val StandardSpatialDampingRatio: Float = 1.0f

@@ -40,11 +40,13 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
 import androidx.compose.remote.creation.compose.state.lerp
@@ -65,6 +67,39 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material3.TextConfiguration
 
+/**
+ * Returns the progress of a selection control, such as a checkbox, switch or radio dot, from
+ * unselected (`0`) to [selected] (`1`), animated with [animationSpec] (by default the fast effects
+ * spec of [RemoteMaterialTheme.motionScheme]).
+ */
+@Composable
+@RemoteComposable
+internal fun animateSelectionControlProgress(
+    selected: RemoteBoolean,
+    animationSpec: RemoteAnimationSpec = RemoteMaterialTheme.motionScheme.fastEffectsSpec(),
+): RemoteFloat =
+    animateRemoteFloatAsState(
+        targetValue = selected.select(1f.rf, 0f.rf),
+        animationSpec = animationSpec,
+    )
+
+/**
+ * Returns the progress of the container and content colors of a selection button from unselected
+ * (`0`) to [selected] (`1`), animated with [animationSpec]. Like Wear Material3, the colors animate
+ * by default with the slow effects spec of [RemoteMaterialTheme.motionScheme], so they settle after
+ * the selection control.
+ */
+@Composable
+@RemoteComposable
+internal fun animateSelectionColorProgress(
+    selected: RemoteBoolean,
+    animationSpec: RemoteAnimationSpec = RemoteMaterialTheme.motionScheme.slowEffectsSpec(),
+): RemoteFloat =
+    animateRemoteFloatAsState(
+        targetValue = selected.select(1f.rf, 0f.rf),
+        animationSpec = animationSpec,
+    )
+
 @Composable
 @RemoteComposable
 internal fun RemoteSelectionButtonImpl(
@@ -75,6 +110,7 @@ internal fun RemoteSelectionButtonImpl(
     containerColor: RemoteColor,
     contentColor: RemoteColor,
     secondaryContentColor: RemoteColor,
+    iconColor: RemoteColor,
     contentPadding: RemotePaddingValues,
     border: RemoteDp?,
     borderColor: RemoteColor?,
@@ -119,7 +155,7 @@ internal fun RemoteSelectionButtonImpl(
             RemoteBox(
                 modifier = RemoteModifier.wrapContentSize(),
                 contentAlignment = RemoteAlignment.Center,
-                content = icon,
+                content = provideScopeContent(contentColor = iconColor, content = icon),
             )
             RemoteBox(RemoteModifier.size(6.rdp))
         }
@@ -217,7 +253,9 @@ internal fun RemoteCheckboxControl(
         }
         val tickCenter =
             RemoteOffset(TICK_DESIGN_CENTER_DP.rdp.toPx(), TICK_DESIGN_CENTER_DP.rdp.toPx())
-        val rotationRadians = toRad((1f.rf - progress) * TICK_ROTATION_DEGREES.rf)
+        // Like Wear Material3, the tick only rotates while it is being checked.
+        val rotationRadians =
+            toRad(checked.select((1f.rf - progress) * TICK_ROTATION_DEGREES.rf, 0f.rf))
         val cosAngle = cos(rotationRadians)
         val sinAngle = sin(rotationRadians)
         val baseProgress = clamp(progress / TICK_BASE_PROGRESS_FRACTION.rf, 0f.rf, 1f.rf)
