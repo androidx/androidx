@@ -3,43 +3,10 @@
 cd "$(dirname $0)"
 source development/ide-common.sh
 
-function usage() {
-  show_usage "studiow"
-  exit 1
-}
+init_ide "studiow" "$@"
 
-if ! parse_ide_args "$@"; then
-  usage
-fi
+clean_reinstall studio
+clean_settings "studio-backup" ~/.AndroidStudioAndroidX ~/.AndroidStudioAndroidXPlayground ~/.android
+clear_ide_caches .idea/
 
-setup_env "studiow"
-
-
-if [ "$reinstall" == "true" ]; then
-  # remove Studio itself so Gradle will re-download it
-  rm -rf studio
-fi
-
-# remove studio-specific caches
-if [ "$cleanSettings" == "true" ]; then
-  # make backups of files that users might have customized
-  backup_and_remove ~/.AndroidStudioAndroidX "studio-backup"
-  backup_and_remove ~/.AndroidStudioAndroidXPlayground "studio-backup"
-  backup_and_remove ~/.android "studio-backup"
-fi
-
-extraArgs=()
-if [ "$acceptTos" == "true" ]; then
-  extraArgs+=("--acceptTos")
-fi
-
-if [ "$clearCaches" == "true" ]; then
-  # delete (without backup) files that users won't have customized
-  git clean -fdX .idea/
-
-  # remove gradle caches too and build
-  ./cleanBuild.sh -y :studio "${extraArgs[@]}"
-else
-  # ask gradle to launch studio
-  ./gradlew :studio "${extraArgs[@]}"
-fi
+run_ide :studio
