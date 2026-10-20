@@ -391,7 +391,7 @@ class FakeRenderingRuntimeTest {
     @Test
     fun createSurfaceEntity_returnsInitialValue() {
         val stereoMode = 0
-        val mediaBlendingMode = 0
+        val mediaBlendingMode = SurfaceEntity.MediaBlendingMode.OPAQUE
         val pose = Pose.Identity
         val canvasShape = SurfaceEntity.Shape.Sphere(1.0f)
         val contentSecurityLevel = 0
@@ -410,10 +410,7 @@ class FakeRenderingRuntimeTest {
 
         assertThat(surfaceEntity).isInstanceOf<FakeSurfaceEntity>()
         assertThat(surfaceEntity.stereoMode).isEqualTo(stereoMode)
-        // mediaBlendingMode is currently not a public property of SurfaceEntity so
-        // we need to cast the surfaceEntity to FakeSurfaceEntity to access it.
-        assertThat((surfaceEntity as FakeSurfaceEntity).mediaBlendingMode)
-            .isEqualTo(mediaBlendingMode)
+        assertThat(surfaceEntity.mediaBlendingMode).isEqualTo(mediaBlendingMode)
         assertThat(surfaceEntity.getPose()).isEqualTo(pose)
         assertThat(surfaceEntity.shape).isEqualTo(canvasShape)
         assertThat(surfaceEntity.parent).isEqualTo(parentEntity)
@@ -422,7 +419,7 @@ class FakeRenderingRuntimeTest {
     @Test
     fun createSurfaceEntity_returnSurfaceEntity() {
         val stereoMode = SurfaceEntity.StereoMode.SIDE_BY_SIDE
-        val mediaBlendingMode = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+        val mediaBlendingMode = SurfaceEntity.MediaBlendingMode.OPAQUE
         val pose = Pose.Identity
         val canvasShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
         val contentSecurityLevel = SurfaceEntity.SurfaceProtection.NONE
@@ -442,10 +439,7 @@ class FakeRenderingRuntimeTest {
         assertThat(surfaceEntity).isNotNull()
 
         assertThat(surfaceEntity.stereoMode).isEqualTo(stereoMode)
-        // mediaBlendingMode is currently not a public property of SurfaceEntity so
-        // we need to cast the surfaceEntity to FakeSurfaceEntity to access it.
-        assertThat((surfaceEntity as FakeSurfaceEntity).mediaBlendingMode)
-            .isEqualTo(mediaBlendingMode)
+        assertThat(surfaceEntity.mediaBlendingMode).isEqualTo(mediaBlendingMode)
         assertThat(surfaceEntity.getPose()).isEqualTo(pose)
         assertThat(surfaceEntity.shape.dimensions).isEqualTo(canvasShape.dimensions)
         assertThat(surfaceEntity.parent).isEqualTo(sceneRuntime.activitySpace)

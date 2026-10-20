@@ -45,6 +45,7 @@ import androidx.xr.scenecore.runtime.PerceivedResolutionResult as RtPerceivedRes
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import androidx.xr.scenecore.testing.FakeActivityPanelEntity
 import androidx.xr.scenecore.testing.FakeAnchorEntity
 import androidx.xr.scenecore.testing.FakeGltfModelResource
@@ -1050,6 +1051,36 @@ class EntityTest {
 
         val shape = surfaceEntity.shape as SurfaceEntity.Shape.Quad
         assertThat(shape.cornerRadius).isEqualTo(0.5f)
+    }
+
+    @Test
+    fun surfaceEntity_setBlendingMode_roundTrips() {
+        assertThat(surfaceEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.TRANSPARENT)
+
+        surfaceEntity.blendingMode = SurfaceEntity.BlendingMode.OPAQUE
+
+        assertThat(surfaceEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.OPAQUE)
+        assertThat((surfaceEntity.rtEntity as RtSurfaceEntity).mediaBlendingMode)
+            .isEqualTo(RtSurfaceEntity.MediaBlendingMode.OPAQUE)
+    }
+
+    @Test
+    fun surfaceEntity_createWithBlendingMode_appliesMode() {
+        val opaqueEntity =
+            SurfaceEntity.create(
+                session = session,
+                pose = Pose.Identity,
+                shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
+                stereoMode = SurfaceEntity.StereoMode.MONO,
+                superSampling = SurfaceEntity.SuperSampling.PENTAGON,
+                surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
+                blendingMode = SurfaceEntity.BlendingMode.OPAQUE,
+                parent = session.scene.activitySpace,
+            )
+
+        assertThat(opaqueEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.OPAQUE)
+        assertThat((opaqueEntity.rtEntity as RtSurfaceEntity).mediaBlendingMode)
+            .isEqualTo(RtSurfaceEntity.MediaBlendingMode.OPAQUE)
     }
 
     @Test
