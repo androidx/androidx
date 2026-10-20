@@ -30,6 +30,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 val EMPTY_RECTANGLES = arrayOfNulls<MeteringRectangle>(0)
 
@@ -47,11 +48,10 @@ class FocusMeteringControl(
 ) {
 
     private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    private var currentAfState: Int = CaptureResult.CONTROL_AF_STATE_INACTIVE
-    private var autoCancelHandle: ScheduledFuture<*>? = null
-    private var autoFocusTimeoutHandle: ScheduledFuture<*>? = null
-    private var focusTimeoutCounter: Long = 0
-    private var isAutoFocusCompleted: Boolean = true
+    @Volatile private var currentAfState: Int = CaptureResult.CONTROL_AF_STATE_INACTIVE
+    @Volatile private var autoFocusTimeoutHandle: ScheduledFuture<*>? = null
+    @Volatile private var focusTimeoutCounter: Long = 0
+    private val isAutoFocusCompleted = AtomicBoolean(true)
 
     private val captureCallbackExtensionMode =
         object : CameraExtensionSession.ExtensionCaptureCallback() {
@@ -76,26 +76,27 @@ class FocusMeteringControl(
         }
 
     private fun handleCaptureResultForAf(afState: Int?) {
-        if (isAutoFocusCompleted) {
+        if (isAutoFocusCompleted.get()) {
             return
         }
 
+        var completedNow = false
         if (afState == null) {
             Log.e(TAG, "afState == null")
             // set isAutoFocusCompleted to true when camera does not support AF_AUTO.
-            isAutoFocusCompleted = true
+            completedNow = isAutoFocusCompleted.compareAndSet(false, true)
         } else if (currentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
             if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
                 Log.d(TAG, "afState == CONTROL_AF_STATE_FOCUSED_LOCKED")
-                isAutoFocusCompleted = true
+                completedNow = isAutoFocusCompleted.compareAndSet(false, true)
             } else if (afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
                 Log.d(TAG, "afState == CONTROL_AF_STATE_NOT_FOCUSED_LOCKED")
-                isAutoFocusCompleted = true
+                completedNow = isAutoFocusCompleted.compareAndSet(false, true)
             }
         }
 
         // Check 3A regions
-        if (isAutoFocusCompleted) {
+        if (completedNow) {
             clearAutoFocusTimeoutHandle()
             Log.d(TAG, "cancelAfTrigger: CONTROL_AF_TRIGGER_IDLE")
             cancelAfTriggerImpl.invoke(CONTROL_AF_TRIGGER_IDLE)
@@ -108,15 +109,17 @@ class FocusMeteringControl(
 
     fun updateMeteringRectangles(meteringRectangles: Array<MeteringRectangle?>) {
         clearAutoFocusTimeoutHandle()
-        isAutoFocusCompleted = false
+        isAutoFocusCompleted.set(false)
         val timeoutId: Long = ++focusTimeoutCounter
         autoFocusTimeoutHandle =
             scheduler.schedule(
                 {
-                    Log.d(TAG, "cancelAfTrigger: CONTROL_AF_TRIGGER_CANCEL")
-                    cancelAfTriggerImpl.invoke(CONTROL_AF_TRIGGER_CANCEL)
-                    if (timeoutId == focusTimeoutCounter) {
-                        isAutoFocusCompleted = true
+                    if (
+                        timeoutId == focusTimeoutCounter &&
+                            isAutoFocusCompleted.compareAndSet(false, true)
+                    ) {
+                        Log.d(TAG, "cancelAfTrigger: CONTROL_AF_TRIGGER_CANCEL")
+                        cancelAfTriggerImpl.invoke(CONTROL_AF_TRIGGER_CANCEL)
                     }
                 },
                 AUTO_FOCUS_TIMEOUT_DURATION_MS,
@@ -124,6 +127,12 @@ class FocusMeteringControl(
             )
         currentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE
         startAfTriggerImpl.invoke(meteringRectangles)
+    }
+
+    fun cancelFocusAndMetering() {
+        clearAutoFocusTimeoutHandle()
+        isAutoFocusCompleted.set(true)
+        currentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE
     }
 
     fun getCaptureCallback(extensionEnabled: Boolean): Any =
@@ -136,7 +145,7 @@ class FocusMeteringControl(
     private fun clearAutoFocusTimeoutHandle() {
         autoFocusTimeoutHandle?.let {
             it.cancel(/* mayInterruptIfRunning= */ true)
-            autoCancelHandle = null
+            autoFocusTimeoutHandle = null
         }
     }
 }
