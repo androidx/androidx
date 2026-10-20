@@ -26,7 +26,6 @@ import androidx.datastore.preferences.preferencesDataStore
 import java.lang.Exception
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 
 class UserPreferencesRepository(private val context: Context) {
     private companion object {
@@ -58,7 +57,9 @@ class UserPreferencesRepository(private val context: Context) {
         }
     }
 
-    val theme = context.dataStore.data.mapNotNull { preferences -> toTheme(preferences[THEME]) }
+    val theme = context.dataStore.data.map { preferences -> toTheme(preferences[THEME]) ?: Theme() }
+
+    suspend fun getTheme(): Theme = theme.first()
 
     private fun toTheme(themeString: String?): Theme? {
         if (themeString == null) {
