@@ -50,4 +50,7 @@ androidx {
     description = "Jetpack Compose Glimmer integration with fonts"
     addGoldenImageAssets()
     samples(project(":xr:glimmer:glimmer-google-fonts:glimmer-google-fonts-samples"))
+    deviceTests {
+        maxShardCount = 1
+    }
 }
