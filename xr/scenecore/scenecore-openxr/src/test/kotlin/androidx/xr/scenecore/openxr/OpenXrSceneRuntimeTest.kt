@@ -25,6 +25,7 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
+import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialCapabilities
@@ -161,6 +162,41 @@ class OpenXrSceneRuntimeTest {
         assertThrows(IllegalStateException::class.java) {
             runtime.createEntity(Pose(), "entity", null)
         }
+    }
+
+    @Test
+    fun createAnchorEntity_bindsNewNativeEntityAndStartsUnanchored() {
+        runtime.initialize()
+
+        val anchorEntity = runtime.createAnchorEntity() as OpenXrAnchorEntity
+
+        assertThat(anchorEntity.entityHandle).isNotEqualTo(INVALID_HANDLE)
+        assertThat(fakeNative.createdEntities).contains(anchorEntity.entityHandle)
+        assertThat(nodeRegistry.getEntityForNode(anchorEntity.entityHandle)).isEqualTo(anchorEntity)
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
+        assertThat(anchorEntity.parent).isNull()
+        // Not in the scene graph until setAnchor().
+        assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
+    }
+
+    @Test
+    fun createAnchorEntity_afterDestroy_throwsIllegalStateException() {
+        runtime.destroy()
+
+        assertThrows(IllegalStateException::class.java) { runtime.createAnchorEntity() }
+    }
+
+    @Test
+    fun destroy_disposesAnchorEntity() {
+        runtime.initialize()
+        val anchorEntity = runtime.createAnchorEntity() as OpenXrAnchorEntity
+        val handle = anchorEntity.entityHandle
+
+        runtime.destroy()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(fakeNative.destroyedEntities).contains(handle)
+        assertThat(anchorEntity.entityHandle).isEqualTo(INVALID_HANDLE)
     }
 
     @Test

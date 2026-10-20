@@ -371,9 +371,25 @@ internal constructor(
     ): ActivityPanelEntity =
         TODO("OpenXrSceneRuntime.createActivityPanelEntity is not yet implemented")
 
-    // TODO: b/538946673 - Implement OpenXrAnchorEntity and Panel-to-Anchor pinning.
-    override fun createAnchorEntity(): AnchorEntity =
-        TODO("OpenXrSceneRuntime.createAnchorEntity is not yet implemented")
+    override fun createAnchorEntity(): AnchorEntity {
+        check(!isDestroyed) {
+            "Cannot create an AnchorEntity after OpenXrSceneRuntime has been destroyed."
+        }
+        val entityHandle =
+            if (nativeWrapper.nativeScenecore != INVALID_HANDLE) {
+                nativeWrapper.createSceneEntity()
+            } else {
+                INVALID_HANDLE
+            }
+        return OpenXrAnchorEntity(
+            activity,
+            entityHandle,
+            nativeWrapper,
+            sceneNodeRegistry,
+            scheduledExecutorService,
+            activitySpace as OpenXrActivitySpace,
+        )
+    }
 
     override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
         check(!isDestroyed) { "Cannot create entity after OpenXrSceneRuntime has been destroyed." }
