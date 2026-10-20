@@ -21,6 +21,8 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
@@ -51,6 +53,12 @@ class DrawHelpersTest {
         assertEquals(3, RemoteTileMode.Decal.value)
         assertEquals(0, RemotePathFillType.NonZero.value)
         assertEquals(1, RemotePathFillType.EvenOdd.value)
+        assertEquals(0, RemoteStrokeCap.Butt.value)
+        assertEquals(1, RemoteStrokeCap.Round.value)
+        assertEquals(2, RemoteStrokeCap.Square.value)
+        assertEquals(0, RemoteStrokeJoin.Miter.value)
+        assertEquals(1, RemoteStrokeJoin.Round.value)
+        assertEquals(2, RemoteStrokeJoin.Bevel.value)
     }
 
     @Test
@@ -63,6 +71,12 @@ class DrawHelpersTest {
         assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
         assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
         assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
+        assertEquals(RemoteStrokeCap.Butt, StrokeCap.Butt.toRemoteStrokeCap())
+        assertEquals(RemoteStrokeCap.Round, StrokeCap.Round.toRemoteStrokeCap())
+        assertEquals(RemoteStrokeCap.Square, StrokeCap.Square.toRemoteStrokeCap())
+        assertEquals(RemoteStrokeJoin.Miter, StrokeJoin.Miter.toRemoteStrokeJoin())
+        assertEquals(RemoteStrokeJoin.Round, StrokeJoin.Round.toRemoteStrokeJoin())
+        assertEquals(RemoteStrokeJoin.Bevel, StrokeJoin.Bevel.toRemoteStrokeJoin())
 
         assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
         assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
@@ -73,12 +87,6 @@ class DrawHelpersTest {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toInt())
         assertEquals(PaintBundle.STYLE_FILL, PaintingStyle.Fill.toInt())
         assertEquals(PaintBundle.STYLE_STROKE, PaintingStyle.Stroke.toInt())
-        assertEquals(0, StrokeCap.Butt.toInt())
-        assertEquals(1, StrokeCap.Round.toInt())
-        assertEquals(2, StrokeCap.Square.toInt())
-        assertEquals(0, StrokeJoin.Miter.toInt())
-        assertEquals(1, StrokeJoin.Round.toInt())
-        assertEquals(2, StrokeJoin.Bevel.toInt())
         assertEquals(0, TileMode.Clamp.toTileModeInt())
         assertEquals(1, TileMode.Repeated.toTileModeInt())
         assertEquals(2, TileMode.Mirror.toTileModeInt())
