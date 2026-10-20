@@ -114,7 +114,10 @@ public final class SetSchemaRequest {
             EXECUTE_APP_FUNCTIONS,
             PACKAGE_USAGE_STATS,
             PRIVATE_COMPUTE_CORE_UID_ACCESS,
-            DISCOVER_APP_FUNCTIONS
+            DISCOVER_APP_FUNCTIONS,
+            EXECUTE_APP_FUNCTIONS_SYSTEM,
+            MANAGED_PROFILE_CALENDAR_ACCESS,
+            MANAGED_PROFILE_SCREENSHOTS_ACCESS
     })
     @Retention(RetentionPolicy.SOURCE)
     @RequiresFeature(
@@ -257,6 +260,28 @@ public final class SetSchemaRequest {
     @HideInPlatform
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int EXECUTE_APP_FUNCTIONS_SYSTEM = 14;
+
+    /**
+     * A schema with this permission set through {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} requires the caller
+     * to have managed profile calendar access from {@link android.app.admin.DevicePolicyManager} to
+     * be visible. This permission indicates that the protected schema may expose managed profile
+     * data for calendar search.
+     */
+    @HideInPlatform
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int MANAGED_PROFILE_CALENDAR_ACCESS = 15;
+
+    /**
+     * A schema with this permission set through {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility} requires the managed
+     * profile to allow screenshots access from {@link android.app.admin.DevicePolicyManager} to be
+     * visible. This permission indicates that the protected schema may expose managed profile data
+     * for screenshots search.
+     */
+    @HideInPlatform
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int MANAGED_PROFILE_SCREENSHOTS_ACCESS = 16;
 
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotDisplayedBySystem;
@@ -714,6 +739,11 @@ public final class SetSchemaRequest {
                         "The set of required permissions cannot be empty");
             }
             for (int permission : permissions) {
+                if (Flags.enableManagedProfileCalendarScreenshots()
+                        && (permission == MANAGED_PROFILE_CALENDAR_ACCESS
+                                || permission == MANAGED_PROFILE_SCREENSHOTS_ACCESS)) {
+                    continue;
+                }
                 if (androidx.appsearch.flags.appfunctions.Flags.enableAppFunctionPermissionV2()) {
                     Preconditions.checkArgumentInRange(
                             permission, READ_SMS, EXECUTE_APP_FUNCTIONS_SYSTEM, "permission");

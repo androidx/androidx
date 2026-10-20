@@ -17,6 +17,8 @@
 package androidx.appsearch.app;
 
 import static androidx.appsearch.app.SetSchemaRequest.EXECUTE_APP_FUNCTIONS_SYSTEM;
+import static androidx.appsearch.app.SetSchemaRequest.MANAGED_PROFILE_CALENDAR_ACCESS;
+import static androidx.appsearch.app.SetSchemaRequest.MANAGED_PROFILE_SCREENSHOTS_ACCESS;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,8 +27,10 @@ import static org.junit.Assume.assumeTrue;
 
 import android.os.Build;
 
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.testutil.AppSearchTestUtils;
 import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableSet;
@@ -81,5 +85,34 @@ public class SetSchemaRequestInternalTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new SetSchemaRequest.Builder().addRequiredPermissionsForSchemaTypeVisibility(
                         "Schema", ImmutableSet.of(EXECUTE_APP_FUNCTIONS_SYSTEM)));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_MANAGED_PROFILE_CALENDAR_SCREENSHOTS)
+    public void testSetManagedProfileCalendarAndScreenshotsPermissions() {
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("Schema").build())
+                .addRequiredPermissionsForSchemaTypeVisibility(
+                        "Schema",
+                        ImmutableSet.of(
+                                MANAGED_PROFILE_CALENDAR_ACCESS,
+                                MANAGED_PROFILE_SCREENSHOTS_ACCESS))
+                .build();
+        assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
+                .containsExactly("Schema",
+                        ImmutableSet.of(ImmutableSet.of(
+                                MANAGED_PROFILE_CALENDAR_ACCESS,
+                                MANAGED_PROFILE_SCREENSHOTS_ACCESS)));
+    }
+
+    @Test
+    @RequiresFlagsDisabled(Flags.FLAG_ENABLE_MANAGED_PROFILE_CALENDAR_SCREENSHOTS)
+    public void testSetManagedProfileCalendarAndScreenshotsPermissions_disabled() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder().addRequiredPermissionsForSchemaTypeVisibility(
+                        "Schema", ImmutableSet.of(MANAGED_PROFILE_CALENDAR_ACCESS)));
+        assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder().addRequiredPermissionsForSchemaTypeVisibility(
+                        "Schema", ImmutableSet.of(MANAGED_PROFILE_SCREENSHOTS_ACCESS)));
     }
 }
