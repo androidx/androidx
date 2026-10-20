@@ -17,7 +17,34 @@
 package androidx.camera.viewfinder.view;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.WindowManager;
+
+import org.jspecify.annotations.Nullable;
 
 /** A fake {@link Activity} that can be used in tests. */
 public class FakeActivity extends Activity {
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true);
+            setTurnScreenOn(true);
+        } else {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
+            if (keyguardManager != null) {
+                keyguardManager.requestDismissKeyguard(this, null);
+            }
+        } else {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
 }
