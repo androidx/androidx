@@ -467,11 +467,6 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
 
     /** The function to be executed when the parent layout measures its children. */
     override fun measure(constraints: Constraints): Placeable {
-        if (layoutNode.intrinsicsUsageByParent == LayoutNode.UsageByParent.NotUsed) {
-            // This LayoutNode may have asked children for intrinsics. If so, we should
-            // clear the intrinsics usage for everything that was requested previously.
-            layoutNode.clearSubtreeIntrinsicsUsage()
-        }
         // If we are at the lookahead root of the tree, do both the lookahead measure and
         // regular measure. Otherwise, we'll be consistent with parent's lookahead measure
         // and regular measure stages. This avoids producing exponential amount of
@@ -499,6 +494,11 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
             layoutNode.canMultiMeasure =
                 layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
             if (layoutNode.measurePending || measurementConstraints != constraints) {
+                if (layoutNode.intrinsicsUsageByParent == LayoutNode.UsageByParent.NotUsed) {
+                    // This LayoutNode may have asked children for intrinsics. If so, we should
+                    // clear the intrinsics usage for everything that was requested previously.
+                    layoutNode.clearSubtreeIntrinsicsUsage()
+                }
                 alignmentLines.usedByModifierMeasurement = false
                 forEachChildAlignmentLinesOwner {
                     it.alignmentLines.usedDuringParentMeasurement = false
@@ -522,9 +522,6 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 // trigger extra remeasure request on our node. we do it now in order to report the
                 // final measured size to our parent without doing extra pass later.
                 owner.forceMeasureTheSubtree(layoutNode)
-
-                // Restore the intrinsics usage for the sub-tree
-                layoutNode.resetSubtreeIntrinsicsUsage()
             }
             return false
         }
