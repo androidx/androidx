@@ -213,6 +213,13 @@ internal object Api28Compat {
 @RequiresApi(29)
 internal object Api29Compat {
     @JvmStatic
+    fun getKeysNeedingPermission(
+        cameraCharacteristics: CameraCharacteristics
+    ): List<CameraCharacteristics.Key<*>>? {
+        return cameraCharacteristics.keysNeedingPermission
+    }
+
+    @JvmStatic
     fun imageReaderNewInstance(
         width: Int,
         height: Int,

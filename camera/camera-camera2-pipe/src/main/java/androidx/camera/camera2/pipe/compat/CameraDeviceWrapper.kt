@@ -443,7 +443,7 @@ internal class AndroidCameraDevice(
                 // This compares and sets ONLY the session keys for this camera. Setting parameters
                 // that are not listed in availableSessionKeys can cause an unusual amount of extra
                 // latency.
-                val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
+                val sessionKeyNames = cameraMetadata.sessionCaptureRequestKeys.map { it.name }
 
                 // Iterate template parameters and CHECK BY NAME, as there have been cases where
                 // equality checks did not pass.
