@@ -83,10 +83,10 @@ applicable. Prioritize clarity and conciseness.
     - **Object Job & Code Placement:** Each class's exact responsibility and
       whether new logic, state, or helpers are placed in the right object for
       an elegant, cohesive design.
-    - **Intentional Code & Workarounds:** Check comments, KDoc, git history,
-      and sibling implementations to verify whether existing ordering,
-      defensive checks, or workarounds are intentional before modifying or
-      flagging them.
+    - **Intentional Code & Workarounds:** Check comments, KDoc, git history
+      (e.g., `git --no-lazy-fetch blame -L <start>,<end> <file>`), and sibling
+      implementations to verify whether existing ordering, defensive checks, or
+      workarounds are intentional before modifying or flagging them.
     - Also read relevant sections in this `AGENTS.md` and, when internal
       tooling is configured, `AGENTS_INTERNAL.md` (located at
       `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`).
@@ -295,7 +295,8 @@ applicable. Prioritize clarity and conciseness.
         Step 5 Mode Checklist, Section 6 & Section 8 Rubrics, and Standards
         Hierarchy), `AGENTS_INTERNAL.md` (if available), the target diff or
         draft deliverable, the raw evidence files, and the surrounding CameraX
-        codebase widely.
+        codebase widely. Read-only verifiers must never edit files, switch `git`
+        branches, or run parallel `./gradlew` builds.
     *   **Adaptive Multi-Round Verification & Correction Chain (Max 3 Rounds +
         Flexible Early Exit):**
         1. *Round 1 (Model Family / Tier A in fresh context):* Spawn
@@ -486,6 +487,22 @@ When directed to an index page, directory list, or guide linking to sub-guides
     issues, look for CameraPipe concepts (`CameraGraph.Config`, `CXCP` logcat
     tags, `Camera2DeviceCloser`, `CloseCameraDeviceOnCameraGraphCloseQuirk`)
     within `camera-camera2`.
+  - **Module Ownership & Lifecycle Scope Invariants (`@CameraScope` vs.
+    `@UseCaseCameraScope`)**:
+    - Prioritize fixing CameraX use-case, surface, and session contracts in
+      `camera-camera2` or `camera-core` before modifying low-level
+      `camera-camera2-pipe` primitives.
+    - Distinguish `@CameraScope` components (`CameraInternalAdapter`,
+      `UseCaseManager`, which live across the camera's lifetime) from
+      `@UseCaseCameraScope` components (`UseCaseCamera`,
+      `UseCaseSurfaceManager`, `CameraGraph`, which are recreated per binding
+      session).
+    - Distinguish **partial UseCase re-binding** (`useCases` remains non-empty
+      and surfaces migrate across consecutive `UseCaseCamera` instances) from
+      **full unbind / teardown** (`useCases.isEmpty()` or `close()`). Never tie
+      camera-wide surface/resource teardown to a single transient
+      `@UseCaseCameraScope` session without guarding against stale callbacks
+      cancelling newly active sessions.
 - **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
   modifying or creating code, agents MUST use `view_file` to read the relevant
   local guideline files into active context. When encountering index pages,
@@ -548,8 +565,12 @@ When directed to an index page, directory list, or guide linking to sub-guides
     intentional existing behavior or workaround is preserved.
   - Prefer idiomatic Kotlin functional operations (e.g., `.filter`, `.map`,
     `.filterNotNull()`) over verbose imperative loops where appropriate.
-  - Simplify conditional logic, eliminate duplicate branching, and remove dead
-    code paths.
+  - **Deep Modules & Eliminating Special Cases**: Favor deep modules (simple,
+    general-purpose interfaces hiding complex internal state), separate
+    general-purpose core mechanisms from special-purpose policies/quirks, and
+    design normal state transitions (e.g., empty collections, idempotent
+    teardown) to handle edge conditions naturally without special-case
+    branching, duplicate conditions, or dead code paths.
   - **Thread-Aware Initialization (`lazy` vs. Eager)**: Evaluate the use of
     `by lazy` on a case-by-case basis considering the component's lifecycle and
     calling threads:
@@ -798,9 +819,9 @@ CameraX involves complex hardware interactions, making robust testing essential.
   and sibling classes to determine whether any existing ordering, workaround, or
   deprecation usage is intentional and must be preserved. When inspecting git
   history in `frameworks/support`, prefer fast
-  `git blame -L <start>,<end> <file>` followed by `git show <sha> -- <path>`
-  over unbounded `git log -L` or `git log -S` scans, which traverse the full
-  commit graph and time out.
+  `git --no-lazy-fetch blame -L <start>,<end> <file>` followed by
+  `git --no-lazy-fetch show <sha> -- <path>` over unbounded `git log -L` or
+  `git log -S` scans, which traverse the full commit graph and time out.
 - **API Change Check**: Verify if your change introduces public API
   modifications. Remember:
   - Do not introduce public API changes in a bug fix CL.
@@ -1073,8 +1094,8 @@ CameraX involves complex hardware interactions, making robust testing essential.
        (see `AGENTS_INTERNAL.md`).
   4. **Fleet-Wide Baseline Regression Check**:
      - Before submitting changes that touch shared pipeline paths, query the
-       daily testing baseline matrix across all 230+ lab devices to ensure
-       clean pass rates and prevent regressions.
+       daily testing baseline matrix across the physical test device fleet to
+       ensure clean pass rates and prevent regressions.
 
 #### 6. Decision Framework: User Impact vs. Test-Only Deep Root-Cause Triage
 
@@ -1486,17 +1507,32 @@ engineer robust, maintainable solutions while preserving hardware testability:
 
 #### 1. The 3-Tier Signal Filter (Signal vs. Noise)
 Before proposing documentation updates, filter session findings through three
-levels of abstraction:
+levels of abstraction and durability:
 * **Tier 1 (Transient Noise — DO NOT ADD)**: Temporary workarounds, specific
   bug IDs, daily flake reports, or raw log traces belong in issue tracker
   comments and CL descriptions, not in long-term guidelines.
-* **Tier 2 (Implementation Details — Code/KDoc)**: Specific device model
-  strings, OEM build identifiers, or quirk class implementation details belong
-  in source code KDoc and Quirk classes.
-* **Tier 3 (Universal Engineering Patterns — ADD to AGENTS.md)**: Deterministic
-  pre-upload quality gates, compiler checks (`runErrorProneRelease`), commit
-  stack anti-churn rules, architectural decision trees, and safety audit
-  protocols belong in `AGENTS.md`.
+* **Tier 2 (Implementation Details & Local Skills — Keep in Code/KDoc or
+  Lowest-Priority Tooling)**: Specific device model strings, OEM build
+  identifiers, private helper mechanics, or quirk class implementation details
+  belong in source code KDoc and Quirk classes where they evolve with the code.
+  Treat tool-specific local skills as a lowest-priority fallback—prefer
+  explaining durable design and implementation principles in `AGENTS.md` over
+  relying on local skills.
+* **Tier 3 (Universal Engineering Patterns — ADD to AGENTS.md by Durability
+  Priority)**: Prioritize additions from longest-lived to most specific,
+  integrating into existing sections rather than duplicating them:
+  1. *1st Priority — Universal Design Principles & Public Specifications*
+     (`Standards & Guidelines Hierarchy`, `Code Elegance & Idiomatic Design`):
+     official API/style guides, deep modules, single responsibility ("object
+     job"), separating general-purpose core from special-purpose quirks, and
+     eliminating special cases.
+  2. *2nd Priority — High-Level Architecture & Timeless Domain Contracts*
+     (`Backend Architecture & CameraPipe Migration`, `@CameraScope` vs.
+     `@UseCaseCameraScope`, Section 6.F public contracts, concurrency).
+  3. *3rd Priority — High-Level Implementation Rationale & Decision Rubrics*
+     (Section 6 Root-Cause Hierarchy, Section 8 Capability Framework, Section 9
+     Test Pyramid, pre-upload quality gates, and commit anti-churn rules—explain
+     the *why*, not fragile method-by-method traces).
 
 #### 2. The 1-Year Litmus Test
 Evaluate every prospective rule against this long-term criterion:
