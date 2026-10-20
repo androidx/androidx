@@ -95,13 +95,17 @@ internal class RenderInvalidationTracker {
         synchronized(lock) { renderInputsChanged = true }
     }
 
+    /** Whether the document may have changed since the previous render, see [beginRender]. */
+    fun needsRender(changeCount: Long): Boolean =
+        synchronized(lock) { renderInputsChanged || changeCount != lastRenderChangeCount }
+
     /**
      * Returns `true` and marks a render as in progress if the document may have changed since the
      * previous render; `false` if rendering can be skipped.
      */
     fun beginRender(changeCount: Long): Boolean =
         synchronized(lock) {
-            val shouldRender = renderInputsChanged || changeCount != lastRenderChangeCount
+            val shouldRender = needsRender(changeCount)
             if (shouldRender) {
                 renderInputsChanged = false
                 lastRenderChangeCount = changeCount

@@ -30,11 +30,10 @@ import androidx.compose.remote.creation.compose.capture.headless.HeadlessSession
 import androidx.compose.remote.creation.compose.capture.headless.MAX_FRAMES
 import androidx.compose.remote.creation.compose.capture.headless.MAX_IDLE_ITERATIONS
 import androidx.compose.remote.creation.compose.capture.headless.QuiescenceResult
-import androidx.compose.remote.creation.compose.capture.headless.RenderInvalidationTracker
 import androidx.compose.remote.creation.compose.capture.headless.SnapshotWriteMonitor
 import androidx.compose.remote.creation.compose.capture.headless.awaitRecomposerQuiescence
+import androidx.compose.remote.creation.compose.capture.headless.renderLoop
 import androidx.compose.remote.creation.compose.capture.headless.toSingleThreadedRecomposerContext
-import androidx.compose.remote.creation.compose.capture.headless.withRenderSnapshot
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeApplier
@@ -48,7 +47,6 @@ import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
@@ -56,8 +54,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedState
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.write
-import androidx.tracing.traceAsync
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.AbstractLongTimeSource
@@ -68,7 +64,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -193,7 +188,6 @@ private fun captureRemoteDocumentImpl(
         "captureRemoteDocument requires isEnforceCleanRecompositionEnabled to be true"
     }
     val traceName = if (isSingleDocument) "captureSingleRemoteDocument" else "captureRemoteDocument"
-    val settleTraceName = if (isSingleDocument) "compositionInitialization" else "settle"
 
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
@@ -240,13 +234,13 @@ private fun captureRemoteDocumentImpl(
             val writeMonitor = if (isSingleDocument) null else SnapshotWriteMonitor.acquire()
             try {
                 session.start(this)
-
                 // Set the content only once the Recomposer is running. A Recomposer invalidates
                 // every composition it knows about when it starts, since it was not observing
                 // snapshot state on their behalf until then; content set before that point is
-                // therefore composed a second time before the first document is rendered. Queued
-                // on the single-threaded dispatcher behind the runner's first slice, so the
-                // initial composition also happens under the started write tracker.
+                // therefore composed a second time before the first document is rendered. The
+                // effects started by the initial composition then also run under the started
+                // write tracker and after the session's invalidation observer is registered.
+                session.awaitRunning()
                 withContext(recomposerDispatcher) {
                     composition.setContent {
                         CompositionLocalProvider(
@@ -266,59 +260,27 @@ private fun captureRemoteDocumentImpl(
                     }
                 }
 
-                // Regeneration must not be driven by observing Recomposer.currentState transitions.
-                // currentState is a conflated StateFlow: a collector that is descheduled (e.g.
-                // under CPU contention) while the recomposer cycles Idle -> Recomposing -> Idle
-                // observes no value change at all, so `filter { it == Idle }` never re-emits and
-                // the updated document is silently dropped. Drive regeneration from snapshot apply
-                // notifications instead. A CONFLATED channel collapses bursts of writes into a
-                // single regeneration but, unlike a StateFlow value slot, can never lose the fact
-                // that state changed.
-                val invalidations = Channel<Unit>(Channel.CONFLATED)
-                // Seed so the initial document is always produced.
-                invalidations.trySend(Unit)
+                var previousBytes: ByteArray? = null
+                var emittedDocuments = 0
+                var renderedDocuments = 0
+                val rateLimiter = updateThrottle.newLimiter(timeSource)
                 // A single-document capture renders once and never re-renders, so it skips the
-                // render invalidation bookkeeping below: no read observer and no apply observer.
-                val renderTracker = RenderInvalidationTracker()
-                // Observes the snapshot state read while rendering (e.g. inside RemoteCanvas draw
-                // lambdas), the way Compose UI's OwnerSnapshotObserver observes layout and draw.
-                // Notifications run inline on the applying thread: the callback only flags the
-                // tracker and wakes the loop. The callback instance must be stable, as the observer
-                // keys its scope maps by it.
-                val renderReadObserver =
-                    if (isSingleDocument) null else SnapshotStateObserver { it() }
-                val onRenderReadChanged: (RenderInvalidationTracker) -> Unit = { tracker ->
-                    tracker.onRenderReadChanged()
-                    invalidations.trySend(Unit)
-                }
-                // Registered before the apply observer below, so that when onApplied wakes the loop
-                // the read observer has already recorded the same notification.
-                renderReadObserver?.start()
-                val applyObserverHandle =
-                    if (isSingleDocument) null
-                    else
-                        Snapshot.registerApplyObserver { _, _ ->
-                            renderTracker.onApplied()
-                            invalidations.trySend(Unit)
-                        }
-
-                try {
-                    var previousBytes: ByteArray? = null
-                    var emittedDocuments = 0
-                    var renderedDocuments = 0
-                    val rateLimiter = updateThrottle.newLimiter(timeSource)
-                    for (invalidation in invalidations) {
+                // render read observation.
+                session.renderLoop(
+                    observeRenderReads = !isSingleDocument,
+                    changeCount = { applier.changeCount },
+                    beforeSettle = {
                         // Wait for the throttle before settling and rendering, so writes made
-                        // meanwhile are conflated into the invalidation channel and the document
-                        // rendered afterwards reflects the latest state. Only emitted documents
-                        // count towards the limit.
+                        // meanwhile are conflated into the invalidation and the document rendered
+                        // afterwards reflects the latest state. Only emitted documents count
+                        // towards the limit.
                         //
                         // While waiting for a permit, also pace the frames the clock's pump sends,
                         // so that content animating through recomposition does not keep the
                         // recomposer spinning at full speed for documents that cannot be emitted
-                        // yet. Pacing is lifted before settling: awaitRecomposerQuiescence waits
-                        // for the recomposer to go Idle, which needs the pump's frame, and bounds
-                        // its own frames by MAX_FRAMES.
+                        // yet. Pacing is lifted before settling: awaitQuiescence waits for the
+                        // recomposer to go Idle, which needs the pump's frame, and bounds its own
+                        // frames by MAX_FRAMES.
                         if (rateLimiter != null && !rateLimiter.hasPermit()) {
                             frameClock.minFramePeriod = rateLimiter.interval
                             try {
@@ -327,100 +289,62 @@ private fun captureRemoteDocumentImpl(
                                 frameClock.minFramePeriod = Duration.ZERO
                             }
                         }
-                        // Let the recomposer observe and apply the invalidation before rendering.
-                        // A streaming capture renders an unsettled composition (e.g. continuously
-                        // animating content) once the iteration or frame bound is hit, so it keeps
-                        // producing documents at the rate allowed by updateThrottle. A single
-                        // capture fails instead, as nothing would ever correct the document.
-                        val quiescence =
-                            traceAsync(
-                                "CaptureRemoteDocument:$traceName:$settleTraceName",
-                                ThreadLocalRandom.current().nextInt(),
+                    },
+                ) {
+                    // A streaming capture renders an unsettled composition (e.g. continuously
+                    // animating content) once the iteration or frame bound is hit, so it keeps
+                    // producing documents at the rate allowed by updateThrottle. A single capture
+                    // fails instead, as nothing would ever correct the document.
+                    if (isSingleDocument) quiescence.throwIfNotQuiescent()
+
+                    val bytes =
+                        // Writes during render fail under enforced clean recomposition (required
+                        // for streaming); a legacy single-shot capture still applies them.
+                        renderIfChanged(
+                            applyWrites =
+                                !RemoteComposeCreationComposeFlags
+                                    .isEnforceCleanRecompositionEnabled
+                        ) {
+                            // The first render writes into the document created with
+                            // creationState, which composition left untouched (checked below).
+                            // Later renders need a fresh document.
+                            if (renderedDocuments++ > 0) {
+                                creationState.document =
+                                    profile.create(
+                                        creationDisplayInfo.toCreationDisplayInfo(),
+                                        writerCallback,
+                                    )
+                                creationState.clearDocumentCaches()
+                            }
+                            val remoteCanvas = RemoteCanvas(creationState)
+
+                            if (
+                                RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled
                             ) {
-                                session.awaitQuiescence()
-                            }
-                        if (isSingleDocument) quiescence.throwIfNotQuiescent()
-
-                        val bytes =
-                            withContext(recomposerDispatcher) {
-                                if (!renderTracker.beginRender(applier.changeCount)) {
-                                    return@withContext null
+                                check(creationState.document.buffer.buffer.size() == initialSize) {
+                                    "Document was written to during composition. " +
+                                        "Expected size $initialSize, got " +
+                                        "${creationState.document.buffer.buffer.size()}"
                                 }
-                                try {
-                                    // Writes during render fail under enforced clean
-                                    // recomposition (required for streaming); a legacy
-                                    // single-shot capture still applies them.
-                                    withRenderSnapshot(
-                                        applyWrites =
-                                            !RemoteComposeCreationComposeFlags
-                                                .isEnforceCleanRecompositionEnabled
-                                    ) {
-                                        // The first render writes into the document created with
-                                        // creationState, which composition left untouched (checked
-                                        // below). Later renders need a fresh document.
-                                        if (renderedDocuments++ > 0) {
-                                            creationState.document =
-                                                profile.create(
-                                                    creationDisplayInfo.toCreationDisplayInfo(),
-                                                    writerCallback,
-                                                )
-                                            creationState.clearDocumentCaches()
-                                        }
-                                        val remoteCanvas = RemoteCanvas(creationState)
-
-                                        if (
-                                            RemoteComposeCreationComposeFlags
-                                                .isEnforceCleanRecompositionEnabled
-                                        ) {
-                                            check(
-                                                creationState.document.buffer.buffer.size() ==
-                                                    initialSize
-                                            ) {
-                                                "Document was written to during composition. " +
-                                                    "Expected size $initialSize, got " +
-                                                    "${creationState.document.buffer.buffer.size()}"
-                                            }
-                                        }
-
-                                        val render = {
-                                            trace(
-                                                "CaptureRemoteDocument:$traceName:rootNodeRender"
-                                            ) {
-                                                rootNode.render(creationState, remoteCanvas)
-                                                remoteCanvas.flush()
-                                            }
-                                        }
-                                        if (renderReadObserver == null) {
-                                            render()
-                                        } else {
-                                            renderReadObserver.observeReads(
-                                                renderTracker,
-                                                onRenderReadChanged,
-                                                render,
-                                            )
-                                        }
-
-                                        creationState.document.encodeToByteArray()
-                                    }
-                                } finally {
-                                    renderTracker.endRender()
-                                }
-                            } ?: continue
-
-                        if (previousBytes?.contentEquals(bytes) != true) {
-                            previousBytes = bytes
-                            rateLimiter?.onEmitted()
-                            emit(bytes)
-                            if (++emittedDocuments >= maxDocuments) {
-                                break
                             }
+
+                            trace("CaptureRemoteDocument:$traceName:rootNodeRender") {
+                                rootNode.render(creationState, remoteCanvas)
+                                remoteCanvas.flush()
+                            }
+
+                            creationState.document.encodeToByteArray()
+                        } ?: return@renderLoop true
+
+                    if (previousBytes?.contentEquals(bytes) != true) {
+                        previousBytes = bytes
+                        rateLimiter?.onEmitted()
+                        emit(bytes)
+                        if (++emittedDocuments >= maxDocuments) {
+                            return@renderLoop false
                         }
                     }
-                } finally {
-                    applyObserverHandle?.dispose()
-                    renderReadObserver?.stop()
-                    renderReadObserver?.clear()
-                    invalidations.close()
+                    true
                 }
             } finally {
                 session.close()
