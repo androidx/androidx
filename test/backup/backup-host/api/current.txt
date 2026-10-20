@@ -95,7 +95,6 @@ package androidx.test.backup.host {
 
   public final class BackupRestoreExtension implements org.junit.jupiter.api.extension.ParameterResolver {
     ctor public BackupRestoreExtension();
-    ctor public BackupRestoreExtension(com.android.adblib.AdbSession adbSession);
     method public Object resolveParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
     method public boolean supportsParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
   }

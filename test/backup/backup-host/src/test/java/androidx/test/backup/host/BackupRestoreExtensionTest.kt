@@ -314,15 +314,15 @@ class BackupRestoreExtensionTest {
 
     /** Each test class gets its own extension instance, but they all share one session. */
     @Test
-    fun standaloneExtensionsShareOneSessionUntilTheTestRunEnds() {
+    fun extensionsShareOneSessionUntilTheTestRunEnds() {
         val session = mock(AdbSession::class.java)
         var sessionsCreated = 0
         val createSession = {
             sessionsCreated++
             session
         }
-        val first = BackupRestoreExtension(isStandalone = true, createSession)
-        val second = BackupRestoreExtension(isStandalone = true, createSession)
+        val first = BackupRestoreExtension(createSession)
+        val second = BackupRestoreExtension(createSession)
 
         assertSame(session, first.sessionFor(context))
         assertSame(session, second.sessionFor(context))
@@ -338,28 +338,18 @@ class BackupRestoreExtensionTest {
     fun aStandaloneSessionThatFailsToCloseDoesNotFailTheTestRun() {
         val session = mock(AdbSession::class.java)
         doThrow(IllegalStateException("Session already closed")).`when`(session).close()
-        BackupRestoreExtension(isStandalone = true) { session }.sessionFor(context)
+        BackupRestoreExtension { session }.sessionFor(context)
 
         rootStore.closeAll()
 
         verify(session).close()
     }
 
-    @Test
-    fun aSharedSessionIsLeftOpenForItsOwner() {
-        val session = mock(AdbSession::class.java)
-
-        assertSame(session, BackupRestoreExtension(session).sessionFor(context))
-        rootStore.closeAll()
-
-        verify(session, never()).close()
-    }
-
     /** JUnit 5.13 and later close a stored [AutoCloseable], and warn about other resources. */
     @Test
     fun aStandaloneSessionCanBeClosedAsAnAutoCloseable() {
         val session = mock(AdbSession::class.java)
-        BackupRestoreExtension(isStandalone = true) { session }.sessionFor(context)
+        BackupRestoreExtension { session }.sessionFor(context)
 
         val stored = rootStore.storedValues.single()
         assertIs<CloseableResource>(stored)
