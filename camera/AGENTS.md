@@ -210,14 +210,17 @@ applicable. Prioritize clarity and conciseness.
           use deterministic synchronization without `Thread.sleep()`.
         - **Documentation & KDoc Integrity**: Confirm public API docs and guide
           updates are accurate, wrapped at 80 characters, and 100% public-safe.
-6.  **Universal Clean-Context Multi-Model Verification Loop (Default, Max 3
-    Rounds):**
-    During investigation and solution design (before modifying code) and again
-    before delivering any finalized review, code change, root-cause
-    investigation, implementation plan, test verification report, or complex
-    technical recommendation, run both an in-context completeness check and, by
-    default, a clean-context multi-model verification-and-correction loop
-    (capped at **3 rounds max**):
+6.  **Universal Clean-Context Multi-Model Verification Loop (Canonical Gate —
+    Autonomous Convergence, Default 3 Rounds / Auto-Scale up to 5 Rounds):**
+    During investigation and solution design (before committing to a fix
+    design) and again before delivering any finalized review, code change,
+    root-cause investigation, implementation plan, test verification report, or
+    complex technical recommendation, run both an in-context completeness check
+    and, by default, this canonical clean-context multi-model
+    verification-and-correction loop (note: when `AGENTS_INTERNAL.md` Phase 4
+    is present, it supplies internal model-routing/CLI commands and
+    programmatic loop runners but **never** relaxes the verification gates,
+    zero-priming rules, or convergence exit criteria below):
     *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
         - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
           (Mandatory by Default)**: Automatically trigger for (1) Code Review /
@@ -226,17 +229,31 @@ applicable. Prioritize clarity and conciseness.
           Reports & Data Summaries, and (5) Open-Ended Design Trade-Offs, Quirk
           Scoping, Complex Test Synthesis, or any task where high quality or
           multiple independent perspectives can uncover a better solution.
-          - *Checkpoint 1 — Upfront During Investigation & Solution Finding
-            (Before Writing Code):* When investigating a non-trivial bug, race
-            condition, HAL failure, or multi-class change, do **not** wait until
-            after code is written to invoke multi-model review. Use independent
-            cross-family models during root-cause triage and solution selection
-            (Modes 2, 3, and 5) to converge on the true root cause and most
-            idiomatic architectural placement ("object job") **before** making
-            code edits.
-          - *Checkpoint 2 — Post-Implementation / Pre-Delivery Audit:* Once the
-            code change or deliverable is drafted, run the clean-context
-            verification loop (Modes 1–5) before final delivery or upload.
+          - *Checkpoint 1 — Hard Pre-Coding Investigation & Design Gate (Before
+            Implementing Production Fixes or Finalizing Any Plan/Triage):*
+            When investigating a non-trivial bug, race condition, HAL failure,
+            or multi-class change, you may add temporary diagnostic logging or
+            write a failing reproduction test first (staging their output as
+            raw evidence), but do **not** implement the production fix or
+            finalize an investigation/plan without running this gate first.
+            Spawn independent clean-context cross-family verifiers (Modes 2, 3,
+            and 5) to explicitly verify: (a) the true first causal failure in
+            the raw logs, (b) the **Section 6.A User-Impact vs. Test-Only Gate**
+            (rejecting test-only workarounds when real application users can
+            trigger the issue in library code), and (c) **Deep-Module
+            Simplicity & Object Job** (selecting the simplest minimal-state
+            design before coding the fix).
+          - *Checkpoint 2 — Deterministic Pre-Gate & Recursive Post-Fix
+            Convergence Audit:* Run deterministic checks first—formatting
+            (`./gradlew :ktCheckFile --format`), compilation/ErrorProne, and
+            relevant unit tests—*before* spawning clean-context verifiers (and
+            after every fix pass) so reviewers focus 100% on logic, concurrency,
+            and architecture rather than syntax or build noise. Then run the
+            clean-context verification loop (Modes 1–5), autonomously applying
+            fixes and re-verifying in fresh clean contexts until the
+            convergence exit gate is satisfied (`0` `OPEN`
+            `Critical`/`High`/`Medium` or factual/architectural issues, `0`
+            `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT` items).
         - **Skip (Lightweight Direct Execution)**: Skip for simple, single-step
           operational commands or status checks (e.g., listing devices, checking
           device status, initializing a workspace, or answering a trivial
@@ -253,6 +270,25 @@ applicable. Prioritize clarity and conciseness.
           across genuinely distinct model families. Fall back to same-family
           reasoning tiers only when cross-family model selection is unavailable
           in the current environment.
+        - **Author vs. Verifier Model Specialization & Opposite-Family-First
+          Routing:** Read-only post-hoc reviews alone cannot turn a flawed
+          initial architecture into clean code if the primary authoring model
+          repeatedly patches around its own design. When multiple model families
+          are available in the harness (see `AGENTS_INTERNAL.md` when
+          configured):
+          1. *Phase-Matched Authoring:* Use high-throughput search/tool models
+             for fast codebase exploration, log/query ingestion, and test
+             runner execution, and switch the active coordinator model in-place
+             (or delegate to a dedicated coding/architect worker) on the
+             strongest available coding/architecture model family *before*
+             designing and authoring non-trivial Kotlin/Java state-machine or
+             concurrency changes.
+          2. *Opposite-Family-First Round 1 (`R1`):* Never start Round 1 (`R1`)
+             on the **same** model family as the active code/draft author when a
+             cross-family model has available quota. Always assign Round 1
+             (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to the
+             **opposite** model family from the author so correlated same-family
+             blind spots are broken immediately on the first pass.
         - **Zero-Cost Live Catalog & Quota Query:** When the harness provides a
           lightweight model-catalog or quota query (zero token cost), always
           query the live catalog before Round 1 to dynamically select the latest
@@ -278,61 +314,194 @@ applicable. Prioritize clarity and conciseness.
     *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
         Because clean-context verifiers start with zero conversation history:
         - For **Code Review (Mode 1)**, verifiers inspect `git status` / `git
-          diff` in the workspace directly.
+          diff` / `git show` and full surrounding source files in the workspace
+          directly (never pass only an incremental delta since the last round).
         - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
           MUST write:
-          1. The **Draft Deliverable** (e.g.,
+          1. The **Full Updated Draft Deliverable** (e.g.,
              `<scratch_or_tmp>/draft_deliverable.md`) AND
           2. The **Raw Evidence / Source Data** (or exact file paths to raw CLI
              or test runner outputs, saved log slices, and source `file:line`
              references)
           so each clean-context verifier can independently cross-examine the
-          draft against the raw ground truth without anchoring bias.
+          complete draft against the raw ground truth without anchoring bias.
+    *   **Zero-Priming ("Second-Console") Briefs, Orthogonal Critic Lenses,
+        Shared-Board Isolation & Per-CL Granularity:**
+        To replicate the bug-finding effectiveness of opening a brand-new AI
+        console on the repository, eliminate all author priming and attention
+        dilution when dispatching verifiers:
+        - **Zero Author Narrative in All Verifier Briefs (Modes 1–5)**: In every
+          verifier brief, include: (a) the user's original problem statement or
+          bug symptoms verbatim, (b) the workspace path and target `git diff` /
+          `git show` command or raw evidence/draft file paths, and (c) standing
+          onboarding rules (`camera/AGENTS.md` scope invariants and read-only
+          discipline). **Never** include the author's hypothesis, design pitch,
+          rationale for why the fix is right, defect ledger, or a list of prior
+          review items asking the verifier to "confirm the fix is clean"—let
+          the verifier inspect the raw evidence, commit message, and full
+          updated code cold.
+        - **Evidence-First Blind Diagnosis & Two-Turn Read Barrier in Modes
+          2–5**: For non-diff audits (investigations, plans, test reports, and
+          trade-offs), instruct the verifier to read the raw failure logs, query
+          outputs, and surrounding source files **first** in its initial
+          tool-call turn and record its own independent diagnosis or numbers
+          *before* reading `<scratch_or_tmp>/draft_deliverable.md` in a
+          subsequent turn.
+        - **Post-Blind Adjudication Turn (Round 2+):** Only *after* the verifier
+          has posted its independent cold audit, provide it a neutral list of
+          prior `PATCHED_PENDING_REAUDIT` and `DISMISSED_WITH_PROOF` items
+          (location + original finding text only; never the author's rationale)
+          so it can explicitly mark each item `VERIFIED_RESOLVED`, `REGRESSED`,
+          or `UPHELD`/`REJECTED` (where a rejected dismissal returns to `OPEN`).
+        - **Three Orthogonal Hostile Critic Lenses**: Instruct every verifier to
+          audit across three complementary lenses: (1) *Correctness,
+          Concurrency & Lifecycle Invariants* (`@CameraScope` vs.
+          `@UseCaseCameraScope`, lock/dispatcher confinement, `finally`
+          cleanup), (2) *Occam's Razor, Deep Modules & Object Job* (single
+          responsibility, right layer placement, eliminating special-case
+          branching), and (3) *Public API Contract, Caller Parity & Section 6.A
+          User-Impact Gate* (honoring Javadoc contracts, preserving intentional
+          behaviors, and rejecting test-only skips for user-triggerable flows).
+        - **Shared Message Board / Channel Isolation**: In multi-agent board or
+          shared-channel environments, explicitly instruct clean-context
+          verifiers **never** to read prior board messages or earlier verifier
+          threads so their audit remains uncontaminated.
+        - **Per-CL Granularity + Cross-CL Stack Pass (No Batch Dilution)**:
+          Never bundle a multi-CL stack or a large batch of unrelated bug fixes
+          into a single verifier pass. Scope each clean-context verifier worker
+          to **1 logical CL/commit** (or a cohesive unit of related
+          files/issues), spawning parallel per-CL workers when auditing
+          multiple changes, and follow per-CL reviews on a multi-commit stack
+          with **one stack-level integration pass** (`git log -p base..HEAD`)
+          to verify cross-CL contracts and `Multi-Commit Stack Hygiene`.
     *   **Independent Verifier Onboarding ("New Engineer Brain"):** Each
-        spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`)
-        must start with a clean context (without the author's chain-of-thought)
-        and be instructed to read this `AGENTS.md` (Code Review Guidelines,
-        Step 5 Mode Checklist, Section 6 & Section 8 Rubrics, and Standards
-        Hierarchy), `AGENTS_INTERNAL.md` (if available), the target diff or
-        draft deliverable, the raw evidence files, and the surrounding CameraX
-        codebase widely. Read-only verifiers must never edit files, switch `git`
-        branches, or run parallel `./gradlew` builds.
-    *   **Adaptive Multi-Round Verification & Correction Chain (Max 3 Rounds +
-        Flexible Early Exit):**
-        1. *Round 1 (Model Family / Tier A in fresh context):* Spawn
-           `verifier-r1` (`reviewer-r1`) to audit the draft deliverable against
-           raw evidence and codebase rules (or spawn parallel models when
-           exploring competing Mode 5 design trade-offs). Validate every finding
-           against raw data/code, fix all factual errors, miscalculations,
-           flawed reasoning, or code issues in the draft, and retire
-           `verifier-r1`.
-        2. *Round 2 (Model Family / Tier B in fresh context):* Spawn a
-           brand-new `verifier-r2` (`reviewer-r2`) in a clean context to audit
-           the updated deliverable from scratch. Apply any remaining fixes and
-           retire `verifier-r2`.
-        3. *Round 3 (Model Family / Tier C in fresh context — Conditional Hard
-           Cap):* Run Round 3 (`verifier-r3` / `reviewer-r3`) if Round 2
-           uncovered material errors/issues that required changes (factual,
-           architectural, or Critical/High/Medium issues, or if the user
-           explicitly requested all models), then retire `verifier-r3` and
-           deliver the finalized output (running Stage 2 checks first for code
-           changes).
-        4. *Flexible Early Exit:*
+        spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`,
+        up to `verifier-r5` when auto-scaling) must start with a clean context
+        (without the author's chain-of-thought) and be instructed to read this
+        `AGENTS.md` (Code Review Guidelines, Step 5 Mode Checklist, Section 6 &
+        Section 8 Rubrics, and Standards Hierarchy), `AGENTS_INTERNAL.md` (if
+        available), the target diff or draft deliverable, the raw evidence
+        files, and the surrounding CameraX codebase widely. Read-only verifiers
+        must never edit files, switch `git` branches, or run parallel
+        `./gradlew` builds.
+    *   **Autonomous Multi-Round Convergence Loop (Default 3 Rounds / Auto-Scale
+        up to 5 Rounds, Ephemeral Defect Ledger, Priority Repair &
+        Anti-Oscillation):**
+        1. *Autonomous Multi-Turn Execution (No Conversational Yielding Between
+           Rounds):* Never pause to ask the user for permission between
+           intermediate review-and-fix rounds. Autonomously execute the state
+           machine (`Spawn Clean-Context Verifier -> Triage & Priority-Fix ->
+           Pattern Sweep & Deterministic Gate -> Spawn Next Clean-Context
+           Verifier`) in a continuous loop until the convergence exit gate is
+           satisfied.
+        2. *Ephemeral Convergence Defect Ledger
+           (`<scratch_or_tmp>/convergence_ledger.md`):* To prevent context
+           compaction or memory drift across rounds, maintain a state-machine
+           ledger in a scratch/temp file (never committed to the repository and
+           never shown to verifiers during their initial cold audit) tracking
+           every finding across rounds:
+           - `OPEN (R{n})` -> `PATCHED_PENDING_REAUDIT (v{n+1})` ->
+             `VERIFIED_RESOLVED (R{n+1})` or `REGRESSED (R{n+1})`
+           - `REVERTED_VERIFICATION_FAILURE` (when a candidate fix breaks
+             compilation or tests: revert immediately, log the failed approach
+             so later rounds do not re-attempt it, and return the finding to
+             `OPEN` so it still blocks the exit gate until an alternative fix
+             lands, it is `DISMISSED_WITH_PROOF` and `UPHELD`, or it is marked
+             `ESCALATED` to the user)
+           - `DISMISSED_WITH_PROOF` (requires exact `file:line` or specification
+             proof; must be adjudicated in Round `n+1`'s Post-Blind Adjudication
+             Turn as `UPHELD` or `REJECTED` -> `OPEN`)
+           - `ESCALATED` (unresolved trade-off or stalled defect surfaced to the
+             user after reaching the cap or failing progress)
+        3. *Priority-Ordered Repair (`P0 -> P1 -> P2 -> P3`) & Cross-Diff
+           Pattern Sweep:* Within each fix pass, apply fixes in priority order:
+           `P0 Architectural/Lifecycle` -> `P1 Functional/Concurrency` -> `P2
+           Local Logic` -> `P3 Style/Polish` so rounds are never wasted
+           polishing code that is about to be restructured. Whenever a bug
+           pattern is fixed at one site, sweep the entire diff/stack and
+           surrounding class for all instances of the same anti-pattern and fix
+           them in the same pass before re-running deterministic checks and
+           spawning the next verifier round.
+        4. *Dynamic 3-to-5 Round Scaling & Hard Convergence Exit Gate:*
+           - **Rounds 1 -> 2 -> 3 (Baseline Cross-Family Chain):** Spawn fresh
+             clean-context verifiers across distinct model families/tiers
+             (`verifier-r1` -> fix -> `verifier-r2` -> fix -> `verifier-r3`).
+           - **Hard Convergence Exit Gate:** Convergence is achieved **only**
+             when the latest clean-context verifier round reports **`0` `OPEN`
+             (`Critical` / `High` / `Medium` or factual/architectural) issues,
+             `0` `REGRESSED` issues, `0` `PATCHED_PENDING_REAUDIT` items, AND
+             `0` unadjudicated `DISMISSED_WITH_PROOF` items** in the ledger
+             (every semantic edit applied in Round `n` must be confirmed
+             `VERIFIED_RESOLVED` in Round `n+1`, and any dismissal in the final
+             round receives the `+1` focused check or is marked `ESCALATED`).
+           - **Auto-Extension (Rounds 4–5 While Fixes Are Converging):** If
+             Round 3 (or Round 4) applies a valid semantic fix
+             (`PATCHED_PENDING_REAUDIT`) that actively reduces open defects
+             without oscillating (`progress_made == true`, meaning the count of
+             open `Critical`/`High`/`Medium` items decreased from the prior
+             round or all prior `PATCHED_PENDING_REAUDIT` items resolved without
+             new regressions), **automatically extend the loop up to 5 rounds**
+             (`verifier-r4`, `verifier-r5`, cycling across model families) so
+             post-fix changes are audited to true convergence. Otherwise (if a
+             semantic fix was applied with `progress_made == false`), or if
+             Round 5 still requires a semantic edit, run at most **1 focused
+             post-fix clean-context check**; if any `Critical`/`High`/`Medium`,
+             `PATCHED_PENDING_REAUDIT`, or unadjudicated item remains, stop and
+             mark the remaining items `ESCALATED` to the user (never deliver as
+             converged while `PATCHED_PENDING_REAUDIT` > 0).
+        5. *Recursive Post-Edit Re-Verification Invariant (Parallel !=
+           Sequential; Zero Unverified Semantic Edits):*
+           - Running multiple verifiers in parallel on the **same** code or
+             draft snapshot counts as **1 round** (cross-perspective
+             discovery), **not** as sequential verification rounds.
+           - **Every** semantic code or design modification made after a
+             verification round (or during Stage 2 compilation, ErrorProne,
+             lint, test fixing, or rebase conflict resolution) transitions its
+             ledger entry to `PATCHED_PENDING_REAUDIT` and invalidates prior
+             `LGTM` sign-offs. Purely mechanical formatting (`ktfmt` / import
+             ordering) or non-semantic `LOW` comment/typo fixes do not
+             re-trigger a new round, but any semantic edit **must** be followed
+             by a fresh clean-context verification round.
+        6. *Anti-Sunk-Cost Dismissal Rule, Material Change Criteria &
+           Anti-Oscillation Lock:*
+           - The orchestrating agent may **never** silently ignore or discard a
+             verifier's `Critical`, `High`, or `Medium` finding; every such
+             finding must be fixed (`PATCHED_PENDING_REAUDIT`) or explicitly
+             rebutted (`DISMISSED_WITH_PROOF`) with `file:line` evidence in the
+             final user report and adjudicated in the next round.
+           - Reject any Round `n+1` suggestion that contradicts or reverts a
+             prior round's verified fix unless it proves a concrete failure
+             mode (reproducible race, crash, test failure, or API violation) or
+             a new specification constraint. Document non-obvious ordering,
+             lock, or lifecycle invariants in concise inline comments alongside
+             a deterministic regression test so subsequent verifiers see the
+             constraint; if a design choice returns to a previously rejected
+             state (`v1 -> v2 -> v1`), lock the state and surface the trade-off
+             (`ESCALATED`) to the user.
+        7. *Flexible Early Exit:*
            - **After Round 1 (Routine Non-Code / Doc Deliverables Only):** For
              routine or low-risk non-code deliverables (e.g., straightforward
              test result tables or localized doc-only updates) where
-             `verifier-r1` reports **zero factual, numeric, or reasoning
-             issues** and zero edits were needed, you may exit early after
-             Round 1 and deliver immediately.
+             `verifier-r1` reports `0` `OPEN` issues and `0`
+             `PATCHED_PENDING_REAUDIT` items, exit early after Round 1.
            - **After Round 2 (Code, Deep Triage, Plans, Trade-Offs & Edited
              Drafts):** For all production/test code changes (`git diff`),
              complex investigations/plans, trade-off syntheses (`Mode 5`), or
              any draft modified after Round 1, run Round 2 on a second model
-             tier; stop early after Round 2 once it reports **zero factual,
-             architectural, or Critical/High/Medium issues**.
-    *   **Read-Only Verifier Rule:** Verifier sub-agents must never edit
-        repository files or run build/Gradle tasks; only the main orchestrating
-        agent applies edits and runs verification commands.
+             family/tier; stop early after Round 2 only if the ledger has `0`
+             `OPEN` (`Critical`/`High`/`Medium` or factual/architectural)
+             issues, `0` `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT`
+             items.
+    *   **Read-Only Verifier, Search Discipline & Watchdog Recovery:**
+        Verifier sub-agents must never edit repository files, run build/Gradle
+        tasks, or run unbounded `find` / recursive `grep` commands across
+        virtual/network filesystems or the repository root (prefer indexed code
+        search, direct file reads, or path-scoped `git status -- camera/` and
+        `git diff aosp/androidx-main...HEAD -- camera/`). Verifiers must
+        terminate any lingering background shell tasks before exiting so parent
+        sessions never hang waiting on child processes, and orchestrators should
+        use a watchdog timeout to recover if a sub-agent stalls on an orphaned
+        background process (see `AGENTS_INTERNAL.md` when configured).
 7.  **Finalize / Present Deliverable:** Present the verified deliverable (noting
     the verification mode and rounds completed) or proceed to the pre-upload
     quality gate before committing or uploading.
@@ -615,19 +784,15 @@ When directed to an index page, directory list, or guide linking to sub-guides
   [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
   to check the API usage guidelines and contracts before finalizing the code
   change, ensuring all usage aligns with the framework's design.
-- **Upfront Multi-Model Root-Cause & Solution Exploration (Before Writing
-  Code)**:
+- **Upfront Multi-Model Root-Cause & Solution Exploration (Step 6 Checkpoint 1
+  Gate)**:
   When investigating a non-trivial bug, concurrency race, HAL/codec failure, or
-  architectural change, do **not** rely on a single model's first hypothesis and
-  jump straight to editing code:
-  - First use cross-family multi-model exploration (Step 5 & Step 6, Modes 2, 3,
-    and 5) on the raw failure logs and surrounding CameraX classes to
-    independently verify the root cause and compare candidate solutions.
-  - Converge on the proper architectural solution—confirming single
-    responsibility ("object job"), right layer placement, and Section 6 rubric
-    classification (Core Fix vs. Capability Check vs. Device Quirk)—**before**
-    implementing the code change, and then run Stage 1 & Stage 2 verification on
-    the resulting diff.
+  architectural change, do **not** jump from a single model's first hypothesis
+  straight to implementing production fix code. Execute **Step 6 Checkpoint 1**
+  (Modes 2, 3, and 5—with evidence-first blind diagnosis, the Section 6.A
+  User-Impact vs. Test-Only Gate, and Deep-Module Simplicity) before coding the
+  fix or finalizing any plan, followed by **Step 6 Checkpoint 2** and Stage 2
+  verification on the resulting diff.
 - **Mandatory Two-Stage Verification & Pre-Upload Quality Gate**:
   Never skip verification or declare a task complete without executing both
   stages:
@@ -637,8 +802,8 @@ When directed to an index page, directory list, or guide linking to sub-guides
     implementation plan, test verification report, or design trade-off /
     quirk-scoping synthesis complete, agents **MUST** conduct a full diagnostic
     audit against the **Code Review Guidelines** at the top of this file,
-    including the **Universal Clean-Context Multi-Model Verification Loop (Max
-    3 Rounds, Modes 1–5)** in Step 5 & Step 6:
+    including the **Universal Clean-Context Multi-Model Verification Loop** in
+    Step 5 & Step 6:
     1. *Wide Structural Design, Object Job & Intentionality:* Read surrounding
        CameraX classes widely (not just changed lines) to verify structural
        design, object responsibility, code placement elegance, and preservation
@@ -651,14 +816,16 @@ When directed to an index page, directory list, or guide linking to sub-guides
        `@Suppress("DEPRECATION")` when modern replacements exist.
     5. *Strict Line Lengths:* 80 chars for markdown, 72 chars for commit body,
        100 chars for Kotlin.
-    6. *Default Multi-Model Verification & Completeness Check (Max 3 Rounds):*
-       Detect whether the agent harness supports multi-model sub-agents, inform
-       the user of the active verification mode (`CROSS_FAMILY_MULTI_MODEL`,
-       `TIER_MULTI_MODEL`, `SINGLE_MODEL_FRESH_CONTEXT`, or
-       `IN_CONTEXT_FALLBACK`), preferring cross-family verifiers (Step 6), stage
-       draft deliverables and raw evidence for non-diff tasks, and run up to 3
-       sequential verification-and-fix rounds across independent verifier models
-       before moving to Stage 2 or delivering the final output.
+    6. *Default Multi-Model Verification Loop (Step 6 Checkpoint 1 & Checkpoint
+       2):* Run deterministic checks (`ktfmt`, compile, unit tests) before
+       spawning verifiers and execute the canonical Step 6 autonomous
+       convergence loop (cross-family verifiers, zero-priming briefs, two-turn
+       read barrier, per-CL + stack-level granularity, ephemeral defect ledger,
+       and priority repair with pattern sweep until the latest round reports `0`
+       `OPEN`, `0` `REGRESSED`, `0` `PATCHED_PENDING_REAUDIT`, and `0`
+       unadjudicated `DISMISSED_WITH_PROOF` items). If Stage 2 requires any
+       semantic code fix, loop back to Stage 1 (counting toward the same 5-round
+       cap) before uploading.
   - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
     Before committing or uploading a CL (`repo upload`), you **MUST** execute:
     1. **Kotlin Formatting**:
@@ -835,15 +1002,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - `camera/camera-core/src/androidTest/`
   - `camera/camera-camera2/src/androidTest/`
   - `camera/camera-video/src/androidTest/`
-- **Multi-Model Root-Cause & Solution Finding (Before Modifying Code)**:
+- **Multi-Model Root-Cause & Solution Finding (Step 6 Checkpoint 1 Gate)**:
   For any non-trivial bug investigation, subtle concurrency/HAL issue, or
-  architectural design decision, **MUST** (by default) consult independent
-  cross-family verifier models (Step 5 & Step 6, Modes 2, 3, and 5) **during
-  investigation and before writing code**. Stage the raw failure evidence,
-  surrounding class context, and candidate fix approaches so independent models
-  can validate the true causal failure and identify the cleanest architectural
-  solution ("object job" and Section 6 / Section 8 rubrics) before you implement
-  edits.
+  architectural design decision, **MUST** (by default) execute **Step 6
+  Checkpoint 1** (Modes 2, 3, and 5) **during investigation and before
+  implementing production fix code or finalizing any plan/investigation**
+  (temporary diagnostic logging or reproduction tests are permitted to gather
+  raw evidence).
 
 #### 2. Verification Plan (Writing Tests)
 - **Headless Execution**:
@@ -975,16 +1140,13 @@ CameraX involves complex hardware interactions, making robust testing essential.
   ```bash
   ./gradlew <project>:lintRelease
   ```
-- **Universal Clean-Context Multi-Model Verification Loop (Default, Max 3
-  Rounds)**: Before committing edits or delivering any root-cause
-  investigation, implementation plan, test verification report, or trade-off /
-  quirk-scoping synthesis, audit your deliverable against the **Code Review
-  Guidelines** at the top of this file (Step 5 & Step 6, Modes 1–5). Detect
-  whether multi-model sub-agents are supported, inform the user of the active
-  verification mode, stage draft and raw evidence files for non-diff
-  deliverables, and execute the sequential clean-context multi-model
-  verification-and-correction chain (up to 3 rounds maximum) before declaring
-  the task complete.
+- **Universal Clean-Context Multi-Model Verification Loop (Step 6 Checkpoint
+  2)**: Before committing edits or delivering any root-cause investigation,
+  implementation plan, test verification report, or trade-off / quirk-scoping
+  synthesis, execute the canonical **Step 6** verification loop (Modes 1–5). If
+  any semantic code edit is made during or after review, recursively re-verify
+  in a fresh clean context and re-run compile, test, `ktfmt`, and `lintRelease`
+  checks on the final diff before declaring the task complete.
 
 
 #### 4. Troubleshooting Unit Test Leaks (Robolectric)
@@ -1330,16 +1492,17 @@ behavioral invariants:
   omit or strip those parameters so they do not circularly constrain the query.
 
 ##### G. Mandatory Clean-Context Verification Gate for Triage & Fix Plans
-Before delivering any root-cause diagnosis, triage classification (Step 1
-Core Fix vs. Step 2 Capability Check vs. Step 3 Device Quirk vs. Sub-case 3B
-Test-Only Scope), or proposed implementation plan, agents **MUST** write the
-draft analysis and raw evidence paths (log slices, stack traces, cited
-`file:line` references) to a scratch/temp file and execute the **Universal
-Clean-Context Multi-Model Verification Loop** (Step 5 & Step 6, Mode 2: Issue
-Investigation Audit and Mode 3: Plan Audit; see `AGENTS_INTERNAL.md` Phase 4
-when configured). Each clean-context verifier must independently confirm that
-the claimed root cause is the first causal failure in the raw logs and that the
-rubric classification is backed by actual source code and hardware evidence.
+Before implementing production fix code or delivering any root-cause diagnosis,
+triage classification (Step 1 Core Fix vs. Step 2 Capability Check vs. Step 3
+Device Quirk vs. Sub-case 3B Test-Only Scope), or proposed implementation plan,
+agents **MUST** stage the draft analysis and raw evidence paths in a
+scratch/temp file and execute **Step 6 Checkpoint 1** (Mode 2: Issue
+Investigation Audit and Mode 3: Plan Audit). Each clean-context verifier must
+inspect the raw evidence *before* reading the draft plan (two-turn read
+barrier), confirm the first causal failure in the raw logs, and enforce the
+Section 6.A User-Impact vs. Test-Only Gate; the orchestrating agent must
+recursively re-verify any subsequent semantic plan or code edit per **Step 6
+Checkpoint 2**.
 
 > [!NOTE]
 > **Internal Lab Automation & Fleet Query Tooling**:
@@ -1438,9 +1601,9 @@ pathway to engineer robust, architecturally sound solutions:
      code change, multi-device verification report, or quirk-scoping synthesis
      engineered under this framework, pass the draft deliverable and raw
      evidence through the **Universal Clean-Context Multi-Model Verification
-     Loop** (Step 5 & Step 6, Modes 1–5; up to 3 rounds max) to independently
-     audit specification claims, architectural placement, test coverage, and
-     report accuracy.
+     Loop** (Step 5 & Step 6, Modes 1–5; default 3 rounds, auto-scaling up to 5
+     rounds while fixes converge) to independently audit specification claims,
+     architectural placement, test coverage, and report accuracy.
 
 #### 9. Solution Engineering & Test Pyramid Modernization Protocol
 
