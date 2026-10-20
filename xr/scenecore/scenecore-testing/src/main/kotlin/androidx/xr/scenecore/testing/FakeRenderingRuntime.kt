@@ -581,11 +581,13 @@ public class FakeRenderingRuntime(
 
         val surfaceFeature = FakeSurfaceFeature(nodeHolder, InternalFakeSurfaceFeature(nodeHolder))
         surfaceFeature.stereoMode = stereoMode
+        surfaceFeature.mediaBlendingMode = mediaBlendingMode
         surfaceFeature.shape = shape
 
         // TODO: FakeSurfaceEntity didn't wrap FakeSurfaceFeature
         val surfaceEntity = entityFactory.createSurfaceEntity(surfaceFeature, pose, parentEntity)
         surfaceEntity.stereoMode = stereoMode
+        surfaceEntity.mediaBlendingMode = mediaBlendingMode
         surfaceEntity.shape = shape
         return surfaceEntity
     }

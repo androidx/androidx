@@ -100,7 +100,7 @@ object VideoButtonColors {
     val DefaultButton = Color(0xFF42A5F5) // Blue 400
 }
 
-@SuppressLint("RestrictedApiAndroidX") // using MediaBlendingMode & Shape.Quad
+@SuppressLint("RestrictedApiAndroidX") // using primaryAlphaMaskTexture & create with blendingMode
 class SurfaceEntityImageActivity : ComponentActivity() {
     private val activity = this
 
@@ -684,7 +684,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                             pose = Pose.Identity,
                             shape = canvasShape,
                             stereoMode = stereoMode,
-                            mediaBlendingMode = SurfaceEntity.MediaBlendingMode.TRANSPARENT,
+                            blendingMode = SurfaceEntity.BlendingMode.TRANSPARENT,
                             superSampling = superSamplingMode,
                             surfaceProtection = surfaceContentLevel,
                             parent = session.scene.activitySpace,
@@ -884,14 +884,12 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                         val isTransparent = remember { mutableStateOf(true) }
                         Button(
                             onClick = {
-                                @Suppress("RestrictedApi")
                                 if (isTransparent.value) {
-                                    surfaceEntity!!.mediaBlendingMode =
-                                        SurfaceEntity.MediaBlendingMode.OPAQUE
+                                    surfaceEntity!!.blendingMode = SurfaceEntity.BlendingMode.OPAQUE
                                     isTransparent.value = false
                                 } else {
-                                    surfaceEntity!!.mediaBlendingMode =
-                                        SurfaceEntity.MediaBlendingMode.TRANSPARENT
+                                    surfaceEntity!!.blendingMode =
+                                        SurfaceEntity.BlendingMode.TRANSPARENT
                                     isTransparent.value = true
                                 }
                             }
