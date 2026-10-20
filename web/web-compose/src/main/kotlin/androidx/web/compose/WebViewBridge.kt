@@ -37,6 +37,7 @@ import android.view.ViewPropertyAnimator
 import android.view.WindowInsetsAnimation
 import android.view.animation.Animation
 import android.view.contentcapture.ContentCaptureSession
+import android.webkit.WebChromeClient
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.Modifier
@@ -60,6 +61,22 @@ import androidx.web.WebContentView
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class WebViewBridge : WebContentView {
     public constructor(context: Context) : super(context)
+
+    /**
+     * Sets the [WebChromeClientBridge] that will receive notifications and requests from this
+     * [WebViewBridge].
+     */
+    public open fun setWebChromeClient(client: WebChromeClientBridge?) {
+        super.setWebChromeClient(client)
+    }
+
+    @Deprecated(
+        message = "Use WebChromeClientBridge instead of WebChromeClient with WebViewBridge.",
+        level = DeprecationLevel.ERROR,
+    )
+    override fun setWebChromeClient(client: WebChromeClient?) {
+        super.setWebChromeClient(client)
+    }
 
     // =========================================================================================
     // 1. Deprecated View APIs that are already supported via Compose Modifiers or WebContent.
