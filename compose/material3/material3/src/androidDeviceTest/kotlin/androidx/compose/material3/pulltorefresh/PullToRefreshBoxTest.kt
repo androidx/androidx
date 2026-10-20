@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.PositionalThreshold
 import androidx.compose.runtime.getValue
@@ -96,6 +97,48 @@ class PullToRefreshBoxTest {
     fun boxVisible_VisibleToSemantics() {
         val state = PullToRefreshState()
         rule.setContent { PullToRefreshBox(isRefreshing = true, state = state, onRefresh = {}) {} }
+
+        assertThat(state.distanceFraction).isEqualTo(1f)
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .assertExists()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun loadingIndicator_atRest_isNotComposed() {
+        val state = PullToRefreshState()
+        rule.setContent {
+            PullToRefreshBox(
+                isRefreshing = false,
+                state = state,
+                onRefresh = {},
+                indicator = {
+                    PullToRefreshDefaults.LoadingIndicator(state = state, isRefreshing = false)
+                },
+            ) {}
+        }
+
+        assertThat(state.distanceFraction).isEqualTo(0f)
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun loadingIndicator_refreshing_isComposed() {
+        val state = PullToRefreshState()
+        rule.setContent {
+            PullToRefreshBox(
+                isRefreshing = true,
+                state = state,
+                onRefresh = {},
+                indicator = {
+                    PullToRefreshDefaults.LoadingIndicator(state = state, isRefreshing = true)
+                },
+            ) {}
+        }
 
         assertThat(state.distanceFraction).isEqualTo(1f)
         rule
