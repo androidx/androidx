@@ -29,33 +29,6 @@
     </issue>
 
     <issue
-        id="UnusedContentLambdaTargetStateParameter"
-        message="Target state parameter `it` is not used"
-        errorLine1="        rule.addAnimations(search) { AnimatedContent(1.dp) {} }"
-        errorLine2="                                                           ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
-    </issue>
-
-    <issue
-        id="UnusedContentLambdaTargetStateParameter"
-        message="Target state parameter `it` is not used"
-        errorLine1="        rule.addAnimations(search) { AnimatedContent(1.dp) {} }"
-        errorLine2="                                                           ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
-    </issue>
-
-    <issue
-        id="UnusedContentLambdaTargetStateParameter"
-        message="Target state parameter `it` is not used"
-        errorLine1="        rule.addAnimations(search) { AnimatedContent(targetState = 1.dp) {} }"
-        errorLine2="                                                                         ~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
-    </issue>
-
-    <issue
         id="UnusedTransitionTargetStateParameter"
         message="Target state parameter `it` is not used"
         errorLine1="        ) {"
