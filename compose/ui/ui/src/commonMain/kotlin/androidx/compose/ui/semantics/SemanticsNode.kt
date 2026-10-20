@@ -336,7 +336,7 @@ internal constructor(
     ) {
         // TODO(lmr): visitChildren would be great for this but we would lose the zSorted bit...
         //  i wonder if we can optimize this for the common case of no z-sortedness going on.
-        zSortedChildren.forEach { child ->
+        zSortedChildrenList.forEach { child ->
             // TODO(b/290936195): In some conditions it appears that children here can be
             //  unattached. We just guard against that here as a "quick fix" but we need to
             //  understand why this is happening and followup with a proper fix.

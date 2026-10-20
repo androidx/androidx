@@ -140,7 +140,7 @@ internal fun DelegatableNode.nearestAncestor(mask: Int): Modifier.Node? {
 
 private fun LayoutNode.getChildren(zOrder: Boolean) =
     if (zOrder) {
-        zSortedChildren
+        zSortedChildrenList
     } else {
         _children
     }
