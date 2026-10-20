@@ -172,7 +172,7 @@ class SceneCoreOpenXrNativeTest {
         assertThat(nativeWrapper.setTransactionTransform(1L, 2L, Pose(), Vector3(1f, 1f, 1f)))
             .isFalse()
         assertThat(nativeWrapper.setTransactionParent(1L, 2L, 3L)).isFalse()
-        // TODO: b/538946673 - Also check setTransactionSpaceAttachment and
+        // TODO: b/575789269 - Also check setTransactionSpaceAttachment and
         //  removeTransactionSpaceAttachment here once the scenecore-openxr prebuilt has their
         //  natives. That's the only on-device check that their external declarations match the
         //  exported symbols.

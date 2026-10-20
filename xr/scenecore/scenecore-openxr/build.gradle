@@ -44,6 +44,7 @@ dependencies {
     api(project(":xr:scenecore:scenecore-runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
