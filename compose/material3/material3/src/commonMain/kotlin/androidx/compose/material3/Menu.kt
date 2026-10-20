@@ -2094,7 +2094,14 @@ private fun DropdownMenuItemContent(
                 }
 
                 CompositionLocalProvider(LocalContentColor provides textColor) {
-                    Box(contentAlignment = Alignment.CenterStart) {
+                    // Weighted so that the text is measured after the leading icon and trailing
+                    // content, and is constrained to the space they leave. `fill = false` keeps the
+                    // text at its natural width when it fits, so custom [horizontalArrangement]s
+                    // still have free space to distribute.
+                    Box(
+                        modifier = Modifier.weight(1f, fill = false),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
                         if (supportingText != null) {
                             LabelWithSupportingText(
                                 supportingText = supportingText,
