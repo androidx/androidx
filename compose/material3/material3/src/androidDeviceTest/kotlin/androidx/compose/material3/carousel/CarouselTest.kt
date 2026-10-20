@@ -256,15 +256,15 @@ class CarouselTest {
         rule.runOnUiThread {
             val item1NodeInfo =
                 androidView.accessibilityNodeProvider.createAccessibilityNodeInfo(item1.id)
+            val item1Bounds = Rect()
+            item1NodeInfo?.getBoundsInScreen(item1Bounds)
+            assertThat(item1Bounds.width().toFloat()).isWithin(2f).of(expectedItem1Width)
+
             val item2NodeInfo =
                 androidView.accessibilityNodeProvider.createAccessibilityNodeInfo(item2.id)
-            val bounds = Rect(-1, -1, -1, -1)
-
-            item1NodeInfo?.getBoundsInScreen(bounds)
-            assertThat(bounds.width().toFloat()).isWithin(2f).of(expectedItem1Width)
-
-            item2NodeInfo?.getBoundsInScreen(bounds)
-            assertThat(bounds.width().toFloat()).isWithin(2f).of(expectedItem2Width)
+            val item2Bounds = Rect()
+            item2NodeInfo?.getBoundsInScreen(item2Bounds)
+            assertThat(item2Bounds.width().toFloat()).isWithin(2f).of(expectedItem2Width)
         }
     }
 
