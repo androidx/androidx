@@ -143,26 +143,30 @@ public class ComposeLocalPaint {
                 ?: EmbeddedPlayerTypefaceResolver
         val italic = fontStyle == FontStyle.Italic
 
-        val resolvedTypeface =
-            if (isTypefaceSet) {
-                if (fontFamily in 0..3) {
-                    resolver.resolve(fontFamily, fontWeight, italic, null, 400, false).getTypeface()
-                } else {
-                    val name = context.getText(fontFamily)
-                    if (name != null) {
-                        resolver.resolve(name, fontWeight, italic, null, 400, false).getTypeface()
-                    } else {
-                        // A font embedded in the document (FontData) has no text entry and is
-                        // stored in the object table as RemoteContext.FontInfo.
-                        documentFontTypeface(context, fontFamily, fontWeight, italic)
-                            ?: resolver
-                                .resolve(0, fontWeight, italic, null, 400, false)
-                                .getTypeface()
-                    }
-                }
+        val effectiveFontFamily = if (isTypefaceSet) fontFamily else PaintBundle.FONT_TYPE_DEFAULT
+        val name =
+            if (effectiveFontFamily > PaintBundle.FONT_TYPE_MONOSPACE) {
+                context.getText(effectiveFontFamily)
             } else {
-                resolver.resolve(0, fontWeight, italic, null, 400, false).getTypeface()
+                null
             }
+        val resolvedTypeface =
+            if (effectiveFontFamily > PaintBundle.FONT_TYPE_MONOSPACE && name == null) {
+                // A font embedded in the document (FontData) has no text entry and is
+                // stored in the object table as RemoteContext.FontInfo.
+                documentFontTypeface(context, effectiveFontFamily, fontWeight, italic)
+            } else {
+                null
+            }
+                ?: resolver.resolveTypeface(
+                    fontFamilyType = effectiveFontFamily,
+                    fontName = name,
+                    weight = fontWeight,
+                    italic = italic,
+                    fontAxis = fontAxis,
+                    fontAxisValues = fontAxisValues,
+                    context = context,
+                )
 
         return Paint().apply {
             isAntiAlias = true
@@ -171,6 +175,9 @@ public class ComposeLocalPaint {
                 textSize = this@ComposeLocalPaint.textSize
             }
             typeface = resolvedTypeface
+            buildFontFeatureSettings(fontAxis, fontAxisValues, context)?.let {
+                fontFeatureSettings = it
+            }
         }
     }
 
@@ -201,6 +208,7 @@ public class ComposeLocalPaint {
                 fontCertsResId = fontCertsResId,
                 typefaceResolver = resolver,
             )
+        val fontFeatureSettings = buildFontFeatureSettings(fontAxis, fontAxisValues, context)
         val drawStyle = toDrawStyle()
         val resolvedPx = if (textSize.isNaN()) 12f else textSize
         val fontSizeSp = with(density) { resolvedPx.toSp() }
@@ -212,6 +220,7 @@ public class ComposeLocalPaint {
                 fontWeight = weight,
                 fontStyle = fontStyle,
                 fontFamily = resolvedFontFamily,
+                fontFeatureSettings = fontFeatureSettings,
                 drawStyle = drawStyle,
             )
         } else {
@@ -221,6 +230,7 @@ public class ComposeLocalPaint {
                 fontWeight = weight,
                 fontStyle = fontStyle,
                 fontFamily = resolvedFontFamily,
+                fontFeatureSettings = fontFeatureSettings,
                 drawStyle = drawStyle,
             )
         }
