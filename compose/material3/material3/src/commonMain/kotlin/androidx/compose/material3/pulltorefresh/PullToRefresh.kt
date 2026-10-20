@@ -666,33 +666,38 @@ public object PullToRefreshDefaults {
                         indicatorColor = color,
                     )
                 } else {
-                    // The LoadingIndicator will rotate and morph for a coerced progress value of 0
-                    // to 1. When the state's distanceFraction is above one, we rotate the entire
-                    // component we have a continuous rotation until the refreshing flag is true.
-                    ContainedLoadingIndicator(
-                        // TODO Set the LoadingIndicator colors
-                        progress = { state.distanceFraction },
-                        modifier =
-                            Modifier.requiredSize(
-                                    width = LoaderIndicatorWidth,
-                                    height = LoaderIndicatorHeight,
-                                )
-                                .drawWithContent {
-                                    val progress = state.distanceFraction
-                                    if (progress > 1f) {
-                                        // Start the rotation on progress - 1 (i.e. 0) to avoid a
-                                        // jump that would be more noticeable on some
-                                        // LoadingIndicator shapes.
-                                        rotate(-(progress - 1) * 180) {
-                                            this@drawWithContent.drawContent()
+                    val showDeterminateIndicator by
+                        remember(state) { derivedStateOf { state.distanceFraction > 0f } }
+                    if (showDeterminateIndicator) {
+                        // The LoadingIndicator will rotate and morph for a coerced progress value
+                        // of 0 to 1. When the state's distanceFraction is above one, we rotate the
+                        // entire component we have a continuous rotation until the refreshing flag
+                        // is true.
+                        ContainedLoadingIndicator(
+                            // TODO Set the LoadingIndicator colors
+                            progress = { state.distanceFraction },
+                            modifier =
+                                Modifier.requiredSize(
+                                        width = LoaderIndicatorWidth,
+                                        height = LoaderIndicatorHeight,
+                                    )
+                                    .drawWithContent {
+                                        val progress = state.distanceFraction
+                                        if (progress > 1f) {
+                                            // Start the rotation on progress - 1 (i.e. 0) to avoid
+                                            // a jump that would be more noticeable on some
+                                            // LoadingIndicator shapes.
+                                            rotate(-(progress - 1) * 180) {
+                                                this@drawWithContent.drawContent()
+                                            }
+                                        } else {
+                                            drawContent()
                                         }
-                                    } else {
-                                        drawContent()
-                                    }
-                                },
-                        containerColor = containerColor,
-                        indicatorColor = color,
-                    )
+                                    },
+                            containerColor = containerColor,
+                            indicatorColor = color,
+                        )
+                    }
                 }
             }
         }
