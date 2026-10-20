@@ -36,12 +36,7 @@ class TopLevelCompositionLocalDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(UField::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
-        if (context.isTestSource) return UElementHandler.NONE
-        val packageName = context.uastFile?.packageName ?: return UElementHandler.NONE
-        if (
-            !packageName.startsWith("androidx.compose.material3") || packageName.contains("samples")
-        )
-            return UElementHandler.NONE
+        if (!context.isMaterial3Source()) return UElementHandler.NONE
 
         return object : UElementHandler() {
             override fun visitField(node: UField) {
@@ -75,7 +70,7 @@ class TopLevelCompositionLocalDetector : Detector(), SourceCodeScanner {
                     ISSUE,
                     node as UElement,
                     context.getNameLocation(node),
-                    "CompositionLocals should not be defined as top-level public properties. Scope them inside an object or make them internal/private.",
+                    "Consider whether the composition local could be internal/private or scoped within an object, such as the MaterialTheme",
                     fix,
                 )
             }
@@ -93,6 +88,8 @@ class TopLevelCompositionLocalDetector : Detector(), SourceCodeScanner {
                 "LocalRippleConfiguration",
                 "LocalAbsoluteTonalElevation",
                 "LocalTextStyle",
+                "LocalOneHandedGestureEnabled",
+                "LocalTextConfiguration",
             )
 
         val ISSUE =
@@ -101,7 +98,8 @@ class TopLevelCompositionLocalDetector : Detector(), SourceCodeScanner {
                 briefDescription = "Top-level public CompositionLocal",
                 explanation =
                     """
-                    CompositionLocals should not be defined as top-level public properties.
+                    Consider whether the composition local could be internal/private or scoped
+                    within an object, such as the MaterialTheme.
                     To prevent polluting the global namespace and to group related configurations,
                     scope public CompositionLocals inside an object (e.g. `SelectionConfiguration.LocalColors`?)
                     or make them internal/private if they are only used within the module.

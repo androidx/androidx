@@ -159,4 +159,32 @@ class AlignmentEnumDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun invalid_wearComposeMaterial3_customAlignment() {
+        lint()
+            .files(
+                kotlin(
+                        "src/androidx/wear/compose/material3/CustomAlignment.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    enum class CustomAlignment {
+                        Top, Center, Bottom
+                    }
+                    """,
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/wear/compose/material3/CustomAlignment.kt:3: Error: Avoid custom alignment enums; use standard Layout/Alignment APIs instead [AvoidCustomAlignmentEnum]
+                enum class CustomAlignment {
+                           ~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
 }

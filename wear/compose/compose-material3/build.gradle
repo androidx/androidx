@@ -71,6 +71,8 @@ dependencies {
     // Include the wear-sdk jar
     compileOnly files("../../wear_sdk/wear-sdk.jar")
     testImplementation(files("../../wear_sdk/wear-sdk.jar"))
+
+    lintChecks(project(":compose:material3:material3-lint:internal-lint-checks"))
 }
 
 android {
