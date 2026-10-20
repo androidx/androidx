@@ -274,7 +274,7 @@ class TransformingLazyColumnMeasureResultTest {
     }
 
     @Test
-    fun checkLayoutIsCorrect_decreasingThenFlatHeightRates_throwsException() {
+    fun checkLayoutIsCorrect_decreasingThenFlatHeightRates_succeedsWithoutException() {
         val item0 =
             createTestItem(
                 index = 0,
@@ -300,6 +300,47 @@ class TransformingLazyColumnMeasureResultTest {
                 bottomOffsetFraction = 1.0f,
             )
         val measureResult = createMeasureResult(visibleItems = listOf(item0, item1, item2))
+
+        measureResult.checkLayoutIsCorrect()
+
+        assertThat(measureResult.visibleItems).hasSize(3)
+    }
+
+    @Test
+    fun checkLayoutIsCorrect_increasingDecreasingThenIncreasingHeightRates_throwsException() {
+        val item0 =
+            createTestItem(
+                index = 0,
+                measuredHeight = 100,
+                transformedHeight = 60,
+                topOffsetFraction = 0.1f,
+                bottomOffsetFraction = 0.3f,
+            )
+        val item1 =
+            createTestItem(
+                index = 1,
+                measuredHeight = 100,
+                transformedHeight = 100,
+                topOffsetFraction = 0.3f,
+                bottomOffsetFraction = 0.5f,
+            )
+        val item2 =
+            createTestItem(
+                index = 2,
+                measuredHeight = 100,
+                transformedHeight = 60,
+                topOffsetFraction = 0.5f,
+                bottomOffsetFraction = 0.7f,
+            )
+        val item3 =
+            createTestItem(
+                index = 3,
+                measuredHeight = 100,
+                transformedHeight = 80,
+                topOffsetFraction = 0.7f,
+                bottomOffsetFraction = 0.9f,
+            )
+        val measureResult = createMeasureResult(visibleItems = listOf(item0, item1, item2, item3))
 
         val exception =
             assertFailsWith<IllegalStateException> { measureResult.checkLayoutIsCorrect() }
