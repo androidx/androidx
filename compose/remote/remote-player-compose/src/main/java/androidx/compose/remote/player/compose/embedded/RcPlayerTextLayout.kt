@@ -19,6 +19,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.graphics.Typeface as AndroidTypeface
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.remote.core.RemoteContext
@@ -95,18 +96,22 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
     val customFontNameState = rememberCustomFontName(fontFamilyType, remoteContext)
     val typefaceResolver = LocalTypefaceResolver.current
     val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
+    val effectiveFontAxis = paintState.fontAxis ?: layout.fontAxis
+    val effectiveFontAxisValues = paintState.fontAxisValues ?: layout.fontAxisValues
     val fontFamily =
         resolveFontFamily(
             fontFamilyType,
             customFontNameState.value,
             fontWeight,
             fontStyle,
-            layout.fontAxis,
-            layout.fontAxisValues,
-            LocalRemoteContext.current,
+            effectiveFontAxis,
+            effectiveFontAxisValues,
+            remoteContext,
             fontCertsResId,
             typefaceResolver,
         )
+    val fontFeatureSettings =
+        buildFontFeatureSettings(effectiveFontAxis, effectiveFontAxisValues, remoteContext)
 
     val textDecoration =
         when {
@@ -166,6 +171,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 fontWeight = fontWeight,
                 fontFamily = fontFamily,
                 fontStyle = fontStyle,
+                fontFeatureSettings = fontFeatureSettings,
                 textAlign = textAlign,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
@@ -226,7 +232,8 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
     val fontStyle = if (paintState.isTypefaceSet) paintState.fontStyle else FontStyle.Normal
 
     val fontFamilyType = if (paintState.isTypefaceSet) paintState.fontFamily else layout.type
-    val customFontNameState = rememberCustomFontName(fontFamilyType, LocalRemoteContext.current)
+    val remoteContext = LocalRemoteContext.current
+    val customFontNameState = rememberCustomFontName(fontFamilyType, remoteContext)
     val typefaceResolver = LocalTypefaceResolver.current
     val fontCertsResId = (typefaceResolver as? HasFontCerts)?.fontCertsResId ?: 0
     val fontFamily =
@@ -235,12 +242,14 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
             customFontNameState.value,
             fontWeight,
             fontStyle,
-            null,
-            null,
-            LocalRemoteContext.current,
+            paintState.fontAxis,
+            paintState.fontAxisValues,
+            remoteContext,
             fontCertsResId,
             typefaceResolver,
         )
+    val fontFeatureSettings =
+        buildFontFeatureSettings(paintState.fontAxis, paintState.fontAxisValues, remoteContext)
 
     val overflow =
         when (layout.overflow) {
@@ -262,6 +271,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 fontWeight = fontWeight,
                 fontFamily = fontFamily,
                 fontStyle = fontStyle,
+                fontFeatureSettings = fontFeatureSettings,
                 textAlign = resolveTextAlign(layout.textAlignValue, 0),
             ),
         overflow = overflow,
@@ -341,6 +351,31 @@ private fun rememberCustomFontName(fontFamilyType: Int, context: RemoteContext):
     }
 }
 
+private val VARIATION_AXIS_TAGS = setOf("ital", "opsz", "slnt", "wdth", "wght")
+
+private fun isVariationAxisTag(name: String): Boolean =
+    name in VARIATION_AXIS_TAGS || name.any { it.isUpperCase() }
+
+internal fun buildFontFeatureSettings(
+    fontAxis: IntArray?,
+    fontAxisValues: FloatArray?,
+    context: RemoteContext,
+): String? {
+    if (fontAxis == null || fontAxisValues == null) return null
+    val count = minOf(fontAxis.size, fontAxisValues.size)
+    if (count == 0) return null
+    var builder: StringBuilder? = null
+    for (i in 0 until count) {
+        val name = context.getText(fontAxis[i]) ?: continue
+        if (isVariationAxisTag(name)) continue
+        val resolvedValue = resolveFloat(fontAxisValues[i], fontAxisValues[i], context)
+        val sb = builder ?: StringBuilder().also { builder = it }
+        if (sb.isNotEmpty()) sb.append(", ")
+        sb.append('\'').append(name).append("' ").append(resolvedValue.toInt())
+    }
+    return builder?.toString()
+}
+
 internal fun buildFontVariationSettings(
     fontAxis: IntArray?,
     fontAxisValues: FloatArray?,
@@ -355,10 +390,11 @@ internal fun buildFontVariationSettings(
     val count = minOf(fontAxis.size, fontAxisValues.size)
     for (i in 0 until count) {
         val name = context.getText(fontAxis[i])
-        if (name != null) {
+        if (name != null && isVariationAxisTag(name)) {
             if (name == "wght") hasWght = true
             if (name == "ital") hasItal = true
-            list.add(FontVariation.Setting(name, fontAxisValues[i]))
+            val rawVal = fontAxisValues[i]
+            list.add(FontVariation.Setting(name, resolveFloat(rawVal, rawVal, context)))
         }
     }
     if (list.isEmpty()) return null
@@ -369,6 +405,49 @@ internal fun buildFontVariationSettings(
         list.add(FontVariation.italic(1f))
     }
     return FontVariation.Settings(*list.toTypedArray())
+}
+
+internal fun TypefaceResolver.resolveTypeface(
+    fontFamilyType: Int,
+    fontName: String?,
+    weight: Int,
+    italic: Boolean,
+    fontAxis: IntArray?,
+    fontAxisValues: FloatArray?,
+    context: RemoteContext,
+): AndroidTypeface {
+    val fi =
+        if (
+            fontName != null &&
+                fontFamilyType !in PaintBundle.FONT_TYPE_DEFAULT..PaintBundle.FONT_TYPE_MONOSPACE
+        ) {
+            resolve(fontName, weight, italic, null, 400, false)
+        } else {
+            val type =
+                if (
+                    fontFamilyType in PaintBundle.FONT_TYPE_DEFAULT..PaintBundle.FONT_TYPE_MONOSPACE
+                ) {
+                    fontFamilyType
+                } else {
+                    PaintBundle.FONT_TYPE_DEFAULT
+                }
+            resolve(type, weight, italic, null, 400, false)
+        }
+    if (fontAxis == null || fontAxisValues == null) return fi.getTypeface()
+    val count = minOf(fontAxis.size, fontAxisValues.size)
+    if (count == 0) return fi.getTypeface()
+    val tags = ArrayList<String>(count)
+    val values = FloatArray(count)
+    for (i in 0 until count) {
+        val name = context.getText(fontAxis[i])
+        if (name != null && isVariationAxisTag(name)) {
+            values[tags.size] = resolveFloat(fontAxisValues[i], fontAxisValues[i], context)
+            tags.add(name)
+        }
+    }
+    if (tags.isEmpty()) return fi.getTypeface()
+    val finalValues = if (tags.size == count) values else values.copyOf(tags.size)
+    return fi.applyVariationSettings(tags.toTypedArray(), finalValues)
 }
 
 internal fun resolveFontFamily(
@@ -404,25 +483,17 @@ internal fun resolveFontFamily(
             typefaceResolver !is EmbeddedPlayerTypefaceResolver &&
             typefaceResolver !is GmsFontTypefaceResolver
     ) {
-        val italic = fontStyle == FontStyle.Italic
-        val fi =
-            if (
-                fontName != null &&
-                    fontFamilyType !in
-                        PaintBundle.FONT_TYPE_DEFAULT..PaintBundle.FONT_TYPE_MONOSPACE
-            ) {
-                typefaceResolver.resolve(fontName, fontWeight.weight, italic, null, 400, false)
-            } else {
-                typefaceResolver.resolve(
-                    fontFamilyType,
-                    fontWeight.weight,
-                    italic,
-                    null,
-                    400,
-                    false,
-                )
-            }
-        return FontFamily(fi.getTypeface())
+        val typeface =
+            typefaceResolver.resolveTypeface(
+                fontFamilyType = fontFamilyType,
+                fontName = fontName,
+                weight = fontWeight.weight,
+                italic = fontStyle == FontStyle.Italic,
+                fontAxis = fontAxis,
+                fontAxisValues = fontAxisValues,
+                context = context,
+            )
+        return FontFamily(ComposeTypeface(typeface))
     }
     if (fontName != null) {
         when {
