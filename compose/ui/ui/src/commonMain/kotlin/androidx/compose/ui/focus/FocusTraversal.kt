@@ -233,7 +233,7 @@ internal fun FocusTargetNode.isOccludedByInteractionBarrier(): Boolean {
         val childFocus = findChildOfLca(lca, myLayoutNode) ?: continue
         val childBarrier = findChildOfLca(lca, barrierLayoutNode) ?: continue
 
-        val zSorted = lca.zSortedChildren
+        val zSorted = lca.zSortedChildrenList
         var indexFocus = -1
         var indexBarrier = -1
         for (j in 0 until zSorted.size) {

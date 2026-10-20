@@ -174,7 +174,7 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
 
     override fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val owner = layoutNode.requireOwner()
-        layoutNode.zSortedChildren.forEach { child ->
+        layoutNode.zSortedChildrenList.forEach { child ->
             if (child.isPlaced) {
                 child.draw(canvas, graphicsLayer)
             }
@@ -212,7 +212,7 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
                 // Any because as soon as true is returned, we know we have found a hit path and we
                 // must
                 // not add hit results on different paths so we should not even go looking.
-                layoutNode.zSortedChildren.reversedAny { child ->
+                layoutNode.zSortedChildrenList.reversedAny { child ->
                     if (child.isPlaced) {
                         hitTestSource.childHitTest(
                             child,
