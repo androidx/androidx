@@ -29,6 +29,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -218,6 +219,18 @@ class LoadingIndicatorTest {
         rule.setMaterialContent(lightColorScheme()) {
             LoadingIndicator(polygons = listOf(MaterialShapes.PuffyDiamond))
         }
+    }
+
+    @Test
+    fun morphSequence_equalPolygons_isShared() {
+        val polygons = listOf(MaterialShapes.Sunny, MaterialShapes.Pentagon, MaterialShapes.Pill)
+        val circular = LoadingIndicatorDefaults.morphSequence(polygons, circularSequence = true)
+        assertThat(
+                LoadingIndicatorDefaults.morphSequence(polygons.toList(), circularSequence = true)
+            )
+            .isSameInstanceAs(circular)
+        assertThat(LoadingIndicatorDefaults.morphSequence(polygons, circularSequence = false))
+            .isNotSameInstanceAs(circular)
     }
 
     private val TestTag = "indicator"

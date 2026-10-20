@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.collection.LruCache
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.LinearEasing
@@ -273,7 +274,10 @@ private fun LoadingIndicatorImpl(
     val scaleMatrix = remember { Matrix() }
     val morphSequence =
         remember(indicatorPolygons) {
-            morphSequence(polygons = indicatorPolygons, circularSequence = false)
+            LoadingIndicatorDefaults.morphSequence(
+                polygons = indicatorPolygons,
+                circularSequence = false,
+            )
         }
     val morphScaleFactor =
         remember(morphSequence) {
@@ -377,7 +381,10 @@ private fun LoadingIndicatorImpl(
     }
     val morphSequence =
         remember(indicatorPolygons) {
-            morphSequence(polygons = indicatorPolygons, circularSequence = true)
+            LoadingIndicatorDefaults.morphSequence(
+                polygons = indicatorPolygons,
+                circularSequence = true,
+            )
         }
     val shapesScaleFactor =
         remember(indicatorPolygons) {
@@ -571,11 +578,27 @@ public object LoadingIndicatorDefaults {
      */
     internal val ActiveIndicatorScale =
         IndicatorSize.value / min(ContainerWidth.value, ContainerHeight.value)
+
+    // Building Morphs is expensive, so sequences are cached and shared by all indicators that use
+    // equal polygons.
+    private val morphSequenceCache =
+        LruCache<Pair<List<RoundedPolygon>, Boolean>, List<Morph>>(MorphSequenceCacheSize)
+
+    internal fun morphSequence(
+        polygons: List<RoundedPolygon>,
+        circularSequence: Boolean,
+    ): List<Morph> {
+        val key = polygons to circularSequence
+        return morphSequenceCache[key]
+            ?: buildMorphSequence(polygons, circularSequence).also {
+                morphSequenceCache.put(key, it)
+            }
+    }
 }
 
 /**
- * Returns a list of [Morph]s that describe the sequence of shapes that the [LoadingIndicator]
- * should animate in a loop.
+ * Builds a list of [Morph]s that describe the sequence of shapes that the [LoadingIndicator] should
+ * animate in a loop.
  *
  * This function will create a morph between each consecutive [RoundedPolygon] shaped in the
  * provided array, and will create a final morph from the last shape to the first shape.
@@ -587,7 +610,10 @@ public object LoadingIndicatorDefaults {
  *   the first item of the list in order to create a circular sequence of morphs
  * @see RoundedPolygon.normalized
  */
-private fun morphSequence(polygons: List<RoundedPolygon>, circularSequence: Boolean): List<Morph> {
+private fun buildMorphSequence(
+    polygons: List<RoundedPolygon>,
+    circularSequence: Boolean,
+): List<Morph> {
     return buildList {
         for (i in polygons.indices) {
             if (i + 1 < polygons.size) {
@@ -679,6 +705,7 @@ private fun processPath(
 
 private const val GlobalRotationDurationMillis = 4666
 private const val MorphIntervalMillis = 650L
+private const val MorphSequenceCacheSize = 8
 
 private const val FullRotation = 360f
 private const val QuarterRotation = FullRotation / 4f
