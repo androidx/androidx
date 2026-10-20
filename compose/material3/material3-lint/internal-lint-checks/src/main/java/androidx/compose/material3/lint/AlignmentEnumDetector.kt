@@ -36,12 +36,7 @@ class AlignmentEnumDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(UClass::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
-        if (context.isTestSource) return UElementHandler.NONE
-        val packageName = context.uastFile?.packageName ?: return UElementHandler.NONE
-        if (
-            !packageName.startsWith("androidx.compose.material3") || packageName.contains("samples")
-        )
-            return UElementHandler.NONE
+        if (!context.isMaterial3Source()) return UElementHandler.NONE
 
         return object : UElementHandler() {
             override fun visitClass(node: UClass) {

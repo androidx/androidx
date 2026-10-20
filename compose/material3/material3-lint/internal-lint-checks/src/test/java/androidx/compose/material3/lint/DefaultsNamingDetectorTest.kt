@@ -75,8 +75,8 @@ class DefaultsNamingDetectorTest : LintDetectorTest() {
                     package androidx.compose.material3
 
                     object CardDefaults {
-                        val Shape: String = "shape"
-                        val Shape2 = "shape2"
+                        val Shape: Any = "shape"
+                        val Shape2: Any = "shape2"
                     }
                     """
                     )
@@ -86,10 +86,10 @@ class DefaultsNamingDetectorTest : LintDetectorTest() {
             .expect(
                 """
                 src/androidx/compose/material3/CardDefaults.kt:4: Error: Properties on Defaults objects should be camelCase [DefaultsCamelCaseWithoutConst]
-                    val Shape: String = "shape"
+                    val Shape: Any = "shape"
                         ~~~~~
                 src/androidx/compose/material3/CardDefaults.kt:5: Error: Properties on Defaults objects should be camelCase [DefaultsCamelCaseWithoutConst]
-                    val Shape2 = "shape2"
+                    val Shape2: Any = "shape2"
                         ~~~~~~
                 2 errors, 0 warnings
                 """
@@ -99,12 +99,12 @@ class DefaultsNamingDetectorTest : LintDetectorTest() {
                 """
                 Fix for src/androidx/compose/material3/CardDefaults.kt line 4: Rename to 'shape':
                 @@ -4 +4
-                -     val Shape: String = "shape"
-                +     val shape: String = "shape"
+                -     val Shape: Any = "shape"
+                +     val shape: Any = "shape"
                 Fix for src/androidx/compose/material3/CardDefaults.kt line 5: Rename to 'shape2':
                 @@ -5 +5
-                -     val Shape2 = "shape2"
-                +     val shape2 = "shape2"
+                -     val Shape2: Any = "shape2"
+                +     val shape2: Any = "shape2"
                 """
                     .trimIndent()
             )
@@ -201,15 +201,51 @@ class DefaultsNamingDetectorTest : LintDetectorTest() {
                 ),
                 kotlin(
                     """
+                    package androidx.compose.ui.text.style
+
+                    @kotlin.jvm.JvmInline
+                    value class TextAlign(val value: Int)
+
+                    @kotlin.jvm.JvmInline
+                    value class TextOverflow(val value: Int)
+                    """
+                ),
+                kotlin(
+                    """
+                    package androidx.compose.animation.core
+
+                    import androidx.compose.runtime.Stable
+
+                    @Stable
+                    interface AnimationSpec<T>
+
+                    @Stable
+                    interface FiniteAnimationSpec<T> : AnimationSpec<T>
+                    """
+                ),
+                kotlin(
+                    """
                     package androidx.compose.material3
 
+                    import androidx.compose.animation.core.AnimationSpec
+                    import androidx.compose.animation.core.FiniteAnimationSpec
                     import androidx.compose.ui.graphics.StrokeCap
+                    import androidx.compose.ui.text.style.TextAlign
+                    import androidx.compose.ui.text.style.TextOverflow
 
                     object CardDefaults {
                         val MaxItems: Int = 10
+                        val DurationMillis: Long = 4000L
                         val AspectRatio: Float = 1.5f
+                        val ScaleFactor: Double = 1.0
+                        val IsEnabled: Boolean = true
+                        val TimeFormat24Hours: String = "HH:mm"
                         val ItemRange: IntRange = 1..10
                         val StrokeCap: StrokeCap = StrokeCap(0)
+                        val TextAlign: TextAlign? = null
+                        val Overflow: TextOverflow = TextOverflow(1)
+                        val FadeOutAnimationSpec: AnimationSpec<Float> = object : AnimationSpec<Float> {}
+                        val FiniteSpec: FiniteAnimationSpec<Float> = object : FiniteAnimationSpec<Float> {}
                     }
                     """
                 ),
@@ -646,5 +682,90 @@ class DefaultsNamingDetectorTest : LintDetectorTest() {
             )
             .run()
             .expectClean()
+    }
+
+    @Test
+    fun wearComposeMaterial3_tokensDirectory_valid() {
+        lint()
+            .files(
+                kotlin(
+                    "src/main/java/androidx/wear/compose/material3/tokens/CardDefaults.kt",
+                    """
+                    package androidx.wear.compose.material3.tokens
+
+                    object CardDefaults {
+                        val UpperCaseProperty = "invalid but in tokens directory"
+                        fun UpperCaseFunction() {}
+                    }
+                    """,
+                )
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun wearComposeMaterial3_variantPrefixes_invalid() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                    package androidx.wear.compose.material3
+
+                    object ButtonDefaults {
+                        fun filledVariantColors(): String = "colors"
+                        fun childColors(): String = "colors"
+                    }
+
+                    object CheckboxButtonDefaults {
+                        fun splitColors(): String = "colors"
+                    }
+                    """
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/wear/compose/material3/ButtonDefaults.kt:4: Error: Should use dedicated defaults object (e.g., FilledVariantButtonDefaults.colors) instead of prefixed member 'filledVariantColors' in monolithic defaults [DefaultsRedundantPrefix]
+                    fun filledVariantColors(): String = "colors"
+                        ~~~~~~~~~~~~~~~~~~~
+                src/androidx/wear/compose/material3/ButtonDefaults.kt:5: Error: Should use dedicated defaults object (e.g., ChildButtonDefaults.colors) instead of prefixed member 'childColors' in monolithic defaults [DefaultsRedundantPrefix]
+                    fun childColors(): String = "colors"
+                        ~~~~~~~~~~~
+                src/androidx/wear/compose/material3/ButtonDefaults.kt:9: Error: Should use dedicated defaults object (e.g., SplitCheckboxButtonDefaults.colors) instead of prefixed member 'splitColors' in monolithic defaults [DefaultsRedundantPrefix]
+                    fun splitColors(): String = "colors"
+                        ~~~~~~~~~~~
+                3 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun material3_splitButtonDefaults_stillFlagsVariantPrefixes() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                    package androidx.compose.material3
+
+                    object SplitButtonDefaults {
+                        fun tonalColors(): String = "colors"
+                    }
+                    """
+                    )
+                    .indented()
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/compose/material3/SplitButtonDefaults.kt:4: Error: Should use dedicated defaults object (e.g., TonalSplitButtonDefaults.colors) instead of prefixed member 'tonalColors' in monolithic defaults [DefaultsRedundantPrefix]
+                    fun tonalColors(): String = "colors"
+                        ~~~~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
     }
 }

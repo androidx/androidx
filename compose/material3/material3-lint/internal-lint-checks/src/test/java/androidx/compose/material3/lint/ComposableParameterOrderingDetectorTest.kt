@@ -1010,4 +1010,208 @@ class ComposableParameterOrderingDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun wearComposeMaterial3_invalidOrdering() {
+        lint()
+            .files(
+                ComposableStub,
+                ModifierStub,
+                kotlin(
+                        "src/androidx/wear/compose/material3/Button.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    import androidx.compose.runtime.Composable
+                    import androidx.compose.ui.Modifier
+
+                    @Composable
+                    fun Button(
+                        onClick: () -> Unit,
+                        enabled: Boolean = true,
+                        modifier: Modifier = Modifier,
+                    ) {}
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/wear/compose/material3/Button.kt:10: Error: Modifier parameter should be the first optional parameter [ComposableParameterOrdering]
+                    modifier: Modifier = Modifier,
+                    ~~~~~~~~
+                src/androidx/wear/compose/material3/Button.kt:10: Error: Parameter 'enabled' (tier PRIMARY_BEHAVIOR_FLAG) should come after 'modifier' (tier MODIFIER) [ComposableParameterOrdering]
+                    modifier: Modifier = Modifier,
+                    ~~~~~~~~
+                2 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun ignored_ifMultipleDeprecatedOverloadsWithMidListLambdasExist() {
+        lint()
+            .files(
+                ComposableStub,
+                ModifierStub,
+                kotlin(
+                        "src/androidx/wear/compose/material3/Slider.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    import androidx.compose.runtime.Composable
+                    import androidx.compose.ui.Modifier
+
+                    @Composable
+                    fun Slider(
+                        value: Float,
+                        onValueChange: (Float) -> Unit,
+                        steps: Int,
+                        modifier: Modifier = Modifier,
+                        decreaseIcon: @Composable () -> Unit = {},
+                        increaseIcon: @Composable () -> Unit = {},
+                        enabled: Boolean = true,
+                        colors: String = "colors",
+                        showMinimumSegment: Boolean = false,
+                    ) {}
+
+                    @Deprecated("Hidden for binary compatibility")
+                    @Composable
+                    fun Slider(
+                        value: Float,
+                        onValueChange: (Float) -> Unit,
+                        steps: Int,
+                        modifier: Modifier = Modifier,
+                        decreaseIcon: @Composable () -> Unit = {},
+                        increaseIcon: @Composable () -> Unit = {},
+                        enabled: Boolean = true,
+                        colors: String = "colors",
+                    ) {}
+
+                    @Composable
+                    fun Slider(
+                        value: Int,
+                        onValueChange: (Int) -> Unit,
+                        valueProgression: IntRange,
+                        modifier: Modifier = Modifier,
+                        decreaseIcon: @Composable () -> Unit = {},
+                        increaseIcon: @Composable () -> Unit = {},
+                        enabled: Boolean = true,
+                        colors: String = "colors",
+                        showMinimumSegment: Boolean = false,
+                    ) {}
+
+                    @Deprecated("Hidden for binary compatibility")
+                    @Composable
+                    fun Slider(
+                        value: Int,
+                        onValueChange: (Int) -> Unit,
+                        valueProgression: IntRange,
+                        modifier: Modifier = Modifier,
+                        decreaseIcon: @Composable () -> Unit = {},
+                        increaseIcon: @Composable () -> Unit = {},
+                        enabled: Boolean = true,
+                        colors: String = "colors",
+                    ) {}
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun prefixedInteractionSourceAndBooleanStateFlag_valid() {
+        lint()
+            .files(
+                ComposableStub,
+                ModifierStub,
+                kotlin(
+                        """
+                    package androidx.compose.foundation.interaction
+                    interface MutableInteractionSource
+                    """
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/wear/compose/material3/SplitSwitchButton.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    import androidx.compose.foundation.interaction.MutableInteractionSource
+                    import androidx.compose.runtime.Composable
+                    import androidx.compose.ui.Modifier
+
+                    @Composable
+                    fun SplitSwitchButton(
+                        checked: Boolean,
+                        onCheckedChange: (Boolean) -> Unit,
+                        modifier: Modifier = Modifier,
+                        enabled: Boolean = true,
+                        revealDirection: Int = 0,
+                        hasPartiallyRevealedState: Boolean = true,
+                        colors: String = "colors",
+                        toggleInteractionSource: MutableInteractionSource? = null,
+                        containerInteractionSource: MutableInteractionSource? = null,
+                        content: @Composable () -> Unit,
+                    ) {}
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun preservedInteractionSource_withNewParameterBeforeTrailingLambda_valid() {
+        lint()
+            .files(
+                ComposableStub,
+                ModifierStub,
+                kotlin(
+                        """
+                    package androidx.compose.foundation.interaction
+                    interface MutableInteractionSource
+                    """
+                    )
+                    .indented(),
+                kotlin(
+                        "src/androidx/compose/material3/Button.kt",
+                        """
+                    package androidx.compose.material3
+
+                    import androidx.compose.foundation.interaction.MutableInteractionSource
+                    import androidx.compose.runtime.Composable
+                    import androidx.compose.ui.Modifier
+
+                    @Composable
+                    fun MyButton(
+                        onClick: () -> Unit,
+                        modifier: Modifier = Modifier,
+                        enabled: Boolean = true,
+                        interactionSource: MutableInteractionSource? = null,
+                        shape: String = "shape",
+                        content: @Composable () -> Unit,
+                    ) {}
+
+                    @Deprecated("Binary compatibility")
+                    @Composable
+                    fun MyButton(
+                        onClick: () -> Unit,
+                        modifier: Modifier = Modifier,
+                        enabled: Boolean = true,
+                        interactionSource: MutableInteractionSource? = null,
+                        content: @Composable () -> Unit,
+                    ) {}
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
 }

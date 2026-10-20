@@ -1,5 +1,2309 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
+<issues format="6" by="lint 9.5.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha05)" variant="all" version="9.5.0-alpha05">
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;startFontSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    startFontSize: TextUnit = textStyle.fontSize,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/AnimatedText.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;gapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gapSize: Dp = ArcProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ArcProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="        enabled: Boolean = true,"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;alignment&apos; (tier VISUAL_STYLING) should come after &apos;contentScale&apos; (tier SLOT_CONFIG)"
+        errorLine1="        contentScale: ContentScale = ContentScale.Fit,"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;icon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="        enabled: Boolean = true,"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;subtitle&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;subtitle&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;appImage&apos; (tier SLOT_CONFIG)"
+        errorLine1="        appImage: @Composable (RowScope.() -> Unit)? = null,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;alignment&apos; (tier VISUAL_STYLING) should come after &apos;contentScale&apos; (tier SLOT_CONFIG)"
+        errorLine1="        contentScale: ContentScale = ContentScale.Fit,"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;containerInteractionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;secondaryLabel&apos; (tier SLOT_CONFIG)"
+        errorLine1="    secondaryLabel: @Composable (RowScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;gapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;gapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;durationMillis&apos; (tier SLOT_CONFIG)"
+        errorLine1="    durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;durationMillis&apos; (tier SLOT_CONFIG)"
+        errorLine1="    durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;durationMillis&apos; (tier SLOT_CONFIG)"
+        errorLine1="    durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;durationMillis&apos; (tier SLOT_CONFIG)"
+        errorLine1="    durationMillis: Long = ConfirmationDialogDefaults.DurationMillis,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;buttonSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/EdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;fontSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    fontSize: TextUnit = TextUnit.Unspecified,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/FadingExpandingLabel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/FadingExpandingLabel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;softWrap&apos; (tier SLOT_CONFIG)"
+        errorLine1="    softWrap: Boolean = true,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/FadingExpandingLabel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;textStyle&apos; (tier VISUAL_STYLING) should come after &apos;animationSpec&apos; (tier SLOT_CONFIG)"
+        errorLine1="    animationSpec: FiniteAnimationSpec&lt;Float> = FadingExpandingLabelDefaults.animationSpec,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/FadingExpandingLabel.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shapes&apos; (tier SLOT_CONFIG)"
+        errorLine1="    shapes: IconToggleButtonShapes = IconToggleButtonDefaults.shapes(),"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;sweepAngle&apos; (tier SLOT_CONFIG)"
+        errorLine1="    @FloatRange(from = 0.0, to = 360.0) sweepAngle: Float = LevelIndicatorDefaults.SweepAngle,"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LevelIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;valueRange&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LevelIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;sweepAngle&apos; (tier SLOT_CONFIG)"
+        errorLine1="    @FloatRange(from = 0.0, to = 360.0) sweepAngle: Float = LevelIndicatorDefaults.SweepAngle,"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LevelIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;sweepAngle&apos; (tier SLOT_CONFIG)"
+        errorLine1="    @FloatRange(from = 0.0, to = 360.0) sweepAngle: Float = LevelIndicatorDefaults.SweepAngle,"
+        errorLine2="                                        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LevelIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LinearProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ListHeader.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ListHeader.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/NonClickableCard.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;backgroundColor&apos; (tier VISUAL_STYLING) should come after &apos;gestureIndicatorTint&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gestureIndicatorTint: Color = OneHandedGestureDefaults.pageIndicatorTint,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGesturePageIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;backgroundColor&apos; (tier VISUAL_STYLING) should come after &apos;gestureIndicatorTint&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gestureIndicatorTint: Color = OneHandedGestureDefaults.pageIndicatorTint,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGesturePageIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;scrollIndicatorColors&apos; (tier VISUAL_STYLING) should come after &apos;gestureIndicatorTint&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gestureIndicatorTint: Color = OneHandedGestureDefaults.scrollIndicatorTint,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;gestureIndicatorBackgroundColor&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = false,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;scrollIndicatorColors&apos; (tier VISUAL_STYLING) should come after &apos;gestureIndicatorTint&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gestureIndicatorTint: Color = OneHandedGestureDefaults.scrollIndicatorTint,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;gestureIndicatorBackgroundColor&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = false,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;properties&apos; (tier PLATFORM_WINDOW_CONFIG) should come after &apos;durationMillis&apos; (tier SLOT_CONFIG)"
+        errorLine1="    durationMillis: Long = OpenOnPhoneDialogDefaults.DurationMillis,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/OpenOnPhoneDialog.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;verticalSpacing&apos; (tier VISUAL_STYLING) should come after &apos;gradientRatio&apos; (tier SLOT_CONFIG)"
+        errorLine1="    @FloatRange(from = 0.0, to = 0.5) gradientRatio: Float = PickerDefaults.GradientRatio,"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;gradientColor&apos; (tier VISUAL_STYLING) should come after &apos;userScrollEnabled&apos; (tier SLOT_CONFIG)"
+        errorLine1="    userScrollEnabled: Boolean = true,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Picker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentAlignment&apos; (tier VISUAL_STYLING) should come after &apos;indicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    indicator: @Composable BoxScope.() -> Unit = {"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;indicator&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;maxDistance&apos; (tier SLOT_CONFIG)"
+        errorLine1="        maxDistance: Dp = IndicatorMaxDistance,"
+        errorLine2="        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;containerInteractionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;secondaryLabel&apos; (tier SLOT_CONFIG)"
+        errorLine1="    secondaryLabel: @Composable (RowScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = { ScrollIndicator(scrollState) },"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;edgeButtonSpacing&apos; (tier VISUAL_STYLING) should come after &apos;overscrollEffect&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;scrollIndicator&apos; (tier SLOT_CONFIG)"
+        errorLine1="    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;timeText&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeText: (@Composable () -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScreenScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = false,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = state.layoutInfo.reverseLayout,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = state.layoutInfo.reverseLayout,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;colors&apos; (tier VISUAL_STYLING) should come after &apos;reverseDirection&apos; (tier SLOT_CONFIG)"
+        errorLine1="    reverseDirection: Boolean = state.layoutInfo.reverseLayout,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;gapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SegmentedCircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;gapSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SegmentedCircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;strokeWidth&apos; (tier VISUAL_STYLING) should come after &apos;gapSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SegmentedCircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;gapSize&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SegmentedCircularProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;increaseIcon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;increaseIcon&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentScrimColor&apos; (tier VISUAL_STYLING) should come after &apos;backgroundKey&apos; (tier SLOT_CONFIG)"
+        errorLine1="    backgroundKey: Any = SwipeToDismissKeys.Background,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToDismissBox.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentScrimColor&apos; (tier VISUAL_STYLING) should come after &apos;backgroundKey&apos; (tier SLOT_CONFIG)"
+        errorLine1="    backgroundKey: Any = SwipeToDismissKeys.Background,"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToDismissBox.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;undoSecondaryAction&apos; (tier SLOT_CONFIG) should come after &apos;revealState&apos; (tier STATE_CONTROLLER)"
+        errorLine1="    revealState: RevealState = rememberRevealState(),"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;containerInteractionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;transformation&apos; (tier SLOT_CONFIG)"
+        errorLine1="    transformation: SurfaceTransformation? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;contentPadding&apos; (tier VISUAL_STYLING) should come after &apos;secondaryLabel&apos; (tier SLOT_CONFIG)"
+        errorLine1="    secondaryLabel: @Composable (RowScope.() -> Unit)? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;fontSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    fontSize: TextUnit = TextUnit.Unspecified,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = LocalTextConfiguration.current.overflow,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;fontSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="    fontSize: TextUnit = TextUnit.Unspecified,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;letterSpacing&apos; (tier VISUAL_STYLING) should come after &apos;textDecoration&apos; (tier SLOT_CONFIG)"
+        errorLine1="    textDecoration: TextDecoration? = null,"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;lineHeight&apos; (tier VISUAL_STYLING) should come after &apos;overflow&apos; (tier SLOT_CONFIG)"
+        errorLine1="    overflow: TextOverflow = LocalTextConfiguration.current.overflow,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Text.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;onLongClickLabel&apos; (tier SLOT_CONFIG) should come after &apos;enabled&apos; (tier PRIMARY_BEHAVIOR_FLAG)"
+        errorLine1="    enabled: Boolean = true,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;interactionSource&apos; (tier INTERACTION_TRAILING) should come after &apos;shapes&apos; (tier SLOT_CONFIG)"
+        errorLine1="    shapes: TextToggleButtonShapes = TextToggleButtonDefaults.shapes(),"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;backgroundColor&apos; (tier VISUAL_STYLING) should come after &apos;timeSource&apos; (tier SLOT_CONFIG)"
+        errorLine1="    timeSource: TimeSource = TimeTextDefaults.rememberTimeSource(timeFormat()),"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimeText.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableParameterOrdering"
+        message="Parameter &apos;color&apos; (tier VISUAL_STYLING) should come after &apos;fontSize&apos; (tier SLOT_CONFIG)"
+        errorLine1="        fontSize: TextUnit = TextUnit.Unspecified,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimeText.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val ConfirmIcon: @Composable RowScope.() -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsCamelCaseWithoutConst"
+        message="Properties on Defaults objects should be camelCase"
+        errorLine1="    public val DismissIcon: @Composable RowScope.() -> Unit = {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val compactButtonShape: RoundedCornerShape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val scrimGradientStartColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val scrimGradientEndColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkboxButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val splitCheckboxButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val curvedTextStyle: CurvedTextStyle"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val datePickerType: DatePickerType"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val animationSpec: FiniteAnimationSpec&lt;Float>"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/FadingExpandingLabel.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val contentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ListHeader.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val subHeaderContentColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ListHeader.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorTint: Color"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val scrollIndicatorTint: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val scrollIndicatorBackgroundColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pageIndicatorTint: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pageIndicatorBackgroundColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/onehandedgesture/OneHandedGestureDefaults.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val curvedTextStyle: CurvedTextStyle"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/OpenOnPhoneDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val text: String"
+        errorLine2="               ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/OpenOnPhoneDialog.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Placeholder.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val color: Color"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Placeholder.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shimmerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Placeholder.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val indicatorContainerColor: Color"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/PullToRefresh.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val radioButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val splitRadioButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: Shape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val increaseIconContentDescription: String"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val decreaseIconContentDescription: String"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val switchButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val splitSwitchButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val shape: RoundedCornerShape"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val pressedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsMissingReadOnlyComposable"
+        message="Composable properties in Defaults objects should be annotated with @ReadOnlyComposable"
+        errorLine1="    public val checkedShape: CornerBasedShape"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextToggleButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., CompactButtonDefaults.colors) instead of prefixed member &apos;compactButtonShape&apos; in monolithic defaults"
+        errorLine1="    public val compactButtonShape: RoundedCornerShape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalButtonDefaults.colors) instead of prefixed member &apos;filledTonalButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledVariantButtonDefaults.colors) instead of prefixed member &apos;filledVariantButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledVariantButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledVariantButtonDefaults.colors) instead of prefixed member &apos;filledVariantButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledVariantButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ChildButtonDefaults.colors) instead of prefixed member &apos;childButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun childButtonColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., ChildButtonDefaults.colors) instead of prefixed member &apos;childButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun childButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonWithContainerPainterColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonWithContainerPainterColors(): ButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonWithContainerPainterColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonWithContainerPainterColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedButtonDefaults.colors) instead of prefixed member &apos;outlinedButtonBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedButtonBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonColors(): ButtonColors = MaterialTheme.colorScheme.defaultButtonColors"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;buttonColors&apos; starts with &apos;button&apos;"
+        errorLine1="    public fun buttonColors("
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Button.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardColors&apos; starts with &apos;card&apos;"
+        errorLine1="    @Composable public fun cardColors(): CardColors = MaterialTheme.colorScheme.defaultCardColors"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardColors&apos; starts with &apos;card&apos;"
+        errorLine1="    public fun cardColors("
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardColors(): CardColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardWithContainerPainterColors&apos; starts with &apos;card&apos;"
+        errorLine1="    public fun cardWithContainerPainterColors(): CardColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;cardWithContainerPainterColors&apos; starts with &apos;card&apos;"
+        errorLine1="    public fun cardWithContainerPainterColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedCardDefaults.colors) instead of prefixed member &apos;outlinedCardBorder&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedCardBorder("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Card.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;checkboxButtonShape&apos; starts with &apos;checkboxButton&apos;"
+        errorLine1="    public val checkboxButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitCheckboxButtonDefaults.colors) instead of prefixed member &apos;splitCheckboxButtonShape&apos; in monolithic defaults"
+        errorLine1="    public val splitCheckboxButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;checkboxButtonColors&apos; starts with &apos;checkboxButton&apos;"
+        errorLine1="    public fun checkboxButtonColors(): CheckboxButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;checkboxButtonColors&apos; starts with &apos;checkboxButton&apos;"
+        errorLine1="    public fun checkboxButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitCheckboxButtonDefaults.colors) instead of prefixed member &apos;splitCheckboxButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitCheckboxButtonColors(): SplitCheckboxButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitCheckboxButtonDefaults.colors) instead of prefixed member &apos;splitCheckboxButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitCheckboxButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;datePickerType&apos; starts with &apos;datePicker&apos;"
+        errorLine1="    public val datePickerType: DatePickerType"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;datePickerColors&apos; starts with &apos;datePicker&apos;"
+        errorLine1="    public fun datePickerColors(): DatePickerColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;datePickerColors&apos; starts with &apos;datePicker&apos;"
+        errorLine1="    public fun datePickerColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledIconButtonDefaults.colors) instead of prefixed member &apos;filledIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledVariantIconButtonDefaults.colors) instead of prefixed member &apos;filledVariantIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledVariantIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledVariantIconButtonDefaults.colors) instead of prefixed member &apos;filledVariantIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledVariantIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., FilledTonalIconButtonDefaults.colors) instead of prefixed member &apos;filledTonalIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun filledTonalIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., OutlinedIconButtonDefaults.colors) instead of prefixed member &apos;outlinedIconButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun outlinedIconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonColors(): IconButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;iconButtonColors&apos; starts with &apos;iconButton&apos;"
+        errorLine1="    public fun iconButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/IconButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;radioButtonShape&apos; starts with &apos;radioButton&apos;"
+        errorLine1="    public val radioButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitRadioButtonDefaults.colors) instead of prefixed member &apos;splitRadioButtonShape&apos; in monolithic defaults"
+        errorLine1="    public val splitRadioButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;radioButtonColors&apos; starts with &apos;radioButton&apos;"
+        errorLine1="    public fun radioButtonColors(): RadioButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;radioButtonColors&apos; starts with &apos;radioButton&apos;"
+        errorLine1="    public fun radioButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitRadioButtonDefaults.colors) instead of prefixed member &apos;splitRadioButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitRadioButtonColors(): SplitRadioButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitRadioButtonDefaults.colors) instead of prefixed member &apos;splitRadioButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitRadioButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;sliderColors&apos; starts with &apos;slider&apos;"
+        errorLine1="    public fun sliderColors(): SliderColors = MaterialTheme.colorScheme.defaultSliderColor"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;sliderColors&apos; starts with &apos;slider&apos;"
+        errorLine1="    public fun sliderColors("
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Slider.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;switchButtonShape&apos; starts with &apos;switchButton&apos;"
+        errorLine1="    public val switchButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitSwitchButtonDefaults.colors) instead of prefixed member &apos;splitSwitchButtonShape&apos; in monolithic defaults"
+        errorLine1="    public val splitSwitchButtonShape: Shape"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;switchButtonColors&apos; starts with &apos;switchButton&apos;"
+        errorLine1="    public fun switchButtonColors(): SwitchButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;switchButtonColors&apos; starts with &apos;switchButton&apos;"
+        errorLine1="    public fun switchButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitSwitchButtonDefaults.colors) instead of prefixed member &apos;splitSwitchButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitSwitchButtonColors(): SplitSwitchButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Should use dedicated defaults object (e.g., SplitSwitchButtonDefaults.colors) instead of prefixed member &apos;splitSwitchButtonColors&apos; in monolithic defaults"
+        errorLine1="    public fun splitSwitchButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;textButtonColors&apos; starts with &apos;textButton&apos;"
+        errorLine1="    public fun textButtonColors(): TextButtonColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;textButtonColors&apos; starts with &apos;textButton&apos;"
+        errorLine1="    public fun textButtonColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant &apos;default&apos; prefix: &apos;defaultButtonTextStyle&apos; should be &apos;buttonTextStyle&apos;"
+        errorLine1="    public val defaultButtonTextStyle: TextStyle"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TextButton.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;timePickerType&apos; starts with &apos;timePicker&apos;"
+        errorLine1="    public val timePickerType: TimePickerType"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;timePickerSelection&apos; starts with &apos;timePicker&apos;"
+        errorLine1="    public fun timePickerSelection(timePickerType: TimePickerType): TimePickerSelection {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;timePickerColors&apos; starts with &apos;timePicker&apos;"
+        errorLine1="    public fun timePickerColors(): TimePickerColors ="
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;timePickerColors&apos; starts with &apos;timePicker&apos;"
+        errorLine1="    public fun timePickerColors("
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="DefaultsRedundantPrefix"
+        message="Redundant component prefix: &apos;timeTextStyle&apos; starts with &apos;timeText&apos;"
+        errorLine1="    public fun timeTextStyle("
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/TimeText.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingConstructorOrCopy"
+        message="State holder class &apos;RevealState&apos; must provide a public constructor, a public copy() function, or a public non-composable factory function to allow creation/modification outside of composables"
+        errorLine1="public class RevealState @RememberInComposition constructor(initialValue: RevealValue) {"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;SplitCheckboxButtonColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class SplitCheckboxButtonColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/CheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;ConfirmationDialogColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class ConfirmationDialogColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ConfirmationDialog.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;LevelIndicatorColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class LevelIndicatorColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/LevelIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;OpenOnPhoneDialogColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class OpenOnPhoneDialogColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/OpenOnPhoneDialog.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;ProgressIndicatorColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class ProgressIndicatorColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ProgressIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;SplitRadioButtonColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class SplitRadioButtonColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/RadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;ScrollIndicatorColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class ScrollIndicatorColors(public val indicatorColor: Color, public val trackColor: Color) {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/ScrollIndicator.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;StepperColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class StepperColors("
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Stepper.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;RevealState&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class RevealState @RememberInComposition constructor(initialValue: RevealValue) {"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="StateHolderMissingStabilityAnnotation"
+        message="State holder class &apos;SplitSwitchButtonColors&apos; should be annotated with @Stable or @Immutable"
+        errorLine1="public class SplitSwitchButtonColors("
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwitchButton.kt"/>
+    </issue>
 
     <issue
         id="ComposableLambdaParameterNaming"
@@ -263,15 +2567,6 @@
     </issue>
 
     <issue
-        id="FrequentlyChangingValue"
-        message="Reading a value annotated with @FrequentlyChangingValue inside composition"
-        errorLine1="            Text(text = &quot;${pickerState.selectedOptionIndex}&quot;)"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/kotlin/androidx/wear/compose/material3/PickerTest.kt"/>
-    </issue>
-
-    <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="            .map { it as ResponsiveTransformationSpecImpl }"
@@ -287,15 +2582,6 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/material3/lazy/ResponsiveTransformationSpec.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="            .find { it.key == key }"
-        errorLine2="             ~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/material3/Scaffold.kt"/>
     </issue>
 
     <issue
