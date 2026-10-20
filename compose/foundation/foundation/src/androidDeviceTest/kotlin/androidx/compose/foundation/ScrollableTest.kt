@@ -55,6 +55,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
@@ -99,6 +100,7 @@ import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -1839,6 +1841,87 @@ class ScrollableTest {
             assertThat(outerDrag).isGreaterThan(0f)
             assertThat(innerDrag).isEqualTo(outerDrag)
             innerDrag
+        }
+    }
+
+    @Test
+    fun scrollable_nestedScroll_scrollCaptureInProgress_doesNotDispatchForSemantics() {
+        var captureInProgress by mutableStateOf(true)
+        var preScrollDelta = Offset.Zero
+        var postScrollDelta = Offset.Zero
+        var scrolledDelta = 0f
+        var consumedScroll = Offset.Unspecified
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    // Consume only half so unconsumed delta would reach onPostScroll if nested
+                    // scroll were dispatched.
+                    val consumed = it / 2f
+                    scrolledDelta += consumed
+                    consumed
+                }
+            )
+        val parentNestedScroll =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    preScrollDelta += available
+                    return available / 2f
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    postScrollDelta += available
+                    return available
+                }
+            }
+
+        @Suppress("UNCHECKED_CAST")
+        val providableScrollCaptureInProgress =
+            LocalScrollCaptureInProgress as ProvidableCompositionLocal<Boolean>
+
+        rule.setContentAndGetScope {
+            CompositionLocalProvider(providableScrollCaptureInProgress provides captureInProgress) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(300.dp).nestedScroll(parentNestedScroll),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.testTag(scrollableBoxTag)
+                                .size(300.dp)
+                                .scrollable(
+                                    state = scrollableState,
+                                    orientation = Orientation.Vertical,
+                                )
+                    )
+                }
+            }
+        }
+
+        val action =
+            rule.onNodeWithTag(scrollableBoxTag).fetchSemanticsNode().config[ScrollByOffset]
+
+        scope.launch(TestScrollMotionDurationScale(0f)) { consumedScroll = action(Offset(0f, 80f)) }
+        rule.runOnIdle {
+            assertThat(preScrollDelta).isEqualTo(Offset.Zero)
+            assertThat(postScrollDelta).isEqualTo(Offset.Zero)
+            assertThat(scrolledDelta).isEqualTo(40f)
+            assertThat(consumedScroll).isEqualTo(Offset(0f, 40f))
+        }
+
+        scrolledDelta = 0f
+        captureInProgress = false
+        rule.waitForIdle()
+
+        scope.launch(TestScrollMotionDurationScale(0f)) { consumedScroll = action(Offset(0f, 80f)) }
+        rule.runOnIdle {
+            assertThat(preScrollDelta).isEqualTo(Offset(0f, 80f))
+            assertThat(postScrollDelta).isEqualTo(Offset(0f, 20f))
+            assertThat(scrolledDelta).isEqualTo(20f)
+            assertThat(consumedScroll).isEqualTo(Offset(0f, 80f))
         }
     }
 

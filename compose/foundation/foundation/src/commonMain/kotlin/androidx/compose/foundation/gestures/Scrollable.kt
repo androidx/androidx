@@ -477,8 +477,8 @@ internal class ScrollableNode(
 
     override fun onPreKeyEvent(event: KeyEvent) = false
 
-    override suspend fun semanticsScrollBy(offset: Offset): Offset {
-        return scrollLogic.semanticsScrollBy(offset)
+    override suspend fun semanticsScrollBy(offset: Offset, dispatchNestedScroll: Boolean): Offset {
+        return scrollLogic.semanticsScrollBy(offset, dispatchNestedScroll)
     }
 }
 
@@ -625,8 +625,12 @@ internal class ScrollingLogic(
 
     private val nestedScrollScope =
         object : NestedScrollScope {
-            override fun scrollBy(offset: Offset, source: NestedScrollSource): Offset {
-                return with(outerStateScope) { performScroll(offset, source) }
+            override fun scrollBy(
+                offset: Offset,
+                source: NestedScrollSource,
+                dispatchNestedScroll: Boolean,
+            ): Offset {
+                return with(outerStateScope) { performScroll(offset, source, dispatchNestedScroll) }
             }
 
             override fun scrollByWithOverscroll(
@@ -648,8 +652,17 @@ internal class ScrollingLogic(
     }
 
     @OptIn(ExperimentalFoundationApi::class)
-    private fun ScrollScope.performScroll(delta: Offset, source: NestedScrollSource): Offset {
-        val consumedByPreScroll = nestedScrollDispatcher.dispatchPreScroll(delta, source)
+    private fun ScrollScope.performScroll(
+        delta: Offset,
+        source: NestedScrollSource,
+        dispatchNestedScroll: Boolean = true,
+    ): Offset {
+        val consumedByPreScroll =
+            if (dispatchNestedScroll) {
+                nestedScrollDispatcher.dispatchPreScroll(delta, source)
+            } else {
+                Offset.Zero
+            }
 
         val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
 
@@ -665,11 +678,15 @@ internal class ScrollingLogic(
 
         val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
         val consumedByPostScroll =
-            nestedScrollDispatcher.dispatchPostScroll(
-                consumedBySelfScroll,
-                deltaAvailableAfterScroll,
-                source,
-            )
+            if (dispatchNestedScroll) {
+                nestedScrollDispatcher.dispatchPostScroll(
+                    consumedBySelfScroll,
+                    deltaAvailableAfterScroll,
+                    source,
+                )
+            } else {
+                Offset.Zero
+            }
         return consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
     }
 
@@ -853,13 +870,20 @@ internal expect fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultF
  * Scroll deltas originating from the semantics system. Should be dispatched as an animation driven
  * event.
  */
-private suspend fun ScrollingLogic.semanticsScrollBy(offset: Offset): Offset {
+private suspend fun ScrollingLogic.semanticsScrollBy(
+    offset: Offset,
+    dispatchNestedScroll: Boolean,
+): Offset {
     var previousValue = 0f
     scroll(scrollPriority = MutatePriority.Default) {
         animate(0f, offset.toFloat()) { currentValue, _ ->
             val delta = currentValue - previousValue
             val consumed =
-                scrollBy(offset = delta.reverseIfNeeded().toOffset(), source = UserInput)
+                scrollBy(
+                        offset = delta.reverseIfNeeded().toOffset(),
+                        source = UserInput,
+                        dispatchNestedScroll = dispatchNestedScroll,
+                    )
                     .toFloat()
                     .reverseIfNeeded()
             previousValue += consumed
