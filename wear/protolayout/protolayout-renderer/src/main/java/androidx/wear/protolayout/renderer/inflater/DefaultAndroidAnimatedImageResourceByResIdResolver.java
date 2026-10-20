@@ -32,7 +32,6 @@ public class DefaultAndroidAnimatedImageResourceByResIdResolver
         implements AndroidAnimatedImageResourceByResIdResolver {
 
     private final @NonNull Resources mAndroidResources;
-    private final boolean mRestrictImageSize;
 
     /**
      * Constructor.
@@ -41,27 +40,14 @@ public class DefaultAndroidAnimatedImageResourceByResIdResolver
      *     normally obtained from {@code PackageManager#getResourcesForApplication}.
      */
     public DefaultAndroidAnimatedImageResourceByResIdResolver(@NonNull Resources androidResources) {
-        this(androidResources, /* restrictImageSize= */ false);
-    }
-
-    /**
-     * Constructor with param to restrict image size.
-     *
-     * @param androidResources An Android Resources instance for the tile service's package. This is
-     *     normally obtained from {@code PackageManager#getResourcesForApplication}.
-     * @param restrictImageSize Whether to restrict the size of decoded images.
-     */
-    public DefaultAndroidAnimatedImageResourceByResIdResolver(
-            @NonNull Resources androidResources, boolean restrictImageSize) {
         this.mAndroidResources = androidResources;
-        this.mRestrictImageSize = restrictImageSize;
     }
 
     @Override
     public @NonNull Drawable getDrawableOrThrow(
             @NonNull AndroidAnimatedImageResourceByResId resource) throws ResourceAccessException {
         if (resource.getAnimatedImageFormat() == AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD) {
-            if (mRestrictImageSize && Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 28) {
                 return ConstrainedImageDecoder.decodeDrawable(
                         mAndroidResources, resource.getResourceId());
             }
