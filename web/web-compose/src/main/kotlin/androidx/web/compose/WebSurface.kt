@@ -18,8 +18,11 @@ package androidx.web.compose
 
 import android.content.Context
 import android.os.SystemClock
+import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
@@ -30,26 +33,37 @@ import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.NoOpUpdate
 import androidx.web.WebContent
@@ -179,7 +193,8 @@ public fun <T : WebViewBridge> WebSurface(
         }
     Layout(
         modifier =
-            modifier
+            Modifier.onKeyEvent { state.node?.dispatchKeyEvent(it.nativeKeyEvent) == true }
+                .then(modifier)
                 .clipToBounds()
                 .then(
                     WebSurfaceElement(
@@ -266,19 +281,37 @@ internal class WebSurfaceElement<T : WebViewBridge>(
     }
 }
 
-// TODO: Integrate Chromium's AccessibilityNodeProvider with Compose's semantics and accessibility
-// tree so screen readers and UI automation can inspect and interact with WebSurface content.
 // TODO: Expose scroll position and programmatic scroll control on WebSurface / WebContent instead
 // of relying on View scroll APIs.
 internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceState<T>) :
-    Modifier.Node(),
+    DelegatingNode(),
     DrawModifierNode,
     PointerInputModifierNode,
     GlobalPositionAwareModifierNode,
-    ObserverModifierNode {
+    ObserverModifierNode,
+    SemanticsModifierNode,
+    CompositionLocalConsumerModifierNode,
+    ViewTreeObserver.OnGlobalFocusChangeListener {
 
     private var webSurface: WebSurfaceChromium? = null
     private var holder: HeadlessViewHolder? = null
+
+    /** Prevents reentrant focus synchronization between Compose and the underlying View tree. */
+    private var isUpdatingFocus: Boolean = false
+
+    /**
+     * Tracks whether a touch gesture sequence (started on [MotionEvent.ACTION_DOWN]) is currently
+     * being dispatched to [webSurface].
+     */
+    private var isDispatchingTouch: Boolean = false
+
+    private val focusTargetNode =
+        delegate(
+            FocusTargetModifierNode(
+                focusability = Focusability.Always,
+                onFocusChange = ::onFocusStateChange,
+            )
+        )
 
     // If Chromium invalidates during draw (e.g. computeScroll), Compose ignores
     // the synchronous invalidateDraw() call because the layer's dirty flag is
@@ -304,6 +337,78 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     override fun onObservedReadsChanged() {
         runUpdate()
     }
+
+    /**
+     * Requesting or clearing focus on either Compose or the View will synchronously trigger a focus
+     * change callback on the other. We use [isUpdatingFocus] so they don't keep calling back into
+     * each other in a loop.
+     */
+    private inline fun focusUpdate(block: () -> Unit) {
+        if (isUpdatingFocus) return
+        isUpdatingFocus = true
+        try {
+            block()
+        } finally {
+            isUpdatingFocus = false
+        }
+    }
+
+    private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
+        if (!isAttached || isUpdatingFocus) return
+        val isFocused = currentState.isFocused
+        if (isFocused == previousState.isFocused) return
+        val view = holder?.view ?: return
+        focusUpdate {
+            if (isFocused) {
+                if (!view.hasFocus()) {
+                    view.requestFocus()
+                }
+                if (view.hasFocus() && !focusTargetNode.focusState.isFocused) {
+                    requestFocusWithDescendantPriority()
+                }
+            } else {
+                if (view.hasFocus()) {
+                    view.clearFocus()
+                }
+            }
+        }
+    }
+
+    override fun onGlobalFocusChanged(oldFocus: View?, newFocus: View?) {
+        if (!isAttached || isUpdatingFocus) return
+        val currentHolder = holder ?: return
+        val subViewLostFocus =
+            oldFocus != null && (oldFocus === currentHolder || oldFocus.parent === currentHolder)
+        val subViewGotFocus =
+            newFocus != null && (newFocus === currentHolder || newFocus.parent === currentHolder)
+        if (subViewGotFocus && !subViewLostFocus) {
+            if (!focusTargetNode.focusState.isFocused) {
+                focusUpdate { requestFocusWithDescendantPriority() }
+            }
+        } else if (subViewLostFocus && !subViewGotFocus) {
+            if (focusTargetNode.focusState.isFocused) {
+                currentValueOf(LocalFocusManager).clearFocus(force = false)
+            }
+        }
+    }
+
+    private fun requestFocusWithDescendantPriority() {
+        val hostGroup = requireView() as? ViewGroup
+        val previousFocusability =
+            hostGroup?.descendantFocusability ?: ViewGroup.FOCUS_BEFORE_DESCENDANTS
+        hostGroup?.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
+        try {
+            focusTargetNode.requestFocus()
+        } finally {
+            hostGroup?.descendantFocusability = previousFocusability
+        }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        holder?.let { this[WebSurfaceHolderKey] = it }
+    }
+
+    fun dispatchKeyEvent(event: KeyEvent): Boolean = holder?.dispatchKeyEventToView(event) == true
 
     fun onBridgeAttached(bridge: T) {
         if (!isAttached) return
@@ -350,17 +455,18 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     override fun onAttach() {
         super.onAttach()
         state.node = this
-        (requireView() as? ViewGroup)?.let { host ->
-            holder = HeadlessViewHolder(host.context).also { host.addView(it) }
+        val hostView = requireView()
+        hostView.viewTreeObserver.addOnGlobalFocusChangeListener(this)
+        (hostView as? ViewGroup)?.let { host ->
+            installHostAccessibilityDelegate(host)
+            holder = HeadlessViewHolder(host.context).also(host::addView)
         }
-        // TODO: Ensure WebSurface uses a transparent base background color by default so Compose
-        // Modifier.background on WebSurface or parent layouts is not covered by WebView's default
-        // white background.
         webSurface = WebSurfaceChromium.create(::onInvalidate)
         state.bridge?.let { onBridgeAttached(it) }
     }
 
     override fun onDetach() {
+        requireView().viewTreeObserver.removeOnGlobalFocusChangeListener(this)
         webSurface?.setWebContent(null)
         holder?.view = null
         (requireView() as? ViewGroup)?.removeView(holder)
@@ -390,33 +496,58 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         }
     }
 
+    override fun sharePointerInputWithSiblings(): Boolean = true
+
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
-        pointerEvent.motionEvent
-            ?.takeIf { pass == PointerEventPass.Main }
-            ?.let { motionEvent ->
-                if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) {
-                    // TODO: Integrate WebSurfaceNode with Compose's focus system
-                    // (FocusTargetModifierNode) so Modifier.onFocusChanged and FocusRequester work
-                    // natively on WebSurface.
-                    val view = holder?.view
-                    if (view != null && !view.hasFocus()) {
-                        view.requestFocus()
-                    }
-                }
-                val offset = requireLayoutCoordinates().positionInRoot()
-                val consumed =
-                    motionEvent.withOffset(-offset.x, -offset.y) {
-                        webSurface?.onTouchEvent(it) == true
-                    }
-                pointerEvent.changes.takeIf { consumed }?.fastForEach { it.consume() }
+        val motionEvent = pointerEvent.motionEvent ?: return
+        val anyConsumed = pointerEvent.changes.fastAny { it.isConsumed }
+        val action = motionEvent.actionMasked
+        if (pass == PointerEventPass.Main && action == MotionEvent.ACTION_DOWN && !anyConsumed) {
+            isDispatchingTouch = dispatchMotionEvent(motionEvent)
+            return
+        }
+        if (pass != PointerEventPass.Final) return
+        if (action == MotionEvent.ACTION_DOWN) {
+            if (isDispatchingTouch) {
+                pointerEvent.changes.fastForEach { it.consume() }
             }
+            return
+        }
+        if (anyConsumed) {
+            onCancelPointerInput()
+            return
+        }
+        if (dispatchMotionEvent(motionEvent)) {
+            pointerEvent.changes.fastForEach { it.consume() }
+        }
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            isDispatchingTouch = false
+        }
+    }
+
+    private fun dispatchMotionEvent(motionEvent: MotionEvent): Boolean {
+        val offset = requireLayoutCoordinates().positionInRoot()
+        return motionEvent.withOffset(-offset.x, -offset.y) {
+            when (it.actionMasked) {
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_POINTER_DOWN,
+                MotionEvent.ACTION_MOVE,
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_POINTER_UP,
+                MotionEvent.ACTION_OUTSIDE,
+                MotionEvent.ACTION_CANCEL -> webSurface?.onTouchEvent(it) == true
+                else -> holder?.dispatchGenericMotionEventToView(it) == true
+            }
+        }
     }
 
     override fun onCancelPointerInput() {
+        if (!isDispatchingTouch) return
+        isDispatchingTouch = false
         val now = SystemClock.uptimeMillis()
         val cancelEvent = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
         webSurface?.onTouchEvent(cancelEvent)
