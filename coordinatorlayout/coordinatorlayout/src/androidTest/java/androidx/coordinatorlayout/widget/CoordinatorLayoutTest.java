@@ -27,6 +27,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -38,11 +40,13 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +73,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -874,5 +879,441 @@ public class CoordinatorLayoutTest {
                 return hashCode;
             }
         };
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenWithSource() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        final CoordinatorLayout.Behavior<View> mockBehavior =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setBehavior(mockBehavior);
+        col.addView(view, lp);
+
+        final Rect rect = new Rect(0, 0, 10, 10);
+        when(mockBehavior.onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS))
+                .thenReturn(true);
+
+        boolean handled = col.requestChildRectangleOnScreen(
+                view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        assertTrue(handled);
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenWithoutSource() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        final CoordinatorLayout.Behavior<View> mockBehavior =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setBehavior(mockBehavior);
+        col.addView(view, lp);
+
+        final Rect rect = new Rect(0, 0, 10, 10);
+        when(mockBehavior.onRequestChildRectangleOnScreen(
+                col, view, rect, false, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED))
+                .thenReturn(true);
+
+        boolean handled = col.requestChildRectangleOnScreen(view, rect, false);
+
+        assertTrue(handled);
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(
+                col, view, rect, false, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenDelegatesToFourArgBehavior() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        final CoordinatorLayout.Behavior<View> mockBehavior =
+                mock(CoordinatorLayout.Behavior.class);
+        final Rect rect = new Rect(0, 0, 10, 10);
+        doCallRealMethod().when(mockBehavior).onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+        when(mockBehavior.onRequestChildRectangleOnScreen(col, view, rect, true))
+                .thenReturn(true);
+
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setBehavior(mockBehavior);
+        col.addView(view, lp);
+
+        boolean handled = col.requestChildRectangleOnScreen(
+                view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+
+        assertTrue(handled);
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(col, view, rect, true);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenWithSourceCallsThreeArgOverride() {
+        final AtomicBoolean threeArgCalled = new AtomicBoolean(false);
+        final CoordinatorLayout col = new CoordinatorLayout(mActivityTestRule.getActivity()) {
+            @Override
+            public boolean requestChildRectangleOnScreen(
+                    View child, Rect rectangle, boolean immediate) {
+                threeArgCalled.set(true);
+                return super.requestChildRectangleOnScreen(child, rectangle, immediate);
+            }
+        };
+        final View view = new View(col.getContext());
+        final CoordinatorLayout.Behavior<View> mockBehavior =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setBehavior(mockBehavior);
+        col.addView(view, lp);
+
+        final Rect rect = new Rect(0, 0, 10, 10);
+        when(mockBehavior.onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS))
+                .thenReturn(true);
+
+        boolean handled = col.requestChildRectangleOnScreen(
+                view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        assertTrue(handled);
+        assertTrue(threeArgCalled.get());
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenNestedRequestDoesNotLeakSource() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view1 = new View(col.getContext());
+        final View view2 = new View(col.getContext());
+        final Rect rect1 = new Rect(0, 0, 10, 10);
+        final Rect rect2 = new Rect(0, 0, 20, 20);
+
+        final CoordinatorLayout.Behavior<View> mockBehavior2 =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.Behavior<View> behavior1 = new CoordinatorLayout.Behavior<View>() {
+            @Override
+            public boolean onRequestChildRectangleOnScreen(
+                    @NonNull CoordinatorLayout coordinatorLayout,
+                    @NonNull View child,
+                    @NonNull Rect rectangle,
+                    boolean immediate,
+                    int source) {
+                // Trigger a nested 3-arg request on view2; it should not inherit view1's source.
+                coordinatorLayout.requestChildRectangleOnScreen(view2, rect2, immediate);
+                return true;
+            }
+        };
+
+        final CoordinatorLayout.LayoutParams lp1 = col.generateDefaultLayoutParams();
+        lp1.setBehavior(behavior1);
+        col.addView(view1, lp1);
+
+        final CoordinatorLayout.LayoutParams lp2 = col.generateDefaultLayoutParams();
+        lp2.setBehavior(mockBehavior2);
+        col.addView(view2, lp2);
+
+        col.requestChildRectangleOnScreen(
+                view1, rect1, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        verify(mockBehavior2, times(1)).onRequestChildRectangleOnScreen(
+                col, view2, rect2, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenWithNullBehaviorDelegatesToSuper() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        col.addView(view);
+
+        final Rect rect = new Rect(0, 0, 10, 10);
+        assertFalse(col.requestChildRectangleOnScreen(
+                view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS));
+        assertFalse(col.requestChildRectangleOnScreen(view, rect, false));
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenWhenBehaviorReturnsFalseDelegatesToSuper() {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        final CoordinatorLayout.Behavior<View> mockBehavior =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.LayoutParams lp = col.generateDefaultLayoutParams();
+        lp.setBehavior(mockBehavior);
+        col.addView(view, lp);
+
+        final Rect rect = new Rect(0, 0, 10, 10);
+        when(mockBehavior.onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS))
+                .thenReturn(false);
+
+        boolean handled = col.requestChildRectangleOnScreen(
+                view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        assertFalse(handled);
+        verify(mockBehavior, times(1)).onRequestChildRectangleOnScreen(
+                col, view, rect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenRestoresSourceWhenExceptionThrown() {
+        final AtomicBoolean throwBeforeSuper = new AtomicBoolean(false);
+        final CoordinatorLayout col = new CoordinatorLayout(mActivityTestRule.getActivity()) {
+            @Override
+            public boolean requestChildRectangleOnScreen(
+                    View child, Rect rectangle, boolean immediate) {
+                if (throwBeforeSuper.get()) {
+                    throw new IllegalStateException("Simulated failure before super");
+                }
+                return super.requestChildRectangleOnScreen(child, rectangle, immediate);
+            }
+        };
+        final View view1 = new View(col.getContext());
+        final View view2 = new View(col.getContext());
+        final Rect rect1 = new Rect(0, 0, 10, 10);
+        final Rect rect2 = new Rect(0, 0, 20, 20);
+
+        final CoordinatorLayout.Behavior<View> behavior1 = new CoordinatorLayout.Behavior<View>() {
+            @Override
+            public boolean onRequestChildRectangleOnScreen(
+                    @NonNull CoordinatorLayout coordinatorLayout,
+                    @NonNull View child,
+                    @NonNull Rect rectangle,
+                    boolean immediate,
+                    int source) {
+                throw new IllegalStateException("Simulated failure in Behavior");
+            }
+        };
+        final CoordinatorLayout.Behavior<View> mockBehavior2 =
+                mock(CoordinatorLayout.Behavior.class);
+
+        final CoordinatorLayout.LayoutParams lp1 = col.generateDefaultLayoutParams();
+        lp1.setBehavior(behavior1);
+        col.addView(view1, lp1);
+
+        final CoordinatorLayout.LayoutParams lp2 = col.generateDefaultLayoutParams();
+        lp2.setBehavior(mockBehavior2);
+        col.addView(view2, lp2);
+
+        // Case 1: Behavior throws an exception during a 4-arg call.
+        try {
+            col.requestChildRectangleOnScreen(
+                    view1, rect1, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+            fail("Expected IllegalStateException");
+        } catch (IllegalStateException expected) {
+            // Expected.
+        }
+
+        // Subsequent 3-arg call should see UNDEFINED source.
+        col.requestChildRectangleOnScreen(view2, rect2, true);
+        verify(mockBehavior2, times(1)).onRequestChildRectangleOnScreen(
+                col, view2, rect2, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED);
+
+        // Case 2: Subclass 3-arg override throws before calling super (so only the finally block
+        // in the 4-arg method restores mRequestRectangleSource).
+        reset(mockBehavior2);
+        throwBeforeSuper.set(true);
+        try {
+            col.requestChildRectangleOnScreen(
+                    view1, rect1, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+            fail("Expected IllegalStateException");
+        } catch (IllegalStateException expected) {
+            // Expected.
+        }
+        throwBeforeSuper.set(false);
+
+        col.requestChildRectangleOnScreen(view2, rect2, true);
+        verify(mockBehavior2, times(1)).onRequestChildRectangleOnScreen(
+                col, view2, rect2, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testRequestChildRectangleOnScreenNestedFourArgRequestRestoresPreviousSource() {
+        final View[] nestedTarget = new View[1];
+        final Rect nestedRect = new Rect(0, 0, 20, 20);
+        final CoordinatorLayout col = new CoordinatorLayout(mActivityTestRule.getActivity()) {
+            @Override
+            public boolean requestChildRectangleOnScreen(
+                    View child, Rect rectangle, boolean immediate) {
+                View target = nestedTarget[0];
+                if (target != null) {
+                    nestedTarget[0] = null;
+                    // Trigger a nested 4-arg call before super.requestChildRectangleOnScreen
+                    // reads mRequestRectangleSource for the outer call.
+                    requestChildRectangleOnScreen(
+                            target,
+                            nestedRect,
+                            immediate,
+                            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+                }
+                return super.requestChildRectangleOnScreen(child, rectangle, immediate);
+            }
+        };
+
+        final View view1 = new View(col.getContext());
+        final View view2 = new View(col.getContext());
+        final View view3 = new View(col.getContext());
+        final Rect rect1 = new Rect(0, 0, 10, 10);
+        final Rect rect3 = new Rect(0, 0, 30, 30);
+
+        final CoordinatorLayout.Behavior<View> mockBehavior2 =
+                mock(CoordinatorLayout.Behavior.class);
+        final CoordinatorLayout.Behavior<View> mockBehavior3 =
+                mock(CoordinatorLayout.Behavior.class);
+        final AtomicInteger view1Source = new AtomicInteger(-1);
+
+        final CoordinatorLayout.Behavior<View> behavior1 = new CoordinatorLayout.Behavior<View>() {
+            @Override
+            public boolean onRequestChildRectangleOnScreen(
+                    @NonNull CoordinatorLayout coordinatorLayout,
+                    @NonNull View child,
+                    @NonNull Rect rectangle,
+                    boolean immediate,
+                    int source) {
+                view1Source.set(source);
+                // Trigger a nested 4-arg request on view2, followed by a 3-arg request on view3.
+                coordinatorLayout.requestChildRectangleOnScreen(
+                        view2,
+                        nestedRect,
+                        immediate,
+                        View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+                coordinatorLayout.requestChildRectangleOnScreen(view3, rect3, immediate);
+                return true;
+            }
+        };
+
+        final CoordinatorLayout.LayoutParams lp1 = col.generateDefaultLayoutParams();
+        lp1.setBehavior(behavior1);
+        col.addView(view1, lp1);
+
+        final CoordinatorLayout.LayoutParams lp2 = col.generateDefaultLayoutParams();
+        lp2.setBehavior(mockBehavior2);
+        col.addView(view2, lp2);
+
+        final CoordinatorLayout.LayoutParams lp3 = col.generateDefaultLayoutParams();
+        lp3.setBehavior(mockBehavior3);
+        col.addView(view3, lp3);
+
+        // Case 1: Nested 4-arg call inside Behavior#onRequestChildRectangleOnScreen.
+        col.requestChildRectangleOnScreen(
+                view1, rect1, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        assertEquals(View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS, view1Source.get());
+        verify(mockBehavior2, times(1)).onRequestChildRectangleOnScreen(
+                col, view2, nestedRect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+        verify(mockBehavior3, times(1)).onRequestChildRectangleOnScreen(
+                col, view3, rect3, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED);
+
+        // Case 2: Nested 4-arg call in a subclass's 3-arg override before calling super.
+        // The nested 4-arg call's finally block must restore the outer call's source.
+        reset(mockBehavior2, mockBehavior3);
+        view1Source.set(-1);
+        nestedTarget[0] = view2;
+
+        col.requestChildRectangleOnScreen(
+                view1, rect1, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS);
+
+        assertEquals(View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS, view1Source.get());
+        verify(mockBehavior2, times(2)).onRequestChildRectangleOnScreen(
+                col, view2, nestedRect, true, View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR);
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @Test
+    public void testRequestFocusPassesInputFocusSourceToBehavior() throws Throwable {
+        assumeTrue(Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1);
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        view.setFocusable(true);
+        view.setFocusableInTouchMode(true);
+        final AtomicInteger recordedSource = new AtomicInteger(-1);
+        final CoordinatorLayout.Behavior<View> behavior = new CoordinatorLayout.Behavior<View>() {
+            @Override
+            public boolean onRequestChildRectangleOnScreen(
+                    @NonNull CoordinatorLayout coordinatorLayout,
+                    @NonNull View child,
+                    @NonNull Rect rectangle,
+                    boolean immediate,
+                    int source) {
+                recordedSource.set(source);
+                return true;
+            }
+        };
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final CoordinatorLayout.LayoutParams lp =
+                        new CoordinatorLayout.LayoutParams(100, 100);
+                lp.setBehavior(behavior);
+                col.addView(view, lp);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(view.requestFocus());
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        assertEquals(
+                View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS,
+                recordedSource.get());
+    }
+
+    @Test
+    public void testViewRequestRectangleOnScreenWithoutSourcePassesUndefinedSourceToBehavior()
+            throws Throwable {
+        final CoordinatorLayout col = mActivityTestRule.getActivity().mCoordinatorLayout;
+        final View view = new View(col.getContext());
+        final AtomicInteger recordedSource = new AtomicInteger(-1);
+        final CoordinatorLayout.Behavior<View> behavior = new CoordinatorLayout.Behavior<View>() {
+            @Override
+            public boolean onRequestChildRectangleOnScreen(
+                    @NonNull CoordinatorLayout coordinatorLayout,
+                    @NonNull View child,
+                    @NonNull Rect rectangle,
+                    boolean immediate,
+                    int source) {
+                recordedSource.set(source);
+                return true;
+            }
+        };
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final CoordinatorLayout.LayoutParams lp =
+                        new CoordinatorLayout.LayoutParams(100, 100);
+                lp.setBehavior(behavior);
+                col.addView(view, lp);
+            }
+        });
+        mInstrumentation.waitForIdleSync();
+
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertTrue(view.requestRectangleOnScreen(new Rect(0, 0, 10, 10)));
+            }
+        });
+
+        assertEquals(
+                View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED,
+                recordedSource.get());
     }
 }
