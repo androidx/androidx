@@ -115,6 +115,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     private final @NonNull Map<UseCase, UseCaseConfig<?>> mChildrenPipelineConfigsMap =
             new HashMap<>();
     private boolean mPendingUpdateConfigAndOutput = false;
+    // Whether the pipeline is recreated when a Preview child's target rotation changes. See
+    // updateChildrenPipelineConfigs().
+    private boolean mIsPreviewRotationChangeRecreatingPipeline = false;
     private final @NonNull ResolutionsMerger mResolutionsMerger;
     private @Nullable ResolutionsMerger mSecondaryResolutionsMerger;
     private final StreamSharing.@NonNull Control mStreamSharingControl;
@@ -550,6 +553,11 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         return cameraInternal.getCameraInfo().getSensorRotationDegrees(childTargetRotation);
     }
 
+    @ImageOutputConfig.RotationValue
+    private static int getTargetRotation(@NonNull UseCaseConfig<?> config) {
+        return ((ImageOutputConfig) config).getTargetRotation(Surface.ROTATION_0);
+    }
+
     @NonNull
     private static StreamSpec getChildStreamSpec(@NonNull UseCase useCase,
             @NonNull StreamSpec baseStreamSpec, @NonNull Map<UseCase, Size> selectedChildSizes) {
@@ -730,9 +738,18 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         return resolvedTargetFrameRate;
     }
 
+    /**
+     * Records the children's configs the pipeline is created with.
+     *
+     * @param isPreviewRotationChangeRecreatingPipeline whether a later target rotation change of a
+     *                                                  {@link Preview} child recreates the
+     *                                                  pipeline. See
+     *                                                  {@link #shouldUpdateConfigAndOutput}.
+     */
     @MainThread
-    void updateChildrenPipelineConfigs() {
+    void updateChildrenPipelineConfigs(boolean isPreviewRotationChangeRecreatingPipeline) {
         checkMainThread();
+        mIsPreviewRotationChangeRecreatingPipeline = isPreviewRotationChangeRecreatingPipeline;
         mChildrenPipelineConfigsMap.clear();
         for (UseCase useCase : mChildren) {
             mChildrenPipelineConfigsMap.put(useCase, useCase.getCurrentConfig());
@@ -742,6 +759,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     @MainThread
     void clearChildrenPipelineConfigs() {
         checkMainThread();
+        mIsPreviewRotationChangeRecreatingPipeline = false;
         mChildrenPipelineConfigsMap.clear();
     }
 
@@ -767,7 +785,18 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             return true;
         }
         UseCaseConfig<?> currentConfig = useCase.getCurrentConfig();
-        return getMirrorMode(pipelineConfig) != getMirrorMode(currentConfig);
+        if (getMirrorMode(pipelineConfig) != getMirrorMode(currentConfig)) {
+            return true;
+        }
+        // The sharing node applies a Preview child's target rotation when it creates the output.
+        // With an effect, recreate the pipeline when it changes, so the output matches a fresh
+        // bind. See Preview#setTargetRotation(int). Without an effect, keep the pipeline and let
+        // the Preview send the remaining rotation to its consumer, as before. Recreating the
+        // pipeline also applies the latest target rotation of a recording VideoCapture child,
+        // which stops the recording if its resolution changes.
+        return mIsPreviewRotationChangeRecreatingPipeline
+                && useCase instanceof Preview
+                && getTargetRotation(pipelineConfig) != getTargetRotation(currentConfig);
     }
 
     @MirrorMode.Mirror
