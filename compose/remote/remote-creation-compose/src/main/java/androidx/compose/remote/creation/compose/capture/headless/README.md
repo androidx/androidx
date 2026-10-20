@@ -15,7 +15,8 @@ this.
 | `RecomposerQuiescence.kt` | `awaitRecomposerQuiescence`: drives the recomposer and frame clock until the composition has settled, bounded by frames and iterations. Also hosts the workaround for `Recomposer.currentState` staying `PendingWork` after frame-end callbacks. |
 | `CaptureWriteTracker.kt` | Tracks a session's own global writes until an apply notification delivers them, covering writes claimed by another thread's `MutableSnapshot.apply()`. |
 | `RenderInvalidationTracker.kt` | Decides when a post-composition render phase must run again, using `SnapshotStateObserver` for the states it read; `withRenderSnapshot` isolates the render's writes. |
-| `HeadlessSession.kt` | Wires dispatcher, recomposer, write tracker and frame clock together; `start()`, `awaitQuiescence()`, `close()`. |
+| `HeadlessSession.kt` | Wires dispatcher, recomposer, write tracker and frame clock together; `start()`, `awaitRunning()`, `awaitQuiescence()`, `invalidations`, `close()`. |
+| `RenderLoop.kt` | `renderLoop`: settle, render through `renderIfChanged` (skips unchanged output, observes render reads), wait for the next apply notification; the streaming driver shared by hosts. |
 | `HeadlessLifecycleOwner.kt` | Thread-agnostic `LifecycleOwner` + `SavedStateRegistryOwner` for compositions that run off the main thread. |
 
 The pieces that stay RemoteCompose-specific live in the parent `capture` package: the public

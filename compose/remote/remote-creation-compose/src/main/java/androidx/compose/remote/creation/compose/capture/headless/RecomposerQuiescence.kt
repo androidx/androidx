@@ -24,7 +24,9 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
@@ -153,6 +155,13 @@ internal enum class QuiescenceResult {
  * @param frameClock sends and counts every frame for the capture, see [HeadlessFrameClock].
  * @param maxIterations bound on the number of non-quiescent iterations before giving up.
  * @param writeTracker tracks this capture's undelivered global writes, see [CaptureWriteTracker].
+ * @param pacedFrames how frames requested while settling are delivered. `false` (the default) sends
+ *   them from this call as soon as they are requested, which settles as fast as possible. `true`
+ *   leaves them to [frameClock]'s pump, so they are paced by [HeadlessFrameClock.minFramePeriod]:
+ *   settling then takes as long as the content's frames take at that rate, which is what a
+ *   long-lived host that limits its frame rate wants. Requires the pump to be running
+ *   ([HeadlessFrameClock.runClock]). Frames count towards [maxFrames] either way.
+ * @param maxFrames the frame budget for this call, see [MAX_FRAMES].
  */
 internal suspend fun awaitRecomposerQuiescence(
     recomposer: Recomposer,
@@ -160,6 +169,8 @@ internal suspend fun awaitRecomposerQuiescence(
     recomposerDispatcher: CoroutineContext,
     writeTracker: CaptureWriteTracker,
     maxIterations: Int = MAX_IDLE_ITERATIONS,
+    pacedFrames: Boolean = false,
+    maxFrames: Int = MAX_FRAMES,
 ): QuiescenceResult =
     withContext(recomposerDispatcher) {
         // Yield so continuations queued on recomposerDispatcher (effects started by the last
@@ -175,17 +186,22 @@ internal suspend fun awaitRecomposerQuiescence(
                 interceptor.isDispatchNeeded(EmptyCoroutineContext)
         // The frame budget covers the whole call, not each iteration, otherwise content that
         // animates forever would get MAX_FRAMES frames for every one of maxIterations iterations.
-        frameClock.withFrameBudget(MAX_FRAMES) {
+        frameClock.withFrameBudget(maxFrames) {
             var idleIterations = 0
             while (idleIterations < maxIterations) {
                 recomposer.refreshStateIfIdle()
-                recomposer.currentState.first { it == Recomposer.State.Idle }
-                drainRecomposerDispatcher(recomposerDispatcher, shouldYield)
+                awaitIdle(recomposer, frameClock, recomposerDispatcher, shouldYield, pacedFrames)
+                drainRecomposerDispatcher(recomposer, frameClock, recomposerDispatcher, shouldYield)
                 while (frameClock.hasAwaiters) {
-                    frameClock.sendFrame()
+                    if (pacedFrames) frameClock.awaitFrame() else frameClock.sendFrame()
                     // Without yield() nothing else checks for cancellation by the frame budget.
                     ensureActive()
-                    drainRecomposerDispatcher(recomposerDispatcher, shouldYield)
+                    drainRecomposerDispatcher(
+                        recomposer,
+                        frameClock,
+                        recomposerDispatcher,
+                        shouldYield,
+                    )
                 }
                 Snapshot.sendApplyNotifications()
                 if (!awaitApplyObserverNotifications(canYield = shouldYield)) {
@@ -207,6 +223,66 @@ internal suspend fun awaitRecomposerQuiescence(
     }
 
 /**
+ * Waits until [recomposer] is [Recomposer.State.Idle], delivering the frames it asks for on the way
+ * there: sent immediately, or awaited from the pump when [pacedFrames]. Between frames the
+ * recomposer dispatcher is drained (see [drainRecomposerDispatcher]) so that work queued behind the
+ * caller can request the next frame or bring the recomposer to idle. Once there is nothing to
+ * deliver and a drain made no difference, [Recomposer.currentState] is waited on instead of polled:
+ * right away on a dispatcher that cannot be yielded, whose queue one drain empties, and after
+ * [APPLY_NOTIFICATION_MAX_POLLS] yields otherwise.
+ *
+ * Without this, a recomposer that is `PendingWork` because it awaits a frame itself, to recompose
+ * after a state write (e.g. from a frame callback), would be waiting for the pump even when the
+ * caller asked for immediate frames, and a paced pump would then dictate how long settling takes.
+ */
+private suspend fun awaitIdle(
+    recomposer: Recomposer,
+    frameClock: HeadlessFrameClock,
+    recomposerDispatcher: CoroutineContext,
+    canYield: Boolean,
+    pacedFrames: Boolean,
+) {
+    var polls = 0
+    var drained = false
+    while (recomposer.currentState.value != Recomposer.State.Idle) {
+        recomposer.throwIfShutDown()
+        if (frameClock.hasAwaiters) {
+            if (pacedFrames) frameClock.awaitFrame() else frameClock.sendFrame()
+            currentCoroutineContext().ensureActive()
+            drained = false
+        } else if ((!canYield && drained) || ++polls > APPLY_NOTIFICATION_MAX_POLLS) {
+            // Nothing to deliver and nothing left to drain (or yielding is not making progress):
+            // wait for the state to change instead.
+            awaitRecomposerIdle(recomposer)
+            return
+        }
+        drainRecomposerDispatcher(recomposer, frameClock, recomposerDispatcher, canYield)
+        drained = true
+        recomposer.refreshStateIfIdle()
+    }
+}
+
+/**
+ * Suspends until [recomposer] is [Recomposer.State.Idle].
+ *
+ * @throws CancellationException if the recomposer shuts down first (its session was closed), as it
+ *   will never be idle again.
+ */
+private suspend fun awaitRecomposerIdle(recomposer: Recomposer) {
+    recomposer.currentState.first {
+        it == Recomposer.State.Idle || it <= Recomposer.State.ShuttingDown
+    }
+    recomposer.throwIfShutDown()
+}
+
+/** See [awaitRecomposerIdle]. */
+private fun Recomposer.throwIfShutDown() {
+    if (currentState.value <= Recomposer.State.ShuttingDown) {
+        throw CancellationException("Recomposer shut down while awaiting quiescence")
+    }
+}
+
+/**
  * Yields until no task is queued behind the caller on [recomposerDispatcher], so that continuations
  * dispatched by the last composition or frame (an effect starting, or resuming from
  * `withFrameNanos`) have run before quiescence is sampled. An effect that `yield()`s before it
@@ -220,13 +296,19 @@ internal suspend fun awaitRecomposerQuiescence(
  * their callbacks only becomes [Recomposer.hasPendingWork] once notifications are sent.
  *
  * @param canYield whether the current dispatcher may be released with [yield], see
- *   [awaitRecomposerQuiescence]. When `false`, this does nothing.
+ *   [awaitRecomposerQuiescence]. When `false`, only the thread's unconfined event loop is drained,
+ *   see [drainUnconfinedEventLoop].
  */
 private suspend fun drainRecomposerDispatcher(
+    recomposer: Recomposer,
+    frameClock: HeadlessFrameClock,
     recomposerDispatcher: CoroutineContext,
     canYield: Boolean,
 ) {
-    if (!canYield) return
+    if (!canYield) {
+        drainUnconfinedEventLoop(recomposer, frameClock)
+        return
+    }
     val dispatcher = recomposerDispatcher[ContinuationInterceptor] as? CountingSerialDispatcher
     var polls = 0
     do {
@@ -234,6 +316,39 @@ private suspend fun drainRecomposerDispatcher(
     } while (
         dispatcher != null && dispatcher.queuedTasks > 0 && ++polls < APPLY_NOTIFICATION_MAX_POLLS
     )
+}
+
+/**
+ * Lets continuations queued on this thread's unconfined event loop run. A dispatcher that does not
+ * need dispatch on the current thread ([Dispatchers.Unconfined], `Dispatchers.Main.immediate` on
+ * the main thread) resumes continuations through that loop: nested resumptions (an effect launched
+ * while composing, the recomposer woken by a frame request, the pump woken by the recomposer) are
+ * queued until the running task suspends. `yield()` on the host dispatcher cannot be used for this,
+ * as an immediate main dispatcher would post to the main looper, which deadlocks when the main
+ * thread is blocked in `runBlocking`/`runTest`; `yield()` on [Dispatchers.Unconfined] instead
+ * processes the loop in place.
+ *
+ * One pass runs the tasks queued so far; the tasks they queue in turn need another pass. The queue
+ * length is not observable, so passes repeat while they visibly move the recomposer or the frame
+ * clock, bounded by [APPLY_NOTIFICATION_MAX_POLLS].
+ */
+private suspend fun drainUnconfinedEventLoop(
+    recomposer: Recomposer,
+    frameClock: HeadlessFrameClock,
+) {
+    var polls = 0
+    do {
+        val state = recomposer.currentState.value
+        val pending = recomposer.hasPendingWork
+        val awaiters = frameClock.hasAwaiters
+        val frames = frameClock.framesSent
+        withContext(Dispatchers.Unconfined) { yield() }
+        val changed =
+            state != recomposer.currentState.value ||
+                pending != recomposer.hasPendingWork ||
+                awaiters != frameClock.hasAwaiters ||
+                frames != frameClock.framesSent
+    } while (changed && ++polls < APPLY_NOTIFICATION_MAX_POLLS)
 }
 
 /**

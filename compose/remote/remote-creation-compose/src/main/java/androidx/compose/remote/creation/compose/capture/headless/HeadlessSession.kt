@@ -17,9 +17,15 @@
 package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.snapshots.ObserverHandle
+import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -67,6 +73,32 @@ internal class HeadlessSession(
             recomposer.refreshStateIfIdle(recomposerDispatcher)
         }
 
+    private val invalidationChannel = Channel<Unit>(Channel.CONFLATED)
+    private var applyObserver: ObserverHandle? = null
+
+    /**
+     * Receives an element whenever snapshot state was applied since the previous receive, from
+     * [start] until [close]. Conflated: a burst of applies is one element, but an apply can never
+     * be missed, unlike a `Recomposer.currentState` transition. Drives [renderLoop].
+     *
+     * The observer behind it is registered after the recomposer's own, so that by the time a
+     * receiver wakes the recomposer has recorded the same change, and before any content can run an
+     * effect, so that no write is claimed by the registration itself.
+     */
+    val invalidations: ReceiveChannel<Unit>
+        get() = invalidationChannel
+
+    /**
+     * Called on the applying thread for every apply notification, before [invalidations] is
+     * signalled. At most one listener; see [renderLoop].
+     */
+    @Volatile var onApplied: (() -> Unit)? = null
+
+    /** Signals [invalidations] without a snapshot apply, e.g. for a change observed elsewhere. */
+    fun invalidate() {
+        invalidationChannel.trySend(Unit)
+    }
+
     /**
      * Launches the frame clock's pump and `recomposer.runRecomposeAndApplyChanges()` in [scope].
      * The pump is started first so that it is parked by the time the first frame is requested, and
@@ -85,17 +117,56 @@ internal class HeadlessSession(
             // Queued before the runner's first slice can request a frame, so it runs after the
             // Recomposer registers its apply observer but before any effect resumes from
             // withFrameNanos.
-            launch { writeTracker.start() }
+            launch {
+                val observer = Snapshot.registerApplyObserver { _, _ ->
+                    onApplied?.invoke()
+                    invalidationChannel.trySend(Unit)
+                }
+                val closed =
+                    synchronized(lock) {
+                        (state == State.Closed).also { if (!it) applyObserver = observer }
+                    }
+                if (closed) observer.dispose()
+                writeTracker.start()
+            }
             recomposer.runRecomposeAndApplyChanges()
         }
     }
 
     /**
-     * Drives the recomposer until it settles, see [awaitRecomposerQuiescence].
+     * Suspends until the recomposer launched by [start] is running, i.e. [Recomposer.currentState]
+     * is at least [Recomposer.State.Idle]. Set content after this: a `Recomposer` invalidates every
+     * composition it knows about when it starts, so content set earlier is composed twice. Needed
+     * because [start] only launches the recomposer; whether it has run by the time the caller
+     * continues depends on the dispatcher (on a non-immediate main dispatcher, for example, a
+     * `withContext(recomposerDispatcher)` from the main thread does not dispatch).
      *
      * @throws IllegalStateException if the session is not started, or already closed.
      */
-    suspend fun awaitQuiescence(maxIterations: Int = MAX_IDLE_ITERATIONS): QuiescenceResult {
+    suspend fun awaitRunning() {
+        synchronized(lock) {
+            check(state == State.Started) { "Cannot await a running recomposer: session is $state" }
+        }
+        recomposer.currentState.first { it >= Recomposer.State.Idle }
+    }
+
+    /**
+     * Drives the recomposer until it settles, see [awaitRecomposerQuiescence].
+     *
+     * @param maxIterations how many non-quiescent iterations settling may take before giving up
+     *   with [QuiescenceResult.Unstable].
+     * @param pacedFrames whether frames requested while settling are left to the frame clock's
+     *   pump, paced by [HeadlessFrameClock.minFramePeriod], instead of being sent immediately.
+     * @param maxFrames how many frames content may request before settling gives up with
+     *   [QuiescenceResult.ContinuousFrames].
+     * @throws IllegalStateException if the session is not started, or already closed.
+     * @throws CancellationException if the session is closed while settling.
+     */
+    suspend fun awaitQuiescence(
+        maxIterations: Int = MAX_IDLE_ITERATIONS,
+        pacedFrames: Boolean = false,
+        maxFrames: Int = MAX_FRAMES,
+    ): QuiescenceResult {
         synchronized(lock) {
             check(state == State.Started) { "Cannot await quiescence: session is $state" }
         }
@@ -105,18 +176,29 @@ internal class HeadlessSession(
             recomposerDispatcher = recomposerDispatcher,
             writeTracker = writeTracker,
             maxIterations = maxIterations,
+            pacedFrames = pacedFrames,
+            maxFrames = maxFrames,
         )
     }
+
+    /** Whether [close] has been called. */
+    val isClosed: Boolean
+        get() = synchronized(lock) { state == State.Closed }
 
     /**
      * Stops the write tracker, the frame clock and the recomposer. Idempotent; a session closed
      * before it was started can no longer be started.
      */
     override fun close() {
+        val observer: ObserverHandle?
         synchronized(lock) {
             if (state == State.Closed) return
             state = State.Closed
+            observer = applyObserver
+            applyObserver = null
         }
+        observer?.dispose()
+        invalidationChannel.close()
         writeTracker.stop()
         frameClock.cancel()
         recomposer.cancel()
