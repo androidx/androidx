@@ -439,7 +439,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 .join()
         }
 
-        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        // Uses the application context to obtain the CameraManager. CameraExtensionCharacteristics
+        // and camera extension sessions bind to and unbind from the extensions service with the
+        // context of the CameraManager. On some Android versions, the framework throws "Service not
+        // registered" if the service is unbound with a different context than the one it was bound
+        // with. Using the application context ensures that the same context is used across
+        // activity instances and the tests (b/570911697).
+        cameraManager = applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         backCameraId = getLensFacingCameraId(cameraManager, CameraCharacteristics.LENS_FACING_BACK)
         frontCameraId =
             getLensFacingCameraId(cameraManager, CameraCharacteristics.LENS_FACING_FRONT)

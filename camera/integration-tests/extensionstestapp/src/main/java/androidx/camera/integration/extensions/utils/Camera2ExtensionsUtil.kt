@@ -27,7 +27,6 @@ import android.os.Build
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.integration.extensions.EXTENSION_MODE_NONE
 import java.util.stream.Collectors
@@ -36,18 +35,6 @@ private const val TAG = "Camera2ExtensionsUtil"
 
 /** Util functions for Camera2 Extensions implementation */
 object Camera2ExtensionsUtil {
-
-    private val lock = Any()
-
-    /**
-     * Caches the supported extension modes per camera id.
-     *
-     * Every call to [CameraExtensionCharacteristics.getSupportedExtensions] binds to and unbinds
-     * from the extensions service. Querying it right after a previous extension session is closed
-     * may race with the asynchronous service unbinding and throw "Service not registered" on some
-     * devices (b/570911697), so the result is queried only once per camera id.
-     */
-    @GuardedBy("lock") private val cachedSupportedExtensions = mutableMapOf<String, List<Int>>()
 
     /** Camera2 extension modes */
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
@@ -114,18 +101,13 @@ object Camera2ExtensionsUtil {
 
     /**
      * Returns the supported Camera2 extension modes of the camera, excluding the modes that are
-     * known to be broken on the device. The result is cached per camera id.
+     * known to be broken on the device.
      */
     @RequiresApi(31)
     @JvmStatic
     fun getSupportedExtensions(cameraManager: CameraManager, cameraId: String): List<Int> =
-        synchronized(lock) {
-            cachedSupportedExtensions.getOrPut(cameraId) {
-                cameraManager
-                    .getCameraExtensionCharacteristics(cameraId)
-                    .supportedExtensions
-                    .filterNot { isExtensionDisabledByQuirk(cameraId, it) }
-            }
+        cameraManager.getCameraExtensionCharacteristics(cameraId).supportedExtensions.filterNot {
+            isExtensionDisabledByQuirk(cameraId, it)
         }
 
     /** Returns true if the device is a Samsung Galaxy A52s (SM-A528B). */
@@ -159,7 +141,10 @@ object Camera2ExtensionsUtil {
         cameraId: String,
         extensionMode: Int,
     ): Boolean {
-        val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        // Always uses the application context so that the extensions service is bound and unbound
+        // with the same context, no matter which context is passed in (b/570911697).
+        val cameraManager =
+            context.applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         return getSupportedExtensions(cameraManager, cameraId).contains(extensionMode)
     }
 
