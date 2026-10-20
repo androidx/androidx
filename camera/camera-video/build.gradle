@@ -36,8 +36,8 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.arch.core:core-common:2.2.0")
-    implementation("androidx.media3:media3-container:1.9.0")
-    implementation("androidx.media3:media3-muxer:1.9.0")
+    implementation("androidx.media3:media3-container:1.10.1")
+    implementation("androidx.media3:media3-muxer:1.10.1")
 
     annotationProcessor(libs.autoValue)
 
