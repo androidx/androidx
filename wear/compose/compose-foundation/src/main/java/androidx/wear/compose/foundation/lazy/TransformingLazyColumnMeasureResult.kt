@@ -122,8 +122,10 @@ private fun FloatList.isDistinct(): Boolean =
 private fun FloatList.isMonotonicallyIncreasing(): Boolean =
     (1 until size).all { this[it] >= this[it - 1] }
 
-// Confirms that the values array consists of two monotonic functions.
+// Confirms that the values are monotonically non-decreasing followed by monotonically
+// non-increasing.
 private fun FloatList.hasMonotonicIncreaseAndDecrease(): Boolean {
     val firstDownIndex = (1 until size).firstOrNull { this[it] < this[it - 1] }
-    return firstDownIndex == null || (firstDownIndex + 1 until size).all { this[it] < this[it - 1] }
+    return firstDownIndex == null ||
+        (firstDownIndex + 1 until size).all { this[it] <= this[it - 1] }
 }
