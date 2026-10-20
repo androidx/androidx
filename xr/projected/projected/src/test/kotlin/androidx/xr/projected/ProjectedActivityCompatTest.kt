@@ -313,9 +313,10 @@ class ProjectedActivityCompatTest {
                     packageName = context.packageName
                 }
             )
-        val activityScenario: ActivityScenario<TestActivity> =
-            ActivityScenario.launch(Intent(context, TestActivity::class.java))
-        activityScenario.onActivity { activity -> block(activity) }
+        ActivityScenario.launch<TestActivity>(Intent(context, TestActivity::class.java)).use {
+            activityScenario ->
+            activityScenario.onActivity { activity -> block(activity) }
+        }
     }
 
     private fun launchTestProjectedPermissionActivity(block: (TestProjectedActivity) -> Unit) {
@@ -326,9 +327,12 @@ class ProjectedActivityCompatTest {
                     packageName = context.packageName
                 }
             )
-        val activityScenario: ActivityScenario<TestProjectedActivity> =
-            ActivityScenario.launch(Intent(context, TestProjectedActivity::class.java))
-        activityScenario.onActivity { activity -> block(activity) }
+        ActivityScenario.launch<TestProjectedActivity>(
+                Intent(context, TestProjectedActivity::class.java)
+            )
+            .use { activityScenario ->
+                activityScenario.onActivity { activity -> block(activity) }
+            }
     }
 
     companion object {
