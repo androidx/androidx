@@ -28,14 +28,13 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /**
- * A remote-compatible drawing scope for RemoteCompose. Unlike [DrawScope], this class uses remote
- * types consistently and does not attempt to implement the standard [DrawScope] interface to avoid
- * API incompatibilities.
+ * A remote-compatible drawing scope for RemoteCompose. Unlike
+ * [androidx.compose.ui.graphics.drawscope.DrawScope], this class uses remote types consistently and
+ * does not attempt to implement the standard [androidx.compose.ui.graphics.drawscope.DrawScope]
+ * interface to avoid API incompatibilities.
  */
 public open class RemoteDrawScope
 internal constructor(
@@ -436,20 +435,15 @@ internal constructor(
         top: RemoteFloat,
         right: RemoteFloat,
         bottom: RemoteFloat,
-        clipOp: ClipOp = ClipOp.Intersect,
         block: RemoteDrawScope.() -> Unit,
     ) {
-        withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
+        withTransform({ clipRect(left, top, right, bottom) }, block)
     }
 
     /** Clips the drawing area to the specified [path] and executes [block] within it. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun clipPath(
-        path: RemotePath,
-        clipOp: ClipOp = ClipOp.Intersect,
-        block: RemoteDrawScope.() -> Unit,
-    ) {
-        withTransform({ clipPath(path, clipOp) }, block)
+    public fun clipPath(path: RemotePath, block: RemoteDrawScope.() -> Unit) {
+        withTransform({ clipPath(path) }, block)
     }
 
     /** Executes [body] if [condition] evaluates to true. */
