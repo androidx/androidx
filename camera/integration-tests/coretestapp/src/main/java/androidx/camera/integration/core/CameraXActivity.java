@@ -1604,7 +1604,14 @@ public class CameraXActivity extends AppCompatActivity {
         mViewFinder.addOnLayoutChangeListener(
                 (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom)
                         -> {
-                    tryBindUseCases();
+                    // OnLayoutChangeListener also fires for layout passes that preserve the
+                    // viewfinder size (e.g. FPS/recording stats TextView updates); rebinding
+                    // there would stop an in-progress recording with ERROR_SOURCE_INACTIVE.
+                    boolean isSizeChanged = (right - left) != (oldRight - oldLeft)
+                            || (bottom - top) != (oldBottom - oldTop);
+                    if (isSizeChanged) {
+                        tryBindUseCases();
+                    }
 
                     if (bundle == null) {
                         return;
