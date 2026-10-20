@@ -62,6 +62,7 @@ package androidx.coordinatorlayout.widget {
     method @Deprecated public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);
     method public void onNestedScrollAccepted(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int, int);
     method public boolean onRequestChildRectangleOnScreen(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.graphics.Rect, boolean);
+    method public boolean onRequestChildRectangleOnScreen(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.graphics.Rect, boolean, int);
     method public void onRestoreInstanceState(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.os.Parcelable);
     method public android.os.Parcelable? onSaveInstanceState(androidx.coordinatorlayout.widget.CoordinatorLayout, V);
     method @Deprecated public boolean onStartNestedScroll(androidx.coordinatorlayout.widget.CoordinatorLayout, V, android.view.View, android.view.View, int);

@@ -417,6 +417,17 @@
         </activity>
 
         <activity
+            android:name=".widget.NestedScrollActivityWithCollapsingToolbar"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:label="@string/nested_scroll_collapsing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".widget.NestedScrollActivity3Levels"
             android:exported="true"
             android:label="@string/nested_scroll_3_levels">
