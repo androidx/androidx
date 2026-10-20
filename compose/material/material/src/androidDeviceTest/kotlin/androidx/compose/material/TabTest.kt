@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.toList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.InspectableValue
@@ -728,10 +729,17 @@ class TabTest {
     fun testInspectorValue() {
         val pos = TabPosition(10.0.dp, 200.0.dp)
         rule.setContent {
-            val modifier = Modifier.tabIndicatorOffset(pos) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("tabIndicatorOffset")
-            assertThat(modifier.valueOverride).isEqualTo(pos)
-            assertThat(modifier.inspectableElements.asIterable()).isEmpty()
+            val modifiers = Modifier.tabIndicatorOffset(pos).toList()
+            val fillMaxWidth = modifiers[0] as InspectableValue
+            val wrapContentSize = modifiers[1] as InspectableValue
+            val tabIndicatorOffset = modifiers[2] as InspectableValue
+
+            assertThat(fillMaxWidth.nameFallback).isEqualTo("fillMaxWidth")
+            assertThat(wrapContentSize.nameFallback).isEqualTo("wrapContentSize")
+
+            assertThat(tabIndicatorOffset.nameFallback).isEqualTo("tabIndicatorOffset")
+            assertThat(tabIndicatorOffset.valueOverride).isEqualTo(pos)
+            assertThat(tabIndicatorOffset.inspectableElements.asIterable()).isEmpty()
         }
     }
 
