@@ -62,8 +62,8 @@ internal object Api29Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.R)
-internal object Api30Compat {
+@RequiresApi(Build.VERSION_CODES.S)
+internal object Api31Compat {
     @JvmStatic
     fun getDisplaySize(context: Context, display: Display): Size {
         val windowContext =

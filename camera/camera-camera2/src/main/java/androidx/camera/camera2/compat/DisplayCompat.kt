@@ -28,14 +28,14 @@ public object DisplayCompat {
     /**
      * Gets the real size of the display.
      *
-     * Uses [Api30Compat.getDisplaySize] on API 30+ to avoid using the deprecated
-     * [Display.getRealSize] method.
+     * Uses [Api31Compat.getDisplaySize] on API 31+, where [Display.getRealSize] is deprecated and
+     * may report the max bounds of the app instead of the size of [display].
      */
     @JvmStatic
     @Suppress("DEPRECATION")
     public fun getDisplaySize(context: Context, display: Display): Size {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Api30Compat.getDisplaySize(context, display)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Api31Compat.getDisplaySize(context, display)
         } else {
             val displaySize = Point()
             display.getRealSize(displaySize)
