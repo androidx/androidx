@@ -60,6 +60,8 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.cos
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -321,25 +323,32 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
             testWithSession(withRenderAnimation = true) {
                 val surfaceSession = awaitSurfaceSession()
                 val listenerInvokedCount = AtomicInteger(0)
-                val listener = FrameRenderedListener { _ -> listenerInvokedCount.incrementAndGet() }
+                val firstFrameRendered = CompletableDeferred<Unit>()
+                val listener = FrameRenderedListener { _ ->
+                    listenerInvokedCount.incrementAndGet()
+                    firstFrameRendered.complete(Unit)
+                }
                 val executor = Executor { it.run() }
 
                 surfaceSession.addFrameRenderedListener(executor, listener)
 
-                // Wait for frames to be rendered and the listener to be called
-                withTimeoutOrNull(2.seconds) {
-                    while (listenerInvokedCount.get() == 0) {
-                        kotlinx.coroutines.delay(10)
-                    }
+                // runTest uses virtual time; wait in real time so TextureView can draw.
+                withContext(Dispatchers.Default) {
+                    withTimeoutOrNull(2.seconds) { firstFrameRendered.await() }
                 }
 
                 assertThat(listenerInvokedCount.get()).isGreaterThan(0)
 
-                surfaceSession.removeFrameRenderedListener(listener)
-                val countAfterRemoval = listenerInvokedCount.get()
+                // Remove on the main thread, where onSurfaceTextureUpdated dispatches, so no
+                // in-flight dispatch can race with the removal.
+                val countAfterRemoval =
+                    withContext(AndroidUiDispatcher.Main) {
+                        surfaceSession.removeFrameRenderedListener(listener)
+                        listenerInvokedCount.get()
+                    }
 
-                // Wait a bit to ensure no more invocations happen
-                delay(500) // render loop is running continuously
+                // Wait a bit in real time to ensure no more invocations happen
+                withContext(Dispatchers.Default) { delay(500) }
                 assertThat(listenerInvokedCount.get()).isEqualTo(countAfterRemoval)
             }
         }
