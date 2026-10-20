@@ -22,7 +22,9 @@ import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.RenderViewpoint
+import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
@@ -47,6 +49,7 @@ import java.nio.IntBuffer
  * @property shape The [Shape] which describes the mesh to which the Surface is mapped.
  * @property stereoMode The [StereoMode] which describes how parts of the surface are displayed to
  *   the user's eyes.
+ * @property blendingMode The [BlendingMode] which specifies the blending behavior of the surface.
  * @property dimensions The dimensions of the canvas in the local spatial coordinate system of the
  *   entity.
  * @property edgeFeatheringParams The [EdgeFeatheringParams] which describes the edge fading effects
@@ -370,15 +373,36 @@ private constructor(
             }
     }
 
-    /** Specifies the blending mode of the content. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class MediaBlendingMode private constructor(private val value: Int) {
+    /**
+     * Specifies the blending behavior of a [SurfaceEntity], which determines how it interacts with
+     * other objects in the scene.
+     *
+     * Use [TRANSPARENT] for alpha effects such as
+     * [edge feathering][SurfaceEntity.edgeFeatheringParams]. Use [OPAQUE] when other objects, such
+     * as sprites or UI, must appear correctly in front of or behind the surface.
+     *
+     * [OPAQUE] requires [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or higher. On
+     * earlier versions, it has no effect and the surface renders as [TRANSPARENT]. Check the
+     * device's version with [androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion].
+     */
+    public class BlendingMode private constructor(private val value: Int) {
         public companion object {
-            /** Content is alpha-blended with the background. */
-            @JvmField public val TRANSPARENT: MediaBlendingMode = MediaBlendingMode(1)
+            /**
+             * Blends the surface with the content behind it according to the surface's alpha
+             * channel, which enables effects such as edge feathering. Treats the surface's RGB
+             * values as not premultiplied by alpha. Other objects may appear in front of or behind
+             * the surface regardless of their actual distance.
+             *
+             * New [SurfaceEntity] instances use this mode by default.
+             */
+            @JvmField public val TRANSPARENT: BlendingMode = BlendingMode(1)
 
-            /** Content is opaque and does not blend with the background. */
-            @JvmField public val OPAQUE: MediaBlendingMode = MediaBlendingMode(2)
+            /**
+             * Renders the surface fully opaque and ignores its alpha channel, so alpha effects such
+             * as edge feathering don't apply. Other objects, including transparent ones, appear in
+             * front of or behind the surface based on their actual distance.
+             */
+            @JvmField public val OPAQUE: BlendingMode = BlendingMode(2)
         }
 
         override fun toString(): String =
@@ -636,19 +660,19 @@ private constructor(
             }
         }
 
-        private fun getRtMediaBlendingMode(mediaBlendingMode: MediaBlendingMode): Int {
-            return when (mediaBlendingMode) {
-                MediaBlendingMode.TRANSPARENT -> RtSurfaceEntity.MediaBlendingMode.TRANSPARENT
-                MediaBlendingMode.OPAQUE -> RtSurfaceEntity.MediaBlendingMode.OPAQUE
+        private fun getRtBlendingMode(blendingMode: BlendingMode): Int {
+            return when (blendingMode) {
+                BlendingMode.TRANSPARENT -> RtSurfaceEntity.MediaBlendingMode.TRANSPARENT
+                BlendingMode.OPAQUE -> RtSurfaceEntity.MediaBlendingMode.OPAQUE
                 else -> RtSurfaceEntity.MediaBlendingMode.TRANSPARENT
             }
         }
 
-        private fun getMediaBlendingModeFromRt(mediaBlendingMode: Int): MediaBlendingMode {
-            return when (mediaBlendingMode) {
-                RtSurfaceEntity.MediaBlendingMode.TRANSPARENT -> MediaBlendingMode.TRANSPARENT
-                RtSurfaceEntity.MediaBlendingMode.OPAQUE -> MediaBlendingMode.OPAQUE
-                else -> MediaBlendingMode.TRANSPARENT
+        private fun getBlendingModeFromRt(blendingMode: Int): BlendingMode {
+            return when (blendingMode) {
+                RtSurfaceEntity.MediaBlendingMode.TRANSPARENT -> BlendingMode.TRANSPARENT
+                RtSurfaceEntity.MediaBlendingMode.OPAQUE -> BlendingMode.OPAQUE
+                else -> BlendingMode.TRANSPARENT
             }
         }
 
@@ -683,8 +707,7 @@ private constructor(
          * @param session Session to use.
          * @param renderingRuntime RenderingRuntime to use.
          * @param stereoMode An [Int] which defines how surface subregions map to eyes
-         * @param mediaBlendingMode The [MediaBlendingMode] which describes the blending mode of the
-         *   content.
+         * @param blendingMode The [BlendingMode] which describes the blending mode of the content.
          * @param pose Pose for this StereoSurface entity, relative to its parent.
          * @param shape The [Shape] which describes the spatialized shape of the canvas.
          * @param surfaceProtection The Int member of [SurfaceProtection] which describes whether
@@ -702,7 +725,7 @@ private constructor(
             session: Session,
             renderingRuntime: RenderingRuntime,
             stereoMode: StereoMode = StereoMode.MONO,
-            mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
+            blendingMode: BlendingMode = BlendingMode.TRANSPARENT,
             pose: Pose = Pose.Identity,
             shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
@@ -731,7 +754,7 @@ private constructor(
                     session.scene.perceptionSpace,
                     renderingRuntime.createSurfaceEntity(
                         getRtStereoMode(stereoMode),
-                        getRtMediaBlendingMode(mediaBlendingMode),
+                        getRtBlendingMode(blendingMode),
                         pose,
                         rtShape,
                         getRtSurfaceProtection(surfaceProtection),
@@ -780,7 +803,7 @@ private constructor(
                 session,
                 session.renderingRuntime,
                 stereoMode,
-                MediaBlendingMode.TRANSPARENT,
+                BlendingMode.TRANSPARENT,
                 pose,
                 shape,
                 surfaceProtection,
@@ -797,8 +820,8 @@ private constructor(
          * @param shape The [Shape] which describes the spatialized shape of the canvas. The default
          *   value is [Shape.Quad] with a width and height of 1 meter.
          * @param stereoMode Stereo mode for the surface. The default value is [StereoMode.MONO].
-         * @param mediaBlendingMode The [MediaBlendingMode] which describes the blending mode of the
-         *   content. The default value is [MediaBlendingMode.TRANSPARENT].
+         * @param blendingMode The [BlendingMode] which describes the blending mode of the content.
+         *   The default value is [BlendingMode.TRANSPARENT].
          * @param superSampling The [SuperSampling] which describes whether super sampling is
          *   enabled for the surface. The default value is [SuperSampling.PENTAGON].
          * @param surfaceProtection The [SurfaceProtection] which describes whether the hosted
@@ -818,7 +841,7 @@ private constructor(
             pose: Pose = Pose.Identity,
             shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             stereoMode: StereoMode = StereoMode.MONO,
-            mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
+            blendingMode: BlendingMode = BlendingMode.TRANSPARENT,
             superSampling: SuperSampling = SuperSampling.PENTAGON,
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
             parent: Entity? = null,
@@ -827,7 +850,7 @@ private constructor(
                 session,
                 session.renderingRuntime,
                 stereoMode,
-                mediaBlendingMode,
+                blendingMode,
                 pose,
                 shape,
                 surfaceProtection,
@@ -852,18 +875,22 @@ private constructor(
         }
 
     /**
-     * Controls the blending mode of the content.
+     * Controls the blending behavior of the surface, which determines how it interacts with other
+     * objects in the scene. See [BlendingMode].
+     *
+     * Setting this property requires [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or
+     * higher. The default value, and the behavior on earlier API versions, is
+     * [BlendingMode.TRANSPARENT]. Check the device's version with
+     * [androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion].
      *
      * @throws IllegalStateException when setting this value if the Entity has been disposed.
      */
-    public var mediaBlendingMode: MediaBlendingMode
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get() = getMediaBlendingModeFromRt(rtSurfaceEntity.mediaBlendingMode)
+    public var blendingMode: BlendingMode
+        get() = getBlendingModeFromRt(rtSurfaceEntity.mediaBlendingMode)
         @MainThread
-        @SuppressLint("HiddenTypeParameter")
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
         set(value) {
-            rtSurfaceEntity.mediaBlendingMode = getRtMediaBlendingMode(value)
+            rtSurfaceEntity.mediaBlendingMode = getRtBlendingMode(value)
         }
 
     /**

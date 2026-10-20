@@ -59,10 +59,13 @@ internal class SurfaceFeatureImpl(
         }
 
     @get:SurfaceEntity.MediaBlendingMode
-    override var mediaBlendingMode: Int = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+    override var mediaBlendingMode: Int = mediaBlendingMode
         set(value) {
             try {
-                impressApi.setBlendingModeForStereoSurfaceEntity(entityImpressNode, value)
+                impressApi.setBlendingModeForStereoSurfaceEntity(
+                    entityImpressNode,
+                    toImpressMediaBlendingMode(value),
+                )
             } catch (e: IllegalArgumentException) {
                 throw IllegalStateException(e)
             }
