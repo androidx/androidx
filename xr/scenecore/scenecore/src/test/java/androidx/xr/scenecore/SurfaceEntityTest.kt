@@ -57,9 +57,9 @@ class SurfaceEntityTest {
     }
 
     @Test
-    fun mediaBlendingMode_toString() {
-        assertThat(SurfaceEntity.MediaBlendingMode.TRANSPARENT.toString()).isEqualTo("TRANSPARENT")
-        assertThat(SurfaceEntity.MediaBlendingMode.OPAQUE.toString()).isEqualTo("OPAQUE")
+    fun blendingMode_toString() {
+        assertThat(SurfaceEntity.BlendingMode.TRANSPARENT.toString()).isEqualTo("TRANSPARENT")
+        assertThat(SurfaceEntity.BlendingMode.OPAQUE.toString()).isEqualTo("OPAQUE")
     }
 
     @Test

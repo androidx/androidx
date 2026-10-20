@@ -288,6 +288,46 @@ class SpatialRenderingRuntimeTest {
     }
 
     @Test
+    fun createSurfaceEntity_withOpaqueMediaBlendingMode_appliesMode() {
+        val surfaceEntity =
+            renderingRuntime.createSurfaceEntity(
+                SurfaceEntity.StereoMode.MONO,
+                SurfaceEntity.MediaBlendingMode.OPAQUE,
+                Pose(),
+                SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
+                SurfaceEntity.SurfaceProtection.NONE,
+                SurfaceEntity.SuperSampling.DEFAULT,
+                sceneRuntime.activitySpace,
+            )
+
+        assertThat(surfaceEntity.mediaBlendingMode)
+            .isEqualTo(SurfaceEntity.MediaBlendingMode.OPAQUE)
+        assertThat(fakeImpressApi.getStereoSurfaceEntities().values.single().mediaBlendingMode)
+            .isEqualTo(ImpressApi.MediaBlendingMode.OPAQUE)
+    }
+
+    @Test
+    fun surfaceEntity_setMediaBlendingMode_forwardsToImpress() {
+        val surfaceEntity =
+            renderingRuntime.createSurfaceEntity(
+                SurfaceEntity.StereoMode.MONO,
+                SurfaceEntity.MediaBlendingMode.OPAQUE,
+                Pose(),
+                SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
+                SurfaceEntity.SurfaceProtection.NONE,
+                SurfaceEntity.SuperSampling.DEFAULT,
+                sceneRuntime.activitySpace,
+            )
+
+        surfaceEntity.mediaBlendingMode = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+
+        assertThat(surfaceEntity.mediaBlendingMode)
+            .isEqualTo(SurfaceEntity.MediaBlendingMode.TRANSPARENT)
+        assertThat(fakeImpressApi.getStereoSurfaceEntities().values.single().mediaBlendingMode)
+            .isEqualTo(ImpressApi.MediaBlendingMode.TRANSPARENT)
+    }
+
+    @Test
     fun loadTexture_returnsTexture() {
         assertThat(loadTexture()).isNotNull()
     }

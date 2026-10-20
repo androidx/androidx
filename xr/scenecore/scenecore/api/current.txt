@@ -1292,21 +1292,35 @@ package androidx.xr.scenecore {
     method @MainThread public static androidx.xr.scenecore.SurfaceEntity create(androidx.xr.runtime.Session session, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.SurfaceEntity.Shape shape, optional androidx.xr.scenecore.SurfaceEntity.StereoMode stereoMode, optional androidx.xr.scenecore.SurfaceEntity.SuperSampling superSampling);
     method @MainThread public static androidx.xr.scenecore.SurfaceEntity create(androidx.xr.runtime.Session session, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.SurfaceEntity.Shape shape, optional androidx.xr.scenecore.SurfaceEntity.StereoMode stereoMode, optional androidx.xr.scenecore.SurfaceEntity.SuperSampling superSampling, optional androidx.xr.scenecore.SurfaceEntity.SurfaceProtection surfaceProtection);
     method @MainThread public static androidx.xr.scenecore.SurfaceEntity create(androidx.xr.runtime.Session session, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.SurfaceEntity.Shape shape, optional androidx.xr.scenecore.SurfaceEntity.StereoMode stereoMode, optional androidx.xr.scenecore.SurfaceEntity.SuperSampling superSampling, optional androidx.xr.scenecore.SurfaceEntity.SurfaceProtection surfaceProtection, optional androidx.xr.scenecore.Entity? parent);
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.SurfaceEntity.BlendingMode getBlendingMode();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getDimensions();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SurfaceEntity.EdgeFeatheringParams getEdgeFeatheringParams();
     method public androidx.xr.scenecore.PerceivedResolutionResult getPerceivedResolution(androidx.xr.arcore.RenderViewpoint renderViewpoint);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SurfaceEntity.Shape getShape();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SurfaceEntity.StereoMode getStereoMode();
     method @MainThread public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin @MainThread @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public void setBlendingMode(androidx.xr.scenecore.SurfaceEntity.BlendingMode);
     method @InaccessibleFromKotlin @MainThread public void setEdgeFeatheringParams(androidx.xr.scenecore.SurfaceEntity.EdgeFeatheringParams);
     method @InaccessibleFromKotlin @MainThread public void setShape(androidx.xr.scenecore.SurfaceEntity.Shape);
     method @InaccessibleFromKotlin @MainThread public void setStereoMode(androidx.xr.scenecore.SurfaceEntity.StereoMode);
     method @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalSurfaceEntityPixelDimensionsApi public void setSurfacePixelDimensions(androidx.xr.runtime.math.IntSize2d dimensions);
+    property public androidx.xr.scenecore.SurfaceEntity.BlendingMode blendingMode;
     property public androidx.xr.runtime.math.FloatSize3d dimensions;
     property public androidx.xr.scenecore.SurfaceEntity.EdgeFeatheringParams edgeFeatheringParams;
     property public androidx.xr.scenecore.SurfaceEntity.Shape shape;
     property public androidx.xr.scenecore.SurfaceEntity.StereoMode stereoMode;
     field public static final androidx.xr.scenecore.SurfaceEntity.Companion Companion;
+  }
+
+  public static final class SurfaceEntity.BlendingMode {
+    field public static final androidx.xr.scenecore.SurfaceEntity.BlendingMode.Companion Companion;
+    field public static final androidx.xr.scenecore.SurfaceEntity.BlendingMode OPAQUE;
+    field public static final androidx.xr.scenecore.SurfaceEntity.BlendingMode TRANSPARENT;
+  }
+
+  public static final class SurfaceEntity.BlendingMode.Companion {
+    property public androidx.xr.scenecore.SurfaceEntity.BlendingMode OPAQUE;
+    property public androidx.xr.scenecore.SurfaceEntity.BlendingMode TRANSPARENT;
   }
 
   public static final class SurfaceEntity.Companion {

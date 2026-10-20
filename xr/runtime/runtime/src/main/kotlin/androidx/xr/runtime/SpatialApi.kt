@@ -84,6 +84,7 @@ public object SpatialApiVersions {
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CLASS,
     AnnotationTarget.CONSTRUCTOR,
 )
