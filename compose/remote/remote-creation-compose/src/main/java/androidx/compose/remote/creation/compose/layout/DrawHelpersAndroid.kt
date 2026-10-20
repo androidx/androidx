@@ -23,11 +23,13 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
@@ -333,3 +335,10 @@ internal fun FontStyle.toRemoteFontStyle(): RemoteFontStyle =
     }
 
 internal fun FontWeight.toRemoteFontWeight(): RemoteFontWeight = RemoteFontWeight(weight)
+
+internal fun PathFillType.toRemotePathFillType(): RemotePathFillType =
+    when (this) {
+        PathFillType.NonZero -> RemotePathFillType.NonZero
+        PathFillType.EvenOdd -> RemotePathFillType.EvenOdd
+        else -> RemotePathFillType.NonZero
+    }

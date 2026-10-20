@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
@@ -508,21 +507,6 @@ public fun RemoteCanvas.drawPath(path: Path, paint: Paint) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCanvas.drawRPath(path: RemotePath, paint: Paint) {
     drawPath(path, paint = paint.asRemotePaint())
-}
-
-/** Draws a path using the specified [pathFillType] and [paint]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.drawPath(
-    path: RemotePath,
-    pathFillType: PathFillType,
-    paint: RemotePaint? = null,
-) {
-    drawPath(
-        path,
-        if (pathFillType == PathFillType.EvenOdd) RemoteCanvas.WINDING_EVEN_ODD
-        else RemoteCanvas.WINDING_NON_ZERO,
-        paint,
-    )
 }
 
 /**

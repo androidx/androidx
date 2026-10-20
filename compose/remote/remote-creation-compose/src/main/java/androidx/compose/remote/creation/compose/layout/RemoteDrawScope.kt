@@ -24,11 +24,11 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.PathFillType
 
 /**
  * A remote-compatible drawing scope for RemoteCompose. Unlike
@@ -239,7 +239,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun drawPath(
         path: RemotePath,
-        pathFillType: PathFillType = PathFillType.NonZero,
+        pathFillType: RemotePathFillType = RemotePathFillType.NonZero,
         paint: RemotePaint?,
     ) {
         remoteCanvas.drawPath(path, pathFillType, paint)

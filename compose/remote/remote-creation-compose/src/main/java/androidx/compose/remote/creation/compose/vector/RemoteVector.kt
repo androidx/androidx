@@ -43,18 +43,17 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -106,7 +105,7 @@ internal class RemotePathComponent : RemoteVNode() {
     var name = DefaultPathName
     var fill: Brush? = null
     var fillAlpha = 1.0f.rf
-    var pathFillType: PathFillType = DefaultFillType
+    var pathFillType: RemotePathFillType = RemotePathFillType.NonZero
     var pathData: List<RemotePathNode> = EmptyPath
     var targetPathData: List<RemotePathNode>? = null
     var pathTween: RemoteFloat = 0f.rf
