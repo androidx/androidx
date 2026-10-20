@@ -642,7 +642,7 @@ constructor(
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> =
         runIfNotClosed {
-            runOnSequentialList(captureSequence.size) {
+            threads.confineDeferredListSuspend(captureSequence.size) {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#issueSingleCaptureAsync" }
 
                 if (captureSequence.hasInvalidSurface()) {
@@ -821,14 +821,6 @@ constructor(
                 threads.determineStartStrategy()
             }
         return threads.confineDeferredSuspend(start = start, block = block)
-    }
-
-    private fun <T> runOnSequentialList(
-        size: Int,
-        block: suspend () -> List<Deferred<T>>,
-    ): List<Deferred<T>> {
-        val start = threads.determineStartStrategy()
-        return threads.confineDeferredListSuspend(size = size, start = start, block = block)
     }
 
     /**

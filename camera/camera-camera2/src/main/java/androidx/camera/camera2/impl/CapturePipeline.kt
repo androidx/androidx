@@ -303,8 +303,12 @@ constructor(
 
     /**
      * Invokes a capture pipeline with the sequence of pre-capture -> main capture -> post-capture
-     * based on the pipeline tasks in the receiver list, maintaining a single [CameraGraph.Session]
-     * across the entire operation.
+     * based on the pipeline tasks in the receiver list.
+     *
+     * Pre-capture and main capture share a single [CameraGraph.Session] which is closed immediately
+     * after submitting the capture request (before awaiting the capture signals) so future camera
+     * interactions are not blocked while waiting for capture results. Post-capture tasks acquire a
+     * separate [CameraGraph.Session] after the capture signals complete.
      *
      * @param mainCaptureParams Parameters required for the main capture, must not be null if the
      *   receiver list contains [PipelineTask.MAIN_CAPTURE].
@@ -313,14 +317,15 @@ constructor(
      * @param preCapture A function invoked during pre-capture with the active
      *   [CameraGraph.Session].
      * @param postCapture A function invoked during post-capture with the active
-     *   [CameraGraph.Session], or null when the [CameraGraph] is already closed.
+     *   [CameraGraph.Session] (or null if the [CameraGraph] is closed), or null if no post-capture
+     *   action is needed.
      * @receiver A list of [PipelineTask].
      */
     private suspend inline fun List<PipelineTask>.invoke(
         mainCaptureParams: MainCaptureParams?,
         correctTorchState: Boolean = false,
         crossinline preCapture: suspend (CameraGraph.Session) -> Unit,
-        crossinline postCapture: suspend (CameraGraph.Session?) -> Unit,
+        noinline postCapture: (suspend (CameraGraph.Session?) -> Unit)? = null,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#List<PipelineTask>.invoke: tasks = $this" }
         val session =
@@ -332,12 +337,16 @@ constructor(
                         "CameraGraph.Session could not be acquired, requests may need re-submission"
                 }
                 if (!contains(PRE_CAPTURE) && !contains(MAIN_CAPTURE) && contains(POST_CAPTURE)) {
-                    debug {
-                        "CapturePipeline#List<PipelineTask>.invoke: " +
-                            "starting POST_CAPTURE without session"
+                    if (postCapture != null) {
+                        debug {
+                            "CapturePipeline#List<PipelineTask>.invoke: " +
+                                "starting POST_CAPTURE without session"
+                        }
+                        postCapture(null)
+                        debug {
+                            "CapturePipeline#List<PipelineTask>.invoke: POST_CAPTURE completed"
+                        }
                     }
-                    postCapture(null)
-                    debug { "CapturePipeline#List<PipelineTask>.invoke: POST_CAPTURE completed" }
                     return listOf(CompletableDeferred(value = null))
                 }
                 val count = mainCaptureParams?.configs?.size ?: 1
@@ -354,45 +363,57 @@ constructor(
                 }
             }
 
-        try {
-            if (contains(PRE_CAPTURE)) {
-                debug { "CapturePipeline#List<PipelineTask>.invoke: starting PRE_CAPTURE" }
-                preCapture(session)
-                debug { "CapturePipeline#List<PipelineTask>.invoke: PRE_CAPTURE completed" }
-            }
-
-            if (!contains(MAIN_CAPTURE)) {
-                if (contains(POST_CAPTURE)) {
-                    debug { "CapturePipeline#List<PipelineTask>.invoke: starting POST_CAPTURE" }
-                    postCapture(session.takeIf { !useCaseCameraContext.isGraphClosed })
-                    debug { "CapturePipeline#List<PipelineTask>.invoke: POST_CAPTURE completed" }
+        val (captureSignal, requiresStopRepeating) =
+            session.use {
+                if (contains(PRE_CAPTURE)) {
+                    debug { "CapturePipeline#List<PipelineTask>.invoke: starting PRE_CAPTURE" }
+                    preCapture(session)
+                    debug { "CapturePipeline#List<PipelineTask>.invoke: PRE_CAPTURE completed" }
                 }
-                session.close()
-                return listOf(CompletableDeferred(value = null))
+
+                if (!contains(MAIN_CAPTURE)) {
+                    if (contains(POST_CAPTURE) && postCapture != null) {
+                        debug { "CapturePipeline#List<PipelineTask>.invoke: starting POST_CAPTURE" }
+                        postCapture(session.takeIf { !useCaseCameraContext.isGraphClosed })
+                        debug {
+                            "CapturePipeline#List<PipelineTask>.invoke: POST_CAPTURE completed"
+                        }
+                    }
+                    return listOf(CompletableDeferred(value = null))
+                }
+
+                debug { "CapturePipeline#List<PipelineTask>.invoke: starting MAIN_CAPTURE" }
+                submitRequestInternal(session, checkNotNull(mainCaptureParams)).also {
+                    debug { "CapturePipeline#List<PipelineTask>.invoke: MAIN_CAPTURE completed" }
+                }
             }
 
-            debug { "CapturePipeline#List<PipelineTask>.invoke: starting MAIN_CAPTURE" }
-            val (captureSignal, requiresStopRepeating) =
-                submitRequestInternal(session, checkNotNull(mainCaptureParams))
-            debug { "CapturePipeline#List<PipelineTask>.invoke: MAIN_CAPTURE completed" }
-
+        val hasPostCaptureWork =
+            requiresStopRepeating ||
+                (contains(POST_CAPTURE) && postCapture != null) ||
+                correctTorchState
+        if (hasPostCaptureWork) {
             threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                session.use {
-                    debug {
-                        "CapturePipeline#List<PipelineTask>.invoke:" +
-                            " Waiting for POST_CAPTURE signal"
+                debug {
+                    "CapturePipeline#List<PipelineTask>.invoke:" +
+                        " Waiting for POST_CAPTURE signal"
+                }
+                captureSignal.joinAll()
+                debug {
+                    "CapturePipeline#List<PipelineTask>.invoke:" +
+                        " Waiting for POST_CAPTURE signal done"
+                }
+                val postCaptureSession =
+                    try {
+                        useCaseCameraContext.acquireSession()
+                    } catch (_: CancellationException) {
+                        null
                     }
-                    captureSignal.joinAll()
-                    debug {
-                        "CapturePipeline#List<PipelineTask>.invoke:" +
-                            " Waiting for POST_CAPTURE signal done"
-                    }
-                    val postCaptureSession =
-                        if (useCaseCameraContext.isGraphClosed) null else session
+                try {
                     if (requiresStopRepeating && postCaptureSession != null) {
                         useCaseCameraState.tryStartRepeating(postCaptureSession)
                     }
-                    if (contains(POST_CAPTURE)) {
+                    if (contains(POST_CAPTURE) && postCapture != null) {
                         postCapture(postCaptureSession)
                     }
                     if (correctTorchState && postCaptureSession != null) {
@@ -417,13 +438,12 @@ constructor(
                             .join()
                         debug { "Re-enable Torch to correct the Torch state, done" }
                     }
+                } finally {
+                    postCaptureSession?.close()
                 }
             }
-            return captureSignal
-        } catch (t: Throwable) {
-            session.close()
-            throw t
         }
+        return captureSignal
     }
 
     private suspend fun torchAsFlashCapture(
@@ -512,13 +532,18 @@ constructor(
                     debug { "CapturePipeline#defaultNoFlashCapture: Locking 3A done" }
                 }
             },
-            postCapture = { session ->
-                if (lock3ARequired && session != null) {
-                    debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A" }
-                    unlockAf(session, CHECK_3A_TIMEOUT_IN_NS)
-                    debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A done" }
-                }
-            },
+            postCapture =
+                if (lock3ARequired) {
+                    { session ->
+                        if (session != null) {
+                            debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A" }
+                            unlockAf(session, CHECK_3A_TIMEOUT_IN_NS)
+                            debug { "CapturePipeline#defaultNoFlashCapture: Unlocking 3A done" }
+                        }
+                    }
+                } else {
+                    null
+                },
         )
     }
 

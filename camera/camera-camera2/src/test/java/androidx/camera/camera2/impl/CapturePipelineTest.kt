@@ -1321,16 +1321,16 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount).isEqualTo(1)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
 
         requestList.complete()
         advanceUntilIdle()
 
         assertThat(fakeCameraGraphSession.unlock3APostCaptureSemaphore.tryAcquire(this)).isTrue()
-        assertThat(fakeCameraGraph.sessionAcquireCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1363,16 +1363,16 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(0)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
 
         requestList.complete()
         advanceUntilIdle()
 
         assertThat(fakeCameraGraphSession.unlock3APostCaptureSemaphore.tryAcquire(this)).isTrue()
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1405,16 +1405,16 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(0)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
 
         requestList.complete()
         advanceUntilIdle()
 
         assertThat(fakeCameraGraphSession.unlock3APostCaptureSemaphore.tryAcquire(this)).isTrue()
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1453,15 +1453,15 @@ class CapturePipelineTest {
 
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(0)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
 
         requestList.complete()
         advanceUntilIdle()
 
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1510,14 +1510,15 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
 
         submittedRequestList.complete()
         advanceUntilIdle()
 
         assertThat(fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(this)).isTrue()
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1572,8 +1573,8 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
         assertThat(llbControl.isTemporarilyDisabledForFlash).isTrue()
         assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(0)
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
 
         // Simulate no further repeating frames completing after capture finishes;
@@ -1584,8 +1585,8 @@ class CapturePipelineTest {
 
         assertThat(fakeCameraGraphSession.unlock3APostCaptureSemaphore.tryAcquire(this)).isTrue()
         assertThat(llbControl.isTemporarilyDisabledForFlash).isFalse()
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBeforeCapture).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBeforeCapture).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1818,8 +1819,8 @@ class CapturePipelineTest {
 
         // Without calling advanceUntilIdle(), the session should already be closed because
         // the post-capture cleanup coroutine starts UNDISPATCHED.
-        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBefore).isEqualTo(1)
-        assertThat(fakeCameraGraph.sessionCloseCount - closesBefore).isEqualTo(1)
+        assertThat(fakeCameraGraph.sessionAcquireCount - acquiresBefore).isEqualTo(2)
+        assertThat(fakeCameraGraph.sessionCloseCount - closesBefore).isEqualTo(2)
         assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
         assertThat(fakeCameraGraph.maxConcurrentSessions).isEqualTo(1)
     }
@@ -1843,6 +1844,36 @@ class CapturePipelineTest {
         val postFuture = cameraCapturePipeline.invokePostCapture()
         advanceUntilIdle()
         postFuture.get(2, TimeUnit.SECONDS)
+
+        assertThat(screenFlash.awaitClear(3000)).isTrue()
+    }
+
+    @Test
+    fun screenFlashCapture_whenGraphClosesDuringCapture_stillClearsScreenFlash() = runTest {
+        val requestList = mutableListOf<Request>()
+        fakeCameraGraphSession.requestHandler = { requests -> requestList.addAll(requests) }
+
+        val deferredList =
+            capturePipeline.submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_SCREEN,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            )
+
+        assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
+        assertThat(screenFlash.lastApplyThreadLooper).isNotNull()
+
+        // Close the CameraGraph while the capture request is still in flight, then abort the
+        // in-flight request as CameraPipe does on graph shutdown.
+        fakeCameraGraph.close()
+        requestList.forEach { request ->
+            request.listeners.forEach { it.onAborted(request) }
+        }
+        deferredList.joinAll()
+        advanceUntilIdle()
 
         assertThat(screenFlash.awaitClear(3000)).isTrue()
     }
