@@ -89,7 +89,7 @@ class ComposeInspectionRule(
         activityScenario = ActivityScenario.launch(clazz.java)
         activityScenario.onActivity { roots.addAll(WindowInspector.getGlobalWindowViews()) }
         if (!useInspector) return
-        runBlocking { inspectorTester = InspectorTester("layoutinspector.compose.inspection") }
+        runBlocking { inspectorTester = createInspectorTester() }
     }
 
     fun show(composable: @Composable () -> Unit) = activityScenario.show(composable)

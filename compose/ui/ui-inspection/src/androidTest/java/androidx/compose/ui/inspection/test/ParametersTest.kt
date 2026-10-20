@@ -97,7 +97,10 @@ class ParametersTest {
         val resourceValue = params.find("fontFamily").resourceValue
         assertThat(resourceValue.type.resolve(params)).isEqualTo("font")
         assertThat(resourceValue.namespace.resolve(params))
-            .isEqualTo("androidx.compose.ui.inspection.test")
+            .isAnyOf(
+                "androidx.compose.ui.inspection.test",
+                "androidx.compose.ui.inspection.jartest.test",
+            )
         assertThat(resourceValue.name.resolve(params)).isEqualTo("samplefont")
     }
 

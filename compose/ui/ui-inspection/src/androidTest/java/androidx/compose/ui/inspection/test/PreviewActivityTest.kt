@@ -65,7 +65,7 @@ class PreviewActivityTest {
         )
         activityTestRule.launchActivity(intent)
         runBlocking {
-            inspectorTester = InspectorTester(inspectorId = "layoutinspector.compose.inspection")
+            inspectorTester = createInspectorTester()
         }
     }
 

@@ -297,7 +297,7 @@ class RecompositionTest {
 
     @Before
     fun before() = runBlocking {
-        inspectorTester = InspectorTester(inspectorId = "layoutinspector.compose.inspection")
+        inspectorTester = createInspectorTester()
     }
 
     @After
