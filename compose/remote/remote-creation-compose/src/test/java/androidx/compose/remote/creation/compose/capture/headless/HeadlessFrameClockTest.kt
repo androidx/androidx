@@ -16,7 +16,7 @@
 
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package androidx.compose.remote.creation.compose.capture
+package androidx.compose.remote.creation.compose.capture.headless
 
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
