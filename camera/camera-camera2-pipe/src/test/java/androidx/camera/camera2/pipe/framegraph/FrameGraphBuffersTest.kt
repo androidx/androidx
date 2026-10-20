@@ -26,9 +26,11 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.TagBundle
 import androidx.camera.camera2.pipe.internal.FrameImpl
 import androidx.camera.camera2.pipe.internal.FrameState
 import androidx.camera.camera2.pipe.internal.NoOpFrameGraphResourceTrimmer
+import androidx.camera.camera2.pipe.tagsOf
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
@@ -39,6 +41,7 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -182,19 +185,188 @@ class FrameGraphBuffersTest {
         assertThat(buffer1.size.value).isEqualTo(0)
     }
 
+    @Test
+    fun attach_differentTagSets_mergesTagSetsIntoRepeatingRequest() = testScope.runTest {
+        frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("a")), 1)
+        frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("b")), 1)
+        advanceUntilIdle()
+
+        val repeatingRequest = currentRepeatingRequest()
+
+        assertThat(repeatingRequest!!.streams).isEqualTo(listOf(streamId1))
+        assertThat(repeatingRequest[TAG_KEY]).containsExactly("a", "b")
+    }
+
+    @Test
+    fun detach_removesTagSetFromRepeatingRequest() = testScope.runTest {
+        val buffer1 = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("a")), 1)
+        val buffer2 = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("b")), 1)
+        advanceUntilIdle()
+        assertThat(currentRepeatingRequest()!![TAG_KEY]).containsExactly("a", "b")
+
+        buffer1.close()
+        advanceUntilIdle()
+
+        assertThat(currentRepeatingRequest()!![TAG_KEY]).containsExactly("b")
+        buffer2.close()
+    }
+
+    @Test
+    fun attach_tagSetsWithGraphParameters_mergesTagSetsAndKeepsGraphParameters() =
+        testScope.runTest {
+            val cameraGraphConfigWithParameters =
+                graphConfig.copy(
+                    defaultParameters =
+                        mapOf(TAG_KEY to tagsOf("default"), DEFAULT_CAPTURE_REQUEST_KEY to 1),
+                    requiredParameters = mapOf(REQUIRED_CAPTURE_REQUEST_KEY to 2),
+                )
+            val simulatorWithParameters =
+                CameraGraphSimulator.create(
+                    testScope,
+                    context,
+                    metadata,
+                    cameraGraphConfigWithParameters,
+                )
+            val buffers =
+                FrameGraphBuffers(simulatorWithParameters, testScope, NoOpFrameGraphResourceTrimmer)
+            simulatorWithParameters.start()
+            simulatorWithParameters.initializeSurfaces()
+            simulatorWithParameters.simulateCameraStarted()
+            advanceUntilIdle()
+            val streamId = simulatorWithParameters.streams.streamIds.first()
+
+            val buffer1 = buffers.attach(setOf(streamId), mapOf(TAG_KEY to tagsOf("a")), 1)
+            val buffer2 = buffers.attach(setOf(streamId), mapOf(TAG_KEY to tagsOf("b")), 1)
+            advanceUntilIdle()
+            val frame = simulatorWithParameters.simulateNextFrame()
+            val requestMetadata = frame.requestSequence.requestMetadata[frame.request]!!
+
+            // The repeating request carries the merged tag bundles of the buffers.
+            assertThat(frame.request[TAG_KEY]).containsExactly("a", "b")
+            // The default and required parameters of the CameraGraph are still sent with it.
+            assertThat(frame.requestSequence.defaultParameters)
+                .containsEntry(DEFAULT_CAPTURE_REQUEST_KEY, 1)
+            assertThat(frame.requestSequence.requiredParameters)
+                .containsEntry(REQUIRED_CAPTURE_REQUEST_KEY, 2)
+            assertThat(requestMetadata[DEFAULT_CAPTURE_REQUEST_KEY]).isEqualTo(1)
+            assertThat(requestMetadata[REQUIRED_CAPTURE_REQUEST_KEY]).isEqualTo(2)
+            // The merged tag bundles in the request replace the default value for the same key.
+            assertThat(requestMetadata[TAG_KEY]).containsExactly("a", "b")
+
+            buffer1.close()
+            buffer2.close()
+            simulatorWithParameters.close()
+        }
+
+    @Test
+    fun onFrameStarted_taggedRequest_onlyAddsFrameToMatchingBuffers() = testScope.runTest {
+        val bufferA = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("a")), 10)
+        val bufferB = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("b")), 10)
+        val untaggedBuffer = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
+        advanceUntilIdle()
+
+        val taggedFrame =
+            createTestFrame(
+                1,
+                Request(
+                    streams = listOf(streamId1, streamId2),
+                    extras = mapOf(TAG_KEY to tagsOf("a")),
+                ),
+            )
+        frameGraphBuffers.onFrameStarted(taggedFrame)
+        val untaggedFrame = createTestFrame(2)
+        frameGraphBuffers.onFrameStarted(untaggedFrame)
+        advanceUntilIdle()
+
+        // The tagged frame is added to bufferA and to the buffer without tags. The untagged frame
+        // is only added to the buffer without tags.
+        assertThat(bufferA.size.value).isEqualTo(1)
+        assertThat(bufferB.size.value).isEqualTo(0)
+        assertThat(untaggedBuffer.size.value).isEqualTo(2)
+        bufferA.close()
+        bufferB.close()
+        untaggedBuffer.close()
+        taggedFrame.close()
+        untaggedFrame.close()
+    }
+
+    @Test
+    fun attach_emptyTagBundle_repeatingFrameReachesEveryBuffer() = testScope.runTest {
+        val bufferA = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("a")), 1)
+        val bufferB =
+            frameGraphBuffers.attach(setOf(streamId2), mapOf(TAG_KEY to tagsOf<String>()), 1)
+        advanceUntilIdle()
+
+        // The repeating request has both streams and the tags of the attached buffers.
+        val repeatingRequest = currentRepeatingRequest()!!
+        assertThat(repeatingRequest.streams).containsExactly(streamId1, streamId2)
+        assertThat(repeatingRequest[TAG_KEY]).containsExactly("a")
+
+        // The repeating request carries the tag key, and an empty tag bundle has no tags that it
+        // must carry, so the repeating frame reaches both buffers.
+        val frame = createTestFrame(1, repeatingRequest)
+        frameGraphBuffers.onFrameStarted(frame)
+        advanceUntilIdle()
+        assertThat(bufferA.size.value).isEqualTo(1)
+        assertThat(bufferB.size.value).isEqualTo(1)
+        bufferA.close()
+        bufferB.close()
+        frame.close()
+    }
+
+    @Test
+    fun repeatingRequest_buffersWithTagSetsAndParameters_addsFrameToEveryBuffer() =
+        testScope.runTest {
+            val bufferA =
+                frameGraphBuffers.attach(
+                    setOf(streamId1),
+                    mapOf(TAG_KEY to tagsOf("a"), CAPTURE_REQUEST_KEY to 1),
+                    1,
+                )
+            val bufferB =
+                frameGraphBuffers.attach(
+                    setOf(streamId1),
+                    mapOf(TAG_KEY to tagsOf("b"), CAPTURE_REQUEST_KEY to 1),
+                    1,
+                )
+            advanceUntilIdle()
+
+            // The repeating request carries the parameters of every buffer and the union of their
+            // tag bundles, so its frames match every buffer.
+            val repeatingRequest = currentRepeatingRequest()!!
+            val frame = createTestFrame(1, repeatingRequest)
+            frameGraphBuffers.onFrameStarted(frame)
+            advanceUntilIdle()
+
+            assertThat(repeatingRequest[CAPTURE_REQUEST_KEY]).isEqualTo(1)
+            assertThat(repeatingRequest[TAG_KEY]).containsExactly("a", "b")
+            assertThat(bufferA.size.value).isEqualTo(1)
+            assertThat(bufferB.size.value).isEqualTo(1)
+            bufferA.close()
+            bufferB.close()
+            frame.close()
+        }
+
     @After
     fun cleanup() {
         fakeSurfaces.close()
     }
 
-    private fun createTestFrame(frameNumberValue: Long): Frame {
+    private suspend fun currentRepeatingRequest(): Request? = simulator.useSession {
+        it.repeatingRequest
+    }
+
+    private fun createTestFrame(
+        frameNumberValue: Long,
+        request: Request = Request(streams = listOf(streamId1, streamId2)),
+    ): Frame {
         val frameNumber = CameraFrameNumber(frameNumberValue)
         val frameTimestamp = CameraTimestamp(100L + frameNumberValue)
         val frameState =
             FrameState(
                 requestMetadata =
                     FakeRequestMetadata.from(
-                        request = Request(streams = listOf(streamId1, streamId2)),
+                        request = request,
                         streamToSurfaces =
                             mapOf(
                                 streamId1 to fakeSurfaces.createFakeSurface(),
@@ -209,6 +381,38 @@ class FrameGraphBuffersTest {
             )
 
         return FrameImpl(frameState)
+    }
+
+    @Test
+    fun attach_tagKeyWithPlainSet_throwsAndDoesNotAttachBuffer() = testScope.runTest {
+        val buffer = frameGraphBuffers.attach(setOf(streamId1), mapOf(TAG_KEY to tagsOf("a")), 1)
+        advanceUntilIdle()
+
+        // A tag key needs a TagBundle value. A plain Set is rejected before the buffer is attached,
+        // so it cannot replace the tag bundle in the repeating request.
+        assertThrows<IllegalArgumentException> {
+            frameGraphBuffers.attach(setOf(streamId2), mapOf(TAG_KEY to setOf("a")), 1)
+        }
+        advanceUntilIdle()
+
+        val repeatingRequest = currentRepeatingRequest()!!
+        assertThat(repeatingRequest.streams).containsExactly(streamId1)
+        assertThat(repeatingRequest[TAG_KEY]).isInstanceOf(TagBundle::class.java)
+        assertThat(repeatingRequest[TAG_KEY]).containsExactly("a")
+        buffer.close()
+    }
+
+    @Test
+    fun attach_plainSetParameter_isNotTreatedAsTagBundle() = testScope.runTest {
+        frameGraphBuffers.attach(setOf(streamId1), mapOf(SET_KEY to setOf("a")), 1)
+        frameGraphBuffers.attach(setOf(streamId2), mapOf(SET_KEY to setOf("a")), 1)
+        advanceUntilIdle()
+
+        // A Metadata.Key whose type is a plain Set is a regular parameter: equal values are kept
+        // as they are and are not merged.
+        val repeatingRequest = currentRepeatingRequest()!!
+        assertThat(repeatingRequest[SET_KEY]).isEqualTo(setOf("a"))
+        assertThat(repeatingRequest[SET_KEY]).isNotInstanceOf(TagBundle::class.java)
     }
 
     @Test
@@ -233,5 +437,10 @@ class FrameGraphBuffersTest {
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
         private val TEST_NULLABLE_KEY = CaptureRequest.BLACK_LEVEL_LOCK
+        private val DEFAULT_CAPTURE_REQUEST_KEY = CaptureRequest.NOISE_REDUCTION_MODE
+        private val REQUIRED_CAPTURE_REQUEST_KEY = CaptureRequest.EDGE_MODE
+        private val TAG_KEY: Metadata.Key<TagBundle<String>> =
+            Metadata.Key("test.frameGraphBuffers.tags")
+        private val SET_KEY: Metadata.Key<Set<String>> = Metadata.Key("test.frameGraphBuffers.set")
     }
 }

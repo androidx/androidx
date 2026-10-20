@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
+import androidx.camera.camera2.pipe.FrameBuffer
 import androidx.camera.camera2.pipe.FrameBuffers.tryPeekFirst
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
@@ -35,6 +36,9 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.TagBundle
+import androidx.camera.camera2.pipe.tagsOf
+import androidx.camera.camera2.pipe.testing.CameraGraphSimulator.FrameSimulator
 import androidx.camera.camera2.pipe.testing.CameraPipeSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
@@ -870,8 +874,208 @@ class FrameGraphImplTest {
         buffer2.close()
     }
 
+    @Test
+    fun captureWith_tagSets_sessionCaptureOnlyReachesMatchingBuffers() = testScope.runTest {
+        initialize(this)
+        val stream = frameGraph.streams[streamConfig1]!!.id
+        val bufferA =
+            frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("a")), capacity = 10)
+        val bufferB =
+            frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("b")), capacity = 10)
+        val untaggedBuffer = frameGraph.captureWith(setOf(stream), capacity = 10)
+        advanceUntilIdle()
+
+        // A capture tagged for "a" is only added to bufferA and to the buffer without tags.
+        val captureRequest =
+            Request(streams = listOf(stream), extras = mapOf(TAG_KEY to tagsOf("a")))
+        val capture = frameGraph.useSession { session -> session.capture(captureRequest) }
+        val frames = simulateFramesUntil(captureRequest)
+        val capturedFrame = frames.last()
+        advanceUntilIdle()
+
+        assertThat(capture.getFrame()!!.frameNumber).isEqualTo(capturedFrame.frameNumber)
+        assertThat(bufferA.frameNumbers()).contains(capturedFrame.frameNumber)
+        assertThat(bufferB.frameNumbers()).doesNotContain(capturedFrame.frameNumber)
+        assertThat(untaggedBuffer.frameNumbers()).contains(capturedFrame.frameNumber)
+
+        // The repeating request carries the union of the tag bundles, so its frames reach every
+        // buffer.
+        val repeatingFrame = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+        assertThat(repeatingFrame.request[TAG_KEY]).containsExactly("a", "b")
+        assertThat(bufferA.frameNumbers()).contains(repeatingFrame.frameNumber)
+        assertThat(bufferB.frameNumbers()).contains(repeatingFrame.frameNumber)
+        assertThat(untaggedBuffer.frameNumbers()).contains(repeatingFrame.frameNumber)
+
+        capture.close()
+        bufferA.close()
+        bufferB.close()
+        untaggedBuffer.close()
+    }
+
+    @Test
+    fun captureWith_tagSets_untaggedSessionCaptureOnlyReachesUntaggedBuffers() = testScope.runTest {
+        initialize(this)
+        val stream = frameGraph.streams[streamConfig1]!!.id
+        val bufferA =
+            frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("a")), capacity = 10)
+        val bufferB =
+            frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("b")), capacity = 10)
+        val untaggedBuffer = frameGraph.captureWith(setOf(stream), capacity = 10)
+        advanceUntilIdle()
+
+        val captureRequest = Request(streams = listOf(stream))
+        val capture = frameGraph.useSession { session -> session.capture(captureRequest) }
+        val capturedFrame = simulateFramesUntil(captureRequest).last()
+        advanceUntilIdle()
+
+        // A request that does not carry the tag key is not added to the tagged buffers.
+        assertThat(capture.getFrame()!!.frameNumber).isEqualTo(capturedFrame.frameNumber)
+        assertThat(bufferA.frameNumbers()).doesNotContain(capturedFrame.frameNumber)
+        assertThat(bufferB.frameNumbers()).doesNotContain(capturedFrame.frameNumber)
+        assertThat(untaggedBuffer.frameNumbers()).contains(capturedFrame.frameNumber)
+
+        capture.close()
+        bufferA.close()
+        bufferB.close()
+        untaggedBuffer.close()
+    }
+
+    @Test
+    fun captureWith_parameters_sessionCaptureWithDifferentValueSkipsBuffer() = testScope.runTest {
+        initialize(this)
+        val stream = frameGraph.streams[streamConfig1]!!.id
+        val buffer =
+            frameGraph.captureWith(setOf(stream), mapOf(CAPTURE_REQUEST_KEY to 1), capacity = 10)
+        val bufferWithoutParameters = frameGraph.captureWith(setOf(stream), capacity = 10)
+
+        val repeatingFrame = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+        assertThat(repeatingFrame.request[CAPTURE_REQUEST_KEY]).isEqualTo(1)
+        assertThat(buffer.size.value).isEqualTo(1)
+        assertThat(bufferWithoutParameters.size.value).isEqualTo(1)
+
+        // A capture with a different value for a buffer parameter is not added to that buffer.
+        val capture = frameGraph.useSession { session ->
+            session.capture(
+                Request(streams = listOf(stream), parameters = mapOf(CAPTURE_REQUEST_KEY to 2))
+            )
+        }
+        val capturedFrame = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+
+        assertThat(capture.getFrame()!!.frameNumber).isEqualTo(capturedFrame.frameNumber)
+        assertThat(buffer.size.value).isEqualTo(1)
+        assertThat(buffer.peekFirstReference()!!.frameNumber).isEqualTo(repeatingFrame.frameNumber)
+        assertThat(bufferWithoutParameters.size.value).isEqualTo(2)
+
+        capture.close()
+        buffer.close()
+        bufferWithoutParameters.close()
+    }
+
+    @Test
+    fun captureWith_newParameterValueWhileSessionIsHeld_receivesFramesAfterSessionCloses() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+            val buffer1 =
+                frameGraph.captureWith(
+                    setOf(stream),
+                    mapOf(CAPTURE_REQUEST_KEY to 1),
+                    capacity = 10,
+                )
+            val firstFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+            assertThat(firstFrame.request[CAPTURE_REQUEST_KEY]).isEqualTo(1)
+            assertThat(buffer1.size.value).isEqualTo(1)
+
+            // While a session is held, the FrameGraph cannot send a new repeating request. The
+            // repeating request that is already running still carries value 1, so its frames are
+            // not added to a buffer that is attached with value 2.
+            val session = frameGraph.acquireSession()
+            buffer1.close()
+            val buffer2 =
+                frameGraph.captureWith(
+                    setOf(stream),
+                    mapOf(CAPTURE_REQUEST_KEY to 2),
+                    capacity = 10,
+                )
+            advanceUntilIdle()
+            val secondFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+
+            assertThat(secondFrame.request).isSameInstanceAs(firstFrame.request)
+            assertThat(buffer2.size.value).isEqualTo(0)
+
+            // Once the session is closed, the repeating request carries value 2 and its frames are
+            // added to buffer2.
+            session.close()
+            advanceUntilIdle()
+            val thirdFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+
+            assertThat(thirdFrame.request[CAPTURE_REQUEST_KEY]).isEqualTo(2)
+            assertThat(buffer2.size.value).isEqualTo(1)
+            buffer2.close()
+        }
+
+    @Test
+    fun captureWith_tagSetAttachedWhileSessionIsHeld_receivesRepeatingFramesAfterSessionCloses() =
+        testScope.runTest {
+            initialize(this)
+            val stream = frameGraph.streams[streamConfig1]!!.id
+            val bufferA =
+                frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("a")), capacity = 10)
+            val firstFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+            assertThat(bufferA.size.value).isEqualTo(1)
+
+            // While a session is held, the FrameGraph cannot send a new repeating request. The
+            // repeating request that is already running only carries the tag bundle of bufferA, so
+            // its frames are not added to a buffer that is attached with a different tag bundle.
+            val session = frameGraph.acquireSession()
+            val bufferB =
+                frameGraph.captureWith(setOf(stream), mapOf(TAG_KEY to tagsOf("b")), capacity = 10)
+            advanceUntilIdle()
+            val secondFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+
+            assertThat(secondFrame.request).isSameInstanceAs(firstFrame.request)
+            assertThat(bufferA.size.value).isEqualTo(2)
+            assertThat(bufferB.size.value).isEqualTo(0)
+
+            // Once the session is closed, the repeating request carries both tag bundles and its
+            // frames are added to both buffers.
+            session.close()
+            advanceUntilIdle()
+            val thirdFrame = frameGraph.simulateNextFrame()
+            advanceUntilIdle()
+
+            assertThat(thirdFrame.request[TAG_KEY]).containsExactly("a", "b")
+            assertThat(bufferA.size.value).isEqualTo(3)
+            assertThat(bufferB.size.value).isEqualTo(1)
+            bufferA.close()
+            bufferB.close()
+        }
+
+    /** Simulates frames until a frame of [request] is produced, and returns all of them. */
+    private fun simulateFramesUntil(request: Request): List<FrameSimulator> = buildList {
+        repeat(MAX_FRAMES_TO_SIMULATE) {
+            val frame = frameGraph.simulateNextFrame()
+            add(frame)
+            if (frame.request === request) return@buildList
+        }
+        error("No frame was produced for $request")
+    }
+
+    private fun FrameBuffer.frameNumbers(): List<CameraFrameNumber> =
+        peekAllReferences().map { it.frameNumber }
+
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
         private val TEST_NULLABLE_KEY = CaptureRequest.BLACK_LEVEL_LOCK
+        private val TAG_KEY: Metadata.Key<TagBundle<String>> = Metadata.Key("test.frameGraph.tags")
+        private const val MAX_FRAMES_TO_SIMULATE = 10
     }
 }
