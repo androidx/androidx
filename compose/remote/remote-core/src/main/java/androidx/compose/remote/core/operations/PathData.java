@@ -295,7 +295,7 @@ public class PathData extends Operation implements VariableSupport, Serializable
 
     @Override
     public void apply(@NonNull RemoteContext context) {
-        if (mPathChanged) {
+        if (mPathChanged || context.getPathData(mInstanceId) != mOutputPath) {
             context.loadPathData(mInstanceId, mWinding, mOutputPath);
         }
         mPathChanged = false;
