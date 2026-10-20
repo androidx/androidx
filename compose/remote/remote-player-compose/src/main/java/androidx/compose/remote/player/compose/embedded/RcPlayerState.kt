@@ -87,7 +87,6 @@ public class RcPlayerState(
             )
             .also { gc ->
                 gc.store = remoteContext
-                gc.setTypefaceResolver(remoteContext.typefaceResolver)
                 gc.touchVersion = remoteContext.touchVersion
             }
 

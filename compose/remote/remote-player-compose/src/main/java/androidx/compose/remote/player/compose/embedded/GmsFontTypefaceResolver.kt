@@ -14,146 +14,150 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
+@file:Suppress("RestrictedApiAndroidX", "BanConcurrentHashMap")
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import android.graphics.Typeface
-import android.os.Handler
-import android.os.Looper
+import android.os.Build
 import androidx.annotation.ArrayRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.remote.player.core.platform.FontInstance
-import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executor
+import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
-/**
- * Interface implemented by a [TypefaceResolver] that provides a GMS Google Fonts certificate array
- * resource ID for downloadable font requests.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface HasFontCerts {
-    /** Array resource ID for GMS Google Fonts certificates array. Defaults to 0 (unconfigured). */
-    public val fontCertsResId: Int
+internal fun interface GmsFontLoader {
+    suspend fun loadFont(context: Context, fontRequest: FontRequest): Typeface?
+}
+
+private object DefaultGmsFontLoader : GmsFontLoader {
+    override suspend fun loadFont(context: Context, fontRequest: FontRequest): Typeface? {
+        if (isLayoutlibPreview(context) || !isFontProviderAvailable(context, fontRequest)) {
+            return null
+        }
+        return suspendCancellableCoroutine { continuation ->
+            val callback =
+                object : FontsContractCompat.FontRequestCallback() {
+                    override fun onTypefaceRetrieved(typeface: Typeface) {
+                        if (continuation.isActive) {
+                            continuation.resume(typeface)
+                        }
+                    }
+
+                    override fun onTypefaceRequestFailed(reason: Int) {
+                        if (continuation.isActive) {
+                            continuation.resume(null)
+                        }
+                    }
+                }
+            FontsContractCompat.requestFont(
+                context,
+                fontRequest,
+                Typeface.NORMAL,
+                null,
+                Executor { it.run() },
+                callback,
+            )
+        }
+    }
+
+    private fun isLayoutlibPreview(context: Context): Boolean =
+        Build.FINGERPRINT == "layoutlib" ||
+            context.javaClass.name.startsWith("com.android.layoutlib.")
+
+    private fun isFontProviderAvailable(context: Context, fontRequest: FontRequest): Boolean {
+        val packageManager = context.packageManager ?: return false
+        @Suppress("DEPRECATION")
+        val providerInfo =
+            packageManager.resolveContentProvider(fontRequest.providerAuthority, 0) ?: return false
+        return providerInfo.packageName == fontRequest.providerPackage
+    }
 }
 
 /**
- * A [TypefaceResolver] that handles "google:" fonts via GMS [FontRequest] using specified
- * certificates. Delegates to [delegate] (defaults to [EmbeddedPlayerTypefaceResolver]) for other
- * font resolution.
+ * An [RcTypefaceResolver] that handles `"google:"` fonts via GMS [FontRequest] using the specified
+ * [fontCertsResId] and [RcTypefaceRequest.variationSettings]. Delegates to [delegate] (defaults to
+ * [EmbeddedPlayerTypefaceResolver]) for other font resolution or if the downloadable font request
+ * fails.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GmsFontTypefaceResolver(
-    private val remoteContext: RemoteContext,
-    @ArrayRes override val fontCertsResId: Int,
-    private val delegate: TypefaceResolver = EmbeddedPlayerTypefaceResolver,
-) : TypefaceResolver, HasFontCerts {
+public class GmsFontTypefaceResolver
+internal constructor(
+    private val context: Context?,
+    @ArrayRes public val fontCertsResId: Int,
+    private val delegate: RcTypefaceResolver = EmbeddedPlayerTypefaceResolver,
+    private val fontLoader: GmsFontLoader = DefaultGmsFontLoader,
+) : RcTypefaceResolver {
 
-    private val cache = mutableMapOf<String, FontInstance>()
+    public constructor(
+        context: Context?,
+        @ArrayRes fontCertsResId: Int,
+        delegate: RcTypefaceResolver = EmbeddedPlayerTypefaceResolver,
+    ) : this(
+        context = context,
+        fontCertsResId = fontCertsResId,
+        delegate = delegate,
+        fontLoader = DefaultGmsFontLoader,
+    )
 
-    override fun resolve(
-        fontType: Int,
-        weight: Int,
-        italic: Boolean,
-        fallbackTypeface: Typeface?,
-        fallbackWeight: Int,
-        fallbackItalic: Boolean,
-    ): FontInstance {
-        return delegate.resolve(
-            fontType,
-            weight,
-            italic,
-            fallbackTypeface,
-            fallbackWeight,
-            fallbackItalic,
+    public constructor(
+        remoteContext: RemoteContext,
+        @ArrayRes fontCertsResId: Int,
+        delegate: RcTypefaceResolver = EmbeddedPlayerTypefaceResolver,
+    ) : this(
+        context = (remoteContext as? AndroidRemoteContext)?.androidContext,
+        fontCertsResId = fontCertsResId,
+        delegate = delegate,
+        fontLoader = DefaultGmsFontLoader,
+    )
+
+    private val cache = ConcurrentHashMap<RcTypefaceRequest, Typeface>()
+    private val failedRequests: MutableSet<RcTypefaceRequest> = ConcurrentHashMap.newKeySet()
+
+    internal fun createFontRequest(realFontName: String, request: RcTypefaceRequest): FontRequest {
+        val query =
+            "name=$realFontName&weight=${request.weight}&italic=${if (request.italic) 1 else 0}&besteffort=true"
+        return FontRequest(
+            GMS_PROVIDER_AUTHORITY,
+            GMS_PROVIDER_PACKAGE,
+            query,
+            fontCertsResId,
+            request.variationSettings,
         )
     }
 
-    override fun resolve(
-        fontName: String,
-        weight: Int,
-        italic: Boolean,
-        fallbackTypeface: Typeface?,
-        fallbackWeight: Int,
-        fallbackItalic: Boolean,
-    ): FontInstance {
-        if (fontName.startsWith("google:") && fontCertsResId != 0) {
-            val key = "$fontName:$weight:$italic"
-            cache[key]?.let {
+    override suspend fun resolve(request: RcTypefaceRequest): Typeface? {
+        val fontName = request.fontFamily
+        if (fontName != null && fontName.startsWith("google:") && fontCertsResId != 0) {
+            cache[request]?.let {
                 return it
             }
 
-            val androidContext = (remoteContext as? AndroidRemoteContext)?.androidContext
-            if (androidContext != null) {
+            val androidContext = context
+            if (androidContext != null && request !in failedRequests) {
                 val realFontName = fontName.substring("google:".length)
-                val fallback = fallbackTypeface ?: Typeface.DEFAULT
-                val fontInstance = AsyncFontInstance(fallback)
-                cache[key] = fontInstance
-
-                val query =
-                    "name=$realFontName&weight=$weight&italic=${if (italic) 1 else 0}&besteffort=true"
-                val request =
-                    FontRequest(
-                        "com.google.android.gms.fonts",
-                        "com.google.android.gms",
-                        query,
-                        fontCertsResId,
-                    )
-
-                val callback =
-                    object : FontsContractCompat.FontRequestCallback() {
-                        override fun onTypefaceRetrieved(typeface: Typeface) {
-                            fontInstance.updateTypeface(typeface)
-                            remoteContext.needsRepaint()
-                        }
-
-                        override fun onTypefaceRequestFailed(reason: Int) {}
-                    }
-
-                val handler = Handler(Looper.getMainLooper())
-                FontsContractCompat.requestFont(
-                    androidContext,
-                    request,
-                    Typeface.NORMAL,
-                    false, /* isBlockingFetch */
-                    0, /* timeout */
-                    handler,
-                    callback,
-                )
-
-                return fontInstance
+                val fontRequest = createFontRequest(realFontName, request)
+                val loaded = fontLoader.loadFont(androidContext, fontRequest)
+                if (loaded != null) {
+                    val varied = applyVariationSettings(loaded, request.variationSettings)
+                    cache[request] = varied
+                    return varied
+                }
+                failedRequests.add(request)
             }
         }
 
-        return delegate.resolve(
-            fontName,
-            weight,
-            italic,
-            fallbackTypeface,
-            fallbackWeight,
-            fallbackItalic,
-        )
+        return delegate.resolve(request)
     }
 
-    private class AsyncFontInstance(private var typeface: Typeface) : FontInstance {
-        private var listener: Runnable? = null
-
-        fun updateTypeface(typeface: Typeface) {
-            this.typeface = typeface
-            listener?.run()
-        }
-
-        override fun getTypeface(): Typeface = typeface
-
-        override fun applyVariationSettings(tags: Array<String>, values: FloatArray): Typeface {
-            return typeface
-        }
-
-        override fun setOnLoadedListener(listener: Runnable) {
-            this.listener = listener
-        }
+    private companion object {
+        private const val GMS_PROVIDER_AUTHORITY = "com.google.android.gms.fonts"
+        private const val GMS_PROVIDER_PACKAGE = "com.google.android.gms"
     }
 }
