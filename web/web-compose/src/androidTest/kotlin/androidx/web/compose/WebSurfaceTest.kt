@@ -18,18 +18,35 @@ package androidx.web.compose
 
 import android.graphics.Color
 import android.view.View
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -274,6 +291,139 @@ class WebSurfaceTest {
             assertEquals(10, anchor.left)
             assertEquals(20, anchor.top)
         }
+    }
+
+    @Test
+    fun testAccessibilityTree() {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        lateinit var bridge: TestWebViewBridge
+        lateinit var provider: FakeAccessibilityNodeProvider
+        composeTestRule.setContent {
+            WebSurface(
+                content = webContent,
+                modifier = Modifier.size(200.dp),
+                bridgeFactory = { ctx ->
+                    TestWebViewBridge(ctx)
+                        .apply {
+                            provider = FakeAccessibilityNodeProvider(this, "Accessible Button")
+                            fakeAccessibilityNodeProvider = provider
+                        }
+                        .also { bridge = it }
+                },
+            )
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        var buttonNode: AccessibilityNodeInfo? = null
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            buttonNode = findNodeByText(uiAutomation.rootInActiveWindow, "Accessible Button")
+            buttonNode != null
+        }
+
+        assertTrue(buttonNode!!.performAction(AccessibilityNodeInfo.ACTION_FOCUS))
+        composeTestRule.runOnIdle {
+            assertEquals(listOf(AccessibilityNodeInfo.ACTION_FOCUS), provider.performedActions)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun testFocusAndKeyInterop() {
+        lateinit var bridge: WebViewBridge
+        val surfaceFocusRequester = FocusRequester()
+        val otherFocusRequester = FocusRequester()
+        var surfaceFocused = false
+        var keyReceivedByModifier = false
+
+        composeTestRule.setContent {
+            Column {
+                WebSurface(
+                    content = webContent,
+                    modifier =
+                        Modifier.size(150.dp)
+                            .testTag("surface")
+                            .focusRequester(surfaceFocusRequester)
+                            .onFocusChanged { surfaceFocused = it.isFocused }
+                            .onKeyEvent { event ->
+                                if (event.type == KeyEventType.KeyDown && event.key == Key.A) {
+                                    keyReceivedByModifier = true
+                                }
+                                false
+                            },
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+                Box(
+                    modifier =
+                        Modifier.size(50.dp)
+                            .testTag("other")
+                            .focusRequester(otherFocusRequester)
+                            .focusable()
+                )
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <body onkeydown='window.lastKey = event.key;'></body>
+            </html>
+            """
+        )
+
+        composeTestRule.runOnIdle { surfaceFocusRequester.requestFocus() }
+        composeTestRule.runOnIdle {
+            assertTrue(surfaceFocused)
+            assertTrue(bridge.hasFocus())
+        }
+
+        composeTestRule.onNodeWithTag("surface").performKeyInput { pressKey(Key.A) }
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            keyReceivedByModifier && bridge.evaluateJs("window.lastKey") == "\"a\""
+        }
+
+        composeTestRule.runOnIdle { otherFocusRequester.requestFocus() }
+        composeTestRule.runOnIdle {
+            assertFalse(surfaceFocused)
+            assertFalse(bridge.hasFocus())
+        }
+    }
+
+    @Test
+    fun testComposeLongClickInterop() {
+        lateinit var bridge: WebViewBridge
+        var longClicked = false
+
+        composeTestRule.setContent {
+            WebSurface(
+                content = webContent,
+                modifier =
+                    Modifier.size(150.dp)
+                        .testTag("surface")
+                        .combinedClickable(
+                            onClick = {},
+                            onLongClick = { longClicked = true },
+                        ),
+                bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+            )
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        composeTestRule.onNodeWithTag("surface").performTouchInput { longClick() }
+        composeTestRule.runOnIdle { assertTrue(longClicked) }
+    }
+
+    private fun findNodeByText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
+        if (node == null) return null
+        if (node.text?.toString() == text || node.contentDescription?.toString() == text) {
+            return node
+        }
+        for (i in 0 until node.childCount) {
+            val found = findNodeByText(node.getChild(i), text)
+            if (found != null) return found
+        }
+        return null
     }
 
     private fun waitForPixelToBe(centerX: Int, centerY: Int, predicate: (Int) -> Boolean) {
