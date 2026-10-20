@@ -62,6 +62,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.time.Duration
@@ -81,7 +82,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -254,15 +254,18 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
             .assertIsDisplayed()
             .assert(SemanticsMatcher.hasChild())
 
-        val newSurfaceRequest =
-            withTimeoutOrNull(timeout = 5.seconds) {
-                surfaceRequests.filterNotNull().first { it != firstSurfaceRequest }
-            }
+        var newSurfaceRequest: SurfaceRequest? = null
+        composeTest.waitUntil(timeoutMillis = 5000) {
+            surfaceRequests.value
+                .takeIf { it != null && it !== firstSurfaceRequest }
+                ?.also { newSurfaceRequest = it } != null
+        }
 
         ensureCameraIsStreaming()
 
         // A new surface request should have been created since the old one was invalidated
         assertThat(newSurfaceRequest).isNotNull()
+        assertThat(newSurfaceRequest).isNotSameInstanceAs(firstSurfaceRequest)
     }
 
     @Test
@@ -533,6 +536,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
 
         private const val CAMERAX_VIEWFINDER_TEST_TAG = "CameraXViewfinderTestTag"
+        private const val NUM_FRAMES_TO_WAIT_FOR = 10
     }
 
     private inline fun runViewfinderTest(crossinline block: suspend PreviewTestScope.() -> Unit) =
@@ -546,7 +550,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
 
             var fakeLifecycleOwner: FakeLifecycleOwner? = null
             try {
-                val latestDeliveredFrameNumber = MutableStateFlow(-1L)
+                val deliveredFrameCount = AtomicLong(0)
                 val preview =
                     Preview.Builder()
                         .also {
@@ -559,7 +563,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                                             result: TotalCaptureResult,
                                         ) {
                                             super.onCaptureCompleted(session, request, result)
-                                            latestDeliveredFrameNumber.value = result.frameNumber
+                                            deliveredFrameCount.incrementAndGet()
                                         }
                                     }
                                 )
@@ -655,7 +659,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                         pauseLifecycle = pauseLifecycle,
                         resumeLifecycle = resumeLifecycle,
                         coroutineContext = coroutineContext,
-                        lastFrames = latestDeliveredFrameNumber.asStateFlow(),
+                        frameCount = deliveredFrameCount,
                     )
                 ) {
                     block()
@@ -678,6 +682,19 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
             }
         }
 
+    /**
+     * Waits for [NUM_FRAMES_TO_WAIT_FOR] new capture results while pumping the compose test clock.
+     * The v2 compose rule runs effects on a StandardTestDispatcher, so surface-session coroutines
+     * (e.g. the replacement SurfaceView session after a move on API < 29) only make progress while
+     * the test waits through the rule.
+     */
+    private fun PreviewTestScope.ensureCameraIsStreaming(timeout: Duration = 5.seconds) {
+        val targetFrameCount = frameCount.get() + NUM_FRAMES_TO_WAIT_FOR
+        composeTest.waitUntil(timeoutMillis = timeout.inWholeMilliseconds) {
+            frameCount.get() >= targetFrameCount
+        }
+    }
+
     private data class PreviewTestScope(
         val surfaceRequests: StateFlow<SurfaceRequest?>,
         val setSurfaceRequest: (SurfaceRequest?) -> Unit,
@@ -687,17 +704,9 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         val pauseLifecycle: suspend () -> Unit,
         val resumeLifecycle: suspend () -> Unit,
         override val coroutineContext: CoroutineContext,
-        private val lastFrames: StateFlow<Long>,
+        val frameCount: AtomicLong,
         val currentStreamState: AtomicInteger = AtomicInteger(Preview.STREAM_STATE_IDLE),
-    ) : CoroutineScope {
-        suspend fun ensureCameraIsStreaming(timeout: Duration = 5.seconds) {
-            withTimeout(timeout) { lastFrames.take(NUM_FRAMES_TO_WAIT_FOR).collect {} }
-        }
-
-        companion object {
-            private const val NUM_FRAMES_TO_WAIT_FOR = 10
-        }
-    }
+    ) : CoroutineScope
 }
 
 private fun ImplementationMode.swapMode(): ImplementationMode {
