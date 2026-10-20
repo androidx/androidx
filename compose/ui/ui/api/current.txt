@@ -75,7 +75,6 @@ package androidx.compose.ui {
     property public boolean isAccessibilityPerformanceEnabled;
     property public boolean isAlwaysScrollDuringScrollCaptureEnabled;
     property public boolean isDelayAndroidViewsHandlerCreationEnabled;
-    property public boolean isDelayedWindowInsetsRulersEnabled;
     property public boolean isFrameworkVelocityTrackerEnabled;
     property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isNestedScrollInteropViewHolderFixEnabled;
@@ -87,7 +86,6 @@ package androidx.compose.ui {
     field public static boolean isAccessibilityPerformanceEnabled;
     field public static boolean isAlwaysScrollDuringScrollCaptureEnabled;
     field public static boolean isDelayAndroidViewsHandlerCreationEnabled;
-    field public static boolean isDelayedWindowInsetsRulersEnabled;
     field public static boolean isFrameworkVelocityTrackerEnabled;
     field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isNestedScrollInteropViewHolderFixEnabled;

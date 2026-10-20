@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable.PlacementScope
@@ -57,12 +56,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.Insets
 import androidx.core.view.DisplayCutoutCompat
-import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsAnimationCompat
 import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -72,12 +71,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalComposeUiApi::class)
 @SdkSuppress(minSdkVersion = 30)
-@RunWith(Parameterized::class)
-class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boolean) {
+@RunWith(AndroidJUnit4::class)
+class WindowInsetsRulersTest {
     @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>()
 
     private lateinit var composeView: AndroidComposeView
@@ -93,13 +91,9 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     private var contentWidth = 0
     private var contentHeight = 0
     private val displayCutoutRects = mutableObjectListOf<IntRect?>()
-    private var previousDelayedRulersFlag = false
 
     @Before
     fun setup() {
-        previousDelayedRulersFlag = AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled
-        AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled =
-            isDelayedWindowInsetsRulersEnabled
         rule.runOnUiThread { WindowCompat.enableEdgeToEdge(rule.activity.window) }
         // Don't let the normal rulers through. We only want the sendOnApplyWindowInsets() to have
         // an effect.
@@ -110,7 +104,6 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     @After
     fun tearDown() {
         areWindowInsetsRulersEnabled = true
-        AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled = previousDelayedRulersFlag
     }
 
     private fun setContent(content: @Composable () -> Unit) {
@@ -163,18 +156,9 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
         }
     }
 
-    private fun AndroidComposeView.sendInsets(view: View, insets: WindowInsetsCompat) {
-        val listener = (this.insetsWatcher ?: this.insetsListener) as OnApplyWindowInsetsListener
-        listener.onApplyWindowInsets(view, insets)
-    }
-
-    private fun AndroidComposeView.getCallback(): WindowInsetsAnimationCompat.Callback {
-        return (this.insetsWatcher ?: this.insetsListener) as WindowInsetsAnimationCompat.Callback
-    }
-
     private fun sendOnApplyWindowInsets(insets: WindowInsetsCompat) {
         val view = composeView.parent as View
-        rule.runOnIdle { composeView.sendInsets(view, insets) }
+        rule.runOnIdle { composeView.insetsWatcher.onApplyWindowInsets(view, insets) }
     }
 
     private fun startAnimation(
@@ -186,10 +170,10 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val callback = composeView.getCallback()
-            callback.onPrepare(animation)
-            composeView.sendInsets(view, createInsets(type to target))
-            callback.onStart(animation, BoundsCompat(low, high))
+            val watcher = composeView.insetsWatcher
+            watcher.onPrepare(animation)
+            watcher.onApplyWindowInsets(view, createInsets(type to target))
+            watcher.onStart(animation, BoundsCompat(low, high))
         }
     }
 
@@ -199,18 +183,18 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     ) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val callback = composeView.getCallback()
-            callback.onProgress(insets, mutableListOf(animation))
-            composeView.sendInsets(view, insets)
+            val watcher = composeView.insetsWatcher
+            watcher.onProgress(insets, mutableListOf(animation))
+            watcher.onApplyWindowInsets(view, insets)
         }
     }
 
     private fun endAnimation(animation: WindowInsetsAnimationCompat, insets: WindowInsetsCompat) {
         val view = composeView.parent as View
         rule.runOnIdle {
-            val callback = composeView.getCallback()
-            callback.onEnd(animation)
-            composeView.sendInsets(view, insets)
+            val watcher = composeView.insetsWatcher
+            watcher.onEnd(animation)
+            watcher.onApplyWindowInsets(view, insets)
         }
     }
 
@@ -846,9 +830,9 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.sendInsets(view, insets)
+            composeView.insetsWatcher.onApplyWindowInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.sendInsets(dialogView, createInsets())
+            dialogComposeView.insetsWatcher.onApplyWindowInsets(dialogView, createInsets())
         }
 
         rule.runOnIdle {
@@ -896,9 +880,9 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
                     Type.tappableElement() to Insets.of(0, 0, 0, 13),
                 )
             val view = composeView.parent as View
-            composeView.sendInsets(view, insets)
+            composeView.insetsWatcher.onApplyWindowInsets(view, insets)
             val dialogView = dialogComposeView.parent as View
-            dialogComposeView.sendInsets(dialogView, insets)
+            dialogComposeView.insetsWatcher.onApplyWindowInsets(dialogView, insets)
         }
 
         rule.runOnIdle {
@@ -1354,10 +1338,6 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     }
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "isDelayedWindowInsetsRulersEnabled={0}")
-        fun data(): List<Boolean> = listOf(false, true)
-
         const val WaterfallType = -1
         val InsetsRulerTypes =
             mapOf(
