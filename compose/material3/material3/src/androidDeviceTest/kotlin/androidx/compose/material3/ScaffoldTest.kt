@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
@@ -279,19 +280,28 @@ class ScaffoldTest {
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
                     topBar = { Box(Modifier.requiredSize(10.dp)) },
                 ) { paddingValues ->
-                    // top is like top app bar + rounding error
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateTopPadding(),
-                        expected = 10.dp,
-                        threshold = roundingError,
+                    Box(
+                        Modifier.requiredSize(10.dp).background(color = Color.White).layout {
+                            measurable,
+                            constraints ->
+                            // top is like top app bar + rounding error
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateTopPadding(),
+                                expected = 10.dp,
+                                threshold = roundingError,
+                            )
+                            // bottom is like the insets
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateBottomPadding(),
+                                expected = 3.dp,
+                                threshold = roundingError,
+                            )
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(0, 0)
+                            }
+                        }
                     )
-                    // bottom is like the insets
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateBottomPadding(),
-                        expected = 3.dp,
-                        threshold = roundingError,
-                    )
-                    Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
             }
         }
@@ -304,19 +314,28 @@ class ScaffoldTest {
             Box(Modifier.requiredSize(10.dp, 40.dp)) {
                 Scaffold(contentWindowInsets = WindowInsets(top = 15.dp, bottom = 10.dp)) {
                     paddingValues ->
-                    // topPadding is equal to provided top window inset
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateTopPadding(),
-                        expected = 15.dp,
-                        threshold = roundingError,
+                    Box(
+                        Modifier.requiredSize(10.dp).background(color = Color.White).layout {
+                            measurable,
+                            constraints ->
+                            // topPadding is equal to provided top window inset
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateTopPadding(),
+                                expected = 15.dp,
+                                threshold = roundingError,
+                            )
+                            // bottomPadding is equal to provided bottom window inset
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateBottomPadding(),
+                                expected = 10.dp,
+                                threshold = roundingError,
+                            )
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(0, 0)
+                            }
+                        }
                     )
-                    // bottomPadding is equal to provided bottom window inset
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateBottomPadding(),
-                        expected = 10.dp,
-                        threshold = roundingError,
-                    )
-                    Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
             }
         }
@@ -332,19 +351,29 @@ class ScaffoldTest {
             ) {
                 Scaffold(contentWindowInsets = WindowInsets(top = 15.dp, bottom = 15.dp)) {
                     paddingValues ->
-                    // Consumed windowInsetsPadding is omitted. This replicates behavior from
-                    // Modifier.windowInsetsPadding. (15.dp contentPadding - 10.dp consumedPadding)
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateTopPadding(),
-                        expected = 5.dp,
-                        threshold = roundingError,
+                    Box(
+                        Modifier.requiredSize(10.dp).background(color = Color.White).layout {
+                            measurable,
+                            constraints ->
+                            // Consumed windowInsetsPadding is omitted. This replicates behavior
+                            // from Modifier.windowInsetsPadding. (15.dp contentPadding - 10.dp
+                            // consumedPadding)
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateTopPadding(),
+                                expected = 5.dp,
+                                threshold = roundingError,
+                            )
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateBottomPadding(),
+                                expected = 5.dp,
+                                threshold = roundingError,
+                            )
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(0, 0)
+                            }
+                        }
                     )
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateBottomPadding(),
-                        expected = 5.dp,
-                        threshold = roundingError,
-                    )
-                    Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
             }
         }
@@ -359,19 +388,28 @@ class ScaffoldTest {
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
                     topBar = { Box(Modifier.requiredHeight(0.dp).fillMaxWidth()) },
                 ) { paddingValues ->
-                    // top is like the collapsed top app bar (i.e. 0dp) + rounding error
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateTopPadding(),
-                        expected = 0.dp,
-                        threshold = roundingError,
+                    Box(
+                        Modifier.requiredSize(10.dp).background(color = Color.White).layout {
+                            measurable,
+                            constraints ->
+                            // top is like the collapsed top app bar (i.e. 0dp) + rounding error
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateTopPadding(),
+                                expected = 0.dp,
+                                threshold = roundingError,
+                            )
+                            // bottom is like the insets
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateBottomPadding(),
+                                expected = 3.dp,
+                                threshold = roundingError,
+                            )
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(0, 0)
+                            }
+                        }
                     )
-                    // bottom is like the insets
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateBottomPadding(),
-                        expected = 3.dp,
-                        threshold = roundingError,
-                    )
-                    Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
             }
         }
@@ -386,21 +424,62 @@ class ScaffoldTest {
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
                     bottomBar = { Box(Modifier.requiredSize(10.dp)) },
                 ) { paddingValues ->
-                    // bottom is like bottom app bar + rounding error
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateBottomPadding(),
-                        expected = 10.dp,
-                        threshold = roundingError,
+                    Box(
+                        Modifier.requiredSize(10.dp).background(color = Color.White).layout {
+                            measurable,
+                            constraints ->
+                            // bottom is like bottom app bar + rounding error
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateBottomPadding(),
+                                expected = 10.dp,
+                                threshold = roundingError,
+                            )
+                            // top is like the insets
+                            assertDpIsWithinThreshold(
+                                actual = paddingValues.calculateTopPadding(),
+                                expected = 5.dp,
+                                threshold = roundingError,
+                            )
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.place(0, 0)
+                            }
+                        }
                     )
-                    // top is like the insets
-                    assertDpIsWithinThreshold(
-                        actual = paddingValues.calculateTopPadding(),
-                        expected = 5.dp,
-                        threshold = roundingError,
-                    )
-                    Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun scaffold_layoutDisabled_providesPaddingInComposition() {
+        val previousFlag = ComposeMaterial3Flags.isScaffoldLayoutEnabled
+        ComposeMaterial3Flags.isScaffoldLayoutEnabled = false
+        try {
+            rule.setContent {
+                Box(Modifier.requiredSize(10.dp, 40.dp)) {
+                    Scaffold(
+                        contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
+                        topBar = { Box(Modifier.requiredSize(10.dp)) },
+                    ) { paddingValues ->
+                        assertDpIsWithinThreshold(
+                            actual = paddingValues.calculateTopPadding(),
+                            expected = 10.dp,
+                            threshold = roundingError,
+                        )
+                        assertDpIsWithinThreshold(
+                            actual = paddingValues.calculateBottomPadding(),
+                            expected = 3.dp,
+                            threshold = roundingError,
+                        )
+                        Box(Modifier.requiredSize(10.dp).background(color = Color.White))
+                    }
+                }
+            }
+        } finally {
+            ComposeMaterial3Flags.isScaffoldLayoutEnabled = previousFlag
         }
     }
 
