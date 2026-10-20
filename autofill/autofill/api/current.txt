@@ -180,6 +180,8 @@ package androidx.autofill.inline.v1 {
     method public android.app.PendingIntent? getAttributionIntent();
     method public CharSequence? getContentDescription();
     method public android.graphics.drawable.Icon? getEndIcon();
+    method @ColorInt public int getOutlineAnimationPrimaryColor();
+    method @ColorInt public int getOutlineAnimationSecondaryColor();
     method public final android.app.slice.Slice getSlice();
     method public android.graphics.drawable.Icon? getStartIcon();
     method public CharSequence? getSubtitle();
@@ -191,6 +193,8 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setHints(java.util.List<java.lang.String!>);
+    method @RequiresApi(api=38) public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setOutlineAnimationPrimaryColor(@ColorInt int);
+    method @RequiresApi(api=38) public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setOutlineAnimationSecondaryColor(@ColorInt int);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(CharSequence);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(CharSequence);
