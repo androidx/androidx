@@ -62,6 +62,10 @@ public final class Banner implements Item {
      * Represents a small icon-sized image to be displayed in the banner.
      *
      * <p>The host renders it with standard padding and scales the image to fit within the bounds.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting an 88 x 88 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_SMALL = 1;
 
@@ -69,12 +73,26 @@ public final class Banner implements Item {
      * Represents a medium padded artwork image to be displayed in the banner.
      *
      * <p>The host renders it with standard padding and scales the image to fit within the bounds.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_MEDIUM = 2;
 
     /**
-     * Represents a large edge-to-edge image to be displayed in the banner. Scales the image
-     * to fill the container and potentially clip within the bounds if a shape is applied.
+     * Represents a large edge-to-edge image to be displayed in the banner.
+     *
+     * <p>The host renders it on the leading or trailing side of the banner, outside of the padded
+     * content area, depending on whether it is set via
+     * {@link Builder#setLeadingImage(CarIcon, int)} or
+     * {@link Builder#addTrailingImage(CarIcon, int)}. It is displayed as a square spanning the full
+     * height of the banner. The image is scaled to fill that square and centered, and any part
+     * outside the square is cropped. Its outer corners follow the banner shape.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * square images targeting a 224 x 224 dp bounding box. If necessary, the image will be scaled
+     * down.
      *
      * <p>This image type cannot be used in combination with {@link Builder#addBelowAction(Action)}.
      */
