@@ -236,9 +236,10 @@ class ProjectedDisplayControllerTest {
                     packageName = context.packageName
                 }
             )
-        val activityScenario: ActivityScenario<TestActivity> =
-            ActivityScenario.launch(Intent(context, TestActivity::class.java))
-        activityScenario.onActivity { activity -> block(activity) }
+        ActivityScenario.launch<TestActivity>(Intent(context, TestActivity::class.java)).use {
+            activityScenario ->
+            activityScenario.onActivity { activity -> block(activity) }
+        }
     }
 }
 
