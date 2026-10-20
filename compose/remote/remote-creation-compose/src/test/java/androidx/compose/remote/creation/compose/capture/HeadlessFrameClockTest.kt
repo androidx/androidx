@@ -20,12 +20,14 @@ package androidx.compose.remote.creation.compose.capture
 
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -165,6 +167,53 @@ class HeadlessFrameClockTest {
         val failure = runCatching { clock.runClock() }.exceptionOrNull()
 
         assertThat(failure).isInstanceOf(IllegalStateException::class.java)
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun minFramePeriod_pacesPumpFrames() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now }, timeSource = testScheduler.timeSource)
+        clock.minFramePeriod = 100.milliseconds
+        val pump = launch { clock.runClock() }
+
+        clock.withFrameNanos {}
+        assertThat(currentTime).isEqualTo(0)
+        clock.withFrameNanos {}
+        assertThat(currentTime).isEqualTo(100)
+        clock.withFrameNanos {}
+        assertThat(currentTime).isEqualTo(200)
+
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun minFramePeriod_zero_liftsPacing() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now }, timeSource = testScheduler.timeSource)
+        clock.minFramePeriod = 100.milliseconds
+        val pump = launch { clock.runClock() }
+        clock.withFrameNanos {}
+
+        clock.minFramePeriod = 0.milliseconds
+        clock.withFrameNanos {}
+
+        assertThat(currentTime).isEqualTo(0)
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun minFramePeriod_doesNotPaceSendFrame() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now }, timeSource = testScheduler.timeSource)
+        clock.minFramePeriod = 100.milliseconds
+        val pump = launch { clock.runClock() }
+        clock.withFrameNanos {}
+        val frame = async { clock.withFrameNanos { it } }
+        runCurrent()
+
+        clock.sendFrame()
+        runCurrent()
+
+        assertThat(frame.isCompleted).isTrue()
+        assertThat(currentTime).isEqualTo(0)
         pump.cancelAndJoin()
     }
 
