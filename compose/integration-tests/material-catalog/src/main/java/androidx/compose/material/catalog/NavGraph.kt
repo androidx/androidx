@@ -24,13 +24,14 @@ import androidx.compose.material.catalog.model.Specifications
 import androidx.compose.material.catalog.ui.specification.Specification
 import androidx.compose.material3.catalog.library.Material3CatalogApp
 import androidx.compose.material3.catalog.library.Material3Route
+import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun NavGraph(initialFavoriteRoute: String?) {
+fun NavGraph(initialFavoriteRoute: String?, initialTheme: Theme = Theme()) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -50,7 +51,10 @@ fun NavGraph(initialFavoriteRoute: String?) {
         }
         composable(MaterialRoute) { MaterialCatalogApp() }
         composable(Material3Route) {
-            Material3CatalogApp(initialFavoriteRoute = initialFavoriteRoute)
+            Material3CatalogApp(
+                initialFavoriteRoute = initialFavoriteRoute,
+                initialTheme = initialTheme,
+            )
         }
     }
 }
