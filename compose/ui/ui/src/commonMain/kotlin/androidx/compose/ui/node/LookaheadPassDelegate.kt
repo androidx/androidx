@@ -414,11 +414,6 @@ internal class LookaheadPassDelegate(
             layoutNodeLayoutDelegate.detachedFromParentLookaheadPass = false
         }
         trackLookaheadMeasurementByParent(layoutNode)
-        if (layoutNode.intrinsicsUsageByParent == LayoutNode.UsageByParent.NotUsed) {
-            // This LayoutNode may have asked children for intrinsics. If so, we should
-            // clear the intrinsics usage for everything that was requested previously.
-            layoutNode.clearSubtreeIntrinsicsUsage()
-        }
         // Since this a measure request coming from the parent. We'd be starting lookahead
         // only if the current layoutNode is the top-level lookahead root.
         // This is an optimization to avoid redundant Snapshot.enter when creating new snapshots
@@ -496,6 +491,11 @@ internal class LookaheadPassDelegate(
             layoutNode.canMultiMeasure =
                 layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
             if (layoutNode.lookaheadMeasurePending || lookaheadConstraints != constraints) {
+                if (layoutNode.intrinsicsUsageByParent == LayoutNode.UsageByParent.NotUsed) {
+                    // This LayoutNode may have asked children for intrinsics. If so, we should
+                    // clear the intrinsics usage for everything that was requested previously.
+                    layoutNode.clearSubtreeIntrinsicsUsage()
+                }
                 lookaheadConstraints = constraints
                 measurementConstraints = constraints
                 alignmentLines.usedByModifierMeasurement = false
@@ -525,9 +525,6 @@ internal class LookaheadPassDelegate(
                 // can trigger extra remeasure request on our node. we do it now in order to report
                 // the final measured size to our parent without doing extra pass later.
                 layoutNode.owner?.forceMeasureTheSubtree(layoutNode, affectsLookahead = true)
-
-                // Restore the intrinsics usage for the sub-tree
-                layoutNode.resetSubtreeIntrinsicsUsage()
             }
             return false
         }
