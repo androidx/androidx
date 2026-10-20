@@ -33,7 +33,7 @@ internal class RemoteFitBoxNode : RemoteComposeNode() {
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startFitBox(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection),
+            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
             verticalArrangement.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)

@@ -76,15 +76,16 @@ internal class RemoteCollapsibleRowNode : RemoteComposeNode() {
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
+        val remoteLayoutDirection = layoutDirection.toRemoteLayoutDirection()
         creationState.document.startCollapsibleRow(
             recordingModifier,
-            horizontalArrangement.toRemote(layoutDirection),
+            horizontalArrangement.toRemote(remoteLayoutDirection),
             verticalAlignment.toRemote(),
         )
         renderChildren(
             creationState,
             remoteCanvas,
-            reversed = shouldReverse(horizontalArrangement, layoutDirection),
+            reversed = shouldReverse(horizontalArrangement, remoteLayoutDirection),
         )
         creationState.document.endCollapsibleRow()
     }

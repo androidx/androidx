@@ -37,9 +37,10 @@ internal class RemoteFlowRowNode : RemoteComposeNode() {
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
+        val remoteLayoutDirection = layoutDirection.toRemoteLayoutDirection()
         creationState.document.startFlow(
             recordingModifier,
-            horizontalArrangement.toRemote(layoutDirection),
+            horizontalArrangement.toRemote(remoteLayoutDirection),
             verticalArrangement.toRemote(),
             maxItemsInEachRow,
             maxLines,
@@ -47,7 +48,7 @@ internal class RemoteFlowRowNode : RemoteComposeNode() {
         renderChildren(
             creationState,
             remoteCanvas,
-            reversed = shouldReverse(horizontalArrangement, layoutDirection),
+            reversed = shouldReverse(horizontalArrangement, remoteLayoutDirection),
         )
         creationState.document.endFlow()
     }
