@@ -52,42 +52,26 @@ import org.junit.jupiter.api.extension.ParameterResolver
  * targets the tested app that the test suite properties name.
  */
 public class BackupRestoreExtension
-internal constructor(
-    private val isStandalone: Boolean,
-    private val adbSessionProvider: () -> AdbSession,
-) : ParameterResolver {
+internal constructor(private val adbSessionProvider: () -> AdbSession) : ParameterResolver {
 
     /**
-     * Creates a standalone extension, which manages its own ADB session.
+     * Creates an extension, which manages its own ADB session.
      *
-     * All standalone extensions in a test run share one session. It is created when a test first
-     * requests a [BackupRestoreController] and closed when the test run ends.
+     * All extensions in a test run share one session. It is created when a test first requests a
+     * [BackupRestoreController] and closed when the test run ends.
      */
-    public constructor() : this(isStandalone = true, { createStandaloneSession() })
-
-    /**
-     * Creates an extension that integrates with an existing shared [AdbSession].
-     *
-     * In this shared mode, the extension integrates with a shared ADB session provided by an
-     * external framework or test suite. The lifecycle of this session (creation and close/cleanup)
-     * is managed externally, meaning the extension will not close or dispose of the shared session.
-     *
-     * @param adbSession The active [AdbSession] to be used by the extension.
-     */
-    public constructor(adbSession: AdbSession) : this(isStandalone = false, { adbSession })
+    public constructor() : this({ createStandaloneSession() })
 
     private val logger = Logger.getLogger(BackupRestoreExtension::class.java.name)
 
     /**
      * Returns the ADB session to resolve parameters with in [context]. Callers must not close it.
      *
-     * A standalone session is kept in the store of the root context, so that every standalone
-     * extension of the test run shares it, and JUnit closes it when the test run ends. A shared
-     * session stays open until the code that passed it to the constructor closes it.
+     * The session is kept in the store of the root context, so that every extension of the test run
+     * shares it, and JUnit closes it when the test run ends.
      */
-    internal fun sessionFor(context: ExtensionContext): AdbSession {
-        if (!isStandalone) return adbSessionProvider()
-        return context.root
+    internal fun sessionFor(context: ExtensionContext): AdbSession =
+        context.root
             .getStore(NAMESPACE)
             .getOrComputeIfAbsent(
                 STANDALONE_SESSION_KEY,
@@ -95,7 +79,6 @@ internal constructor(
                 StandaloneSession::class.java,
             )
             .session
-    }
 
     override fun supportsParameter(
         parameterContext: ParameterContext?,
@@ -523,7 +506,7 @@ internal constructor(
         private val NAMESPACE =
             ExtensionContext.Namespace.create(BackupRestoreExtension::class.java)
 
-        /** Store key of the [StandaloneSession] that all standalone extensions share. */
+        /** Store key of the [StandaloneSession] that all extensions in a test run share. */
         private const val STANDALONE_SESSION_KEY = "standaloneSession"
 
         /** Property specifying a comma-separated list of device serial numbers. */
