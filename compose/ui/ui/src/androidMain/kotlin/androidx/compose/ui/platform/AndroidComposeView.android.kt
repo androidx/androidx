@@ -86,10 +86,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectList
-import androidx.collection.ScatterMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectListOf
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -176,14 +174,12 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.internal.checkPreconditionNotNull
-import androidx.compose.ui.layout.InsetsListener
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
-import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.RootMeasurePolicy
 import androidx.compose.ui.layout.Ruler
 import androidx.compose.ui.layout.RulerKey
@@ -191,11 +187,9 @@ import androidx.compose.ui.layout.RulerScope
 import androidx.compose.ui.layout.WindowInsetsRulerProvider
 import androidx.compose.ui.layout.WindowInsetsRulersProvider
 import androidx.compose.ui.layout.WindowInsetsWatcher
-import androidx.compose.ui.layout.WindowWindowInsetsAnimationValues
 import androidx.compose.ui.layout.areWindowInsetsRulersEnabled
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.provideWindowInsetsRulers
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.LayoutNode
@@ -678,19 +672,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override val viewConfiguration: ViewConfiguration
         get() = composeViewContext.viewConfiguration
 
-    val insetsWatcher =
-        if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-            WindowInsetsWatcher(this)
-        } else {
-            null
-        }
-
-    val insetsListener =
-        if (!AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-            InsetsListener(this)
-        } else {
-            null
-        }
+    val insetsWatcher = WindowInsetsWatcher(this)
 
     @OptIn(ExperimentalComposeUiApi::class)
     override val root =
@@ -2588,8 +2570,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             showLayoutBounds = getIsShowingLayoutBounds()
         }
         if (areWindowInsetsRulersEnabled) {
-            insetsWatcher?.onViewAttachedToWindow(this)
-            insetsListener?.onViewAttachedToWindow(this)
+            insetsWatcher.onViewAttachedToWindow(this)
         }
         if (!composeViewContextIncrementedDuringInit) {
             composeViewContext.incrementViewCount()
@@ -2678,8 +2659,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         indirectPointerNavigationGestureDetector.dispose()
 
         if (areWindowInsetsRulersEnabled) {
-            insetsWatcher?.onViewDetachedFromWindow(this)
-            insetsListener?.onViewDetachedFromWindow(this)
+            insetsWatcher.onViewDetachedFromWindow(this)
         }
         val frameRateCategoryView = frameRateCategoryView
         if (isArrEnabled && frameRateCategoryView != null) {
@@ -3981,50 +3961,19 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         private var _insetsProvider: WindowInsetsRulersProvider? = null
         override val insetsProvider: WindowInsetsRulersProvider?
             get() =
-                if (
-                    AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled &&
-                        areWindowInsetsRulersEnabled
-                ) {
+                if (areWindowInsetsRulersEnabled) {
                     _insetsProvider
-                        ?: WindowInsetsRulersProvider(insetsWatcher!!).also { _insetsProvider = it }
+                        ?: WindowInsetsRulersProvider(insetsWatcher).also { _insetsProvider = it }
                 } else {
                     null
                 }
 
         val rulerProvider: RulerScope.(Ruler) -> Unit = { ruler ->
-            if (areWindowInsetsRulersEnabled) {
-                insetsProvider?.provideInset(this, ruler)
-            }
+            insetsProvider?.provideInset(this, ruler)
         }
 
         val isRulerProvided: (Ruler) -> Boolean = { ruler ->
-            areWindowInsetsRulersEnabled && insetsProvider?.isRulerProvided(ruler) == true
-        }
-
-        override val insetsValues: ScatterMap<Any, WindowWindowInsetsAnimationValues>?
-            get() = if (areWindowInsetsRulersEnabled) insetsListener?.insetsValues else null
-
-        override val cutoutRects: MutableObjectList<MutableState<Rect>>?
-            get() = if (areWindowInsetsRulersEnabled) insetsListener?.displayCutouts else null
-
-        override val cutoutRulers: List<RectRulers>?
-            get() = if (areWindowInsetsRulersEnabled) insetsListener?.displayCutoutRulers else null
-
-        override val insetsListener: InsetsListener?
-            get() =
-                if (areWindowInsetsRulersEnabled) this@AndroidComposeView.insetsListener else null
-
-        var previousGeneration = -1
-
-        @OptIn(ExperimentalComposeUiApi::class)
-        val rulerLambda: RulerScope.() -> Unit = {
-            val generation = insetsListener?.generation
-            if (generation != null) {
-                previousGeneration = generation.intValue
-                if (previousGeneration > 0 && areWindowInsetsRulersEnabled) {
-                    provideWindowInsetsRulers(this@RootModifierNode)
-                }
-            }
+            insetsProvider?.isRulerProvided(ruler) == true
         }
 
         override fun MeasureScope.measure(
@@ -4037,17 +3986,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             if (!areWindowInsetsRulersEnabled) {
                 return layout(width, height) { placeable.place(0, 0) }
             }
-            return if (AndroidComposeUiFlags.isDelayedWindowInsetsRulersEnabled) {
-                layout(
-                    width,
-                    height,
-                    isRulerProvided = isRulerProvided,
-                    rulerProvider = rulerProvider,
-                ) {
-                    placeable.place(0, 0)
-                }
-            } else {
-                layout(width, height, rulers = rulerLambda) { placeable.place(0, 0) }
+            return layout(
+                width,
+                height,
+                isRulerProvided = isRulerProvided,
+                rulerProvider = rulerProvider,
+            ) {
+                placeable.place(0, 0)
             }
         }
 

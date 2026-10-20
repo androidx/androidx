@@ -106,16 +106,6 @@ public object AndroidComposeUiFlags {
     public var isAccessibilityPerformanceEnabled: Boolean = true
 
     /**
-     * If enabled, WindowInsetsRulers interactions will use the delayed-initialization path to
-     * improve ComposeView startup time. If disabled, the immediate-initialization path is used
-     * instead.
-     */
-    // TODO: Remove this flag once it has soaked (b/531596705)
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isDelayedWindowInsetsRulersEnabled: Boolean = true
-
-    /**
      * This flag enables dispatching accessibility focus events (TYPE_VIEW_ACCESSIBILITY_FOCUSED)
      * after keyboard scroll events for screen-reader synchronization.
      */
