@@ -1,0 +1,16 @@
+{
+  "androidx-cog-auto-format": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -B scripts/cog_format_modified.py",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
