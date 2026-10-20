@@ -377,9 +377,12 @@ public class ProjectedTestRule : TestRule {
                     packageName = context.packageName
                 }
             )
-        val activityScenario: ActivityScenario<TestProjectedDeviceActivity> =
-            ActivityScenario.launch(Intent(context, TestProjectedDeviceActivity::class.java))
-        activityScenario.onActivity { activity -> block(activity) }
+        ActivityScenario.launch<TestProjectedDeviceActivity>(
+                Intent(context, TestProjectedDeviceActivity::class.java)
+            )
+            .use { activityScenario ->
+                activityScenario.onActivity { activity -> block(activity) }
+            }
     }
 
     // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
