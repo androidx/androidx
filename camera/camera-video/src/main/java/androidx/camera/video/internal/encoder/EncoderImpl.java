@@ -63,6 +63,7 @@ import androidx.camera.video.internal.compat.quirk.PrematureEndOfStreamVideoQuir
 import androidx.camera.video.internal.compat.quirk.PreviewFreezeAfterHighSpeedRecordingQuirk;
 import androidx.camera.video.internal.compat.quirk.SignalEosOutputBufferNotComeQuirk;
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderLeaksThreadOnReleaseWithoutStartQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -676,6 +677,9 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     private void releaseInternal() {
         Logger.d(mTag, "releaseInternal");
+        // Must be evaluated before the flush handling below, which resets
+        // mIsFlushedAfterEndOfStream.
+        boolean startCodecBeforeRelease = shouldStartCodecBeforeRelease();
         if (mIsFlushedAfterEndOfStream) {
             // stop() should have been called before if workaround is enabled.
             if (!mCodecStopAsFlushWorkaroundEnabled) {
@@ -683,6 +687,21 @@ public class EncoderImpl implements Encoder {
                 mMediaCodec.stop();
             }
             mIsFlushedAfterEndOfStream = false;
+        }
+
+        if (startCodecBeforeRelease) {
+            // See VideoEncoderLeaksThreadOnReleaseWithoutStartQuirk. Releasing a surface-input
+            // codec that was never started leaks a native thread, so start it before release.
+            Logger.d(mTag, "mMediaCodec.start() before release to avoid thread leak");
+            if (mMediaCodecCallback != null) {
+                // Ignore any callbacks triggered by this start.
+                mMediaCodecCallback.stop();
+            }
+            try {
+                mMediaCodec.start();
+            } catch (RuntimeException e) {
+                Logger.w(mTag, "Failed to start MediaCodec before release", e);
+            }
         }
 
         Logger.d(mTag, "mMediaCodec.release()");
@@ -695,6 +714,22 @@ public class EncoderImpl implements Encoder {
         setState(RELEASED);
 
         mReleasedCompleter.set(null);
+    }
+
+    /**
+     * Returns whether the codec should be started right before it is released.
+     *
+     * <p>This is only needed when the codec has a surface input and has been configured but not
+     * started since the last configuration. A codec that was flushed after end of stream has
+     * been started, so it is excluded.
+     */
+    @ExecutedBy("mEncoderExecutor")
+    private boolean shouldStartCodecBeforeRelease() {
+        return mState == CONFIGURED
+                && !mIsFlushedAfterEndOfStream
+                && mEncoderInput instanceof SurfaceInput
+                && DeviceQuirks.get(VideoEncoderLeaksThreadOnReleaseWithoutStartQuirk.class)
+                != null;
     }
 
     /**
