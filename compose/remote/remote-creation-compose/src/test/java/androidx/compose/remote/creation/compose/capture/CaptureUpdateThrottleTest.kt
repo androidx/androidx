@@ -20,12 +20,20 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.withFrameNanos
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
@@ -35,6 +43,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.currentTime
@@ -163,6 +173,58 @@ class CaptureUpdateThrottleTest {
 
         assertThat(emitted).isEqualTo(1)
         assertThat(throttleWarnings()).hasSize(1)
+    }
+
+    /**
+     * While documents are throttled, frames are paced to the throttle interval so that content
+     * animating through recomposition cannot keep the recomposer spinning between documents. Under
+     * virtual time, unpaced frames would never let the scheduler advance to the throttle deadline,
+     * so this test would not complete.
+     */
+    @Test
+    fun captureRemoteDocument_rateLimited_pacesFramesWhileThrottled() = runTest {
+        val frames = AtomicInteger()
+        // Frame times and throttle intervals both follow virtual time.
+        val virtualClock =
+            object : RemoteClock by RemoteClock.SYSTEM {
+                override fun nanoTime(): Long = testScheduler.currentTime * 1_000_000
+            }
+
+        val documents =
+            captureRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                    updateThrottle =
+                        CaptureUpdateThrottle.rateLimited(burst = 1, intervalMillis = 1_000),
+                    clock = virtualClock,
+                    coroutineContext = coroutineContext,
+                ) {
+                    FrameCountingContent(frames)
+                }
+                .take(3)
+                .toList()
+
+        assertThat(documents).hasSize(3)
+        // Two throttle intervals.
+        assertThat(currentTime).isEqualTo(2_000)
+        // Each document costs at most MAX_FRAMES (100) frames to settle, plus about one paced frame
+        // per throttle interval.
+        assertThat(frames.get()).isLessThan(350)
+    }
+
+    @RemoteComposable
+    @Composable
+    private fun FrameCountingContent(frames: AtomicInteger) {
+        var frame by remember { mutableStateOf(0) }
+        LaunchedEffect(Unit) {
+            while (true) {
+                withFrameNanos {
+                    frames.incrementAndGet()
+                    frame++
+                }
+            }
+        }
+        RemoteText("Frame:$frame".rs)
     }
 
     @Test

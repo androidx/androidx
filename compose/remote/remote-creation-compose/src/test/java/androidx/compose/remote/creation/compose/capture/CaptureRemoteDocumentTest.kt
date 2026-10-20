@@ -136,6 +136,46 @@ class CaptureRemoteDocumentTest {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = true
     }
 
+    /**
+     * Without enforced clean recomposition, a single-shot capture still applies writes made by a
+     * draw lambda, as it always has.
+     */
+    @Test
+    fun captureSingleRemoteDocument_withoutEnforceClean_appliesRenderWrites() = runTest {
+        RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
+        val drawCount = mutableStateOf(0)
+
+        captureSingleRemoteDocument(context) {
+            RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                drawCount.value = drawCount.value + 1
+                drawRect(paint = RemotePaint { color = Color.Red.rc })
+            }
+        }
+
+        assertEquals(1, drawCount.value)
+    }
+
+    /** With enforced clean recomposition, a write made by a draw lambda fails the capture. */
+    @Test
+    fun captureSingleRemoteDocument_withEnforceClean_rejectsRenderWrites() = runTest {
+        val drawCount = mutableStateOf(0)
+
+        val failure =
+            assertThrows(IllegalStateException::class.java) {
+                runBlocking {
+                    captureSingleRemoteDocument(context) {
+                        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                            drawCount.value = drawCount.value + 1
+                            drawRect(paint = RemotePaint { color = Color.Red.rc })
+                        }
+                    }
+                }
+            }
+
+        assertTrue(failure.message!!.contains("written while rendering"))
+        assertEquals(0, drawCount.value)
+    }
+
     @Test
     fun captureDocument() =
         runTest(UnconfinedTestDispatcher()) {
@@ -625,6 +665,27 @@ class CaptureRemoteDocumentTest {
     }
 
     /**
+     * Content that reads no changing state is composed exactly once. A Recomposer invalidates every
+     * composition it knows about when it starts, so content set before the Recomposer runs would be
+     * composed a second time before the first render.
+     */
+    @Test
+    fun captureSingleRemoteDocument_stableContent_composesOnce() = runTest {
+        val compositions = AtomicInteger()
+
+        val document =
+            withContext(Dispatchers.Default) {
+                captureSingleRemoteDocument(context) {
+                    compositions.incrementAndGet()
+                    RemoteText("Once".rs)
+                }
+            }
+
+        assertDocumentContainsText(document.toCoreDocument(), "Once")
+        assertEquals(1, compositions.get())
+    }
+
+    /**
      * A streaming capture of content that never stops requesting frames still emits documents,
      * rendering each time the frame cap is reached, instead of never producing even the first one.
      */
@@ -820,19 +881,19 @@ class CaptureRemoteDocumentTest {
         assertEquals(0, SnapshotWriteMonitor.activeSessionCount)
         assertFalse(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.acquire()
+        val first = SnapshotWriteMonitor.acquire()
         assertEquals(1, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.acquire()
+        val second = SnapshotWriteMonitor.acquire()
         assertEquals(2, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.release()
+        first.close()
         assertEquals(1, SnapshotWriteMonitor.activeSessionCount)
         assertTrue(SnapshotWriteMonitor.isRunning)
 
-        SnapshotWriteMonitor.release()
+        second.close()
         assertEquals(0, SnapshotWriteMonitor.activeSessionCount)
         assertFalse(SnapshotWriteMonitor.isRunning)
     }
