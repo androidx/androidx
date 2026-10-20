@@ -21,11 +21,13 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
+import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -81,27 +83,103 @@ internal class Camera2MetadataCacheTest {
         // on older OS versions when accessed.
         assertThat(metadata0).isNotNull()
         assertThat(metadata0.camera).isEqualTo(camera0)
+        assertThat(metadata0.cameraId).isEqualTo(camera0)
         assertThat(metadata0.isRedacted).isFalse()
+        assertThat(metadata0.isRestricted).isFalse()
         assertThat(metadata0.keys).isNotNull()
         assertThat(metadata0.requestKeys).isNotNull()
+        assertThat(metadata0.captureRequestKeys).isEqualTo(metadata0.requestKeys)
         assertThat(metadata0.resultKeys).isNotNull()
-        assertThat(metadata0.sessionKeys).isNotNull()
+        assertThat(metadata0.captureResultKeys).isEqualTo(metadata0.resultKeys)
         assertThat(metadata0.sessionCharacteristicsKeys).isNotNull()
+        assertThat(metadata0.sessionKeys).isEqualTo(metadata0.sessionCharacteristicsKeys)
+        assertThat(metadata0.sessionCaptureRequestKeys).isNotNull()
+        assertThat(metadata0.restrictedKeys).isNotNull()
+        assertThat(metadata0.dynamicKeys).isNotNull()
         assertThat(metadata0.physicalCameraIds).isNotNull()
         assertThat(metadata0.physicalRequestKeys).isNotNull()
+        assertThat(metadata0.physicalCaptureRequestKeys).isEqualTo(metadata0.physicalRequestKeys)
         assertThat(metadata0[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]).isEqualTo(2)
 
         assertThat(metadata1).isNotNull()
         assertThat(metadata1.camera).isEqualTo(camera1)
+        assertThat(metadata1.cameraId).isEqualTo(camera1)
         assertThat(metadata1.isRedacted).isFalse()
+        assertThat(metadata1.isRestricted).isFalse()
         assertThat(metadata1.keys).isNotNull()
         assertThat(metadata1.requestKeys).isNotNull()
+        assertThat(metadata1.captureRequestKeys).isEqualTo(metadata1.requestKeys)
         assertThat(metadata1.resultKeys).isNotNull()
-        assertThat(metadata1.sessionKeys).isNotNull()
+        assertThat(metadata1.captureResultKeys).isEqualTo(metadata1.resultKeys)
         assertThat(metadata1.sessionCharacteristicsKeys).isNotNull()
+        assertThat(metadata1.sessionKeys).isEqualTo(metadata1.sessionCharacteristicsKeys)
+        assertThat(metadata1.sessionCaptureRequestKeys).isNotNull()
+        assertThat(metadata1.restrictedKeys).isNotNull()
+        assertThat(metadata1.dynamicKeys).isNotNull()
         assertThat(metadata1.physicalCameraIds).isNotNull()
         assertThat(metadata1.physicalRequestKeys).isNotNull()
+        assertThat(metadata1.physicalCaptureRequestKeys).isEqualTo(metadata1.physicalRequestKeys)
         assertThat(metadata1[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]).isEqualTo(3)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    fun camera2CameraMetadata_delegatesWrapperPropertiesAndUnwrapAs() {
+        val mockCharacteristics = mock<CameraCharacteristics>()
+        val mockProvider = mock<Camera2MetadataProvider>()
+        whenever(mockCharacteristics.keysNeedingPermission)
+            .thenReturn(listOf(CameraCharacteristics.LENS_FACING))
+
+        val metadata =
+            Camera2CameraMetadata(
+                camera = CameraId("0"),
+                isRedacted = true,
+                characteristics = mockCharacteristics,
+                metadataProvider = mockProvider,
+                metadata = emptyMap(),
+                cacheBlocklist = setOf(CameraCharacteristics.SENSOR_ORIENTATION),
+            )
+
+        assertThat(metadata.isRestricted).isTrue()
+        assertThat(metadata.restrictedKeys).containsExactly(CameraCharacteristics.LENS_FACING)
+        assertThat(metadata.dynamicKeys).containsExactly(CameraCharacteristics.SENSOR_ORIENTATION)
+        assertThat(metadata.unwrapAs(CameraMetadata::class.java)).isSameInstanceAs(metadata)
+        assertThat(metadata.unwrapAs(CameraCharacteristicsWrapper::class.java))
+            .isSameInstanceAs(metadata)
+        assertThat(metadata.unwrapAs(CameraCharacteristics::class.java))
+            .isSameInstanceAs(mockCharacteristics)
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.Q)
+    fun camera2CameraMetadata_restrictedKeysReturnsEmptySetOnFrameworkFailure() {
+        val assertionFailingCharacteristics = mock<CameraCharacteristics>()
+        whenever(assertionFailingCharacteristics.keysNeedingPermission)
+            .thenThrow(AssertionError("Framework assertion failure"))
+        val assertionMetadata =
+            Camera2CameraMetadata(
+                camera = CameraId("0"),
+                isRedacted = false,
+                characteristics = assertionFailingCharacteristics,
+                metadataProvider = mock(),
+                metadata = emptyMap(),
+                cacheBlocklist = emptySet(),
+            )
+        assertThat(assertionMetadata.restrictedKeys).isEmpty()
+
+        val runtimeFailingCharacteristics = mock<CameraCharacteristics>()
+        whenever(runtimeFailingCharacteristics.keysNeedingPermission)
+            .thenThrow(IllegalArgumentException("Unknown vendor tag"))
+        val runtimeMetadata =
+            Camera2CameraMetadata(
+                camera = CameraId("1"),
+                isRedacted = false,
+                characteristics = runtimeFailingCharacteristics,
+                metadataProvider = mock(),
+                metadata = emptyMap(),
+                cacheBlocklist = emptySet(),
+            )
+        assertThat(runtimeMetadata.restrictedKeys).isEmpty()
     }
 
     @Test

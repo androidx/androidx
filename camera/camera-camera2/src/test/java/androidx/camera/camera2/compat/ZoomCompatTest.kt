@@ -148,7 +148,7 @@ class ZoomCompatTest {
             override val resultKeys: Set<CaptureResult.Key<*>>
                 get() = TODO("Not yet implemented")
 
-            override val sessionKeys: Set<CaptureRequest.Key<*>>
+            override val sessionCaptureRequestKeys: Set<CaptureRequest.Key<*>>
                 get() = TODO("Not yet implemented")
 
             override val sessionCharacteristicsKeys: Set<CameraCharacteristics.Key<*>>
@@ -166,7 +166,7 @@ class ZoomCompatTest {
                 TODO("Not yet implemented")
             }
 
-            override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+            override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? {
                 if (
                     Build.VERSION.SDK_INT >= 30 &&
                         key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE

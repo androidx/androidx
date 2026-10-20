@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.common.CameraCharacteristicsWrapper
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
@@ -188,6 +189,59 @@ class CameraMetadataTest {
         assertThat(metadata[CameraCharacteristics.LENS_FACING])
             .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
         assertThat(metadata[CameraCharacteristics.SENSOR_ORIENTATION]).isEqualTo(270)
+    }
+
+    @Test
+    fun cameraCharacteristicsWrapperProperties_delegateCorrectly() {
+        val defaultWrapper: CameraCharacteristicsWrapper = FakeCameraMetadata()
+        assertThat(defaultWrapper.cameraId).isEqualTo(FakeCameraIds.default)
+        assertThat(defaultWrapper.keys).isEmpty()
+        assertThat(defaultWrapper.captureRequestKeys).isEmpty()
+        assertThat(defaultWrapper.captureResultKeys).isEmpty()
+        assertThat(defaultWrapper.sessionKeys).isEmpty()
+        assertThat(defaultWrapper.sessionCaptureRequestKeys).isEmpty()
+        assertThat(defaultWrapper.physicalCameraIds).isEmpty()
+        assertThat(defaultWrapper.physicalCaptureRequestKeys).isEmpty()
+        assertThat(defaultWrapper.isRestricted).isFalse()
+        assertThat(defaultWrapper.restrictedKeys).isEmpty()
+        assertThat(defaultWrapper.dynamicKeys).isEmpty()
+        assertThat(defaultWrapper.unwrapAs(CameraMetadata::class.java))
+            .isSameInstanceAs(defaultWrapper)
+        assertThat(defaultWrapper.unwrapAs(CameraCharacteristics::class.java)).isNull()
+
+        val physicalMetadata = FakeCameraMetadata(cameraId = CameraId("2"))
+        val metadata =
+            FakeCameraMetadata(
+                cameraId = CameraId("0"),
+                characteristics = mapOf(CameraCharacteristics.SENSOR_ORIENTATION to 90),
+                requestKeys = setOf(CaptureRequest.CONTROL_AE_MODE),
+                resultKeys = setOf(CaptureResult.CONTROL_AE_STATE),
+                sessionCharacteristicsKeys = setOf(CameraCharacteristics.SENSOR_ORIENTATION),
+                sessionCaptureRequestKeys = setOf(CaptureRequest.CONTROL_AF_MODE),
+                physicalMetadata = mapOf(CameraId("2") to physicalMetadata),
+                physicalRequestKeys = setOf(CaptureRequest.FLASH_MODE),
+                isRedacted = true,
+                restrictedKeys = setOf(CameraCharacteristics.LENS_FACING),
+                dynamicKeys = setOf(CameraCharacteristics.SENSOR_ORIENTATION),
+            )
+
+        assertThat(metadata.cameraId).isEqualTo(CameraId("0"))
+        assertThat(metadata.captureRequestKeys).containsExactly(CaptureRequest.CONTROL_AE_MODE)
+        assertThat(metadata.captureResultKeys).containsExactly(CaptureResult.CONTROL_AE_STATE)
+        assertThat(metadata.sessionKeys).containsExactly(CameraCharacteristics.SENSOR_ORIENTATION)
+        assertThat(metadata.sessionCharacteristicsKeys)
+            .containsExactly(CameraCharacteristics.SENSOR_ORIENTATION)
+        assertThat(metadata.sessionCaptureRequestKeys)
+            .containsExactly(CaptureRequest.CONTROL_AF_MODE)
+        assertThat(metadata.physicalCameraIds).containsExactly(CameraId("2"))
+        assertThat(metadata.physicalCaptureRequestKeys).containsExactly(CaptureRequest.FLASH_MODE)
+        assertThat(metadata.isRestricted).isTrue()
+        assertThat(metadata.restrictedKeys).containsExactly(CameraCharacteristics.LENS_FACING)
+        assertThat(metadata.dynamicKeys).containsExactly(CameraCharacteristics.SENSOR_ORIENTATION)
+        assertThat(metadata.unwrapAs(CameraMetadata::class.java)).isSameInstanceAs(metadata)
+        assertThat(metadata.unwrapAs(CameraCharacteristicsWrapper::class.java))
+            .isSameInstanceAs(metadata)
+        assertThat(metadata.unwrapAs(CameraCharacteristics::class.java)).isNull()
     }
 }
 
