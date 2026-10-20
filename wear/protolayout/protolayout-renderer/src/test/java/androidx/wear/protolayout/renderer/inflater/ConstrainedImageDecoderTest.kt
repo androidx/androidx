@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.VectorDrawable
 import android.net.Uri
 import android.os.Build
@@ -28,11 +30,19 @@ import androidx.annotation.DrawableRes
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
+import androidx.wear.protolayout.proto.ResourceProto
 import androidx.wear.protolayout.proto.ResourceProto.AndroidAnimatedImageResourceByResId
+import androidx.wear.protolayout.proto.ResourceProto.AndroidImageResourceByResId
 import androidx.wear.protolayout.proto.ResourceProto.AndroidSeekableAnimatedImageResourceByResId
 import androidx.wear.protolayout.proto.ResourceProto.AnimatedImageFormat
+import androidx.wear.protolayout.proto.ResourceProto.ImageFormat
+import androidx.wear.protolayout.proto.ResourceProto.ImageResource
+import androidx.wear.protolayout.proto.ResourceProto.InlineImageResource
+import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAccessException
 import androidx.wear.protolayout.renderer.test.R
 import com.google.common.truth.Truth.assertThat
+import java.io.InputStream
+import java.util.concurrent.ExecutionException
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,15 +89,12 @@ class ConstrainedImageDecoderTest {
                     outValue.string = null
                 }
 
-                override fun getDrawable(
-                    id: Int,
-                    theme: Theme?,
-                ): android.graphics.drawable.Drawable =
-                    android.graphics.drawable.ColorDrawable(0xFF000000.toInt())
+                override fun getDrawable(id: Int, theme: Theme?): Drawable =
+                    ColorDrawable(0xFF000000.toInt())
             }
 
         val drawable = ConstrainedImageDecoder.decodeDrawable(testResources, 1)
-        assertThat(drawable).isInstanceOf(android.graphics.drawable.ColorDrawable::class.java)
+        assertThat(drawable).isInstanceOf(ColorDrawable::class.java)
     }
 
     @Test
@@ -205,11 +212,7 @@ class ConstrainedImageDecoderTest {
                 customXmlRootTag = "bitmap",
                 childDrawableReplacementResId = R.drawable.test2049x2049,
             )
-        val resolver =
-            DefaultAndroidAnimatedImageResourceByResIdResolver(
-                testResources,
-                /* restrictImageSize= */ true,
-            )
+        val resolver = DefaultAndroidAnimatedImageResourceByResIdResolver(testResources)
         val resource =
             AndroidAnimatedImageResourceByResId.newBuilder()
                 .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
@@ -221,11 +224,7 @@ class ConstrainedImageDecoderTest {
 
     @Test
     fun seekableAnimatedImageResolver_restrictImageSizeTrue_validAvd_loadsSuccessfully() {
-        val resolver =
-            DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-                resources,
-                /* restrictImageSize= */ true,
-            )
+        val resolver = DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(resources)
         val resource =
             AndroidSeekableAnimatedImageResourceByResId.newBuilder()
                 .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
@@ -243,11 +242,7 @@ class ConstrainedImageDecoderTest {
                 xmlResId = R.drawable.android_head_24dp,
                 customXmlRootTag = "bitmap",
             )
-        val resolver =
-            DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-                testResources,
-                /* restrictImageSize= */ true,
-            )
+        val resolver = DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(testResources)
         val resource =
             AndroidSeekableAnimatedImageResourceByResId.newBuilder()
                 .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
@@ -261,11 +256,7 @@ class ConstrainedImageDecoderTest {
     fun seekableAnimatedImageResolver_restrictImageSizeTrue_animatedVectorWithRasterChild_throws() {
         val testResources =
             createTestResources(childDrawableReplacementResId = R.drawable.test2049x2049)
-        val resolver =
-            DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-                testResources,
-                /* restrictImageSize= */ true,
-            )
+        val resolver = DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(testResources)
         val resource =
             AndroidSeekableAnimatedImageResourceByResId.newBuilder()
                 .setAnimatedImageFormat(AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD)
@@ -273,6 +264,59 @@ class ConstrainedImageDecoderTest {
                 .build()
 
         assertFailsWith<IllegalArgumentException> { resolver.getDrawableOrThrow(resource) }
+    }
+
+    @Test
+    fun resIdResolver_defaultConstructor_restrictImageSizeByDefault_throwsOnLargeImage() {
+        val resIdResolver = DefaultAndroidImageResourceByResIdResolver(resources)
+        val resIdResource =
+            AndroidImageResourceByResId.newBuilder().setResourceId(R.drawable.test2049x2049).build()
+
+        assertFailsWith<IllegalArgumentException> {
+            resIdResolver.getDrawableOrThrow(resIdResource)
+        }
+    }
+
+    @Test
+    fun inlineResolver_defaultConstructor_restrictImageSizeByDefault_throwsOnLargeImage() {
+        val inlineResolver = DefaultInlineImageResourceResolver(getApplicationContext())
+        val inlineResource =
+            InlineImageResource.newBuilder()
+                .setWidthPx(2049)
+                .setHeightPx(1)
+                .setFormat(ImageFormat.IMAGE_FORMAT_RGB_565)
+                .build()
+
+        assertFailsWith<ResourceAccessException> {
+            inlineResolver.getDrawableOrThrow(inlineResource)
+        }
+    }
+
+    @Test
+    fun standardResourceResolvers_forLocalApp_restrictsImageSize() {
+        val protoResources =
+            ResourceProto.Resources.newBuilder()
+                .putIdToImage(
+                    "large_res",
+                    ImageResource.newBuilder()
+                        .setAndroidResourceByResId(
+                            AndroidImageResourceByResId.newBuilder()
+                                .setResourceId(R.drawable.test2049x2049)
+                        )
+                        .build(),
+                )
+                .build()
+        val resolvers =
+            StandardResourceResolvers.forLocalApp(
+                    protoResources,
+                    getApplicationContext(),
+                    { runnable -> runnable.run() },
+                    /* animationEnabled= */ true,
+                )
+                .build()
+        val future = resolvers.getDrawable("large_res")
+
+        assertFailsWith<ExecutionException> { future.get() }
     }
 
     @Suppress("DEPRECATION")
@@ -293,7 +337,7 @@ class ConstrainedImageDecoderTest {
                 super.getValue(resolveId(id), outValue, resolveRefs)
             }
 
-            override fun openRawResource(id: Int, value: TypedValue): java.io.InputStream =
+            override fun openRawResource(id: Int, value: TypedValue): InputStream =
                 super.openRawResource(resolveId(id), value)
 
             override fun getXml(id: Int): XmlResourceParser {

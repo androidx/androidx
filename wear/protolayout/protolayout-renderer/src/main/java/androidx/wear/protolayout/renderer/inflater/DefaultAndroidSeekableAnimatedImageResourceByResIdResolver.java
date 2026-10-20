@@ -45,7 +45,6 @@ public class DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
         implements AndroidSeekableAnimatedImageResourceByResIdResolver {
 
     private final @NonNull Resources mAndroidResources;
-    private final boolean mRestrictImageSize;
 
     /**
      * Constructor.
@@ -55,20 +54,7 @@ public class DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
      */
     public DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
             @NonNull Resources androidResources) {
-        this(androidResources, /* restrictImageSize= */ false);
-    }
-
-    /**
-     * Constructor with param to restrict image size.
-     *
-     * @param androidResources An Android Resources instance for the tile service's package. This is
-     *     normally obtained from {@code PackageManager#getResourcesForApplication}.
-     * @param restrictImageSize Whether to restrict the size of decoded images.
-     */
-    public DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-            @NonNull Resources androidResources, boolean restrictImageSize) {
         this.mAndroidResources = androidResources;
-        this.mRestrictImageSize = restrictImageSize;
     }
 
     @Override
@@ -91,13 +77,10 @@ public class DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
                             "Only <animated-vector> drawables are supported to prevent unbounded"
                                     + " memory allocation.");
                 }
-                if (mRestrictImageSize) {
-                    int drawableResId =
-                            attrs.getAttributeResourceValue(ANDROID_NAMESPACE, ATTR_DRAWABLE, 0);
-                    if (drawableResId != 0) {
-                        XmlDrawableValidator.verifyVectorDrawableXml(
-                                mAndroidResources, drawableResId);
-                    }
+                int drawableResId =
+                        attrs.getAttributeResourceValue(ANDROID_NAMESPACE, ATTR_DRAWABLE, 0);
+                if (drawableResId != 0) {
+                    XmlDrawableValidator.verifyVectorDrawableXml(mAndroidResources, drawableResId);
                 }
                 return SeekableAnimatedVectorDrawable.createFromXmlInner(
                         mAndroidResources, parser, attrs, null);

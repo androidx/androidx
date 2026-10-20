@@ -49,7 +49,6 @@ public class DefaultAndroidImageResourceByContentUriResolver
     private final @NonNull Resources mPackageResources;
     private final @NonNull ContentResolver mContentResolver;
     private final @NonNull Executor mLoadExecutor;
-    private final boolean mRestrictImageSize;
 
     public DefaultAndroidImageResourceByContentUriResolver(
             @NonNull Context appContext,
@@ -57,27 +56,10 @@ public class DefaultAndroidImageResourceByContentUriResolver
             @NonNull Resources packageResources,
             @NonNull ContentResolver contentResolver,
             @NonNull Executor loadExecutor) {
-        this(
-                appContext,
-                packageName,
-                packageResources,
-                contentResolver,
-                loadExecutor,
-                /* restrictImageSize= */ false);
-    }
-
-    public DefaultAndroidImageResourceByContentUriResolver(
-            @NonNull Context appContext,
-            @NonNull String packageName,
-            @NonNull Resources packageResources,
-            @NonNull ContentResolver contentResolver,
-            @NonNull Executor loadExecutor,
-            boolean restrictImageSize) {
         this.mContentUriValidator = new ContentUriValidator(appContext, packageName);
         this.mPackageResources = packageResources;
         this.mContentResolver = contentResolver;
         this.mLoadExecutor = loadExecutor;
-        this.mRestrictImageSize = restrictImageSize;
     }
 
     private @NonNull Drawable getDrawableBlocking(
@@ -88,7 +70,7 @@ public class DefaultAndroidImageResourceByContentUriResolver
                     "Provided content URI " + resource.getContentUri() + " cannot be opened");
         }
 
-        if (VERSION.SDK_INT >= 28 && mRestrictImageSize) {
+        if (VERSION.SDK_INT >= 28) {
             return ConstrainedImageDecoder.decodeDrawable(mContentResolver, resourceUri);
         }
 

@@ -43,18 +43,10 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
     private static final long MAX_BITMAP_RAW_SIZE_BYTES = 20L /* (MB) */ * 1024 * 1024;
 
     private final @NonNull Context mAppContext;
-    private final boolean mRestrictImageSize;
 
     /** Constructor. */
     public DefaultInlineImageResourceResolver(@NonNull Context appContext) {
-        this(appContext, /* restrictImageSize= */ false);
-    }
-
-    /** Constructor. */
-    public DefaultInlineImageResourceResolver(
-            @NonNull Context appContext, boolean restrictImageSize) {
         this.mAppContext = appContext;
-        this.mRestrictImageSize = restrictImageSize;
     }
 
     @Override
@@ -113,14 +105,12 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
 
         int bytesPerPixel = getBytesPerPixel(config);
         long expectedDataSize = (long) widthPx * heightPx * bytesPerPixel;
-        if (mRestrictImageSize
-                // Validates that the image dimensions and raw size are within allowed security
-                // limits.
-                && (widthPx <= 0
-                        || heightPx <= 0
-                        || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
-                        || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
-                        || expectedDataSize > MAX_BITMAP_RAW_SIZE_BYTES)) {
+        // Validates that the image dimensions and raw size are within allowed security limits.
+        if (widthPx <= 0
+                || heightPx <= 0
+                || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                || expectedDataSize > MAX_BITMAP_RAW_SIZE_BYTES) {
             throw new ResourceAccessException(
                     "InlineImage size out of bounds: "
                             + widthPx
@@ -141,41 +131,47 @@ public class DefaultInlineImageResourceResolver implements InlineImageResourceRe
         return bitmap;
     }
 
-     @Nullable Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage) {
-        if (VERSION.SDK_INT >= 31 && mRestrictImageSize) {
-            return ConstrainedImageDecoder.decodeBitmap(
-                    inlineImage.getData().toByteArray(),
-                    inlineImage.getWidthPx(),
-                    inlineImage.getHeightPx());
-        }
+    @Nullable Bitmap loadStructuredBitmap(@NonNull InlineImageResource inlineImage)
+            throws ResourceAccessException {
         int widthPx = inlineImage.getWidthPx();
         int heightPx = inlineImage.getHeightPx();
+        if (widthPx <= 0
+                || heightPx <= 0
+                || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
+                || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX) {
+            throw new ResourceAccessException(
+                    "InlineImage size out of bounds: " + widthPx + "x" + heightPx);
+        }
+
         byte[] data = inlineImage.getData().toByteArray();
-        if (mRestrictImageSize) {
-            if (widthPx <= 0
-                    || heightPx <= 0
-                    || widthPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
-                    || heightPx > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX) {
-                throw new IllegalArgumentException(
-                        "InlineImage target size out of bounds: " + widthPx + "x" + heightPx);
+        if (VERSION.SDK_INT >= 31) {
+            try {
+                return ConstrainedImageDecoder.decodeBitmap(data, widthPx, heightPx);
+            } catch (IllegalArgumentException e) {
+                throw new ResourceAccessException("InlineImage native size out of bounds.", e);
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Unable to load structured bitmap.");
+                return null;
             }
+        } else {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(data, 0, data.length, options);
             if (options.outWidth > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX
                     || options.outHeight > ConstrainedImageDecoder.DEFAULT_DECODE_HARD_LIMIT_PX) {
-                throw new IllegalArgumentException(
-                        "InlineImage decoded size out of bounds: "
+                throw new ResourceAccessException(
+                        "InlineImage native size out of bounds: "
                                 + options.outWidth
                                 + "x"
                                 + options.outHeight);
             }
+
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if (bitmap == null) {
+                Log.e(TAG, "Unable to load structured bitmap.");
+                return null;
+            }
+            return Bitmap.createScaledBitmap(bitmap, widthPx, heightPx, /* filter= */ true);
         }
-        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        if (bitmap == null) {
-            Log.e(TAG, "Unable to load structured bitmap.");
-            return null;
-        }
-        return Bitmap.createScaledBitmap(bitmap, widthPx, heightPx, /* filter= */ true);
     }
 }
