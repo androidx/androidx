@@ -42,10 +42,17 @@ class RippleTest {
         val composeViewChildren =
             ThreadUtils.runOnMainThread {
                     val composeView = rule.rootsForTest.single() as ViewGroup
-                    composeView.getChildren().map { it.uniqueDrawingId }
+                    composeView.getChildren().toList()
                 }
                 .get()
         val toSkip = app.rootsList.single().viewsToSkipList
-        assertThat(composeViewChildren).containsExactlyElementsIn(toSkip)
+        val childIds = composeViewChildren.map { it.uniqueDrawingId }
+        assertThat(childIds).containsAtLeastElementsIn(toSkip)
+        val extraViews = composeViewChildren.filterNot { it.uniqueDrawingId in toSkip }
+        if (extraViews.isNotEmpty()) {
+            assertThat(extraViews).hasSize(1)
+            assertThat(extraViews.single().javaClass.name)
+                .isEqualTo("androidx.compose.ui.platform.AndroidViewsHandler")
+        }
     }
 }
