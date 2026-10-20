@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.creation.compose.capture
+package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.MonotonicFrameClock
@@ -55,8 +55,8 @@ private val Cancelled = Any() // The pump completed, or cancel() was called
  * such content does not keep the composition busy between the caller's attempts to settle it;
  * awaiters simply wait for that next attempt.
  *
- * Frame times come from [nanoTime] rather than a wall clock so that captures driven by a test
- * [androidx.compose.remote.core.RemoteClock] see consistent frame times.
+ * Frame times come from [nanoTime] rather than a wall clock so that compositions driven by a test
+ * clock see consistent frame times.
  *
  * Frames sent by the pump can be paced with [minFramePeriod], e.g. to stop content that animates
  * through recomposition from keeping a recomposer busy while its documents are being throttled
