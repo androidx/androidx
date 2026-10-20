@@ -738,6 +738,7 @@ includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark", "compose/ui/ui-g
 includeProject(":compose:ui:ui-graphics:ui-graphics-benchmark:test", "compose/ui/ui-graphics/benchmark/test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-graphics:ui-graphics-samples", "compose/ui/ui-graphics/samples", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-inspection", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-inspection:integration-tests:inspector-jar-testapp", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-lint", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-accessibility", [BuildType.COMPOSE])
