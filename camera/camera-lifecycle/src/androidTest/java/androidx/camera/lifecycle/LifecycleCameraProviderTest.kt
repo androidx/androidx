@@ -112,14 +112,34 @@ class LifecycleCameraProviderTest(
 
     @After
     fun tearDown() {
-        if (::provider1.isInitialized) {
-            runBlocking(MainScope().coroutineContext) {
-                (provider1 as LifecycleCameraProviderImpl).shutdownAsync()[10, TimeUnit.SECONDS]
+        try {
+            val shutdownFuture1 =
+                if (::provider1.isInitialized) {
+                    (provider1 as LifecycleCameraProviderImpl).shutdownAsync()
+                } else {
+                    null
+                }
+            try {
+                val shutdownFuture2 =
+                    if (::provider2.isInitialized) {
+                        (provider2 as LifecycleCameraProviderImpl).shutdownAsync()
+                    } else {
+                        null
+                    }
+                try {
+                    shutdownFuture1?.get(10, TimeUnit.SECONDS)
+                } finally {
+                    shutdownFuture2?.get(10, TimeUnit.SECONDS)
+                }
+            } finally {
+                if (shutdownFuture1 != null && !shutdownFuture1.isDone) {
+                    shutdownFuture1.get(10, TimeUnit.SECONDS)
+                }
             }
-        }
-        if (::provider2.isInitialized) {
-            runBlocking(MainScope().coroutineContext) {
-                (provider2 as LifecycleCameraProviderImpl).shutdownAsync()[10, TimeUnit.SECONDS]
+        } finally {
+            instrumentation.runOnMainSync {
+                LifecycleCameraRepositories.getInstance().clear()
+                LifecycleCameraRepositories.clear()
             }
         }
     }
