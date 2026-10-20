@@ -30,6 +30,8 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.adapter.awaitUntil
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -49,6 +51,7 @@ import androidx.camera.core.featuregroup.GroupableFeature.Companion.IMAGE_ULTRA_
 import androidx.camera.core.featuregroup.GroupableFeature.Companion.PREVIEW_STABILIZATION
 import androidx.camera.core.featuregroup.impl.feature.FeatureTypeInternal
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -375,6 +378,17 @@ open class FeatureGroupTestBase(
             checkNotNull(videoCapture.attachedStreamSpec?.resolution).run {
                 if (width >= height) this else Size(height, width)
             }
+
+        val extraCroppingSize =
+            DeviceQuirks[ExtraCroppingQuirk::class.java]?.getVerifiedResolution(
+                SurfaceConfig.ConfigType.PRIV
+            )
+        if (extraCroppingSize != null && resolution == extraCroppingSize) {
+            // Devices with ExtraCroppingQuirk (e.g. SM-G610F) intentionally force PRIV surfaces to
+            // a verified resolution (1920x1080) to avoid hardware crop/stretch distortion
+            // (b/190203334), overriding the preferred recording quality and aspect ratio.
+            return
+        }
 
         if (aspectRatio != AspectRatio.RATIO_DEFAULT) {
             assertWithMessage(
