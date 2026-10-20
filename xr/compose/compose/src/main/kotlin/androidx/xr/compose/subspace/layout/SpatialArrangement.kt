@@ -35,7 +35,7 @@ import kotlin.math.roundToInt
  * [androidx.compose.foundation.layout.Row]: ![Row
  * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/row_arrangement_visualization.gif)
  *
- * [androidx.xr.compose.subspace.SpatialColumn] supports horizontal arrangements similar to
+ * [androidx.xr.compose.subspace.SpatialColumn] supports vertical arrangements similar to
  * [androidx.compose.foundation.layout.Column]: ![Column
  * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
  */
@@ -136,7 +136,7 @@ public object SpatialArrangement {
 
     /**
      * All children should be arranged at the end of the row (right if the layout direction is LTR,
-     * right otherwise). Visually: ####123 for LTR and 321#### for RTL
+     * left otherwise). Visually: ####123 for LTR and 321#### for RTL
      */
     public val End: Horizontal =
         object : Horizontal {

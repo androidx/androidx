@@ -526,7 +526,7 @@ private val FillWholeMaxHeight = FillElement.height(1f)
  * [fraction] is 1, so the modifier will make the content fill the whole available depth. If the
  * incoming maximum depth is [VolumeConstraints.INFINITY] this modifier will have no effect.
  *
- * @param fraction The fraction of the maximum height to use, between `0` and `1`, inclusive.
+ * @param fraction The fraction of the maximum depth to use, between `0` and `1`, inclusive.
  */
 public fun SubspaceModifier.fillMaxDepth(
     @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
