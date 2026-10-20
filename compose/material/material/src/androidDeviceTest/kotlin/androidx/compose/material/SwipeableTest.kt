@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.toList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -1456,15 +1457,19 @@ class SwipeableTest {
     fun testInspectorValue() {
         val anchors = mapOf(0f to "A", 100f to "B")
         rule.setContent {
-            val modifier =
+            val modifiers =
                 Modifier.swipeable(
-                    state = rememberSwipeableState("A"),
-                    anchors = anchors,
-                    orientation = Orientation.Horizontal,
-                ) as InspectableValue
-            assertThat(modifier.nameFallback).isEqualTo("swipeable")
-            assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+                        state = rememberSwipeableState("A"),
+                        anchors = anchors,
+                        orientation = Orientation.Horizontal,
+                    )
+                    .toList()
+            val swipeable = modifiers[0] as InspectableValue
+            val draggable = modifiers[1] as InspectableValue
+
+            assertThat(swipeable.nameFallback).isEqualTo("swipeable")
+            assertThat(swipeable.valueOverride).isNull()
+            assertThat(swipeable.inspectableElements.map { it.name }.asIterable())
                 .containsExactly(
                     "state",
                     "anchors",
@@ -1476,6 +1481,8 @@ class SwipeableTest {
                     "resistance",
                     "velocityThreshold",
                 )
+
+            assertThat(draggable.nameFallback).isEqualTo("draggable")
         }
     }
 

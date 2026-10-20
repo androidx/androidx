@@ -68,7 +68,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
@@ -85,11 +84,14 @@ import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
@@ -995,50 +997,160 @@ private fun Modifier.sliderTapModifier(
     gestureEndAction: State<(Float) -> Unit>,
     pressOffset: MutableState<Float>,
     enabled: Boolean,
-) =
-    composed(
-        factory = {
-            if (enabled) {
-                val scope = rememberCoroutineScope()
-                pointerInput(draggableState, interactionSource, maxPx, isRtl) {
-                    detectTapGestures(
-                        onPress = { pos ->
-                            val to = if (isRtl) maxPx - pos.x else pos.x
-                            pressOffset.value = to - rawOffset.value
-                            try {
-                                awaitRelease()
-                            } catch (_: GestureCancellationException) {
-                                pressOffset.value = 0f
+): Modifier =
+    if (enabled) {
+        this then
+            SliderTapModifierElement(
+                draggableState = draggableState,
+                interactionSource = interactionSource,
+                maxPx = maxPx,
+                isRtl = isRtl,
+                rawOffset = rawOffset,
+                gestureEndAction = gestureEndAction,
+                pressOffset = pressOffset,
+            )
+    } else {
+        this
+    }
+
+private class SliderTapModifierElement(
+    private val draggableState: DraggableState,
+    private val interactionSource: MutableInteractionSource,
+    private val maxPx: Float,
+    private val isRtl: Boolean,
+    private val rawOffset: State<Float>,
+    private val gestureEndAction: State<(Float) -> Unit>,
+    private val pressOffset: MutableState<Float>,
+) : ModifierNodeElement<SliderTapModifierNode>() {
+    override fun create(): SliderTapModifierNode =
+        SliderTapModifierNode(
+            draggableState = draggableState,
+            interactionSource = interactionSource,
+            maxPx = maxPx,
+            isRtl = isRtl,
+            rawOffset = rawOffset,
+            gestureEndAction = gestureEndAction,
+            pressOffset = pressOffset,
+        )
+
+    override fun update(node: SliderTapModifierNode) {
+        node.update(
+            draggableState = draggableState,
+            interactionSource = interactionSource,
+            maxPx = maxPx,
+            isRtl = isRtl,
+            rawOffset = rawOffset,
+            gestureEndAction = gestureEndAction,
+            pressOffset = pressOffset,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "sliderTapModifier"
+        properties["draggableState"] = draggableState
+        properties["interactionSource"] = interactionSource
+        properties["maxPx"] = maxPx
+        properties["isRtl"] = isRtl
+        properties["rawOffset"] = rawOffset
+        properties["gestureEndAction"] = gestureEndAction
+        properties["pressOffset"] = pressOffset
+        properties["enabled"] = true
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SliderTapModifierElement) return false
+        if (draggableState != other.draggableState) return false
+        if (interactionSource != other.interactionSource) return false
+        if (maxPx != other.maxPx) return false
+        if (isRtl != other.isRtl) return false
+        if (rawOffset != other.rawOffset) return false
+        if (gestureEndAction != other.gestureEndAction) return false
+        if (pressOffset != other.pressOffset) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = draggableState.hashCode()
+        result = 31 * result + interactionSource.hashCode()
+        result = 31 * result + maxPx.hashCode()
+        result = 31 * result + isRtl.hashCode()
+        result = 31 * result + rawOffset.hashCode()
+        result = 31 * result + gestureEndAction.hashCode()
+        result = 31 * result + pressOffset.hashCode()
+        return result
+    }
+}
+
+private class SliderTapModifierNode(
+    private var draggableState: DraggableState,
+    private var interactionSource: MutableInteractionSource,
+    private var maxPx: Float,
+    private var isRtl: Boolean,
+    private var rawOffset: State<Float>,
+    private var gestureEndAction: State<(Float) -> Unit>,
+    private var pressOffset: MutableState<Float>,
+) : DelegatingNode() {
+    private val pointerInputNode =
+        delegate(
+            SuspendingPointerInputModifierNode {
+                detectTapGestures(
+                    onPress = { pos ->
+                        val to = if (isRtl) maxPx - pos.x else pos.x
+                        pressOffset.value = to - rawOffset.value
+                        try {
+                            awaitRelease()
+                        } catch (_: GestureCancellationException) {
+                            pressOffset.value = 0f
+                        }
+                    },
+                    onTap = {
+                        coroutineScope.launch {
+                            draggableState.drag(MutatePriority.UserInput) {
+                                // just trigger animation, press offset will be applied
+                                dragBy(0f)
                             }
-                        },
-                        onTap = {
-                            scope.launch {
-                                draggableState.drag(MutatePriority.UserInput) {
-                                    // just trigger animation, press offset will be applied
-                                    dragBy(0f)
-                                }
-                                gestureEndAction.value.invoke(0f)
-                            }
-                        },
-                    )
-                }
-            } else {
-                this
+                            gestureEndAction.value.invoke(0f)
+                        }
+                    },
+                )
             }
-        },
-        inspectorInfo =
-            debugInspectorInfo {
-                name = "sliderTapModifier"
-                properties["draggableState"] = draggableState
-                properties["interactionSource"] = interactionSource
-                properties["maxPx"] = maxPx
-                properties["isRtl"] = isRtl
-                properties["rawOffset"] = rawOffset
-                properties["gestureEndAction"] = gestureEndAction
-                properties["pressOffset"] = pressOffset
-                properties["enabled"] = enabled
-            },
-    )
+        )
+
+    fun update(
+        draggableState: DraggableState,
+        interactionSource: MutableInteractionSource,
+        maxPx: Float,
+        isRtl: Boolean,
+        rawOffset: State<Float>,
+        gestureEndAction: State<(Float) -> Unit>,
+        pressOffset: MutableState<Float>,
+    ) {
+        var resetPointerInput = false
+        if (this.draggableState != draggableState) {
+            this.draggableState = draggableState
+            resetPointerInput = true
+        }
+        if (this.interactionSource != interactionSource) {
+            this.interactionSource = interactionSource
+            resetPointerInput = true
+        }
+        if (this.maxPx != maxPx) {
+            this.maxPx = maxPx
+            resetPointerInput = true
+        }
+        if (this.isRtl != isRtl) {
+            this.isRtl = isRtl
+            resetPointerInput = true
+        }
+        this.rawOffset = rawOffset
+        this.gestureEndAction = gestureEndAction
+        this.pressOffset = pressOffset
+        if (resetPointerInput) {
+            pointerInputNode.resetPointerInputHandler()
+        }
+    }
+}
 
 private suspend fun animateToTarget(
     draggableState: DraggableState,
