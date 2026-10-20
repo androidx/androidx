@@ -27,8 +27,8 @@ import kotlinx.coroutines.Dispatchers
 
 /**
  * A FollowMode controls the motion of content as it is following another target. Currently, the
- * options include "soft", which gradually catches up to the target and "snap", which does not
- * continuously follow the target.
+ * options include "soft", which gradually catches up to the target, "tight", which follows the
+ * target as closely as possible, and "snap", which does not continuously follow the target.
  */
 @ExperimentalFollowingSubspaceApi
 public abstract class FollowMode internal constructor() {
