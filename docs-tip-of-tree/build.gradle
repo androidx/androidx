@@ -107,6 +107,7 @@ dependencies {
     docs(project(":core:core-pip"))
     kmpDocs(project(":datastore:datastore-tink"))
     docs(project(":people:people"))
+    docs(project(":people:people-play-services"))
     docs(project(":people:people-client"))
     docs(project(":wear:compose:remote:remote-material3"))
     kmpDocs(project(":compose:runtime:runtime"))
