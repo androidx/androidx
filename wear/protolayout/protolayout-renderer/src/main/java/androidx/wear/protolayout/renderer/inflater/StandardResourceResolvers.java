@@ -111,12 +111,10 @@ public class StandardResourceResolvers {
             @NonNull Executor asyncLoadExecutor,
             boolean animationEnabled) {
         DefaultAndroidImageResourceByResIdResolver androidResourceResolver =
-                new DefaultAndroidImageResourceByResIdResolver(
-                        serviceAndroidResources, /* restrictImageSize= */ true);
+                new DefaultAndroidImageResourceByResIdResolver(serviceAndroidResources);
 
         DefaultInlineImageResourceResolver inlineResourceResolver =
-                new DefaultInlineImageResourceResolver(
-                        hostAppContext, /* restrictImageSize= */ true);
+                new DefaultInlineImageResourceResolver(hostAppContext);
         DefaultAndroidImageResourceByContentUriResolver contentUriResolver = null;
 
         if (asyncLoadExecutor != null) {
@@ -126,8 +124,7 @@ public class StandardResourceResolvers {
                             servicePackageName,
                             serviceAndroidResources,
                             hostAppContext.getContentResolver(),
-                            asyncLoadExecutor,
-                            /* restrictImageSize= */ true);
+                            asyncLoadExecutor);
         }
 
         ResourceResolvers.Builder builder =
@@ -141,13 +138,12 @@ public class StandardResourceResolvers {
 
         if (animationEnabled) {
             DefaultAndroidAnimatedImageResourceByResIdResolver androidAnimatedResourceResolver =
-                    new DefaultAndroidAnimatedImageResourceByResIdResolver(
-                            serviceAndroidResources, /* restrictImageSize= */ true);
+                    new DefaultAndroidAnimatedImageResourceByResIdResolver(serviceAndroidResources);
 
             DefaultAndroidSeekableAnimatedImageResourceByResIdResolver
                     androidSeekableAnimatedResourceResolver =
                             new DefaultAndroidSeekableAnimatedImageResourceByResIdResolver(
-                                    serviceAndroidResources, /* restrictImageSize= */ true);
+                                    serviceAndroidResources);
 
             builder.setAndroidAnimatedImageResourceByResIdResolver(androidAnimatedResourceResolver)
                     .setAndroidSeekableAnimatedImageResourceByResIdResolver(

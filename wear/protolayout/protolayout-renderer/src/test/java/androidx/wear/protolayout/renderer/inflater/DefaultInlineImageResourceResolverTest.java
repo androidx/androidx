@@ -36,8 +36,7 @@ import org.robolectric.annotation.Config;
 @RunWith(AndroidJUnit4.class)
 public class DefaultInlineImageResourceResolverTest {
   private final DefaultInlineImageResourceResolver mResolver =
-      new DefaultInlineImageResourceResolver(
-          getApplicationContext(), /* restrictImageSize= */ true);
+      new DefaultInlineImageResourceResolver(getApplicationContext());
 
   @Test
   public void loadRawBitmap_validImage_succeeds() throws ResourceAccessException {
@@ -62,7 +61,7 @@ public class DefaultInlineImageResourceResolverTest {
   }
 
   @Test
-  public void loadStructuredBitmap_validImage_succeeds() {
+  public void loadStructuredBitmap_validImage_succeeds() throws ResourceAccessException {
     byte[] minPng = getMinPng();
     int width = 10;
     int height = 10;
@@ -84,12 +83,6 @@ public class DefaultInlineImageResourceResolverTest {
 
   @Test
   public void loadRawBitmap_overflow32Bit_throws() {
-    // Create a non-restricting resolver to test the 'long' overflow logic specifically,
-    // bypassing the 2048px linear limit check.
-    DefaultInlineImageResourceResolver nonRestrictiveResolver =
-        new DefaultInlineImageResourceResolver(
-            getApplicationContext(), /* restrictImageSize= */ false);
-
     // 65536 * 65536 * 2 (RGB_565) overflows to 0 if calculated as a 32-bit int.
     InlineImageResource resource =
         InlineImageResource.newBuilder()
@@ -99,9 +92,7 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(ByteString.EMPTY)
             .build();
 
-    // Verifies that the 'long' calculation correctly identifies the mismatch with EMPTY data.
-    assertThrows(
-        ResourceAccessException.class, () -> nonRestrictiveResolver.loadRawBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadRawBitmap(resource));
   }
 
   @Test
@@ -120,10 +111,6 @@ public class DefaultInlineImageResourceResolverTest {
 
   @Test
   public void loadStructuredBitmap_linearDimensionTooLarge_throws() {
-    // A minimal valid pixel PNG image.
-    // This 'stub' data provides a valid file signature and header so that the Android ImageDecoder
-    // can initialize without crashing. This allows the test to reach the callback where our
-    // security dimension limit (e.g., 2048px) are enforced against the 'target' dimensions.
     byte[] minPng = getMinPng();
 
     InlineImageResource resource =
@@ -134,8 +121,7 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(ByteString.copyFrom(minPng))
             .build();
 
-    // This triggers the checkSize(targetSize) callback in ConstrainedImageDecoder
-    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 
   @Test
@@ -150,12 +136,12 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(ByteString.copyFrom(minPng))
             .build();
 
-    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 
   @Test
   @Config(sdk = VERSION_CODES.R)
-  public void loadStructuredBitmap_sdk30_validImage_succeeds() {
+  public void loadStructuredBitmap_sdk30_validImage_succeeds() throws ResourceAccessException {
     byte[] minPng = getMinPng();
     int width = 10;
     int height = 10;
@@ -188,7 +174,7 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(ByteString.copyFrom(minPng))
             .build();
 
-    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 
   @Test
@@ -204,7 +190,7 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(ByteString.copyFrom(minPng))
             .build();
 
-    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 
   @Test
@@ -222,7 +208,7 @@ public class DefaultInlineImageResourceResolverTest {
             .setData(largeImageBytes)
             .build();
 
-    assertThrows(IllegalArgumentException.class, () -> mResolver.loadStructuredBitmap(resource));
+    assertThrows(ResourceAccessException.class, () -> mResolver.loadStructuredBitmap(resource));
   }
 
   private static byte[] getMinPng() {
