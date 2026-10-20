@@ -30,10 +30,12 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
@@ -42,6 +44,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -422,6 +425,211 @@ class RenderLoopTest {
         }
     }
 
+    // --- cancellable renders --------------------------------------------------------------------
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_cancelsAStaleRenderAndRendersTheNewState() = runTest {
+        val state = mutableStateOf("a")
+        val rendered = mutableListOf<String>()
+        val processed = mutableListOf<String>()
+        var cancelled = 0
+        val gate = CompletableDeferred<Unit>()
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent { state.value }
+            val loop = launch {
+                host.session.renderLoop(cancelRenderOnInvalidation = true) {
+                    val value = renderIfChanged { state.value } ?: return@renderLoop true
+                    rendered += value
+                    try {
+                        // A slow "processEmittableTree": the first one never finishes by itself.
+                        if (value == "a") gate.await()
+                        processed += value
+                    } catch (e: CancellationException) {
+                        cancelled++
+                        throw e
+                    }
+                    true
+                }
+            }
+            runCurrent()
+            assertThat(rendered).containsExactly("a")
+            assertThat(processed).isEmpty()
+
+            state.write("b")
+            runCurrent()
+
+            assertThat(cancelled).isEqualTo(1)
+            assertThat(rendered).containsExactly("a", "b").inOrder()
+            assertThat(processed).containsExactly("b")
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
+    @Test
+    fun renderLoop_withoutCancellation_letsAStaleRenderFinish() = runTest {
+        val state = mutableStateOf("a")
+        val processed = mutableListOf<String>()
+        val gate = CompletableDeferred<Unit>()
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent { state.value }
+            val loop = launch {
+                host.session.renderLoop {
+                    val value = renderIfChanged { state.value } ?: return@renderLoop true
+                    if (value == "a") gate.await()
+                    processed += value
+                    true
+                }
+            }
+            runCurrent()
+            state.write("b")
+            runCurrent()
+            assertThat(processed).isEmpty()
+
+            gate.complete(Unit)
+            runCurrent()
+
+            assertThat(processed).containsExactly("a", "b").inOrder()
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_closeEndsALongRender() = runTest {
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent {}
+            val loop = launch {
+                host.session.renderLoop(cancelRenderOnInvalidation = true) {
+                    renderIfChanged { Unit }
+                    awaitCancellation()
+                }
+            }
+            runCurrent()
+            assertThat(loop.isActive).isTrue()
+
+            host.session.close()
+            runCurrent()
+
+            assertThat(loop.isCompleted).isTrue()
+            assertThat(loop.isCancelled).isFalse()
+        }
+    }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_anUnrelatedWriteLetsTheRenderFinish() = runTest {
+        val state = mutableStateOf("a")
+        val unrelated = mutableStateOf(0)
+        val processed = mutableListOf<String>()
+        var cancelled = 0
+        val gate = CompletableDeferred<Unit>()
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent { state.value }
+            val loop = launch {
+                host.session.renderLoop(cancelRenderOnInvalidation = true) {
+                    val value = renderIfChanged { state.value } ?: return@renderLoop true
+                    try {
+                        gate.await()
+                        processed += value
+                    } catch (e: CancellationException) {
+                        cancelled++
+                        throw e
+                    }
+                    true
+                }
+            }
+            runCurrent()
+
+            // Written elsewhere in the process while the render is suspended: neither composition
+            // nor the render read it, so the render is still current.
+            unrelated.write(1)
+            runCurrent()
+            assertThat(cancelled).isEqualTo(0)
+
+            gate.complete(Unit)
+            runCurrent()
+            assertThat(processed).containsExactly("a")
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_aWriteDuringSettleDoesNotCancelTheRender() = runTest {
+        val state = mutableStateOf("a")
+        var settles = 0
+        val rendered = mutableListOf<String>()
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent {
+                // Applied while the loop settles, before the render starts: the render sees it.
+                LaunchedEffect(Unit) { state.value = "b" }
+                state.value
+            }
+            val loop = launch {
+                host.session.renderLoop(
+                    cancelRenderOnInvalidation = true,
+                    beforeSettle = { settles++ },
+                ) {
+                    renderIfChanged { state.value }?.let { rendered += it }
+                    true
+                }
+            }
+            runCurrent()
+
+            assertThat(rendered).containsExactly("b")
+            assertThat(settles).isEqualTo(1)
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_aChangeToStateReadByTheRenderCancelsIt() = runTest {
+        // Read by the render only, like state read inside a draw lambda: composition never changes.
+        val renderInput = mutableStateOf("a")
+        val processed = mutableListOf<String>()
+        var cancelled = 0
+        val gate = CompletableDeferred<Unit>()
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent {}
+            val loop = launch {
+                host.session.renderLoop(cancelRenderOnInvalidation = true) {
+                    val value = renderIfChanged { renderInput.value } ?: return@renderLoop true
+                    try {
+                        if (value == "a") gate.await()
+                        processed += value
+                    } catch (e: CancellationException) {
+                        cancelled++
+                        throw e
+                    }
+                    true
+                }
+            }
+            runCurrent()
+            assertThat(processed).isEmpty()
+
+            renderInput.write("b")
+            runCurrent()
+
+            assertThat(cancelled).isEqualTo(1)
+            assertThat(processed).containsExactly("b")
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
     // --- pacing ---------------------------------------------------------------------------------
 
     @Test
@@ -452,6 +660,53 @@ class RenderLoopTest {
 
             // A budget of one frame allows one frame and gives up on the second, so each
             // iteration takes two paced frames: about five renders per second at 100ms.
+            assertThat(rendered.size).isIn(4..6)
+            assertThat(rendered).isInStrictOrder()
+            loop.cancel()
+            host.session.close()
+        }
+    }
+
+    @Test
+    fun renderLoop_pacedFrames_withCancellation_rendersAnimatingContentAtThePumpsPace() = runTest {
+        var frames by mutableStateOf(0)
+        val rendered = mutableListOf<Int>()
+        var cancelled = 0
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.session.frameClock.minFramePeriod = 100.milliseconds
+            host.setContent {
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        withFrameNanos { frames++ }
+                    }
+                }
+                frames
+            }
+            val loop = launch {
+                host.session.renderLoop(
+                    pacedFrames = true,
+                    maxFrames = 1,
+                    cancelRenderOnInvalidation = true,
+                ) {
+                    val frame = renderIfChanged { frames } ?: return@renderLoop true
+                    try {
+                        yield()
+                        rendered += frame
+                    } catch (e: CancellationException) {
+                        cancelled++
+                        throw e
+                    }
+                    true
+                }
+            }
+            advanceTimeBy(1_000)
+            runCurrent()
+
+            // The frames written while settling do not cancel the render they led to, so the
+            // loop keeps the same pace as without cancellation.
+            assertThat(cancelled).isEqualTo(0)
             assertThat(rendered.size).isIn(4..6)
             assertThat(rendered).isInStrictOrder()
             loop.cancel()

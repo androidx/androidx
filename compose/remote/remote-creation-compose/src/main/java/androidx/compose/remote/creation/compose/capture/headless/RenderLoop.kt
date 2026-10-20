@@ -18,8 +18,12 @@ package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withContext
 
 /** One iteration of [renderLoop]: the settled composition is ready to be read. */
@@ -71,9 +75,19 @@ internal interface RenderScope {
  *   invalidates the next render when written. Off for a host that renders once.
  * @param changeCount a counter that moves whenever composition applied changes the render cares
  *   about; defaults to `Recomposer.changeCount`. An applier's own change count is more precise.
+ * @param cancelRenderOnInvalidation whether a change that supersedes the render cancels [body]
+ *   while it is running, so that the next iteration renders the newer state right away instead of
+ *   after the stale render completes. A change supersedes the render once it is composed and alters
+ *   what [RenderScope.renderIfChanged] would see: a change to the tree or to state the render read.
+ *   Other writes, elsewhere in the process or applied before the render started, let it finish. For
+ *   hosts whose render is long and whose output only matters when current (e.g. inflating remote
+ *   views for a widget). The cancelled body must leave no partial output behind.
+ *   [RenderScope.renderIfChanged] itself never observes the cancellation mid-block, as the block
+ *   does not suspend; it takes effect at the next suspension point.
  * @param beforeSettle runs at the start of every iteration, before settling, e.g. to wait for a
  *   rate limiter so that writes made meanwhile are conflated into this iteration.
- * @param body renders and decides whether to continue. Runs in the caller's context.
+ * @param body renders and decides whether to continue. Runs in the caller's context, as a child
+ *   coroutine when [cancelRenderOnInvalidation] is set.
  */
 internal suspend fun HeadlessSession.renderLoop(
     pacedFrames: Boolean = false,
@@ -81,6 +95,7 @@ internal suspend fun HeadlessSession.renderLoop(
     maxFrames: Int = MAX_FRAMES,
     observeRenderReads: Boolean = true,
     changeCount: () -> Long = { recomposer.changeCount },
+    cancelRenderOnInvalidation: Boolean = false,
     beforeSettle: suspend () -> Unit = {},
     body: suspend RenderScope.() -> Boolean,
 ) {
@@ -125,7 +140,33 @@ internal suspend fun HeadlessSession.renderLoop(
                     onRenderReadChanged,
                     changeCount,
                 )
-            if (!scope.body()) return
+            val outcome =
+                if (cancelRenderOnInvalidation) {
+                    scope.runCancellable(
+                        settle = {
+                            // A closed session's invalidations end the select on the next pass.
+                            if (!isClosed) {
+                                awaitQuiescence(
+                                    maxIterations = maxIterations,
+                                    pacedFrames = pacedFrames,
+                                    maxFrames = maxFrames,
+                                )
+                            }
+                        },
+                        body = body,
+                    )
+                } else {
+                    scope.body()
+                }
+            when (outcome) {
+                false -> return
+                null -> {
+                    // Superseded: the change that cancelled the body starts the next iteration.
+                    again = true
+                    continue
+                }
+                true -> {}
+            }
             again =
                 if (
                     pacedFrames &&
@@ -137,10 +178,11 @@ internal suspend fun HeadlessSession.renderLoop(
                     invalidations.tryReceive()
                     true
                 } else if (
-                    changeSeen && (tracker.needsRender(changeCount()) || recomposer.hasPendingWork)
+                    (changeSeen || scope.changeSeen) &&
+                        (tracker.needsRender(changeCount()) || recomposer.hasPendingWork)
                 ) {
-                    // The dropped signal was not stale after all: a change landed after the
-                    // recomposer last looked (pending), or composed after the render began.
+                    // A dropped or consumed signal was not stale after all: a change landed after
+                    // the recomposer last looked (pending), or composed after the render began.
                     true
                 } else {
                     invalidations.receiveCatching().isSuccess
@@ -158,14 +200,69 @@ internal suspend fun HeadlessSession.renderLoop(
     }
 }
 
+/** Result of [HeadlessSession.invalidations] in [runCancellable]'s select. */
+private object Invalidated
+
+private object Closed
+
+/**
+ * Runs [body] as a child coroutine and returns its result, or `null` if a change superseded the
+ * render, in which case the body is cancelled and joined. A change signalled while the body runs is
+ * composed first ([settle]) and supersedes the render only if it altered what a render sees, see
+ * [RenderScopeImpl.isSuperseded]; otherwise the body goes on. Returns `false` if the session's
+ * invalidations closed meanwhile, which ends the loop.
+ */
+private suspend fun RenderScopeImpl.runCancellable(
+    settle: suspend () -> Unit,
+    body: suspend RenderScope.() -> Boolean,
+): Boolean? = coroutineScope {
+    val render = async { body() }
+    var result: Boolean? = null
+    while (true) {
+        val outcome =
+            select<Any?> {
+                render.onAwait { it }
+                session.invalidations.onReceiveCatching { received ->
+                    if (received.isClosed) Closed else Invalidated
+                }
+            }
+        if (outcome is Boolean) {
+            result = outcome
+            break
+        }
+        if (outcome == Closed) {
+            render.cancelAndJoin()
+            result = false
+            break
+        }
+        changeSeen = true
+        settle()
+        if (!render.isCompleted && isSuperseded()) {
+            render.cancelAndJoin()
+            result = null
+            break
+        }
+    }
+    result
+}
+
 private class RenderScopeImpl(
     override val quiescence: QuiescenceResult,
-    private val session: HeadlessSession,
+    val session: HeadlessSession,
     private val tracker: RenderInvalidationTracker,
     private val readObserver: SnapshotStateObserver?,
     private val onRenderReadChanged: (RenderInvalidationTracker) -> Unit,
     private val changeCount: () -> Long,
 ) : RenderScope {
+    /** Whether a signal from [HeadlessSession.invalidations] was consumed during this iteration. */
+    @Volatile var changeSeen = false
+
+    /**
+     * Whether a change composed since the last render would make the next [renderIfChanged] render
+     * again: the tree changed, a state the render read did, or a change landed mid-render.
+     */
+    fun isSuperseded(): Boolean = tracker.needsRender(changeCount())
+
     override suspend fun <T : Any> renderIfChanged(applyWrites: Boolean, block: () -> T): T? =
         withContext(session.recomposerDispatcher) {
             if (!tracker.beginRender(changeCount())) return@withContext null
