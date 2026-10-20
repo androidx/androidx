@@ -63,7 +63,7 @@ class TopLevelCompositionLocalDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-                src/androidx/compose/material3/LocalFoo.kt:5: Error: CompositionLocals should not be defined as top-level public properties. Scope them inside an object or make them internal/private. [TopLevelCompositionLocal]
+                src/androidx/compose/material3/LocalFoo.kt:5: Error: Consider whether the composition local could be internal/private or scoped within an object, such as the MaterialTheme [TopLevelCompositionLocal]
                 val LocalFoo = compositionLocalOf { "foo" }
                     ~~~~~~~~
                 1 errors, 0 warnings
@@ -157,6 +157,79 @@ class TopLevelCompositionLocalDetectorTest : LintDetectorTest() {
                     package androidx.compose.material3
 
                     val Foo = "bar"
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun invalid_wearComposeMaterial3_topLevelPublic() {
+        lint()
+            .files(
+                CompositionLocalStub,
+                kotlin(
+                        "src/androidx/wear/compose/material3/LocalFoo.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    import androidx.compose.runtime.compositionLocalOf
+
+                    val LocalFoo = compositionLocalOf { "foo" }
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expect(
+                """
+                src/androidx/wear/compose/material3/LocalFoo.kt:5: Error: Consider whether the composition local could be internal/private or scoped within an object, such as the MaterialTheme [TopLevelCompositionLocal]
+                val LocalFoo = compositionLocalOf { "foo" }
+                    ~~~~~~~~
+                1 errors, 0 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun valid_allowlist_composeMaterial3() {
+        lint()
+            .files(
+                CompositionLocalStub,
+                kotlin(
+                        "src/androidx/compose/material3/LocalContentColor.kt",
+                        """
+                    package androidx.compose.material3
+
+                    import androidx.compose.runtime.compositionLocalOf
+
+                    val LocalContentColor = compositionLocalOf { "color" }
+                    val LocalTextStyle = compositionLocalOf { "style" }
+                    """,
+                    )
+                    .indented(),
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun valid_allowlist_wearComposeMaterial3() {
+        lint()
+            .files(
+                CompositionLocalStub,
+                kotlin(
+                        "src/androidx/wear/compose/material3/LocalOneHandedGestureEnabled.kt",
+                        """
+                    package androidx.wear.compose.material3
+
+                    import androidx.compose.runtime.compositionLocalOf
+
+                    val LocalOneHandedGestureEnabled = compositionLocalOf { true }
+                    val LocalTextConfiguration = compositionLocalOf { "config" }
                     """,
                     )
                     .indented(),

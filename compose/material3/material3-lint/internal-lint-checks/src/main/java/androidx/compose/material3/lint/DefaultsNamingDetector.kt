@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedClassSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaNamedFunctionSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaPropertySymbol
 import org.jetbrains.kotlin.analysis.api.types.KaType
@@ -38,13 +39,31 @@ import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.uast.UClass
 
-private val VariantPrefixes =
+private val Material3VariantPrefixes =
     listOf("filledTonal", "filled", "elevated", "tonal", "outlined", "text")
+
+private val WearVariantPrefixes =
+    listOf(
+        "filledTonal",
+        "filledVariant",
+        "filled",
+        "elevated",
+        "tonal",
+        "outlined",
+        "text",
+        "child",
+        "split",
+        "compact",
+    )
 
 private val StandardImmutableTypes =
     setOf(
         "kotlin.Int",
+        "kotlin.Long",
         "kotlin.Float",
+        "kotlin.Double",
+        "kotlin.Boolean",
+        "kotlin.String",
         "kotlin.time.Duration",
         "kotlin.ranges.IntRange",
         "kotlin.ranges.CharRange",
@@ -59,6 +78,8 @@ private val AllowedStableInterfaces =
         "androidx.compose.foundation.layout.Arrangement.Horizontal",
         "androidx.compose.foundation.layout.Arrangement.Vertical",
         "androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical",
+        "androidx.compose.animation.core.AnimationSpec",
+        "androidx.compose.animation.core.FiniteAnimationSpec",
     )
 
 private fun KaSession.isConstantType(type: KaType?): Boolean {
@@ -68,7 +89,13 @@ private fun KaSession.isConstantType(type: KaType?): Boolean {
 
     if (fqName in StandardImmutableTypes) return true
 
-    if (expandedSymbol.isImmutable() || fqName in AllowedStableInterfaces) return true
+    if (
+        fqName in AllowedStableInterfaces ||
+            (expandedSymbol as? KaNamedClassSymbol)?.isInline == true ||
+            expandedSymbol.isImmutable()
+    ) {
+        return true
+    }
 
     for (superType in type.allSupertypes(false)) {
         val superSymbol = superType.expandedSymbol as? KaClassSymbol ?: continue
@@ -94,29 +121,26 @@ class DefaultsNamingDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UClass::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
-        if (context.isTestSource) return UElementHandler.NONE
-        val packageName = context.uastFile?.packageName ?: return UElementHandler.NONE
+        if (!context.isMaterial3Source()) return UElementHandler.NONE
+        val normalizedPath = context.file.path.replace('\\', '/')
         if (
-            !packageName.startsWith("androidx.compose.material3") || packageName.contains("samples")
-        )
+            normalizedPath.contains("androidx/compose/material3/tokens/") ||
+                normalizedPath.contains("androidx/wear/compose/material3/tokens/")
+        ) {
             return UElementHandler.NONE
+        }
+        val variantPrefixes =
+            if (context.isWearMaterial3Source()) WearVariantPrefixes else Material3VariantPrefixes
 
         return object : UElementHandler() {
             override fun visitClass(node: UClass) {
-                if (
-                    context.file.path
-                        .replace('\\', '/')
-                        .contains("androidx/compose/material3/tokens/")
-                ) {
-                    return
-                }
                 val name = node.name ?: return
                 if (!name.endsWith("Defaults")) return
                 val objectDeclaration = node.sourcePsi as? KtObjectDeclaration ?: return
 
                 val componentName = name.removeSuffix("Defaults")
                 val componentNameDecapitalized = componentName.replaceFirstChar { it.lowercase() }
-                val classNameHasVariant = VariantPrefixes.any { variant ->
+                val classNameHasVariant = variantPrefixes.any { variant ->
                     name.contains(variant, ignoreCase = true)
                 }
 
@@ -137,6 +161,7 @@ class DefaultsNamingDetector : Detector(), SourceCodeScanner {
                         memberName,
                         componentName,
                         classNameHasVariant,
+                        variantPrefixes,
                     )
                 }
 
@@ -159,30 +184,29 @@ class DefaultsNamingDetector : Detector(), SourceCodeScanner {
 
     private fun KaSession.validatePropertyCamelCase(context: JavaContext, property: KtProperty) {
         val name = property.name ?: return
+        if (name.isEmpty() || !name[0].isUpperCase()) return
         if (property.hasModifier(KtTokens.CONST_KEYWORD) || !isDeclarationPublic(property)) {
             return
         }
         val symbol = property.symbol as? KaPropertySymbol
         val type = symbol?.returnType
         if (!isConstantType(type)) {
-            if (name.isNotEmpty() && name[0].isUpperCase()) {
-                val newName = name.replaceFirstChar { it.lowercase() }
-                val fix =
-                    fix()
-                        .name("Rename to '$newName'")
-                        .replace()
-                        .range(context.getNameLocation(property))
-                        .with(newName)
-                        .autoFix()
-                        .build()
-                context.report(
-                    CAMEL_CASE_PROPERTY_ISSUE,
-                    property,
-                    context.getNameLocation(property),
-                    "Properties on Defaults objects should be camelCase",
-                    fix,
-                )
-            }
+            val newName = name.replaceFirstChar { it.lowercase() }
+            val fix =
+                fix()
+                    .name("Rename to '$newName'")
+                    .replace()
+                    .range(context.getNameLocation(property))
+                    .with(newName)
+                    .autoFix()
+                    .build()
+            context.report(
+                CAMEL_CASE_PROPERTY_ISSUE,
+                property,
+                context.getNameLocation(property),
+                "Properties on Defaults objects should be camelCase",
+                fix,
+            )
         }
     }
 
@@ -282,9 +306,10 @@ class DefaultsNamingDetector : Detector(), SourceCodeScanner {
         name: String,
         componentName: String,
         classNameHasVariant: Boolean,
+        variantPrefixes: List<String>,
     ) {
         if (!classNameHasVariant) {
-            val matchedVariant = VariantPrefixes.find { variant ->
+            val matchedVariant = variantPrefixes.find { variant ->
                 name.startsWith(variant) && name != variant
             }
             if (matchedVariant != null) {

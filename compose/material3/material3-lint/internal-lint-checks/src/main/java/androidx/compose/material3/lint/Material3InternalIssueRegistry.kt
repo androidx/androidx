@@ -32,7 +32,7 @@ class Material3InternalIssueRegistry : IssueRegistry() {
                 DefaultsNamingDetector.CAMEL_CASE_PROPERTY_ISSUE,
                 DefaultsNamingDetector.REDUNDANT_PREFIX_ISSUE,
                 ComposableParameterOrderingDetector.ISSUE,
-                ThemeGetterAnnotationDetector.ISSUE,
+                DefaultsReadOnlyComposableDetector.ISSUE,
                 AlignmentEnumDetector.ISSUE,
                 TopLevelCompositionLocalDetector.ISSUE,
                 StateHolderDesignDetector.STABILITY_ISSUE,

@@ -44,12 +44,7 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(UMethod::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
-        if (context.isTestSource) return UElementHandler.NONE
-        val packageName = context.uastFile?.packageName ?: return UElementHandler.NONE
-        if (
-            !packageName.startsWith("androidx.compose.material3") || packageName.contains("samples")
-        )
-            return UElementHandler.NONE
+        if (!context.isMaterial3Source()) return UElementHandler.NONE
 
         return object : UElementHandler() {
             override fun visitMethod(node: UMethod) {
@@ -60,38 +55,6 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
                 )
                     return
 
-                // Check if this method has a deprecated sibling overload (same name) and check if
-                // parameters are preserved
-                var siblingNonTrailingSize = 0
-                val containingClass = node.getContainingUClass()
-                if (containingClass != null) {
-                    val siblings =
-                        containingClass.methods.filter {
-                            it != node.javaPsi && it.name == node.name
-                        }
-                    val deprecatedSibling = siblings.firstNotNullOfOrNull { sibling ->
-                        val uSibling = sibling.toUElement() as? UMethod
-                        val isDeprecated =
-                            uSibling != null &&
-                                (uSibling.hasAnnotation("kotlin.Deprecated") ||
-                                    uSibling.hasAnnotation("java.lang.Deprecated"))
-                        if (isDeprecated) uSibling else null
-                    }
-                    if (deprecatedSibling != null) {
-                        val siblingParams = deprecatedSibling.uastParameters
-                        val siblingNonTrailing = siblingParams.filter { !isTrailingSlot(it) }
-                        val activeParams = node.uastParameters
-                        val isPreserved =
-                            siblingNonTrailing.indices.all { i ->
-                                i < activeParams.size &&
-                                    activeParams[i].name == siblingNonTrailing[i].name
-                            }
-                        if (isPreserved) {
-                            siblingNonTrailingSize = siblingNonTrailing.size
-                        }
-                    }
-                }
-
                 // Ignore non-public APIs
                 val sourcePsi = node.sourcePsi
                 if (sourcePsi is KtModifierListOwner) {
@@ -100,6 +63,7 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
                             sourcePsi.hasModifier(KtTokens.INTERNAL_KEYWORD)
                     if (isPrivateOrInternal) return
                 }
+                val containingClass = node.getContainingUClass()
                 if (containingClass != null) {
                     val classSourcePsi = containingClass.sourcePsi
                     if (classSourcePsi is KtModifierListOwner) {
@@ -113,6 +77,10 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
                 val parameters = node.uastParameters
                 if (parameters.isEmpty()) return
 
+                // Lazily computed only when an ordering violation occurs: check if this method
+                // has a deprecated sibling overload (same name) and how many prefix parameters
+                // are preserved.
+                var siblingNonTrailingSize = -1
                 var previousTier = ParameterTier.REQUIRED_INPUT
                 var previousParamName = ""
                 var previousIndex = -1
@@ -126,6 +94,21 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
                     }
 
                     if (currentTier.rank < previousTier.rank) {
+                        if (siblingNonTrailingSize == -1) {
+                            siblingNonTrailingSize =
+                                containingClass
+                                    ?.methods
+                                    ?.asSequence()
+                                    ?.filter { it != node.javaPsi && it.name == node.name }
+                                    ?.mapNotNull { it.toUElement() as? UMethod }
+                                    ?.filter { uSibling ->
+                                        uSibling.hasAnnotation("kotlin.Deprecated") ||
+                                            uSibling.hasAnnotation("java.lang.Deprecated")
+                                    }
+                                    ?.maxOfOrNull { uSibling ->
+                                        getPreservedPrefixSize(parameters, uSibling.uastParameters)
+                                    } ?: 0
+                        }
                         val isJustified =
                             previousIndex != -1 && previousIndex < siblingNonTrailingSize
                         if (!isJustified) {
@@ -183,7 +166,7 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
 
         // 2. InteractionSource or Trailing Slot (Tier 7)
         if (
-            lowerName == "interactionsource" &&
+            lowerName.endsWith("interactionsource") &&
                 typeFqn == "androidx.compose.foundation.interaction.MutableInteractionSource"
         ) {
             return ParameterTier.INTERACTION_TRAILING
@@ -199,7 +182,9 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
         }
 
         // 4. State controllers (Tier 3)
-        val isState = lowerName.endsWith("state") || typeFqn.endsWith("State")
+        val isBoolean =
+            typeFqn == "boolean" || typeFqn == "java.lang.Boolean" || typeFqn == "kotlin.Boolean"
+        val isState = !isBoolean && (lowerName.endsWith("state") || typeFqn.endsWith("State"))
         if (isState) {
             if (hasSeenStateParam) {
                 return ParameterTier.AUXILIARY_BEHAVIOR
@@ -267,12 +252,43 @@ class ComposableParameterOrderingDetector : Detector(), SourceCodeScanner {
             canonicalText.contains("Function")
     }
 
-    private fun isTrailingSlot(parameter: UParameter): Boolean {
-        val name = parameter.name
-        if (name == "content" || name == "interactionSource") return true
+    private fun getPreservedPrefixSize(
+        activeParams: List<UParameter>,
+        siblingParams: List<UParameter>,
+    ): Int {
+        val lastSiblingParam = siblingParams.lastOrNull()
+        val siblingNonTrailing = siblingParams.dropLastWhile { param ->
+            isTrailingSlot(param, isLast = (param == lastSiblingParam))
+        }
+        val isPreserved =
+            siblingNonTrailing.isNotEmpty() &&
+                siblingNonTrailing.indices.all { i ->
+                    i < activeParams.size && activeParams[i].name == siblingNonTrailing[i].name
+                }
+        if (!isPreserved) return 0
+
+        var preservedSize = siblingNonTrailing.size
+        while (
+            preservedSize < siblingParams.size &&
+                preservedSize < activeParams.size &&
+                siblingParams[preservedSize].name == activeParams[preservedSize].name
+        ) {
+            preservedSize++
+        }
+        return preservedSize
+    }
+
+    private fun isTrailingSlot(parameter: UParameter, isLast: Boolean): Boolean {
+        val lowerName = parameter.name.lowercase()
         val type = parameter.type
-        if (isFunctionType(type)) return true
-        return false
+        if (
+            lowerName.endsWith("interactionsource") &&
+                type.canonicalText ==
+                    "androidx.compose.foundation.interaction.MutableInteractionSource"
+        ) {
+            return true
+        }
+        return isLast && isFunctionType(type) && !lowerName.startsWith("on")
     }
 
     enum class ParameterTier(val rank: Int, val description: String) {
