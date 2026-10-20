@@ -43,7 +43,6 @@ android {
 androidx {
     name = "Core for Accessibility Test"
     type = SoftwareType.PUBLISHED_LIBRARY
-
     inceptionYear = "2026"
     description = "Pure-JVM model, checks and utilities for evaluating accessibility"
 }
