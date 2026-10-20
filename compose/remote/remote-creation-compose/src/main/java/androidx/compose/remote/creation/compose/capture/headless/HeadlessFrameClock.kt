@@ -32,6 +32,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -40,6 +43,9 @@ private val NotStartedFrameRequested = Any() // Frame requested before runClock(
 private val Idle = Any() // No frame requested, or in the middle of sending one
 private val FrameRequested = Any() // Frame requested, the pump will send it on its next loop
 private val Cancelled = Any() // The pump completed, or cancel() was called
+
+/** Value of `HeadlessFrameClock.frameEvents` once the clock is cancelled. */
+private const val CANCELLED = -1L
 
 /**
  * A [MonotonicFrameClock] for headless compositions that sends a frame as soon as one is requested,
@@ -61,7 +67,7 @@ private val Cancelled = Any() // The pump completed, or cancel() was called
  * Frames sent by the pump can be paced with [minFramePeriod], e.g. to stop content that animates
  * through recomposition from keeping a recomposer busy while its documents are being throttled
  * anyway. Pacing never applies to [sendFrame], so a caller driving the composition to quiescence is
- * not slowed down.
+ * not slowed down; a caller that wants the paced frames instead waits for them with [awaitFrame].
  *
  * Thread-safe: [sendFrame], [cancel] and frame requests may come from any thread; the pump itself
  * runs on whichever dispatcher [runClock] is called from.
@@ -79,6 +85,12 @@ internal class HeadlessFrameClock(
     private val state = AtomicReference<Any>(NotStarted)
     private val broadcast = BroadcastFrameClock(::requestFrame)
     private val sent = AtomicLong()
+    /**
+     * Wakes [awaitFrame]: moves after each frame has been delivered, and after the pump served a
+     * request and found no awaiter left, so that a waiter re-checks instead of waiting for a frame
+     * nobody asks for. [CANCELLED] once the clock is.
+     */
+    private val frameEvents = MutableStateFlow(0L)
     @Volatile private var budget: Budget? = null
     /** Set by [sendFrame] when it exhausts a budget; cleared when the next budget begins. */
     @Volatile private var isBudgetExhausted = false
@@ -144,7 +156,28 @@ internal class HeadlessFrameClock(
             }
         }
         broadcast.sendFrame(nanoTime())
+        signalFrameEvent()
         onFrameSent()
+    }
+
+    /**
+     * Suspends until a frame is sent after this call, by the pump or by [sendFrame], and its
+     * callbacks have run. Also resumes when the pump serves a request and finds that its awaiter
+     * has gone meanwhile (cancelled while the pump was pacing), so a caller waiting on behalf of an
+     * awaiter must re-check [hasAwaiters]. Does not request a frame: with no awaiter and no pending
+     * request this suspends until one appears and is served.
+     *
+     * @throws CancellationException if the caller is cancelled, including by an exhausted
+     *   [withFrameBudget], or if the clock is [cancel]led, like [withFrameNanos].
+     */
+    suspend fun awaitFrame() {
+        val before = frameEvents.value
+        val event = if (before == CANCELLED) before else frameEvents.first { it != before }
+        if (event == CANCELLED) throw CancellationException("HeadlessFrameClock was cancelled")
+    }
+
+    private fun signalFrameEvent() {
+        frameEvents.update { if (it == CANCELLED) it else it + 1 }
     }
 
     /**
@@ -194,6 +227,7 @@ internal class HeadlessFrameClock(
         // cancelled while parked (see park), in which case nobody has failed them yet.
         // BroadcastFrameClock.cancel is idempotent.
         broadcast.cancel(CancellationException("HeadlessFrameClock was cancelled"))
+        frameEvents.value = CANCELLED
         if (previous === Cancelled) return
         @Suppress("UNCHECKED_CAST") // Parked state holds the pump's continuation.
         (previous as? CancellableContinuation<Unit>)?.resume(Unit)
@@ -222,7 +256,10 @@ internal class HeadlessFrameClock(
                 FrameRequested ->
                     if (state.compareAndSet(current, Idle) && !isBudgetExhausted) {
                         awaitFramePeriod()
+                        val before = sent.get()
                         sendFrame()
+                        // The awaiter went away while pacing: wake awaitFrame callers to re-check.
+                        if (sent.get() == before) signalFrameEvent()
                     }
                 Idle -> park()
                 Cancelled -> throw CancellationException("HeadlessFrameClock was cancelled")

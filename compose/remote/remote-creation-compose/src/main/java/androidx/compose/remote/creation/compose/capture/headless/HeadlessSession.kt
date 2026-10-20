@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.capture.headless
 import androidx.compose.runtime.Recomposer
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -93,9 +94,17 @@ internal class HeadlessSession(
     /**
      * Drives the recomposer until it settles, see [awaitRecomposerQuiescence].
      *
+     * @param maxIterations how many non-quiescent iterations settling may take before giving up
+     *   with [QuiescenceResult.Unstable].
+     * @param pacedFrames whether frames requested while settling are left to the frame clock's
+     *   pump, paced by [HeadlessFrameClock.minFramePeriod], instead of being sent immediately.
      * @throws IllegalStateException if the session is not started, or already closed.
+     * @throws CancellationException if the session is closed while settling.
      */
-    suspend fun awaitQuiescence(maxIterations: Int = MAX_IDLE_ITERATIONS): QuiescenceResult {
+    suspend fun awaitQuiescence(
+        maxIterations: Int = MAX_IDLE_ITERATIONS,
+        pacedFrames: Boolean = false,
+    ): QuiescenceResult {
         synchronized(lock) {
             check(state == State.Started) { "Cannot await quiescence: session is $state" }
         }
@@ -105,6 +114,7 @@ internal class HeadlessSession(
             recomposerDispatcher = recomposerDispatcher,
             writeTracker = writeTracker,
             maxIterations = maxIterations,
+            pacedFrames = pacedFrames,
         )
     }
 

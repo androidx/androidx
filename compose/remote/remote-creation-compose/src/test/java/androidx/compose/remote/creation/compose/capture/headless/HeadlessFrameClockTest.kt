@@ -27,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -214,6 +215,104 @@ class HeadlessFrameClockTest {
 
         assertThat(frame.isCompleted).isTrue()
         assertThat(currentTime).isEqualTo(0)
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun awaitFrame_resumesAfterPumpFrame_pacedByMinFramePeriod() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now }, timeSource = testScheduler.timeSource)
+        clock.minFramePeriod = 100.milliseconds
+        val pump = launch { clock.runClock() }
+        clock.withFrameNanos {}
+        val awaiter = launch { clock.withFrameNanos {} }
+
+        clock.awaitFrame()
+
+        assertThat(awaiter.isCompleted).isTrue()
+        assertThat(currentTime).isEqualTo(100)
+        assertThat(clock.framesSent).isEqualTo(2)
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun awaitFrame_doesNotResumeForFramesSentBeforeTheCall() = runTest {
+        val pump = launch { clock.runClock() }
+        clock.withFrameNanos {}
+        assertThat(clock.framesSent).isEqualTo(1)
+
+        val waiting = async { clock.awaitFrame() }
+        runCurrent()
+        assertThat(waiting.isCompleted).isFalse()
+
+        clock.withFrameNanos {}
+        runCurrent()
+        assertThat(waiting.isCompleted).isTrue()
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun awaitFrame_isCancelledByAnExhaustedBudget() = runTest {
+        val pump = launch { clock.runClock() }
+        val content = launch {
+            while (true) {
+                clock.withFrameNanos {}
+            }
+        }
+
+        val result =
+            clock.withFrameBudget(maxFrames = 3) {
+                while (true) {
+                    clock.awaitFrame()
+                }
+            }
+
+        assertThat(result).isNull()
+        content.cancelAndJoin()
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun awaitFrame_throwsWhenTheClockIsCancelled() = runTest {
+        val pump = launch { clock.runClock() }
+        val waiting = async { clock.awaitFrame() }
+        runCurrent()
+        assertThat(waiting.isCompleted).isFalse()
+
+        clock.cancel()
+        runCurrent()
+
+        assertThat(waiting.isCancelled).isTrue()
+        assertThat(waiting.getCompletionExceptionOrNull())
+            .hasMessageThat()
+            .contains("HeadlessFrameClock was cancelled")
+        pump.join()
+    }
+
+    @Test
+    fun awaitFrame_afterCancel_throws() = runTest {
+        clock.cancel()
+        val failure = runCatching { clock.awaitFrame() }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(CancellationException::class.java)
+    }
+
+    @Test
+    fun awaitFrame_resumesWhenTheAwaiterIsCancelledWhileThePumpIsPacing() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now }, timeSource = testScheduler.timeSource)
+        clock.minFramePeriod = 100.milliseconds
+        val pump = launch { clock.runClock() }
+        clock.withFrameNanos {}
+        // Requests a frame, so the pump starts pacing, then gives up before it is sent.
+        val awaiter = launch { clock.withFrameNanos {} }
+        val waiting = async { clock.awaitFrame() }
+        runCurrent()
+        awaiter.cancelAndJoin()
+
+        advanceTimeBy(100)
+        runCurrent()
+
+        assertThat(waiting.isCompleted).isTrue()
+        assertThat(clock.hasAwaiters).isFalse()
+        assertThat(clock.framesSent).isEqualTo(1)
         pump.cancelAndJoin()
     }
 
