@@ -73,6 +73,7 @@ import android.view.ViewTreeObserver
 import android.view.Window
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.animation.AnimationUtils
+import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -215,7 +216,6 @@ import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.setOfAncestors
 import androidx.compose.ui.platform.Api29Impl.isValidMotionEvent
-import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.relocation.BringIntoViewModifierNode
 import androidx.compose.ui.scrollcapture.ScrollCapture
 import androidx.compose.ui.semantics.EmptySemanticsModifier
@@ -256,6 +256,7 @@ import androidx.core.view.ViewConfigurationCompat.getScaledHorizontalScrollFacto
 import androidx.core.view.ViewConfigurationCompat.getScaledVerticalScrollFactor
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
+import androidx.core.view.contentcapture.ContentCaptureSessionCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -4205,11 +4206,39 @@ private fun View.containsDescendant(other: View): Boolean {
 }
 
 private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionWrapper? {
-    ViewCompatShims.setImportantForContentCapture(
-        this,
-        ViewCompatShims.IMPORTANT_FOR_CONTENT_CAPTURE_YES,
-    )
-    return ViewCompatShims.getContentCaptureSession(this)
+    ViewCompat.setImportantForContentCapture(this, ViewCompat.IMPORTANT_FOR_CONTENT_CAPTURE_YES)
+    return ViewCompat.getContentCaptureSession(this)?.let { ComposeContentCaptureSession(it) }
+}
+
+private class ComposeContentCaptureSession(private val sessionCompat: ContentCaptureSessionCompat) :
+    ContentCaptureSessionWrapper {
+    override fun newAutofillId(virtualChildId: Long) = sessionCompat.newAutofillId(virtualChildId)
+
+    override fun newVirtualViewStructure(parentId: AutofillId, virtualId: Long): ViewStructure? {
+        // Direct call to platform ContentCaptureSession to avoid transient allocation of
+        // ViewStructureCompat per virtual node, while continuing to use sessionCompat for
+        // compatibility polyfills (e.g. flush, notifyViewsAppeared).
+        return if (SDK_INT >= 29) {
+            Api29Impl.newVirtualViewStructure(sessionCompat, parentId, virtualId)
+        } else {
+            null
+        }
+    }
+
+    override fun notifyViewAppeared(node: ViewStructure) = sessionCompat.notifyViewAppeared(node)
+
+    override fun flush() = sessionCompat.flush()
+
+    override fun notifyViewsAppeared(appearedNodes: @JvmSuppressWildcards List<ViewStructure>) =
+        sessionCompat.notifyViewsAppeared(appearedNodes)
+
+    override fun notifyViewsDisappeared(virtualIds: LongArray) =
+        sessionCompat.notifyViewsDisappeared(virtualIds)
+
+    override fun notifyViewDisappeared(id: AutofillId) = sessionCompat.notifyViewDisappeared(id)
+
+    override fun notifyViewTextChanged(id: AutofillId, text: CharSequence?) =
+        sessionCompat.notifyViewTextChanged(id, text)
 }
 
 /** Sets this [Matrix] to be the result of `this` times [other] */
@@ -4386,6 +4415,15 @@ private object Api29Impl {
     fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
         return event.getRawX(index).fastIsFinite() && event.getRawY(index).fastIsFinite()
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun newVirtualViewStructure(
+        sessionCompat: ContentCaptureSessionCompat,
+        parentId: AutofillId,
+        virtualId: Long,
+    ): ViewStructure =
+        sessionCompat.toContentCaptureSession().newVirtualViewStructure(parentId, virtualId)
 }
 
 /** Split out to avoid class verification errors. This class will only be loaded when SDK >= 30. */
