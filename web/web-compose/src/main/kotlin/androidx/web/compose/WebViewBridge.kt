@@ -362,6 +362,14 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
+        message = "Use Modifier.background instead of View background color.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setBackgroundColor(color: Int) {
+        super.setBackgroundColor(color)
+    }
+
+    @Deprecated(
         message = "Use Modifier.background instead of View background.",
         level = DeprecationLevel.WARNING,
     )
@@ -1038,10 +1046,398 @@ public open class WebViewBridge : WebContentView {
         super.removeOnAttachStateChangeListener(listener)
     }
 
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { contentDescription = ... } on WebSurface instead of View contentDescription.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setContentDescription(contentDescription: CharSequence?) {
+        super.setContentDescription(contentDescription)
+    }
+
+    @RequiresApi(30)
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { stateDescription = ... } on WebSurface instead of View stateDescription.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setStateDescription(stateDescription: CharSequence?) {
+        super.setStateDescription(stateDescription)
+    }
+
+    @RequiresApi(28)
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { paneTitle = ... } on WebSurface instead of View accessibilityPaneTitle.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityPaneTitle(accessibilityPaneTitle: CharSequence?) {
+        super.setAccessibilityPaneTitle(accessibilityPaneTitle)
+    }
+
+    @Deprecated(
+        message = "Use Modifier.semantics on WebSurface instead of View AccessibilityDelegate.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityDelegate(delegate: AccessibilityDelegate?) {
+        super.setAccessibilityDelegate(delegate)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.semantics or Modifier.clearAndSetSemantics on WebSurface instead of View importantForAccessibility.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setImportantForAccessibility(mode: Int) {
+        super.setImportantForAccessibility(mode)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { liveRegion = ... } on WebSurface instead of View accessibilityLiveRegion.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityLiveRegion(mode: Int) {
+        super.setAccessibilityLiveRegion(mode)
+    }
+
+    @RequiresApi(28)
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { heading() } on WebSurface instead of View accessibilityHeading.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityHeading(isHeading: Boolean) {
+        super.setAccessibilityHeading(isHeading)
+    }
+
+    @RequiresApi(28)
+    @Deprecated(
+        message =
+            "Use Modifier.semantics(mergeDescendants = true) on WebSurface instead of View screenReaderFocusable.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setScreenReaderFocusable(screenReaderFocusable: Boolean) {
+        super.setScreenReaderFocusable(screenReaderFocusable)
+    }
+
+    @RequiresApi(34)
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { isSensitiveData = ... } on WebSurface instead of View accessibilityDataSensitive.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityDataSensitive(accessibilityDataSensitive: Int) {
+        super.setAccessibilityDataSensitive(accessibilityDataSensitive)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { traversalIndex = ... } on WebSurface instead of View accessibilityTraversalBefore.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityTraversalBefore(beforeId: Int) {
+        super.setAccessibilityTraversalBefore(beforeId)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.semantics { traversalIndex = ... } on WebSurface instead of View accessibilityTraversalAfter.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setAccessibilityTraversalAfter(afterId: Int) {
+        super.setAccessibilityTraversalAfter(afterId)
+    }
+
+    @Deprecated(
+        message = "Use Modifier.semantics on WebSurface instead of View labelFor.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setLabelFor(id: Int) {
+        super.setLabelFor(id)
+    }
+
+    @Deprecated(
+        message =
+            "Use Compose pointer input Modifiers on WebSurface instead of View context click listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnContextClickListener(l: OnContextClickListener?) {
+        super.setOnContextClickListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use Compose pointer input Modifiers on WebSurface instead of View contextClickable.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setContextClickable(contextClickable: Boolean) {
+        super.setContextClickable(contextClickable)
+    }
+
+    @Deprecated(
+        message =
+            "Use Compose pointer input Modifiers on WebSurface instead of View generic motion listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnGenericMotionListener(l: OnGenericMotionListener?) {
+        super.setOnGenericMotionListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use Compose pointer input Modifiers or Modifier.hoverable on WebSurface instead of View hover listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnHoverListener(l: OnHoverListener?) {
+        super.setOnHoverListener(l)
+    }
+
+    @Deprecated(
+        message = "Use Modifier.pointerHoverIcon on WebSurface instead of View pointerIcon.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setPointerIcon(pointerIcon: PointerIcon?) {
+        super.setPointerIcon(pointerIcon)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use Compose pointer input Modifiers on WebSurface instead of View captured pointer listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnCapturedPointerListener(l: OnCapturedPointerListener?) {
+        super.setOnCapturedPointerListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View long click listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        super.setOnLongClickListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View longClickable.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setLongClickable(longClickable: Boolean) {
+        super.setLongClickable(longClickable)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View performLongClick.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun performLongClick(): Boolean {
+        return super.performLongClick()
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View performLongClick.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun performLongClick(x: Float, y: Float): Boolean {
+        return super.performLongClick(x, y)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.onKeyEvent or Modifier.onPreviewKeyEvent on WebSurface instead of View key listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnKeyListener(l: OnKeyListener?) {
+        super.setOnKeyListener(l)
+    }
+
+    @RequiresApi(28)
+    @Deprecated(
+        message =
+            "Use Modifier.onKeyEvent on WebSurface instead of View unhandled key event listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun addOnUnhandledKeyEventListener(listener: OnUnhandledKeyEventListener?) {
+        super.addOnUnhandledKeyEventListener(listener)
+    }
+
+    @RequiresApi(28)
+    @Deprecated(
+        message =
+            "Use Modifier.onKeyEvent on WebSurface instead of View unhandled key event listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun removeOnUnhandledKeyEventListener(listener: OnUnhandledKeyEventListener?) {
+        super.removeOnUnhandledKeyEventListener(listener)
+    }
+
+    @Deprecated(
+        message = "Use Modifier.dragAndDropTarget on WebSurface instead of View drag listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnDragListener(l: OnDragListener?) {
+        super.setOnDragListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.onFocusChanged or Modifier.onFocusEvent on WebSurface instead of View focus change listeners.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOnFocusChangeListener(l: OnFocusChangeListener?) {
+        super.setOnFocusChangeListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Use FocusRequester and Modifier.focusRequester on WebSurface instead of View.requestFocus.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        return super.requestFocus(direction, previouslyFocusedRect)
+    }
+
+    @Deprecated(
+        message =
+            "Use LocalFocusManager.current.clearFocus() in Compose instead of View.clearFocus.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun clearFocus() {
+        super.clearFocus()
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use FocusRequester and Modifier.focusRequester on WebSurface instead of View.restoreDefaultFocus.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun restoreDefaultFocus(): Boolean {
+        return super.restoreDefaultFocus()
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { canFocus = ... } on WebSurface instead of View.setFocusable.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setFocusable(focusable: Boolean) {
+        super.setFocusable(focusable)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { canFocus = ... } on WebSurface instead of View.setFocusable.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setFocusable(focusable: Int) {
+        super.setFocusable(focusable)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { canFocus = ... } on WebSurface instead of View.setFocusableInTouchMode.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setFocusableInTouchMode(focusableInTouchMode: Boolean) {
+        super.setFocusableInTouchMode(focusableInTouchMode)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use FocusRequester and Modifier.focusRequester on WebSurface instead of View.setFocusedByDefault.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setFocusedByDefault(isFocusedByDefault: Boolean) {
+        super.setFocusedByDefault(isFocusedByDefault)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use Compose focus indication Modifiers on WebSurface instead of View.setDefaultFocusHighlightEnabled.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setDefaultFocusHighlightEnabled(defaultFocusHighlightEnabled: Boolean) {
+        super.setDefaultFocusHighlightEnabled(defaultFocusHighlightEnabled)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { left = ... } on WebSurface instead of View.setNextFocusLeftId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextFocusLeftId(nextFocusLeftId: Int) {
+        super.setNextFocusLeftId(nextFocusLeftId)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { right = ... } on WebSurface instead of View.setNextFocusRightId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextFocusRightId(nextFocusRightId: Int) {
+        super.setNextFocusRightId(nextFocusRightId)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { up = ... } on WebSurface instead of View.setNextFocusUpId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextFocusUpId(nextFocusUpId: Int) {
+        super.setNextFocusUpId(nextFocusUpId)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { down = ... } on WebSurface instead of View.setNextFocusDownId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextFocusDownId(nextFocusDownId: Int) {
+        super.setNextFocusDownId(nextFocusDownId)
+    }
+
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties { next = ... } on WebSurface instead of View.setNextFocusForwardId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextFocusForwardId(nextFocusForwardId: Int) {
+        super.setNextFocusForwardId(nextFocusForwardId)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use Modifier.focusGroup on WebSurface instead of View.setKeyboardNavigationCluster.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setKeyboardNavigationCluster(isCluster: Boolean) {
+        super.setKeyboardNavigationCluster(isCluster)
+    }
+
+    @RequiresApi(26)
+    @Deprecated(
+        message =
+            "Use Modifier.focusProperties on WebSurface instead of View.setNextClusterForwardId.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setNextClusterForwardId(nextClusterForwardId: Int) {
+        super.setNextClusterForwardId(nextClusterForwardId)
+    }
+
     // =========================================================================================
     // 2. View APIs that currently do NOT work via either View or Compose.
-    // TODO: Support overscroll, nested scrolling, non-touch pointer/hover/mouse events, and
-    // accessibility semantics in WebSurface / WebSurfaceChromium and deprecate these methods.
+    // TODO: Support overscroll and nested scrolling in WebSurface / WebSurfaceChromium and
+    // deprecate these methods.
     // =========================================================================================
 
     override fun setOverScrollMode(mode: Int) {
@@ -1052,94 +1448,12 @@ public open class WebViewBridge : WebContentView {
         super.setNestedScrollingEnabled(enabled)
     }
 
-    override fun setOnContextClickListener(l: OnContextClickListener?) {
-        super.setOnContextClickListener(l)
-    }
-
-    override fun setContextClickable(contextClickable: Boolean) {
-        super.setContextClickable(contextClickable)
-    }
-
-    override fun setOnGenericMotionListener(l: OnGenericMotionListener?) {
-        super.setOnGenericMotionListener(l)
-    }
-
-    override fun setOnHoverListener(l: OnHoverListener?) {
-        super.setOnHoverListener(l)
-    }
-
-    override fun setPointerIcon(pointerIcon: PointerIcon?) {
-        super.setPointerIcon(pointerIcon)
-    }
-
-    @RequiresApi(26)
-    override fun setOnCapturedPointerListener(l: OnCapturedPointerListener?) {
-        super.setOnCapturedPointerListener(l)
-    }
-
-    override fun setContentDescription(contentDescription: CharSequence?) {
-        super.setContentDescription(contentDescription)
-    }
-
-    @RequiresApi(30)
-    override fun setStateDescription(stateDescription: CharSequence?) {
-        super.setStateDescription(stateDescription)
-    }
-
-    @RequiresApi(28)
-    override fun setAccessibilityPaneTitle(accessibilityPaneTitle: CharSequence?) {
-        super.setAccessibilityPaneTitle(accessibilityPaneTitle)
-    }
-
-    override fun setAccessibilityDelegate(delegate: AccessibilityDelegate?) {
-        super.setAccessibilityDelegate(delegate)
-    }
-
-    override fun setImportantForAccessibility(mode: Int) {
-        super.setImportantForAccessibility(mode)
-    }
-
-    override fun setAccessibilityLiveRegion(mode: Int) {
-        super.setAccessibilityLiveRegion(mode)
-    }
-
-    @RequiresApi(28)
-    override fun setAccessibilityHeading(isHeading: Boolean) {
-        super.setAccessibilityHeading(isHeading)
-    }
-
-    @RequiresApi(28)
-    override fun setScreenReaderFocusable(screenReaderFocusable: Boolean) {
-        super.setScreenReaderFocusable(screenReaderFocusable)
-    }
-
-    @RequiresApi(34)
-    override fun setAccessibilityDataSensitive(accessibilityDataSensitive: Int) {
-        super.setAccessibilityDataSensitive(accessibilityDataSensitive)
-    }
-
-    override fun setAccessibilityTraversalBefore(beforeId: Int) {
-        super.setAccessibilityTraversalBefore(beforeId)
-    }
-
-    override fun setAccessibilityTraversalAfter(afterId: Int) {
-        super.setAccessibilityTraversalAfter(afterId)
-    }
-
-    override fun setLabelFor(id: Int) {
-        super.setLabelFor(id)
-    }
-
     // =========================================================================================
     // 3. View APIs that currently DO work via the headless View, but NOT yet via Compose.
-    // TODO: Support base background color, scrolling, long-press/selection ActionMode, key input,
-    // drag-and-drop, rich content, stylus handwriting, focus, autofill, and content capture in
-    // WebSurface / WebContent and deprecate these methods.
+    // TODO: Support programmatic scrolling, selection ActionMode, rich content, stylus
+    // handwriting, autofill, and content capture in WebSurface / WebContent and deprecate these
+    // methods.
     // =========================================================================================
-
-    override fun setBackgroundColor(color: Int) {
-        super.setBackgroundColor(color)
-    }
 
     override fun scrollTo(x: Int, y: Int) {
         super.scrollTo(x, y)
@@ -1181,40 +1495,6 @@ public open class WebViewBridge : WebContentView {
         super.setOnScrollChangeListener(l)
     }
 
-    override fun setOnLongClickListener(l: OnLongClickListener?) {
-        super.setOnLongClickListener(l)
-    }
-
-    override fun setLongClickable(longClickable: Boolean) {
-        super.setLongClickable(longClickable)
-    }
-
-    override fun performLongClick(): Boolean {
-        return super.performLongClick()
-    }
-
-    override fun performLongClick(x: Float, y: Float): Boolean {
-        return super.performLongClick(x, y)
-    }
-
-    override fun setOnKeyListener(l: OnKeyListener?) {
-        super.setOnKeyListener(l)
-    }
-
-    @RequiresApi(28)
-    override fun addOnUnhandledKeyEventListener(listener: OnUnhandledKeyEventListener?) {
-        super.addOnUnhandledKeyEventListener(listener)
-    }
-
-    @RequiresApi(28)
-    override fun removeOnUnhandledKeyEventListener(listener: OnUnhandledKeyEventListener?) {
-        super.removeOnUnhandledKeyEventListener(listener)
-    }
-
-    override fun setOnDragListener(l: OnDragListener?) {
-        super.setOnDragListener(l)
-    }
-
     @RequiresApi(31)
     override fun setOnReceiveContentListener(
         mimeTypes: Array<out String>?,
@@ -1234,76 +1514,6 @@ public open class WebViewBridge : WebContentView {
     @RequiresApi(33)
     override fun setAutoHandwritingEnabled(enabled: Boolean) {
         super.setAutoHandwritingEnabled(enabled)
-    }
-
-    override fun setOnFocusChangeListener(l: OnFocusChangeListener?) {
-        super.setOnFocusChangeListener(l)
-    }
-
-    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
-        return super.requestFocus(direction, previouslyFocusedRect)
-    }
-
-    override fun clearFocus() {
-        super.clearFocus()
-    }
-
-    @RequiresApi(26)
-    override fun restoreDefaultFocus(): Boolean {
-        return super.restoreDefaultFocus()
-    }
-
-    override fun setFocusable(focusable: Boolean) {
-        super.setFocusable(focusable)
-    }
-
-    @RequiresApi(26)
-    override fun setFocusable(focusable: Int) {
-        super.setFocusable(focusable)
-    }
-
-    override fun setFocusableInTouchMode(focusableInTouchMode: Boolean) {
-        super.setFocusableInTouchMode(focusableInTouchMode)
-    }
-
-    @RequiresApi(26)
-    override fun setFocusedByDefault(isFocusedByDefault: Boolean) {
-        super.setFocusedByDefault(isFocusedByDefault)
-    }
-
-    @RequiresApi(26)
-    override fun setDefaultFocusHighlightEnabled(defaultFocusHighlightEnabled: Boolean) {
-        super.setDefaultFocusHighlightEnabled(defaultFocusHighlightEnabled)
-    }
-
-    override fun setNextFocusLeftId(nextFocusLeftId: Int) {
-        super.setNextFocusLeftId(nextFocusLeftId)
-    }
-
-    override fun setNextFocusRightId(nextFocusRightId: Int) {
-        super.setNextFocusRightId(nextFocusRightId)
-    }
-
-    override fun setNextFocusUpId(nextFocusUpId: Int) {
-        super.setNextFocusUpId(nextFocusUpId)
-    }
-
-    override fun setNextFocusDownId(nextFocusDownId: Int) {
-        super.setNextFocusDownId(nextFocusDownId)
-    }
-
-    override fun setNextFocusForwardId(nextFocusForwardId: Int) {
-        super.setNextFocusForwardId(nextFocusForwardId)
-    }
-
-    @RequiresApi(26)
-    override fun setKeyboardNavigationCluster(isCluster: Boolean) {
-        super.setKeyboardNavigationCluster(isCluster)
-    }
-
-    @RequiresApi(26)
-    override fun setNextClusterForwardId(nextClusterForwardId: Int) {
-        super.setNextClusterForwardId(nextClusterForwardId)
     }
 
     @RequiresApi(26)
