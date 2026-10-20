@@ -98,7 +98,8 @@ private const val TAG = "CaptureRemoteDocument"
  */
 internal class UpdateRateLimiter(
     private val burst: Int,
-    private val interval: Duration,
+    /** Time to earn back one document once the burst is used up. */
+    val interval: Duration,
     private val timeSource: TimeSource,
 ) {
     private var tokens = burst
@@ -121,6 +122,12 @@ internal class UpdateRateLimiter(
         // advanced.
         tokens = 1
         refilledAt = timeSource.markNow()
+    }
+
+    /** `true` if a document may be emitted now, i.e. [awaitPermit] would return immediately. */
+    fun hasPermit(): Boolean {
+        refill()
+        return tokens > 0
     }
 
     /** Records that a document was emitted. */

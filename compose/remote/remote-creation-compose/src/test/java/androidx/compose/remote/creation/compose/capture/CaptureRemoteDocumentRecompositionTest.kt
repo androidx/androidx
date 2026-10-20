@@ -40,6 +40,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -275,14 +276,13 @@ class CaptureRemoteDocumentRecompositionTest {
     }
 
     /**
-     * A render that writes a state it also reads must not invalidate itself, otherwise regeneration
-     * would spin. The state is read nowhere else, so neither composition nor another render may
-     * follow.
+     * A render must only read state: a draw lambda that writes a state it also reads would
+     * otherwise re-render forever. Under enforced clean recomposition the capture fails instead,
+     * and the write is discarded.
      */
     @Test
-    fun testRenderWritingStateItReadsDoesNotRerender() = runTest {
+    fun testRenderWritingStateFails() = runTest {
         val drawCount = mutableStateOf(0)
-        val renders = AtomicInteger()
 
         val flow =
             captureRemoteDocument(
@@ -291,21 +291,17 @@ class CaptureRemoteDocumentRecompositionTest {
                 coroutineContext = coroutineContext,
                 content = {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                        renders.incrementAndGet()
                         drawCount.value = drawCount.value + 1
                         drawRect(paint = RemotePaint { color = Color.Red.rc })
                     }
                 },
             )
 
-        val documents = mutableListOf<ByteArray>()
-        val job = launch { flow.toList(documents) }
-        testScheduler.advanceUntilIdle()
+        val failure = runCatching { flow.first() }.exceptionOrNull()
 
-        assertThat(renders.get()).isEqualTo(1)
-        assertThat(drawCount.value).isEqualTo(1)
-        assertThat(documents).hasSize(1)
-        job.cancel()
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java)
+        assertThat(failure).hasMessageThat().contains("written while rendering")
+        assertThat(drawCount.value).isEqualTo(0)
     }
 
     /**

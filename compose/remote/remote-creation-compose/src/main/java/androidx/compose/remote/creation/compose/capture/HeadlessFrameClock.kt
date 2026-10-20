@@ -21,12 +21,16 @@ import androidx.compose.runtime.MonotonicFrameClock
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.resume
+import kotlin.time.Duration
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.job
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -54,14 +58,21 @@ private val Cancelled = Any() // The pump completed, or cancel() was called
  * Frame times come from [nanoTime] rather than a wall clock so that captures driven by a test
  * [androidx.compose.remote.core.RemoteClock] see consistent frame times.
  *
+ * Frames sent by the pump can be paced with [minFramePeriod], e.g. to stop content that animates
+ * through recomposition from keeping a recomposer busy while its documents are being throttled
+ * anyway. Pacing never applies to [sendFrame], so a caller driving the composition to quiescence is
+ * not slowed down.
+ *
  * Thread-safe: [sendFrame], [cancel] and frame requests may come from any thread; the pump itself
  * runs on whichever dispatcher [runClock] is called from.
  *
  * @param nanoTime the time stamped on each frame.
+ * @param timeSource measures the time between pump frames for [minFramePeriod].
  * @param onFrameSent invoked after every frame, on the sending thread.
  */
 internal class HeadlessFrameClock(
     private val nanoTime: () -> Long,
+    private val timeSource: TimeSource = TimeSource.Monotonic,
     private val onFrameSent: () -> Unit = {},
 ) : MonotonicFrameClock {
 
@@ -71,6 +82,14 @@ internal class HeadlessFrameClock(
     @Volatile private var budget: Budget? = null
     /** Set by [sendFrame] when it exhausts a budget; cleared when the next budget begins. */
     @Volatile private var isBudgetExhausted = false
+    private var lastPumpFrame: TimeMark? = null
+
+    /**
+     * Minimum time between two frames sent by the pump. [Duration.ZERO] (the default) sends frames
+     * as soon as they are requested. Takes effect from the next pump frame; a wait already in
+     * progress is not shortened.
+     */
+    @Volatile var minFramePeriod: Duration = Duration.ZERO
 
     private class Budget(val limit: Long, val job: Job) {
         @Volatile var isExhausted = false
@@ -201,12 +220,27 @@ internal class HeadlessFrameClock(
                 // is dispatched would be dropped. A request arriving during Idle is picked up on
                 // the next loop.
                 FrameRequested ->
-                    if (state.compareAndSet(current, Idle) && !isBudgetExhausted) sendFrame()
+                    if (state.compareAndSet(current, Idle) && !isBudgetExhausted) {
+                        awaitFramePeriod()
+                        sendFrame()
+                    }
                 Idle -> park()
                 Cancelled -> throw CancellationException("HeadlessFrameClock was cancelled")
                 else -> error("Unexpected state while pumping frames: $current")
             }
         }
+    }
+
+    /** Waits until [minFramePeriod] has elapsed since the previous pump frame, if it is set. */
+    private suspend fun awaitFramePeriod() {
+        val period = minFramePeriod
+        if (period > Duration.ZERO) {
+            val remaining = lastPumpFrame?.let { period - it.elapsedNow() }
+            // delay() may run on a different clock than timeSource (e.g. virtual time), so the
+            // mark is taken after the wait rather than advanced by the period.
+            if (remaining != null && remaining > Duration.ZERO) delay(remaining)
+        }
+        lastPumpFrame = timeSource.markNow()
     }
 
     private suspend fun park() {
