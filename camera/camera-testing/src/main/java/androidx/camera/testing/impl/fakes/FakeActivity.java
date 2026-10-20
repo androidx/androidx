@@ -17,11 +17,9 @@
 package androidx.camera.testing.impl.fakes;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.WindowManager;
 
-import androidx.camera.testing.impl.Api27Impl;
+import androidx.camera.testing.impl.ActivityScreenUtil;
 import androidx.core.app.ComponentActivity;
 
 import org.jspecify.annotations.Nullable;
@@ -29,17 +27,8 @@ import org.jspecify.annotations.Nullable;
 /** A fake {@link Activity} that can be used in tests. */
 public class FakeActivity extends ComponentActivity {
     @Override
-    @SuppressWarnings("deprecation")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            Api27Impl.INSTANCE.setShowWhenLocked(this);
-            Api27Impl.INSTANCE.setTurnScreenOn(this);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        }
+        ActivityScreenUtil.turnScreenOnAndShowWhenLocked(this);
     }
 }

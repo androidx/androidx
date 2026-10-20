@@ -16,7 +16,17 @@
 
 package androidx.camera.testing.impl.activity
 
+import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.testing.impl.turnScreenOnAndShowWhenLocked
 
-/** An empty Activity. */
-public class EmptyActivity : AppCompatActivity()
+/**
+ * An empty [AppCompatActivity] used in tests that turns the screen on, shows over the keyguard,
+ * requests keyguard dismissal and keeps the screen on.
+ */
+public class EmptyActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        turnScreenOnAndShowWhenLocked(dismissKeyguard = true)
+    }
+}
