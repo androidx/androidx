@@ -148,6 +148,16 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @IntDef({EVENT_PRE_DRAW, EVENT_NESTED_SCROLL, EVENT_VIEW_REMOVED})
     public @interface DispatchChangeEvent {}
 
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED,
+            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_SCROLL_ONLY,
+            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_TEXT_CURSOR,
+            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS
+    })
+    public @interface RectangleOnScreenRequestSource {}
+
     static final Comparator<View> TOP_SORTED_CHILDREN_COMPARATOR;
     private static final Pools.Pool<Rect> sRectPool = new Pools.SynchronizedPool<>(12);
 
@@ -201,6 +211,9 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     private WindowInsetsCompat mLastInsets;
     private boolean mDrawStatusBarBackground;
     private Drawable mStatusBarBackground;
+
+    @RectangleOnScreenRequestSource private int mRequestRectangleSource =
+            View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED;
 
     OnHierarchyChangeListener mOnHierarchyChangeListener;
     private androidx.core.view.OnApplyWindowInsetsListener mApplyWindowInsetsListener;
@@ -2937,10 +2950,49 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * @param immediate         true to forbid animated or delayed scrolling, false otherwise
          * @return true if the Behavior handled the request
          * @see ViewParent#requestChildRectangleOnScreen(View, Rect, boolean)
+         * @see #onRequestChildRectangleOnScreen(CoordinatorLayout, View, Rect, boolean, int)
          */
         public boolean onRequestChildRectangleOnScreen(@NonNull CoordinatorLayout coordinatorLayout,
                 @NonNull V child, @NonNull Rect rectangle, boolean immediate) {
             return false;
+        }
+
+        /**
+         * Called when a child of the view associated with this behavior wants a particular
+         * rectangle to be positioned onto the screen, with the source of the request.
+         *
+         * <p>The contract for this method is the same as
+         * {@code ViewParent#requestChildRectangleOnScreen(View, Rect, boolean, int)}, which was
+         * added in API 36.1. Starting with API 36.1, the platform passes the source of the
+         * request, for example {@code View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_INPUT_FOCUS} when
+         * a view gains focus.</p>
+         *
+         * <p>The default implementation calls
+         * {@link #onRequestChildRectangleOnScreen(CoordinatorLayout, View, Rect, boolean)}.</p>
+         *
+         * @param coordinatorLayout the CoordinatorLayout parent of the view this Behavior is
+         *                          associated with
+         * @param child             the child view of the CoordinatorLayout this Behavior is
+         *                          associated with
+         * @param rectangle         The rectangle which the child wishes to be on the screen
+         *                          in the child's coordinates
+         * @param immediate         true to forbid animated or delayed scrolling, false otherwise
+         * @param source            the source of the request, one of the
+         *                          {@code View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_*} constants.
+         *                          It's {@code View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED}
+         *                          (0) before API 36.1, or when the request comes through
+         *                          {@link ViewParent#requestChildRectangleOnScreen(View, Rect,
+         *                          boolean)}.
+         * @return true if the Behavior handled the request
+         * @see #onRequestChildRectangleOnScreen(CoordinatorLayout, View, Rect, boolean)
+         */
+        public boolean onRequestChildRectangleOnScreen(
+                @NonNull CoordinatorLayout coordinatorLayout,
+                @NonNull V child,
+                @NonNull Rect rectangle,
+                boolean immediate,
+                @RectangleOnScreenRequestSource int source) {
+            return onRequestChildRectangleOnScreen(coordinatorLayout, child, rectangle, immediate);
         }
 
         /**
@@ -3495,15 +3547,53 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @Override
     @SuppressWarnings("unchecked")
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
+        // Read and reset the source, so that nested requests don't see it.
+        final int source = mRequestRectangleSource;
+        mRequestRectangleSource = View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_UNDEFINED;
+
         final LayoutParams lp = (LayoutParams) child.getLayoutParams();
         final Behavior behavior = lp.getBehavior();
 
         if (behavior != null
-                && behavior.onRequestChildRectangleOnScreen(this, child, rectangle, immediate)) {
+                && behavior.onRequestChildRectangleOnScreen(
+                this, child, rectangle, immediate, source)) {
             return true;
         }
 
         return super.requestChildRectangleOnScreen(child, rectangle, immediate);
+    }
+
+    /**
+     * Called when a child of this group wants a particular rectangle to be positioned onto the
+     * screen, with the source of the request.
+     *
+     * <p>This method has the signature of
+     * {@code ViewParent#requestChildRectangleOnScreen(View, Rect, boolean, int)}, which was added
+     * in API 36.1, so the platform calls it on API 36.1 and higher. It passes the source on to
+     * {@link Behavior#onRequestChildRectangleOnScreen(CoordinatorLayout, View, Rect, boolean,
+     * int)}.</p>
+     *
+     * @param child     the direct child making the request
+     * @param rectangle the rectangle in the child's coordinates the child wishes to be on the
+     *                  screen
+     * @param immediate true to forbid animated or delayed scrolling, false otherwise
+     * @param source    the source of the request, one of the
+     *                  {@code View.RECTANGLE_ON_SCREEN_REQUEST_SOURCE_*} constants
+     * @return whether the group scrolled to handle the operation
+     */
+    @Override
+    public boolean requestChildRectangleOnScreen(
+            @NonNull View child,
+            @NonNull Rect rectangle,
+            boolean immediate,
+            @RectangleOnScreenRequestSource int source) {
+        final int previousSource = mRequestRectangleSource;
+        mRequestRectangleSource = source;
+        try {
+            return requestChildRectangleOnScreen(child, rectangle, immediate);
+        } finally {
+            mRequestRectangleSource = previousSource;
+        }
     }
 
     @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */

@@ -23,3 +23,11 @@
                 RuntimeVisibleAnnotations,
                 RuntimeVisibleParameterAnnotations,
                 RuntimeVisibleTypeAnnotations
+
+# The platform calls this method on API 36.1+, because it has the signature of
+# ViewParent#requestChildRectangleOnScreen(View, Rect, boolean, int). Apps that compile against an
+# older SDK don't see that it overrides a platform method, so keep it, so R8 doesn't remove or
+# rename it.
+-keepclassmembers class androidx.coordinatorlayout.widget.CoordinatorLayout {
+    public boolean requestChildRectangleOnScreen(android.view.View, android.graphics.Rect, boolean, int);
+}
