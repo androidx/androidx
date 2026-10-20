@@ -79,6 +79,10 @@ public object SemanticsProperties {
     /** Semantics property key for [SemanticsPropertyReceiver.role]. */
     public val Role: SemanticsPropertyKey<Role> = SemanticsPropertyKey("Role")
 
+    /** Semantics property key for [SemanticsPropertyReceiver.remoteRole]. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val RemoteRole: SemanticsPropertyKey<RemoteRole> = SemanticsPropertyKey("RemoteRole")
+
     /** Semantics property key for [SemanticsPropertyReceiver.text]. */
     public val Text: SemanticsPropertyKey<RemoteString> = SemanticsPropertyKey("Text")
 
@@ -105,6 +109,15 @@ public var SemanticsPropertyReceiver.role: Role?
     get() = get(SemanticsProperties.Role)
     set(value) {
         set(SemanticsProperties.Role, value)
+    }
+
+/** The type of user interface element. Accessibility services can use this to describe the node. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public var SemanticsPropertyReceiver.remoteRole: RemoteRole?
+    get() = get(SemanticsProperties.RemoteRole)
+    set(value) {
+        set(SemanticsProperties.RemoteRole, value)
     }
 
 /** Text content for the semantics node. */
@@ -142,7 +155,9 @@ internal data class SemanticsModifier(
                 mStateDescriptionId =
                     (properties[SemanticsProperties.StateDescription] as? RemoteString)?.id ?: 0
                 mEnabled = properties[SemanticsProperties.Enabled] as? Boolean ?: true
-                mRole = fromRole(properties[SemanticsProperties.Role] as? Role)
+                mRole =
+                    (properties[SemanticsProperties.RemoteRole] as? RemoteRole)?.toAccessibleRole()
+                        ?: fromRole(properties[SemanticsProperties.Role] as? Role)
             }
         )
     }
