@@ -33,7 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +73,7 @@ fun suspendAnimateFloatVariant() {
     @Composable
     fun InfiniteAnimationDemo() {
         // Create a mutable state for alpha, and update it in the animation.
-        val alpha = remember { mutableStateOf(1f) }
+        val alpha = remember { mutableFloatStateOf(1f) }
         LaunchedEffect(Unit) {
             // Animate from 1f to 0f using an infinitely repeating animation
             animate(
@@ -83,7 +83,7 @@ fun suspendAnimateFloatVariant() {
                     infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
             ) { value, /* velocity */ _ ->
                 // Update alpha mutable state with the current animation value
-                alpha.value = value
+                alpha.floatValue = value
             }
         }
         Box(Modifier.fillMaxSize()) {
@@ -92,7 +92,7 @@ fun suspendAnimateFloatVariant() {
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.Center)
-                        .graphicsLayer(scaleX = 3.0f, scaleY = 3.0f, alpha = alpha.value),
+                        .graphicsLayer(scaleX = 3.0f, scaleY = 3.0f, alpha = alpha.floatValue),
                 tint = Color.Red,
             )
         }

@@ -29,15 +29,6 @@
     </issue>
 
     <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
-        errorLine1="        val alpha = remember { mutableStateOf(1f) }"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/core/samples/SuspendAnimationSamples.kt"/>
-    </issue>
-
-    <issue
         id="UseOfNonLambdaOffsetOverload"
         message="State backed values should use the lambda overload of Modifier.offset"
         errorLine1="    Box(Modifier.offset(x = offsetX)) {"

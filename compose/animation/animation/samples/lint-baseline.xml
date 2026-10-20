@@ -46,22 +46,4 @@
             file="src/main/java/androidx/compose/animation/samples/LookaheadAnimationVisualDebugSamples.kt"/>
     </issue>
 
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="        var count by remember { mutableStateOf(0) }"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/samples/AnimatedContentSamples.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateCreation"
-        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
-        errorLine1="    var itemIndex by remember { mutableStateOf(0) }"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/samples/AnimatedVisibilitySamples.kt"/>
-    </issue>
-
 </issues>
