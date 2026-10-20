@@ -72,7 +72,7 @@ public class RemoteCanvas(
     public val remote: RemoteAccess = RemoteAccess(drawScope)
 
     /** Flushes recorded operations to the underlying creation state. */
-    internal fun flush() {
+    public fun flush() {
         buffer.flush(creationState)
     }
 
@@ -82,7 +82,7 @@ public class RemoteCanvas(
     }
 
     /** Emits a custom component with custom properties. */
-    internal fun custom(
+    public fun custom(
         config: String,
         modifier: RemoteModifier = RemoteModifier,
         content: (() -> Unit)? = null,
@@ -222,7 +222,7 @@ public class RemoteCanvas(
     }
 
     /** Scales the canvas by [sx] and [sy] around the pivot point ([px], [py]). */
-    internal fun scale(sx: RemoteFloat, sy: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
+    public fun scale(sx: RemoteFloat, sy: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
         val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Scale(sx, sy, px, py)))
         buffer.addRoots(op, sx, sy, px, py)
     }
@@ -248,7 +248,7 @@ public class RemoteCanvas(
     }
 
     /** Rotates the canvas by [degrees] around the pivot point ([px], [py]). */
-    internal fun rotate(degrees: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
+    public fun rotate(degrees: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
         val op = buffer.recordRenderingOp(CanvasOp.Transform(PendingOp.Rotate(degrees, px, py)))
         buffer.addRoots(op, degrees, px, py)
     }
