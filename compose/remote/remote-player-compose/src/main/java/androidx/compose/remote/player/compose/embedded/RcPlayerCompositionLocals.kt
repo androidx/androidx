@@ -32,7 +32,6 @@ import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
-import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
@@ -146,11 +145,11 @@ internal val LocalRemoteNamedActionHandler: ProvidableCompositionLocal<(String, 
     }
 
 /**
- * [TypefaceResolver] for resolving typefaces in the player. Null when using the default built-in
- * resolver.
+ * [RcTypefaceResolver] for resolving typefaces in the embedded player. Null when using the default
+ * built-in resolver.
  */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val LocalTypefaceResolver: ProvidableCompositionLocal<TypefaceResolver?> =
+public val LocalRcTypefaceResolver: ProvidableCompositionLocal<RcTypefaceResolver?> =
     compositionLocalOf {
         null
     }

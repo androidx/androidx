@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
-import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.runtime.Composable
@@ -78,7 +77,7 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
      */
     fun setRemoteContent(
         customPlugins: CustomPluginRegistry? = null,
-        typefaceResolver: TypefaceResolver? = null,
+        typefaceResolver: RcTypefaceResolver? = null,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit =
             { _, _, _ ->
