@@ -17,11 +17,17 @@
 package androidx.camera.video.internal.audio
 
 import android.media.AudioFormat
+import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.AudioRecordingConfiguration
 import android.media.MediaRecorder
+import android.os.Build
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
+import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk
+import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
+import java.util.concurrent.Executor
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -32,6 +38,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -54,17 +62,7 @@ class AudioStreamImplTest {
 
     @Before
     fun setUp() {
-        audioStream =
-            AudioStreamImpl(
-                AudioSettings.builder()
-                    .setAudioSource(AUDIO_SOURCE)
-                    .setCaptureSampleRate(SAMPLE_RATE)
-                    .setEncodeSampleRate(SAMPLE_RATE)
-                    .setChannelCount(CHANNEL_COUNT)
-                    .setAudioFormat(AUDIO_FORMAT)
-                    .build(),
-                /*attributionContext=*/ null,
-            )
+        audioStream = createAudioStream(Quirks(emptyList()))
     }
 
     @After
@@ -108,6 +106,136 @@ class AudioStreamImplTest {
         }
     }
 
+    @Test
+    fun stopWithAudioTimestampQuirk_recreatesAudioRecord() {
+        useAudioStreamWithAudioTimestampQuirk()
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.start()
+        val oldAudioRecord = getCurrentAudioRecord()
+
+        audioStream.stop()
+
+        val newAudioRecord = getCurrentAudioRecord()
+        assertThat(newAudioRecord).isNotSameInstanceAs(oldAudioRecord)
+        assertThat(shadowAudioRecord(oldAudioRecord).isReleased).isTrue()
+        assertThat(shadowAudioRecord(newAudioRecord).isReleased).isFalse()
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun stopWithAudioTimestampQuirk_movesRecordingCallbackToRecreatedAudioRecord() {
+        useAudioStreamWithAudioTimestampQuirk()
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.start()
+        val oldAudioRecord = getCurrentAudioRecord()
+        assertThat(shadowAudioRecord(oldAudioRecord).registeredCallbacks).hasSize(1)
+
+        audioStream.stop()
+
+        val newAudioRecord = getCurrentAudioRecord()
+        assertThat(shadowAudioRecord(oldAudioRecord).registeredCallbacks).isEmpty()
+        assertThat(shadowAudioRecord(newAudioRecord).registeredCallbacks).hasSize(1)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun stopWithAudioTimestampQuirk_noCallback_doesNotRegisterRecordingCallback() {
+        useAudioStreamWithAudioTimestampQuirk()
+        audioStream.start()
+
+        audioStream.stop()
+
+        assertThat(shadowAudioRecord(getCurrentAudioRecord()).registeredCallbacks).isEmpty()
+    }
+
+    @Test
+    fun releaseAfterStopWithAudioTimestampQuirk_releasesAudioRecord() {
+        useAudioStreamWithAudioTimestampQuirk()
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.start()
+        audioStream.stop()
+        val audioRecord = getCurrentAudioRecord()
+
+        audioStream.release()
+
+        assertThat(shadowAudioRecord(audioRecord).isReleased).isTrue()
+        assertThat(shadowAudioRecord(audioRecord).registeredCallbacks).isEmpty()
+    }
+
+    @Test
+    fun startStopAgainWithAudioTimestampQuirk_keepsRecordingCallbackRegistered() {
+        useAudioStreamWithAudioTimestampQuirk()
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.start()
+        audioStream.stop()
+        audioStream.start()
+        audioStream.stop()
+
+        val audioRecord = getCurrentAudioRecord()
+        val expectedCallbackCount = if (Build.VERSION.SDK_INT >= 29) 1 else 0
+        assertThat(shadowAudioRecord(audioRecord).registeredCallbacks)
+            .hasSize(expectedCallbackCount)
+        audioStream.release()
+        assertThat(shadowAudioRecord(audioRecord).isReleased).isTrue()
+    }
+
+    @Test
+    fun stopWithoutAudioTimestampQuirk_keepsAudioRecordAndRecordingCallback() {
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.start()
+        val audioRecord = getCurrentAudioRecord()
+
+        audioStream.stop()
+
+        assertThat(getCurrentAudioRecord()).isSameInstanceAs(audioRecord)
+        assertThat(shadowAudioRecord(audioRecord).isReleased).isFalse()
+        val expectedCallbackCount = if (Build.VERSION.SDK_INT >= 29) 1 else 0
+        assertThat(shadowAudioRecord(audioRecord).registeredCallbacks)
+            .hasSize(expectedCallbackCount)
+
+        audioStream.release()
+
+        assertThat(shadowAudioRecord(audioRecord).isReleased).isTrue()
+        assertThat(shadowAudioRecord(audioRecord).registeredCallbacks).isEmpty()
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun releaseAfterCallbackCleared_releasesAudioRecord() {
+        audioStream.setCallback(audioStreamCallback, directExecutor())
+        audioStream.setCallback(null, null)
+        val audioRecord = getCurrentAudioRecord()
+
+        audioStream.release()
+
+        assertThat(shadowAudioRecord(audioRecord).isReleased).isTrue()
+    }
+
+    private fun createAudioStream(quirks: Quirks): AudioStreamImpl =
+        AudioStreamImpl(
+            AudioSettings.builder()
+                .setAudioSource(AUDIO_SOURCE)
+                .setCaptureSampleRate(SAMPLE_RATE)
+                .setEncodeSampleRate(SAMPLE_RATE)
+                .setChannelCount(CHANNEL_COUNT)
+                .setAudioFormat(AUDIO_FORMAT)
+                .build(),
+            /*attributionContext=*/ null,
+            quirks,
+        )
+
+    /** Replaces [audioStream] with one created with [AudioTimestampFramePositionIncorrectQuirk]. */
+    private fun useAudioStreamWithAudioTimestampQuirk() {
+        audioStream.release()
+        audioStream = createAudioStream(Quirks(listOf(AudioTimestampFramePositionIncorrectQuirk())))
+    }
+
+    private fun getCurrentAudioRecord(): AudioRecord =
+        ReflectionHelpers.getField(audioStream, "mAudioRecord")
+
+    private fun shadowAudioRecord(audioRecord: AudioRecord): ShadowAudioRecord =
+        Shadow.extract(audioRecord)
+
     @Implements(AudioRecord::class)
     class ShadowAudioRecord {
         companion object {
@@ -118,9 +246,40 @@ class AudioStreamImplTest {
             }
         }
 
+        /** The registered recording callbacks. */
+        val registeredCallbacks = mutableSetOf<AudioManager.AudioRecordingCallback>()
+
+        /** Whether [AudioRecord.release] has been called. */
+        var isReleased = false
+            private set
+
         @Implementation(minSdk = 29)
         fun getActiveRecordingConfiguration(): AudioRecordingConfiguration? {
             return null
+        }
+
+        @Implementation(minSdk = 29)
+        fun registerAudioRecordingCallback(
+            executor: Executor,
+            callback: AudioManager.AudioRecordingCallback,
+        ) {
+            require(registeredCallbacks.add(callback)) {
+                "AudioRecordingCallback already registered"
+            }
+        }
+
+        /** Throws [IllegalArgumentException] as the platform does for unknown callbacks. */
+        @Implementation(minSdk = 29)
+        fun unregisterAudioRecordingCallback(callback: AudioManager.AudioRecordingCallback) {
+            require(registeredCallbacks.remove(callback)) {
+                "AudioRecordingCallback was not registered"
+            }
+        }
+
+        /** Only records the call. Unlike the platform, it doesn't change [AudioRecord.getState]. */
+        @Implementation
+        fun release() {
+            isReleased = true
         }
     }
 }
