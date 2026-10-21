@@ -299,6 +299,7 @@ class ConsumeInAttachNode :
 // This composable is intentionally written to look like the "old" version of Layout, before
 // aosp/2318839. This function allows us to emulate what a module targeting an older version of
 // compose UI would have inlined into their function body. See b/275067189 for more details.
+@Suppress("ComposableLambdaParameterPosition")
 @UiComposable
 @Composable
 inline fun OldLayoutSkippableUpdate(
