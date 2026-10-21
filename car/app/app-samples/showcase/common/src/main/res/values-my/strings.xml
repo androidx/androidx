@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ပြီးစီးမှုပြဘား သရုပ်ပြ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"ခေါင်းစီးသရုပ်ပြကဏ္ဍ"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"အထူးဖော်ပြမှု ကဏ္ဍ သရုပ်ပြခြင်း"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"ကဏ္ဍခွဲထားသော ဖိုင်များရှာဖွေမှု သရုပ်ပြချက်"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"အကန့် ပုံစံနမူနာ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"နေရာစာရင်း ပုံစံသရုပ်ပြချက်"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"နေရာများကြည့်ရှုရန်"</string>

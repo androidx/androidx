@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"प्रोग्रेस बार का डेमो"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"सेक्शन हेडर का डेमो"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"स्पॉटलाइट सेक्शन का डेमो"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"सेक्शन में बांटे गए आइटम को खोजने का डेमो"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पैनल के टेंप्लेट का डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"जगह की सूची के टेंप्लेट का डेमो"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"जगहें ब्राउज़ करें"</string>

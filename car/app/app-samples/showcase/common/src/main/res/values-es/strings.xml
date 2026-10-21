@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostración de la barra de progreso"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo de encabezado de sección"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo de la sección de contenido destacado"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demo de búsqueda de elementos con secciones"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo de plantilla de panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo de plantilla de la lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Ver lugares"</string>
