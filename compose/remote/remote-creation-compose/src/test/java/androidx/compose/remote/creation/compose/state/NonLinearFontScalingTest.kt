@@ -47,9 +47,7 @@ class NonLinearFontScalingTest {
     private fun RemoteTextUnit.toPxValue(density: RemoteDensity): Float {
         // Create a fresh state to avoid caching issues with different densities
         val state = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
-        state.remoteDensity = density
-
-        val resultId = this.toPx().getIdForCreationState(state)
+        val resultId = this.toPx(density).getIdForCreationState(state)
 
         // Init document from buffer
         val document = androidx.compose.remote.core.CoreDocument()

@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -69,18 +68,17 @@ internal fun recordAndEvaluate(
 
     val creationState =
         RemoteComposeCreationState(
-                creationDisplayInfo =
-                    RemoteCreationDisplayInfo(
-                        width = 500,
-                        height = 500,
-                        densityDpi = (density * 160f).toInt(),
-                        fontScale = 1f,
-                        densityBehavior = densityBehavior,
-                    ),
-                contentDescription = null,
-                profile = profile,
-            )
-            .apply { remoteDensity = RemoteDensity(density.rf, 1f.rf) }
+            creationDisplayInfo =
+                RemoteCreationDisplayInfo(
+                    width = 500,
+                    height = 500,
+                    densityDpi = (density * 160f).toInt(),
+                    fontScale = 1f,
+                    densityBehavior = densityBehavior,
+                ),
+            contentDescription = null,
+            profile = profile,
+        )
 
     val context =
         AndroidRemoteContext().apply {
