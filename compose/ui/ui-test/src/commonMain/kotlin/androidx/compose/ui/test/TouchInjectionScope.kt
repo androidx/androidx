@@ -16,10 +16,16 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.FloatRange
+import androidx.collection.LongList
+import androidx.collection.emptyLongList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.ceil
 import kotlin.math.max
@@ -631,8 +637,7 @@ public fun TouchInjectionScope.pinch(
 public fun TouchInjectionScope.swipeWithVelocity(
     start: Offset,
     end: Offset,
-    /*@FloatRange(from = 0.0)*/
-    endVelocity: Float,
+    @FloatRange(from = 0.0) endVelocity: Float,
     durationMillis: Long = VelocityPathFinder.calculateDefaultDuration(start, end, endVelocity),
 ) {
     require(endVelocity >= 0f) { "Velocity cannot be $endVelocity, it must be positive" }
@@ -648,6 +653,80 @@ public fun TouchInjectionScope.swipeWithVelocity(
     val pathFinder = VelocityPathFinder(start, end, endVelocity, durationMillis)
     val swipeFunction: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
     swipe(swipeFunction, durationMillis)
+}
+
+/**
+ * Configuration for a single pointer in a multi-touch swipe with velocity.
+ *
+ * @param start The start position of the gesture, in the node's local coordinate system
+ * @param end The end position of the gesture, in the node's local coordinate system
+ * @param endVelocity The velocity of the gesture at the moment it ends in px/second. Must be
+ *   positive.
+ */
+public class SwipeInfo(
+    public val start: Offset,
+    public val end: Offset,
+    @FloatRange(from = 0.0) public val endVelocity: Float,
+)
+
+/**
+ * Performs a multi-touch swipe gesture on the associated node such that each pointer ends with the
+ * given velocity.
+ *
+ * Each swipe will go through its start at t=0 and through its end at t=[durationMillis]. In
+ * between, the swipe will go monotonically from start to end, but not strictly. Due to imprecision,
+ * no guarantees can be made for the actual velocity at the end of the gesture, but generally it is
+ * within 0.1 of the desired velocity.
+ *
+ * When a swipe cannot be created that results in the desired velocity (because the input is too
+ * restrictive), an exception will be thrown with suggestions to fix the input.
+ *
+ * The coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of
+ * the node.
+ *
+ * @sample androidx.compose.ui.test.samples.touchInputMultiTouchSwipeWithVelocity
+ * @param swipes The list of [SwipeInfo] configurations, one for each pointer.
+ * @param durationMillis The duration of the gesture in milliseconds. Must be long enough that at
+ *   least 3 input events are generated, which happens with a duration of 40ms or more. If omitted,
+ *   the default duration is the maximum of the default durations of the individual swipes, which
+ *   are calculated such that a feasible swipe can be created that ends in the given velocity.
+ * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
+ *   sampled
+ * @throws IllegalArgumentException When no swipe can be generated that will result in the desired
+ *   velocity. The error message will suggest changes to the input parameters such that a swipe will
+ *   become feasible.
+ */
+public fun TouchInjectionScope.multiTouchSwipeWithVelocity(
+    swipes: List<SwipeInfo>,
+    durationMillis: Long =
+        swipes.fastMaxOfOrNull {
+            VelocityPathFinder.calculateDefaultDuration(it.start, it.end, it.endVelocity)
+        } ?: 200L,
+    keyTimes: LongList = emptyLongList(),
+): Unit {
+    require(swipes.isNotEmpty()) { "Swipes list cannot be empty" }
+    swipes.fastForEach { swipe ->
+        require(swipe.endVelocity >= 0f) {
+            "Velocity cannot be ${swipe.endVelocity}, it must be positive"
+        }
+    }
+    require(eventPeriodMillis < 40) {
+        "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
+    }
+    val minimumDuration = ceil(2.5f * eventPeriodMillis).roundToLong()
+    require(durationMillis >= minimumDuration) {
+        "Duration must be at least ${minimumDuration}ms because " +
+            "velocity requires at least 3 input events"
+    }
+
+    val curves = swipes.fastMap { swipe ->
+        val pathFinder =
+            VelocityPathFinder(swipe.start, swipe.end, swipe.endVelocity, durationMillis)
+        val curve: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
+        curve
+    }
+
+    multiTouchSwipe(curves, durationMillis, List(keyTimes.size) { keyTimes[it] })
 }
 
 /**
