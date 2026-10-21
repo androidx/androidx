@@ -54,15 +54,16 @@ internal class RemoteRowNode : RemoteComposeNode() {
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
+        val remoteLayoutDirection = layoutDirection.toRemoteLayoutDirection()
         creationState.document.startRow(
             recordingModifier,
-            horizontalArrangement.toRemote(layoutDirection),
+            horizontalArrangement.toRemote(remoteLayoutDirection),
             verticalAlignment.toRemote(),
         )
         renderChildren(
             creationState,
             remoteCanvas,
-            reversed = shouldReverse(horizontalArrangement, layoutDirection),
+            reversed = shouldReverse(horizontalArrangement, remoteLayoutDirection),
         )
         creationState.document.endRow()
     }

@@ -78,7 +78,7 @@ internal class RemoteCollapsibleColumnNode : RemoteComposeNode() {
         }
         creationState.document.startCollapsibleColumn(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection),
+            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
             verticalArrangement.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
