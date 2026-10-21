@@ -79,7 +79,11 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Rule
@@ -526,6 +530,193 @@ class ButtonGroupTest(private val layoutDirection: LayoutDirection) {
         state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
     }
 
+    @Test
+    fun scrollIndirect_isClampedToOneItemPerGesture() {
+        val numButtons = 10
+        val state = ButtonGroupState()
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
+            ) {
+                repeat(numButtons) { i ->
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.width(100.dp).testTag("button-$i"),
+                    ) {
+                        Text("Button $i")
+                    }
+                }
+            }
+        }
+
+        // x=50 initially, as this is the center of item 0
+        indirectPointerDown()
+        state.assertState(scroll = 50.dp, currentItem = 0, focusedNodeTag = "button-0")
+
+        // Scrolling far past item 1 within one gesture is clamped to the center of item 1 (x=150),
+        // as a gesture can only move by one item
+        indirectScrollForwardBy(400.dp)
+        state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
+
+        indirectPointerUp()
+        state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
+
+        // Lifting and pressing again starts a new gesture, so we can move one more item (x=250)
+        indirectPointerDown()
+        indirectScrollForwardBy(400.dp)
+        indirectPointerUp()
+        state.assertState(scroll = 250.dp, currentItem = 2, focusedNodeTag = "button-2")
+
+        // Scrolling backwards is clamped in the same way (x=150)
+        indirectPointerDown()
+        indirectScrollForwardBy((-400).dp)
+        indirectPointerUp()
+        state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
+
+        // Programmatic scrolls are not clamped
+        state.blockingAnimateScrollToItem(4)
+        state.assertState(scroll = 450.dp, currentItem = 4, focusedNodeTag = "button-4")
+    }
+
+    @Test
+    fun flingIndirect_isClampedToOneItemPerGesture() {
+        val numButtons = 10
+        val state = ButtonGroupState()
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
+            ) {
+                repeat(numButtons) { i ->
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.width(100.dp).testTag("button-$i"),
+                    ) {
+                        Text("Button $i")
+                    }
+                }
+            }
+        }
+
+        // x=50 initially, as this is the center of item 0
+        rule.runOnIdle {
+            with(ButtonGroupTestDensity) { state.userScroll.toDp() }
+                .assertIsEqualTo(50.dp, "initial scroll")
+            assertThat(state.currentItemIndex).isEqualTo(0)
+        }
+
+        // A fast fling far past item 1 still only moves by one item, settling on the center of
+        // item 1 (x=150), even though the velocity would carry a regular fling much further
+        indirectFlingForwardBy(400.dp)
+        state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
+
+        // Each new fling can move one more item (x=250)
+        indirectFlingForwardBy(400.dp)
+        state.assertState(scroll = 250.dp, currentItem = 2, focusedNodeTag = "button-2")
+
+        // Flinging backwards is clamped in the same way (x=150)
+        indirectFlingForwardBy((-400).dp)
+        state.assertState(scroll = 150.dp, currentItem = 1, focusedNodeTag = "button-1")
+    }
+
+    @Test
+    fun scrollIndirect_isClampedToNeighborsOfCurrentItem_afterProgrammaticScroll() {
+        val buttonWidths = listOf(50.dp, 100.dp, 150.dp, 200.dp, 250.dp)
+        val state = ButtonGroupState()
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
+            ) {
+                buttonWidths.forEachIndexed { i, width ->
+                    Button(onClick = {}, modifier = Modifier.width(width).testTag("button-$i")) {
+                        Text("Button $i")
+                    }
+                }
+            }
+        }
+
+        // x=25 initially, as this is the center of item 0. A first gesture is clamped to the
+        // center of item 1 (x=100)
+        indirectPointerDown()
+        state.assertState(scroll = 25.dp, currentItem = 0, focusedNodeTag = "button-0")
+        indirectScrollForwardBy(400.dp)
+        indirectPointerUp()
+        state.assertState(scroll = 100.dp, currentItem = 1, focusedNodeTag = "button-1")
+
+        // Programmatically animate to item 3 (x=400), which is not limited to one item
+        state.blockingAnimateScrollToItem(3)
+        state.assertState(scroll = 400.dp, currentItem = 3, focusedNodeTag = "button-3")
+
+        // Scrolling far forwards is clamped to the center of item 4 (x=625), i.e. +225dp. This
+        // would be x=225 (item 2) if the clamp was still anchored to item 1
+        indirectPointerDown()
+        indirectScrollForwardBy(400.dp)
+        state.assertState(scroll = 625.dp, currentItem = 4, focusedNodeTag = "button-4")
+        indirectPointerUp()
+        state.assertState(scroll = 625.dp, currentItem = 4, focusedNodeTag = "button-4")
+
+        // Scrolling far backwards is clamped to the center of item 3 (x=400), i.e. -225dp, rather
+        // than reaching item 2 (x=225) or beyond
+        indirectPointerDown()
+        indirectScrollForwardBy((-400).dp)
+        indirectPointerUp()
+        state.assertState(scroll = 400.dp, currentItem = 3, focusedNodeTag = "button-3")
+    }
+
+    @Test
+    fun scroll_startedBeforeFirstLayout_isClampedToNeighborsOfCurrentItem() {
+        val state = ButtonGroupState()
+
+        // Start a scroll before the ButtonGroup has been laid out, so the current item (and so the
+        // scroll anchor) isn't known yet when the scroll starts. The scroll waits for layoutDone
+        // before scrolling.
+        val layoutDone = CompletableDeferred<Unit>()
+        val scrollJob =
+            CoroutineScope(Dispatchers.Main).launch(start = CoroutineStart.UNDISPATCHED) {
+                state.scroll {
+                    layoutDone.await()
+                    scrollBy(with(ButtonGroupTestDensity) { 400.dp.toPx() })
+                }
+            }
+        assertThat(state.currentItemIndex).isEqualTo(-1)
+
+        setContent {
+            ButtonGroup(
+                modifier = Modifier.width(500.dp),
+                state = state,
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                contentPadding = PaddingValues.Zero,
+            ) {
+                repeat(10) { i ->
+                    Button(onClick = {}, modifier = Modifier.width(100.dp).testTag("button-$i")) {
+                        Text("Button $i")
+                    }
+                }
+            }
+        }
+        // x=50 initially, as this is the center of item 0
+        rule.waitForIdle()
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(50.dp, "scroll")
+        assertThat(state.currentItemIndex).isEqualTo(0)
+
+        layoutDone.complete(Unit)
+        runBlocking { scrollJob.join() }
+
+        // The anchor is computed from the scroll position when the scroll first receives a delta,
+        // so scrolling far past item 1 is still clamped to the center of item 1 (x=150)
+        rule.waitForIdle()
+        with(ButtonGroupTestDensity) { state.userScroll.toDp() }.assertIsEqualTo(150.dp, "scroll")
+        assertThat(state.currentItemIndex).isEqualTo(1)
+    }
+
     @Ignore("b/267253920")
     @Test
     fun scrollDirect() {
@@ -745,6 +936,26 @@ class ButtonGroupTest(private val layoutDirection: LayoutDirection) {
     }
 
     /**
+     * Performs a complete, fast indirect pointer gesture (down, quick moves, up) of [distance]
+     * towards the end of the content (or towards the start, if negative), so that the gesture ends
+     * with a high velocity and triggers a fling.
+     *
+     * See [indirectScrollForwardBy] for how the direction is mirrored in RTL.
+     */
+    private fun indirectFlingForwardBy(distance: Dp) {
+        val physicalDistance = if (isRtl) -distance else distance
+        rule.sendGlimmerIndirectPointerInput {
+            down(inputDeviceCenter)
+            evenlyDividedMoveX(
+                distance = with(ButtonGroupTestDensity) { physicalDistance.toPx() },
+                steps = defaultStepCountForMoveToVelocityTrigger,
+                duration = FastFlingDurationMillis,
+            )
+            up()
+        }
+    }
+
+    /**
      * Asserts that the current values of [ScrollAxisRange.value] and [ScrollAxisRange.maxValue] for
      * this node's [SemanticsProperties.HorizontalScrollAxisRange] match the provided values.
      */
@@ -777,6 +988,9 @@ class ButtonGroupTest(private val layoutDirection: LayoutDirection) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() = arrayOf(LayoutDirection.Ltr, LayoutDirection.Rtl)
+
+        /** The duration of a fast fling gesture, short enough to generate a high velocity. */
+        private const val FastFlingDurationMillis = 20L
     }
 }
 
