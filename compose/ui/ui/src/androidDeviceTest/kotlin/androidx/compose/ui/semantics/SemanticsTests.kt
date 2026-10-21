@@ -166,6 +166,27 @@ class SemanticsTests {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, paneTitleString))
     }
 
+    @Test
+    fun paneTitleProperty_mergingThrows() {
+        rule.setContent {
+            Surface(Modifier.clickable {}.testTag(TestTag)) {
+                Box(Modifier.semantics { paneTitle = "test PaneTitle string" }) {}
+            }
+        }
+
+        try {
+            rule.onNodeWithTag(TestTag).fetchSemanticsNode().config
+            org.junit.Assert.fail("Expected IllegalStateException when merging PaneTitle")
+        } catch (e: IllegalStateException) {
+            assertThat(e.message)
+                .isEqualTo(
+                    "merge function called on unmergeable property PaneTitle. " +
+                        "A pane should not be a descendant of a node that merges descendant " +
+                        "semantics, such as a clickable."
+                )
+        }
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testSemanticsCalculatedOncePerComposition() {
