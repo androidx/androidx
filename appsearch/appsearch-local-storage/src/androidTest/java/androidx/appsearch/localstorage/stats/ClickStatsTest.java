@@ -50,7 +50,7 @@ public class ClickStatsTest {
                 + "  resultRankGlobal=4,\n"
                 + "  isGoodClick=false\n"
                 + "  enabledFeatures=0,\n"
-                + "  javaLockAcquisitionLatencyMillis=-1,\n"
+                + "  javaLockAcquisitionLatencyMillis=0,\n"
                 + "  lastBlockingOperation=0,\n"
                 + "  lastBlockingOperationLatencyMillis=-1,\n"
                 + "  getVmLatencyMillis=0,\n"

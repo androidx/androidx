@@ -341,14 +341,12 @@ public class BaseStats {
         private final BuilderType mBuilderTypeInstance;
         long mEnabledFeatures;
         /**
-         * The latency in ms to get the lock.
+         * The total latency in ms to get the lock.
          *
-         * <p> For multi-level call like checkForOptimize -> optimize. We only need to set the java
-         * lock latency in the first level call. Since the write lock won't be released, the latency
-         * in the second and deeper level will include the actually work in top level and won't be
-         * accurate.
+         * <p>For multi-level calls like checkForOptimize -> optimize, the deeper levels re-enter
+         * the lock that is already held, which adds (almost) nothing.
          */
-        int mJavaLockAcquisitionLatencyMillis = -1;
+        int mJavaLockAcquisitionLatencyMillis;
 
         // The call type of the last mutation call that hold the write lock.
         @CallType
@@ -401,14 +399,16 @@ public class BaseStats {
         }
 
         /**
-         * Sets latency for waiting to acquire the lock during Java function calls in milliseconds.
+         * Adds latency for waiting to acquire the lock during Java function calls in milliseconds.
+         *
+         * <p>The latency of each lock acquisition is added up, so that an operation that acquires
+         * the lock more than once records its total waiting time. Re-entering a lock that is
+         * already held adds (almost) nothing.
          */
         @CanIgnoreReturnValue
-        public @NonNull BuilderType setJavaLockAcquisitionLatencyMillis(
+        public @NonNull BuilderType addJavaLockAcquisitionLatencyMillis(
                 int javaLockAcquisitionLatencyMillis) {
-            if (mJavaLockAcquisitionLatencyMillis < 0) {
-                mJavaLockAcquisitionLatencyMillis = javaLockAcquisitionLatencyMillis;
-            }
+            mJavaLockAcquisitionLatencyMillis += javaLockAcquisitionLatencyMillis;
             return mBuilderTypeInstance;
         }
 

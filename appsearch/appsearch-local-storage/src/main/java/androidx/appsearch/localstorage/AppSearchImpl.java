@@ -460,7 +460,7 @@ public final class AppSearchImpl implements Closeable {
 
                 if (initStatsBuilder != null) {
                     initStatsBuilder
-                            .setJavaLockAcquisitionLatencyMillis(
+                            .addJavaLockAcquisitionLatencyMillis(
                                     (int) (javaLockAcquisitionEndTimeMillis
                                             - totalLatencyStartMillis))
                             .setStatusCode(
@@ -863,7 +863,7 @@ public final class AppSearchImpl implements Closeable {
                                 mLastReadOrWriteOperationLatencyMillisLocked);
             }
             if (setSchemaStatsBuilder != null) {
-                setSchemaStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                setSchemaStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
@@ -1858,7 +1858,7 @@ public final class AppSearchImpl implements Closeable {
                         statsBuilders.get(i)
                                 .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
                                 .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
-                                .setJavaLockAcquisitionLatencyMillis(
+                                .addJavaLockAcquisitionLatencyMillis(
                                         (int)
                                                 (javaLockAcquisitionEndTimeMillis
                                                         - totalLatencyStartMillis))
@@ -2102,7 +2102,7 @@ public final class AppSearchImpl implements Closeable {
             }
             if (pStatsBuilder != null) {
                 pStatsBuilder
-                        .setJavaLockAcquisitionLatencyMillis(
+                        .addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
@@ -3150,7 +3150,7 @@ public final class AppSearchImpl implements Closeable {
                         .setLastBlockingOperation(mLastWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastWriteOperationLatencyMillisLocked)
-                        .setJavaLockAcquisitionLatencyMillis(
+                        .addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis));
             }
@@ -3237,7 +3237,7 @@ public final class AppSearchImpl implements Closeable {
                         .setLastBlockingOperation(mLastWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastWriteOperationLatencyMillisLocked)
-                        .setJavaLockAcquisitionLatencyMillis(
+                        .addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis));
             }
@@ -3687,7 +3687,7 @@ public final class AppSearchImpl implements Closeable {
                                 mLastWriteOperationLatencyMillisLocked);
             }
             if (queryStatsBuilder != null) {
-                queryStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                queryStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis))
                         .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
@@ -4093,7 +4093,7 @@ public final class AppSearchImpl implements Closeable {
                                 deleteResultProto.getStatus()))
                         .setLaunchVmEnabled(mLaunchVmFeatures.isVmEnabled())
                         .setLaunchAiSealEnabled(mLaunchVmFeatures.isAiSealEnabled())
-                        .setJavaLockAcquisitionLatencyMillis(
+                        .addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
@@ -4174,7 +4174,7 @@ public final class AppSearchImpl implements Closeable {
                                 mLastReadOrWriteOperationLatencyMillisLocked);
             }
             if (removeStatsBuilder != null) {
-                removeStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                removeStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                         (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
@@ -4703,7 +4703,7 @@ public final class AppSearchImpl implements Closeable {
             }
             if (logger != null) {
                 statsBuilder = new PersistToDiskStats.Builder(callingPackageName, triggerCallType)
-                        .setJavaLockAcquisitionLatencyMillis(
+                        .addJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
@@ -5358,7 +5358,7 @@ public final class AppSearchImpl implements Closeable {
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             if (optimizeStatsBuilder != null) {
-                optimizeStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                optimizeStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                         (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis));
             }
             mOptimizeIntervalCountLocked += mutationSize;
@@ -5393,7 +5393,7 @@ public final class AppSearchImpl implements Closeable {
         try {
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             if (optimizeStatsBuilder != null) {
-                optimizeStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+                optimizeStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                         (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis));
             }
             GetOptimizeInfoResultProto optimizeInfo = getOptimizeInfoResultLocked(callStatsBuilder);
@@ -5440,7 +5440,7 @@ public final class AppSearchImpl implements Closeable {
             if (optimizeStatsBuilder != null) {
                 optimizeStatsBuilder.setStatusCode(
                         statusProtoToResultCode(optimizeResultProto.getStatus()))
-                        .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                        .addJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastReadOrWriteOperationLatencyMillisLocked)
@@ -5704,7 +5704,7 @@ public final class AppSearchImpl implements Closeable {
         int executeTime = (int) (totalLatencyEndMillis - javaLockAcquisitionEndTimeMillis);
         if (callStatsBuilder != null) {
             // This is a read operation, only write operation could be a blocker.
-            callStatsBuilder.setJavaLockAcquisitionLatencyMillis(
+            callStatsBuilder.addJavaLockAcquisitionLatencyMillis(
                             (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
                     .setUnblockedAppSearchLatencyMillis(executeTime);
         }
