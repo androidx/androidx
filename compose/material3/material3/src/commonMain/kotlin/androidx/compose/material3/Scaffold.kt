@@ -34,7 +34,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -130,6 +135,7 @@ public fun Scaffold(
  * @param bottomBar the content to place at the bottom of the [Scaffold], on top of the [content],
  *   typically a [NavigationBar].
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScaffoldLayout(
     fabPosition: FabPosition,
@@ -141,9 +147,9 @@ private fun ScaffoldLayout(
     bottomBar: @Composable () -> Unit,
 ) {
     // Create the backing value for the content padding
-    // These values will be updated during measurement, but before subcomposing the body content
-    // Remembering and updating a single PaddingValues avoids needing to recompose when the values
-    // change
+    // These values will be updated during measurement, before measuring or subcomposing the body
+    // content. Remembering and updating a single PaddingValues avoids needing to recompose when
+    // the values change.
     val contentPadding = remember {
         object : PaddingValues {
             var paddingHolder by mutableStateOf(PaddingValues(0.dp))
@@ -160,147 +166,177 @@ private fun ScaffoldLayout(
         }
     }
 
-    SubcomposeLayout { constraints ->
-        val layoutWidth = constraints.maxWidth
-        val layoutHeight = constraints.maxHeight
+    if (ComposeMaterial3Flags.isScaffoldLayoutEnabled) {
+        Layout(contents = listOf(topBar, snackbar, fab, { content(contentPadding) }, bottomBar)) {
+            (
+                topBarMeasurables,
+                snackbarMeasurables,
+                fabMeasurables,
+                bodyContentMeasurables,
+                bottomBarMeasurables),
+            constraints ->
+            measureScaffoldLayout(
+                constraints = constraints,
+                fabPosition = fabPosition,
+                contentWindowInsets = contentWindowInsets,
+                topBarMeasurables = topBarMeasurables,
+                snackbarMeasurables = snackbarMeasurables,
+                fabMeasurables = fabMeasurables,
+                bottomBarMeasurables = bottomBarMeasurables,
+                bodyContentMeasurables = { padding ->
+                    contentPadding.paddingHolder = padding
+                    bodyContentMeasurables
+                },
+            )
+        }
+    } else {
+        SubcomposeLayout { constraints ->
+            measureScaffoldLayout(
+                constraints = constraints,
+                fabPosition = fabPosition,
+                contentWindowInsets = contentWindowInsets,
+                topBarMeasurables = subcompose(ScaffoldLayoutContent.TopBar, topBar),
+                snackbarMeasurables = subcompose(ScaffoldLayoutContent.Snackbar, snackbar),
+                fabMeasurables = subcompose(ScaffoldLayoutContent.Fab, fab),
+                bottomBarMeasurables = subcompose(ScaffoldLayoutContent.BottomBar, bottomBar),
+                bodyContentMeasurables = { padding ->
+                    contentPadding.paddingHolder = padding
+                    @Suppress("ComposableLambdaInMeasurePolicy")
+                    subcompose(ScaffoldLayoutContent.MainContent) { content(contentPadding) }
+                },
+            )
+        }
+    }
+}
 
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+private inline fun MeasureScope.measureScaffoldLayout(
+    constraints: Constraints,
+    fabPosition: FabPosition,
+    contentWindowInsets: WindowInsets,
+    topBarMeasurables: List<Measurable>,
+    snackbarMeasurables: List<Measurable>,
+    fabMeasurables: List<Measurable>,
+    bottomBarMeasurables: List<Measurable>,
+    bodyContentMeasurables: (PaddingValues) -> List<Measurable>,
+): MeasureResult {
+    val layoutWidth = constraints.maxWidth
+    val layoutHeight = constraints.maxHeight
 
-        // respect only bottom and horizontal for snackbar and fab
-        val leftInset = contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection)
-        val rightInset = contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection)
-        val bottomInset = contentWindowInsets.getBottom(this@SubcomposeLayout)
+    val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
-        val topBarPlaceables =
-            subcompose(ScaffoldLayoutContent.TopBar, topBar).fastMap {
-                it.measure(looseConstraints)
-            }
-        val topBarHeight = topBarPlaceables.fastMaxBy { it.height }?.height ?: 0
+    // respect only bottom and horizontal for snackbar and fab
+    val leftInset = contentWindowInsets.getLeft(this, layoutDirection)
+    val rightInset = contentWindowInsets.getRight(this, layoutDirection)
+    val bottomInset = contentWindowInsets.getBottom(this)
 
-        val snackbarPlaceables =
-            subcompose(ScaffoldLayoutContent.Snackbar, snackbar).fastMap {
-                it.measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
-            }
+    val topBarPlaceables = topBarMeasurables.fastMap { it.measure(looseConstraints) }
+    val topBarHeight = topBarPlaceables.fastMaxBy { it.height }?.height ?: 0
 
-        val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
-        val snackbarWidth = snackbarPlaceables.fastMaxBy { it.width }?.width ?: 0
+    val snackbarPlaceables = snackbarMeasurables.fastMap {
+        it.measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
+    }
 
-        val fabPlaceables =
-            subcompose(ScaffoldLayoutContent.Fab, fab).fastMapNotNull { measurable ->
-                measurable
-                    .measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
-                    .takeIf { it.height != 0 && it.width != 0 }
-            }
+    val snackbarHeight = snackbarPlaceables.fastMaxBy { it.height }?.height ?: 0
+    val snackbarWidth = snackbarPlaceables.fastMaxBy { it.width }?.width ?: 0
 
-        val fabPlacement =
-            if (fabPlaceables.isNotEmpty()) {
-                val fabWidth = fabPlaceables.fastMaxBy { it.width }!!.width
-                val fabHeight = fabPlaceables.fastMaxBy { it.height }!!.height
-                // FAB distance from the left of the layout, taking into account LTR / RTL
-                val fabLeftOffset =
-                    when (fabPosition) {
-                        FabPosition.Start -> {
-                            if (layoutDirection == LayoutDirection.Ltr) {
-                                FabSpacing.roundToPx() + leftInset
-                            } else {
-                                layoutWidth - FabSpacing.roundToPx() - fabWidth - rightInset
-                            }
+    val fabPlaceables = fabMeasurables.fastMapNotNull { measurable ->
+        measurable.measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset)).takeIf {
+            it.height != 0 && it.width != 0
+        }
+    }
+
+    val fabPlacement =
+        if (fabPlaceables.isNotEmpty()) {
+            val fabWidth = fabPlaceables.fastMaxBy { it.width }!!.width
+            val fabHeight = fabPlaceables.fastMaxBy { it.height }!!.height
+            // FAB distance from the left of the layout, taking into account LTR / RTL
+            val fabLeftOffset =
+                when (fabPosition) {
+                    FabPosition.Start -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            FabSpacing.roundToPx() + leftInset
+                        } else {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth - rightInset
                         }
-
-                        FabPosition.End,
-                        FabPosition.EndOverlay -> {
-                            if (layoutDirection == LayoutDirection.Ltr) {
-                                layoutWidth - FabSpacing.roundToPx() - fabWidth - rightInset
-                            } else {
-                                FabSpacing.roundToPx() + leftInset
-                            }
-                        }
-
-                        else -> (layoutWidth - fabWidth + leftInset - rightInset) / 2
                     }
 
-                FabPlacement(left = fabLeftOffset, width = fabWidth, height = fabHeight)
-            } else {
-                null
-            }
+                    FabPosition.End,
+                    FabPosition.EndOverlay -> {
+                        if (layoutDirection == LayoutDirection.Ltr) {
+                            layoutWidth - FabSpacing.roundToPx() - fabWidth - rightInset
+                        } else {
+                            FabSpacing.roundToPx() + leftInset
+                        }
+                    }
 
-        val bottomBarPlaceables =
-            subcompose(ScaffoldLayoutContent.BottomBar, bottomBar).fastMap {
-                it.measure(looseConstraints)
-            }
+                    else -> (layoutWidth - fabWidth + leftInset - rightInset) / 2
+                }
 
-        val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
-
-        val fabOffsetFromBottom = fabPlacement?.let {
-            if (bottomBarHeight == null || fabPosition == FabPosition.EndOverlay) {
-                it.height +
-                    FabSpacing.roundToPx() +
-                    contentWindowInsets.getBottom(this@SubcomposeLayout)
-            } else {
-                // Total height is the bottom bar height + the FAB height + the padding
-                // between the FAB and bottom bar
-                bottomBarHeight + it.height + FabSpacing.roundToPx()
-            }
+            FabPlacement(left = fabLeftOffset, width = fabWidth, height = fabHeight)
+        } else {
+            null
         }
 
-        val snackbarOffsetFromBottom =
-            if (snackbarHeight != 0) {
-                snackbarHeight +
-                    (fabOffsetFromBottom
-                        ?: bottomBarHeight
-                        ?: contentWindowInsets.getBottom(this@SubcomposeLayout))
-            } else {
-                0
-            }
+    val bottomBarPlaceables = bottomBarMeasurables.fastMap { it.measure(looseConstraints) }
 
-        // Update the backing state for the content padding before subcomposing the body
-        val insets = contentWindowInsets.asPaddingValues(this)
-        contentPadding.paddingHolder =
-            PaddingValues(
-                top =
-                    if (topBarPlaceables.isEmpty()) {
-                        insets.calculateTopPadding()
-                    } else {
-                        topBarHeight.toDp()
-                    },
-                bottom = bottomBarHeight?.toDp() ?: insets.calculateBottomPadding(),
-                start = insets.calculateStartPadding(layoutDirection),
-                end = insets.calculateEndPadding(layoutDirection),
+    val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
+
+    val fabOffsetFromBottom = fabPlacement?.let {
+        if (bottomBarHeight == null || fabPosition == FabPosition.EndOverlay) {
+            it.height + FabSpacing.roundToPx() + bottomInset
+        } else {
+            // Total height is the bottom bar height + the FAB height + the padding
+            // between the FAB and bottom bar
+            bottomBarHeight + it.height + FabSpacing.roundToPx()
+        }
+    }
+
+    val snackbarOffsetFromBottom =
+        if (snackbarHeight != 0) {
+            snackbarHeight + (fabOffsetFromBottom ?: bottomBarHeight ?: bottomInset)
+        } else {
+            0
+        }
+
+    // Update the backing state for the content padding before measuring/subcomposing the body
+    val insets = contentWindowInsets.asPaddingValues(this)
+    val padding =
+        PaddingValues(
+            top =
+                if (topBarPlaceables.isEmpty()) {
+                    insets.calculateTopPadding()
+                } else {
+                    topBarHeight.toDp()
+                },
+            bottom = bottomBarHeight?.toDp() ?: insets.calculateBottomPadding(),
+            start = insets.calculateStartPadding(layoutDirection),
+            end = insets.calculateEndPadding(layoutDirection),
+        )
+
+    val bodyContentPlaceables =
+        bodyContentMeasurables(padding).fastMap { it.measure(looseConstraints) }
+
+    return layout(layoutWidth, layoutHeight) {
+        // Placing to have correct keyboard focus order and setting zIndex to control drawing
+        // order to match default elevation of each placeable.
+        topBarPlaceables.fastForEach { it.place(0, 0, zIndex = TopBarZIndex) }
+        bodyContentPlaceables.fastForEach { it.place(0, 0, zIndex = ContentZIndex) }
+        snackbarPlaceables.fastForEach {
+            it.place(
+                (layoutWidth - snackbarWidth + leftInset - rightInset) / 2,
+                layoutHeight - snackbarOffsetFromBottom,
+                zIndex = SnackbarZIndex,
             )
-
-        @Suppress("ComposableLambdaInMeasurePolicy")
-        val bodyContentPlaceables =
-            subcompose(ScaffoldLayoutContent.MainContent) { content(contentPadding) }
-                .fastMap { it.measure(looseConstraints) }
-
-        layout(layoutWidth, layoutHeight) {
-            // Placing to have correct keyboard focus order and setting zIndex to control drawing
-            // order to match default elevation of each placeable.
-            topBarPlaceables.fastForEach { it.place(0, 0, zIndex = TopBarZIndex) }
-            bodyContentPlaceables.fastForEach { it.place(0, 0, zIndex = ContentZIndex) }
-            snackbarPlaceables.fastForEach {
-                it.place(
-                    (layoutWidth - snackbarWidth +
-                        contentWindowInsets.getLeft(this@SubcomposeLayout, layoutDirection) -
-                        contentWindowInsets.getRight(this@SubcomposeLayout, layoutDirection)) / 2,
-                    layoutHeight - snackbarOffsetFromBottom,
-                    zIndex = SnackbarZIndex,
-                )
+        }
+        // Explicitly not using placeRelative here as `leftOffset` already accounts for RTL
+        fabPlacement?.let { placement ->
+            fabPlaceables.fastForEach {
+                it.place(placement.left, layoutHeight - fabOffsetFromBottom!!, zIndex = FabZIndex)
             }
-            // Explicitly not using placeRelative here as `leftOffset` already accounts for RTL
-            fabPlacement?.let { placement ->
-                fabPlaceables.fastForEach {
-                    it.place(
-                        placement.left,
-                        layoutHeight - fabOffsetFromBottom!!,
-                        zIndex = FabZIndex,
-                    )
-                }
-            }
-            // The bottom bar is always at the bottom of the layout
-            bottomBarPlaceables.fastForEach {
-                it.place(0, layoutHeight - (bottomBarHeight ?: 0), zIndex = BottomBarZIndex)
-            }
+        }
+        // The bottom bar is always at the bottom of the layout
+        bottomBarPlaceables.fastForEach {
+            it.place(0, layoutHeight - (bottomBarHeight ?: 0), zIndex = BottomBarZIndex)
         }
     }
 }

@@ -891,6 +891,7 @@ package androidx.compose.material3 {
     property public boolean isExpressiveListItemHeightBasedOnTextLinesFixEnabled;
     property public boolean isModalBottomSheetStateRestorationFixEnabled;
     property public boolean isPrecisionPointerComponentSizingEnabled;
+    property public boolean isScaffoldLayoutEnabled;
     property public boolean isSnackbarStylingFixEnabled;
     property public boolean isUpdatedTimepickerToggleEnabled;
     field public static final androidx.compose.material3.ComposeMaterial3Flags INSTANCE;
@@ -901,6 +902,7 @@ package androidx.compose.material3 {
     field public static boolean isExpressiveListItemHeightBasedOnTextLinesFixEnabled;
     field public static boolean isModalBottomSheetStateRestorationFixEnabled;
     field public static boolean isPrecisionPointerComponentSizingEnabled;
+    field public static boolean isScaffoldLayoutEnabled;
     field public static boolean isSnackbarStylingFixEnabled;
     field public static boolean isUpdatedTimepickerToggleEnabled;
   }
