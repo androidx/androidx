@@ -44,7 +44,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public val creationDisplayInfo: RemoteCreationDisplayInfo
     public val profile: Profile
     public override lateinit var remoteDensity: RemoteDensity
-    public override lateinit var layoutDirection: LayoutDirection
+    public final override val layoutDirection: LayoutDirection
     public final override val densityBehavior: RemoteDensityBehavior
 
     /**
