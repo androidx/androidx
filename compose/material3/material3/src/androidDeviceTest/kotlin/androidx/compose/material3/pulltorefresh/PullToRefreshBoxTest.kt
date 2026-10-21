@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.pulltorefresh
 
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Column
@@ -28,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.PositionalThreshold
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -182,6 +185,54 @@ class PullToRefreshBoxTest {
     }
 
     @Test
+    fun startIdle_pull_isRefreshingStaysFalse_resetsFraction() {
+        val state = PullToRefreshState()
+        var refreshCount = 0
+
+        rule.setContent {
+            PullToRefreshBox(
+                isRefreshing = false,
+                state = state,
+                onRefresh = { refreshCount++ },
+            ) {
+                LazyColumn(Modifier.testTag("lazy")) { items(50) { Text("Item") } }
+            }
+        }
+
+        rule.runOnIdle { assertThat(state.distanceFraction).isEqualTo(0f) }
+
+        rule.onNodeWithTag("lazy").performTouchInput { swipeDownToThreshold() }
+
+        rule.runOnIdle {
+            assertThat(refreshCount).isEqualTo(1)
+            assertThat(state.distanceFraction).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun startIdle_pull_customState_refreshStarts_staysAtThreshold() {
+        val state = NonInterruptingPullToRefreshState()
+        val isRefreshing = mutableStateOf(false)
+
+        rule.setContent {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing.value,
+                state = state,
+                onRefresh = { isRefreshing.value = true },
+            ) {
+                LazyColumn(Modifier.testTag("lazy")) { items(50) { Text("Item") } }
+            }
+        }
+
+        rule.onNodeWithTag("lazy").performTouchInput { swipeDownToThreshold() }
+
+        rule.runOnIdle {
+            assertThat(isRefreshing.value).isTrue()
+            assertThat(state.distanceFraction).isEqualTo(1f)
+        }
+    }
+
+    @Test
     fun box_fling_isConsumed() {
         val state = PullToRefreshState()
         val isRefreshing = mutableStateOf(false)
@@ -230,4 +281,39 @@ class PullToRefreshBoxTest {
 private fun TouchInjectionScope.swipeDownToThreshold() {
     val touchSlop = 18.dp
     swipeDown(startY = 0f, endY = PositionalThreshold.toPx() * 2 + touchSlop.toPx())
+}
+
+/**
+ * A [PullToRefreshState] whose animations run independently: [animateToThreshold] does not
+ * interrupt an in-flight [animateToHidden], unlike the default `Animatable`-backed implementation.
+ * The hide animation outlasts the threshold one so that running both concurrently ends hidden.
+ */
+private class NonInterruptingPullToRefreshState : PullToRefreshState {
+    private var fraction by mutableFloatStateOf(0f)
+    private var animating by mutableStateOf(false)
+
+    override val distanceFraction: Float
+        get() = fraction
+
+    override val isAnimating: Boolean
+        get() = animating
+
+    override suspend fun animateToThreshold() = animateTo(1f, durationMillis = 100)
+
+    override suspend fun animateToHidden() = animateTo(0f, durationMillis = 300)
+
+    override suspend fun snapTo(targetValue: Float) {
+        fraction = targetValue
+    }
+
+    private suspend fun animateTo(target: Float, durationMillis: Int) {
+        animating = true
+        try {
+            animate(fraction, target, animationSpec = tween(durationMillis)) { value, _ ->
+                fraction = value
+            }
+        } finally {
+            animating = false
+        }
+    }
 }
