@@ -966,6 +966,45 @@ class CaptureRemoteDocumentTest {
             assertTrue(lifecycleEvents.contains(Lifecycle.Event.ON_DESTROY))
         }
 
+    @Test
+    @Suppress("LifecycleCurrentStateInComposition")
+    fun captureRemoteDocumentFlow_multipleCollections_recreatesLifecycleOwner() = runTest {
+        val capturedLifecycles = CopyOnWriteArrayList<LifecycleOwner>()
+        val capturedStates = CopyOnWriteArrayList<Lifecycle.State>()
+
+        val flow =
+            captureRemoteDocument(
+                context = context,
+                creationDisplayInfo = createCreationDisplayInfo(context),
+                coroutineContext = Dispatchers.Default,
+            ) {
+                val lifecycleOwner = LocalLifecycleOwner.current
+                if (capturedLifecycles.isEmpty() || capturedLifecycles.last() !== lifecycleOwner) {
+                    capturedLifecycles.add(lifecycleOwner)
+                    capturedStates.add(lifecycleOwner.lifecycle.currentState)
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.fillMaxSize()
+                            .background(androidx.compose.ui.graphics.Color.Red.rc)
+                )
+            }
+
+        // First collection
+        val firstBytes = flow.first()
+        assertNotNull(firstBytes)
+        assertEquals(Lifecycle.State.RESUMED, capturedStates[0])
+        assertEquals(Lifecycle.State.DESTROYED, capturedLifecycles[0].lifecycle.currentState)
+
+        // Second collection of the same flow instance
+        val secondBytes = flow.first()
+        assertNotNull(secondBytes)
+        assertEquals(2, capturedLifecycles.size)
+        assertEquals(Lifecycle.State.RESUMED, capturedStates[1])
+        assertEquals(Lifecycle.State.DESTROYED, capturedLifecycles[1].lifecycle.currentState)
+        org.junit.Assert.assertNotSame(capturedLifecycles[0], capturedLifecycles[1])
+    }
+
     /**
      * Regression test for updates being silently dropped when the collector cannot observe
      * [Recomposer.State] transitions.

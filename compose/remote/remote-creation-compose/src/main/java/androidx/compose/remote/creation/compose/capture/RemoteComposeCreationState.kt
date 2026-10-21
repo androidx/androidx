@@ -24,6 +24,9 @@ import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
+import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
+import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
@@ -44,7 +47,10 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public val creationDisplayInfo: RemoteCreationDisplayInfo
     public val profile: Profile
     public final override val remoteDensity: RemoteDensity
+    public final override val remoteLayoutDirection: RemoteLayoutDirection
     public final override val layoutDirection: LayoutDirection
+        get() = remoteLayoutDirection.toComposeLayoutDirection()
+
     public final override val densityBehavior: RemoteDensityBehavior
 
     /**
@@ -132,17 +138,33 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         profile: Profile,
         writerCallback: Any?,
         remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-        layoutDirection: LayoutDirection,
+        layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
         platformImageProvider: PlatformImageProvider,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
         document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), writerCallback)
         this.remoteDensity = remoteDensity
-        this.layoutDirection = layoutDirection
+        this.remoteLayoutDirection = layoutDirection
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }
+
+    public constructor(
+        creationDisplayInfo: RemoteCreationDisplayInfo,
+        profile: Profile,
+        writerCallback: Any?,
+        remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
+        layoutDirection: LayoutDirection,
+        platformImageProvider: PlatformImageProvider,
+    ) : this(
+        creationDisplayInfo = creationDisplayInfo,
+        profile = profile,
+        writerCallback = writerCallback,
+        remoteDensity = remoteDensity,
+        layoutDirection = layoutDirection.toRemoteLayoutDirection(),
+        platformImageProvider = platformImageProvider,
+    )
 
     public constructor(
         creationDisplayInfo: RemoteCreationDisplayInfo,
@@ -154,7 +176,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.profile = profile
         document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = LayoutDirection.Ltr
+        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }
@@ -169,7 +191,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.profile = profile
         this.document = writer
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = LayoutDirection.Ltr
+        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }
@@ -184,7 +206,7 @@ public open class RemoteComposeCreationState : RemoteStateScope {
             RemoteCreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160, 1.0f)
         this.document = profile.create(creationDisplayInfo.toCreationDisplayInfo(), null)
         this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
-        this.layoutDirection = LayoutDirection.Ltr
+        this.remoteLayoutDirection = RemoteLayoutDirection.Ltr
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }

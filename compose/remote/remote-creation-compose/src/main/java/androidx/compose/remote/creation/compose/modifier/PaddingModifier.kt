@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -26,7 +27,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.PaddingModifier as CreationPaddingModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.ui.unit.LayoutDirection
 
 internal class PaddingModifier(
     public val start: RemoteFloat,
@@ -110,10 +110,12 @@ internal fun PaddingModifier.resolveBottom(scope: RemoteStateScope): RemoteFloat
     }
 
 internal fun PaddingModifier.resolveLeft(scope: RemoteStateScope): RemoteFloat =
-    if (scope.layoutDirection == LayoutDirection.Ltr) resolveStart(scope) else resolveEnd(scope)
+    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Ltr) resolveStart(scope)
+    else resolveEnd(scope)
 
 internal fun PaddingModifier.resolveRight(scope: RemoteStateScope): RemoteFloat =
-    if (scope.layoutDirection == LayoutDirection.Ltr) resolveEnd(scope) else resolveStart(scope)
+    if (scope.remoteLayoutDirection == RemoteLayoutDirection.Ltr) resolveEnd(scope)
+    else resolveStart(scope)
 
 /**
  * Adds padding to each edge of the content.

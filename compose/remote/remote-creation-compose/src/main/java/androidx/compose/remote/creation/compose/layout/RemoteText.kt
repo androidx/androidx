@@ -43,7 +43,6 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Remote composable that displays text.
@@ -243,10 +242,12 @@ internal class RemoteTextNode : RemoteComposeNode() {
         val resolvedTextAlign =
             when (textAlign) {
                 TextAlign.Start ->
-                    if (creationState.layoutDirection == LayoutDirection.Rtl) TextAlign.End
+                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl)
+                        TextAlign.End
                     else TextAlign.Start
                 TextAlign.End ->
-                    if (creationState.layoutDirection == LayoutDirection.Rtl) TextAlign.Start
+                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl)
+                        TextAlign.Start
                     else TextAlign.End
                 else -> textAlign
             }

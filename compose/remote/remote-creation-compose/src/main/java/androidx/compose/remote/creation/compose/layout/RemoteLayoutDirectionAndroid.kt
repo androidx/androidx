@@ -26,3 +26,11 @@ public fun LayoutDirection.toRemoteLayoutDirection(): RemoteLayoutDirection =
         LayoutDirection.Ltr -> RemoteLayoutDirection.Ltr
         LayoutDirection.Rtl -> RemoteLayoutDirection.Rtl
     }
+
+/** Converts a [RemoteLayoutDirection] to a Compose UI [LayoutDirection]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteLayoutDirection.toComposeLayoutDirection(): LayoutDirection =
+    when (this) {
+        RemoteLayoutDirection.Ltr -> LayoutDirection.Ltr
+        RemoteLayoutDirection.Rtl -> LayoutDirection.Rtl
+    }
