@@ -365,7 +365,7 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
     }
     val strippedGroupId = mavenGroup.group.substringAfterLast(".")
     if (
-        !extension.bypassCoordinateValidation &&
+        !extension.bypassCoordinateValidation.get() &&
             mavenGroup.group.startsWith("androidx") &&
             !name.startsWith(strippedGroupId)
     ) {
@@ -397,8 +397,8 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
 
         for (extraLicense in extension.getExtraLicenses()) {
             licenses.license { license ->
-                license.name.set(provider { extraLicense.name!! })
-                license.url.set(provider { extraLicense.url!! })
+                license.name.set(extraLicense.name)
+                license.url.set(extraLicense.url)
                 license.distribution.set("repo")
             }
         }

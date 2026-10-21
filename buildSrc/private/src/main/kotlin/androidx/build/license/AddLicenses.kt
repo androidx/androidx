@@ -34,11 +34,11 @@ import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 internal fun Project.addLicensesToPublishedArtifacts(license: License) {
     val groupSubdir = androidXExtension.mavenGroup?.group!!.replace('.', '/')
     val projectSubdir = File(groupSubdir, project.name)
-    val licenseFile = licenseUrlToLicenseFile[license.url]
-
-    checkNotNull(licenseFile) {
-        "The ${license.name} license being added to the project ${project.path} is not approved."
-    }
+    val licenseUrl = license.url.get()
+    val licenseFile =
+        checkNotNull(licenseUrlToLicenseFile[licenseUrl]) {
+            "The license $licenseUrl being added to the project ${project.path} is not approved."
+        }
 
     // Remove when Gradle creates API for adding license file and setting its location:
     // https://github.com/gradle/gradle/issues/29536
