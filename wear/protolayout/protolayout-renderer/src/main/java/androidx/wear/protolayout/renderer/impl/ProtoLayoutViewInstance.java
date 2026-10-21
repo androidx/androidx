@@ -20,10 +20,10 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.FrameLayout.LayoutParams.UNSPECIFIED_GRAVITY;
 
 import static androidx.core.util.Preconditions.checkNotNull;
-import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.IGNORED_FAILURE_ANIMATION_QUOTA_EXCEEDED;
-import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.IGNORED_FAILURE_APPLY_MUTATION_EXCEPTION;
-import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.INFLATION_FAILURE_REASON_EXPRESSION_NODE_COUNT_EXCEEDED;
-import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.INFLATION_FAILURE_REASON_LAYOUT_DEPTH_EXCEEDED;
+import static androidx.wear.protolayout.renderer.common.PlStatsLogger.IGNORED_FAILURE_ANIMATION_QUOTA_EXCEEDED;
+import static androidx.wear.protolayout.renderer.common.PlStatsLogger.IGNORED_FAILURE_APPLY_MUTATION_EXCEPTION;
+import static androidx.wear.protolayout.renderer.common.PlStatsLogger.INFLATION_FAILURE_REASON_EXPRESSION_NODE_COUNT_EXCEEDED;
+import static androidx.wear.protolayout.renderer.common.PlStatsLogger.INFLATION_FAILURE_REASON_LAYOUT_DEPTH_EXCEEDED;
 
 import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
@@ -63,9 +63,9 @@ import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.common.LoggingUtils;
-import androidx.wear.protolayout.renderer.common.NoOpProviderStatsLogger;
-import androidx.wear.protolayout.renderer.common.ProviderStatsLogger;
-import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
+import androidx.wear.protolayout.renderer.common.NoOpPlStatsLogger;
+import androidx.wear.protolayout.renderer.common.PlStatsLogger;
+import androidx.wear.protolayout.renderer.common.PlStatsLogger.InflaterStatsLogger;
 import androidx.wear.protolayout.renderer.common.RenderingArtifact;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater;
@@ -157,7 +157,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     private final @NonNull ListeningExecutorService mUiExecutorService;
     private final @NonNull ListeningExecutorService mBgExecutorService;
     private final @NonNull String mClickableIdExtra;
-    private final @NonNull ProviderStatsLogger mProviderStatsLogger;
+    private final @NonNull PlStatsLogger mPlStatsLogger;
     private final @Nullable LoggingUtils mLoggingUtils;
 
     private final @Nullable ProtoLayoutExtensionViewProvider mExtensionViewProvider;
@@ -384,7 +384,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         private final @NonNull String mClickableIdExtra;
 
         private final @Nullable LoggingUtils mLoggingUtils;
-        private final @NonNull ProviderStatsLogger mProviderStatsLogger;
+        private final @NonNull PlStatsLogger mPlStatsLogger;
         private final boolean mAnimationEnabled;
         private final int mRunningAnimationsLimit;
 
@@ -405,7 +405,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
                 @Nullable LoggingUtils loggingUtils,
-                @NonNull ProviderStatsLogger providerStatsLogger,
+                @NonNull PlStatsLogger plStatsLogger,
                 boolean animationEnabled,
                 int runningAnimationsLimit,
                 boolean updatesEnabled,
@@ -423,7 +423,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mExtensionViewProvider = extensionViewProvider;
             this.mClickableIdExtra = clickableIdExtra;
             this.mLoggingUtils = loggingUtils;
-            this.mProviderStatsLogger = providerStatsLogger;
+            this.mPlStatsLogger = plStatsLogger;
             this.mAnimationEnabled = animationEnabled;
             this.mRunningAnimationsLimit = runningAnimationsLimit;
             this.mUpdatesEnabled = updatesEnabled;
@@ -502,8 +502,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         /** Returns the provider stats logger used for telemetry. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public @NonNull ProviderStatsLogger getProviderStatsLogger() {
-            return mProviderStatsLogger;
+        public @NonNull PlStatsLogger getPlStatsLogger() {
+            return mPlStatsLogger;
         }
 
         /** Returns whether animations are enabled. */
@@ -549,7 +549,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             private @Nullable ProtoLayoutExtensionViewProvider mExtensionViewProvider;
             private final @NonNull String mClickableIdExtra;
             private @Nullable LoggingUtils mLoggingUtils;
-            private @Nullable ProviderStatsLogger mProviderStatsLogger;
+            private @Nullable PlStatsLogger mPlStatsLogger;
             private boolean mAnimationEnabled = true;
             private int mRunningAnimationsLimit = DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS;
 
@@ -654,9 +654,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
             /** Sets the provider stats logger used for telemetry. */
             @RestrictTo(Scope.LIBRARY_GROUP)
-            public @NonNull Builder setProviderStatsLogger(
-                    @NonNull ProviderStatsLogger providerStatsLogger) {
-                this.mProviderStatsLogger = providerStatsLogger;
+            public @NonNull Builder setPlStatsLogger(@NonNull PlStatsLogger plStatsLogger) {
+                this.mPlStatsLogger = plStatsLogger;
                 return this;
             }
 
@@ -729,10 +728,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                     this.mRendererResources = mUiContext.getResources();
                 }
 
-                if (mProviderStatsLogger == null) {
-                    mProviderStatsLogger =
-                            new NoOpProviderStatsLogger(
-                                    "ProviderStatsLogger not provided to " + TAG);
+                if (mPlStatsLogger == null) {
+                    mPlStatsLogger = new NoOpPlStatsLogger("PlStatsLogger not provided to " + TAG);
                 }
                 return new Config(
                         mUiContext,
@@ -748,7 +745,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mExtensionViewProvider,
                         mClickableIdExtra,
                         mLoggingUtils,
-                        mProviderStatsLogger,
+                        mPlStatsLogger,
                         mAnimationEnabled,
                         mRunningAnimationsLimit,
                         mUpdatesEnabled,
@@ -772,7 +769,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mLoggingUtils = config.getLoggingUtils();
         this.mAdaptiveUpdateRatesEnabled = config.getAdaptiveUpdateRatesEnabled();
         this.mWasFullyVisibleBefore = false;
-        this.mProviderStatsLogger = config.getProviderStatsLogger();
+        this.mPlStatsLogger = config.getPlStatsLogger();
 
         StateStore stateStore = config.getStateStore();
         if (stateStore == null) {
@@ -787,7 +784,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         public boolean tryAcquireQuota(int quota) {
                             boolean success = super.tryAcquireQuota(quota);
                             if (!success) {
-                                mProviderStatsLogger.logInflationFailed(
+                                mPlStatsLogger.logInflationFailed(
                                         INFLATION_FAILURE_REASON_EXPRESSION_NODE_COUNT_EXCEEDED);
                             }
                             return success;
@@ -803,7 +800,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                 public boolean tryAcquireQuota(int quota) {
                                     boolean success = super.tryAcquireQuota(quota);
                                     if (!success) {
-                                        mProviderStatsLogger.logIgnoredFailure(
+                                        mPlStatsLogger.logIgnoredFailure(
                                                 IGNORED_FAILURE_ANIMATION_QUOTA_EXCEEDED);
                                     }
                                     return success;
@@ -922,7 +919,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             ResourceProto.@NonNull Resources resources,
             @NonNull ViewGroup attachParent) {
         return renderAndAttach(
-                layout, resources, attachParent, mProviderStatsLogger.createInflaterStatsLogger());
+                layout, resources, attachParent, mPlStatsLogger.createInflaterStatsLogger());
     }
 
     /** Dumps the state of this tile view instance. */
