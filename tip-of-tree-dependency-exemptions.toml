@@ -190,6 +190,18 @@ validThroughLibraryVersion = "1.0.0"
 reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
 [[tipOfTreeExemptions]]
+library = ":health:connect:connect-testing"
+dependsOn = ":health:connect:connect-client"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
+library = ":health:connect:connect-testing"
+dependsOn = ":health:connect:connect-client-proto"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/TODO - <reason>"
+
+[[tipOfTreeExemptions]]
 library = ":hilt:hilt-navigation"
 dependsOn = ":hilt:hilt-lifecycle-viewmodel"
 validThroughLibraryVersion = "1.5.0-beta01"

@@ -275,11 +275,18 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     /**
      * The version group [projectPath] belongs to, or null if it versions on its own schedule.
      *
+     * [mavenVersionGroup] wins, because a project's own `mavenVersion` overrides its group's. Next,
      * `overrideInclude` wins over the group id, because it exists precisely to put a project in a
      * different version group from the rest of its Maven group.
      */
-    fun versionGroupFor(projectPath: String, groupId: String?): String? =
-        versionGroupByProjectPath[projectPath] ?: groupId?.let { versionGroupByGroupId[it] }
+    fun versionGroupFor(
+        projectPath: String,
+        groupId: String?,
+        mavenVersionGroup: String?,
+    ): String? =
+        mavenVersionGroup
+            ?: versionGroupByProjectPath[projectPath]
+            ?: groupId?.let { versionGroupByGroupId[it] }
 
     private val libraryGroupAssociations: List<LibraryGroupAssociation> by lazy {
         val groups = getTable("groups")

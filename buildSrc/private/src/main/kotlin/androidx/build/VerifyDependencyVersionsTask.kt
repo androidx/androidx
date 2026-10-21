@@ -214,7 +214,7 @@ internal fun Project.getLibraryProjectCoordinates(
             groupId = projectGroup,
             artifactId = projectArtifact,
             version = projectVersion,
-            versionGroup = service.versionGroupFor(projectPath, projectGroup) ?: mavenVersionGroup,
+            versionGroup = service.versionGroupFor(projectPath, projectGroup, mavenVersionGroup),
         )
     }
 }
@@ -248,8 +248,11 @@ internal fun Project.getTipOfTreeDependencies(
             .map { dependency ->
                 dependency.copy(
                     versionGroup =
-                        service.versionGroupFor(dependency.projectPath, dependency.groupId)
-                            ?: dependency.versionGroup
+                        service.versionGroupFor(
+                            dependency.projectPath,
+                            dependency.groupId,
+                            dependency.versionGroup,
+                        )
                 )
             }
             .toSet()

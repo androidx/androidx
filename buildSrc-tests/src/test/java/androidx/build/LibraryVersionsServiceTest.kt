@@ -391,7 +391,14 @@ class LibraryVersionsServiceTest {
             COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.V1" }
             """
             )
-        assertThat(service.versionGroupFor(":compose:ui:ui", "androidx.compose.ui")).isEqualTo("V1")
+        assertThat(
+                service.versionGroupFor(
+                    ":compose:ui:ui",
+                    "androidx.compose.ui",
+                    mavenVersionGroup = null,
+                )
+            )
+            .isEqualTo("V1")
     }
 
     @Test
@@ -405,8 +412,38 @@ class LibraryVersionsServiceTest {
             CORE = { group = "androidx.core" }
             """
             )
-        assertThat(service.versionGroupFor(":core:core", "androidx.core")).isNull()
-        assertThat(service.versionGroupFor(":core:core-splashscreen", "androidx.core")).isNull()
+        assertThat(service.versionGroupFor(":core:core", "androidx.core", mavenVersionGroup = null))
+            .isNull()
+        assertThat(
+                service.versionGroupFor(
+                    ":core:core-splashscreen",
+                    "androidx.core",
+                    mavenVersionGroup = null,
+                )
+            )
+            .isNull()
+    }
+
+    @Test
+    fun versionGroupFor_ownMavenVersionOverridesAtomicGroup() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            COMPOSE_MATERIAL3 = "1.6.0-alpha01"
+            COMPOSE_MATERIAL3_A2UI_QUARANTINE = "1.0.0-alpha02"
+            [groups]
+            COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
+            """
+            )
+        assertThat(
+                service.versionGroupFor(
+                    ":compose:material3:material3-a2ui",
+                    "androidx.compose.material3",
+                    mavenVersionGroup = "COMPOSE_MATERIAL3_A2UI_QUARANTINE",
+                )
+            )
+            .isEqualTo("COMPOSE_MATERIAL3_A2UI_QUARANTINE")
     }
 
     @Test
