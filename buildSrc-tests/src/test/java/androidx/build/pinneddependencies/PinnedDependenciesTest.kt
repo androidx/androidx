@@ -25,7 +25,7 @@ import org.junit.Test
 class PinnedDependenciesTest {
 
     private val fragment =
-        ProjectCoordinates(
+        LibraryCoordinates(
             projectPath = ":fragment:fragment",
             groupId = "androidx.fragment",
             artifactId = "fragment",
@@ -34,7 +34,7 @@ class PinnedDependenciesTest {
         )
 
     private val tracing =
-        ProjectCoordinates(
+        LibraryCoordinates(
             projectPath = ":tracing:tracing",
             groupId = "androidx.tracing",
             artifactId = "tracing",
@@ -195,6 +195,119 @@ class PinnedDependenciesTest {
         assertThat(errors).hasSize(1)
     }
 
+    private fun pinnedTracing(version: String) =
+        tracing.copy(projectPath = null, version = Version.parse(version))
+
+    @Test
+    fun alphaPinIsReported() {
+        val errors =
+            findVerificationErrors(fragment, listOf(pinnedTracing("2.0.0-alpha03")), listOf())
+        assertThat(errors.single())
+            .contains(
+                "androidx.fragment:fragment depends on androidx.tracing:tracing:2.0.0-alpha03, " +
+                    "an alpha release"
+            )
+    }
+
+    @Test
+    fun devPinIsReported() {
+        val errors =
+            findVerificationErrors(fragment, listOf(pinnedTracing("2.0.0-dev01")), listOf())
+        assertThat(errors).hasSize(1)
+    }
+
+    @Test
+    fun betaRcAndStablePinsAreNotReported() {
+        for (version in listOf("2.0.0-beta01", "2.0.0-rc01", "2.0.0")) {
+            assertThat(findVerificationErrors(fragment, listOf(pinnedTracing(version)), listOf()))
+                .isEmpty()
+        }
+    }
+
+    @Test
+    fun alphaPinInTheSameVersionGroupIsNotReported() {
+        val sibling =
+            pinnedTracing("1.9.0-alpha01")
+                .copy(
+                    groupId = "androidx.fragment",
+                    artifactId = "fragment-ktx",
+                    versionGroup = "FRAGMENT",
+                )
+        assertThat(findVerificationErrors(fragment, listOf(sibling), listOf())).isEmpty()
+    }
+
+    @Test
+    fun exemptionCoversAnAlphaPin() {
+        val alphaPin = pinnedTracing("2.0.0-alpha03")
+        assertThat(findVerificationErrors(fragment, listOf(alphaPin), listOf(exemption())))
+            .isEmpty()
+    }
+
+    @Test
+    fun exemptionForAnAlphaPinExpires() {
+        val past = fragment.copy(version = Version.parse("1.9.0-rc02"))
+        val alphaPin = pinnedTracing("2.0.0-alpha03")
+        val errors = findVerificationErrors(past, listOf(alphaPin), listOf(exemption()))
+        assertThat(errors.single()).contains("has moved past 1.9.0-rc01")
+        assertThat(errors.single()).contains("to a beta, rc, or stable version")
+    }
+
+    @Test
+    fun tipOfTreeAndAlphaPinOnTheSameLibraryAreReportedOnce() {
+        val errors =
+            findVerificationErrors(
+                fragment,
+                listOf(tracing, pinnedTracing("2.0.0-alpha03")),
+                listOf(),
+            )
+        assertThat(errors).hasSize(1)
+    }
+
+    @Test
+    fun alphaPinMessageSuggestsANonAlphaVersionOrAnExemption() {
+        val message =
+            findVerificationErrors(fragment, listOf(pinnedTracing("2.0.0-alpha03")), listOf())
+                .single()
+        assertThat(message)
+            .contains(
+                "Pick the latest beta, rc, or stable version in " +
+                    "prebuilts/androidx/internal/androidx/tracing/tracing"
+            )
+        assertThat(message).contains("\n  [[exemption]]\n")
+        assertThat(message).contains("  dependsOn = \"androidx.tracing:tracing\"")
+        assertThat(message).contains("<which alpha tracing API you need>")
+        assertThat(message)
+            .contains(
+                "once it reaches beta, the stability rule rejects alpha dependencies regardless " +
+                    "of exemptions"
+            )
+    }
+
+    @Test
+    fun shouldBePinnedMessageRulesOutAlphaVersions() {
+        val message = findVerificationErrors(fragment, listOf(tracing), listOf()).single()
+        assertThat(message).contains("alpha versions are not allowed")
+        assertThat(message).contains("\n  [[exemption]]\n")
+        assertThat(message).contains("<which unreleased tracing API you need>")
+    }
+
+    @Test
+    fun findDependenciesNeedingExemption_includesAlphaPinsButNotOtherPins() {
+        val alphaPin = pinnedTracing("2.0.0-alpha03")
+        val betaPin =
+            pinnedTracing("1.3.0-beta01")
+                .copy(
+                    groupId = "androidx.collection",
+                    artifactId = "collection",
+                    versionGroup = "COLLECTION",
+                )
+
+        val needingExemption = findDependenciesNeedingExemption(fragment, listOf(alphaPin, betaPin))
+
+        assertThat(needingExemption.map { it.coordinate })
+            .containsExactly("androidx.tracing:tracing")
+    }
+
     @Test
     fun findDependenciesNeedingExemption_keepsOnlySeparatelyReleasedDependencies() {
         val self = fragment.copy(versionGroup = null)
@@ -312,7 +425,7 @@ class PinnedDependenciesTest {
                 .trimIndent()
         assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
-            .contains("tip-of-tree-dependency-exemptions.toml has issues.")
+            .contains("tip-of-tree-or-alpha-dependency-exemptions.toml has issues.")
     }
 
     @Test
