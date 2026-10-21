@@ -40,12 +40,13 @@ public class BindingsResourceManager {
     private final Set<BindingsObjectPhantomReference> mPhantomReferences =
             Collections.synchronizedSet(new HashSet<>());
     private final AtomicBoolean mIsDisabled = new AtomicBoolean(false);
+    private final Thread mThread;
 
     public BindingsResourceManager(@NonNull Handler mainThreadHandler) {
         this.mMainThreadHandler = mainThreadHandler;
-        Thread thread = new Thread(this::processQueue, RESOURCE_MANAGER_THREAD);
-        thread.setDaemon(true);
-        thread.start();
+        mThread = new Thread(this::processQueue, RESOURCE_MANAGER_THREAD);
+        mThread.setDaemon(true);
+        mThread.start();
     }
 
     /**
@@ -55,6 +56,9 @@ public class BindingsResourceManager {
      * @param callback The callback that gets triggered when the object is garbage collected.
      */
     public void register(@NonNull Object object, @NonNull Runnable callback) {
+        if (mIsDisabled.get()) {
+            return;
+        }
         mPhantomReferences.add(new BindingsObjectPhantomReference(object, mQueue, callback));
     }
 
@@ -64,10 +68,12 @@ public class BindingsResourceManager {
      */
     public void disable() {
         mIsDisabled.set(true);
+        mPhantomReferences.clear();
+        mThread.interrupt();
     }
 
     private void processQueue() {
-        while (true) {
+        while (!mIsDisabled.get()) {
             try {
                 BindingsObjectPhantomReference ref =
                         (BindingsObjectPhantomReference) mQueue.remove();
