@@ -290,7 +290,7 @@ public object RemoteArrangement {
     }
 }
 
-internal data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horizontal {
+internal data class HorizontalArrangement(val type: Int) : RemoteArrangement.Horizontal {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
@@ -316,12 +316,12 @@ internal data class HorizontalArrangement(var type: Int) : RemoteArrangement.Hor
     internal fun isAbsolute() = type == LEFT || type == CENTER || type == RIGHT
 }
 
-internal data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertical {
+internal data class VerticalArrangement(val type: Int) : RemoteArrangement.Vertical {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = type
 }
 
-internal data class HorizontalOrVerticalArrangement(var type: Int) :
+internal data class HorizontalOrVerticalArrangement(val type: Int) :
     RemoteArrangement.HorizontalOrVertical {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
