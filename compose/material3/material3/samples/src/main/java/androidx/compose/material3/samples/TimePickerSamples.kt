@@ -432,19 +432,18 @@ fun VibrantTimePickerScrollSample() {
 @Preview
 fun UncontainedTimePickerSample() {
     val state = rememberTimePickerState()
-    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
+    var isTextInputMode by rememberSaveable { mutableStateOf(false) }
+    val displayMode =
+        if (isTextInputMode) {
+            TimePickerDisplayMode.Input
+        } else {
+            TimePickerDisplayMode.Scroll
+        }
 
     val toggle =
         @Composable {
             TimePickerDialogDefaults.ScrollDisplayModeToggle(
-                onDisplayModeChange = {
-                    displayMode =
-                        if (displayMode == TimePickerDisplayMode.Scroll) {
-                            TimePickerDisplayMode.Input
-                        } else {
-                            TimePickerDisplayMode.Scroll
-                        }
-                },
+                onDisplayModeChange = { isTextInputMode = !isTextInputMode },
                 displayMode = displayMode,
             )
         }
