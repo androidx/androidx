@@ -17,6 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.annotation.IntRange
+import androidx.collection.MutableFloatList
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
@@ -254,3 +255,26 @@ public actual fun Paragraph(
     maxLines: Int,
     overflow: TextOverflow,
 ): Paragraph = implementedInJetBrainsFork()
+
+internal actual fun Paragraph.fillRangeBoundingBoxes(
+    startOffset: Int,
+    endOffset: Int,
+    paragraphTop: Float,
+    target: MutableFloatList,
+): Unit = implementedInJetBrainsFork()
+
+internal actual fun Path.addClockwiseRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+): Unit = implementedInJetBrainsFork()
+
+internal actual fun Path.addClockwiseRoundRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    radiusX: Float,
+    radiusY: Float,
+): Unit = implementedInJetBrainsFork()

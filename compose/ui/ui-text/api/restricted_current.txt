@@ -738,8 +738,12 @@ package androidx.compose.ui.text {
     method @KotlinOnly public androidx.compose.ui.text.TextLayoutResult copy(optional androidx.compose.ui.text.TextLayoutInput layoutInput, optional androidx.compose.ui.unit.IntSize size);
     method @BytecodeOnly public androidx.compose.ui.text.TextLayoutResult copy-O0kMr_c(androidx.compose.ui.text.TextLayoutInput, long);
     method @BytecodeOnly public static androidx.compose.ui.text.TextLayoutResult! copy-O0kMr_c$default(androidx.compose.ui.text.TextLayoutResult!, androidx.compose.ui.text.TextLayoutInput!, long, int, Object!);
+    method @KotlinOnly public void fillPathForRange(int start, int end, androidx.compose.ui.graphics.Path target, optional androidx.compose.ui.geometry.CornerRadius cornerRadius, optional boolean mergeLines);
+    method @BytecodeOnly public void fillPathForRange-w_Dsyms(int, int, androidx.compose.ui.graphics.Path, long, boolean);
+    method @BytecodeOnly public static void fillPathForRange-w_Dsyms$default(androidx.compose.ui.text.TextLayoutResult!, int, int, androidx.compose.ui.graphics.Path!, long, boolean, int, Object!);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getBoundingBoxesForRange(int start, int end);
     method public androidx.compose.ui.geometry.Rect getCursorRect(int offset);
     method @InaccessibleFromKotlin public boolean getDidOverflowHeight();
     method @InaccessibleFromKotlin public boolean getDidOverflowWidth();
