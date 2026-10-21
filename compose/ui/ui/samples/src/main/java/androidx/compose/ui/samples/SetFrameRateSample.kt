@@ -19,6 +19,7 @@ package androidx.compose.ui.samples
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import androidx.annotation.RequiresApi
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -52,6 +53,7 @@ internal inline fun <reified T> findOwner(context: Context): T? {
 }
 
 @Sampled
+@RequiresApi(35)
 @Composable
 fun SetFrameRateSample() {
     var targetAlpha by remember { mutableFloatStateOf(1f) }
