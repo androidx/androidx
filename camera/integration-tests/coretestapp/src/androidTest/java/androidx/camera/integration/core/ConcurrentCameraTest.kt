@@ -83,6 +83,11 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
 
     companion object {
         const val PREVIEW_FRAMES = 5
+        const val VIDEO_DURATION_LIMIT_MS = 1_500L
+        // The recording finalizes after the duration limit is reached by the encoded data, which
+        // also includes the first key frame latency and the encoder stop timeouts. These can take
+        // several seconds on slow devices such as emulators.
+        const val VIDEO_FINALIZE_TIMEOUT_MS = 15_000L
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -816,7 +821,13 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
             assertThat(activeRecording).isNotNull()
 
             // Wait for finalize event to saved file.
-            assertThat(semaphoresForVideoSaved.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+            assertThat(
+                    semaphoresForVideoSaved.tryAcquire(
+                        VIDEO_FINALIZE_TIMEOUT_MS,
+                        TimeUnit.MILLISECONDS,
+                    )
+                )
+                .isTrue()
             // Verify.
             val uri = Uri.fromFile(recordingFile)
             checkFileHasVideo(uri)
@@ -836,7 +847,7 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                     .prepareRecording(
                         context,
                         FileOutputOptions.Builder(recordingFile!!)
-                            .setDurationLimitMillis(1_500)
+                            .setDurationLimitMillis(VIDEO_DURATION_LIMIT_MS)
                             .build(),
                     )
                     .start(
