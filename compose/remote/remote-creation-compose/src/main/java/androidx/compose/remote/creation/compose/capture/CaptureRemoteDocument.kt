@@ -49,11 +49,11 @@ import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.trace
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedState
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.write
+import androidx.tracing.Trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.AbstractLongTimeSource
@@ -328,9 +328,12 @@ private fun captureRemoteDocumentImpl(
                                 }
                             }
 
-                            trace("CaptureRemoteDocument:$traceName:rootNodeRender") {
+                            Trace.beginSection("CaptureRemoteDocument:$traceName:rootNodeRender")
+                            try {
                                 rootNode.render(creationState, remoteCanvas)
                                 remoteCanvas.flush()
+                            } finally {
+                                Trace.endSection()
                             }
 
                             creationState.document.encodeToByteArray()
