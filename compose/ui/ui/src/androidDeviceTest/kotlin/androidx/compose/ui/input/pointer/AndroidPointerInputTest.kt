@@ -4115,8 +4115,37 @@ class AndroidPointerInputTest {
         // This will be interpreted as a synthetic event triggered by an ACTION_DOWN because we
         // don't wait several frames before triggering the ACTION_DOWN. Thus, no hover exit is
         // triggered.
-        dispatchMouseEvent(ACTION_HOVER_EXIT, box1LayoutCoordinates!!)
-        dispatchMouseEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        // We do not use dispatchMouseEvent() to dispatch the following two events, because the
+        // actions need to be executed in immediate succession.
+        rule.runOnUiThread {
+            val root = box1LayoutCoordinates!!.findRootCoordinates()
+            val pos = root.localPositionOf(box1LayoutCoordinates!!, Offset.Zero)
+
+            val exitMotionEvent =
+                MotionEvent(
+                    0,
+                    ACTION_HOVER_EXIT,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
+                    arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)),
+                )
+
+            val downMotionEvent =
+                MotionEvent(
+                    0,
+                    ACTION_DOWN,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
+                    arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)),
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+
+            androidComposeView.dispatchHoverEvent(exitMotionEvent)
+            androidComposeView.dispatchTouchEvent(downMotionEvent)
+        }
 
         rule.runOnUiThread {
             assertThat(originalPointerId).isEqualTo(box1PointerId)
