@@ -617,6 +617,10 @@ internal class CompositionImpl(
      */
     private val changes = createChangeList()
 
+    /** Indicates whether [applyChanges] or [applyLateChanges] is currently executing. */
+    internal var isApplyingChanges = false
+        private set
+
     /**
      * A list of changes calculated by [Composer] to be applied after all other compositions have
      * had [applyChanges] called. These changes move [MovableContent] state from one composition to
@@ -965,9 +969,9 @@ internal class CompositionImpl(
 
     override fun dispose() {
         synchronized(lock) {
-            checkPrecondition(!composer.isComposing) {
-                "Composition is disposed while composing. If dispose is triggered by a call in " +
-                    "@Composable function, consider wrapping it with SideEffect block."
+            checkPrecondition(!composer.isComposing && !isApplyingChanges) {
+                "Attempted to dispose composition while composing or applying changes. Disposing " +
+                    "during composition or within a SideEffect is not supported."
             }
             if (state != DISPOSED) {
                 state = DISPOSED
@@ -1288,6 +1292,7 @@ internal class CompositionImpl(
         rememberManager.prepare(abandonSet, composer.errorContext)
         try {
             if (changes.isEmpty()) return
+            isApplyingChanges = true
             val applier = pendingPausedComposition?.pausableApplier ?: applier
             val traceName =
                 if (applier == pendingPausedComposition?.pausableApplier) {
@@ -1318,6 +1323,7 @@ internal class CompositionImpl(
                 }
             }
         } finally {
+            isApplyingChanges = false
             // Only dispatch abandons if we do not have any late changes or pending paused
             // compositions. The instances in the abandon set can be remembered in the late changes
             // or when the paused composition is applied.
