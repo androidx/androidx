@@ -3915,6 +3915,11 @@ package androidx.compose.ui.node {
     property public final Object? valueOverride;
   }
 
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public interface ObservationTarget {
+    method @InaccessibleFromKotlin public boolean isObservationValid();
+    property public abstract boolean isObservationValid;
+  }
+
   public interface ObserverModifierNode extends androidx.compose.ui.node.DelegatableNode {
     method public void onObservedReadsChanged();
   }
@@ -4225,6 +4230,53 @@ package androidx.compose.ui.platform {
     property @Deprecated public default android.content.ClipboardManager nativeClipboard;
   }
 
+  @SuppressCompatibility @UiThread @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public interface ComposeUiHost {
+    method public void addAndroidView(android.view.View view, int semanticsId, kotlin.jvm.functions.Function0<kotlin.Unit> invalidateMeasurement);
+    method public void clearHostFocus();
+    method public void drawAndroidView(android.view.View view, androidx.compose.ui.graphics.Canvas canvas);
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.GraphicsContext getGraphicsContext();
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @InaccessibleFromKotlin public android.view.View getView();
+    method @InaccessibleFromKotlin public android.view.Window? getWindow();
+    method public void invalidateDraw();
+    method public void invalidateMeasurement();
+    method @KotlinOnly public androidx.compose.ui.geometry.Offset localToScreen(androidx.compose.ui.geometry.Offset relativeToLocal);
+    method @BytecodeOnly public long localToScreen-MK-Hz9U(long);
+    method public <T extends androidx.compose.ui.node.ObservationTarget> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onChanged, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public void onAutofillRequested(androidx.compose.ui.layout.LayoutInfo node);
+    method public void onChangesApplied();
+    method public void onFocusChanged(androidx.compose.ui.layout.LayoutInfo? previous, androidx.compose.ui.layout.LayoutInfo? current);
+    method public void onLayoutChanged(androidx.compose.ui.layout.LayoutInfo node);
+    method public void onNodeAttached(androidx.compose.ui.layout.LayoutInfo node);
+    method public void onNodeDeactivated(androidx.compose.ui.layout.LayoutInfo node);
+    method public void onNodeDetached(androidx.compose.ui.layout.LayoutInfo node);
+    method public void onNodeReused(androidx.compose.ui.layout.LayoutInfo node, int previousSemanticsId);
+    method public void onSemanticsChanged(androidx.compose.ui.layout.LayoutInfo node, androidx.compose.ui.semantics.SemanticsConfiguration? previousConfig);
+    method public void removeAndroidView(android.view.View view, int semanticsId);
+    method @KotlinOnly public boolean requestHostFocus(androidx.compose.ui.focus.FocusDirection focusDirection, androidx.compose.ui.geometry.Rect? previouslyFocusedRect);
+    method @BytecodeOnly public boolean requestHostFocus-aToIllA(int, androidx.compose.ui.geometry.Rect?);
+    method @KotlinOnly public androidx.compose.ui.geometry.Offset screenToLocal(androidx.compose.ui.geometry.Offset relativeToScreen);
+    method @BytecodeOnly public long screenToLocal-MK-Hz9U(long);
+    method public suspend Object? startInputMethod(androidx.compose.ui.platform.PlatformTextInputMethodRequest request, kotlin.coroutines.Continuation<? extends java.lang.Object?>);
+    method @KotlinOnly public void transformToScreen(androidx.compose.ui.graphics.Matrix matrix);
+    method @BytecodeOnly public void transformToScreen-58bKbWc(float[]);
+    method public void voteFrameRate(@FloatRange(from=0.0, to=360.0) float frameRate);
+    method @KotlinOnly public void voteFrameRateCategory(androidx.compose.ui.FrameRateCategory category);
+    method @BytecodeOnly public void voteFrameRateCategory-ZIQXMlg(float);
+    property public abstract androidx.compose.ui.unit.Density density;
+    property public abstract androidx.compose.ui.graphics.GraphicsContext graphicsContext;
+    property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property public abstract android.view.View view;
+    property public abstract android.view.Window? window;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public final class ComposeUiSharedResources {
+    ctor public ComposeUiSharedResources(android.content.res.Configuration initialConfiguration);
+    method public void clear();
+    method public void onConfigurationChanged(android.content.res.Configuration newConfiguration);
+  }
+
   public final class ComposeView extends androidx.compose.ui.platform.AbstractComposeView {
     ctor public ComposeView(android.content.Context context);
     ctor public ComposeView(android.content.Context context, optional android.util.AttributeSet? attrs);
@@ -4304,6 +4356,9 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> LocalViewConfiguration;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.WindowInfo> LocalWindowInfo;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and intended for Compose hosting integrations. It may change or be removed in future releases.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ExperimentalComposeUiHostApi {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface InfiniteAnimationPolicy extends kotlin.coroutines.CoroutineContext.Element {
