@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.AssociateWithGlanceWearWidget
 import androidx.glance.wear.GlanceWearWidget
@@ -108,13 +109,13 @@ private fun Material3ThemeContent() {
 private fun RemoteColumnScope.RemoteColorRow(
     content: @RemoteComposable @Composable RemoteRowScope.() -> Unit
 ) {
-    RemoteRow(modifier = RemoteModifier.fillMaxWidth().weight(1f), content = content)
+    RemoteRow(modifier = RemoteModifier.fillMaxWidth().weight(1f.rf), content = content)
 }
 
 @RemoteComposable
 @Composable
 private fun RemoteRowScope.RemoteColorBox(color: RemoteColor) {
-    RemoteBox(modifier = RemoteModifier.fillMaxHeight().weight(1f).background(color))
+    RemoteBox(modifier = RemoteModifier.fillMaxHeight().weight(1f.rf).background(color))
 }
 
 @AssociateWithGlanceWearWidget(Material3ThemeWidget::class)
