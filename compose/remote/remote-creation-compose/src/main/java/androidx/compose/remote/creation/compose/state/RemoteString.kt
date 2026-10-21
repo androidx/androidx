@@ -1125,6 +1125,14 @@ internal constructor(
  * @param initialValue The initial [String] value.
  * @return A [MutableRemoteString] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteString(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteString(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 public fun rememberMutableRemoteString(initialValue: String): MutableRemoteString {
     return remember { MutableRemoteString(initialValue) }

@@ -37,11 +37,12 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.test.assertIsDisplayed
@@ -470,7 +471,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
             },
         ) {
             RemoteStateLayout(
-                currentState = rememberMutableRemoteInt(0),
+                currentState = remember { MutableRemoteInt(0) },
                 0,
                 1,
                 modifier = RemoteModifier,
@@ -554,7 +555,7 @@ class RemoteFitBoxCollapsibleMeasurementTest {
             },
         ) {
             RemoteStateLayout(
-                currentState = rememberMutableRemoteInt(0),
+                currentState = remember { MutableRemoteInt(0) },
                 0,
                 1,
                 modifier = RemoteModifier,

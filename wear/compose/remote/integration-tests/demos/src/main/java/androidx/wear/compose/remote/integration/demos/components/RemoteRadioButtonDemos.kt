@@ -18,9 +18,10 @@ package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.remote.creation.compose.action.valueChange
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -74,7 +75,7 @@ fun RemoteRadioButtonDemos(modifier: Modifier = Modifier) {
             remoteDemoItem("With Secondary Label") { RemoteRadioButtonWithSecondaryLabel() }
             remoteDemoItem("Sample") { RemoteRadioButtonSample() }
             remoteDemoItem("Animated Toggle") {
-                val selected = rememberMutableRemoteBoolean(false)
+                val selected = remember { MutableRemoteBoolean(false) }
                 RemoteRadioButton(
                     selected = selected,
                     onSelect = valueChange(selected, !selected),

@@ -24,15 +24,16 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -68,7 +69,7 @@ class RcPlayerDrawAnimationTest {
                 Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
             }
         ) {
-            val toggled = rememberMutableRemoteBoolean(false)
+            val toggled = remember { MutableRemoteBoolean(false) }
             val progress =
                 animateRemoteFloatAsState(
                     targetValue = toggled.select(1f.rf, 0f.rf),
