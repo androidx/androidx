@@ -157,8 +157,10 @@ package androidx.compose.runtime {
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
     method @InaccessibleFromKotlin public static boolean isLinkBufferComposerEnabled();
     method @InaccessibleFromKotlin public static void setLinkBufferComposerEnabled(boolean);
+    property public boolean advanceParentSnapshotsWhenTakingNestedSnapshot;
     property public static boolean isLinkBufferComposerEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
+    field public static boolean advanceParentSnapshotsWhenTakingNestedSnapshot;
   }
 
   public sealed nonexhaustive interface Composer {
