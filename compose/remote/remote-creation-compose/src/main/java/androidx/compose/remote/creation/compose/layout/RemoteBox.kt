@@ -38,7 +38,7 @@ internal class RemoteBoxNode : RemoteComposeNode() {
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startBox(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection),
+            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
             verticalAlignment.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)

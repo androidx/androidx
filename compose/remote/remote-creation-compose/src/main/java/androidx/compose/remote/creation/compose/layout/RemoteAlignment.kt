@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.End
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Start
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Top
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A remote equivalent of [androidx.compose.ui.Alignment]. It is used to define how a layout's
@@ -50,7 +49,7 @@ public interface RemoteAlignment {
      */
     public sealed interface Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun toRemote(layoutDirection: LayoutDirection): Int
+        public fun toRemote(layoutDirection: RemoteLayoutDirection): Int
     }
 
     /**
@@ -188,12 +187,12 @@ internal data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBia
      */
     internal data class Horizontal(val type: Int) : RemoteAlignment.Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        override fun toRemote(layoutDirection: LayoutDirection): Int =
+        override fun toRemote(layoutDirection: RemoteLayoutDirection): Int =
             when (type) {
                 ColumnLayout.START ->
-                    if (layoutDirection == LayoutDirection.Ltr) type else ColumnLayout.END
+                    if (layoutDirection == RemoteLayoutDirection.Ltr) type else ColumnLayout.END
                 ColumnLayout.END ->
-                    if (layoutDirection == LayoutDirection.Ltr) type else ColumnLayout.START
+                    if (layoutDirection == RemoteLayoutDirection.Ltr) type else ColumnLayout.START
                 else -> type
             }
     }
@@ -231,7 +230,7 @@ internal data class RemoteBiasAbsoluteAlignment(val horizontalBias: Int, val ver
      */
     internal data class Horizontal(val bias: Int) : RemoteAlignment.Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        override fun toRemote(layoutDirection: LayoutDirection): Int = bias
+        override fun toRemote(layoutDirection: RemoteLayoutDirection): Int = bias
     }
 
     /**

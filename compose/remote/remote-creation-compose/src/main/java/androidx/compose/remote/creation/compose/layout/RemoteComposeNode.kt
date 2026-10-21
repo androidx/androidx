@@ -189,9 +189,9 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
 
 internal fun shouldReverse(
     horizontalArrangement: RemoteArrangement.Horizontal,
-    layoutDirection: LayoutDirection,
+    layoutDirection: RemoteLayoutDirection,
 ): Boolean =
-    if (layoutDirection == LayoutDirection.Rtl) {
+    if (layoutDirection == RemoteLayoutDirection.Rtl) {
         when (horizontalArrangement) {
             is HorizontalArrangement -> !horizontalArrangement.isAbsolute()
 
