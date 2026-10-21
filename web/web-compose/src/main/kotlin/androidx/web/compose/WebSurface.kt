@@ -105,6 +105,10 @@ public fun retainWebContent(@NonNull block: WebContent.Builder.() -> Unit = {}):
 /**
  * Presents the web page hosted by [WebContent].
  *
+ * [WebSurface] has no intrinsic size and defaults to the minimum constraints of its parent, so a
+ * size should be specified via [modifier] (for example using `Modifier.fillMaxSize()`,
+ * `Modifier.size()`, or `Modifier.weight()`).
+ *
  * Before calling this composable, verify that [WebFeature.isFeatureSupported] returns `true` for
  * [WebFeature.WEB_SURFACE].
  *
@@ -136,6 +140,10 @@ public fun WebSurface(
 /**
  * Presents the web page hosted by [WebContent], using a [WebViewBridge] to access
  * [android.webkit.WebView] APIs that are not yet available directly on [WebContent].
+ *
+ * [WebSurface] has no intrinsic size and defaults to the minimum constraints of its parent, so a
+ * size should be specified via [modifier] (for example using `Modifier.fillMaxSize()`,
+ * `Modifier.size()`, or `Modifier.weight()`).
  *
  * When this composable enters composition, [bridgeFactory] is invoked on the UI thread to create
  * and attach a [WebViewBridge] to [content]. The provided [Context] _must_ be used to construct the
