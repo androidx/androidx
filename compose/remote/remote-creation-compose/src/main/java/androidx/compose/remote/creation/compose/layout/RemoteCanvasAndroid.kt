@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -778,27 +777,6 @@ public fun RemoteCanvas.drawScaledBitmap(
         dstBottom,
         scaleFactor,
     )
-}
-
-/** Clips the current canvas state to the specified rectangle. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.clipRect(
-    left: RemoteFloat,
-    top: RemoteFloat,
-    right: RemoteFloat,
-    bottom: RemoteFloat,
-    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
-) {
-    clipRect(left, top, right, bottom)
-}
-
-/** Clips the current canvas state to the specified [path]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.clipPath(
-    path: RemotePath,
-    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
-) {
-    clipPath(path)
 }
 
 /** Draws a [RoundedPolygon] using the specified [paint]. */

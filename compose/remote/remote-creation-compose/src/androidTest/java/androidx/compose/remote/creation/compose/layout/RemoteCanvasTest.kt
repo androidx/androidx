@@ -35,7 +35,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -63,8 +62,7 @@ class RemoteCanvasTest {
             ::TestDrawAnchoredText_colorAndTextSize,
             ::TestDrawAnchoredText_brushAndTextSize,
             ::TestDrawAnchoredText_colorExpression,
-            ::TestClipRect_intersect,
-            ::TestClipRect_difference,
+            ::TestClipRect,
             ::TestDrawPrimitives,
             ::TestRotate,
         )
@@ -260,20 +258,7 @@ class RemoteCanvasTest {
 
     @RemoteComposable
     @Composable
-    fun TestClipRect_intersect() {
-        ClipRectTest(clipOp = ClipOp.Intersect)
-    }
-
-    @RemoteComposable
-    @Composable
-    fun TestClipRect_difference() {
-        // It generates the same output as Intersect: b/464257438
-        ClipRectTest(clipOp = ClipOp.Difference)
-    }
-
-    @RemoteComposable
-    @Composable
-    private fun ClipRectTest(clipOp: ClipOp) {
+    fun TestClipRect() {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
             val clipRect1Left = 20f.rf
             val clipRect1Top = 20f.rf
@@ -296,7 +281,6 @@ class RemoteCanvasTest {
                     top = clipRect2Top,
                     right = clipRect2Right,
                     bottom = clipRect2Bottom,
-                    clipOp = clipOp,
                 ) {
                     drawRect(paint = RemotePaint { color = Color.Red.rc })
                 }
