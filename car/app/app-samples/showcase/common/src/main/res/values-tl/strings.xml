@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo ng Progress Bar"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo ng Header ng Seksyon"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo ng Seksyon ng Spotlight"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demo ng Paghahanap ng Nakaseksyong Item"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo ng Template ng Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo ng Template ng Listahan ng Lugar"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Mag-browse ng Mga Lugar"</string>

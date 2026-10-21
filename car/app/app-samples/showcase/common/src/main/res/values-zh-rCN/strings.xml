@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"进度条演示"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"章节标题演示"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"“聚焦版块”演示"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"分组条目搜索演示"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"窗格模板演示"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"地点列表模板演示"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"浏览地点"</string>
