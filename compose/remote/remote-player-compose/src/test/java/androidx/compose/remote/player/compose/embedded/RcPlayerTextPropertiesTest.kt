@@ -24,8 +24,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.player.core.platform.FontInstance
-import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.style.TextAlign
@@ -192,43 +190,10 @@ class RcPlayerTextPropertiesTest {
     @Test
     fun testCustomTypefaceResolverPropagatesToGraphContextAndTextLayout() {
         var resolveCount = 0
-        val fontInstance =
-            object : FontInstance {
-                override fun getTypeface(): Typeface = Typeface.MONOSPACE
-
-                override fun applyVariationSettings(
-                    names: Array<out String>?,
-                    values: FloatArray,
-                ): Typeface = Typeface.MONOSPACE
-
-                override fun setOnLoadedListener(listener: Runnable) {}
-            }
-        val customResolver =
-            object : TypefaceResolver {
-                override fun resolve(
-                    fontFamily: Int,
-                    weight: Int,
-                    italic: Boolean,
-                    fallback: Typeface?,
-                    fallbackWeight: Int,
-                    fallbackItalic: Boolean,
-                ): FontInstance {
-                    resolveCount++
-                    return fontInstance
-                }
-
-                override fun resolve(
-                    fontFamily: String,
-                    weight: Int,
-                    italic: Boolean,
-                    fallback: Typeface?,
-                    fallbackWeight: Int,
-                    fallbackItalic: Boolean,
-                ): FontInstance {
-                    resolveCount++
-                    return fontInstance
-                }
-            }
+        val customResolver = RcTypefaceResolver {
+            resolveCount++
+            Typeface.MONOSPACE
+        }
 
         rule.setRemoteContent(typefaceResolver = customResolver) {
             RemoteText(

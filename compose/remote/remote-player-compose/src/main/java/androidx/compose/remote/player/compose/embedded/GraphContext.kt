@@ -32,7 +32,7 @@ import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
-import androidx.compose.remote.player.core.platform.TypefaceResolver
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
@@ -72,7 +72,16 @@ internal class GraphContext(
     internal var animatedFloatStates: Map<Int, State<Float>> = emptyMap(),
 ) : StoreBackedRemoteContext(clock) {
 
-    internal var typefaceResolver: TypefaceResolver? = null
+    internal val typefaceCache = RcTypefaceCache()
+
+    internal var typefaceResolver: RcTypefaceResolver?
+        get() = typefaceCache.resolver
+        set(value) {
+            typefaceCache.resolver = value
+            (store as? AndroidRemoteContext)?.setTypefaceResolver(
+                typefaceCache.coreTypefaceResolver
+            )
+        }
 
     /**
      * The context that owns the shared store. This context drops non-scalar writes (see
@@ -80,8 +89,14 @@ internal class GraphContext(
      * lazily decoding a bitmap, go here instead. See [writeContext].
      */
     internal var store: RemoteContext? = null
+        set(value) {
+            field = value
+            (value as? AndroidRemoteContext)?.setTypefaceResolver(
+                typefaceCache.coreTypefaceResolver
+            )
+        }
 
-    fun setTypefaceResolver(resolver: TypefaceResolver?) {
+    fun setTypefaceResolver(resolver: RcTypefaceResolver?) {
         this.typefaceResolver = resolver
     }
 

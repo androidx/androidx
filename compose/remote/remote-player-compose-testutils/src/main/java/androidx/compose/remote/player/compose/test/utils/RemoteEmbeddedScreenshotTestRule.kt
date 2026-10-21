@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.RcPlayer
-import androidx.compose.remote.player.core.platform.TypefaceResolver
+import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -96,7 +96,7 @@ class RemoteEmbeddedScreenshotTestRule(
         creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         // play params
-        typefaceResolver: TypefaceResolver? = null,
+        typefaceResolver: RcTypefaceResolver? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -120,7 +120,7 @@ class RemoteEmbeddedScreenshotTestRule(
         creationComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         onCoreDocumentCreated: ((CoreDocument) -> Unit)? = null,
         // play params
-        typefaceResolver: TypefaceResolver? = null,
+        typefaceResolver: RcTypefaceResolver? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -144,7 +144,7 @@ class RemoteEmbeddedScreenshotTestRule(
     }
 
     /** Plays the document with the embedded player ([RcPlayer]). */
-    private class EmbeddedPlayer(private val typefaceResolver: TypefaceResolver?) : Player {
+    private class EmbeddedPlayer(private val typefaceResolver: RcTypefaceResolver?) : Player {
         @OptIn(ExperimentalRemotePlayerApi::class)
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {

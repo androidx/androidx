@@ -37,12 +37,15 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.compose.embedded.HasFontCerts
+import androidx.compose.remote.player.compose.embedded.EmbeddedPlayerTypefaceResolver
+import androidx.compose.remote.player.compose.embedded.GmsFontTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.RcPlayerState
+import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.rememberRcPlayerState
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.TypefaceResolver
@@ -141,22 +144,26 @@ fun RemoteDemoItem(
 
     val currentBytes = capturedBytes
     if (currentBytes != null) {
-        val typefaceResolver = remember(context) { configureTypefaceResolver(context) }
-        key(useEmbeddedPlayer, useDynamicColor, currentBytes) {
-            val remoteDoc =
-                remember(useEmbeddedPlayer, useDynamicColor, currentBytes) {
-                    RemoteDocument(currentBytes)
-                }
-            if (useEmbeddedPlayer) {
+        if (useEmbeddedPlayer) {
+            val embeddedTypefaceResolver =
+                remember(context) { configureEmbeddedTypefaceResolver(context) }
+            key(useDynamicColor, currentBytes) {
+                val remoteDoc =
+                    remember(useDynamicColor, currentBytes) { RemoteDocument(currentBytes) }
                 RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
                 val playerState = rememberRcPlayerState(remoteDoc.document)
                 setDynamicColors(dynamicColors, playerState)
                 RcPlayer(
                     state = playerState,
                     modifier = modifier,
-                    typefaceResolver = typefaceResolver,
+                    typefaceResolver = embeddedTypefaceResolver,
                 )
-            } else {
+            }
+        } else {
+            val typefaceResolver = remember(context) { configureTypefaceResolver(context) }
+            key(useDynamicColor, currentBytes) {
+                val remoteDoc =
+                    remember(useDynamicColor, currentBytes) { RemoteDocument(currentBytes) }
                 val windowInfo = LocalWindowInfo.current
 
                 @Composable
@@ -181,13 +188,24 @@ fun RemoteDemoItem(
 private fun configureTypefaceResolver(context: Context): TypefaceResolver {
     val current = FallbackCreateTypefaceResolver()
     val remappingResolver = RemappingTypefaceResolver(current).apply { remapType(0, "roboto-flex") }
-    val downloadableResolver = DownloadableTypefaceResolver(context, remappingResolver)
-    return object : TypefaceResolver by downloadableResolver, HasFontCerts {
-        override val fontCertsResId: Int =
-            androidx.compose.remote.player.compose.test.utils.R.array
-                .com_google_android_gms_fonts_certs
-    }
+    return DownloadableTypefaceResolver(context, remappingResolver)
 }
+
+@Suppress("RestrictedApiAndroidX")
+private fun configureEmbeddedTypefaceResolver(context: Context): RcTypefaceResolver =
+    GmsFontTypefaceResolver(
+        context = context,
+        fontCertsResId = R.array.com_google_android_gms_fonts_certs,
+        delegate = { request ->
+            val remapped =
+                if (request.fontFamily == null && request.fontType == 0) {
+                    request.copy(fontFamily = "roboto-flex")
+                } else {
+                    request
+                }
+            EmbeddedPlayerTypefaceResolver.resolve(remapped)
+        },
+    )
 
 @Suppress("RestrictedApiAndroidX")
 private fun setDynamicColors(dynamicColors: ColorScheme?, playerState: RcPlayerState) {

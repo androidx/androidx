@@ -131,11 +131,11 @@ import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandl
 import androidx.compose.remote.player.compose.embedded.state.hasAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberAnimatedRemoteFloat
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.player.core.state.StateUpdaterImpl
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -194,7 +194,7 @@ public fun RcPlayer(
     customPlugins: CustomPluginRegistry? = null,
     lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
-    typefaceResolver: TypefaceResolver? = LocalTypefaceResolver.current,
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
 ) {
     check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
@@ -215,10 +215,8 @@ public fun RcPlayer(
 
     val density = LocalDensity.current
     val remoteContext =
-        remember(typefaceResolver, preprocessed, state, trustedContent) {
+        remember(preprocessed, state, trustedContent) {
             val ctx = state.remoteContext
-            val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
-            ctx.setTypefaceResolver(resolvedResolver)
             ctx.useChoreographer = true
             ctx.loadFloat(RemoteContext.ID_FONT_SIZE, 14f * density.fontScale * density.density)
             ctx.loadFloat(RemoteContext.ID_DENSITY, density.density)
@@ -270,9 +268,13 @@ public fun RcPlayer(
     val textMeasurer = rememberTextMeasurer()
     val graphContext =
         state.graphContext.also { gc ->
-            gc.setTypefaceResolver(remoteContext.typefaceResolver)
+            gc.setTypefaceResolver(typefaceResolver)
             gc.textMeasurer = textMeasurer
         }
+    DisposableEffect(graphContext, typefaceResolver) {
+        graphContext.typefaceCache.onAttach(typefaceResolver)
+        onDispose { graphContext.typefaceCache.onDetach() }
+    }
 
     val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
@@ -531,7 +533,7 @@ public fun RcPlayer(
                     }
                 },
             LocalRcCustomPlugins provides customPlugins,
-            LocalTypefaceResolver provides (typefaceResolver ?: remoteContext.typefaceResolver),
+            LocalRcTypefaceResolver provides typefaceResolver,
         ) {
             val animatedExpressionIds =
                 remember(document) {
@@ -592,7 +594,7 @@ public fun RcPlayer(
     customPlugins: CustomPluginRegistry? = null,
     lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
-    typefaceResolver: TypefaceResolver? = LocalTypefaceResolver.current,
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
 ) {
     val state = rememberRcPlayerState(document)
@@ -630,6 +632,7 @@ public fun RcPlayer(
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
     theme: Int = Theme.SYSTEM,
 ) {
     val state = rememberRcPlayerState(capturedDocument)
@@ -643,6 +646,7 @@ public fun RcPlayer(
         customPlugins = customPlugins,
         lambdas = capturedDocument.lambdas,
         pendingIntents = capturedDocument.pendingIntents,
+        typefaceResolver = typefaceResolver,
         theme = theme,
     )
 }

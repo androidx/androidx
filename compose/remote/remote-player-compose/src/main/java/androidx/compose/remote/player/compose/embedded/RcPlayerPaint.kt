@@ -35,7 +35,6 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.compose.utils.toStampedPathEffectStyle
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -135,12 +134,6 @@ public class ComposeLocalPaint {
      * the text size, and a bold/italic [android.graphics.Typeface] derived from font weight/style.
      */
     public fun toNativeTextPaint(context: RemoteContext): Paint {
-        // Reuse the context's configured TypefaceResolver (e.g. GmsFontTypefaceResolver) if
-        // present, falling back to the embedded player's singleton system resolver.
-        val resolver =
-            (context as? AndroidRemoteContext)?.typefaceResolver
-                ?: (context as? GraphContext)?.typefaceResolver
-                ?: EmbeddedPlayerTypefaceResolver
         val italic = fontStyle == FontStyle.Italic
 
         val effectiveFontFamily = if (isTypefaceSet) fontFamily else PaintBundle.FONT_TYPE_DEFAULT
@@ -158,7 +151,7 @@ public class ComposeLocalPaint {
             } else {
                 null
             }
-                ?: resolver.resolveTypeface(
+                ?: resolveTypeface(
                     fontFamilyType = effectiveFontFamily,
                     fontName = name,
                     weight = fontWeight,
@@ -183,10 +176,7 @@ public class ComposeLocalPaint {
 
     internal fun toTextStyle(density: Density, context: RemoteContext): TextStyle {
         val weight = FontWeight(fontWeight)
-        val resolver =
-            (context as? AndroidRemoteContext)?.typefaceResolver
-                ?: (context as? GraphContext)?.typefaceResolver
-        val fontCertsResId = (resolver as? HasFontCerts)?.fontCertsResId ?: 0
+        val resolver = context.rcTypefaceResolver
         val effectiveFontFamilyType = if (isTypefaceSet) fontFamily else 0
         val fontName =
             when (effectiveFontFamilyType) {
@@ -205,7 +195,6 @@ public class ComposeLocalPaint {
                 fontAxis = fontAxis,
                 fontAxisValues = fontAxisValues,
                 context = context,
-                fontCertsResId = fontCertsResId,
                 typefaceResolver = resolver,
             )
         val fontFeatureSettings = buildFontFeatureSettings(fontAxis, fontAxisValues, context)
