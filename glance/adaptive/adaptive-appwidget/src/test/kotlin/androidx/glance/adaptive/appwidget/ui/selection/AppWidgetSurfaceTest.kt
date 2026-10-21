@@ -27,7 +27,7 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class AppWidgetGlanceSurfaceTest {
+class AppWidgetSurfaceTest {
 
     @Test
     fun surfaceDetector_fromHostCategory_resolvesCorrectly() {
@@ -36,34 +36,34 @@ class AppWidgetGlanceSurfaceTest {
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
                 )
             )
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(
                 AppWidgetSurfaceDetector.fromHostCategory(
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
                 )
             )
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_LOCK_SCREEN)
         assertThat(
                 AppWidgetSurfaceDetector.fromHostCategory(
                     AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD
                 )
             )
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(
                 AppWidgetSurfaceDetector.fromHostCategory(
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD or
                         AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD
                 )
             )
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(AppWidgetSurfaceDetector.fromHostCategory(0))
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
     }
 
     @Test
     fun surfaceDetector_fromAppWidgetOptions_resolvesCorrectly() {
         assertThat(AppWidgetSurfaceDetector.fromAppWidgetOptions(null))
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
 
         val homeOptions =
             Bundle().apply {
@@ -73,7 +73,7 @@ class AppWidgetGlanceSurfaceTest {
                 )
             }
         assertThat(AppWidgetSurfaceDetector.fromAppWidgetOptions(homeOptions))
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
 
         val notKeyguardOptions =
             Bundle().apply {
@@ -83,7 +83,7 @@ class AppWidgetGlanceSurfaceTest {
                 )
             }
         assertThat(AppWidgetSurfaceDetector.fromAppWidgetOptions(notKeyguardOptions))
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
 
         val lockOptions =
             Bundle().apply {
@@ -93,7 +93,7 @@ class AppWidgetGlanceSurfaceTest {
                 )
             }
         assertThat(AppWidgetSurfaceDetector.fromAppWidgetOptions(lockOptions))
-            .isEqualTo(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+            .isEqualTo(AppWidgetSurface.MOBILE_LOCK_SCREEN)
     }
 
     @Test
@@ -105,9 +105,9 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(homeTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN to
+                AppWidgetSurface.MOBILE_LOCK_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
             )
 
@@ -119,7 +119,7 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(homeAndNotKeyguardTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
             )
 
@@ -130,7 +130,7 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(lockTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN to
+                AppWidgetSurface.MOBILE_LOCK_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
             )
 
@@ -141,7 +141,7 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(notKeyguardTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
             )
 
@@ -153,9 +153,9 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(multiTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN to
+                AppWidgetSurface.MOBILE_LOCK_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
             )
 
@@ -167,7 +167,7 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(notKeyguardAndLockTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
             )
 
@@ -175,9 +175,9 @@ class AppWidgetGlanceSurfaceTest {
         val zeroTargets = AppWidgetSurfaceDetector.resolvePreviewCategories(0)
         assertThat(zeroTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN to
+                AppWidgetSurface.MOBILE_LOCK_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD,
             )
 
@@ -188,14 +188,14 @@ class AppWidgetGlanceSurfaceTest {
             )
         assertThat(searchTargets)
             .containsExactly(
-                AppWidgetGlanceSurface.MOBILE_HOME_SCREEN to
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
             )
     }
 
     @Test
     fun appWidgetGlanceSurface_tags_resolveCorrectly() {
-        assertThat(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
-        assertThat(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
+        assertThat(AppWidgetSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
+        assertThat(AppWidgetSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
     }
 }

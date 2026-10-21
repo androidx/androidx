@@ -18,7 +18,7 @@ package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceRenderOutput
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
@@ -63,7 +63,7 @@ class TrackTemplateRendererTest {
 
     @Test
     fun defaultTemplates_includeTrackTemplate() {
-        val surfaces = AppWidgetGlanceSurface.entries
+        val surfaces = AppWidgetSurface.ALL
         for (i in surfaces.indices) {
             val output =
                 AppWidgetTemplateRegistry.render(
@@ -76,5 +76,5 @@ class TrackTemplateRendererTest {
     }
 
     private fun constraints(widthDp: Int, heightDp: Int = 200) =
-        HostConstraints(Dimensions(widthDp, heightDp), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        HostConstraints(Dimensions(widthDp, heightDp), AppWidgetSurface.MOBILE_HOME_SCREEN)
 }

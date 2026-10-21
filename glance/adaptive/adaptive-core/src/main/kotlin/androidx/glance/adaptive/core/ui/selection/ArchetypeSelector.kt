@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.core.ui.selection
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Resolves which layout archetype of type [A] a template of type [T] should use under given
@@ -30,13 +30,13 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
  *
  * Implementations must be pure and free of side effects.
  *
- * @param T The template type implementing [AdaptiveGlanceTemplate].
+ * @param T The template type implementing [GlanceAdaptiveTemplate].
  * @param S The surface type implementing [GlanceSurface].
  * @param A The archetype type produced by [select], typically an enum.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface ArchetypeSelector<
-    in T : AdaptiveGlanceTemplate,
+    in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     out A : Any,
 > {

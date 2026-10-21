@@ -30,7 +30,7 @@ import androidx.glance.adaptive.core.ui.selection.WidthTier
 public object WearSizeTiers {
 
     /** Resolves the [WidthTier] for a given [widthDp] dimension and [surface]. */
-    public fun resolveWidthTier(widthDp: Float, surface: WearGlanceSurface): WidthTier {
+    public fun resolveWidthTier(widthDp: Float, surface: WearWidgetSurface): WidthTier {
         return when {
             widthDp < 140f -> WidthTier.W1
             else -> WidthTier.W2
@@ -38,37 +38,38 @@ public object WearSizeTiers {
     }
 
     /** Resolves the [WidthTier] for a given [widthDp] integer dimension and [surface]. */
-    public fun resolveWidthTier(widthDp: Int, surface: WearGlanceSurface): WidthTier =
+    public fun resolveWidthTier(widthDp: Int, surface: WearWidgetSurface): WidthTier =
         resolveWidthTier(widthDp.toFloat(), surface)
 
     /** Resolves the [HeightTier] for a given [heightDp] dimension and [surface]. */
-    public fun resolveHeightTier(heightDp: Float, surface: WearGlanceSurface): HeightTier {
+    public fun resolveHeightTier(heightDp: Float, surface: WearWidgetSurface): HeightTier {
         return when (surface) {
-            WearGlanceSurface.WIDGET -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
+            WearWidgetSurface.WIDGET -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
+            else -> if (heightDp < 140f) HeightTier.H1 else HeightTier.H2
         }
     }
 
     /** Resolves the [HeightTier] for a given [heightDp] integer dimension and [surface]. */
-    public fun resolveHeightTier(heightDp: Int, surface: WearGlanceSurface): HeightTier =
+    public fun resolveHeightTier(heightDp: Int, surface: WearWidgetSurface): HeightTier =
         resolveHeightTier(heightDp.toFloat(), surface)
 
     /** Resolves standardized [SizeTiers] given width/height in DP and target [surface]. */
-    public fun from(widthDp: Float, heightDp: Float, surface: WearGlanceSurface): SizeTiers {
+    public fun from(widthDp: Float, heightDp: Float, surface: WearWidgetSurface): SizeTiers {
         val w = resolveWidthTier(widthDp, surface)
         val h = resolveHeightTier(heightDp, surface)
         return SizeTiers(w, h)
     }
 
     /** Resolves standardized [SizeTiers] given integer width/height in DP and target [surface]. */
-    public fun from(widthDp: Int, heightDp: Int, surface: WearGlanceSurface): SizeTiers =
+    public fun from(widthDp: Int, heightDp: Int, surface: WearWidgetSurface): SizeTiers =
         from(widthDp.toFloat(), heightDp.toFloat(), surface)
 
     /** Resolves standardized [SizeTiers] given [dimensions] and target [surface]. */
-    public fun from(dimensions: Dimensions, surface: WearGlanceSurface): SizeTiers =
+    public fun from(dimensions: Dimensions, surface: WearWidgetSurface): SizeTiers =
         from(dimensions.widthDp.toFloat(), dimensions.heightDp.toFloat(), surface)
 }
 
-/** Resolves standardized [SizeTiers] for given [dimensions] on a [WearGlanceSurface]. */
+/** Resolves standardized [SizeTiers] for given [dimensions] on a [WearWidgetSurface]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun SizeTiers.Companion.from(dimensions: Dimensions, surface: WearGlanceSurface): SizeTiers =
+public fun SizeTiers.Companion.from(dimensions: Dimensions, surface: WearWidgetSurface): SizeTiers =
     WearSizeTiers.from(dimensions, surface)

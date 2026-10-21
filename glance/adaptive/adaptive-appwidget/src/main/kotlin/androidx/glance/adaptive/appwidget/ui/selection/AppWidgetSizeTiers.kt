@@ -36,21 +36,22 @@ public object AppWidgetSizeTiers {
      * [WidthTier.fromDp]. The lock screen packs the same columns into a narrower strip and so
      * carries its own scale.
      */
-    public fun resolveWidthTier(widthDp: Float, surface: AppWidgetGlanceSurface): WidthTier {
+    public fun resolveWidthTier(widthDp: Float, surface: AppWidgetSurface): WidthTier {
         return when (surface) {
-            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN -> WidthTier.fromDp(widthDp)
-            AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN ->
+            AppWidgetSurface.MOBILE_HOME_SCREEN -> WidthTier.fromDp(widthDp)
+            AppWidgetSurface.MOBILE_LOCK_SCREEN ->
                 when {
                     widthDp < 100f -> WidthTier.W1
                     widthDp < 200f -> WidthTier.W2
                     widthDp < 300f -> WidthTier.W3
                     else -> WidthTier.W4
                 }
+            else -> WidthTier.fromDp(widthDp)
         }
     }
 
     /** Resolves the [WidthTier] for a given [widthDp] integer dimension and [surface]. */
-    public fun resolveWidthTier(widthDp: Int, surface: AppWidgetGlanceSurface): WidthTier =
+    public fun resolveWidthTier(widthDp: Int, surface: AppWidgetSurface): WidthTier =
         resolveWidthTier(widthDp.toFloat(), surface)
 
     /**
@@ -59,36 +60,37 @@ public object AppWidgetSizeTiers {
      * The lock screen has one band of its own: however tall the slot is, the content is a single
      * line, so it is always [HeightTier.H0].
      */
-    public fun resolveHeightTier(heightDp: Float, surface: AppWidgetGlanceSurface): HeightTier {
+    public fun resolveHeightTier(heightDp: Float, surface: AppWidgetSurface): HeightTier {
         return when (surface) {
-            AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN -> HeightTier.H0
-            AppWidgetGlanceSurface.MOBILE_HOME_SCREEN -> HeightTier.fromDp(heightDp)
+            AppWidgetSurface.MOBILE_LOCK_SCREEN -> HeightTier.H0
+            AppWidgetSurface.MOBILE_HOME_SCREEN -> HeightTier.fromDp(heightDp)
+            else -> HeightTier.fromDp(heightDp)
         }
     }
 
     /** Resolves the [HeightTier] for a given [heightDp] integer dimension and [surface]. */
-    public fun resolveHeightTier(heightDp: Int, surface: AppWidgetGlanceSurface): HeightTier =
+    public fun resolveHeightTier(heightDp: Int, surface: AppWidgetSurface): HeightTier =
         resolveHeightTier(heightDp.toFloat(), surface)
 
     /** Resolves standardized [SizeTiers] given width/height in DP and target [surface]. */
-    public fun from(widthDp: Float, heightDp: Float, surface: AppWidgetGlanceSurface): SizeTiers {
+    public fun from(widthDp: Float, heightDp: Float, surface: AppWidgetSurface): SizeTiers {
         val w = resolveWidthTier(widthDp, surface)
         val h = resolveHeightTier(heightDp, surface)
         return SizeTiers(w, h)
     }
 
     /** Resolves standardized [SizeTiers] given integer width/height in DP and target [surface]. */
-    public fun from(widthDp: Int, heightDp: Int, surface: AppWidgetGlanceSurface): SizeTiers =
+    public fun from(widthDp: Int, heightDp: Int, surface: AppWidgetSurface): SizeTiers =
         from(widthDp.toFloat(), heightDp.toFloat(), surface)
 
     /** Resolves standardized [SizeTiers] given [dimensions] and target [surface]. */
-    public fun from(dimensions: Dimensions, surface: AppWidgetGlanceSurface): SizeTiers =
+    public fun from(dimensions: Dimensions, surface: AppWidgetSurface): SizeTiers =
         from(dimensions.widthDp.toFloat(), dimensions.heightDp.toFloat(), surface)
 }
 
-/** Resolves standardized [SizeTiers] for given [dimensions] on an [AppWidgetGlanceSurface]. */
+/** Resolves standardized [SizeTiers] for given [dimensions] on an [AppWidgetSurface]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun SizeTiers.Companion.from(
     dimensions: Dimensions,
-    surface: AppWidgetGlanceSurface,
+    surface: AppWidgetSurface,
 ): SizeTiers = AppWidgetSizeTiers.from(dimensions, surface)

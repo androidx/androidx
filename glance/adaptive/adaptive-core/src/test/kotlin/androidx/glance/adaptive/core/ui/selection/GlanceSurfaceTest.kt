@@ -22,10 +22,10 @@ import org.junit.Test
 class GlanceSurfaceTest {
 
     @Test
-    fun glanceSurface_of_createsInstanceWithTag() {
-        val surface1 = GlanceSurface.of("test_surface")
-        val surface2 = GlanceSurface.of("test_surface")
-        val surface3 = GlanceSurface.of("different_surface")
+    fun glanceSurface_fromTag_createsInstanceWithTag() {
+        val surface1 = GlanceSurface.fromTag("test_surface")
+        val surface2 = GlanceSurface.fromTag("test_surface")
+        val surface3 = GlanceSurface.fromTag("different_surface")
 
         assertThat(surface1.tag).isEqualTo("test_surface")
         assertThat(surface1).isEqualTo(surface2)

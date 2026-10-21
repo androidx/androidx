@@ -18,13 +18,13 @@ package androidx.glance.adaptive.appwidget.ui
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackSizeSelector
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackTemplateRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
 /**
@@ -34,8 +34,8 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
  */
 private fun interface TemplateAssembler {
     fun assemble(
-        data: AdaptiveGlanceTemplate,
-        constraints: HostConstraints<AppWidgetGlanceSurface>,
+        data: GlanceAdaptiveTemplate,
+        constraints: HostConstraints<AppWidgetSurface>,
     ): AppWidgetRenderOutput
 }
 
@@ -53,8 +53,8 @@ public object AppWidgetTemplateRegistry {
     private val lock = Any()
 
     private data class Key(
-        val templateClass: Class<out AdaptiveGlanceTemplate>,
-        val surface: AppWidgetGlanceSurface,
+        val templateClass: Class<out GlanceAdaptiveTemplate>,
+        val surface: AppWidgetSurface,
     )
 
     /** Built-in defaults, registered by the library. */
@@ -83,13 +83,13 @@ public object AppWidgetTemplateRegistry {
 
     /**
      * Registers the built-in default [selector] and [renderer] for [templateClass] on [surface], or
-     * on every [AppWidgetGlanceSurface] when [surface] is `null`.
+     * on every [AppWidgetSurface] when [surface] is `null`.
      */
-    internal fun <T : AdaptiveGlanceTemplate, A : Any> register(
+    internal fun <T : GlanceAdaptiveTemplate, A : Any> register(
         templateClass: Class<T>,
-        selector: ArchetypeSelector<T, AppWidgetGlanceSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, A, AppWidgetRenderOutput>,
-        surface: AppWidgetGlanceSurface? = null,
+        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
+        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
+        surface: AppWidgetSurface? = null,
     ) {
         val assembler = assembler(selector, renderer)
         synchronized(lock) { forEachKey(templateClass, surface) { defaultMap[it] = assembler } }
@@ -97,28 +97,28 @@ public object AppWidgetTemplateRegistry {
 
     /**
      * Registers a [selector] and [renderer] override for [widgetName], taking precedence over the
-     * built-in default for [templateClass] on [surface], or on every [AppWidgetGlanceSurface] when
+     * built-in default for [templateClass] on [surface], or on every [AppWidgetSurface] when
      * [surface] is `null`.
      *
-     * @param T The template type implementing [AdaptiveGlanceTemplate].
+     * @param T The template type implementing [GlanceAdaptiveTemplate].
      * @param A The archetype type produced by [selector] and drawn by [renderer].
      * @param widgetName Developer widget identifier matching
      *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
-     * @param templateClass The runtime class of the [AdaptiveGlanceTemplate] data payload.
+     * @param templateClass The runtime class of the [GlanceAdaptiveTemplate] data payload.
      * @param selector Resolves the layout archetype for [widgetName]. Note that
      *   [HostConstraints.dimensions] may be `(0, 0)` when the host has not reported a positive size
      *   or during widget picker preview rendering, so selectors must handle zero dimensions
      *   gracefully.
      * @param renderer Draws the archetype chosen by [selector] as [AppWidgetRenderOutput].
-     * @param surface Optional [AppWidgetGlanceSurface] to target, or `null` for all surfaces.
+     * @param surface Optional [AppWidgetSurface] to target, or `null` for all surfaces.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : AdaptiveGlanceTemplate, A : Any> register(
+    public fun <T : GlanceAdaptiveTemplate, A : Any> register(
         widgetName: String,
         templateClass: Class<T>,
-        selector: ArchetypeSelector<T, AppWidgetGlanceSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, A, AppWidgetRenderOutput>,
-        surface: AppWidgetGlanceSurface? = null,
+        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
+        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
+        surface: AppWidgetSurface? = null,
     ) {
         val assembler = assembler(selector, renderer)
         synchronized(lock) {
@@ -128,21 +128,21 @@ public object AppWidgetTemplateRegistry {
 
     /** Calls [action] with the key for [surface], or for every surface when [surface] is `null`. */
     private inline fun forEachKey(
-        templateClass: Class<out AdaptiveGlanceTemplate>,
-        surface: AppWidgetGlanceSurface?,
+        templateClass: Class<out GlanceAdaptiveTemplate>,
+        surface: AppWidgetSurface?,
         action: (Key) -> Unit,
     ) {
         if (surface != null) {
             action(Key(templateClass, surface))
             return
         }
-        val surfaces = AppWidgetGlanceSurface.entries
+        val surfaces = AppWidgetSurface.ALL
         for (i in surfaces.indices) action(Key(templateClass, surfaces[i]))
     }
 
-    private fun <T : AdaptiveGlanceTemplate, A : Any> assembler(
-        selector: ArchetypeSelector<T, AppWidgetGlanceSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetGlanceSurface, A, AppWidgetRenderOutput>,
+    private fun <T : GlanceAdaptiveTemplate, A : Any> assembler(
+        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
+        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
     ): TemplateAssembler = TemplateAssembler { data, constraints ->
         @Suppress("UNCHECKED_CAST") val typed = data as T
         renderer.render(typed, selector.select(typed, constraints), constraints)
@@ -160,9 +160,9 @@ public object AppWidgetTemplateRegistry {
      * @throws IllegalArgumentException if no renderer is registered for the type of [data] on
      *   [HostConstraints.surface].
      */
-    public fun <T : AdaptiveGlanceTemplate> render(
+    public fun <T : GlanceAdaptiveTemplate> render(
         data: T,
-        constraints: HostConstraints<AppWidgetGlanceSurface>,
+        constraints: HostConstraints<AppWidgetSurface>,
         widgetName: String? = null,
     ): AppWidgetRenderOutput {
         val key = Key(data.javaClass, constraints.surface)

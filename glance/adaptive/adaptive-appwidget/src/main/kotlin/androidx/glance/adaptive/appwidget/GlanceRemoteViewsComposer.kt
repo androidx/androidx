@@ -28,12 +28,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import kotlin.math.roundToInt
@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
  * resolves to the same layout and can be rendered once.
  */
 internal data class RenderTarget(
-    val surface: AppWidgetGlanceSurface,
+    val surface: AppWidgetSurface,
     val dimensions: Dimensions,
 )
 
@@ -54,7 +54,7 @@ internal data class PreviewTarget(
 )
 
 /**
- * Translates [AdaptiveGlanceTemplate] payloads into [RemoteViews].
+ * Translates [GlanceAdaptiveTemplate] payloads into [RemoteViews].
  *
  * Owns every decision about *how* a composition is produced: which host surface and container
  * dimensions it targets, what can share a single composition, and how that context reaches
@@ -130,7 +130,7 @@ internal class GlanceRemoteViewsComposer(
      */
     fun pinPreviewRenderTarget(providerInfo: AppWidgetProviderInfo): RenderTarget =
         RenderTarget(
-            surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+            surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
             dimensions = declaredDimensions(providerInfo),
         )
 
@@ -139,7 +139,7 @@ internal class GlanceRemoteViewsComposer(
      * [androidx.glance.adaptive.appwidget.ui.AppWidgetRenderOutput] into a platform [RemoteViews].
      */
     suspend fun compose(
-        data: AdaptiveGlanceTemplate,
+        data: GlanceAdaptiveTemplate,
         target: RenderTarget,
         widgetName: String? = null,
     ): RemoteViews {

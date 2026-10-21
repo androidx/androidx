@@ -16,19 +16,15 @@
 
 package androidx.glance.adaptive.wear.ui.selection
 
-import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
-/** Standard Wear OS glanceable surfaces on which Glance Adaptive widgets can be placed. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class WearGlanceSurface(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val tag: String
-) : GlanceSurface {
-    /** Wear OS active Widget carousel. */
-    WIDGET("wear_widget");
+class WearWidgetSurfaceTest {
 
-    public companion object {
-        /** Wear OS active Widget carousel alias. */
-        @JvmField public val WEAR_WIDGET: WearGlanceSurface = WIDGET
+    @Test
+    fun wearGlanceSurface_aliasesAndTags_resolveCorrectly() {
+        assertThat(WearWidgetSurface.WEAR_WIDGET).isEqualTo(WearWidgetSurface.WIDGET)
+
+        assertThat(WearWidgetSurface.WIDGET.tag).isEqualTo("wear_widget")
     }
 }
