@@ -20,7 +20,7 @@ import android.view.View;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
+import androidx.wear.protolayout.renderer.common.PlStatsLogger.InflaterStatsLogger;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -58,7 +58,7 @@ public interface RenderingArtifact {
         }
 
         /**
-         * Returns the {@link ProviderStatsLogger.InflaterStatsLogger} used log inflation stats.
+         * Returns the {@link PlStatsLogger.InflaterStatsLogger} used log inflation stats.
          * This will return {@code null} if the inflation was skipped or failed.
          */
         public @NonNull InflaterStatsLogger getInflaterStatsLogger() {
