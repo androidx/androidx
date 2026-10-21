@@ -1139,6 +1139,25 @@ class DatePickerTest {
         rule.onNodeWithText("May 11, 2010").captureToImage().assertContainsColor(Color.Yellow)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun navigationContentColor_appliesToYearPickerMenuButtonIcon() {
+        lateinit var switchToYearDescription: String
+        rule.setMaterialContent(lightColorScheme()) {
+            switchToYearDescription = getString(Strings.DatePickerSwitchToYearSelection)
+            val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 1)
+            DatePicker(
+                state = rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis),
+                colors = DatePickerDefaults.colors(navigationContentColor = Color.Red),
+            )
+        }
+
+        rule
+            .onNodeWithContentDescription(switchToYearDescription, useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Red)
+    }
+
     @Test
     fun yearGrid_keyboardNavigation() {
         rule.setMaterialContent(lightColorScheme()) {
