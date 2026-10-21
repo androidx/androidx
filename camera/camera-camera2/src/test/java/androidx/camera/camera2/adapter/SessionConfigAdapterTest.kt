@@ -37,7 +37,11 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import junit.framework.TestCase
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -130,6 +134,142 @@ class SessionConfigAdapterTest {
         // at a time.
         assertThat(errorListener.results.size).isEqualTo(1)
         assertThat(errorListener.results[0].second)
+            .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun reportInvalidSurface_sessionConfigReplacedBeforeMainDispatch_doesNotNotifyStaleOrNew() {
+        val testDispatcher = StandardTestDispatcher()
+        Dispatchers.setMain(testDispatcher)
+        try {
+            // Arrange: UseCase initially has sessionConfig1 with surface1 and errorListener1
+            val surface1 = createTestDeferrableSurface().apply { close() }
+            val surface2 = createTestDeferrableSurface()
+            val errorListener1 =
+                object : SessionConfig.ErrorListener {
+                    val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+                    override fun onError(
+                        sessionConfig: SessionConfig,
+                        error: SessionConfig.SessionError,
+                    ) {
+                        results.add(Pair(sessionConfig, error))
+                    }
+                }
+            val errorListener2 =
+                object : SessionConfig.ErrorListener {
+                    val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+                    override fun onError(
+                        sessionConfig: SessionConfig,
+                        error: SessionConfig.SessionError,
+                    ) {
+                        results.add(Pair(sessionConfig, error))
+                    }
+                }
+
+            val fakeTestUseCase = createFakeTestUseCase {
+                it.setupSessionConfig(
+                    SessionConfig.Builder().apply {
+                        setTemplateType(TEMPLATE_PREVIEW)
+                        addSurface(surface1)
+                        setErrorListener(errorListener1)
+                    }
+                )
+            }
+            val adapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase))
+
+            // Act: background thread reports surface1 invalid before main-thread dispatch runs,
+            // and the main thread concurrently replaces the UseCase's SessionConfig with surface2.
+            adapter.reportSurfaceInvalid(surface1)
+            fakeTestUseCase.setupSessionConfig(
+                SessionConfig.Builder().apply {
+                    setTemplateType(TEMPLATE_PREVIEW)
+                    addSurface(surface2)
+                    setErrorListener(errorListener2)
+                }
+            )
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Assert: neither the stale SessionConfig nor the newly attached SessionConfig
+            // should receive SESSION_ERROR_SURFACE_NEEDS_RESET for surface1.
+            assertThat(errorListener1.results).isEmpty()
+            assertThat(errorListener2.results).isEmpty()
+        } finally {
+            Dispatchers.setMain(MoreExecutors.directExecutor().asCoroutineDispatcher())
+        }
+    }
+
+    @Test
+    fun reportInvalidSurface_secondarySessionConfig_notifiesSecondaryErrorListener() {
+        // Arrange
+        val primarySurface = createTestDeferrableSurface()
+        val secondarySurface = createTestDeferrableSurface().apply { close() }
+        val primaryErrorResults = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+        val secondaryErrorResults = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+        val fakeTestUseCase = createFakeTestUseCase {
+            it.setupSessionConfigs(
+                primarySessionConfigBuilder =
+                    SessionConfig.Builder().apply {
+                        setTemplateType(TEMPLATE_PREVIEW)
+                        addSurface(primarySurface)
+                        setErrorListener { sessionConfig, error ->
+                            primaryErrorResults.add(Pair(sessionConfig, error))
+                        }
+                    },
+                secondarySessionConfigBuilder =
+                    SessionConfig.Builder().apply {
+                        setTemplateType(TEMPLATE_PREVIEW)
+                        addSurface(secondarySurface)
+                        setErrorListener { sessionConfig, error ->
+                            secondaryErrorResults.add(Pair(sessionConfig, error))
+                        }
+                    },
+            )
+        }
+
+        // Act
+        SessionConfigAdapter(useCases = listOf(fakeTestUseCase), isPrimary = false)
+            .reportSurfaceInvalid(secondarySurface)
+
+        // Assert
+        assertThat(primaryErrorResults).isEmpty()
+        assertThat(secondaryErrorResults).hasSize(1)
+        assertThat(secondaryErrorResults[0].first).isEqualTo(fakeTestUseCase.secondarySessionConfig)
+        assertThat(secondaryErrorResults[0].second)
+            .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
+    }
+
+    @Test
+    fun reportInvalidSurface_postviewSurface_notifiesErrorListener() {
+        // Arrange
+        val primarySurface = createTestDeferrableSurface()
+        val postviewSurface = createTestDeferrableSurface().apply { close() }
+        val errorResults = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+        val fakeTestUseCase = createFakeTestUseCase {
+            it.setupSessionConfig(
+                SessionConfig.Builder().apply {
+                    setTemplateType(TEMPLATE_PREVIEW)
+                    addSurface(primarySurface)
+                    setPostviewSurface(postviewSurface)
+                    setErrorListener { sessionConfig, error ->
+                        errorResults.add(Pair(sessionConfig, error))
+                    }
+                }
+            )
+        }
+
+        // Act
+        SessionConfigAdapter(useCases = listOf(fakeTestUseCase))
+            .reportSurfaceInvalid(postviewSurface)
+
+        // Assert
+        assertThat(errorResults).hasSize(1)
+        assertThat(errorResults[0].first).isEqualTo(fakeTestUseCase.sessionConfig)
+        assertThat(errorResults[0].second)
             .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
     }
 
@@ -283,6 +423,16 @@ class FakeTestUseCase(config: FakeUseCaseConfig) : FakeUseCase(config) {
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
         updateSessionConfig(listOf(sessionConfigBuilder.build()))
+        notifyActive()
+    }
+
+    fun setupSessionConfigs(
+        primarySessionConfigBuilder: SessionConfig.Builder,
+        secondarySessionConfigBuilder: SessionConfig.Builder,
+    ) {
+        updateSessionConfig(
+            listOf(primarySessionConfigBuilder.build(), secondarySessionConfigBuilder.build())
+        )
         notifyActive()
     }
 
