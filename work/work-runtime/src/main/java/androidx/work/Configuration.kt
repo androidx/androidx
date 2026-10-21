@@ -32,6 +32,7 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmSynthetic
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.CoroutineDispatcher
@@ -156,6 +157,20 @@ public class Configuration internal constructor(builder: Builder) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val isRemoteCancellationPropagationFixEnabled: Boolean
 
+    /**
+     * `true` if multiprocess isolation is enabled. When enabled, every process owns an independent
+     * [WorkManager] instance and database, [defaultProcessName] is ignored, and initialization is
+     * deferred until [WorkManager.getInstance] is first called.
+     *
+     * Note: `internal` + `@JvmSynthetic` while the feature is validated, so [Configuration] gains
+     * no non-synthetic accessor for it before the public API shape is finalized. Java callers in
+     * `work-runtime` read it via [androidx.work.impl.IsolationInternalBridge], which (like any
+     * `@RestrictTo` API) is enforced by lint only.
+     *
+     * @return `true` if multiprocess isolation is enabled for [WorkManager].
+     */
+    @get:JvmSynthetic internal val isProcessIsolationEnabled: Boolean
+
     // Note: public experimental properties are not allowed because the accessors will not appear
     // experimental to Java clients. There is a public accessor for this property below.
     @property:ExperimentalConfigurationApi
@@ -268,6 +283,7 @@ public class Configuration internal constructor(builder: Builder) {
         enableRepresentativeJobs = builder.enableRepresentativeJobs
         enableGreedyScheduler = builder.enableGreedyScheduler
         isRemoteCancellationPropagationFixEnabled = builder.remoteCancellationPropagationFixEnabled
+        isProcessIsolationEnabled = builder.processIsolationEnabled
     }
 
     /** A Builder for [Configuration]s. */
@@ -297,6 +313,7 @@ public class Configuration internal constructor(builder: Builder) {
         internal var enableRepresentativeJobs: Boolean = false
         internal var enableGreedyScheduler: Boolean = true
         internal var remoteCancellationPropagationFixEnabled: Boolean = false
+        internal var processIsolationEnabled: Boolean = false
 
         /** Creates a new [Configuration.Builder]. */
         public constructor()
@@ -337,6 +354,7 @@ public class Configuration internal constructor(builder: Builder) {
             enableGreedyScheduler = configuration.isGreedySchedulerEnabled()
             remoteCancellationPropagationFixEnabled =
                 configuration.isRemoteCancellationPropagationFixEnabled
+            processIsolationEnabled = configuration.isProcessIsolationEnabled
         }
 
         /**
@@ -720,6 +738,25 @@ public class Configuration internal constructor(builder: Builder) {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun setRemoteCancellationPropagationFixEnabled(enabled: Boolean): Builder {
             this.remoteCancellationPropagationFixEnabled = enabled
+            return this
+        }
+
+        /**
+         * Specifies whether multiprocess isolation is enabled for [WorkManager]. When enabled,
+         * every process owns an independent [WorkManager] instance and database,
+         * [defaultProcessName] is ignored, and initialization is deferred until
+         * [WorkManager.getInstance] is first called.
+         *
+         * Note: `internal` + `@JvmSynthetic` while the feature is validated, so this function is
+         * not part of the public or restricted API surface of [Configuration.Builder] and does not
+         * expose a non-synthetic `Builder` setter before the public API shape is finalized.
+         *
+         * @param enabled `true` to enable multiprocess isolation
+         * @return This [Builder] instance
+         */
+        @JvmSynthetic
+        internal fun setProcessIsolationEnabled(enabled: Boolean): Builder {
+            this.processIsolationEnabled = enabled
             return this
         }
 
