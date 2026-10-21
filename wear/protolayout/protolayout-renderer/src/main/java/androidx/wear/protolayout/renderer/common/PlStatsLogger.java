@@ -31,7 +31,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /** Logger used for collecting metrics. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface ProviderStatsLogger {
+public interface PlStatsLogger {
 
     /** Failures that doesn't cause the inflation to fail. */
     @IntDef({
