@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -203,6 +204,34 @@ class PaddingModifierTest {
                 RemoteModifier.padding(10.rdp, 20.rdp),
             )
         )
+    }
+
+    @Test
+    fun padding_rtlLayoutDirection_swapsStartAndEnd() {
+        val ltrState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = creationState.creationDisplayInfo,
+                profile = creationState.profile,
+                writerCallback = null,
+                layoutDirection = RemoteLayoutDirection.Ltr,
+                platformImageProvider = creationState.platformImageProvider,
+            )
+        val rtlState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = creationState.creationDisplayInfo,
+                profile = creationState.profile,
+                writerCallback = null,
+                layoutDirection = RemoteLayoutDirection.Rtl,
+                platformImageProvider = creationState.platformImageProvider,
+            )
+        val modifier =
+            RemoteModifier.padding(start = 10f.rf, top = 20f.rf, end = 30f.rf, bottom = 40f.rf)
+                as PaddingModifier
+
+        assertTrue(modifier.resolveLeft(ltrState).constantValue == 10f)
+        assertTrue(modifier.resolveRight(ltrState).constantValue == 30f)
+        assertTrue(modifier.resolveLeft(rtlState).constantValue == 30f)
+        assertTrue(modifier.resolveRight(rtlState).constantValue == 10f)
     }
 
     private fun haveSameValues(modifier1: RemoteModifier, modifier2: RemoteModifier): Boolean {

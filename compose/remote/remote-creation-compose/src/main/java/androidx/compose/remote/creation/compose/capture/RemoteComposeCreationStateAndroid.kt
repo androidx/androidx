@@ -25,6 +25,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
@@ -45,7 +46,7 @@ public fun RemoteComposeCreationState(
         profile = profile,
         writerCallback = writerEvents,
         remoteDensity = remoteDensity,
-        layoutDirection = layoutDirection,
+        layoutDirection = layoutDirection.toRemoteLayoutDirection(),
         platformImageProvider = AndroidPlatformImageProvider,
     )
 

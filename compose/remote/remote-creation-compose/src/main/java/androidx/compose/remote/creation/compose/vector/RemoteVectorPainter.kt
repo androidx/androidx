@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteVectorGroup
 import androidx.compose.remote.creation.compose.capture.RemoteVectorPath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
@@ -41,7 +42,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.RootGroupName
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.VectorPath
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.isSpecified
 
 /**
@@ -84,7 +84,7 @@ public class RemoteVectorPainter : RemotePainter() {
 
     override fun RemoteDrawScope.onDraw() {
         with(vector) {
-            val shouldMirror = autoMirror && layoutDirection == LayoutDirection.Rtl
+            val shouldMirror = autoMirror && remoteLayoutDirection == RemoteLayoutDirection.Rtl
             if (shouldMirror) {
                 withTransform({
                     translate(width, 0f.rf)
