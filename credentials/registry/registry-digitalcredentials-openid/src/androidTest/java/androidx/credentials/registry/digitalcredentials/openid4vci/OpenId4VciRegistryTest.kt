@@ -17,6 +17,7 @@
 package androidx.credentials.registry.digitalcredentials.openid4vci
 
 import android.content.Context
+import androidx.credentials.registry.digitalcredentials.openid4vci.filter.PassFilter
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest

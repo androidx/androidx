@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.credentials.registry.digitalcredentials.openid4vci
+package androidx.credentials.registry.digitalcredentials.openid4vci.filter
 
 import androidx.annotation.RestrictTo
 import org.json.JSONArray
@@ -23,7 +23,7 @@ import org.json.JSONObject
 /** Filters OpenID4VCI issuance requests based on issuance metadata. */
 public sealed class OpenId4VciFilter {
     /** Serializes the filter to JSON. */
-    public abstract fun asJson(): JSONObject
+    internal abstract fun asJson(): JSONObject
 
     /**
      * Combines this filter with another using logical AND.
@@ -64,7 +64,7 @@ public sealed class OpenId4VciFilter {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PassFilter() : OpenId4VciFilter() {
-    override fun asJson(): JSONObject = JSONObject().apply { put("Pass", JSONObject()) }
+    internal override fun asJson(): JSONObject = JSONObject().apply { put("Pass", JSONObject()) }
 }
 
 /**
@@ -73,7 +73,7 @@ public class PassFilter() : OpenId4VciFilter() {
  * @property filters list of filters that must all pass
  */
 public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
                 "And",
@@ -97,7 +97,7 @@ public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
  * @property filters list of filters where at least one must pass
  */
 public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
                 "Or",
@@ -121,7 +121,7 @@ public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
  * @property filter the filter to invert
  */
 public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply { put("Not", JSONObject().apply { put("filter", filter.asJson()) }) }
 
     override fun not(): OpenId4VciFilter = filter
@@ -137,7 +137,7 @@ public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
  * @property issuers set of allowed credential issuers (e.g., "https://issuer.example.com")
  */
 public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedIssuers", JSONObject().apply { put("issuers", JSONArray(issuers)) })
         }
@@ -154,7 +154,7 @@ public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter(
  */
 public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
     OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
                 "AllowedConfigurationIds",
@@ -169,7 +169,7 @@ public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
  * @property doctypes set of allowed document types (e.g., "org.iso.18013.5.1.mDL")
  */
 public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedMdocDoctypes", JSONObject().apply { put("doctypes", JSONArray(doctypes)) })
         }
@@ -181,7 +181,7 @@ public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciF
  * @property vcts set of allowed verifiable credential types
  */
 public class AllowedSdJwtVcts(public val vcts: Set<String>) : OpenId4VciFilter() {
-    override fun asJson(): JSONObject =
+    internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedSdJwtVcts", JSONObject().apply { put("vcts", JSONArray(vcts)) })
         }
