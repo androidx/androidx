@@ -26,6 +26,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -227,8 +229,8 @@ internal fun RemoteGroupComponent.createGroupComponent(
                     stroke = vectorNode.stroke
                     strokeAlpha = vectorNode.strokeAlpha.rf
                     strokeLineWidth = vectorNode.strokeLineWidth.rf
-                    strokeLineCap = vectorNode.strokeLineCap
-                    strokeLineJoin = vectorNode.strokeLineJoin
+                    strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()
+                    strokeLineJoin = vectorNode.strokeLineJoin.toRemoteStrokeJoin()
                     strokeLineMiter = vectorNode.strokeLineMiter.rf
                     trimPathStart = vectorNode.trimPathStart.rf
                     trimPathEnd = vectorNode.trimPathEnd.rf
@@ -271,8 +273,8 @@ internal fun RemoteGroupComponent.createGroupComponent(
                     stroke = vectorNode.stroke
                     strokeAlpha = vectorNode.strokeAlpha
                     strokeLineWidth = vectorNode.strokeLineWidth
-                    strokeLineCap = vectorNode.strokeLineCap
-                    strokeLineJoin = vectorNode.strokeLineJoin
+                    strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()
+                    strokeLineJoin = vectorNode.strokeLineJoin.toRemoteStrokeJoin()
                     strokeLineMiter = vectorNode.strokeLineMiter
                     trimPathStart = vectorNode.trimPathStart
                     trimPathEnd = vectorNode.trimPathEnd

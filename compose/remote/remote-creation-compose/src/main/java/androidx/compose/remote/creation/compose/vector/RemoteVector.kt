@@ -26,8 +26,6 @@ import androidx.compose.remote.creation.compose.capture.DefaultPivotY
 import androidx.compose.remote.creation.compose.capture.DefaultRotation
 import androidx.compose.remote.creation.compose.capture.DefaultScaleX
 import androidx.compose.remote.creation.compose.capture.DefaultScaleY
-import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineCap
-import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineJoin
 import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineMiter
 import androidx.compose.remote.creation.compose.capture.DefaultStrokeLineWidth
 import androidx.compose.remote.creation.compose.capture.DefaultTranslationX
@@ -44,6 +42,8 @@ import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
@@ -52,6 +52,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.vector.PathNode
@@ -112,8 +114,8 @@ internal class RemotePathComponent : RemoteVNode() {
     var strokeAlpha = 1.0f.rf
     var strokeLineWidth = DefaultStrokeLineWidth
     var stroke: Brush? = null
-    var strokeLineCap = DefaultStrokeLineCap
-    var strokeLineJoin = DefaultStrokeLineJoin
+    var strokeLineCap: RemoteStrokeCap = RemoteStrokeCap.Butt
+    var strokeLineJoin: RemoteStrokeJoin = RemoteStrokeJoin.Miter
     var strokeLineMiter = DefaultStrokeLineMiter
     var trimPathStart = DefaultTrimPathStart
     var trimPathEnd = DefaultTrimPathEnd
@@ -213,8 +215,18 @@ internal class RemotePathComponent : RemoteVNode() {
                 this.colorFilter = colorFilter
                 this.style = PaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
-                this.strokeCap = strokeLineCap
-                this.strokeJoin = strokeLineJoin
+                this.strokeCap =
+                    when (strokeLineCap) {
+                        RemoteStrokeCap.Round -> StrokeCap.Round
+                        RemoteStrokeCap.Square -> StrokeCap.Square
+                        else -> StrokeCap.Butt
+                    }
+                this.strokeJoin =
+                    when (strokeLineJoin) {
+                        RemoteStrokeJoin.Round -> StrokeJoin.Round
+                        RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
+                        else -> StrokeJoin.Miter
+                    }
             }
             if (effectiveStrokeColor != null) {
                 val paintColor =
