@@ -71,5 +71,6 @@ androidx {
 
     inceptionYear = "2026"
     description = "Dynamic features integration for Navigation 3."
+    samples(project(":navigation3:navigation3-dynamic-features:navigation3-dynamic-features-samples"))
     enableRobolectric()
 }

@@ -51,6 +51,8 @@ internal constructor(private val dynamicEntryProvider: DynamicFeatureEntryProvid
      *   as [SplitInstallSessionStatus.DOWNLOADING], [SplitInstallSessionStatus.FAILED], and
      *   [SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION] (see
      *   [SplitInstallManager.startConfirmationDialogForResult]).
+     * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureNavDisplaySample
+     * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureModuleEntryProviderSample
      */
     public fun <K : T> dynamicFeatureModule(
         initialKey: K,

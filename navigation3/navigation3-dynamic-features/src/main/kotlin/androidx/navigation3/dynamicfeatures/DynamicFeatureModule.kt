@@ -57,6 +57,8 @@ internal class DynamicFeatureModule(
 /**
  * Interface that defines how to build [NavEntry] instances for a
  * [DynamicFeatureEntryProviderScope.dynamicFeatureModule].
+ *
+ * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureModuleEntryProviderSample
  */
 public interface DynamicFeatureModuleEntryProvider<K : Any> {
 

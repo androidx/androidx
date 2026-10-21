@@ -83,6 +83,7 @@ public fun rememberSplitInstallManager(): SplitInstallManager {
  *   [SplitInstallSessionStatus.DOWNLOADING], [SplitInstallSessionStatus.FAILED], and
  *   [SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION] (see
  *   [SplitInstallManager.startConfirmationDialogForResult]).
+ * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureNavDisplaySample
  */
 @Composable
 public fun <T : Any> rememberDynamicFeatureNavEntryDecorator(
@@ -113,6 +114,8 @@ public fun <T : Any> rememberDynamicFeatureNavEntryDecorator(
  *   [SplitInstallManager], including [SplitInstallSessionStatus.FAILED] and
  *   [SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION] (see
  *   [SplitInstallManager.startConfirmationDialogForResult]).
+ *
+ * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureNavDisplaySample
  */
 public class DynamicFeatureNavEntryDecorator<T : Any>
 internal constructor(
@@ -174,6 +177,7 @@ internal constructor(
      * @param builder the DSL extension that provides a [DynamicFeatureEntryProviderScope] to build
      *   an entryProvider
      * @return an entryProvider that provides the [NavEntry] associated with a given key
+     * @sample androidx.navigation3.dynamicfeatures.samples.DynamicFeatureNavDisplaySample
      */
     public fun entryProvider(
         fallback: (unknownScreen: T) -> NavEntry<T> = {
