@@ -71,7 +71,7 @@ class GetAgeRangeResponseBundleTest {
     /** A tier introduced after this version of the library must not invalidate the response. */
     @Test
     fun fromBundle_unrecognizedAssuranceTier_isPreserved() {
-        for (tier in listOf(GetAgeRangeResponse.ASSURANCE_TIER_D + 1, 99)) {
+        for (tier in listOf(GetAgeRangeResponse.ASSURANCE_TIER_B + 1, 99)) {
             val bundle =
                 Bundle().apply {
                     putInt(GetAgeRangeResponse.EXTRA_AGE_LOWER_BOUND, 13)
@@ -165,7 +165,7 @@ class GetAgeRangeResponseBundleTest {
                 putInt(GetAgeRangeResponse.EXTRA_AGE_UPPER_BOUND, 18)
                 putInt(
                     GetAgeRangeResponse.EXTRA_AGE_ASSURANCE_TIER,
-                    GetAgeRangeResponse.ASSURANCE_TIER_D,
+                    GetAgeRangeResponse.ASSURANCE_TIER_B,
                 )
             }
 
@@ -174,6 +174,6 @@ class GetAgeRangeResponseBundleTest {
         assertThat(response).isNotNull()
         assertThat(response!!.lowerAgeBound).isEqualTo(18)
         assertThat(response.upperAgeBound).isEqualTo(18)
-        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_D)
+        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_B)
     }
 }
