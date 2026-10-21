@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
 /**
  * Internal interface abstracting the surface-specific implementations of widget operations.

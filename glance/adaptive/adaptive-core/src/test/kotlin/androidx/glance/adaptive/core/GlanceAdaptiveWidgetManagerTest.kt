@@ -16,7 +16,7 @@
 
 package androidx.glance.adaptive.core
 
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

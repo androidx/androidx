@@ -21,9 +21,9 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
-import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.selection.Dimensions
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

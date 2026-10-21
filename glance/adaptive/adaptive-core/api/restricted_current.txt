@@ -1,2 +1,33 @@
 // Signature format: 5.0
 // - surface=restricted-non-atomic-group
+package androidx.glance.adaptive.core {
+
+  public final class WidgetInstanceInfo {
+    ctor @BytecodeOnly public WidgetInstanceInfo(String!, String!, android.os.Bundle!, androidx.collection.ObjectIntMap!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public WidgetInstanceInfo(String widgetName, String widgetId, optional android.os.Bundle options, optional androidx.collection.ObjectIntMap<androidx.glance.adaptive.core.selection.GlanceSurface> placementsPerSurface);
+    method @InaccessibleFromKotlin public android.os.Bundle getOptions();
+    method @InaccessibleFromKotlin public androidx.collection.ObjectIntMap<androidx.glance.adaptive.core.selection.GlanceSurface> getPlacementsPerSurface();
+    method @InaccessibleFromKotlin public String getWidgetId();
+    method @InaccessibleFromKotlin public String getWidgetName();
+    property public android.os.Bundle options;
+    property public androidx.collection.ObjectIntMap<androidx.glance.adaptive.core.selection.GlanceSurface> placementsPerSurface;
+    property public String widgetId;
+    property public String widgetName;
+  }
+
+}
+
+package androidx.glance.adaptive.core.selection {
+
+  public abstract class GlanceSurface {
+  }
+
+}
+
+package androidx.glance.adaptive.core.templates {
+
+  public abstract class GlanceAdaptiveTemplate {
+  }
+
+}
+

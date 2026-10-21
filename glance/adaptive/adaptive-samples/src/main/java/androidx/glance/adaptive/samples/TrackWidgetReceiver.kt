@@ -19,7 +19,7 @@ package androidx.glance.adaptive.samples
 import android.content.Context
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver
-import androidx.glance.adaptive.core.ui.templates.TrackTemplate
+import androidx.glance.adaptive.core.templates.TrackTemplate
 
 /**
  * Receiver for the Track demo widget.

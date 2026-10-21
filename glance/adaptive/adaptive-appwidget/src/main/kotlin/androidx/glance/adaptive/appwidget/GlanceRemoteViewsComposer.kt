@@ -27,12 +27,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
-import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
-import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurfaceDetector
+import androidx.glance.adaptive.appwidget.selection.LocalContainerDimensions
+import androidx.glance.adaptive.core.selection.Dimensions
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import kotlin.math.roundToInt
@@ -58,11 +57,11 @@ internal data class PreviewTarget(
  * Owns every decision about *how* a composition is produced: which host surface and container
  * dimensions it targets, what can share a single composition, and how that context reaches
  * templates through the placed surface's
- * [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions],
- * [LocalContainerDimensions], and [androidx.glance.LocalSize]. Placed instances and picker previews
- * differ only in where their [RenderTarget] comes from, so both funnel through the same [compose]
- * call. Callers retain the orchestration concerns of resolving what to render and handing the
- * resulting [RemoteViews] to [AppWidgetManager].
+ * [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions], [LocalContainerDimensions],
+ * and [androidx.glance.LocalSize]. Placed instances and picker previews differ only in where their
+ * [RenderTarget] comes from, so both funnel through the same [compose] call. Callers retain the
+ * orchestration concerns of resolving what to render and handing the resulting [RemoteViews] to
+ * [AppWidgetManager].
  */
 internal class GlanceRemoteViewsComposer(
     private val context: Context,
@@ -137,7 +136,8 @@ internal class GlanceRemoteViewsComposer(
 
     /**
      * Renders [data] for [target], dispatching the resulting
-     * [androidx.glance.adaptive.appwidget.ui.AppWidgetRenderOutput] into a platform [RemoteViews].
+     * [androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput] into a platform
+     * [RemoteViews].
      */
     suspend fun compose(
         data: GlanceAdaptiveTemplate,

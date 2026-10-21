@@ -29,10 +29,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.collection.MutableIntList
 import androidx.collection.MutableObjectIntMap
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.WidgetInstanceInfo
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -143,8 +143,8 @@ internal class BaseWidgetDelegate(
                     } ?: continue
                 val surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options)
                 val accumulator = accumulators.getOrPut(widgetId) { InstanceAccumulator(options) }
-                accumulator.surfacePlacements[surface] =
-                    accumulator.surfacePlacements.getOrDefault(surface, 0) + 1
+                accumulator.placementsPerSurface[surface] =
+                    accumulator.placementsPerSurface.getOrDefault(surface, 0) + 1
             }
 
             accumulators.map { (widgetId, accumulator) ->
@@ -152,14 +152,14 @@ internal class BaseWidgetDelegate(
                     widgetName = widgetName,
                     widgetId = widgetId,
                     options = accumulator.options,
-                    surfacePlacements = accumulator.surfacePlacements,
+                    placementsPerSurface = accumulator.placementsPerSurface,
                 )
             }
         }
 
     /** Collects the placements sharing one widget instance String identifier. */
     private class InstanceAccumulator(val options: Bundle) {
-        val surfacePlacements: MutableObjectIntMap<GlanceSurface> = MutableObjectIntMap()
+        val placementsPerSurface: MutableObjectIntMap<GlanceSurface> = MutableObjectIntMap()
     }
 
     /**

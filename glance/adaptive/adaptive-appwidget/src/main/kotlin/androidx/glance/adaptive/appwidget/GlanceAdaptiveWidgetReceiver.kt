@@ -42,7 +42,7 @@ private const val TAG = "GlanceAdaptiveReceiver"
  *
  * Subclass this receiver to associate a widget declared in `AndroidManifest.xml` with a
  * [widgetName]. Rather than providing a custom `GlanceAppWidget` composable layout, applications
- * push [androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate] data via
+ * push [androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate] data via
  * [androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate], and the library adapts
  * and renders the layout for each target surface.
  *

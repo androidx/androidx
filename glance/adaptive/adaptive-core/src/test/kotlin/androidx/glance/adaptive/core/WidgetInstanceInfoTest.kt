@@ -19,7 +19,7 @@ package androidx.glance.adaptive.core
 import android.os.Bundle
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.objectIntMapOf
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import androidx.glance.adaptive.core.selection.GlanceSurface
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,8 +40,8 @@ class WidgetInstanceInfoTest {
         assertThat(info.widgetName).isEqualTo("test_widget")
         assertThat(info.widgetId).isEqualTo("instance_123")
         assertThat(info.options.isEmpty).isTrue()
-        assertThat(info.surfacePlacements.isEmpty()).isTrue()
-        assertThat(info.surfacePlacements.size).isEqualTo(0)
+        assertThat(info.placementsPerSurface.isEmpty()).isTrue()
+        assertThat(info.placementsPerSurface.size).isEqualTo(0)
     }
 
     @Test
@@ -57,14 +57,14 @@ class WidgetInstanceInfoTest {
                 widgetName = "weather_widget",
                 widgetId = "weather_bucharest",
                 options = bundle,
-                surfacePlacements = placements,
+                placementsPerSurface = placements,
             )
 
         assertThat(info.widgetName).isEqualTo("weather_widget")
         assertThat(info.widgetId).isEqualTo("weather_bucharest")
         assertThat(info.options.getString("city")).isEqualTo("Bucharest")
         assertThat(info.options.getInt("temp")).isEqualTo(25)
-        assertThat(info.surfacePlacements).isEqualTo(placements)
+        assertThat(info.placementsPerSurface).isEqualTo(placements)
     }
 
     @Test
@@ -125,7 +125,7 @@ class WidgetInstanceInfoTest {
         assertThat(info1)
             .isNotEqualTo(WidgetInstanceInfo("name", "id", diffCharBundle, placements1))
 
-        // Different surfacePlacements
+        // Different placementsPerSurface
         val diffPlacements =
             WidgetInstanceInfo("name", "id", bundle1, objectIntMapOf(surfaceLock, 1))
         assertThat(info1).isNotEqualTo(diffPlacements)
@@ -196,11 +196,11 @@ class WidgetInstanceInfoTest {
             WidgetInstanceInfo(
                 widgetName = "widget",
                 widgetId = "id",
-                surfacePlacements = mutablePlacements,
+                placementsPerSurface = mutablePlacements,
             )
 
         mutablePlacements.put(surfaceHome, 99)
-        assertThat(info.surfacePlacements.getOrDefault(surfaceHome, 0)).isEqualTo(1)
+        assertThat(info.placementsPerSurface.getOrDefault(surfaceHome, 0)).isEqualTo(1)
     }
 
     @Test
@@ -216,8 +216,8 @@ class WidgetInstanceInfoTest {
                 put(surfaceHome, 2)
             }
 
-        val info1 = WidgetInstanceInfo("name", "id", surfacePlacements = map1)
-        val info2 = WidgetInstanceInfo("name", "id", surfacePlacements = map2)
+        val info1 = WidgetInstanceInfo("name", "id", placementsPerSurface = map1)
+        val info2 = WidgetInstanceInfo("name", "id", placementsPerSurface = map2)
 
         assertThat(info1).isEqualTo(info2)
         assertThat(info1.hashCode()).isEqualTo(info2.hashCode())
@@ -229,7 +229,7 @@ class WidgetInstanceInfoTest {
             WidgetInstanceInfo(
                 widgetName = "sample_widget",
                 widgetId = "sample_id",
-                surfacePlacements = objectIntMapOf(surfaceHome, 3),
+                placementsPerSurface = objectIntMapOf(surfaceHome, 3),
             )
         val str = info.toString()
         assertThat(str).contains("WidgetInstanceInfo")

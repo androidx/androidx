@@ -19,7 +19,7 @@ package androidx.glance.adaptive.appwidget
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
 import android.util.Log
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import kotlinx.coroutines.CancellationException
 
 /**

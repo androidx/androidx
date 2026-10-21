@@ -22,12 +22,11 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.appwidget.ui.AppWidgetRenderOutput
-import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
+import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
-import androidx.glance.adaptive.core.ui.TemplateRenderer
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.renderer.TemplateRenderer
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import java.lang.reflect.Modifier
 
 /**
@@ -185,9 +184,9 @@ public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @param surface The [AppWidgetSurface] to draw [T] on.
  * @param renderer Draws [T] as [AppWidgetRenderOutput]. The
- *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions] of the surface it
- *   receives may be `(0, 0)` when the host has not reported a positive size or during widget picker
- *   preview rendering, so it must handle zero dimensions.
+ *   [androidx.glance.adaptive.core.selection.GlanceSurface.dimensions] of the surface it receives
+ *   may be `(0, 0)` when the host has not reported a positive size or during widget picker preview
+ *   rendering, so it must handle zero dimensions.
  * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
  *   if it was created for another surface.
  * @throws IllegalArgumentException if [T] is an interface or an abstract class, as no template
