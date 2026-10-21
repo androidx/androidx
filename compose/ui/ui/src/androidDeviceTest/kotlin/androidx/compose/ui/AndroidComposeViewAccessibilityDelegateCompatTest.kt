@@ -182,7 +182,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.junit.Assume.assumeTrue
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2413,7 +2412,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    @Ignore("b/553677028")
     fun textChanged_sendTextChangeEvent() {
         // Arrange.
         var textChanged by mutableStateOf(false)
