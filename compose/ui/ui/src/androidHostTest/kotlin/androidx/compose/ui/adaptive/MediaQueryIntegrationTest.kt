@@ -288,24 +288,14 @@ class MediaQueryIntegrationTest {
         val insetsVisible =
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), true).build()
 
-        rule.runOnIdle {
-            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
-                composeView,
-                insetsVisible,
-            )
-        }
+        rule.runOnIdle { composeView.insetsWatcher.onApplyWindowInsets(composeView, insetsVisible) }
         rule.waitForIdle()
         assertTrue(result)
 
         val insetsHidden =
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), false).build()
 
-        rule.runOnIdle {
-            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
-                composeView,
-                insetsHidden,
-            )
-        }
+        rule.runOnIdle { composeView.insetsWatcher.onApplyWindowInsets(composeView, insetsHidden) }
         rule.waitForIdle()
         assertFalse(result)
     }
@@ -337,12 +327,7 @@ class MediaQueryIntegrationTest {
 
         val insets =
             WindowInsetsCompat.Builder().setVisible(WindowInsetsCompat.Type.ime(), true).build()
-        rule.runOnIdle {
-            (composeView.insetsWatcher ?: composeView.insetsListener)?.onApplyWindowInsets(
-                composeView,
-                insets,
-            )
-        }
+        rule.runOnIdle { composeView.insetsWatcher.onApplyWindowInsets(composeView, insets) }
         rule.waitForIdle()
         assertTrue(result)
 
@@ -390,14 +375,11 @@ class MediaQueryIntegrationTest {
         rule.setContent { composeView = LocalView.current as AndroidComposeView }
         rule.waitForIdle()
 
-        val watcher = composeView.insetsWatcher
-        if (watcher != null) {
-            val provider = WindowInsetsRulersProvider(watcher)
-            assertFalse(
-                "Ruler should not be provided when insets are uninitialized",
-                provider.isRulerProvided(WindowInsetsRulers.StatusBars.current.left),
-            )
-        }
+        val provider = WindowInsetsRulersProvider(composeView.insetsWatcher)
+        assertFalse(
+            "Ruler should not be provided when insets are uninitialized",
+            provider.isRulerProvided(WindowInsetsRulers.StatusBars.current.left),
+        )
     }
 
     @Test
