@@ -38,17 +38,18 @@ import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -314,7 +315,7 @@ class RcPlayerRecompositionAndRepaintTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val target = rememberMutableRemoteFloat(50f)
+                            val target = remember { MutableRemoteFloat(50f) }
                             val animated =
                                 animateRemoteFloatAsState(
                                     targetValue = target,
@@ -426,7 +427,7 @@ class RcPlayerRecompositionAndRepaintTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val interactiveExtra = rememberMutableRemoteFloat(0f)
+                            val interactiveExtra = remember { MutableRemoteFloat(0f) }
                             val secWidth =
                                 RemoteFloat(RemoteContext.FLOAT_TIME_IN_SEC) * 2f + interactiveExtra
                             RemoteBox(

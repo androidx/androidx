@@ -43,18 +43,19 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -156,7 +157,7 @@ public fun RemoteEdgeButton(
                 },
         contentAlignment = RemoteAlignment.Center,
     ) {
-        val buttonWidthDp = rememberRemoteFloatExpression { componentWidth() }.toRemoteDp()
+        val buttonWidthDp = remember { RemoteFloatExpression { componentWidth() } }.toRemoteDp()
         val contentWidth =
             calculateEdgeButtonContentWidth(
                 actualButtonWidth = buttonWidthDp,

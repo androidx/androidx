@@ -25,10 +25,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.remember
@@ -74,7 +74,7 @@ class RemoteStateTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val creationState = LocalRemoteComposeCreationState.current
 
-                val width = rememberRemoteFloatExpression { componentWidth() }
+                val width = remember { RemoteFloatExpression { componentWidth() } }
 
                 val configurableWidth = remember {
                     createNamedRemoteFloatExpression(name = "configurableWidth") { width }

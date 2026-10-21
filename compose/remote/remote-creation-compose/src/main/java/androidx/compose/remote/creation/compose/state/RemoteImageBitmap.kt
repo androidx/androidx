@@ -273,6 +273,14 @@ internal constructor(
  * @param initialValue The initial [ImageBitmap] value.
  * @return A [MutableRemoteImageBitmap] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteImageBitmap(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteImageBitmap(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap {
     return remember { MutableRemoteImageBitmap(initialValue) }

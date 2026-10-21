@@ -1393,6 +1393,14 @@ internal class RemoteIntSelect(
  * @param initialValue The initial [Int] value.
  * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteInt(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteInt(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {

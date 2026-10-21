@@ -32,17 +32,18 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.RcPlayerTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -115,7 +116,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
     @Test
     fun button_clickUpdatesRemoteState() {
         setBookendsContent {
-            val clicks = rememberMutableRemoteInt(0)
+            val clicks = remember { MutableRemoteInt(0) }
             RemoteButton(
                 onClick = valueChange(clicks, clicks + 1),
                 secondaryLabel = { RemoteText("Clicks: ".rs + clicks.toRemoteString()) },
@@ -176,7 +177,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
     @Test
     fun switchButton_togglesStateOnClick() {
         setBookendsContent {
-            val checked = rememberMutableRemoteBoolean(false)
+            val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
                 onCheckedChange = valueChange(checked, !checked),
@@ -222,7 +223,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
     @Test
     fun switchButton_disabledDoesNotToggleState() {
         setBookendsContent {
-            val checked = rememberMutableRemoteBoolean(false)
+            val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
                 onCheckedChange = valueChange(checked, !checked),
@@ -331,7 +332,7 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
     @Test
     fun switchButton_updatesToggleableSemanticsOnClick() {
         setBookendsContent {
-            val checked = rememberMutableRemoteBoolean(false)
+            val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
                 onCheckedChange = valueChange(checked, !checked),

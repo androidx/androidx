@@ -2021,6 +2021,14 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
  * @param value A lambda that provides the [FloatArray] to be remembered.
  * @return A [RemoteFloat] representing the remembered float array.
  */
+@Deprecated(
+    message = "Use remember { RemoteFloatExpression.fromFloatArray(value) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { RemoteFloatExpression.fromFloatArray(value) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
@@ -2034,6 +2042,14 @@ public fun rememberRemoteFloatArray(value: () -> FloatArray): RemoteFloat {
  * @param initialValue The initial [Float] value.
  * @return A [MutableRemoteFloat] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteFloat(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteFloat(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteFloat(initialValue: Float): MutableRemoteFloat {
@@ -2046,6 +2062,11 @@ public fun rememberMutableRemoteFloat(initialValue: Float): MutableRemoteFloat {
  * @param value A lambda that provides the [RemoteFloat] expression.
  * @return A [RemoteFloat] instance representing the provided expression.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteFloat(value) } instead.",
+    replaceWith =
+        ReplaceWith("remember { MutableRemoteFloat(value) }", "androidx.compose.runtime.remember"),
+)
 @Composable
 @RemoteComposable
 public fun rememberMutableRemoteFloat(
@@ -2060,6 +2081,14 @@ public fun rememberMutableRemoteFloat(
  * @param value A lambda that provides the [RemoteFloat] expression.
  * @return A [RemoteFloat] instance representing the provided expression.
  */
+@Deprecated(
+    message = "Use remember { RemoteFloatExpression(value) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { RemoteFloatExpression(value) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable

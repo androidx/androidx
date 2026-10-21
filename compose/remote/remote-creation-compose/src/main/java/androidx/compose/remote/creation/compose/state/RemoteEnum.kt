@@ -267,6 +267,14 @@ public constructor(public val remoteInt: MutableRemoteInt, enumEntries: EnumEntr
  * @param initialValue The initial [Enum] value.
  * @return A [MutableRemoteEnum] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteEnum(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteEnum(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @Composable
 @RemoteComposable
 public inline fun <reified T : Enum<T>> rememberMutableRemoteEnum(

@@ -295,6 +295,14 @@ internal constructor(
  * @param initialValue The initial [Long] value.
  * @return A [MutableRemoteLong] instance that will be remembered across recompositions.
  */
+@Deprecated(
+    message = "Use remember { MutableRemoteLong(initialValue) } instead.",
+    replaceWith =
+        ReplaceWith(
+            "remember { MutableRemoteLong(initialValue) }",
+            "androidx.compose.runtime.remember",
+        ),
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {

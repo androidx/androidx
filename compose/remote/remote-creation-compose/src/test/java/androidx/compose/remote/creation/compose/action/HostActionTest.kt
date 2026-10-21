@@ -34,9 +34,9 @@ import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rb
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -235,7 +235,7 @@ class HostActionTest {
         val pendingIntent = testPendingIntent()
         val captured =
             captureSingleRemoteDocument(context = context) {
-                val taps = rememberMutableRemoteInt(3)
+                val taps = remember { MutableRemoteInt(3) }
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
@@ -279,7 +279,7 @@ class HostActionTest {
                 context = context,
                 profile = createProfile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS),
             ) {
-                val taps = rememberMutableRemoteInt(3)
+                val taps = remember { MutableRemoteInt(3) }
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(

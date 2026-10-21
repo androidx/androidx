@@ -35,8 +35,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
@@ -122,7 +123,7 @@ class WearWidgetPendingIntentContractTest {
         val pendingIntent = testPendingIntent(requestCode = 1)
 
         val actions = capture {
-            val taps = rememberMutableRemoteInt(3)
+            val taps = remember { MutableRemoteInt(3) }
             RemoteBox(
                 modifier =
                     RemoteModifier.clickable(
