@@ -106,11 +106,13 @@ public object AndroidComposeUiFlags {
     public var isAccessibilityPerformanceEnabled: Boolean = true
 
     /**
-     * This flag enables dispatching accessibility focus events (TYPE_VIEW_ACCESSIBILITY_FOCUSED)
-     * after keyboard scroll events for screen-reader synchronization.
+     * With this flag on, a node that gains input focus while it is outside the accessibility tree
+     * (for example a lazy list item composed by BeyondBoundsLayout for keyboard navigation) or
+     * while it is not visible to the user dispatches TYPE_VIEW_FOCUSED once it becomes visible,
+     * typically after it has been scrolled into the viewport. This lets screen readers follow
+     * keyboard focus into items that were off-screen when they were focused.
      */
-    // TODO: Remove this flag once TalkBack post-scroll sync is ubiquitous (b/447669491,
-    // b/543664588)
+    // TODO: b/447669491 - Remove this flag once the behavior has shipped.
     @field:Suppress("MutableBareField")
     @JvmField
     public var isScrollAccessibilityFocusEventEnabled: Boolean = true
