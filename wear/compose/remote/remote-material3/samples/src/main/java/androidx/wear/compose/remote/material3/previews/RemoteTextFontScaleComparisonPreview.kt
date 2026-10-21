@@ -30,15 +30,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
@@ -46,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.Text
@@ -88,11 +84,6 @@ private fun RowScope.RCText() {
     Box(modifier = Modifier.weight(1f)) {
         RemoteContentPreview {
             Container {
-                val state = LocalRemoteComposeCreationState.current
-                val density = LocalDensity.current
-                state.remoteDensity =
-                    RemoteDensity(density = density.density.rf, fontScale = density.fontScale.rf)
-
                 RemoteText(text = text.rs, fontSize = size1.rsp)
                 RemoteText(text = text.rs, fontSize = size2.rsp)
                 RemoteText(text = text.rs, fontSize = size3.rsp)
