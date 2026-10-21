@@ -29,10 +29,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
 import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.LayoutDirection
@@ -62,7 +60,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
      */
     internal val intExpressionIds: MutableObjectIntMap<LoweredIntExpressionKey> =
         MutableObjectIntMap()
-    public var ready: Boolean = true
     public override lateinit var document: RemoteComposeWriter
     internal val remoteVariableToId: MutableObjectIntMap<RemoteStateCacheKey> =
         MutableObjectIntMap()
@@ -126,8 +123,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         }
         return id
     }
-
-    public val time: MutableState<Long> = mutableLongStateOf(0L)
 
     public val platform: RcPlatformServices
         get() = profile.platform
