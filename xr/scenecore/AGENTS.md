@@ -4,29 +4,6 @@ This directory contains the Jetpack SceneCore libraries (`androidx.xr.scenecore`
 
 ---
 
-## Recommended Agent Skills for SceneCore Development
-
-When authoring, reviewing, debugging, or planning features across AndroidX XR and SceneCore, agents should load the following specialized skills:
-
-1. **`androidx-xr-development`** (`google3/experimental/users/bhavsar/skills/androidx_xr_development`):
-   - Comprehensive AndroidX XR & SceneCore development playbook: cross-repo XROS platform tracing (`SpaceFlinger`, `XrExtensions`, `libimpress`), Phase 0 empirical on-device probing (`adb shell dumpsys spf_cpm`), resource lifecycle & teardown audit rules, coordinate-space math invariants, and Gerrit review standards.
-2. **`planning-xr-feature-stacks`** (`google3/experimental/users/bhavsar/skills/planning_xr_feature_stacks`):
-   - Multi-CL Jetpack XR feature stack planning: 5-layer dependency sequencing, Wave 1 vs Wave 2 separation, entity integration matrices, and single-leader topic presubmit voting.
-3. **`androidx-api-guidelines`** (`//depot/configs/users/xinyunh/_agents/skills/androidx-api-guidelines`):
-   - AndroidX API design standards: binary and source compatibility, Kotlin/Java interop, `@RequiresApi` gating, `@RestrictTo`, coroutines and lifecycle integration.
-4. **`jxr-api-council-review`** (`//depot/configs/users/xinyunh/_agents/skills/jxr-api-council-review`) & **`android-api-council`** (`google3/experimental/users/bhavsar/skills/android_api_council`):
-   - Android API Council review standards for Jetpack XR public and internal surfaces, Jared Finder (`jfinder@`) directives, and 3-tier severity rules.
-5. **`kotlin-readability`** (`google3/experimental/users/bhavsar/skills/kotlin_readability`) & **`general-review`** (`google3/experimental/users/bhavsar/skills/general_review`):
-   - Kotlin style guides, idiom verification, and general code review quality.
-6. **`triggering-topic-presubmit`** (`google3/pnd/swe_agents/skills/treehugger/triggering_topic_presubmit`):
-   - Triggering TreeHugger presubmit runs across Gerrit topics with a single topic-level vote.
-7. **`gob-vcs`** (`google3/learning/gemini/agents/skills/gob/gob_vcs/skills/gob_vcs`) & **`gerrit`** (`google3/learning/gemini/agents/skills/gerrit`):
-   - Git-on-Borg version control and Gerrit review workflows for `frameworks/support`.
-8. **`kotlin-mockito-migration`** (`google3/learning/gemini/agents/skills/kotlin_mockito_migration`):
-   - Idiomatic Kotlin unit test doubles using `org.mockito.kotlin` and Google Truth.
-
----
-
 ## Canonical Build & Development Commands
 
 Run all commands from the repository root (`frameworks/support`). Always scope Gradle invocations with `PROJECT_PREFIX` to avoid repo-wide configuration overhead:
@@ -83,10 +60,10 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
 | On-Device Spatial Core  |   | On-Device Spatial Render  |   | OpenXR Backend (WIP)      |
 | :scenecore-spatial-core |   | :scenecore-spatial-rendering| | :scenecore-openxr         |
 |                         |   |                           |   |                           |
-| Interfaces directly with|   | Integrates Google's       |   | Native OpenXR calls via   |
-| Vendor XrExtensions and |   | native SplitEngine        |   | SceneCoreOpenXrNative JNI |
-| Android Platform APIs   |   | (ImpressApi) inside an    |   | bridge. Snapshot-only;    |
-|                         |   | extension SubspaceNode    |   | not on public devices yet |
+| Interfaces directly with|   | Integrates native         |   | Native OpenXR calls via   |
+| platform XrExtensions   |   | SplitEngine (ImpressApi)  |   | SceneCoreOpenXrNative JNI |
+| and Android OS APIs     |   | inside an extension       |   | bridge. Snapshot-only;    |
+|                         |   | SubspaceNode              |   | not on public devices yet |
 +-------------------------+   +---------------------------+   +---------------------------+
 ```
 
@@ -101,9 +78,9 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
 - **Rule**: Annotated with `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)`.
 
 ### 3. Concrete Implementations
-- **`scenecore-spatial-core` (`SpatialSceneRuntime`)**: Foundational on-device spatial engine (`AndroidXrEntity`, `ActivitySpaceImpl`, `PanelEntityImpl`, `MainPanelEntityImpl`, `MovableComponentImpl`). Interacts directly with platform `com.android.extensions.xr.*` APIs and `SurfaceControlViewHost`.
-- **`scenecore-spatial-rendering` (`SpatialRenderingRuntime`)**: Hardware-accelerated 3D split-rendering engine backed by Google's native Impress/SplitEngine C++ library (`ImpressApi`). Encapsulates glTF loading, PBR materials, custom mesh geometry, stereoscopic surfaces, and EXR IBL lighting inside extension `SubspaceNode` instances.
-- **`scenecore-openxr` (`OpenXrSceneRuntime`)**: Cross-vendor OpenXR implementation using native JNI calls (`SceneCoreOpenXrNative`). Snapshot-only while OpenXR runtime pathways are finalized on commercial devices.
+- **`scenecore-spatial-core` (`SpatialSceneRuntime`)**: Foundational on-device spatial engine (`AndroidXrEntity`, `ActivitySpaceImpl`, `PanelEntityImpl`, `MainPanelEntityImpl`, `MovableComponentImpl`, `ResizableComponentImpl`). Interacts directly with platform `com.android.extensions.xr.*` APIs and `SurfaceControlViewHost`.
+- **`scenecore-spatial-rendering` (`SpatialRenderingRuntime`)**: Hardware-accelerated 3D split-rendering engine backed by the native Impress/SplitEngine library (`ImpressApi`). Encapsulates glTF loading, PBR materials, custom mesh geometry, stereoscopic surfaces, and EXR IBL lighting inside extension `SubspaceNode` instances.
+- **`scenecore-openxr` (`OpenXrSceneRuntime`)**: Experimental cross-vendor OpenXR implementation using native JNI calls (`SceneCoreOpenXrNative`). Snapshot-only (not published to Maven) while OpenXR runtime pathways are finalized on commercial devices. `OpenXrSceneRuntimeFactory` only requires `Feature.FULLSTACK`, so when it is on the classpath it is selected wherever `SpatialSceneRuntimeFactory`'s requirements are not met.
 - **`scenecore-testing` (`FakeSceneRuntime`)**: Fakes and test doubles (`FakeSceneRuntime`, `FakeRenderingRuntime`, `FakeEntity`, `FakeImpressApiImpl`, `EntityTester`) for Robolectric/JVM testing without physical XR displays or native graphics hardware.
 - **`integration-tests:testapp`**: Integration test applications (`testapp`, `videoplayerdrmtest`, `TestAppActivityLeakTest`).
 
@@ -111,84 +88,79 @@ SceneCore is structured into three distinct architectural tiers to enforce separ
 
 ## Ecosystem & System Dependencies Map
 
-| Component | Source Reference / Location | Architectural Role & Details |
+| Component | Package / Artifact | Architectural Role & Details |
 | :--- | :--- | :--- |
-| **Android XR Extensions** | `frameworks/base/libs/xr/Jetpack` | Platform sidecar library (`com.android.extensions.xr.*` / `android.extensions.xr.*`) defining `XrExtensions`, `Node`, `NodeTransaction`, `PassthroughState`, spatial audio, `AvatarManager`. Prebuilt `com.android.extensions.xr.host.test.jar` is used in host JVM unit tests. |
-| **Impress 3D Engine** | `third_party/impress` | High-performance cross-platform 3D/XR engine using Component-Based Architecture (`imp::Node`, `imp::Component`, `imp::View`, `Registry`, `Dispatcher`, `imp::Future`, `.isf` Impress Scene Files). Wrapped in Java via `com.google.ar:impress` (`ImpressApi` / `ImpressApiImpl`). |
-| **SplitEngine** | `third_party/split_engine` | Zero-copy split-rendering IPC engine separating Frontend app from Backend renderer using Ashmem shared memory and FlatBuffers (`SplitEngineSubspaceManager`, `ImpSplitEngineRenderer`, `SplitEngineInputEvent`). |
-| **Jetpack XR Natives** | `third_party/jetpack_xr_natives` | Native C++/JNI bridge connecting Kotlin/Java APIs (`androidx.xr.scenecore`, `androidx.xr.arcore`) to OpenXR drivers, native Impress, and SplitEngine. |
+| **Android XR Extensions** | `com.android.extensions.xr.*` | Platform sidecar library defining `XrExtensions`, `Node`, `NodeTransaction`, `PassthroughState`, spatial audio, `ReformOptions`, and `AvatarManager`. Prebuilt `com.android.extensions.xr.host.test.jar` is used in host JVM unit tests. |
+| **Impress 3D Engine** | `com.google.ar.imp.*` (`com.google.ar:impress`) | High-performance cross-platform 3D/XR engine using a component-based architecture (`imp::Node`, `imp::Component`, `imp::View`, `Registry`, `Dispatcher`, `imp::Future`, `.isf` Impress Scene Files). Wrapped in Kotlin/Java via `ImpressApi` and `ImpressApiImpl`. |
+| **SplitEngine** | `com.google.ar.imp.view.splitengine.*` | Zero-copy split-rendering IPC engine separating the frontend application from the backend renderer using shared memory and FlatBuffers (`SplitEngineSubspaceManager`, `ImpSplitEngineRenderer`, `SplitEngineInputEvent`). |
+| **Jetpack XR Natives** | `androidx.xr.scenecore.impl.perception.*` / JNI | Native C++/JNI bridges connecting `androidx.xr.scenecore` and `androidx.xr.arcore` to OpenXR drivers, native Impress, and SplitEngine. |
 
 ---
 
-## Canonical SDK-to-Extensions Mapping Table (Agent Quick-Lookup)
+## Canonical SDK-to-Extensions Mapping Table
 
-When tracing or modifying behavioral bugs across layers, reference this mapping to know exactly what system or extension components underpin each SDK feature:
+When tracing or modifying behavioral bugs across layers, reference this mapping to see which runtime and extension APIs underpin each SDK feature:
 
 | SceneCore SDK API (`androidx.xr.scenecore`) | Runtime Impl (`scenecore-spatial-core` / `rendering`) | Underlying Extensions / OS System APIs (`com.android.extensions.xr.*`, `android.*`, `ImpressApi`) |
 | :--- | :--- | :--- |
-| **`Session.scene` / Root Nodes** | `SpatialSceneRuntime` / `SpatialRenderingRuntime` | • `XrExtensions.attachSpatialScene(...)`<br>• Root scene and task window leash CPM `Node` instances created via `XrExtensions.createNode()` |
-| **`Scene.activitySpace`** | `ActivitySpaceImpl` (`SystemSpaceEntityImpl`) | • Root CPM `Node`<br>• Subscribes to `Node.subscribeToTransform(...)`<br>• Tracks `SpatialState.bounds` via `XrExtensions.setSpatialStateCallback(...)` |
+| **`Session.scene` / Root Nodes** | `SpatialSceneRuntime` / `SpatialRenderingRuntime` | • `XrExtensions.attachSpatialScene(...)`<br>• Root scene and task window leash `Node` instances created via `XrExtensions.createNode()` |
+| **`Scene.activitySpace`** | `ActivitySpaceImpl` (`SystemSpaceEntityImpl`) | • Root scene `Node`<br>• Subscribes to `Node.subscribeToTransform(...)`<br>• Tracks `SpatialState.bounds` via `XrExtensions.setSpatialStateCallback(...)` |
 | **`Scene.keyEntity`** | `SpatialSceneRuntime.keyEntity = ...` | • **Requires Spatial API >= 2**<br>• Subscribes to targeted `Node.subscribeToTransform(...)`<br>• Calls `XrExtensions.underlyingObject.setSpatialContinuityHint(activity, pos, rot)` |
 | **`Scene.isBoundaryConsentGranted`** | `SpatialSceneRuntime` boundary consent observers | • Queries `Settings.Secure` (`guardian_consent_granted`) & `Settings.System` (`toggle_guardian`) via `ContentResolver`<br>• Registers `ContentObserver` for live updates |
-| **`MainPanelEntity`** | `MainPanelEntityImpl` (`BasePanelEntity`) | • Task Window Leash CPM Node (`MainPanelAndTaskWindowLeashNode`)<br>• Reads window dimensions via `Activity.windowManager.currentWindowMetrics.bounds` *(MinAPI 30)*<br>• Resizing triggers asynchronous IPC `XrExtensions.setMainWindowSize(activity, w, h, executor, cb)` |
+| **`MainPanelEntity`** | `MainPanelEntityImpl` (`BasePanelEntity`) | • Task Window Leash Node (`MainPanelAndTaskWindowLeashNode`)<br>• Reads window dimensions via `Activity.windowManager.currentWindowMetrics.bounds` *(MinAPI 30)*<br>• Resizing triggers asynchronous IPC `XrExtensions.setMainWindowSize(activity, w, h, executor, cb)` |
 | **`PanelEntity.create(...)`** | `PanelEntityImpl` | • Requires **MinAPI 30**<br>• Creates offscreen target `android.view.SurfaceControlViewHost(context, display, Binder())`<br>• Invokes `NodeTransaction.setSurfacePackage(node, surfacePackage)` and `.setWindowBounds(...)` |
 | **`ActivityPanelEntity.create(...)`** | `ActivityPanelEntityImpl` | • Calls `XrExtensions.createActivityPanel(activity, ActivityPanelLaunchParameters(rect))` (`ActivityPanel`)<br>• `ActivityPanel.launchActivity` / `moveActivity` / `setWindowBounds` |
 | **`AnchorEntity.create(...)`** | `AnchorEntityImpl` | • Extracts raw tracking token from `androidx.xr.arcore.Anchor.anchorToken`<br>• `NodeTransaction.setParent(node, activitySpace.node).setAnchorId(node, anchorToken).apply()` |
-| **`SpatialEnvironment`** *(Passthrough)* | `SpatialEnvironmentImpl` | • Dedicated CPM Node (`EnvironmentPassthroughNode`)<br>• `NodeTransaction.setPassthroughState(node, opacity, PASSTHROUGH_MODE_MAX / PASSTHROUGH_MODE_OFF)` |
+| **`SpatialEnvironment`** *(Passthrough)* | `SpatialEnvironmentImpl` | • Dedicated environment `Node` (`EnvironmentPassthroughNode`)<br>• `NodeTransaction.setPassthroughState(node, opacity, PASSTHROUGH_MODE_MAX / PASSTHROUGH_MODE_OFF)` |
 | **`SpatialEnvironment`** *(Skybox/Geometry)* | `SpatialEnvironmentFeatureImpl` via `scenecore-spatial-rendering` | • `XrExtensions.attachSpatialEnvironment` / `detachSpatialEnvironment`<br>• **Skybox:** `ImpressApi.setPreferredEnvironmentLight(exrImage.nativeHandle)`<br>• **3D Geometry:** `SplitEngineSubspaceManager.createSubspace` + `ImpressApi.instanceGltfModel(...)` |
 | **`GltfModelEntity`** | `GltfEntityImpl` & `GltfFeatureImpl` | • `SplitEngineSubspaceManager.createSubspace` creates outer extension `SubspaceNode`<br>• `ImpressApi.loadGltfAsset` & `instanceGltfModel`<br>• Animations controlled via `ImpressApi.animateGltfModel` (`GltfAnimation`) |
 | **`MeshEntity`** | `MeshEntityImpl` & `MeshFeatureImpl` | • Enclosed in extension `SubspaceNode`<br>• `ImpressApi` handles `CustomMesh`, `MeshBuffer`, and `KhronosPbrMaterial` setups |
 | **`SurfaceEntity`** | `SurfaceEntityImpl` & `SurfaceFeatureImpl` | • Creates `SubspaceNode` boundary via `SplitEngineSubspaceManager`<br>• `ImpressApi` renders stereoscopic split view surfaces (`StereoMode.TOP_BOTTOM`, `SIDE_BY_SIDE`, `MONO`) with custom color transfer/range parameters and alpha mask textures |
 | **`MovableComponent`** | `MovableComponentImpl` | • Calls `XrExtensions.createReformOptions(executor, consumer)` (`ReformOptions`)<br>• Configures flags (`ReformOptions.ALLOW_MOVE` & `FLAG_ALLOW_SYSTEM_MOVEMENT`, `FLAG_POSE_RELATIVE_TO_PARENT`)<br>• Attaches to entity via `NodeTransaction.enableReform(node, reformOptions)` |
-| **`ResizableComponent`** | `ResizableComponentImpl` | • Uses `ReformOptions` configured with `ReformOptions.ALLOW_RESIZE`, min/max bounds, and aspect ratio locks<br>• Intercepts `ReformEvent.proposedSize` to dispatch `ResizeEvent` |
+| **`ResizableComponent`** | `ResizableComponentImpl` | • Uses `ReformOptions` configured with `ReformOptions.ALLOW_RESIZE`, `FLAG_POSE_RELATIVE_TO_PARENT`, min/max bounds, and aspect ratio locks<br>• Intercepts `ReformEvent.proposedSize` to dispatch `ResizeEvent` |
 | **`InteractableComponent`** | `InteractableComponentImpl` | • Subscribes directly to `com.android.extensions.xr.node.Node.listenForInput(executor, listener)` |
 | **`PointerCaptureComponent`** | `PointerCaptureComponentImpl` | • Invokes `Node.requestPointerCapture(...)` and `Node.stopPointerCapture()` across exclusive pointer sessions |
 | **`SpatialPointerComponent`** | `SpatialPointerComponentImpl` | • Customizes ray/pointer icons via `NodeTransaction.setPointerIcon(node, convertSpatialPointerIconType(type))` |
 | **`PositionalAudioComponent`** | `PositionalAudioComponentImpl` | • Wraps `com.android.extensions.xr.media.AudioTrackExtensions`<br>• Updates audio source positions in space via `AudioTrackExtensions.setPointSourceParams(...)` (`PointSourceParams`) |
 | **`SoundFieldAudioComponent`** | `SoundFieldAudioComponentImpl` | • Calls `AudioTrackExtensions.setSoundFieldAttributes(track, soundFieldAttributes)` for ambisonics parameters |
 | **`SoundEffectPoolComponent`** | `SoundEffectPoolComponentImpl` & `SoundEffectPoolImpl` | • Wraps `com.android.extensions.xr.media.SoundPoolExtensions`<br>• Attaches sound sources to node boundaries using `SoundPoolExtensions.setSpatialSource(...)` |
-| **`FollowingSpace`** | `FollowingSpaceImpl` (`SystemSpaceEntityImpl(subscribeToTransform = false)`) | • **Requires Spatial API >= 4** (`@RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)`)<br>• Parented under `activitySpace.node` via raw `NodeTransaction.setParent` (keeping Kotlin `parent = null`)<br>• Configures `NodeTransaction.setHeadFollowing(node, ExponentialDecayHeadFollowingConfig)` synchronously in `init`<br>• Uses a two-step snap workaround (`b/572875817`): applies a 1 ms `trackConfig` (`FollowDeadzone.Zero`) for 50 ms before applying the settled config (`1_000_000f` m / `360°` hold deadzone for `DISCRETE`) |
-| **`BillboardEntity`** | `BillboardEntityImpl` (`AndroidXrEntity`) | • **Requires Spatial API >= 4** (`@RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)`)<br>• Configures `NodeTransaction.setHeadFollowing(node, LookAtUserHeadFollowingConfig(rotationAxes))` synchronously in `init`<br>• Stores caller rotation in Kotlin (`localRotation`) for `getPose(Space.PARENT)` without writing rotation to the CPM node; evaluates world/activity poses using the *layout pose* (identity rotation at the billboard) |
+| **`FollowingSpace`** | `FollowingSpaceImpl` | • **Requires Spatial API >= 2**<br>• Applies `NodeTransaction.enableHeadTransform(node, translateMode, rotateMode, translationAmount, rotationAmount)` synchronously in `init` before parenting under `activitySpace.node`<br>• Driven by periodic `NodeTransaction.ping(node).apply()` at 500 ms intervals while keepalive is active (`setFollowerActive`); unparented via `ReferenceCleaner` on GC |
+| **`BillboardEntity`** | `BillboardEntityImpl` | • **Requires Spatial API >= 2**<br>• Applies `NodeTransaction.enableBillboard(node, rotateMode, ...)` synchronously in `init` before parenting/positioning<br>• Driven by periodic `NodeTransaction.ping(node).apply()` while attached to a parent (`parent != null`), paused when unparented (`parent = null`), and stopped on `dispose()` |
 
 ---
 
-## Cross-Repo XROS Platform Tracing & Phase 0 On-Device Probing
+## Technical Deep-Dive, Version-Gating & On-Device Probing
 
-When an issue appears in SceneCore, investigate the platform layer before assuming an SDK bug.
+### 1. SplitEngine Subspace Coordination (Outer vs. Inner Transforms)
+When rendering complex 3D structures (`GltfModelEntity`, `MeshEntity`, `SurfaceEntity`) alongside standard windowing panels (`PanelEntity`) inside a uniform spatial scene graph without conflicts:
+- **Outer Enclosure:** `scenecore-spatial-rendering` encloses 3D rendering inside a hardware boundary created by `SplitEngineSubspaceManager.createSubspace(subspaceName, handle)`, yielding a standard `com.android.extensions.xr.node.Node` of type Subspace.
+- **Outer Transforms:** External entity changes (parent hierarchy, world pose, scaling) execute on the enclosing extension `Node` via `NodeTransaction.setPosition / setOrientation / setScale`.
+- **Inner Render Graph:** Within that subspace boundary, `ImpressApi` manages a native C++ scene graph (`ImpressNode`). Shaders, skeletal animation ticks (`animateGltfModel`), custom vertex buffers, and PBR/IBL lighting passes run inside SplitEngine without per-frame OS transaction overhead.
 
-### Local Platform Source Trees
-On development Cloudtops (`kalpataru`, `bhavsar`), the corresponding XROS platform source code resides at:
-- `~/axr14-peregrine-system-dev/` (Google internal system tree)
-- `~/partner-moohan-android-14-dev/` (Partner platform tree)
+### 2. Spatial Continuity Hints (`Spatial API >= 2`)
+When assigning a `keyEntity` on `Scene`, `SpatialSceneRuntime` checks the underlying platform capabilities:
+- On devices reporting `spatialApiVersion >= 2`, assigning a `keyEntity` registers `Node.subscribeToTransform` on the targeted entity.
+- Each live coordinate broadcast updates the system compositor via `xrExtensions.underlyingObject.setSpatialContinuityHint(activity, position, rotation)`.
+- When reassigned or cleared, `clearSpatialContinuityHint(activity)` immediately revokes the hint.
 
-Key platform subsystems:
-- **`SpaceFlinger`**: Android XR spatial compositor. Manages spatial nodes, head-following (`HeadFollower.cpp`), transform subscriptions (`SceneStateRecorder.cpp`), input raycasting (`input/XrEventForwarder.cpp`), and reform affordances (`reform/ReformComponent.cpp`).
-  - Path: `vendor/google/ix/sysui/native_soong/spaceflinger/`
-- **CPM (`libxr_cpm`)**: Cross-Process Manager node hierarchy, transactions, and head-transform protection flags (`Node::requiresHeadTransformProtection`).
-  - Path: `frameworks/native/services/cpm/` (`shared/Node.cpp`, `service/CpmService.cpp`)
-- **`XrExtensions` (`com.android.extensions.xr.*` / `android.extensions.xr.*`)**: Platform sidecar and Jetpack client libraries bridging apps to `SpaceFlinger` / CPM.
-  - Path: `frameworks/base/libs/xr/Jetpack/` and `vendor/google/ix/libs/Jetpack/xr/` (raw platform samples in `vendor/google/ix/libs/Jetpack/xr/samples/*`)
-- **`libimpress` / SplitEngine**: Native C++ rendering engine running in app process and compositor.
-  - Path: `vendor/google/impress/` and `third_party/impress/` (`imp/core/math/mat.h`, `split_engine/`)
+### 3. Boundary Consent System Lookups (`ContentResolver`)
+To reliably track user boundary/guardian consent across extension revisions, `SpatialSceneRuntime.calculateBoundaryConsentState()` queries Android settings:
+- Reads `Settings.Secure.getInt(resolver, "guardian_consent_granted", 0)` along with `Settings.System.getInt(resolver, "toggle_guardian", 1)`.
+- Uses a `ContentObserver` registered against both settings URIs to dispatch real-time events through `addOnBoundaryConsentChangedListener`.
 
-### Phase 0 Empirical Probing Workflow
+### 4. Phase 0 On-Device Empirical Probing Workflow
 Before writing complex SDK workarounds for pose, bounds, parenting, or occlusion bugs:
-1. Probe live CPM / SpaceFlinger scene graph state on the device:
-   ```bash
-   adb shell dumpsys spf_cpm
-   ```
-   Inspect:
-   - `ImpNodeWorldPosition`: True world pose computed by compositor.
-   - `Parent`: Actual parenting hierarchy in SpaceFlinger.
-   - `Scale`: Accumulated transform scale.
-   - `Collider Enabled` / `Layer Mask`: Raycast and input hit test state.
-2. Enable verbose platform logging:
+1. Inspect live compositor scene-graph state on the device:
+   - True world pose computed by the compositor (`ImpNodeWorldPosition`).
+   - Actual parenting hierarchy (`Parent`).
+   - Accumulated transform scale (`Scale`).
+   - Raycast and input hit-test state (`Collider Enabled` / `Layer Mask`).
+2. Enable verbose logging:
    ```bash
    adb shell setprop log.tag.SceneCore VERBOSE
-   adb shell setprop log.tag.SpaceFlinger VERBOSE
-   adb logcat -s SceneCore:V Impress:V SpaceFlinger:V XrExtensions:V
+   adb logcat -s SceneCore:V Impress:V XrExtensions:V
    ```
-3. If SpaceFlinger computes incorrect transforms or bounds, determine whether the bug originates in CPM before applying workarounds in SceneCore.
+3. If the platform compositor computes incorrect transforms or bounds, determine whether the bug originates in the platform layer before applying workarounds in SceneCore.
 
 ---
 
@@ -201,7 +173,7 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
 ```
 1. mEntityManager.clear()          (Dispose all user-created Entity instances)
 2. mSpatialEnvironment.dispose()   (Clear skybox/passthrough listeners & Impress nodes)
-3. mSceneNodeRegistry.clear()      (Detach CPM nodes from platform scene graph)
+3. mSceneNodeRegistry.clear()      (Detach extension nodes from scene graph)
 4. extensions.CleanupTransaction   (Apply final empty transform transaction)
 5. impressApi.dispose()            (Tear down SplitEngine native render session)
 6. renderer.dispose()              (Release EGL/Vulkan surfaces and graphics contexts)
@@ -219,7 +191,7 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
       throw IllegalStateException("Attempted to call ImpressApi after disposal.")
   }
   ```
-  *(Note: Banned: `android.util.Log` is forbidden in AndroidX library runtime code; do NOT use `Log.w` here).*
+  *(Note: `android.util.Log` is forbidden in AndroidX library runtime code; do NOT use `Log.w` here).*
 - Calling Impress JNI after `dispose()` triggers `SIGSEGV` or `SIGABRT` in native code.
 
 ### 4. `BindingsResourceManager` Daemon Thread Cleanup
@@ -228,7 +200,7 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
 
 ### 5. Component Listener Detachment on Entity Dispose
 - `ResizableComponentImpl` and `MovableComponentImpl` MUST call `removeReformEventConsumer` or unregister touch/reform listeners when their host entity is disposed.
-- Failing to unregister leaves dangling listeners in CPM that process input for dead entities.
+- Failing to unregister leaves dangling listeners that process input for dead entities.
 
 ### 6. `TestAppActivityLeakTest` Main-Looper Idling
 - Activity leak tests must idle the main looper before checking references:
@@ -238,43 +210,43 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
 - Always drain the main looper queue before taking weak reference snapshots or asserting zero retained activities.
 
 ### 7. `ReferenceCleaner` & Indirect `ScheduledFuture` Retention
-- Entities without a public `dispose()` method (e.g., `FollowingSpace`) rely on `ReferenceCleaner` (`registerCleanup(executor, CleanupAction)`).
-- `CleanupAction` must be a `private class` that never captures `this`, **and** nothing referenced by `CleanupAction` (such as a shared `SnapState` lock holding `pendingSettle: ScheduledFuture<*>`) may capture `this` inside a scheduled runnable. Use companion/static task factories taking `(snapState, extensions, node, ...)` so an active `ScheduledFuture` in `scheduledExecutor`'s work queue does not keep the entity Strongly Reachable.
+- Entities without a public `dispose()` method rely on `ReferenceCleaner` (`registerCleanup(executor, CleanupAction)`).
+- `CleanupAction` must be a `private class` that never captures `this`, **and** nothing referenced by `CleanupAction` (such as a shared state lock holding a `ScheduledFuture<*>`) may capture `this` inside a scheduled runnable. Use companion/static task factories so an active `ScheduledFuture` in `scheduledExecutor`'s work queue does not keep the entity strongly reachable.
 - Verify GC eligibility while scheduled tasks are still pending using `MemoryUtils.assertGarbageCollected`.
 
 ### 8. Unparenting Raw-Transaction Root Nodes on Cleanup
-- When a root space's CPM node is parented under `activitySpace.node` directly via `NodeTransaction.setParent` rather than the Kotlin `parent` property (so `parent == null`), `AndroidXrEntity.dispose()` will not detach it.
-- Its `CleanupAction` MUST explicitly execute `transaction.setParent(node, null).apply()` so `SpaceFlinger` does not keep the node and its `HeadFollower` alive for the lifetime of `ActivitySpace`.
+- When a root space's extension node is parented under `activitySpace.node` directly via `NodeTransaction.setParent` rather than the Kotlin `parent` property (so `parent == null`), `AndroidXrEntity.dispose()` will not detach it.
+- Its `CleanupAction` MUST explicitly execute `transaction.setParent(node, null).apply()` so the parent node does not keep the detached node alive for the lifetime of `ActivitySpace`.
 
-### 9. Synchronous `NodeTransaction` Model & Initial Privacy-Config Ordering
+### 9. Synchronous `NodeTransaction` Model & Initial Config Ordering
 - `SpatialSceneRuntime` and `AndroidXrEntity` execute `NodeTransaction.apply()` synchronously on the caller's thread, not on `scheduledExecutor`.
-- Any node configuration that gates privacy or rendering in `SpaceFlinger` (such as `setHeadFollowing`, which sets `Node::requiresHeadTransformProtection` in CPM) MUST be applied **synchronously in `init`** before the node is parented (`setParent`) or positioned (`setPose`).
+- Any node configuration that gates privacy or rendering behavior on the underlying node MUST be applied **synchronously in `init`** before the node is parented (`setParent`) or positioned (`setPose`).
 
-### 10. Shared `ReformOptions.flags` Bitmask Preservation (`b/572034506`)
+### 10. Shared `ReformOptions.flags` Bitmask Preservation
 - `AndroidXrEntity.getReformOptions()` returns a single shared `ReformOptions` instance across `MovableComponentImpl` and `ResizableComponentImpl`.
 - Never overwrite `reformOptions.flags = ...` with a bare assignment when toggling movement flags (e.g., on `onParentChanged`); preserve orthogonal bits via bitmasking (`(reformOptions.flags and ReformOptions.FLAG_SCALE_WITH_DISTANCE) or ...`).
 
 ### 11. Mid-Gesture Scene-Graph Transition Invariants (`MovableComponent` / `MovableComponentImpl`)
-- Never simply `return null` and drop `MOVE`/`UP`/`CANCEL` events when an entity is reparented into a disallowed subtree (e.g., a follower subtree) while `isMoving == true`—doing so leaves `isMoving` stuck `true`, leaks `entityShadowRenderer` or `setPlanePoseForMoveUpdatePose` plane shadows, and starves `MoveEventListener`s of `MOVE_STATE_END`.
-- **In `MovableComponentImpl`**: when `isMoving` is true and the entity enters a follower subtree, reset `isMoving = false`, call `entityShadowRenderer?.hideShadow()`, and emit a single terminal `MoveEvent.MOVE_STATE_END` with the last delivered pose, scale, and ray; reset `lastRenderedPose = null` and `lastInputRay = null` in `onDetach`.
+- Never simply `return null` and drop `MOVE`/`UP`/`CANCEL` events when an entity is reparented into a disallowed subtree while `isMoving == true`—doing so leaves `isMoving` stuck `true`, leaks `entityShadowRenderer` or `setPlanePoseForMoveUpdatePose` plane shadows, and starves `MoveEventListener`s of `MOVE_STATE_END`.
+- **In `MovableComponentImpl`**: when `isMoving` is true and movement becomes disallowed on the new parent, reset `isMoving = false`, call `entityShadowRenderer?.hideShadow()`, and emit a single terminal `MoveEvent.MOVE_STATE_END` with the last delivered pose, scale, and ray; reset `lastRenderedPose = null` and `lastInputRay = null` in `onDetach`.
 - **In `MovableComponent`**: track `isPlaneShadowShown = anchorablePlanePose != null && moveEvent.moveState != MoveEvent.MOVE_STATE_END`, clear it via `setPlanePoseForMoveUpdatePose(null, Pose.Identity)` if anchoring is disabled mid-move, and reset `isPlaneShadowShown = false` in `onDetach`.
 
 ---
 
-## Coordinate-Space, Transform Math & Head-Following Privacy Invariants
+## Coordinate-Space & Transform Math Invariants
 
 ### 1. Single-Snapshot `ActivitySpace` Conversion
-- When processing asynchronous spatial events (`InputEvent`, `HitInfo`, spatial pointer motion), capture `activitySpace.transformPoseTo(PerceptionSpace)` in a **single snapshot** at the beginning of the frame.
-- **NEVER** re-query `entity.transformPoseTo()` across separate asynchronous steps in the same gesture. Head tracking updates between frames will cause frame-to-frame shear and matrix drift.
+- When processing asynchronous spatial events (`InputEvent`, `HitInfo`, spatial pointer motion), capture `activitySpace.transformPoseTo(PerceptionSpace)` (or `OriginCompensation`) in a **single snapshot** at the beginning of the event.
+- **NEVER** re-query `entity.transformPoseTo()` across separate asynchronous steps in the same event. Head tracking or origin updates between reads cause frame-to-frame shear and matrix drift.
 
 ### 2. `ActivitySpace.hitTest` Scene-Parent Compensation
-- When unprojecting hit test results from screen/pointer rays into `ActivitySpace`:
-  - Compensate for parent entity scale (`sceneParentScale`).
-  - Apply `unscaledActivitySpacePose.inverse` before computing local intersection points.
+- When unprojecting hit test queries and results into `ActivitySpace`:
+  - Compensate outgoing rays and incoming hit positions/distances for uniform `sceneParentScale`.
+  - Apply gravity-aligned orientation compensation before computing local intersection points and surface normals.
 
 ### 3. Gravity-Aligned Pose Heading at Vertical Poles
 - When calculating gravity-aligned poses (`gravityAlignedYawRotation` / `getGravityAlignedPose`), do not discard yaw when pitch approaches `±90°` (gimbal lock).
-- **North vs. South Pole Sign Asymmetry**: When pitched straight up (`+90°`, `forward.y > 0`), the device's top (`+Y`) tilts backward across the pole opposite to facing direction (`upSign = -1f` when measuring against `-Z`); when pitched straight down (`-90°`, `forward.y < 0`), `+Y` points forward along the horizontal facing direction (`upSign = +1f`). Using the same sign at both poles flips heading by `180°`.
+- **North vs. South Pole Sign Asymmetry**: When pitched straight up (`+90°`, `forward.y > 0`), the device's top (`+Y`) tilts backward across the pole opposite to the facing direction (`upSign = -1f` when measuring against `-Z`); when pitched straight down (`-90°`, `forward.y < 0`), `+Y` points forward along the horizontal facing direction (`upSign = +1f`). Using the same sign at both poles flips heading by `180°`.
 - **Smooth Polar Blend & Inverse Guards**: Blend smoothly between the horizontal forward projection and the signed up-vector fallback across the polar threshold window (`r < polarBlendThreshold`), and always guard `Matrix4.inverse` calls with `isTrs` / `isInvertible` before inverting.
 
 ### 4. `AnchorEntityImpl.worldSpaceScale == Vector3.One`
@@ -290,21 +262,22 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
 
 ### 5. `ReformOptions.FLAG_POSE_RELATIVE_TO_PARENT` Requirement
 - When configuring `MovableComponentImpl` or `ResizableComponentImpl` on entities, always pass `ReformOptions.FLAG_POSE_RELATIVE_TO_PARENT`.
-- The compositor rejects any reform without `FLAG_POSE_RELATIVE_TO_PARENT` on a node under head-transform protection (`requiresHeadTransformProtection`), and this flag ensures reform transforms are calculated relative to the parent entity rather than the `ActivitySpace` root.
+- This ensures reform transforms are calculated relative to the parent entity rather than the `ActivitySpace` root, and is required for reforms on nodes under head-transform protection.
 
 ### 6. `MainPanelEntityImpl` Live `WindowManager` Bounds
-- In full-space or panel resize events, always fall back to `WindowManager.currentWindowMetrics.bounds` if spatial panel bounds have not yet received an initial layout pass from CPM.
+- In full-space or panel resize events, always fall back to `WindowManager.currentWindowMetrics.bounds` if spatial panel bounds have not yet received an initial layout pass.
 
-### 7. Head-Following Privacy Split (`SpaceFlinger` vs. SceneCore)
-- **What `SpaceFlinger` Enforces (`SceneStateRecorder.cpp:52-55` & `Node.cpp:265-273`)**: Any node with `headFollowingConfig.has_value()` sets `requiresHeadTransformProtection = true`, causing `SceneStateRecorder::RecordNodesState` to return early for that node and all its descendants. Consequently, `Node.subscribeToTransform` (including `Scene.keyEntity`'s spatial continuity subscription) naturally pauses updates while under a follower—do not build redundant listener-detachment state machines in SceneCore.
-- **What `SpaceFlinger` Leaks & SceneCore Must Sanitize (`XrEventForwarder.cpp:209-263` & `FollowerHitInfo.kt`)**: `XrEventForwarder` populates `XrInputEvent.hitInfo.transform` from `node->GetWorldTransform()` (which includes `HeadFollower`'s head-pose delta) and `hitPosition` in world space. SceneCore MUST sanitize `InputEvent` synchronously upon arrival (before posting to listener executors): for hits where `SceneGraphRules.isInFollowerSubtree(inputEntity)` is true, set `hitPosition = null` and compute `transform` from SceneCore's parent-relative poses up to the nearest follower ancestor (returning `Matrix4.Identity` if `!entityToAncestor.isTrs`, e.g., under a zero-scale ancestor).
-- **Layer Placement Rule**: Subclass-specific scene-graph rules (`isFollower`, `withholdsWorldTransform`, `SceneGraphRules`) belong in `scenecore-runtime` (`androidx.xr.scenecore.runtime.impl.SceneGraphRules`) and `scenecore-spatial-core`, never scattered as `is FollowingSpace` / `is BillboardEntity` checks in public `scenecore` classes.
+### 7. Head-Following Privacy & Input Sanitization
+- When an entity is in a head-following subtree (`SceneGraphRules.isInFollowerSubtree(inputEntity)`):
+  - Node transform subscriptions (`Node.subscribeToTransform`) are paused by the platform while under head-transform protection; do not build redundant listener-detachment state machines in SceneCore.
+  - Platform `InputEvent.HitInfo` events still carry world-space hit transforms and positions, so SceneCore MUST sanitize `InputEvent` synchronously upon arrival (before posting to listener executors): set `hitPosition = null` and compute `transform` from SceneCore's parent-relative poses up to the nearest follower ancestor (returning `Matrix4.Identity` if `!entityToAncestor.isTrs`, e.g., under a zero-scale ancestor).
+  - Keep scene-graph rules (`isFollower`, `withholdsWorldTransform`, `SceneGraphRules`) in `scenecore-runtime` and `scenecore-spatial-core` rather than scattering subtype checks across public `scenecore` classes.
 
 ---
 
 ## Entity and Component Integration Checklist (Mandatory for Every New Type)
 
-Answer every item in the design doc for each new SceneCore entity or component type:
+Evaluate every item below when designing or reviewing a new SceneCore entity or component type:
 
 ### 1. Scene-Graph Queries and Setters
 - `getPose` / `setPose` / `getScale` / `setScale` in `Space.PARENT`, `ACTIVITY` and `REAL_WORLD`, on the type itself and on its descendants.
@@ -330,33 +303,34 @@ Answer every item in the design doc for each new SceneCore entity or component t
 - Residual leaks the SDK cannot close, filed with platform bug references.
 
 ### 5. Version and Runtime Gating
-- `spatialApiVersion` gating, and behavior on runtimes that cannot support the feature (e.g. OpenXR): exception type and KDoc.
+- `spatialApiVersion` gating, and behavior on runtimes that cannot support the feature (e.g., OpenXR): exception type and KDoc.
 - Fakes and testers in `scenecore-testing`, including simulating unsupported runtimes.
 
 ---
 
-## Jetpack XR API Council Directives & 3-Tier Severity Matrix (`jfinder@` / Component `1318552`)
+## Jetpack XR API Council Directives & 3-Tier Severity Matrix
 
-The Android XR / Jetpack XR API Council (`jfinder@google.com`) enforces zero-debt engineering, Kotlin/Compose consistency, and ABI stability across Component `1318552`:
+The Android XR / Jetpack XR API Council enforces zero-debt engineering, Kotlin/Compose consistency, and ABI stability across `androidx.xr`:
 
-* **Level 1 (Hard Blocker — `jfinder@` & `ar-api-council@`)**:
-  - ABI breaks or breaking change on published signatures.
-  - Memory or `Context` leaks (retaining `Activity` in static callbacks or singletons).
-  - Leaking C++ engine types (`Impress`, `SplitEngine`, native pointer handles) into public `androidx.xr.*` APIs.
-  - Undefined alpha math (`PanelBlendMode` premultiplied vs straight alpha).
-  - Wrong spatial units (meters vs millimeters vs pixels).
+* **Level 1 (Hard Blockers)**:
+  - ABI breaks or breaking changes on published signatures.
+  - Memory or `Context` leaks (retaining `Activity` in static callbacks, singletons, or pending `ScheduledFuture` tasks).
+  - Leaking C++ / native engine types (`Impress`, `SplitEngine`, native pointer handles, or `com.android.extensions.xr.*` types) into public `androidx.xr.*` APIs.
+  - Calling `android.util.Log` in library runtime code.
+  - Undefined alpha math (`PanelBlendMode` premultiplied vs. straight alpha).
+  - Wrong spatial units (meters vs. millimeters vs. pixels; always encode units in parameter/property names or use typed `Duration` / `FloatSize2d` / `FloatSize3d`).
   - Middle default parameters in `@JvmOverloads` (default parameters must always be at the end).
   - Diverging from 2D Compose layout conventions.
   - Silent disposal state (use `Entity.isDisposed` and throw `DisposedException` or `IllegalStateException`).
   - Boolean `isDynamic` or frontend CPU mesh copies (use zero-copy `MeshBuffer.MeshUsage`).
   - Unbundled `Parcelable` removals.
-* **Level 2 (Major Objection)**:
+* **Level 2 (Major Objections)**:
   - Conflating creation-time `*Attributes` with runtime-mutable `*Params`.
   - Visual corner radius clipping desynchronized from hit-test colliders (`CurvedRect`).
   - Async event-bus pose-readiness notifications instead of polling accuracy fields.
   - Non-cancelling async coroutines across lifecycle events.
 * **Level 3 (Advisory / Ergonomics)**:
-  - KDoc clarity, `Vector3` transform helpers avoiding `Pose` allocations, Kotlin `val` properties vs Java `get*()`.
+  - KDoc clarity (including `@throws` and unit specifications), `Vector3` transform helpers avoiding `Pose` allocations, and Kotlin `val`/`var` properties vs. Java `get*()`/`set*()`.
 
 ---
 
@@ -385,9 +359,9 @@ Structure multi-CL feature stacks following the canonical dependency hierarchy:
 - **Wave 2 (Edge-Case Hardening & Lifecycle Cleanup)** sits on top of Wave 1 so it can be reviewed or abandoned without blocking Wave 1. Never trap a P1/P2 bug fix inside a wide refactor.
 
 ### 3. Symbol-in-Same-Commit Rule & Pruning Speculative Runtime Surface
-- Never add helper methods, properties, or parameters in CL $N$ whose first production caller is in CL $N+1$ or later.
-- Every symbol added in CL $N$ must have a production caller and unit test in CL $N$.
-- When API Council review narrows the public API to fixed presets (e.g., `Behavior.Soft`, `Snappy`, `Pinned`), prune unused public constructors/constants from internal `scenecore-runtime` tunable classes in the same stack rather than leaving speculative dead surface.
+- Never add helper methods, properties, or parameters in commit $N$ whose first production caller is in commit $N+1$ or later.
+- Every symbol added in commit $N$ must have a production caller and unit test in commit $N$.
+- When public API review narrows a feature surface to fixed presets, prune unused public constructors/constants from internal `scenecore-runtime` tunable classes in the same stack rather than leaving dead runtime surface.
 
 ### 4. Per-Commit Invariant Gate Before Upload
 - Run `git rebase <base> --exec "<gradle test>"` to verify that every commit in the stack compiles, passes unit tests independently, and never drops or weakens tests introduced in earlier commits.
@@ -396,7 +370,7 @@ Structure multi-CL feature stacks following the canonical dependency hierarchy:
 ### 5. Reviewer Precedence Hierarchy & Review Evidence Bar
 - **Precedence Hierarchy**:
   1. Subsystem Domain Leads (Architecture, threading, IPC contracts)
-  2. Android API Council (`jfinder@`, public API design, naming, compatibility)
+  2. Android API Council (Public API design, naming, compatibility)
   3. Kotlin Readability Mentors (Language idioms, styling)
   4. Automated AI Review Bots (Linting, static analysis)
 - **4-Pillar Evidence Bar** for code reviews:
@@ -417,7 +391,26 @@ Structure multi-CL feature stacks following the canonical dependency hierarchy:
 - Use touch targets of at least 56 dp and text of at least 16 sp. Size movable/resizable affordances from a layout listener, never once at startup.
 
 ### 7. `scenecore-testing` Dual-Fake Hierarchy Parity
-- In `:xr:scenecore:scenecore-testing`, `FakeSceneRuntime.createEntity` and `createPanelEntity` return outer `testing.FakeEntity` wrappers (wrapping `testing.internal.FakeEntity`), whereas `createFollowingSpace` and `createBillboardEntity` return `testing.internal.Fake*` directly (unwrapped).
+- In `:xr:scenecore:scenecore-testing`, `FakeSceneRuntime.createEntity` and `createPanelEntity` return outer `testing.FakeEntity` wrappers (wrapping `testing.internal.FakeEntity`), whereas other factory methods may return `testing.internal.Fake*` instances directly (unwrapped).
 - Consequently:
   - `testing.FakeEntity.parent` MUST call `addChildInternal` / `removeChildInternal` on both `(_parent as? FakeEntity)` and `(_parent as? InternalFakeEntity)`.
   - Outer `testing.FakeEntity` methods (`getPose`, `setPose`, `getScale`, `setScale`, `transformPoseTo`, `hitTest`) MUST evaluate `SceneGraphRules` against `this` (which walks the outer wrapper's `parent` chain) rather than delegating directly to `rtEntity` (whose internal `parent` is only set when the parent is also an outer `FakeEntity`).
+
+---
+
+## General Guidelines for Developing SceneCore Code
+
+1. **Maintain Clean Layer Abstractions**:
+   - Keep public `androidx.xr.scenecore` classes decoupled from implementation details. Public entities/components wrap `SceneRuntime` / `RenderingRuntime` interfaces.
+   - Never expose Impress types, `com.android.extensions.xr` platform internals, or native memory handles directly in `androidx.xr.scenecore`.
+2. **Testing Rules & Best Practices**:
+   - Write host unit tests using `scenecore-testing` fakes (`FakeSceneRuntime`, `FakeRenderingRuntime`, `FakeEntity`, `FakeImpressApiImpl`).
+   - Never require real OpenXR sessions or GPU hardware in host unit tests (`test/`).
+   - Use Google Truth (`assertThat(...)`) for assertions. Avoid standard JUnit assertions.
+3. **Public API & Versioning**:
+   - Use `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)` for internal runtime APIs.
+   - Mark unstable/experimental APIs with appropriate annotations (e.g., `@ExperimentalGltfAnimationApi`).
+   - Always run `./gradlew :xr:scenecore:scenecore:updateApi` whenever public API signatures change.
+4. **Threading & Lifecycle Rules**:
+   - Scene graph modifications must run on the UI/Main thread.
+   - Heavy asset loading operations (glTF models, textures, audio resources) must be asynchronous and tied to proper Lifecycles.
