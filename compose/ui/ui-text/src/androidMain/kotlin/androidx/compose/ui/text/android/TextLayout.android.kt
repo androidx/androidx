@@ -35,6 +35,8 @@ import android.text.TextUtils
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableFloatList
+import androidx.compose.ui.text.addBox
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_CENTER
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_LEFT
 import androidx.compose.ui.text.android.LayoutCompat.ALIGN_NORMAL
@@ -72,7 +74,13 @@ import androidx.compose.ui.text.android.style.BaselineShiftSpan
 import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.android.style.getEllipsizedLeftPadding
 import androidx.compose.ui.text.android.style.getEllipsizedRightPadding
+import androidx.compose.ui.text.boxBottom
+import androidx.compose.ui.text.boxCount
+import androidx.compose.ui.text.boxLeft
+import androidx.compose.ui.text.boxRight
+import androidx.compose.ui.text.boxTop
 import androidx.compose.ui.text.internal.requirePrecondition
+import androidx.compose.ui.text.setBox
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.util.fastCoerceAtMost
 import kotlin.concurrent.getOrSet
@@ -825,6 +833,199 @@ constructor(
             }
         }
         return RectF(left, lineTop, right, lineBottom)
+    }
+
+    /**
+     * Populates [target] with coalesced per-line bounding rectangles for the character range from
+     * [startOffset] (inclusive) to [endOffset] (exclusive), shifted vertically by [paragraphTop].
+     *
+     * Algorithm stages:
+     * 1. Clamp `[startOffset, endOffset)` to `[0, getLineEnd(lineCount - 1))` to exclude characters
+     *    truncated beyond `maxLines`, and resolve the intersecting line range
+     *    `firstLine..lastLine`.
+     * 2. For each `line` in `firstLine..lastLine`, intersect `[startOffset, clampedEnd)` with
+     *    `[getLineStart(line), getLineVisibleEnd(line))` to exclude trailing whitespace at soft
+     *    line wraps and ellipsized characters.
+     * 3. **Full-line fast path**: When the segment spans the entire visible line (`[lineStart,
+     *    lineVisibleEnd)`) and the line is not ellipsized (`canUseLineBounds`), emit
+     *    `[getLineLeft(line), getLineRight(line)]` directly without querying horizontal character
+     *    positions.
+     * 4. **Run-boundary measurement**: Otherwise, walk contiguous same-direction runs
+     *    ([isRtlCharAt]) across `[segLineStart, segLineEnd)`. When the paragraph is
+     *    single-directional (`layoutHelper.analyzeBidi(paraNo) == null`), the entire segment is a
+     *    single run and boundaries that coincide with `lineStart` or `lineVisibleEnd` reuse
+     *    [getLineLeft] / [getLineRight] when `canUseLineBounds` is `true`; interior boundaries and
+     *    bidirectional runs query [LayoutHelper.getHorizontalPosition] at `runStart` (`upstream =
+     *    false`) and `runEnd` (`upstream = true`).
+     * 5. **BiDi sorting and coalescing**: When a bidirectional line produces more than one box,
+     *    sort that line's boxes left-to-right and merge touching or overlapping boxes via
+     *    [sortAndCoalesceLineBoxes].
+     *
+     * @param startOffset inclusive start character offset within this [TextLayout]
+     * @param endOffset exclusive end character offset within this [TextLayout]
+     * @param paragraphTop vertical offset of this paragraph within its parent `MultiParagraph`
+     * @param applyLineHeightOptimization whether the single-line `softWrap = false` line-height
+     *   override is active on the enclosing `AndroidParagraph`
+     * @param resolvedLineHeight resolved line height in pixels used when
+     *   [applyLineHeightOptimization] is `true`
+     * @param target [MutableFloatList] to which packed `[left, top, right, bottom]` coordinates are
+     *   appended
+     */
+    internal fun fillRangeBoundingBoxes(
+        startOffset: Int,
+        endOffset: Int,
+        paragraphTop: Float,
+        applyLineHeightOptimization: Boolean,
+        resolvedLineHeight: Float,
+        target: MutableFloatList,
+    ) {
+        if (startOffset >= endOffset || lineCount <= 0) return
+        val clampedEnd = min(endOffset, getLineEnd(lineCount - 1))
+        if (startOffset >= clampedEnd) return
+
+        val firstLine = getLineForOffset(startOffset)
+        val lastLine = getLineForOffset(clampedEnd - 1)
+        if (firstLine > lastLine) return
+
+        target.ensureCapacity(target.size + (lastLine - firstLine + 1) * 4)
+
+        for (line in firstLine..lastLine) {
+            val lineStart = getLineStart(line)
+            val lineVisibleEnd = getLineVisibleEnd(line)
+            // The line segment to be processed, which is the intersection of
+            // [startOffset, endOffset) and [lineStart, lineVisibleEnd).
+            val segLineStart = max(startOffset, lineStart)
+            val segLineEnd = min(clampedEnd, lineVisibleEnd)
+            // Skip empty line segment.
+            if (segLineStart >= segLineEnd) continue
+
+            val lineTop = (if (applyLineHeightOptimization) 0f else getLineTop(line)) + paragraphTop
+            val lineBottom =
+                (if (applyLineHeightOptimization) resolvedLineHeight else getLineBottom(line)) +
+                    paragraphTop
+
+            val canUseLineBounds = !isLineEllipsized(line)
+            // If the line segment is the entire line and the line bounds can be used, then we can
+            // use the line bounds directly and skip the rest.
+            if (segLineStart == lineStart && segLineEnd == lineVisibleEnd && canUseLineBounds) {
+                val left = getLineLeft(line)
+                val right = getLineRight(line)
+                if (right - left > 0.01f) {
+                    target.addBox(left, lineTop, right, lineBottom)
+                }
+                continue
+            }
+
+            val paraNo =
+                if (layoutHelper.paragraphCount == 1) 0
+                else layoutHelper.getParagraphForOffset(lineStart)
+            val paragraphHasBidi = layoutHelper.analyzeBidi(paraNo) != null
+            val isParaRtl = getParagraphDirection(line) == Layout.DIR_RIGHT_TO_LEFT
+            val horizPadding = getHorizontalPadding(line)
+            val lineBoxStartIndex = target.boxCount
+
+            var runStart = segLineStart
+            while (runStart < segLineEnd) {
+                val isRtlRun = isRtlCharAt(runStart)
+                var runEnd = if (paragraphHasBidi) runStart + 1 else segLineEnd
+                while (runEnd < segLineEnd && isRtlCharAt(runEnd) == isRtlRun) {
+                    runEnd++
+                }
+                val usePrimary = isParaRtl == isRtlRun
+                val startX =
+                    if (runStart == lineStart && canUseLineBounds && !paragraphHasBidi) {
+                        if (!isRtlRun) getLineLeft(line) else getLineRight(line)
+                    } else {
+                        layoutHelper.getHorizontalPosition(runStart, usePrimary, upstream = false) +
+                            horizPadding
+                    }
+                val endX =
+                    if (runEnd == lineVisibleEnd && canUseLineBounds && !paragraphHasBidi) {
+                        if (!isRtlRun) getLineRight(line) else getLineLeft(line)
+                    } else {
+                        layoutHelper.getHorizontalPosition(runEnd, usePrimary, upstream = true) +
+                            horizPadding
+                    }
+                val left = if (!isRtlRun) startX else endX
+                val right = if (!isRtlRun) endX else startX
+                if (right - left > 0.01f) {
+                    target.addBox(left, lineTop, right, lineBottom)
+                }
+                runStart = runEnd
+            }
+
+            if (target.boxCount - lineBoxStartIndex > 1) {
+                sortAndCoalesceLineBoxes(target, lineBoxStartIndex, lineTop, lineBottom)
+            }
+        }
+    }
+
+    /**
+     * Sorts the boxes emitted for a single line in `target` starting at box index
+     * [lineBoxStartIndex] by `left` coordinate ascending using in-place insertion sort, and merges
+     * adjacent boxes that overlap or touch within `0.5px`.
+     *
+     * Note: The choice of sorting algorithm here is not performance-critical because this function
+     * is only reached when a single line contains multiple bidirectional (LTR/RTL) runs, which in
+     * practice produces only a few boxes per line. Insertion sort operates in-place without
+     * allocating an iterator or comparator.
+     */
+    private fun sortAndCoalesceLineBoxes(
+        target: MutableFloatList,
+        lineBoxStartIndex: Int,
+        lineTop: Float,
+        lineBottom: Float,
+    ) {
+        val boxCount = target.boxCount
+        for (i in lineBoxStartIndex + 1 until boxCount) {
+            val keyLeft = target.boxLeft(i)
+            val keyTop = target.boxTop(i)
+            val keyRight = target.boxRight(i)
+            val keyBottom = target.boxBottom(i)
+            var j = i - 1
+            while (j >= lineBoxStartIndex && target.boxLeft(j) > keyLeft) {
+                target.setBox(
+                    j + 1,
+                    target.boxLeft(j),
+                    target.boxTop(j),
+                    target.boxRight(j),
+                    target.boxBottom(j),
+                )
+                j--
+            }
+            target.setBox(j + 1, keyLeft, keyTop, keyRight, keyBottom)
+        }
+        var writeIndex = lineBoxStartIndex
+        for (i in lineBoxStartIndex + 1 until boxCount) {
+            val prevLeft = target.boxLeft(writeIndex)
+            val prevRight = target.boxRight(writeIndex)
+            val nextLeft = target.boxLeft(i)
+            val nextRight = target.boxRight(i)
+            if (nextLeft <= prevRight + 0.5f) {
+                target.setBox(
+                    writeIndex,
+                    prevLeft,
+                    lineTop,
+                    max(prevRight, nextRight),
+                    lineBottom,
+                )
+            } else {
+                writeIndex++
+                if (writeIndex != i) {
+                    target.setBox(
+                        writeIndex,
+                        nextLeft,
+                        target.boxTop(i),
+                        nextRight,
+                        target.boxBottom(i),
+                    )
+                }
+            }
+        }
+        val newFloatSize = (writeIndex + 1) * 4
+        if (newFloatSize < target.size) {
+            target.removeRange(newFloatSize, target.size)
+        }
     }
 
     fun paint(canvas: Canvas) {

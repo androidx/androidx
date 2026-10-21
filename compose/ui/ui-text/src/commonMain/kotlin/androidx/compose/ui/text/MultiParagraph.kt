@@ -449,6 +449,21 @@ public class MultiParagraph(
     /* This is internal for testing purpose. */
     internal val paragraphInfoList: List<ParagraphInfo>
 
+    /**
+     * Backing storage for [boundaryBoxComputeCache], kept `null` until the first range box or path
+     * query so text layouts that never query range geometry incur no extra allocation.
+     */
+    private var _boundaryBoxComputeCache: BoundaryBoxComputeCache? = null
+
+    /**
+     * Lazily allocated scratch buffers and bounded coordinate cache reused across UI draw passes by
+     * [fillRangeBoundingBoxCoords] and [calculatePathFromBoundingBoxes].
+     */
+    internal val boundaryBoxComputeCache: BoundaryBoxComputeCache
+        get() =
+            _boundaryBoxComputeCache
+                ?: BoundaryBoxComputeCache().also { _boundaryBoxComputeCache = it }
+
     init {
         requirePrecondition(constraints.minWidth == 0 && constraints.minHeight == 0) {
             "Setting Constraints.minWidth and Constraints.minHeight is not supported, " +
@@ -1128,7 +1143,7 @@ internal fun findParagraphByY(paragraphInfoList: List<ParagraphInfo>, y: Float):
     }
 }
 
-internal fun findParagraphsByRange(
+internal inline fun findParagraphsByRange(
     paragraphInfoList: List<ParagraphInfo>,
     range: TextRange,
     action: (ParagraphInfo) -> Unit,
