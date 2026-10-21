@@ -305,6 +305,33 @@ class ProjectedContextTest {
         assertThat(emissions.receive()).isFalse()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_slowCollector_conflatesIntermediateEmissions() = runTest {
+        val emissions = Channel<Boolean>(Channel.UNLIMITED)
+        val allowNextCollection = CompletableDeferred<Unit>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            ProjectedContext.isProjectedDeviceConnected(context, coroutineContext).collect {
+                emissions.send(it)
+                allowNextCollection.await()
+            }
+        }
+        check(emissions.receive())
+
+        // While the collector is suspended on the initial emission, flip the display state multiple
+        // times (false -> true -> false) so intermediate states are conflated.
+        ShadowDisplayManager.removeDisplay(
+            virtualDeviceManager.virtualDevices.first().displayIds[0]
+        )
+        val replacementDisplay = createVirtualDisplayForDevice(createVirtualDevice())
+        ShadowDisplayManager.removeDisplay(replacementDisplay.display.displayId)
+        allowNextCollection.complete(Unit)
+
+        assertThat(emissions.receive()).isFalse()
+        assertThat(emissions.tryReceive().getOrNull()).isNull()
+    }
+
     /**
      * Verifies that callbacks delivered on different threads evaluate and emit the state one at a
      * time. Otherwise a slow callback can emit a stale value after a newer callback already emitted
