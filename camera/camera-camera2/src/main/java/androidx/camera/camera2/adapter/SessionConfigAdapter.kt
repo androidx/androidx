@@ -140,15 +140,17 @@ public class SessionConfigAdapter(
 
         // Only report error to one SessionConfig, CameraInternal#onUseCaseReset()
         // will handle the other failed Surfaces if there are any.
-        val sessionConfig =
-            useCases
-                .firstOrNull { useCase ->
-                    val sessionConfig = useCase.getSessionConfig(isPrimary)
-                    sessionConfig.surfaces.contains(deferrableSurface)
-                }
-                ?.sessionConfig
-
         CoroutineScope(Dispatchers.Main.immediate).launch {
+            // Query the currently attached SessionConfig on the main thread using a single read
+            // of useCase.getSessionConfig(isPrimary) to avoid a TOCTOU race with main-thread
+            // SessionConfig updates (e.g. Preview.setSurfaceProvider), and to respect isPrimary.
+            val sessionConfig = useCases.firstNotNullOfOrNull { useCase ->
+                useCase.getSessionConfig(isPrimary).takeIf {
+                    it.surfaces.contains(deferrableSurface) ||
+                        it.postviewOutputConfig?.surface == deferrableSurface
+                }
+            }
+
             // The error listener is used to notify the UseCase to recreate the pipeline,
             // and the create pipeline task would be executed on the main thread.
             sessionConfig?.errorListener?.apply {
