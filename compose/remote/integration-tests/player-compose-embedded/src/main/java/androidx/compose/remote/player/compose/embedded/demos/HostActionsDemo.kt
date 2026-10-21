@@ -43,10 +43,10 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -119,7 +119,7 @@ public fun HostActionsDemo() {
     }
 
     val remoteContent: @Composable @RemoteComposable () -> Unit = {
-        val taps = rememberMutableRemoteInt(0)
+        val taps = remember { MutableRemoteInt(0) }
         RemoteColumn(modifier = RemoteModifier.fillMaxWidth()) {
             DemoRow("Named, no payload", hostAction("refresh".rs))
             DemoRow("Named, float", hostAction("volume".rs, 0.5f.rf))

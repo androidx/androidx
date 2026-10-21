@@ -493,6 +493,7 @@ class RemoteStateCreationTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun creation_rememberMutableRemote_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
@@ -524,6 +525,7 @@ class RemoteStateCreationTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun creation_rememberRemote_nonStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
@@ -536,6 +538,7 @@ class RemoteStateCreationTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun creation_rememberRemote_withInt_doesNotCrash() = runTest {
         val coreDoc =

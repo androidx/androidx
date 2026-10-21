@@ -28,13 +28,13 @@ import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerSize
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.max
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
@@ -133,7 +133,7 @@ internal fun animatedToggleButtonShape(
         return AnimatedToggleButtonShape(shape, RemoteModifier)
     }
 
-    val pressed = rememberMutableRemoteFloat(0f)
+    val pressed = remember { MutableRemoteFloat(0f) }
     val progress =
         remember(pressed, pressAnimationSpec, releaseAnimationSpec) {
             // Taking the max of a fast and a slow animation of the same target makes the shape
