@@ -24,6 +24,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.media.MediaCodec
 import android.os.Build
 import android.view.SurfaceHolder
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.SurfaceConfigOptions
 import androidx.camera.camera2.adapter.ZslControl
@@ -97,6 +98,21 @@ constructor(
             null
         }
 
+    private val lock = Any()
+    @GuardedBy("lock") private var hasAttachedUseCases = true
+    @GuardedBy("lock") private var closedDeviceOnLastGraphClose = false
+
+    public fun onUseCasesAttached() {
+        synchronized(lock) { hasAttachedUseCases = true }
+    }
+
+    public fun onUseCasesEmpty() {
+        synchronized(lock) {
+            hasAttachedUseCases = false
+            cameraInteropStateCallbackRepository?.clearWhenClosed(cameraConfig.cameraId)
+        }
+    }
+
     public fun create(
         operatingMode: OperatingMode,
         sessionConfig: SessionConfig?,
@@ -107,15 +123,29 @@ constructor(
     ): GraphConfigBundle {
         val isExtensions = operatingMode == OperatingMode.EXTENSION
         val enableStreamUseCase = !isExtensions // Enable StreamUseCase if not in Extension mode
+        val combinedFlags = createCameraGraphFlags(cameraQuirks, isExtensions)
 
         val streamGroupMap = mutableMapOf<Int, MutableList<CameraStream.Config>>()
         val inputStreams = mutableListOf<InputStream.Config>()
         var sessionTemplate = RequestTemplate(TEMPLATE_PREVIEW)
         val sessionParameters: MutableMap<Any, Any> = mutableMapOf()
         val streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface> = mutableMapOf()
+        synchronized(lock) {
+            if (hasAttachedUseCases) {
+                val reuseOpenDevices = !closedDeviceOnLastGraphClose
+                closedDeviceOnLastGraphClose = combinedFlags.closeCameraDeviceOnClose
+                if (sessionConfig != null) {
+                    cameraInteropStateCallbackRepository?.updateCallbacks(
+                        sessionConfig = sessionConfig,
+                        cameraId = cameraConfig.cameraId,
+                        reuseOpenDevices = reuseOpenDevices,
+                    )
+                } else {
+                    cameraInteropStateCallbackRepository?.clearWhenClosed(cameraConfig.cameraId)
+                }
+            }
+        }
         sessionConfig?.let { sessionConfig ->
-            cameraInteropStateCallbackRepository?.updateCallbacks(sessionConfig)
-
             val templateType =
                 sessionConfig
                     .toCamera2ImplConfig()
@@ -244,8 +274,6 @@ constructor(
                 }
             }
         }
-
-        val combinedFlags = createCameraGraphFlags(cameraQuirks, isExtensions)
 
         // Set video stabilization mode to capture request
         var videoStabilizationMode: Int? = null

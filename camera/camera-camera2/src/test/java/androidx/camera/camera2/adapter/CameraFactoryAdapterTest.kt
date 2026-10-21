@@ -19,6 +19,7 @@ package androidx.camera.camera2.adapter
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.os.Handler
@@ -38,6 +39,7 @@ import androidx.camera.common.CameraId
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.test.core.app.ApplicationProvider
@@ -52,6 +54,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.StreamConfigurationMapBuilder
@@ -192,6 +195,7 @@ class CameraFactoryAdapterTest {
         assertThat(factory.availableCameraIds).containsExactly("0", "2", "4")
     }
 
+    @Test
     fun getAvailableCameraIds_previewsResult_withoutChangingState() = testScope.runTest {
         // Arrange
         setFingerprint("fake-fingerprint")
@@ -228,6 +232,75 @@ class CameraFactoryAdapterTest {
         // Assert
         assertThat(isShutdown).isTrue()
     }
+
+    @Test
+    fun shutdown_deliversCloseDuringCameraPipeShutdownBeforeClearingCallbacks() =
+        testScope.runTest {
+            val repository = CameraInteropStateCallbackRepository()
+            var closedCount = 0
+            val deviceCallback =
+                object : CameraDevice.StateCallback() {
+                    override fun onOpened(camera: CameraDevice) {}
+
+                    override fun onClosed(camera: CameraDevice) {
+                        closedCount++
+                    }
+
+                    override fun onDisconnected(camera: CameraDevice) {}
+
+                    override fun onError(camera: CameraDevice, error: Int) {}
+                }
+            val sessionConfig =
+                SessionConfig.Builder().apply { addDeviceStateCallback(deviceCallback) }.build()
+            val mockDevice: CameraDevice =
+                mock<CameraDevice>().also { whenever(it.id).thenReturn("0") }
+            val stillOpenDevice: CameraDevice =
+                mock<CameraDevice>().also { whenever(it.id).thenReturn("1") }
+            repository.updateCallbacks(sessionConfig, CameraId("0"))
+            repository.updateCallbacks(sessionConfig, CameraId("1"))
+            repository.deviceStateCallback.onOpened(mockDevice)
+            repository.deviceStateCallback.onOpened(stillOpenDevice)
+
+            val queuedTasks = ArrayDeque<Runnable>()
+            val queuedThreadConfig =
+                CameraThreadConfig.create(
+                    { runnable -> queuedTasks.addLast(runnable) },
+                    Handler(Looper.getMainLooper()),
+                )
+            val cameraPipe =
+                object : CameraPipe by fakeCameraPipe {
+                    override fun shutdown() {
+                        // Simulate CameraDevice.onClosed being queued onto cameraExecutor during
+                        // CameraDevice.close() before shutdown() returns.
+                        queuedThreadConfig.cameraExecutor.execute {
+                            repository.deviceStateCallback.onClosed(mockDevice)
+                        }
+                    }
+                }
+            val factory =
+                CameraFactoryAdapter(
+                    lazyOf(cameraPipe),
+                    ApplicationProvider.getApplicationContext(),
+                    queuedThreadConfig,
+                    repository,
+                    null,
+                    NO_OP_STREAM_SPECS_CALCULATOR,
+                    CameraXConfig.Builder().build(),
+                )
+
+            // Ensure lazyCameraPipe is initialized
+            assertThat(factory.getCamera("0")).isNotNull()
+
+            factory.shutdown()
+            while (queuedTasks.isNotEmpty()) {
+                queuedTasks.removeFirst().run()
+            }
+
+            assertThat(closedCount).isEqualTo(1)
+            // After shutdown and executor drain complete, even still-open devices are cleared
+            repository.deviceStateCallback.onClosed(stillOpenDevice)
+            assertThat(closedCount).isEqualTo(1)
+        }
 
     private fun setFingerprint(fingerprint: String) {
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", fingerprint)
@@ -272,12 +345,14 @@ class CameraFactoryAdapterTest {
     private fun createCameraFactoryAdapter(
         availableCameraSelector: CameraSelector?,
         cameraPipe: CameraPipe = fakeCameraPipe,
+        interopCallbacks: CameraInteropStateCallbackRepository =
+            CameraInteropStateCallbackRepository(),
     ) =
         CameraFactoryAdapter(
             lazyOf(cameraPipe),
             ApplicationProvider.getApplicationContext(),
             threadConfig,
-            CameraInteropStateCallbackRepository(),
+            interopCallbacks,
             availableCameraSelector,
             NO_OP_STREAM_SPECS_CALCULATOR,
             CameraXConfig.Builder().build(),
