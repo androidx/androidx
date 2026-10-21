@@ -1585,7 +1585,7 @@ public class MutableRemoteFloat
 @RememberInComposition
 internal constructor(
     cacheKey: RemoteStateCacheKey,
-    private var idProvider: (creationState: RemoteComposeCreationState) -> Float,
+    private val idProvider: (creationState: RemoteComposeCreationState) -> Float,
 ) : RemoteFloat(cacheKey), MutableRemoteState<Float> {
 
     @RememberInComposition
