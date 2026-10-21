@@ -16,30 +16,50 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import android.graphics.Typeface
 import androidx.collection.emptyIntObjectMap
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintPathEffects
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.remote.player.core.platform.FontInstance
-import androidx.compose.remote.player.core.platform.TypefaceResolver
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.currentComposer
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.unit.Density
+import androidx.core.provider.FontRequest
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,62 +72,16 @@ class RcPlayerCanvasTextTypefaceTest {
 
     @get:Rule val rule = RcPlayerTestRule()
 
-    private class CustomTestTypefaceResolver(val expectedTypeface: Typeface) : TypefaceResolver {
+    private class CustomTestTypefaceResolver(val expectedTypeface: Typeface) : RcTypefaceResolver {
         var resolveCalled = false
-        var appliedTags: Array<String>? = null
-        var appliedValues: FloatArray? = null
-        val appliedHistory = mutableListOf<Map<String, Float>>()
+        var lastRequest: RcTypefaceRequest? = null
+        val requests = mutableListOf<RcTypefaceRequest>()
 
-        override fun resolve(
-            fontType: Int,
-            weight: Int,
-            italic: Boolean,
-            fallbackTypeface: Typeface?,
-            fallbackWeight: Int,
-            fallbackItalic: Boolean,
-        ): FontInstance {
+        override suspend fun resolve(request: RcTypefaceRequest): Typeface {
             resolveCalled = true
-            return object : FontInstance {
-                override fun getTypeface(): Typeface = expectedTypeface
-
-                override fun applyVariationSettings(
-                    tags: Array<String>,
-                    values: FloatArray,
-                ): Typeface {
-                    appliedTags = tags
-                    appliedValues = values
-                    appliedHistory.add(tags.indices.associate { tags[it] to values[it] })
-                    return expectedTypeface
-                }
-
-                override fun setOnLoadedListener(listener: Runnable) {}
-            }
-        }
-
-        override fun resolve(
-            fontName: String,
-            weight: Int,
-            italic: Boolean,
-            fallbackTypeface: Typeface?,
-            fallbackWeight: Int,
-            fallbackItalic: Boolean,
-        ): FontInstance {
-            resolveCalled = true
-            return object : FontInstance {
-                override fun getTypeface(): Typeface = expectedTypeface
-
-                override fun applyVariationSettings(
-                    tags: Array<String>,
-                    values: FloatArray,
-                ): Typeface {
-                    appliedTags = tags
-                    appliedValues = values
-                    appliedHistory.add(tags.indices.associate { tags[it] to values[it] })
-                    return expectedTypeface
-                }
-
-                override fun setOnLoadedListener(listener: Runnable) {}
-            }
+            lastRequest = request
+            requests.add(request)
+            return applyVariationSettings(expectedTypeface, request.variationSettings)
         }
     }
 
@@ -116,7 +90,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
         val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
 
         val paint = ComposeLocalPaint().apply { textSize = 24f }
 
@@ -130,8 +104,6 @@ class RcPlayerCanvasTextTypefaceTest {
     fun toNativeTextPaintWithGraphContextUsesConfiguredTypefaceResolver() {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val playerContext =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
         val snapshotState = SnapshotRemoteComposeState()
         val graphContext =
             GraphContext(
@@ -140,7 +112,7 @@ class RcPlayerCanvasTextTypefaceTest {
                     mutableFloatStateOf(0f),
                     RemoteClock.SYSTEM,
                 )
-                .apply { setTypefaceResolver(playerContext.typefaceResolver) }
+                .apply { setTypefaceResolver(testResolver) }
 
         val paint = ComposeLocalPaint().apply { textSize = 24f }
         val nativePaint = paint.toNativeTextPaint(graphContext)
@@ -154,7 +126,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
         val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
 
         val paint = ComposeLocalPaint().apply { textSize = 24f }
         val textStyle = paint.toTextStyle(Density(1f), context)
@@ -210,7 +182,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
         val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
         context.loadText(20, "wght")
         context.loadText(21, "wdth")
 
@@ -226,11 +198,8 @@ class RcPlayerCanvasTextTypefaceTest {
         )
 
         assertThat(testResolver.resolveCalled).isTrue()
-        assertThat(testResolver.appliedTags).asList().containsExactly("wght", "wdth").inOrder()
-        assertThat(testResolver.appliedValues)
-            .usingExactEquality()
-            .containsExactly(100f, 150f)
-            .inOrder()
+        assertThat(testResolver.lastRequest?.variationSettings)
+            .isEqualTo("'wght' 100.0, 'wdth' 150.0")
     }
 
     @Test
@@ -238,7 +207,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
         val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
         context.loadText(20, "wght")
         context.loadText(21, "wdth")
 
@@ -253,13 +222,10 @@ class RcPlayerCanvasTextTypefaceTest {
 
         val nativePaint = paint.toNativeTextPaint(context)
 
-        assertThat(nativePaint.typeface).isEqualTo(testTypeface)
+        assertThat(nativePaint.typeface).isNotNull()
         assertThat(testResolver.resolveCalled).isTrue()
-        assertThat(testResolver.appliedTags).asList().containsExactly("wght", "wdth").inOrder()
-        assertThat(testResolver.appliedValues)
-            .usingExactEquality()
-            .containsExactly(650f, 90f)
-            .inOrder()
+        assertThat(testResolver.lastRequest?.variationSettings)
+            .isEqualTo("'wght' 650.0, 'wdth' 90.0")
     }
 
     @Test
@@ -267,7 +233,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val testTypeface = Typeface.MONOSPACE
         val testResolver = CustomTestTypefaceResolver(testTypeface)
         val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setTypefaceResolver(testResolver) }
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
         context.loadText(20, "wght")
         context.loadText(21, "tnum")
         context.loadText(22, "pnum")
@@ -283,8 +249,7 @@ class RcPlayerCanvasTextTypefaceTest {
             typefaceResolver = testResolver,
         )
 
-        assertThat(testResolver.appliedTags).asList().containsExactly("wght").inOrder()
-        assertThat(testResolver.appliedValues).usingExactEquality().containsExactly(500f).inOrder()
+        assertThat(testResolver.lastRequest?.variationSettings).isEqualTo("'wght' 500.0")
 
         val bundle =
             PaintBundle().apply {
@@ -297,8 +262,7 @@ class RcPlayerCanvasTextTypefaceTest {
         val nativePaint = paint.toNativeTextPaint(context)
         val textStyle = paint.toTextStyle(Density(1f), context)
 
-        assertThat(testResolver.appliedTags).asList().containsExactly("wght").inOrder()
-        assertThat(testResolver.appliedValues).usingExactEquality().containsExactly(500f).inOrder()
+        assertThat(testResolver.lastRequest?.variationSettings).isEqualTo("'wght' 500.0")
         assertThat(nativePaint.fontFeatureSettings).isEqualTo("'pnum' 1")
         assertThat(textStyle.fontFeatureSettings).isEqualTo("'pnum' 1")
     }
@@ -351,7 +315,356 @@ class RcPlayerCanvasTextTypefaceTest {
         assertThat(tnumLayout.single().layoutInput.style.fontFeatureSettings).isEqualTo("'tnum' 1")
         assertThat(pnumLayout.single().layoutInput.style.fontFeatureSettings).isEqualTo("'pnum' 1")
         assertThat(tnumLayout.single().size.width).isGreaterThan(pnumLayout.single().size.width)
-        assertThat(testResolver.appliedHistory)
-            .containsAtLeast(mapOf("wght" to 500f), mapOf("wdth" to 110f))
+        assertThat(testResolver.requests.map { it.variationSettings })
+            .containsAtLeast("'wght' 500.0", "'wdth' 110.0")
+    }
+
+    @Test
+    fun gmsFontTypefaceResolverConstructs5ArgFontRequestWithVariationSettings() = runBlocking {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        var capturedRequest: FontRequest? = null
+        val resolver =
+            GmsFontTypefaceResolver(
+                context = context,
+                fontCertsResId = 123,
+                fontLoader = { _, fontRequest ->
+                    capturedRequest = fontRequest
+                    Typeface.MONOSPACE
+                },
+            )
+
+        val resolved =
+            resolver.resolve(
+                RcTypefaceRequest(
+                    fontFamily = "google:Roboto Flex",
+                    weight = 600,
+                    italic = true,
+                    variationSettings = "'wght' 600.0, 'wdth' 110.0",
+                )
+            )
+
+        assertThat(resolved).isNotNull()
+        assertThat(capturedRequest).isNotNull()
+        assertThat(capturedRequest!!.providerAuthority).isEqualTo("com.google.android.gms.fonts")
+        assertThat(capturedRequest!!.providerPackage).isEqualTo("com.google.android.gms")
+        assertThat(capturedRequest!!.query)
+            .isEqualTo("name=Roboto Flex&weight=600&italic=1&besteffort=true")
+        assertThat(capturedRequest!!.certificatesArrayResId).isEqualTo(123)
+        assertThat(capturedRequest!!.variationSettings).isEqualTo("'wght' 600.0, 'wdth' 110.0")
+    }
+
+    @Test
+    fun gmsFontTypefaceResolverCachesFailedRequestsWithoutRetryingFontLoader() = runBlocking {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        var loadAttempts = 0
+        val resolver =
+            GmsFontTypefaceResolver(
+                context = context,
+                fontCertsResId = 123,
+                fontLoader = { _, _ ->
+                    loadAttempts++
+                    null
+                },
+            )
+        val request =
+            RcTypefaceRequest(
+                fontFamily = "google:Roboto Flex",
+                weight = 600,
+                italic = false,
+                variationSettings = "'wght' 600.0",
+            )
+
+        val first = resolver.resolve(request)
+        val second = resolver.resolve(request)
+
+        assertThat(first).isNotNull()
+        assertThat(second).isNotNull()
+        assertThat(loadAttempts).isEqualTo(1)
+    }
+
+    @Test
+    fun defaultGmsFontLoaderShortCircuitsWithoutProviderOrBackgroundThread() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val resolver = GmsFontTypefaceResolver(context = context, fontCertsResId = 123)
+        val cache = RcTypefaceCache(resolver)
+        val request =
+            RcTypefaceRequest(
+                fontFamily = "google:Roboto Flex",
+                weight = 500,
+                italic = false,
+                variationSettings = "'wght' 500.0",
+            )
+
+        // When the GMS font provider is absent (such as in Android Studio Previews / Robolectric),
+        // DefaultGmsFontLoader must short-circuit synchronously without suspending or spawning the
+        // "fonts-androidx" FontRequestWorker background thread.
+        val resolvedSynchronously = cache.resolve(request)
+
+        assertThat(resolvedSynchronously).isNotNull()
+        val threadNames = Thread.getAllStackTraces().keys.map { it.name }
+        assertThat(threadNames).doesNotContain("fonts-androidx")
+    }
+
+    @Test
+    fun synchronousTypefaceResolverPerformsZeroSnapshotReadsOrWrites() {
+        val syncResolver = RcTypefaceResolver { request ->
+            applyVariationSettings(Typeface.MONOSPACE, request.variationSettings)
+        }
+        val cache = RcTypefaceCache(syncResolver)
+        val request =
+            RcTypefaceRequest(
+                fontFamily = "roboto-flex",
+                weight = 600,
+                italic = false,
+                variationSettings = "'wght' 600.0",
+            )
+
+        var snapshotReads = 0
+        var snapshotWrites = 0
+        val resolved =
+            Snapshot.observe(
+                readObserver = { snapshotReads++ },
+                writeObserver = { snapshotWrites++ },
+            ) {
+                cache.resolve(request)
+            }
+
+        assertThat(resolved).isNotNull()
+        assertThat(snapshotReads).isEqualTo(0)
+        assertThat(snapshotWrites).isEqualTo(0)
+    }
+
+    @OptIn(InternalComposeApi::class)
+    @Test
+    fun rcPlayerWithCustomTypefaceResolverLeavesNoActiveLaunchedCoroutines() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val documentBytes = runBlocking {
+            captureSingleRemoteDocument(context = context) {
+                    RemoteText(
+                        text = "Static Preview Text".rs,
+                        style =
+                            RemoteTextStyle(
+                                fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
+                                fontSize = 16.rsp,
+                                fontVariationSettings =
+                                    FontVariation.Settings(FontVariation.weight(500)),
+                            ),
+                    )
+                }
+                .bytes
+        }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(documentBytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        val customResolver = RcTypefaceResolver { request ->
+            applyVariationSettings(Typeface.MONOSPACE, request.variationSettings)
+        }
+
+        var showPlayer by mutableStateOf(false)
+        var recomposerEffectJob: Job? = null
+        rule.setContent {
+            recomposerEffectJob = currentComposer.applyCoroutineContext[Job]
+            if (showPlayer) {
+                RcPlayer(document = document, typefaceResolver = customResolver)
+            }
+        }
+        rule.waitForIdle()
+        val baselineActiveChildren = recomposerEffectJob!!.children.count { it.isActive }
+
+        showPlayer = true
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(64)
+        rule.waitForIdle()
+
+        rule.onNodeWithText("Static Preview Text").assertIsDisplayed()
+        assertThat(recomposerEffectJob!!.children.count { it.isActive })
+            .isEqualTo(baselineActiveChildren)
+    }
+
+    @Test
+    fun disposingRcPlayerCancelsInFlightTypefaceResolutionAndReattachingRestartsIt() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val documentBytes = runBlocking {
+            captureSingleRemoteDocument(context = context) {
+                    RemoteText(
+                        text = "Disposable Async Font".rs,
+                        style =
+                            RemoteTextStyle(
+                                fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
+                                fontSize = 16.rsp,
+                            ),
+                    )
+                }
+                .bytes
+        }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(documentBytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        val state = RcPlayerState(document)
+
+        var startCount = 0
+        var cancelledCount = 0
+        var activeContinuation: Continuation<Typeface?>? = null
+        val asyncResolver = RcTypefaceResolver {
+            startCount++
+            suspendCancellableCoroutine { continuation ->
+                activeContinuation = continuation
+                continuation.invokeOnCancellation { cancelledCount++ }
+            }
+        }
+
+        var showPlayer by mutableStateOf(true)
+        rule.setContent {
+            if (showPlayer) {
+                RcPlayer(state = state, typefaceResolver = asyncResolver)
+            }
+        }
+        rule.waitForIdle()
+        assertThat(startCount).isEqualTo(1)
+        assertThat(cancelledCount).isEqualTo(0)
+
+        // Disposing RcPlayer must cancel the in-flight typeface resolution job.
+        showPlayer = false
+        rule.waitForIdle()
+        assertThat(cancelledCount).isEqualTo(1)
+
+        // Re-mounting RcPlayer with the same state restarts the pending request and updates text.
+        showPlayer = true
+        rule.waitForIdle()
+        assertThat(startCount).isEqualTo(2)
+
+        activeContinuation!!.resume(Typeface.MONOSPACE)
+        rule.waitForIdle()
+
+        val afterLayout = mutableListOf<TextLayoutResult>()
+        rule
+            .onNodeWithText("Disposable Async Font")
+            .fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult]
+            .action
+            ?.invoke(afterLayout)
+        assertThat(afterLayout.single().layoutInput.style.fontFamily)
+            .isInstanceOf(LoadedFontFamily::class.java)
+    }
+
+    @Test
+    fun suspendingTypefaceResolverUpdatesPlayerWhenAsyncFontArrives() {
+        val deferred = CompletableDeferred<Typeface?>()
+        val capturedRequests = mutableListOf<RcTypefaceRequest>()
+        val asyncResolver = RcTypefaceResolver { request ->
+            capturedRequests.add(request)
+            deferred.await()
+        }
+
+        rule.setRemoteContent(typefaceResolver = asyncResolver) {
+            RemoteText(
+                text = "Async Variable Font".rs,
+                style =
+                    RemoteTextStyle(
+                        fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
+                        fontSize = 18.rsp,
+                        fontVariationSettings =
+                            FontVariation.Settings(
+                                FontVariation.weight(500),
+                                FontVariation.width(120f),
+                            ),
+                    ),
+            )
+        }
+
+        rule.onNodeWithText("Async Variable Font").assertIsDisplayed()
+        assertThat(capturedRequests).hasSize(1)
+        assertThat(capturedRequests.single().fontFamily).isEqualTo("google:Roboto Flex")
+        assertThat(capturedRequests.single().variationSettings)
+            .isEqualTo("'wght' 500.0, 'wdth' 120.0")
+
+        // Before completion, fallback font family is used.
+        val beforeLayout = mutableListOf<TextLayoutResult>()
+        rule
+            .onNodeWithText("Async Variable Font")
+            .fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult]
+            .action
+            ?.invoke(beforeLayout)
+        val initialFontFamily: FontFamily? = beforeLayout.single().layoutInput.style.fontFamily
+        assertThat(initialFontFamily).isNotInstanceOf(LoadedFontFamily::class.java)
+
+        // Complete the async typeface resolution and verify recomposition updates the FontFamily.
+        deferred.complete(Typeface.MONOSPACE)
+        rule.waitForIdle()
+
+        val afterLayout = mutableListOf<TextLayoutResult>()
+        rule
+            .onNodeWithText("Async Variable Font")
+            .fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult]
+            .action
+            ?.invoke(afterLayout)
+        val resolvedFontFamily: FontFamily? = afterLayout.single().layoutInput.style.fontFamily
+        assertThat(resolvedFontFamily).isInstanceOf(LoadedFontFamily::class.java)
+    }
+
+    @Test
+    fun coreTypefaceResolverAdapterReturnsFallbackUntilAsyncTypefaceLoads() {
+        val deferred = CompletableDeferred<Typeface?>()
+        val capturedRequests = mutableListOf<RcTypefaceRequest>()
+        val asyncResolver = RcTypefaceResolver { request ->
+            capturedRequests.add(request)
+            deferred.await()
+        }
+        val context =
+            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = asyncResolver }
+
+        val coreAdapter = context.typefaceResolver
+        val fontInstance =
+            coreAdapter.resolve(
+                "google:Roboto Flex",
+                500,
+                false,
+                Typeface.SERIF,
+                400,
+                false,
+            )
+
+        var loadedNotified = false
+        val initialTypeface =
+            fontInstance.applyVariationSettings(
+                arrayOf("wght", "wdth", "tnum"),
+                floatArrayOf(600f, 110f, 1f),
+            )
+        fontInstance.setOnLoadedListener { loadedNotified = true }
+
+        // Immediately returns the fallback typeface while the suspending resolver is pending,
+        // and forwards the variation settings (excluding OpenType feature tag "tnum").
+        assertThat(initialTypeface).isNotNull()
+        assertThat(loadedNotified).isFalse()
+        assertThat(capturedRequests).hasSize(1)
+        assertThat(capturedRequests.single().fontFamily).isEqualTo("google:Roboto Flex")
+        assertThat(capturedRequests.single().variationSettings)
+            .isEqualTo("'wght' 600.0, 'wdth' 110.0")
+
+        // Once the suspending resolver completes, the listener is notified and the cached resolved
+        // typeface is returned on subsequent calls.
+        deferred.complete(Typeface.MONOSPACE)
+        assertThat(loadedNotified).isTrue()
+        val resolvedTypeface =
+            fontInstance.applyVariationSettings(
+                arrayOf("wght", "wdth", "tnum"),
+                floatArrayOf(600f, 110f, 1f),
+            )
+        val resolvedTypefaceSecondCall =
+            fontInstance.applyVariationSettings(
+                arrayOf("wght", "wdth", "tnum"),
+                floatArrayOf(600f, 110f, 1f),
+            )
+        assertThat(resolvedTypeface).isNotNull()
+        assertThat(resolvedTypeface).isNotEqualTo(initialTypeface)
+        assertThat(resolvedTypefaceSecondCall).isSameInstanceAs(resolvedTypeface)
     }
 }
