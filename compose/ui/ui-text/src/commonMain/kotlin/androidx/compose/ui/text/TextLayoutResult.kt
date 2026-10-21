@@ -17,6 +17,7 @@
 package androidx.compose.ui.text
 
 import androidx.collection.mutableScatterMapOf
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -547,6 +548,103 @@ public constructor(
      * @return a bounding box for the character in pixels.
      */
     public fun getBoundingBox(offset: Int): Rect = multiParagraph.getBoundingBox(offset)
+
+    /**
+     * Returns a list of bounding boxes that enclose the given text range.
+     *
+     * Each returned [Rect] represents a contiguous horizontal segment on a single line. Multi-line
+     * ranges and bidirectional (BiDi) text ranges that split into visually non-contiguous runs on
+     * the same line produce one [Rect] per contiguous segment, ordered top-to-bottom by line and
+     * left-to-right within each line.
+     *
+     * Multi-line range (one [Rect] per line, ordered top-to-bottom):
+     * ```
+     *        +----------+
+     * Hello, | world    |   -> Rect 0 (line 0)
+     * +------+----+     |
+     * | again     | now.    -> Rect 1 (line 1)
+     * +-----------+
+     * ```
+     *
+     * Bidirectional (BiDi) range split into visually non-contiguous runs on the same line (ordered
+     * left-to-right):
+     * ```
+     * Logical order:  a b c [d e R1 R2] R3 f g
+     * Visual order:   a b c [d e] R3 [R2 R1] f g
+     *                       +---+    +-----+
+     *                       | 0 |    |  1  |   -> Rect 0, then Rect 1 (left-to-right)
+     *                       +---+    +-----+
+     * ```
+     *
+     * Adjacent characters on the same line whose horizontal bounds touch or overlap are coalesced
+     * into a single [Rect] with vertical bounds spanning the line's `[top, bottom]`.
+     *
+     * @sample androidx.compose.ui.text.samples.TextLayoutResultGetBoundingBoxesForRangeSample
+     * @param start an inclusive start character offset
+     * @param end an exclusive end character offset
+     * @return a list of bounding boxes for the range in pixels, or an empty list if [start] equals
+     *   [end]
+     * @throws IllegalArgumentException if [start] or [end] is outside `[0,
+     *   layoutInput.text.length]`, or if [start] is greater than [end]
+     */
+    public fun getBoundingBoxesForRange(start: Int, end: Int): List<Rect> =
+        calculateBoundingBoxList(start, end)
+
+    /**
+     * Populates [target] with a contour [Path] enclosing the text range `[start, end)`.
+     *
+     * When [mergeLines] is `true`, vertically adjacent bounding boxes on consecutive lines that
+     * overlap horizontally are unified into a single outer rectilinear contour before rounding
+     * corners; when `false`, each box in [getBoundingBoxesForRange] is added as an independent
+     * rounded rectangle:
+     * ```
+     * mergeLines = true (unified contour):    mergeLines = false (independent boxes):
+     *        .----------.                            .----------.
+     * Hello, | world    |                     Hello, | world    |
+     * .------'   .------'                            '----------'
+     * | again    | now.                       .----------.
+     * '----------'                            | again    | now.
+     *                                         '----------'
+     * ```
+     *
+     * [cornerRadius] is applied to both outer (convex) and inner step (concave) corners; when an
+     * adjacent horizontal or vertical segment is shorter than twice the requested radius along that
+     * axis, both radii at that corner are scaled down uniformly to fit without overlap while
+     * preserving the elliptical aspect ratio.
+     *
+     * Allocating a [Path] object is expensive and should be avoided inside a draw scope; callers
+     * should cache and reuse a [Path] instance across draw passes. [target] is automatically
+     * cleared via [Path.rewind] (preserving its [Path.fillType]) inside this function before being
+     * populated, so callers do not need to clear it beforehand.
+     *
+     * @sample androidx.compose.ui.text.samples.TextLayoutResultFillPathForRangeSample
+     * @param start inclusive start character offset of the range
+     * @param end exclusive end character offset of the range
+     * @param target [Path] instance cleared via [Path.rewind] and populated with the contour for
+     *   `[start, end)`
+     * @param cornerRadius corner radius applied to outer convex and inner concave contour corners
+     * @param mergeLines whether vertically adjacent overlapping boxes on consecutive lines are
+     *   unified into a single continuous contour
+     * @throws IllegalArgumentException if [start] or [end] is outside `[0,
+     *   layoutInput.text.length]`, or if [start] is greater than [end]
+     * @see getBoundingBoxesForRange
+     * @see getPathForRange
+     */
+    public fun fillPathForRange(
+        start: Int,
+        end: Int,
+        target: Path,
+        cornerRadius: CornerRadius = CornerRadius.Zero,
+        mergeLines: Boolean = true,
+    ) {
+        calculatePathFromBoundingBoxes(
+            start = start,
+            end = end,
+            cornerRadius = cornerRadius,
+            mergeLines = mergeLines,
+            target = target,
+        )
+    }
 
     /**
      * Returns the text range of the word at the given character offset.

@@ -1179,8 +1179,10 @@ final class androidx.compose.ui.text/TextLayoutResult { // androidx.compose.ui.t
 
     final fun copy(androidx.compose.ui.text/TextLayoutInput = ..., androidx.compose.ui.unit/IntSize = ...): androidx.compose.ui.text/TextLayoutResult // androidx.compose.ui.text/TextLayoutResult.copy|copy(androidx.compose.ui.text.TextLayoutInput;androidx.compose.ui.unit.IntSize){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text/TextLayoutResult.equals|equals(kotlin.Any?){}[0]
+    final fun fillPathForRange(kotlin/Int, kotlin/Int, androidx.compose.ui.graphics/Path, androidx.compose.ui.geometry/CornerRadius = ..., kotlin/Boolean = ...) // androidx.compose.ui.text/TextLayoutResult.fillPathForRange|fillPathForRange(kotlin.Int;kotlin.Int;androidx.compose.ui.graphics.Path;androidx.compose.ui.geometry.CornerRadius;kotlin.Boolean){}[0]
     final fun getBidiRunDirection(kotlin/Int): androidx.compose.ui.text.style/ResolvedTextDirection // androidx.compose.ui.text/TextLayoutResult.getBidiRunDirection|getBidiRunDirection(kotlin.Int){}[0]
     final fun getBoundingBox(kotlin/Int): androidx.compose.ui.geometry/Rect // androidx.compose.ui.text/TextLayoutResult.getBoundingBox|getBoundingBox(kotlin.Int){}[0]
+    final fun getBoundingBoxesForRange(kotlin/Int, kotlin/Int): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.ui.text/TextLayoutResult.getBoundingBoxesForRange|getBoundingBoxesForRange(kotlin.Int;kotlin.Int){}[0]
     final fun getCursorRect(kotlin/Int): androidx.compose.ui.geometry/Rect // androidx.compose.ui.text/TextLayoutResult.getCursorRect|getCursorRect(kotlin.Int){}[0]
     final fun getHorizontalPosition(kotlin/Int, kotlin/Boolean): kotlin/Float // androidx.compose.ui.text/TextLayoutResult.getHorizontalPosition|getHorizontalPosition(kotlin.Int;kotlin.Boolean){}[0]
     final fun getLineBaseline(kotlin/Int): kotlin/Float // androidx.compose.ui.text/TextLayoutResult.getLineBaseline|getLineBaseline(kotlin.Int){}[0]

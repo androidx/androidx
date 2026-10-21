@@ -27,9 +27,13 @@ import android.text.Spanned
 import android.text.TextUtils
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableFloatList
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.AndroidPath
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
@@ -521,6 +525,22 @@ internal class AndroidParagraph(
         }
     }
 
+    internal fun fillRangeBoundingBoxes(
+        startOffset: Int,
+        endOffset: Int,
+        paragraphTop: Float,
+        target: MutableFloatList,
+    ) {
+        layout.fillRangeBoundingBoxes(
+            startOffset = startOffset,
+            endOffset = endOffset,
+            paragraphTop = paragraphTop,
+            applyLineHeightOptimization = applyLineHeightOptimization,
+            resolvedLineHeight = resolvedLineHeight,
+            target = target,
+        )
+    }
+
     override fun getPathForRange(start: Int, end: Int): Path {
         requirePrecondition(start in 0..end && end <= charSequence.length) {
             "start($start) or end($end) is out of range [0..${charSequence.length}]," +
@@ -910,5 +930,60 @@ private fun TextGranularity.toLayoutTextGranularity(): Int {
         TextGranularity.Character -> TEXT_GRANULARITY_CHARACTER
         TextGranularity.Word -> TEXT_GRANULARITY_WORD
         else -> TEXT_GRANULARITY_CHARACTER
+    }
+}
+
+internal actual fun Paragraph.fillRangeBoundingBoxes(
+    startOffset: Int,
+    endOffset: Int,
+    paragraphTop: Float,
+    target: MutableFloatList,
+) {
+    if (this is AndroidParagraph) {
+        fillRangeBoundingBoxes(
+            startOffset = startOffset,
+            endOffset = endOffset,
+            paragraphTop = paragraphTop,
+            target = target,
+        )
+    }
+}
+
+internal actual fun Path.addClockwiseRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+) {
+    if (this is AndroidPath) {
+        internalPath.addRect(left, top, right, bottom, android.graphics.Path.Direction.CW)
+    } else {
+        addRect(Rect(left, top, right, bottom), Path.Direction.Clockwise)
+    }
+}
+
+internal actual fun Path.addClockwiseRoundRect(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    radiusX: Float,
+    radiusY: Float,
+) {
+    if (this is AndroidPath) {
+        internalPath.addRoundRect(
+            left,
+            top,
+            right,
+            bottom,
+            radiusX,
+            radiusY,
+            android.graphics.Path.Direction.CW,
+        )
+    } else {
+        addRoundRect(
+            RoundRect(left, top, right, bottom, CornerRadius(radiusX, radiusY)),
+            Path.Direction.Clockwise,
+        )
     }
 }
