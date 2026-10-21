@@ -47,7 +47,9 @@ public inline fun <T : Any> entryProvider(
  *   given key on the backStack
  */
 @EntryDsl
-public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T) -> NavEntry<T>) {
+public open class EntryProviderScope<T : Any>(
+    private val fallback: (unknownScreen: T) -> NavEntry<T>
+) {
     private val clazzProviders = mutableMapOf<KClass<out T>, EntryClassProvider<out T>>()
     private val providers = mutableMapOf<Any, EntryProvider<out T>>()
 
@@ -233,8 +235,7 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
      * Returns an instance of entryProvider created from the entry providers set on this builder.
      */
     @Suppress("UNCHECKED_CAST")
-    @PublishedApi
-    internal fun build(): (T) -> NavEntry<T> {
+    public fun build(): (T) -> NavEntry<T> {
         val metadataCache = mutableMapOf<T, Map<String, Any>>()
         return { key ->
             val entryClassProvider = clazzProviders[key::class] as? EntryClassProvider<T>

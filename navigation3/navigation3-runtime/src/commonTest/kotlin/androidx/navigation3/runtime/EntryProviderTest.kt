@@ -149,6 +149,30 @@ class EntryProviderTest {
 
         assertThat(entry.contentKey).isEqualTo("first")
     }
+
+    @Test
+    fun entryProviderScope_customSubclass_buildsEntries() {
+        class CustomEntryProviderScope<T : Any>(fallback: (T) -> NavEntry<T>) :
+            EntryProviderScope<T>(fallback) {
+            fun customEntry(key: T, contentKey: String) {
+                entry(key, contentKey = contentKey) {}
+            }
+        }
+
+        val provider =
+            CustomEntryProviderScope<String>(
+                    fallback = { key -> NavEntry(key, contentKey = "fallback_$key") {} }
+                )
+                .apply {
+                    entry("first", contentKey = "first_content") {}
+                    customEntry("second", contentKey = "second_content")
+                }
+                .build()
+
+        assertThat(provider.invoke("first").contentKey).isEqualTo("first_content")
+        assertThat(provider.invoke("second").contentKey).isEqualTo("second_content")
+        assertThat(provider.invoke("unknown").contentKey).isEqualTo("fallback_unknown")
+    }
 }
 
 private object TestNavMetadataKey : NavMetadataKey<() -> String>
