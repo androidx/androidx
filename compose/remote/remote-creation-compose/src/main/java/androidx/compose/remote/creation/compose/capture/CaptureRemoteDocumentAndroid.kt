@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.MutableScatterMap
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
@@ -43,9 +44,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
+import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.structuralEqualityPolicy
@@ -55,13 +58,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedState
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.read
 import androidx.savedstate.write
 import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 /**
  * Capture a single RemoteCompose document from the specified [content] Composable by rendering it
@@ -139,6 +146,10 @@ public suspend fun captureSingleRemoteDocument(
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
     val document =
         captureSingleRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
@@ -148,9 +159,23 @@ public suspend fun captureSingleRemoteDocument(
             profile = profile,
             writerCallback = writerEvents,
             platformImageProvider = AndroidPlatformImageProvider,
-            savedState = savedState,
-            retainedValuesStore = retainedValuesStore,
-            content = withAndroidLocals(context, creationDisplayInfo, content),
+            onDispose = {
+                savedState?.write { clear() }
+                if (savedState != null && saveableStateRegistry != null) {
+                    savedState.saveSaveableState(saveableStateRegistry.performSave())
+                }
+                lifecycleOwner.performSave()
+                lifecycleOwner.destroy()
+            },
+            content =
+                withAndroidLocals(
+                    context = context,
+                    creationDisplayInfo = creationDisplayInfo,
+                    lifecycleOwner = lifecycleOwner,
+                    saveableStateRegistry = saveableStateRegistry,
+                    retainedValuesStore = retainedValuesStore,
+                    content = content,
+                ),
         )
     return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
 }
@@ -245,22 +270,44 @@ public fun captureRemoteDocument(
     savedState: SavedState? = null,
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
-): Flow<ByteArray> =
-    captureRemoteDocument(
-        creationDisplayInfo = creationDisplayInfo,
-        updateThrottle = updateThrottle,
-        remoteDensity = remoteDensity,
-        layoutDirection =
-            layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection),
-        clock = clock,
-        profile = profile,
-        writerCallback = writerEvents,
-        platformImageProvider = AndroidPlatformImageProvider,
-        coroutineContext = coroutineContext,
-        savedState = savedState,
-        retainedValuesStore = retainedValuesStore,
-        content = withAndroidLocals(context, creationDisplayInfo, content),
+): Flow<ByteArray> = flow {
+    val resolvedLayoutDirection =
+        layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection)
+    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
+    val saveableStateRegistry = savedState?.let {
+        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
+    }
+    emitAll(
+        captureRemoteDocument(
+            creationDisplayInfo = creationDisplayInfo,
+            updateThrottle = updateThrottle,
+            remoteDensity = remoteDensity,
+            layoutDirection = resolvedLayoutDirection,
+            clock = clock,
+            profile = profile,
+            writerCallback = writerEvents,
+            platformImageProvider = AndroidPlatformImageProvider,
+            coroutineContext = coroutineContext,
+            onDispose = {
+                savedState?.write { clear() }
+                if (savedState != null && saveableStateRegistry != null) {
+                    savedState.saveSaveableState(saveableStateRegistry.performSave())
+                }
+                lifecycleOwner.performSave()
+                lifecycleOwner.destroy()
+            },
+            content =
+                withAndroidLocals(
+                    context = context,
+                    creationDisplayInfo = creationDisplayInfo,
+                    lifecycleOwner = lifecycleOwner,
+                    saveableStateRegistry = saveableStateRegistry,
+                    retainedValuesStore = retainedValuesStore,
+                    content = content,
+                ),
+        )
     )
+}
 
 /**
  * Wraps [content] so that the Android-specific CompositionLocals a capture needs ([LocalContext],
@@ -270,6 +317,9 @@ public fun captureRemoteDocument(
 private fun withAndroidLocals(
     context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
+    lifecycleOwner: HeadlessLifecycleOwner,
+    saveableStateRegistry: SaveableStateRegistry?,
+    retainedValuesStore: RetainedValuesStore?,
     content: @Composable @RemoteComposable () -> Unit,
 ): @Composable @RemoteComposable () -> Unit {
     val configuration = context.resources.configuration
@@ -283,10 +333,18 @@ private fun withAndroidLocals(
                     creationDisplayInfo.density.density,
                     creationDisplayInfo.density.fontScale,
                 ),
+            LocalLifecycleOwner provides lifecycleOwner,
+            LocalSavedStateRegistryOwner provides lifecycleOwner,
+            LocalSaveableStateRegistry provides saveableStateRegistry,
             LocalFontWeightAdjustment provides platformFontWeightAdjustment(configuration),
             LocalIs24HourFormat provides DateFormat.is24HourFormat(context),
-            content = content,
-        )
+        ) {
+            if (retainedValuesStore != null) {
+                LocalRetainedValuesStoreProvider(retainedValuesStore, content)
+            } else {
+                content()
+            }
+        }
     }
 }
 

@@ -47,6 +47,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.util.fastForEach
+import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -57,8 +59,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.vector.PathNode
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 
 /** DSL for building a vector with [RemotePathScope]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

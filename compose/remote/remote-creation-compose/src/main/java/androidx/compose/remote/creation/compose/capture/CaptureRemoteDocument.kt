@@ -25,7 +25,6 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.headless.CaptureWriteTracker
-import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
 import androidx.compose.remote.creation.compose.capture.headless.HeadlessSession
 import androidx.compose.remote.creation.compose.capture.headless.MAX_FRAMES
 import androidx.compose.remote.creation.compose.capture.headless.MAX_IDLE_ITERATIONS
@@ -42,17 +41,9 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
-import androidx.compose.runtime.retain.RetainedValuesStore
-import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
-import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.savedstate.SavedState
-import androidx.savedstate.compose.LocalSavedStateRegistryOwner
-import androidx.savedstate.write
 import androidx.tracing.Trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -92,8 +83,7 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile,
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
-    savedState: SavedState? = null,
-    retainedValuesStore: RetainedValuesStore? = null,
+    onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray =
     captureRemoteDocumentImpl(
@@ -107,8 +97,7 @@ public suspend fun captureSingleRemoteDocument(
             writerCallback = writerCallback,
             platformImageProvider = platformImageProvider,
             coroutineContext = EmptyCoroutineContext,
-            savedState = savedState,
-            retainedValuesStore = retainedValuesStore,
+            onDispose = onDispose,
             content = content,
         )
         .first()
@@ -132,8 +121,7 @@ public fun captureRemoteDocument(
     writerCallback: Any? = null,
     platformImageProvider: PlatformImageProvider = NoOpPlatformImageProvider,
     coroutineContext: CoroutineContext = Dispatchers.Default,
-    savedState: SavedState? = null,
-    retainedValuesStore: RetainedValuesStore? = null,
+    onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> =
     captureRemoteDocumentImpl(
@@ -147,8 +135,7 @@ public fun captureRemoteDocument(
         writerCallback = writerCallback,
         platformImageProvider = platformImageProvider,
         coroutineContext = coroutineContext,
-        savedState = savedState,
-        retainedValuesStore = retainedValuesStore,
+        onDispose = onDispose,
         content = content,
     )
 
@@ -176,8 +163,7 @@ private fun captureRemoteDocumentImpl(
     writerCallback: Any?,
     platformImageProvider: PlatformImageProvider,
     coroutineContext: CoroutineContext,
-    savedState: SavedState?,
-    retainedValuesStore: RetainedValuesStore?,
+    onDispose: () -> Unit,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> = flow {
     require(maxDocuments > 0) { "maxDocuments must be positive, was $maxDocuments" }
@@ -204,10 +190,6 @@ private fun captureRemoteDocumentImpl(
     val recomposerDispatcher = session.recomposerDispatcher
     val recomposer = session.recomposer
     val composition = Composition(applier, recomposer)
-    val lifecycleOwner = HeadlessLifecycleOwner(savedState)
-    val saveableStateRegistry = savedState?.let {
-        SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
-    }
 
     try {
         val creationState =
@@ -247,16 +229,8 @@ private fun captureRemoteDocumentImpl(
                             LocalRemoteComposeCreationState provides creationState,
                             LocalRemoteDensity provides remoteDensity,
                             LocalLayoutDirection provides layoutDirection,
-                            LocalLifecycleOwner provides lifecycleOwner,
-                            LocalSavedStateRegistryOwner provides lifecycleOwner,
-                            LocalSaveableStateRegistry provides saveableStateRegistry,
-                        ) {
-                            if (retainedValuesStore != null) {
-                                LocalRetainedValuesStoreProvider(retainedValuesStore, content)
-                            } else {
-                                content()
-                            }
-                        }
+                            content = content,
+                        )
                     }
                 }
 
@@ -358,19 +332,7 @@ private fun captureRemoteDocumentImpl(
     } finally {
         withContext(recomposerDispatcher + NonCancellable) {
             recomposer.cancel()
-            // Clear savedState before writing back so that if all registered providers were
-            // unregistered during recomposition, stale entries from a previous capture are not left
-            // behind in the reused SavedState bundle (SavedStateRegistryController.performSave is a
-            // no-op when its saved state is empty).
-            savedState?.write { clear() }
-            // Perform save before lifecycleOwner.destroy() and composition.dispose() because
-            // teardown dispatches ON_DESTROY / RememberObserver.onForgotten(), which unregisters
-            // providers from SavedStateRegistry and SaveableStateRegistry.
-            if (savedState != null && saveableStateRegistry != null) {
-                savedState.saveSaveableState(saveableStateRegistry.performSave())
-            }
-            lifecycleOwner.performSave()
-            lifecycleOwner.destroy()
+            onDispose()
             composition.dispose()
         }
     }
