@@ -33,7 +33,10 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateRulers
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -193,6 +196,51 @@ fun ProvideRulerOnlyWhenUsed() {
             ) {
                 placeable.place(0, 0)
             }
+        }
+    }
+}
+
+@Sampled
+fun InvalidateRulersSample() {
+    val ContentBottomRuler = HorizontalRuler()
+
+    // Provides ContentBottomRuler at bottomInset pixels above the bottom of the layout.
+    class ContentBottomRulerNode(var bottomInset: Int) : Modifier.Node(), LayoutModifierNode {
+        fun updateBottomInset(newInset: Int) {
+            if (newInset != bottomInset) {
+                bottomInset = newInset
+                // bottomInset is not snapshot state, so changes aren't observed automatically.
+                // Only the ruler value depends on it, so there is no need to remeasure.
+                invalidateRulers()
+            }
+        }
+
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(
+                placeable.width,
+                placeable.height,
+                rulers = { ContentBottomRuler provides (placeable.height - bottomInset).toFloat() },
+            ) {
+                placeable.place(0, 0)
+            }
+        }
+    }
+
+    data class ContentBottomRulerElement(val bottomInset: Int) :
+        ModifierNodeElement<ContentBottomRulerNode>() {
+        override fun create() = ContentBottomRulerNode(bottomInset)
+
+        override fun update(node: ContentBottomRulerNode) {
+            node.updateBottomInset(bottomInset)
+        }
+
+        override fun InspectorInfo.inspectableProperties() {
+            name = "contentBottomRuler"
+            properties["bottomInset"] = bottomInset
         }
     }
 }

@@ -399,6 +399,25 @@ internal abstract class LookaheadCapablePlaceable :
         }
     }
 
+    /**
+     * Forces the [Ruler] values provided by this placeable to be recalculated, regardless of
+     * whether any observed state has changed. Readers of the rulers are notified so that they can
+     * be relaid out.
+     */
+    fun invalidateRulers() {
+        if (!hasMeasureResult) return
+        if (rulerProvider != null) {
+            // Provided rulers are lazily calculated when read. Clearing the values and notifying
+            // the readers causes them to be recalculated when they are next read.
+            resetProvidedRulers()
+        } else if (rulersLambda != null) {
+            // Clearing the cached lambda forces the rulers to be recaptured. If this happens
+            // during an alignment placement pass, they will be recaptured on the next placement.
+            rulersLambda = null
+            captureRulersIfNeeded(measureResult)
+        }
+    }
+
     private fun captureRulers(
         placeableResult: PlaceableResult,
         positionOnScreen: IntOffset = IntOffset.Max,

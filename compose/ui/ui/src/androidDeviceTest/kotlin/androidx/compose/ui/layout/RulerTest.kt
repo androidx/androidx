@@ -35,9 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateRulers
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.MediumTest
@@ -901,6 +905,151 @@ class RulerTest(val useIndividualRulers: Boolean) {
 
         // 8. Verify C is updated to 40 (meaning it was invalidated and re-evaluated)
         assertThat(readValueC).isEqualTo(40f)
+    }
+
+    @Test
+    fun invalidateRulersRecalculatesNonStateValue() {
+        val node = NonStateRulerNode(verticalRuler, useIndividualRulers)
+        node.rulerValue = 10f
+        val readValues = mutableFloatListOf()
+        rule.setContent {
+            Box(Modifier.then(NonStateRulerElement(node))) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValues += verticalRuler.current(Float.NaN)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertThat(readValues.size).isEqualTo(1)
+        assertThat(readValues[0]).isEqualTo(10f)
+
+        // Changing a non-state value is not observed, so nothing is relaid out.
+        rule.runOnIdle { node.rulerValue = 20f }
+        rule.waitForIdle()
+        assertThat(readValues.size).isEqualTo(1)
+
+        rule.runOnIdle { node.invalidateRulers() }
+        rule.waitForIdle()
+        assertThat(readValues.size).isEqualTo(2)
+        assertThat(readValues[1]).isEqualTo(20f)
+    }
+
+    @Test
+    fun invalidateRulersWhenDetachedDoesNotCrash() {
+        val node = NonStateRulerNode(verticalRuler, useIndividualRulers)
+        node.invalidateRulers()
+    }
+
+    @Test
+    fun invalidateRulersUnchangedValueDoesNotRelayoutReaders() {
+        // Provided rulers are lazily calculated, so readers are always relaid out.
+        if (useIndividualRulers) return
+
+        val node = NonStateRulerNode(verticalRuler, useIndividualRulers)
+        node.rulerValue = 10f
+        val readValues = mutableFloatListOf()
+        rule.setContent {
+            Box(Modifier.then(NonStateRulerElement(node))) {
+                Box(
+                    Modifier.layout { measurable, constraints ->
+                        val p = measurable.measure(constraints)
+                        layout(p.width, p.height) {
+                            readValues += verticalRuler.current(Float.NaN)
+                            p.place(0, 0)
+                        }
+                    }
+                )
+            }
+        }
+        rule.waitForIdle()
+        assertThat(readValues.size).isEqualTo(1)
+
+        rule.runOnIdle { node.invalidateRulers() }
+        rule.waitForIdle()
+        assertThat(readValues.size).isEqualTo(1)
+    }
+
+    @Test
+    fun invalidateRulersInLookaheadScope() {
+        val node = NonStateRulerNode(verticalRuler, useIndividualRulers)
+        node.rulerValue = 10f
+        val lookaheadValues = mutableFloatListOf()
+        val readValues = mutableFloatListOf()
+        rule.setContent {
+            LookaheadScope {
+                Box(Modifier.then(NonStateRulerElement(node))) {
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            val p = measurable.measure(constraints)
+                            val lookingAhead = isLookingAhead
+                            layout(p.width, p.height) {
+                                val value = verticalRuler.current(Float.NaN)
+                                if (lookingAhead) {
+                                    lookaheadValues += value
+                                } else {
+                                    readValues += value
+                                }
+                                p.place(0, 0)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(lookaheadValues.size).isAtLeast(1)
+        assertThat(lookaheadValues.last()).isEqualTo(10f)
+        assertThat(readValues.size).isAtLeast(1)
+        assertThat(readValues.last()).isEqualTo(10f)
+
+        rule.runOnIdle { node.rulerValue = 20f }
+        rule.waitForIdle()
+        assertThat(lookaheadValues.last()).isEqualTo(10f)
+        assertThat(readValues.last()).isEqualTo(10f)
+
+        rule.runOnIdle { node.invalidateRulers() }
+        rule.waitForIdle()
+        assertThat(lookaheadValues.last()).isEqualTo(20f)
+        assertThat(readValues.last()).isEqualTo(20f)
+    }
+
+    private class NonStateRulerNode(val ruler: VerticalRuler, val useIndividualRulers: Boolean) :
+        Modifier.Node(), LayoutModifierNode {
+        var rulerValue = 0f
+
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val p = measurable.measure(constraints)
+            return if (useIndividualRulers) {
+                layout(
+                    p.width,
+                    p.height,
+                    isRulerProvided = { it == ruler },
+                    rulerProvider = { ruler.provides(rulerValue) },
+                ) {
+                    p.place(0, 0)
+                }
+            } else {
+                layout(p.width, p.height, rulers = { ruler.provides(rulerValue) }) {
+                    p.place(0, 0)
+                }
+            }
+        }
+    }
+
+    private data class NonStateRulerElement(val node: NonStateRulerNode) :
+        ModifierNodeElement<NonStateRulerNode>() {
+        override fun create(): NonStateRulerNode = node
+
+        override fun update(node: NonStateRulerNode) {}
     }
 
     companion object {
