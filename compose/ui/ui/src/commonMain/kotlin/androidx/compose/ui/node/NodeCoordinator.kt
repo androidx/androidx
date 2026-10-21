@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalComposeUiHostApi::class)
+
 package androidx.compose.ui.node
 
 import androidx.collection.MutableObjectIntMap
@@ -57,6 +59,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.isImportantForAccessibility
 import androidx.compose.ui.unit.Constraints
@@ -73,7 +76,7 @@ import androidx.compose.ui.util.fastIsFinite
 
 /** Measurable and Placeable type that has a position. */
 internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
-    LookaheadCapablePlaceable(), Measurable, LayoutCoordinates, OwnerScope {
+    LookaheadCapablePlaceable(), Measurable, LayoutCoordinates, ObservationTarget {
 
     internal var forcePlaceWithLookaheadOffset: Boolean = false
     internal var forceMeasureWithLookaheadConstraints: Boolean = false
@@ -700,7 +703,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
 
     private var explicitLayer: GraphicsLayer? = null
 
-    override val isValidOwnerScope: Boolean
+    override val isObservationValid: Boolean
         get() = layer != null && !released && layoutNode.isAttached
 
     val minimumTouchTargetSize: Size
@@ -1682,7 +1685,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         const val UnmeasuredError = "Asking for measurement result of unmeasured layout modifier"
         private val onCommitAffectingLayerParams: (NodeCoordinator) -> Unit = { coordinator ->
             withComposeStackTrace(coordinator.layoutNode) {
-                if (coordinator.isValidOwnerScope) {
+                if (coordinator.isObservationValid) {
                     coordinator.updateLayerParameters()
                 }
             }
