@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @Sampled
@@ -122,7 +123,7 @@ fun InfiniteTransitionAnimateValueSample() {
                 ),
         )
 
-    Box(Modifier.offset(x = offsetX)) {
+    Box(Modifier.offset { IntOffset(offsetX.roundToPx(), 0) }) {
         // Content goes here
     }
 }
