@@ -47,7 +47,7 @@ class AgeSignalResultHandlerTest {
 
     @Test
     fun responseBundle_roundTrip_openEndedRange() {
-        val expected = GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_D)
+        val expected = GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_A)
 
         val actual =
             AgeSignalResultHandler.retrieveGetAgeRangeResponse(
@@ -65,8 +65,6 @@ class AgeSignalResultHandlerTest {
                 GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED,
                 GetAgeRangeResponse.ASSURANCE_TIER_A,
                 GetAgeRangeResponse.ASSURANCE_TIER_B,
-                GetAgeRangeResponse.ASSURANCE_TIER_C,
-                GetAgeRangeResponse.ASSURANCE_TIER_D,
             )
         for (tier in tiers) {
             val expected = GetAgeRangeResponse(16, 17, tier)
@@ -83,7 +81,7 @@ class AgeSignalResultHandlerTest {
     /** Mirrors the interactive transport: provider activity result intent -> provider bridge. */
     @Test
     fun responseBundle_roundTripThroughIntentExtras() {
-        val expected = GetAgeRangeResponse(13, 15, GetAgeRangeResponse.ASSURANCE_TIER_C)
+        val expected = GetAgeRangeResponse(13, 15, GetAgeRangeResponse.ASSURANCE_TIER_A)
         val intent = Intent().putExtras(AgeSignalResultHandler.toResponseBundle(expected))
 
         val actual = AgeSignalResultHandler.retrieveGetAgeRangeResponse(intent.extras!!)
@@ -229,7 +227,7 @@ class AgeSignalResultHandlerTest {
 
     @Test
     fun responseBundle_survivesParcelMarshalling() {
-        val expected = GetAgeRangeResponse(13, 15, GetAgeRangeResponse.ASSURANCE_TIER_C)
+        val expected = GetAgeRangeResponse(13, 15, GetAgeRangeResponse.ASSURANCE_TIER_A)
 
         val actual =
             AgeSignalResultHandler.retrieveGetAgeRangeResponse(
@@ -241,7 +239,7 @@ class AgeSignalResultHandlerTest {
 
     @Test
     fun responseBundle_openEndedRange_survivesParcelMarshalling() {
-        val expected = GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_D)
+        val expected = GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_A)
 
         val actual =
             AgeSignalResultHandler.retrieveGetAgeRangeResponse(
@@ -255,7 +253,7 @@ class AgeSignalResultHandlerTest {
     /** A tier added after this version of the library must survive the trip across a process. */
     @Test
     fun responseBundle_unrecognizedAssuranceTier_survivesParcelMarshalling() {
-        val futureTier = GetAgeRangeResponse.ASSURANCE_TIER_D + 1
+        val futureTier = GetAgeRangeResponse.ASSURANCE_TIER_B + 1
         val responseBundle =
             Bundle().apply {
                 putInt(GetAgeRangeResponse.EXTRA_AGE_LOWER_BOUND, 18)

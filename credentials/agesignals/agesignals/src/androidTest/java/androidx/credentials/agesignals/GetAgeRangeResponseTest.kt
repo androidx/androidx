@@ -33,11 +33,11 @@ class GetAgeRangeResponseTest {
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_B,
             )
         assertThat(response.lowerAgeBound).isEqualTo(13)
         assertThat(response.upperAgeBound).isEqualTo(17)
-        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_C)
+        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_B)
     }
 
     @Test
@@ -59,11 +59,11 @@ class GetAgeRangeResponseTest {
             GetAgeRangeResponse(
                 lowerAgeBound = 18,
                 upperAgeBound = 18,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_D,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_B,
             )
         assertThat(response.lowerAgeBound).isEqualTo(18)
         assertThat(response.upperAgeBound).isEqualTo(18)
-        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_D)
+        assertThat(response.assuranceTier).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_B)
     }
 
     @Test
@@ -125,8 +125,6 @@ class GetAgeRangeResponseTest {
                 GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED,
                 GetAgeRangeResponse.ASSURANCE_TIER_A,
                 GetAgeRangeResponse.ASSURANCE_TIER_B,
-                GetAgeRangeResponse.ASSURANCE_TIER_C,
-                GetAgeRangeResponse.ASSURANCE_TIER_D,
             )
         for (tier in validTiers) {
             val response =
@@ -141,13 +139,13 @@ class GetAgeRangeResponseTest {
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         val response2 =
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         assertThat(response1).isEqualTo(response2)
         assertThat(response1.hashCode()).isEqualTo(response2.hashCode())
@@ -159,31 +157,31 @@ class GetAgeRangeResponseTest {
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         val diffLower =
             GetAgeRangeResponse(
                 lowerAgeBound = 14,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         val diffUpper =
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 18,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         val diffTier =
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_D,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_B,
             )
         val openEnded =
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = null,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
 
         assertThat(base).isNotEqualTo(diffLower)
@@ -198,12 +196,12 @@ class GetAgeRangeResponseTest {
             GetAgeRangeResponse(
                 lowerAgeBound = 13,
                 upperAgeBound = 17,
-                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_C,
+                assuranceTier = GetAgeRangeResponse.ASSURANCE_TIER_A,
             )
         val string = response.toString()
         assertThat(string).contains("lowerAgeBound=13")
         assertThat(string).contains("upperAgeBound=17")
-        assertThat(string).contains("assuranceTier=${GetAgeRangeResponse.ASSURANCE_TIER_C}")
+        assertThat(string).contains("assuranceTier=${GetAgeRangeResponse.ASSURANCE_TIER_A}")
     }
 
     @Test
@@ -211,8 +209,6 @@ class GetAgeRangeResponseTest {
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED).isEqualTo(0)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A).isEqualTo(1)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B).isEqualTo(2)
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_C).isEqualTo(3)
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_D).isEqualTo(4)
     }
 
     @Test
@@ -221,9 +217,5 @@ class GetAgeRangeResponseTest {
             .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_A)
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A)
             .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_B)
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B)
-            .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_C)
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_C)
-            .isLessThan(GetAgeRangeResponse.ASSURANCE_TIER_D)
     }
 }
