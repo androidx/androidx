@@ -58,7 +58,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
  */
 fun Project.configureSourceJarForAndroid(
     libraryVariant: LibraryVariant,
-    samplesProjects: MutableCollection<Project>,
+    samplesProjects: Provider<Set<Project>>,
     rJavaSource: FileCollection,
 ) {
     val allSources =
@@ -96,14 +96,14 @@ fun Project.configureSourceJarForAndroid(
     disableUnusedSourceJarTasks(disableNames)
 }
 
-fun Project.configureMultiplatformSourcesForAndroid(samplesProjects: MutableCollection<Project>) =
+fun Project.configureMultiplatformSourcesForAndroid(samplesProjects: Provider<Set<Project>>) =
     registerSamplesLibraries(
         samplesProjects,
         listOf(PublishingVariant.KmpSourcesElements, PublishingVariant.AgpKmpSourcesElements),
     )
 
 /** Sets up a source jar task for a Java library project. */
-fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project>) {
+fun Project.configureSourceJarForJava(samplesProjects: Provider<Set<Project>>) {
     val sourceJar =
         tasks.register("sourceJar", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
@@ -307,12 +307,13 @@ private fun KotlinSourceSet.transitiveDependsOn(): Set<KotlinSourceSet> {
 }
 
 private fun Project.registerSamplesLibraries(
-    samplesProjects: MutableCollection<Project>,
+    samplesProjects: Provider<Set<Project>>,
     publishingVariants: List<PublishingVariant>,
-) = samplesProjects.forEach { sampleProject ->
-    dependencies.add("samples", sampleProject)
-    updateCopySampleSourceJarsTaskWithVariant(publishingVariants.map { it.name })
-}
+) =
+    samplesProjects.get().forEach { sampleProject ->
+        dependencies.add("samples", sampleProject)
+        updateCopySampleSourceJarsTaskWithVariant(publishingVariants.map { it.name })
+    }
 
 /**
  * Updates the published variants with the output of [LazyInputsCopyTask]. This function must be

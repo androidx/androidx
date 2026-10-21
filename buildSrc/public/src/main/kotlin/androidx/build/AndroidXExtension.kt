@@ -28,6 +28,7 @@ import org.gradle.api.configuration.BuildFeatures
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtensionContainer
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
@@ -217,10 +218,10 @@ abstract class AndroidXExtension(
     abstract val inceptionYear: Property<String>
 
     /** The main license to add when publishing. Default is Apache 2. */
-    var license: License =
-        License().apply {
-            name = "The Apache Software License, Version 2.0"
-            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+    val license: License =
+        project.objects.newInstance(License::class.java).apply {
+            name.convention("The Apache Software License, Version 2.0")
+            url.convention("http://www.apache.org/licenses/LICENSE-2.0.txt")
         }
 
     private var extraLicenses: MutableCollection<License> = ArrayList()
@@ -244,7 +245,7 @@ abstract class AndroidXExtension(
         return type.map { type -> type.publish.shouldPublish() || type == SoftwareType.IDE_PLUGIN }
     }
 
-    var doNotDocumentReason: String? = null
+    abstract val doNotDocumentReason: Property<String>
 
     val type: Property<SoftwareType> =
         project.objects.property(SoftwareType::class.java).convention(SoftwareType.UNSET)
@@ -255,31 +256,18 @@ abstract class AndroidXExtension(
     /** Whether this project should fail on javac compilation warnings */
     fun failOnDeprecationWarnings(enabled: Boolean) = failOnDeprecationWarnings.set(enabled)
 
-    var bypassCoordinateValidation = false
+    val bypassCoordinateValidation: Property<Boolean> =
+        project.objects.property(Boolean::class.java).convention(false)
 
-    val additionalDeviceTestApkKeys = mutableListOf<String>()
+    abstract val additionalDeviceTestApkKeys: ListProperty<String>
 
-    val additionalDeviceTestTags: MutableList<String> by lazy {
-        val tags =
-            when {
-                project.path.startsWith(":compose:") -> mutableListOf("compose")
-                project.path.startsWith(":privacysandbox:ads:") ->
-                    mutableListOf("privacysandbox", "privacysandbox_ads")
-                project.path.startsWith(":wear:watchface") -> mutableListOf("wear_optin")
-                project.path.startsWith(":xr:") -> mutableListOf("xr_optin")
-                else -> mutableListOf()
-            }
-        if (deviceTests.enableAlsoRunningOnPhysicalDevices) {
-            tags.add("all_run_on_physical_device")
-        }
-        if (deviceTests.enableAlsoRunOn16KbPageSizeDevices) {
-            tags.add("all_run_on_16kb_page_size_device")
-        }
-        return@lazy tags
-    }
+    abstract val additionalDeviceTestTags: ListProperty<String>
 
     fun extraLicense(closure: Closure<Any>): License {
-        val license = project.configure(License(), closure) as License
+        val license =
+            project.configure(project.objects.newInstance(License::class.java), closure) as License
+        check(license.name.isPresent) { "extraLicense in ${project.path} is missing 'name'" }
+        check(license.url.isPresent) { "extraLicense in ${project.path} is missing 'url'" }
         extraLicenses.add(license)
         return license
     }
@@ -321,8 +309,7 @@ abstract class AndroidXExtension(
     }
 
     /** List of documentation samples projects for this project. */
-    var samplesProjects: MutableCollection<Project> = mutableSetOf()
-        private set
+    abstract val samplesProjects: SetProperty<Project>
 
     /**
      * Used to register a project that will be providing documentation samples for this project. Can
@@ -394,9 +381,9 @@ abstract class AndroidXExtension(
     }
 }
 
-class License {
-    var name: String? = null
-    var url: String? = null
+abstract class License {
+    abstract val name: Property<String>
+    abstract val url: Property<String>
 }
 
 abstract class DeviceTests @Inject constructor(objects: ObjectFactory) {
@@ -410,22 +397,24 @@ abstract class DeviceTests @Inject constructor(objects: ObjectFactory) {
     }
 
     /** Whether this project's Android on device tests should be run in CI. */
-    var enabled = true
+    val enabled: Property<Boolean> = objects.property<Boolean>().convention(true)
     /** The app project that this project's Android on device tests require to be able to run. */
-    var targetAppProject: Project? = null
-    var targetAppVariant = "debug"
+    abstract val targetAppProject: Property<Project>
+    val targetAppVariant: Property<String> = objects.property<String>().convention("debug")
 
     /**
      * Whether this project's Android on device tests should also run on a physical Android device
      * when run in CI.
      */
-    var enableAlsoRunningOnPhysicalDevices = false
+    val enableAlsoRunningOnPhysicalDevices: Property<Boolean> =
+        objects.property<Boolean>().convention(false)
 
     /**
      * Whether this project's Android on device tests should also run on an Android device that uses
      * 16KB page size when run in CI.
      */
-    var enableAlsoRunOn16KbPageSizeDevices = false
+    val enableAlsoRunOn16KbPageSizeDevices: Property<Boolean> =
+        objects.property<Boolean>().convention(false)
 
     /**
      * Whether this project's Android on device tests should use test orchestrator to isolate tests
@@ -434,13 +423,13 @@ abstract class DeviceTests @Inject constructor(objects: ObjectFactory) {
      */
     val useOrchestrator: Property<Boolean> = objects.property<Boolean>().convention(false)
 
-    var minSdkForFtlOverride: Int? = null
+    abstract val minSdkForFtlOverride: Property<Int>
 
     /**
      * Maximum number of shards Tradefed may use for this module's instrumentation tests. When set
      * to 1, tests will run on a single shard ("not-shardable"). When set to > 1, Tradefed limits
-     * shards to this value ("ajur-max-shard"). When null, Tradefed defaults to the suite-level
+     * shards to this value ("ajur-max-shard"). When unset, Tradefed defaults to the suite-level
      * shard count (e.g. 16 on Cuttlefish).
      */
-    var maxShardCount: Int? = null
+    abstract val maxShardCount: Property<Int>
 }

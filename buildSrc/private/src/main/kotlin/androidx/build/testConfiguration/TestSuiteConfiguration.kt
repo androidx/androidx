@@ -53,10 +53,10 @@ import org.gradle.kotlin.dsl.named
 private fun Project.createTestConfigurationGenerationTask(
     variantName: String,
     artifacts: Artifacts,
-    minSdk: Int,
+    minSdk: Provider<Int>,
     testRunner: Provider<String>,
     useOrchestrator: Provider<Boolean>,
-    maxShardCount: Int?,
+    maxShardCount: Provider<Int>,
     instrumentationRunnerArgs: Provider<Map<String, String>>,
     variant: Variant?,
     projectIsolationEnabled: Boolean,
@@ -97,7 +97,7 @@ private fun Project.registerCopyTestApksTask(
         //  androidXExtension.deviceTests.enabled is set to true
         task.androidTestSourceCode.from(getTestSourceSetsForAndroid(variant))
         val androidXExtension = extensions.getByType<AndroidXExtension>()
-        task.enabled = androidXExtension.deviceTests.enabled
+        task.enabled = androidXExtension.deviceTests.enabled.get()
         AffectedModuleDetector.configureTaskGuard(task)
     }
 }
@@ -108,10 +108,10 @@ private fun Project.registerGenerateTestConfigurationTask(
     jsonName: String?,
     applicationIdFile: Provider<RegularFile>,
     testApk: Provider<RegularFile>,
-    minSdk: Int,
+    minSdk: Provider<Int>,
     testRunner: Provider<String>,
     useOrchestrator: Provider<Boolean>,
-    maxShardCount: Int?,
+    maxShardCount: Provider<Int>,
     instrumentationRunnerArgs: Provider<Map<String, String>>,
     variant: Variant?,
     projectIsolationEnabled: Boolean,
@@ -123,12 +123,18 @@ private fun Project.registerGenerateTestConfigurationTask(
 
             val androidXExtension = extensions.getByType<AndroidXExtension>()
             task.additionalApkKeys.set(androidXExtension.additionalDeviceTestApkKeys)
-            task.additionalTags.set(androidXExtension.additionalDeviceTestTags)
+            task.additionalTags.set(
+                androidXExtension.defaultDeviceTestTags().zip(
+                    androidXExtension.additionalDeviceTestTags
+                ) { defaultTags, additionalTags ->
+                    defaultTags + additionalTags
+                }
+            )
             task.outputXml.set(getFileInTestConfigDirectory(xmlName))
             jsonName?.let { task.outputJson.set(getFileInTestConfigDirectory(it)) }
             task.presubmit.set(project.providers.isPresubmitBuild())
             task.useOrchestrator.set(useOrchestrator)
-            maxShardCount?.let { task.maxShardCount.set(it) }
+            task.maxShardCount.set(maxShardCount)
             task.instrumentationArgs.putAll(instrumentationRunnerArgs)
             task.minSdk.set(minSdk)
             task.hasBenchmarkPlugin.set(hasBenchmarkPlugin())
@@ -137,7 +143,7 @@ private fun Project.registerGenerateTestConfigurationTask(
             // Skip task if getTestSourceSetsForAndroid is empty, even if
             //  androidXExtension.deviceTests.enabled is set to true
             task.androidTestSourceCodeCollection.from(getTestSourceSetsForAndroid(variant))
-            task.enabled = androidXExtension.deviceTests.enabled
+            task.enabled = androidXExtension.deviceTests.enabled.get()
             AffectedModuleDetector.configureTaskGuard(task)
         }
     if (!projectIsolationEnabled) {
@@ -147,6 +153,27 @@ private fun Project.registerGenerateTestConfigurationTask(
         addToModuleInfo(testName = xmlName, projectIsolationEnabled)
     }
     androidXExtension.testModuleNames.add(xmlName)
+}
+
+internal fun AndroidXExtension.defaultDeviceTestTags(): Provider<List<String>> {
+    val pathTags =
+        when {
+            project.path.startsWith(":compose:") -> listOf("compose")
+            project.path.startsWith(":privacysandbox:ads:") ->
+                listOf("privacysandbox", "privacysandbox_ads")
+            project.path.startsWith(":wear:watchface") -> listOf("wear_optin")
+            project.path.startsWith(":xr:") -> listOf("xr_optin")
+            else -> listOf()
+        }
+    return deviceTests.enableAlsoRunningOnPhysicalDevices.zip(
+        deviceTests.enableAlsoRunOn16KbPageSizeDevices
+    ) { physicalDevices, pageSize16Kb ->
+        buildList {
+            addAll(pathTags)
+            if (physicalDevices) add("all_run_on_physical_device")
+            if (pageSize16Kb) add("all_run_on_16kb_page_size_device")
+        }
+    }
 }
 
 /**
@@ -231,8 +258,8 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
     // and targetAppProjectVariantForInstrumentationTest.
     extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.apply {
         onVariants(selector().withBuildType("release")) { variant ->
-            val targetAppProject =
-                androidXExtension.deviceTests.targetAppProject ?: return@onVariants
+            val targetAppProjectPath =
+                androidXExtension.deviceTests.targetAppProject.orNull?.path ?: return@onVariants
             val targetAppProjectVariant = androidXExtension.deviceTests.targetAppVariant
 
             // Recreate the same configuration existing for test modules to pull the artifact
@@ -242,14 +269,16 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     config.isCanBeResolved = true
                     config.isCanBeConsumed = false
                     config.attributes {
-                        it.attribute(
+                        it.attributeProvider(
                             BuildTypeAttr.ATTRIBUTE,
-                            objects.named(targetAppProjectVariant),
+                            targetAppProjectVariant.map { buildType ->
+                                objects.named(BuildTypeAttr::class.java, buildType)
+                            },
                         )
                         it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
                     config.dependencies.add(
-                        project.dependencyFactory.createProjectDependency(targetAppProject.path)
+                        project.dependencyFactory.createProjectDependency(targetAppProjectPath)
                     )
                 }
 
@@ -258,7 +287,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                 variant,
                 configureAction = { task ->
                     // The target app path is defined in the androidx extension
-                    task.outputAppApk.set(outputAppApkFile(variant, targetAppProject.path, path))
+                    task.outputAppApk.set(outputAppApkFile(variant, targetAppProjectPath, path))
 
                     task.appFileCollection.from(
                         configuration.incoming
@@ -299,8 +328,9 @@ fun Project.configureTestConfigGeneration(
                         createTestConfigurationGenerationTask(
                             deviceTest.name,
                             deviceTest.artifacts,
-                            androidXExtension.deviceTests.minSdkForFtlOverride
-                                ?: deviceTest.minSdk.apiLevel,
+                            androidXExtension.deviceTests.minSdkForFtlOverride.orElse(
+                                deviceTest.minSdk.apiLevel
+                            ),
                             deviceTest.instrumentationRunner,
                             androidXExtension.deviceTests.useOrchestrator,
                             androidXExtension.deviceTests.maxShardCount,
@@ -315,7 +345,7 @@ fun Project.configureTestConfigGeneration(
                     createTestConfigurationGenerationTask(
                         variant.name,
                         variant.artifacts,
-                        variant.minSdk.apiLevel,
+                        provider { variant.minSdk.apiLevel },
                         provider { testExtension.defaultConfig.testInstrumentationRunner!! },
                         androidXExtension.deviceTests.useOrchestrator,
                         androidXExtension.deviceTests.maxShardCount,

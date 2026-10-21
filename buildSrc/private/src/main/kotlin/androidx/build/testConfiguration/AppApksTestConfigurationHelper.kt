@@ -35,6 +35,6 @@ internal fun Project.registerCopyAppApkFromArtifactsTask(
         task.outputAppApksModel.set(layout.buildDirectory.file("AppApksModel${variant.name}.json"))
 
         task.androidTestSourceCode.from(getTestSourceSetsForAndroid(variant))
-        task.enabled = androidXExtension.deviceTests.enabled
+        task.enabled = androidXExtension.deviceTests.enabled.get()
         AffectedModuleDetector.configureTaskGuard(task)
     }
