@@ -107,6 +107,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.IsSensitiveData
 import androidx.compose.ui.semantics.SemanticsPropertiesAndroid
 import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyProvider
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.UnmergedConfigComparator
 import androidx.compose.ui.semantics.findClosestParentNode
@@ -166,7 +167,11 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
     return null
 }
 
-@OptIn(InternalTextApi::class, ExperimentalComposeUiApi::class)
+@OptIn(
+    InternalTextApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalComposeUiHostApi::class,
+)
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
     AccessibilityDelegateCompat(),
     OnAttachStateChangeListener,
@@ -686,7 +691,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         //       are also non-speakable.
         // * Non-merging nodes that are empty: notably, clearAndSetSemantics {}
         //   and the root of the SemanticsNode tree.
-        info.isImportantForAccessibility = semanticsNode.isImportantForAccessibility()
+        info.isImportantForAccessibility = semanticsNode.isImportantForAccessibility
 
         val isRequestFromAccessibilityTool = isRequestFromAccessibilityTool()
         var childDrawingOrder = 0
@@ -993,7 +998,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 extraDataKeys.add(ExtraDataShapeRegionKey)
             }
 
-            semanticsNode.unmergedConfig.accessibilityExtraKeys?.forEach { key ->
+            semanticsNode._unmergedConfig.forEachAccessibilityExtraKey { key ->
                 key.accessibilityExtraKey?.let { extraDataKeys.add(it) }
             }
 
@@ -2098,10 +2103,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         ) {
             Api37Impl.setExtraRenderingInfo(node, info.unwrap())
         } else {
-            node.unmergedConfig.accessibilityExtraKeys?.forEach { key ->
+            node._unmergedConfig.forEachAccessibilityExtraKey { key ->
                 val extraKey = key.accessibilityExtraKey
                 if (extraKey == extraDataKey) {
-                    val value = node.unmergedConfig.getOrNull(key)
+                    val value = node._unmergedConfig.getOrNull(key)
                     when (value) {
                         is Serializable -> info.extras.putSerializable(extraKey, value)
                         is Parcelable -> info.extras.putParcelable(extraKey, value)
@@ -2111,7 +2116,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                                     "either Serializable or Parcelable."
                             )
                     }
-                    return@forEach
+                    return@forEachAccessibilityExtraKey
                 }
             }
         }
@@ -2439,14 +2444,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
 
             // If this node corresponds to an AndroidView, return InvalidId before checking
-            // semanticsNode.isImportantForAccessibility(), since an AndroidView's accessibility
+            // semanticsNode.isImportantForAccessibility, since an AndroidView's accessibility
             // importance is determined by its internal native View hierarchy.
             if (androidView != null) {
                 return SemanticsHitTestResult(InvalidId, isInteropHit = true)
             }
 
             // Continue to the next items in the hit test if it's not considered important.
-            if (!semanticsNode.isImportantForAccessibility()) {
+            if (!semanticsNode.isImportantForAccessibility) {
                 continue
             }
 
@@ -2777,7 +2782,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
             var propertyChanged = false
 
-            newNode.unmergedConfig.props.forEach { key, value ->
+            newNode._unmergedConfig.props.forEach { key, value ->
                 var newlyObservingScroll = false
                 if (
                     key == SemanticsProperties.HorizontalScrollAxisRange ||
@@ -3525,7 +3530,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         return node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()?.text
     }
 
-    private fun SemanticsConfiguration.getTextForTextField(): AnnotatedString? {
+    private fun SemanticsPropertyProvider.getTextForTextField(): AnnotatedString? {
         return getOrNull(SemanticsProperties.EditableText)
     }
 
@@ -3747,6 +3752,7 @@ private fun setTraversalValues(
 }
 
 /** Determines if the node should explicitly map to the merging on accessibility side */
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun isScreenReaderFocusable(
     node: SemanticsNode,
     resources: Resources,
@@ -3773,6 +3779,7 @@ private fun isScreenReaderFocusable(
     return isSpeakingNode && node.isUnmergedLeafNode
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private val SemanticsNode.isUnmergedLeafNode: Boolean
     get() {
         if (isFake) return false
@@ -3792,12 +3799,14 @@ private val SemanticsNode.isUnmergedLeafNode: Boolean
         return !hasMergingParent
     }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun getInfoText(node: SemanticsNode): AnnotatedString? {
     val editableTextToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.EditableText)
     val textToAssign = node.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
     return editableTextToAssign ?: textToAssign
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun getInfoStateDescriptionOrNull(node: SemanticsNode, resources: Resources): String? {
     var stateDescription = node.unmergedConfig.getOrNull(SemanticsProperties.StateDescription)
     val toggleState = node.unmergedConfig.getOrNull(SemanticsProperties.ToggleableState)
@@ -3887,6 +3896,7 @@ private fun getInfoStateDescriptionOrNull(node: SemanticsNode, resources: Resour
  * Empty text field should not be ignored by the TB so we set a state description. When there is a
  * speakable child, like a label or a placeholder text, setting this state description is redundant
  */
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun createStateDescriptionForTextField(node: SemanticsNode, resources: Resources): String? {
     val mergedConfig = node.copyWithMergingEnabled().config
     val mergedNodeIsUnspeakable =
@@ -3897,6 +3907,7 @@ private fun createStateDescriptionForTextField(node: SemanticsNode, resources: R
     return if (mergedNodeIsUnspeakable) resources.getString(R.string.state_empty) else null
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun getInfoIsCheckable(node: SemanticsNode): Boolean {
     var isCheckable = false
     val toggleState = node.unmergedConfig.getOrNull(SemanticsProperties.ToggleableState)
@@ -3918,17 +3929,14 @@ private fun getInfoIsCheckable(node: SemanticsNode): Boolean {
 private fun SemanticsNode.enabled() = (!config.contains(SemanticsProperties.Disabled))
 
 private fun SemanticsNode.propertiesDeleted(oldConfig: SemanticsConfiguration): Boolean {
-    for (entry in oldConfig) {
-        if (!config.contains(entry.key)) {
-            return true
-        }
-    }
-    return false
+    val currentProps = _unmergedConfig.props
+    return oldConfig.props.any { key, _ -> !currentProps.containsKey(key) }
 }
 
 private val SemanticsNode.isRtl
     get() = layoutInfo.layoutDirection == LayoutDirection.Rtl
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
     // text field that is not in focus
     if (
