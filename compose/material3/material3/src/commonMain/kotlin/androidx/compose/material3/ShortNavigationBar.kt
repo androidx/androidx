@@ -288,7 +288,9 @@ public fun ShortNavigationBarItem(
         indicatorPadding = PaddingValues(indicatorHorizontalPadding, indicatorVerticalPadding),
         indicatorToLabelVerticalPadding = TopIconIndicatorToLabelPadding,
         startIconToLabelHorizontalPadding = StartIconToLabelPadding,
-        topIconItemPadding = PaddingValues(vertical = TopIconItemVerticalPadding),
+        topIconItemPadding =
+            if (label != null) PaddingValues(vertical = TopIconItemVerticalPadding)
+            else PaddingValues(0.dp),
         startIconItemPadding = PaddingValues(0.dp),
         textColor = colors.textColor(selected, enabled, isIconPositionTop),
         iconColor = colors.iconColor(selected, enabled),

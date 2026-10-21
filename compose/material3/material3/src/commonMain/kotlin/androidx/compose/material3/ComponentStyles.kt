@@ -988,27 +988,70 @@ internal fun interface NavigationRailStyle : ComponentStyle<NavigationRailStyleS
             containerColor(NavigationRailCollapsedTokens.ContainerColor.value)
             contentColor(theme.colorScheme.onSurface)
             shape(NavigationRailCollapsedTokens.ContainerShape.value)
-            contentPadding(0.dp, NavigationRailCollapsedTokens.TopSpace, 0.dp, 0.dp)
-        }
-        val Modal = NavigationRailStyle {
-            containerColor(NavigationRailCollapsedTokens.ContainerColor.value)
-            contentColor(theme.colorScheme.onSurface)
-            modalScrimColor(ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity))
-            shape(NavigationRailCollapsedTokens.ContainerShape.value)
-            contentPadding(0.dp, NavigationRailCollapsedTokens.TopSpace, 0.dp, 0.dp)
+            // TODO(b/554026699): Investigate feasibility of having only one container min width
+            //  that animates between collapsed and expanded states. Same for max width.
+            collapsedContainerWidth(NavigationRailCollapsedTokens.ContainerWidth)
+            expandedContainerMinWidth(
+                NavigationRailExpandedTokens.ContainerWidthMinimum -
+                    (2 * WideNavigationRailHorizontalPadding.value).dp
+            )
+            expandedContainerMaxWidth(NavigationRailExpandedTokens.ContainerWidthMaximum)
+            collapsed {
+                // TODO(b/554026699): Have the content padding animate between collapsed and
+                //  expanded state.
+                contentPadding(0.dp, NavigationRailCollapsedTokens.TopSpace, 0.dp, 0.dp)
+            }
             expanded {
-                containerColor(NavigationRailExpandedTokens.ModalContainerColor.value)
-                shape(NavigationRailExpandedTokens.ModalContainerShape.value)
+                contentPadding(
+                    WideNavigationRailHorizontalPadding,
+                    NavigationRailExpandedTokens.TopSpace,
+                    WideNavigationRailHorizontalPadding,
+                    0.dp,
+                )
             }
         }
+
+        val Adaptive =
+            Default then
+                {
+                    tv {
+                        collapsedContainerWidth(80.dp)
+                        expandedContainerMinWidth(280.dp)
+                        expandedContainerMaxWidth(280.dp)
+                    }
+                }
+
+        val Modal =
+            Default then
+                {
+                    modalScrimColor(
+                        ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
+                    )
+                    expanded {
+                        containerColor(NavigationRailExpandedTokens.ModalContainerColor.value)
+                        shape(NavigationRailExpandedTokens.ModalContainerShape.value)
+                    }
+                }
+
+        val ModalAdaptive =
+            Modal then
+                {
+                    tv {
+                        collapsedContainerWidth(80.dp)
+                        expandedContainerMinWidth(280.dp)
+                        expandedContainerMaxWidth(280.dp)
+                    }
+                }
     }
 }
 
 internal class NavigationRailStyleScope(
     override val theme: MaterialTheme.Values,
+    override val mediaQueryInfo: MediaQueryInfo,
     override val state: ComponentState = ComponentState.Default,
 ) :
     ExpandedState<NavigationRailStyleScope>,
+    AdaptiveStyleScope<NavigationRailStyleScope>,
     MaterialThemeAccessorScope,
     StyleResolver by StyleResolverImpl() {
     var containerColor: Color = Color.Unspecified
@@ -1021,6 +1064,15 @@ internal class NavigationRailStyleScope(
         private set
 
     var shape: Shape = RectangleShape
+        private set
+
+    var collapsedContainerWidth: Dp = Dp.Unspecified
+        private set
+
+    var expandedContainerMinWidth: Dp = Dp.Unspecified
+        private set
+
+    var expandedContainerMaxWidth: Dp = Dp.Unspecified
         private set
 
     var contentPaddingStart: Dp = Dp.Unspecified
@@ -1051,6 +1103,18 @@ internal class NavigationRailStyleScope(
         this.shape = shape
     }
 
+    fun collapsedContainerWidth(size: Dp) {
+        collapsedContainerWidth = size
+    }
+
+    fun expandedContainerMinWidth(size: Dp) {
+        expandedContainerMinWidth = size
+    }
+
+    fun expandedContainerMaxWidth(size: Dp) {
+        expandedContainerMaxWidth = size
+    }
+
     fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
         contentPaddingStart = start
         contentPaddingTop = top
@@ -1058,6 +1122,8 @@ internal class NavigationRailStyleScope(
         contentPaddingBottom = bottom
     }
 }
+
+private val WideNavigationRailHorizontalPadding = 20.dp
 
 internal fun interface NavigationRailItemStyle : ComponentStyle<NavigationRailItemStyleScope> {
     infix fun then(other: NavigationRailItemStyle): NavigationRailItemStyle =
@@ -1072,32 +1138,24 @@ internal fun interface NavigationRailItemStyle : ComponentStyle<NavigationRailIt
             textColor(NavigationRailColorTokens.ItemInactiveLabelText.value)
             indicatorColor(NavigationRailColorTokens.ItemActiveIndicator.value)
             vertical {
+                textStyle(NavigationRailVerticalItemTokens.LabelTextFont.value)
                 indicatorPadding(
-                    start =
-                        (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
-                    end =
-                        (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
-                    top =
-                        (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
-                    bottom =
-                        (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    start = NavigationRailVerticalItemHorizontalPadding,
+                    end = NavigationRailVerticalItemHorizontalPadding,
+                    top = NavigationRailVerticalItemVerticalPadding,
+                    bottom = NavigationRailVerticalItemVerticalPadding,
                 )
+                contentPadding(20.dp, 0.dp, 20.dp, 0.dp)
             }
             horizontal {
+                textStyle(NavigationRailHorizontalItemTokens.LabelTextFont.value)
                 indicatorPadding(
                     start = NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
                     end = NavigationRailHorizontalItemTokens.FullWidthTrailingSpace,
-                    top =
-                        (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
-                    bottom =
-                        (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
-                            NavigationRailBaselineItemTokens.IconSize) / 2,
+                    top = NavigationRailHorizontalItemVerticalPadding,
+                    bottom = NavigationRailHorizontalItemVerticalPadding,
                 )
+                contentPadding(0.dp, 0.dp, 0.dp, 0.dp)
             }
             selected {
                 iconColor(NavigationRailColorTokens.ItemActiveIcon.value)
@@ -1113,13 +1171,48 @@ internal fun interface NavigationRailItemStyle : ComponentStyle<NavigationRailIt
                 textColor(NavigationRailColorTokens.ItemInactiveLabelText.value.copy(DisabledAlpha))
             }
         }
+
+        val Adaptive =
+            Default then
+                {
+                    tv {
+                        vertical {
+                            contentPadding(12.dp, 0.dp, 12.dp, 0.dp)
+                        }
+                        horizontal {
+                            textStyle(theme.typography.titleLarge)
+                            indicatorPadding(
+                                start = NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
+                                // TODO(b/554026699): Add support for max width.
+                                // Value equals to the width means the end padding will occupy its
+                                // max possible width, and ultimately be less than 280.dp due to the
+                                // other elements of the item.
+                                end = 280.dp,
+                                top = NavigationRailHorizontalItemVerticalPadding,
+                                bottom = NavigationRailHorizontalItemVerticalPadding,
+                            )
+                        }
+                    }
+                }
     }
 }
 
+private val NavigationRailVerticalItemHorizontalPadding =
+    (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationRailBaselineItemTokens.IconSize) / 2
+private val NavigationRailVerticalItemVerticalPadding =
+    (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
+        NavigationRailBaselineItemTokens.IconSize) / 2
+private val NavigationRailHorizontalItemVerticalPadding =
+    (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
+        NavigationRailBaselineItemTokens.IconSize) / 2
+
 internal class NavigationRailItemStyleScope(
     override val theme: MaterialTheme.Values,
+    override val mediaQueryInfo: MediaQueryInfo,
     override val state: ComponentState = ComponentState.Default,
 ) :
+    AdaptiveStyleScope<NavigationRailItemStyleScope>,
     MaterialThemeAccessorScope,
     SelectedState<NavigationRailItemStyleScope>,
     DisabledState<NavigationRailItemStyleScope>,
@@ -1134,6 +1227,9 @@ internal class NavigationRailItemStyleScope(
     var indicatorColor: Color = Color.Unspecified
         private set
 
+    var textStyle: TextStyle = TextStyle.Default
+        private set
+
     var indicatorPaddingStart: Dp = Dp.Unspecified
         private set
 
@@ -1144,6 +1240,18 @@ internal class NavigationRailItemStyleScope(
         private set
 
     var indicatorPaddingBottom: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingStart: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingTop: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingEnd: Dp = Dp.Unspecified
+        private set
+
+    var contentPaddingBottom: Dp = Dp.Unspecified
         private set
 
     fun iconColor(color: Color) {
@@ -1158,11 +1266,22 @@ internal class NavigationRailItemStyleScope(
         indicatorColor = color
     }
 
+    fun textStyle(style: TextStyle) {
+        textStyle = style
+    }
+
     fun indicatorPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
         indicatorPaddingStart = start
         indicatorPaddingTop = top
         indicatorPaddingEnd = end
         indicatorPaddingBottom = bottom
+    }
+
+    fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
+        contentPaddingStart = start
+        contentPaddingTop = top
+        contentPaddingEnd = end
+        contentPaddingBottom = bottom
     }
 }
 
