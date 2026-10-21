@@ -345,7 +345,7 @@ internal class ButtonGroupStateImpl(private val initialItemIndex: Int) : ButtonG
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit,
     ) {
-        backingState.scroll(scrollPriority, block)
+        backingState.scroll(scrollPriority) { OneItemScrollScope(delegate = this).block() }
     }
 
     override val canScrollBackward: Boolean
@@ -361,6 +361,50 @@ internal class ButtonGroupStateImpl(private val initialItemIndex: Int) : ButtonG
         get() = backingState.lastScrolledForward
 
     override fun dispatchRawDelta(delta: Float): Float = backingState.dispatchRawDelta(delta)
+
+    /**
+     * [ScrollScope] that constrains scrolling to items adjacent to the [anchorIndex].
+     *
+     * The [anchorIndex] is the child closest to our current scroll value before the first scroll
+     * delta is consumed.
+     */
+    private inner class OneItemScrollScope(private val delegate: ScrollScope) : ScrollScope {
+        private var anchorIndex = -1
+
+        override fun scrollBy(pixels: Float): Float {
+            val bounds = bounds
+            val currentScroll = userScroll
+            if (bounds == null || currentScroll.isNaN()) return delegate.scrollBy(pixels)
+            if (anchorIndex == -1) anchorIndex = bounds.getIndexOfClosestChildTo(currentScroll)
+            val target = bounds.clampScroll(anchorIndex, currentScroll + pixels)
+            return delegate.scrollBy(target - currentScroll)
+        }
+
+        /**
+         * Returns the input [unclampedScroll], clamped to allow scrolling only to the center of the
+         * neighbors of the item at [anchorIndex]. If [anchorIndex] is negative, the
+         * [unclampedScroll] is returned.
+         *
+         * If there is no item before this item, scrolling backwards (towards the start) is
+         * unclamped. If there is no item after this item, scrolling forwards (towards the end) is
+         * unclamped. As the bounds are relative to the start of the content, this applies equally
+         * to LTR and RTL layouts.
+         */
+        private fun ButtonGroupChildrenBounds.clampScroll(
+            anchorIndex: Int,
+            unclampedScroll: Float,
+        ): Float {
+            if (size == 0) return unclampedScroll
+
+            val previousItem = if (anchorIndex < 0) null else getOrNull(anchorIndex - 1)
+            val minScroll = previousItem?.center ?: get(0).start.toFloat()
+
+            val nextItem = if (anchorIndex < 0) null else getOrNull(anchorIndex + 1)
+            val maxScroll = nextItem?.center ?: last().end.toFloat()
+
+            return unclampedScroll.fastCoerceIn(minScroll, maxScroll)
+        }
+    }
 }
 
 /**
