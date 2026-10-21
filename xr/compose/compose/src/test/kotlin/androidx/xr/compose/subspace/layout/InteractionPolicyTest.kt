@@ -43,8 +43,8 @@ import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.testing.InteractableComponentTester
 import androidx.xr.scenecore.testing.SceneCoreTestRule
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -303,7 +303,7 @@ class InteractionPolicyTest {
         tester.triggerOnInputEvent(upOnSurface)
         composeTestRule.waitForIdle()
 
-        assertTrue(events.isEmpty())
+        assertThat(events).isEmpty()
 
         // 4. Touch DOWN on surfaceEntity -> should NOT be ignored
         val downOnSurface =
@@ -417,7 +417,7 @@ class InteractionPolicyTest {
         tester.triggerOnInputEvent(hoverExitSurface)
         composeTestRule.waitForIdle()
 
-        assertTrue(events.isEmpty())
+        assertThat(events).isEmpty()
 
         // 4. Hover ENTER on surfaceEntity -> should NOT be ignored
         val hoverEnterSurface =
@@ -518,7 +518,7 @@ class InteractionPolicyTest {
         tester.triggerOnInputEvent(downOnSurface)
         composeTestRule.waitForIdle()
 
-        assertTrue(events.isEmpty())
+        assertThat(events).isEmpty()
     }
 
     @Test
@@ -573,7 +573,7 @@ class InteractionPolicyTest {
         tester.triggerOnInputEvent(downOnChild)
         composeTestRule.waitForIdle()
 
-        assertTrue(events.isEmpty())
+        assertThat(events).isEmpty()
     }
 
     private fun assertSingleInteractableComponentExist(
@@ -605,10 +605,10 @@ class InteractionPolicyTest {
         val policyDifferentOnClick =
             InteractionPolicy.clickable(isEnabled = true, onClick = onClick2)
 
-        assertTrue(policy1 == policy2)
-        assertEquals(policy1.hashCode(), policy2.hashCode())
-        assertFalse(policy1 == policyDifferentEnabled)
-        assertFalse(policy1 == policyDifferentOnClick)
+        assertThat(policy1).isEqualTo(policy2)
+        assertThat(policy1.hashCode()).isEqualTo(policy2.hashCode())
+        assertThat(policy1).isNotEqualTo(policyDifferentEnabled)
+        assertThat(policy1).isNotEqualTo(policyDifferentOnClick)
     }
 
     @Test
@@ -670,9 +670,9 @@ class InteractionPolicyTest {
         val modifierDifferentCallback =
             SubspaceModifier.interactable(enabled = true, onInputEvent = onEvent2)
 
-        assertTrue(modifier1 == modifier2)
-        assertEquals(modifier1.hashCode(), modifier2.hashCode())
-        assertFalse(modifier1 == modifierDifferentEnabled)
-        assertFalse(modifier1 == modifierDifferentCallback)
+        assertThat(modifier1).isEqualTo(modifier2)
+        assertThat(modifier1.hashCode()).isEqualTo(modifier2.hashCode())
+        assertThat(modifier1).isNotEqualTo(modifierDifferentEnabled)
+        assertThat(modifier1).isNotEqualTo(modifierDifferentCallback)
     }
 }
