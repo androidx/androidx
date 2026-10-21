@@ -27,6 +27,7 @@ import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.testutil.flags.RequiresFlagsDisabled;
 import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
@@ -56,6 +57,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Runs {@link AppSearchImplOptimizeTestBase} with the 2-stage optimize, plus tests verifying the
@@ -387,13 +389,71 @@ public class AppSearchImplTwoStageOptimizeTest extends AppSearchImplOptimizeTest
     }
 
     @Test
+    public void testTwoStageOptimize_writeDuringPrepare_waitsAndDoesNotAbort() throws Exception {
+        TestIcingSearchEngine icing = recreateAppSearchImplWithTestIcing();
+        setUpOptimizableDocuments();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        List<Future<?>> writeFutures = new ArrayList<>();
+        // Stage 1 holds the upgrade lock, which keeps writers out until the optimize is done, so
+        // a write from another thread can't land between the two stages and abort Stage 2.
+        icing.mAfterPrepareHook = () -> {
+            Future<?> future = executor.submit(() -> {
+                putDocument("id3");
+                return null;
+            });
+            writeFutures.add(future);
+            assertThrows(TimeoutException.class,
+                    () -> future.get(500, TimeUnit.MILLISECONDS));
+        };
+
+        try {
+            mAppSearchImpl.optimize(
+                    /* optimizeStatsBuilder= */ null, /* callStatsBuilder= */ null);
+            // The write goes through once the optimize is done.
+            writeFutures.get(0).get(10, TimeUnit.SECONDS);
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertThat(getOptimizableDocs()).isEqualTo(0);
+        assertThat(getDocument("id2").getId()).isEqualTo("id2");
+        assertThat(getDocument("id3").getId()).isEqualTo("id3");
+    }
+
+    @Test
+    public void testTwoStageOptimize_recordsReadAndUpgradeLockLatency() throws Exception {
+        setUpOptimizableDocuments();
+
+        OptimizeStats.Builder optimizeStatsBuilder = new OptimizeStats.Builder();
+        mAppSearchImpl.optimize(optimizeStatsBuilder, /* callStatsBuilder= */ null);
+        OptimizeStats optimizeStats = optimizeStatsBuilder.build();
+        assertThat(optimizeStats.getJavaReadLockAcquisitionLatencyMillis()).isAtLeast(0);
+        assertThat(optimizeStats.getJavaLockUpgradeLatencyMillis()).isAtLeast(0);
+        assertThat(optimizeStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                optimizeStats.getJavaReadLockAcquisitionLatencyMillis()
+                        + optimizeStats.getJavaLockUpgradeLatencyMillis());
+
+        // Same when the 2-stage optimize is triggered by checkForOptimize.
+        putDocument("id3");
+        mAppSearchImpl.remove(PACKAGE_NAME, DATABASE_NAME, NAMESPACE, "id3",
+                /* removeStatsBuilder= */ null, /* callStatsBuilder= */ null);
+        optimizeStatsBuilder = new OptimizeStats.Builder();
+        mAppSearchImpl.checkForOptimize(optimizeStatsBuilder, /* callStatsBuilder= */ null);
+        optimizeStats = optimizeStatsBuilder.build();
+        assertThat(getOptimizableDocs()).isEqualTo(0);
+        assertThat(optimizeStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(
+                optimizeStats.getJavaReadLockAcquisitionLatencyMillis()
+                        + optimizeStats.getJavaLockUpgradeLatencyMillis());
+    }
+
+    @Test
     public void testTwoStageOptimize_readsAreNotBlockedDuringPrepare() throws Exception {
         TestIcingSearchEngine icing = recreateAppSearchImplWithTestIcing();
         setUpOptimizableDocuments();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         List<GenericDocument> readResults = new ArrayList<>();
-        // Stage 1 only holds the read lock, so a read from another thread can complete while
-        // Stage 1 is still running.
+        // Stage 1 only holds the upgrade lock in read mode, so a read from another thread can
+        // complete while Stage 1 is still running.
         icing.mAfterPrepareHook = () -> {
             Future<GenericDocument> future = executor.submit(() -> getDocument("id2"));
             try {

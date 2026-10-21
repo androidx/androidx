@@ -105,6 +105,12 @@ public final class OptimizeStats extends BaseStats {
 
     private final int mOnExecutorLatencyMillis;
 
+    // Time in millis to acquire the lock in read mode (the upgrade lock) for the 2-stage optimize.
+    private final int mJavaReadLockAcquisitionLatencyMillis;
+
+    // Time in millis to upgrade the lock to write mode for Stage 2 of the 2-stage optimize.
+    private final int mJavaLockUpgradeLatencyMillis;
+
     OptimizeStats(@NonNull Builder builder) {
         super(builder);
         mStatusCode = builder.mStatusCode;
@@ -125,6 +131,8 @@ public final class OptimizeStats extends BaseStats {
         mCallReceivedTimestampMillis = builder.mCallReceivedTimestampMillis;
         mExecutorAcquisitionLatencyMillis = builder.mExecutorAcquisitionLatencyMillis;
         mOnExecutorLatencyMillis = builder.mOnExecutorLatencyMillis;
+        mJavaReadLockAcquisitionLatencyMillis = builder.mJavaReadLockAcquisitionLatencyMillis;
+        mJavaLockUpgradeLatencyMillis = builder.mJavaLockUpgradeLatencyMillis;
     }
 
     /** Returns status code for this optimization. */
@@ -217,6 +225,28 @@ public final class OptimizeStats extends BaseStats {
         return mOnExecutorLatencyMillis;
     }
 
+    /**
+     * Returns the time in millis to acquire the lock in read mode (the upgrade lock) for the
+     * 2-stage optimize.
+     *
+     * <p>{@link #getJavaLockAcquisitionLatencyMillis()} includes this and
+     * {@link #getJavaLockUpgradeLatencyMillis()}.
+     */
+    public int getJavaReadLockAcquisitionLatencyMillis() {
+        return mJavaReadLockAcquisitionLatencyMillis;
+    }
+
+    /**
+     * Returns the time in millis to upgrade the lock to write mode for Stage 2 of the 2-stage
+     * optimize.
+     *
+     * <p>{@link #getJavaLockAcquisitionLatencyMillis()} includes this and
+     * {@link #getJavaReadLockAcquisitionLatencyMillis()}.
+     */
+    public int getJavaLockUpgradeLatencyMillis() {
+        return mJavaLockUpgradeLatencyMillis;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -239,6 +269,8 @@ public final class OptimizeStats extends BaseStats {
                         + "  callReceivedTimestampMillis=%d,\n"
                         + "  executorAcquisitionLatencyMillis=%d,\n"
                         + "  onExecutorLatencyMillis=%d,\n"
+                        + "  javaReadLockAcquisitionLatencyMillis=%d,\n"
+                        + "  javaLockUpgradeLatencyMillis=%d,\n"
                         // Include BaseStats fields
                         + super.toString()
                         + "}",
@@ -258,7 +290,9 @@ public final class OptimizeStats extends BaseStats {
                 mNumDeletedNamespaces,
                 mCallReceivedTimestampMillis,
                 mExecutorAcquisitionLatencyMillis,
-                mOnExecutorLatencyMillis);
+                mOnExecutorLatencyMillis,
+                mJavaReadLockAcquisitionLatencyMillis,
+                mJavaLockUpgradeLatencyMillis);
     }
 
     /** Builder for {@link RemoveStats}. */
@@ -286,6 +320,8 @@ public final class OptimizeStats extends BaseStats {
         long mCallReceivedTimestampMillis;
         int mExecutorAcquisitionLatencyMillis;
         int mOnExecutorLatencyMillis;
+        int mJavaReadLockAcquisitionLatencyMillis;
+        int mJavaLockUpgradeLatencyMillis;
 
         /** Sets the status code. */
         @CanIgnoreReturnValue
@@ -409,6 +445,27 @@ public final class OptimizeStats extends BaseStats {
         @CanIgnoreReturnValue
         public @NonNull Builder setOnExecutorLatencyMillis(int executorLatencyMillis) {
             mOnExecutorLatencyMillis = executorLatencyMillis;
+            return this;
+        }
+
+        /**
+         * Sets the time in millis to acquire the lock in read mode (the upgrade lock) for the
+         * 2-stage optimize.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setJavaReadLockAcquisitionLatencyMillis(
+                int javaReadLockAcquisitionLatencyMillis) {
+            mJavaReadLockAcquisitionLatencyMillis = javaReadLockAcquisitionLatencyMillis;
+            return this;
+        }
+
+        /**
+         * Sets the time in millis to upgrade the lock to write mode for Stage 2 of the 2-stage
+         * optimize.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setJavaLockUpgradeLatencyMillis(int javaLockUpgradeLatencyMillis) {
+            mJavaLockUpgradeLatencyMillis = javaLockUpgradeLatencyMillis;
             return this;
         }
 
