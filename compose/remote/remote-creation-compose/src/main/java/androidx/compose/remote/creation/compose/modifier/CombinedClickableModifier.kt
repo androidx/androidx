@@ -20,7 +20,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
-import androidx.compose.ui.semantics.Role
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.combinedClickable(
@@ -28,7 +27,7 @@ public fun RemoteModifier.combinedClickable(
     onLongClick: Action = Action.Empty,
     onDoubleClick: Action = Action.Empty,
     enabled: Boolean = true,
-    role: Role? = Role.Button,
+    role: RemoteRole? = RemoteRole.Button,
 ): RemoteModifier =
     then(
             if (enabled) {
@@ -81,7 +80,7 @@ public fun RemoteModifier.combinedClickable(
         .then(
             if (role != null)
                 RemoteModifier.semantics {
-                    this.role = role
+                    this.remoteRole = role
                     this.enabled = enabled
                 }
             else RemoteModifier
