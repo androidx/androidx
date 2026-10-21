@@ -18,20 +18,24 @@ package androidx.compose.material3.internal
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.CircularAdditionalRotationDegreesTarget
+import androidx.compose.material3.CircularAnimationProgressDuration
 import androidx.compose.material3.CircularGlobalRotationDegreesTarget
-import androidx.compose.material3.CircularIndeterminateMaxProgress
 import androidx.compose.material3.CircularIndeterminateMinProgress
 import androidx.compose.material3.DecreasingAmplitudeAnimationSpec
 import androidx.compose.material3.IncreasingAmplitudeAnimationSpec
-import androidx.compose.material3.circularIndeterminateGlobalRotationAnimationSpec
+import androidx.compose.material3.animateIndeterminateCycle
 import androidx.compose.material3.circularIndeterminateProgressAnimationSpec
 import androidx.compose.material3.circularIndeterminateRotationAnimationSpec
+import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
@@ -55,6 +59,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.lerp
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
@@ -68,12 +73,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * A [Modifier] that draws a determinate wavy circular progress indicator.
+ * A [Modifier] that draws a wavy circular progress indicator.
  *
  * Note: Apply a semantics modifiers (e.g., `Modifier.semantics { ... }` or custom
  * `Modifier.progressSemantics()`) separately.
  *
- * @param progress Lambda returning the current progress (0.0 to 1.0).
+ * @param progress Lambda returning the current progress (0.0 to 1.0), or a non-finite value for an
+ *   indeterminate indicator.
  * @param color The color of the progress indicator wave.
  * @param trackColor The color of the track background.
  * @param stroke The [Stroke] style for the progress wave.
@@ -95,7 +101,7 @@ internal fun Modifier.circularWavyProgressIndicator(
     waveSpeed: Dp,
 ): Modifier =
     this.then(
-        DeterminateCircularWavyProgressElement(
+        CircularWavyProgressElement(
             progress = progress,
             color = color,
             trackColor = trackColor,
@@ -108,57 +114,33 @@ internal fun Modifier.circularWavyProgressIndicator(
         )
     )
 
-/**
- * A [Modifier] that draws an indeterminate wavy circular progress indicator.
- *
- * Note: Apply a semantics modifiers (e.g., `Modifier.semantics { ... }` or custom
- * `Modifier.progressSemantics()`) separately.
- *
- * @param color The color of the progress indicator wave.
- * @param trackColor The color of the track background.
- * @param stroke The [Stroke] style for the progress wave.
- * @param trackStroke The [Stroke] style for the track.
- * @param gapSize The gap between the track and the progress wave.
- * @param amplitude The wave's amplitude (0.0 to 1.0).
- * @param wavelength The preferred wavelength of the wave.
- * @param waveSpeed The speed of the wave's motion (Dp per second).
- */
-internal fun Modifier.circularWavyProgressIndicator(
-    color: Color,
-    trackColor: Color,
-    stroke: Stroke,
-    trackStroke: Stroke,
-    gapSize: Dp,
-    @FloatRange(from = 0.0, to = 1.0) amplitude: Float,
-    wavelength: Dp,
-    waveSpeed: Dp,
-): Modifier =
-    this.then(
-        IndeterminateCircularWavyProgressElement(
-            color = color,
-            trackColor = trackColor,
-            stroke = stroke,
-            trackStroke = trackStroke,
-            gapSize = gapSize,
-            amplitude = amplitude,
-            wavelength = wavelength,
-            waveSpeed = waveSpeed,
-        )
-    )
-
-/** A base class for circular wavy progress [ModifierNodeElement]s. */
 @Suppress("ModifierNodeInspectableProperties")
-private abstract class BaseCircularWavyProgressElement<N : BaseCircularWavyProgressNode>(
-    open val color: Color,
-    open val trackColor: Color,
-    open val stroke: Stroke,
-    open val trackStroke: Stroke,
-    open val gapSize: Dp,
-    open val wavelength: Dp,
-    open val waveSpeed: Dp,
-) : ModifierNodeElement<N>() {
+private class CircularWavyProgressElement(
+    val progress: () -> Float,
+    val color: Color,
+    val trackColor: Color,
+    val stroke: Stroke,
+    val trackStroke: Stroke,
+    val gapSize: Dp,
+    val amplitude: (progress: Float) -> Float,
+    val wavelength: Dp,
+    val waveSpeed: Dp,
+) : ModifierNodeElement<CircularWavyProgressNode>() {
 
-    override fun update(node: N) {
+    override fun create(): CircularWavyProgressNode =
+        CircularWavyProgressNode(
+            progress = progress,
+            amplitude = amplitude,
+            colorParameter = color,
+            trackColorParameter = trackColor,
+            strokeParameter = stroke,
+            trackStrokeParameter = trackStroke,
+            gapSizeParameter = gapSize,
+            wavelengthParameter = wavelength,
+            waveSpeedParameter = waveSpeed,
+        )
+
+    override fun update(node: CircularWavyProgressNode) {
         node.color = color
         node.trackColor = trackColor
         node.stroke = stroke
@@ -166,12 +148,31 @@ private abstract class BaseCircularWavyProgressElement<N : BaseCircularWavyProgr
         node.gapSize = gapSize
         node.wavelength = wavelength
         node.waveSpeed = waveSpeed
+        if (node.progress !== progress || node.amplitude !== amplitude) {
+            node.progress = progress
+            node.amplitude = amplitude
+            node.invalidateDrawCache()
+        }
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "circularWavyProgressIndicator"
+        properties["color"] = color
+        properties["trackColor"] = trackColor
+        properties["stroke"] = stroke
+        properties["trackStroke"] = trackStroke
+        properties["gapSize"] = gapSize
+        properties["wavelength"] = wavelength
+        properties["waveSpeed"] = waveSpeed
+        // Excluding the amplitude and progress lambdas
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is BaseCircularWavyProgressElement<*>) return false
+        if (other !is CircularWavyProgressElement) return false
 
+        if (progress !== other.progress) return false
+        if (amplitude !== other.amplitude) return false
         if (color != other.color) return false
         if (trackColor != other.trackColor) return false
         if (stroke != other.stroke) return false
@@ -183,7 +184,9 @@ private abstract class BaseCircularWavyProgressElement<N : BaseCircularWavyProgr
     }
 
     override fun hashCode(): Int {
-        var result = color.hashCode()
+        var result = progress.hashCode()
+        result = 31 * result + amplitude.hashCode()
+        result = 31 * result + color.hashCode()
         result = 31 * result + trackColor.hashCode()
         result = 31 * result + stroke.hashCode()
         result = 31 * result + trackStroke.hashCode()
@@ -192,24 +195,11 @@ private abstract class BaseCircularWavyProgressElement<N : BaseCircularWavyProgr
         result = 31 * result + waveSpeed.hashCode()
         return result
     }
-
-    /**
-     * Base implementation of [InspectorInfo.inspectableProperties] that can be called from the
-     * implementation of [InspectorInfo.inspectableProperties] override.
-     */
-    protected fun InspectorInfo.baseInspectableProperties() {
-        properties["color"] = color
-        properties["trackColor"] = trackColor
-        properties["stroke"] = stroke
-        properties["trackStroke"] = trackStroke
-        properties["gapSize"] = gapSize
-        properties["wavelength"] = wavelength
-        properties["waveSpeed"] = waveSpeed
-    }
 }
 
-/** A base class for circular wavy progress [Modifier] nodes. */
-private abstract class BaseCircularWavyProgressNode(
+private class CircularWavyProgressNode(
+    var progress: () -> Float,
+    var amplitude: (progress: Float) -> Float,
     colorParameter: Color,
     trackColorParameter: Color,
     strokeParameter: Stroke,
@@ -223,7 +213,7 @@ private abstract class BaseCircularWavyProgressNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                cacheDrawNode.invalidateDraw()
             }
         }
 
@@ -231,7 +221,7 @@ private abstract class BaseCircularWavyProgressNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                cacheDrawNode.invalidateDraw()
             }
         }
 
@@ -277,38 +267,59 @@ private abstract class BaseCircularWavyProgressNode(
             }
         }
 
-    /**
-     * Invalidates this modifier's draw layer, ensuring that a draw pass will be run on the next
-     * frame.
-     */
-    protected abstract fun invalidateDraw()
+    private var indeterminate = false
+    private var indeterminateJob: Job? = null
+    private var cyclePlayTimeMillis = 0f
+    private var handoffStartSweep = 0f
+    private var handoffStartRotation = 0f
+    private var handoffFraction = 1f
 
-    /**
-     * Invalidate the draw cache for changes in things like stroke width, amplitude, etc. This call
-     * may also start or stop animations that update the wave drawings.
-     */
-    protected abstract fun invalidateDrawCache()
+    private val circularShapes = CircularShapes()
+    private val progressDrawingCache = CircularProgressDrawingCache()
+    private val additionalRotation =
+        circularIndeterminateRotationAnimationSpec.vectorize(Float.VectorConverter)
+    private val sweep = circularIndeterminateProgressAnimationSpec.vectorize(Float.VectorConverter)
 
-    /**
-     * Returns true if a wave form is currently being drawn. This would be true if the
-     * implementation's amplitude is greater than zero.
-     */
-    protected abstract fun isDrawingWave(): Boolean
-
-    protected val circularShapes = CircularShapes()
-    protected val progressDrawingCache = CircularProgressDrawingCache()
+    // Amplitude animation
+    private val amplitudeState = mutableFloatStateOf(0f)
+    private var amplitudeAnimatable: Animatable<Float, AnimationVector1D>? = null
+    private var amplitudeAnimationJob: Job? = null
+    private var currentTargetAmplitude = -1f
 
     // Offset animation
-    protected val waveOffsetState = mutableFloatStateOf(0f)
-    protected var offsetAnimatable: Animatable<Float, AnimationVector1D>? = null
-    protected var offsetAnimationJob: Job? = null
+    private val waveOffsetState = mutableFloatStateOf(0f)
+    private var offsetAnimatable: Animatable<Float, AnimationVector1D>? = null
+    private var offsetAnimationJob: Job? = null
 
     // A vertex count used to calculate the speed of the wave offset animation. The animation will
     // only run when this number is greater than zero.
-    protected var vertexCountForCurrentAnimation = -1
+    private var vertexCountForCurrentAnimation = -1
+
+    override fun onAttach() {
+        if (!progress().isFinite()) {
+            startIndeterminateAnimation()
+        }
+        // The draw cache outlives a detach, so rebuild it to restart what onDetach() reset. The
+        // rebuild resolves the circularShapes.currentVertexCount and triggers the
+        // startOffsetAnimation() to start the animation at the right speed.
+        invalidateDrawCache()
+    }
+
+    override fun onDetach() {
+        amplitudeAnimatable = null
+        currentTargetAmplitude = -1f
+        vertexCountForCurrentAnimation = -1
+        indeterminateJob = null
+        indeterminate = false
+        handoffFraction = 1f
+    }
+
+    fun invalidateDrawCache() {
+        cacheDrawNode.invalidateDrawCache()
+    }
 
     /** A function that returns a track [Path] for a given progress. */
-    protected fun trackPathProvider(
+    private fun trackPathProvider(
         amplitude: Float,
         wavelength: Float,
         strokeWidth: Float,
@@ -317,7 +328,7 @@ private abstract class BaseCircularWavyProgressNode(
     ): Path? = circularShapes.getTrackPath(path = path)
 
     /** A function that returns a progress [Path] for a given progress. */
-    protected fun progressPathProvider(
+    private fun progressPathProvider(
         amplitude: Float,
         wavelength: Float,
         strokeWidth: Float,
@@ -338,12 +349,18 @@ private abstract class BaseCircularWavyProgressNode(
      * [vertexCountForCurrentAnimation], the [waveSpeed], and the [wavelength] are greater than
      * zero.
      */
-    protected fun startOffsetAnimation() {
+    private fun startOffsetAnimation() {
         // Cancel previous job if running
         stopOffsetAnimation()
 
         // Don't animate if not attached or not drawing a wave (e.g. zero amplitude).
-        if (!isAttached || !coroutineScope.isActive || !isDrawingWave()) return
+        if (
+            !isAttached ||
+                !coroutineScope.isActive ||
+                (amplitudeState.floatValue == 0f && currentTargetAmplitude <= 0f)
+        ) {
+            return
+        }
 
         // Start the animation only if we have a valid vertex count and positive waveSpeed and
         // wavelength.
@@ -379,237 +396,131 @@ private abstract class BaseCircularWavyProgressNode(
         }
     }
 
-    protected fun stopOffsetAnimation() {
+    private fun stopOffsetAnimation() {
         offsetAnimationJob?.cancel()
         offsetAnimationJob = null
         offsetAnimatable = null
     }
-}
 
-/** A [ModifierNodeElement] for a determinate wavy circular progress indicator. */
-private class DeterminateCircularWavyProgressElement(
-    val progress: () -> Float,
-    override val color: Color,
-    override val trackColor: Color,
-    override val stroke: Stroke,
-    override val trackStroke: Stroke,
-    override val gapSize: Dp,
-    val amplitude: (progress: Float) -> Float,
-    override val wavelength: Dp,
-    override val waveSpeed: Dp,
-) :
-    BaseCircularWavyProgressElement<DeterminateCircularWavyProgressNode>(
-        color = color,
-        trackColor = trackColor,
-        stroke = stroke,
-        trackStroke = trackStroke,
-        gapSize = gapSize,
-        wavelength = wavelength,
-        waveSpeed = waveSpeed,
-    ) {
+    private fun updateAmplitudeAnimation(targetAmplitude: Float) {
+        val currentAmplitudeAnimatable =
+            amplitudeAnimatable
+                ?: Animatable(initialValue = targetAmplitude).also {
+                    amplitudeAnimatable = it
+                    amplitudeState.floatValue = targetAmplitude
+                    currentTargetAmplitude = targetAmplitude
+                }
 
-    override fun create(): DeterminateCircularWavyProgressNode =
-        DeterminateCircularWavyProgressNode(
-            progress = progress,
-            amplitude = amplitude,
-            colorParameter = color,
-            trackColorParameter = trackColor,
-            strokeParameter = stroke,
-            trackStrokeParameter = trackStroke,
-            gapSizeParameter = gapSize,
-            wavelengthParameter = wavelength,
-            waveSpeedParameter = waveSpeed,
-        )
+        if (!isAttached || currentTargetAmplitude == targetAmplitude) return
+        currentTargetAmplitude = targetAmplitude
+        amplitudeAnimationJob?.cancel()
+        amplitudeAnimationJob = coroutineScope.launch {
+            currentAmplitudeAnimatable.animateTo(
+                targetValue = targetAmplitude,
+                animationSpec =
+                    if (currentAmplitudeAnimatable.value < targetAmplitude) {
+                        IncreasingAmplitudeAnimationSpec
+                    } else {
+                        DecreasingAmplitudeAnimationSpec
+                    },
+            ) {
+                amplitudeState.floatValue = value
+            }
 
-    override fun update(node: DeterminateCircularWavyProgressNode) {
-        super.update(node)
-        if (node.progress !== progress || node.amplitude !== amplitude) {
-            node.progress = progress
-            node.amplitude = amplitude
-            node.cacheDrawNode.invalidateDrawCache()
+            // Check if we need to stop the animation if the target amplitude is 0
+            // at the end of the animation.
+            if (targetAmplitude == 0f) {
+                stopOffsetAnimation()
+            }
         }
     }
 
-    override fun InspectorInfo.inspectableProperties() {
-        name = "determinateCircularWavyProgressIndicator"
-        baseInspectableProperties()
-        // Lambdas are excluded
+    private fun determinateProgress(): Float {
+        val currentProgress = progress()
+        return if (!currentProgress.isFinite()) 0f else currentProgress.fastCoerceIn(0f, 1f)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (!super.equals(other)) return false
-        if (other !is DeterminateCircularWavyProgressElement) return false
-        if (progress !== other.progress || amplitude !== other.amplitude) return false
-        return true
+    private fun targetAmplitude(): Float {
+        val value = amplitude(if (indeterminate) Float.NaN else determinateProgress())
+        return if (value.isNaN()) 1f else value.fastCoerceIn(0f, 1f)
     }
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + progress.hashCode()
-        result = 31 * result + amplitude.hashCode()
-        return result
-    }
-}
+    private fun startIndeterminateAnimation() {
+        indeterminate = true
+        cyclePlayTimeMillis = 0f
+        handoffFraction = 1f
+        indeterminateJob?.cancel()
+        indeterminateJob = coroutineScope.launch {
+            AnimationState(0f).animateIndeterminateCycle(
+                cycleDurationMillis = CircularAnimationProgressDuration,
+                isIndeterminate = { !progress().isFinite() },
+            ) {
+                cyclePlayTimeMillis = value % CircularAnimationProgressDuration
+                cacheDrawNode.invalidateDraw()
+            }
 
-/** A [ModifierNodeElement] for an indeterminate wavy circular progress indicator. */
-private class IndeterminateCircularWavyProgressElement(
-    override val color: Color,
-    override val trackColor: Color,
-    override val stroke: Stroke,
-    override val trackStroke: Stroke,
-    override val gapSize: Dp,
-    @FloatRange(from = 0.0, to = 1.0) val amplitude: Float,
-    override val wavelength: Dp,
-    override val waveSpeed: Dp,
-) :
-    BaseCircularWavyProgressElement<IndeterminateCircularWavyProgressNode>(
-        color = color,
-        trackColor = trackColor,
-        stroke = stroke,
-        trackStroke = trackStroke,
-        gapSize = gapSize,
-        wavelength = wavelength,
-        waveSpeed = waveSpeed,
-    ) {
-
-    override fun create(): IndeterminateCircularWavyProgressNode =
-        IndeterminateCircularWavyProgressNode(
-            colorParameter = color,
-            trackColorParameter = trackColor,
-            strokeParameter = stroke,
-            trackStrokeParameter = trackStroke,
-            gapSizeParameter = gapSize,
-            amplitudeParameter = amplitude,
-            wavelengthParameter = wavelength,
-            waveSpeedParameter = waveSpeed,
-        )
-
-    override fun update(node: IndeterminateCircularWavyProgressNode) {
-        super.update(node)
-        node.amplitude = amplitude
+            handoffStartSweep = indeterminateSweep()
+            val currentRotation = indeterminateRotation() % 360f
+            handoffStartRotation = if (currentRotation == 0f) 360f else currentRotation
+            val remainingRotationFraction = (360f - handoffStartRotation) / 360f
+            indeterminate = false
+            cyclePlayTimeMillis = 0f
+            handoffFraction = 0f
+            cacheDrawNode.invalidateDrawCache()
+            Animatable(0f).animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    tween(
+                        durationMillis =
+                            lerp(
+                                    MinHandoffDurationMillis,
+                                    MaxHandoffDurationMillis,
+                                    remainingRotationFraction,
+                                )
+                                .fastRoundToInt(),
+                        easing = MotionTokens.EasingEmphasizedDecelerateCubicBezier,
+                    ),
+            ) {
+                handoffFraction = value
+                cacheDrawNode.invalidateDraw()
+            }
+        }
     }
 
-    override fun InspectorInfo.inspectableProperties() {
-        name = "indeterminateCircularWavyProgressIndicator"
-        baseInspectableProperties()
-        properties["amplitude"] = amplitude // Add specific fixed amplitude
-    }
+    private fun indeterminateSweep(): Float =
+        sweep.valueAt(cyclePlayTimeMillis, MinProgressVector, MinProgressVector)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is IndeterminateCircularWavyProgressElement) return false
-        if (!super.equals(other)) return false // Check base properties
-        if (amplitude != other.amplitude) return false
-        return true
-    }
+    private fun indeterminateRotation(): Float =
+        CircularGlobalRotationDegreesTarget * cyclePlayTimeMillis /
+            CircularAnimationProgressDuration +
+            additionalRotation.valueAt(cyclePlayTimeMillis, ZeroVector, AdditionalRotationTarget) +
+            CircularIndeterminateBaseRotation
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + amplitude.hashCode()
-        return result
-    }
-}
-
-/** A node that draws and animates the determinate circular wavy progress indicator. */
-private class DeterminateCircularWavyProgressNode(
-    var progress: () -> Float,
-    var amplitude: (progress: Float) -> Float,
-    colorParameter: Color,
-    trackColorParameter: Color,
-    strokeParameter: Stroke,
-    trackStrokeParameter: Stroke,
-    gapSizeParameter: Dp,
-    wavelengthParameter: Dp,
-    waveSpeedParameter: Dp,
-) :
-    BaseCircularWavyProgressNode(
-        colorParameter = colorParameter,
-        trackColorParameter = trackColorParameter,
-        strokeParameter = strokeParameter,
-        trackStrokeParameter = trackStrokeParameter,
-        gapSizeParameter = gapSizeParameter,
-        wavelengthParameter = wavelengthParameter,
-        waveSpeedParameter = waveSpeedParameter,
-    ) {
-
-    // Amplitude animation
-    private val amplitudeState = mutableFloatStateOf(0f)
-    private var amplitudeAnimatable: Animatable<Float, AnimationVector1D>? = null
-    private var amplitudeAnimationJob: Job? = null
-
-    override fun onAttach() {
-        // No op here. The first draw will resolve the circularShapes.currentVertexCount and will
-        // trigger the updateOffsetAnimationState() to start the animation at the right speed.
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        amplitudeAnimatable = null
-        vertexCountForCurrentAnimation = -1
-    }
-
-    override fun invalidateDraw() {
-        cacheDrawNode.invalidateDraw()
-    }
-
-    override fun invalidateDrawCache() {
-        cacheDrawNode.invalidateDrawCache()
-    }
-
-    override fun isDrawingWave() = amplitudeState.floatValue > 0f
-
-    val cacheDrawNode =
+    private val cacheDrawNode =
         delegate(
             CacheDrawModifierNode {
-                val currentProgress = progress().fastCoerceIn(0f, 1f)
+                val currentProgress = progress()
+                if (!currentProgress.isFinite() && !indeterminate) {
+                    startIndeterminateAnimation()
+                }
+
                 val currentGapPx = gapSize.toPx()
                 val currentWavelengthPx = wavelength.toPx()
                 val enableMotion = waveSpeed > 0.dp
 
-                //  Amplitude animation
-                val targetAmplitude = amplitude(currentProgress).fastCoerceIn(0f, 1f)
+                val targetAmplitude = targetAmplitude()
+                updateAmplitudeAnimation(targetAmplitude)
 
-                amplitudeAnimatable
-                    ?: Animatable(initialValue = targetAmplitude).also {
-                        amplitudeAnimatable = it
-                        amplitudeState.floatValue = targetAmplitude
-                    }
-
-                // Launch amplitude animation if target changed and node attached/active
-                if (
-                    isAttached &&
-                        amplitudeAnimatable!!.targetValue != targetAmplitude &&
-                        (amplitudeAnimationJob == null ||
-                            amplitudeAnimationJob?.isCompleted == true)
-                ) {
-                    amplitudeAnimationJob = coroutineScope.launch {
-                        val anim = amplitudeAnimatable ?: return@launch // Safety check
-                        anim.animateTo(
-                            targetValue = targetAmplitude,
-                            animationSpec =
-                                if (anim.value < targetAmplitude) {
-                                    IncreasingAmplitudeAnimationSpec
-                                } else {
-                                    DecreasingAmplitudeAnimationSpec
-                                },
-                        ) {
-                            amplitudeState.floatValue = value
-                        }
-
-                        // Check if we need to stop the animation if the target amplitude is 0
-                        // at the end of the animation.
-                        if (targetAmplitude == 0f) {
-                            stopOffsetAnimation()
-                        }
-                    }
-                }
-
-                // Pass stroke width for potentially calculating polygon radius accurately
+                // Pass stroke width for potentially calculating polygon radius accurately. A Morph
+                // is required whenever the amplitude is, or animates through, a value between 0
+                // and 1.
                 circularShapes.update(
                     size = size,
                     wavelength = currentWavelengthPx,
                     strokeWidth = stroke.width,
-                    requiresMorph = amplitudeAnimationJob != null,
+                    requiresMorph =
+                        amplitudeAnimationJob != null ||
+                            (targetAmplitude > 0f && targetAmplitude < 1f),
                 )
 
                 // Update the vertexCountForCurrentAnimation after the circularShapes.update().
@@ -635,6 +546,20 @@ private class DeterminateCircularWavyProgressNode(
                     // the onDrawWithContent to avoid voiding the cache at this
                     // CacheDrawModifierNode.
                     val animatedAmplitudeValue = amplitudeState.floatValue
+                    val endProgress: Float
+                    val rotation: Float
+                    if (indeterminate) {
+                        endProgress = indeterminateSweep()
+                        rotation = indeterminateRotation()
+                    } else if (handoffFraction < 1f) {
+                        endProgress =
+                            lerp(handoffStartSweep, determinateProgress(), handoffFraction)
+                        rotation = lerp(handoffStartRotation, 360f, handoffFraction) % 360f
+                    } else {
+                        endProgress = determinateProgress()
+                        rotation = 0f
+                    }
+
                     // Update the drawing cache
                     progressDrawingCache.updatePaths(
                         size = size,
@@ -642,7 +567,7 @@ private class DeterminateCircularWavyProgressNode(
                         trackPathProvider = ::trackPathProvider,
                         enableProgressMotion = enableMotion,
                         startProgress = 0f,
-                        endProgress = currentProgress,
+                        endProgress = endProgress,
                         amplitude = animatedAmplitudeValue,
                         waveOffset =
                             if (animatedAmplitudeValue > 0f && enableMotion) {
@@ -655,209 +580,8 @@ private class DeterminateCircularWavyProgressNode(
                         stroke = stroke,
                         trackStroke = trackStroke,
                     )
-                    drawCircularIndicator(
-                        color = color,
-                        trackColor = trackColor,
-                        stroke = stroke,
-                        trackStroke = trackStroke,
-                        drawingCache = progressDrawingCache,
-                    )
-                }
-            }
-        )
-}
 
-/** A node that draws and animates the indeterminate circular wavy progress indicator. */
-private class IndeterminateCircularWavyProgressNode(
-    colorParameter: Color,
-    trackColorParameter: Color,
-    strokeParameter: Stroke,
-    trackStrokeParameter: Stroke,
-    gapSizeParameter: Dp,
-    amplitudeParameter: Float,
-    wavelengthParameter: Dp,
-    waveSpeedParameter: Dp,
-) :
-    BaseCircularWavyProgressNode(
-        colorParameter = colorParameter,
-        trackColorParameter = trackColorParameter,
-        strokeParameter = strokeParameter,
-        trackStrokeParameter = trackStrokeParameter,
-        gapSizeParameter = gapSizeParameter,
-        wavelengthParameter = wavelengthParameter,
-        waveSpeedParameter = waveSpeedParameter,
-    ) {
-
-    // Specific animations for indeterminate progress
-    private var globalRotationAnimatable: Animatable<Float, AnimationVector1D>? = null
-    private var additionalRotationAnimatable: Animatable<Float, AnimationVector1D>? = null
-    private var progressSweepAnimatable: Animatable<Float, AnimationVector1D>? = null
-    private var indeterminateAnimationsJob: Job? = null
-
-    var amplitude: Float = amplitudeParameter.coerceIn(0f, 1f)
-        set(value) {
-            val coerced = value.coerceIn(0f, 1f)
-            val oldValue = field
-            if (field != coerced) {
-                field = coerced
-                // If amplitude > 0 was false and is now true, start offset animation.
-                // If amplitude becomes 0, stop offset animation.
-                if (field > 0f && oldValue == 0f) startOffsetAnimation()
-                else if (field == 0f) stopOffsetAnimation()
-                cacheDrawNode.invalidateDrawCache()
-            }
-        }
-
-    override fun onAttach() {
-        startIndeterminateAnimations()
-        // The offset animation will be triggered from cacheDrawNode or amplitude setter
-    }
-
-    override fun onDetach() {
-        globalRotationAnimatable = null
-        additionalRotationAnimatable = null
-        progressSweepAnimatable = null
-        vertexCountForCurrentAnimation = -1
-    }
-
-    override fun invalidateDraw() {
-        cacheDrawNode.invalidateDraw()
-    }
-
-    override fun invalidateDrawCache() {
-        cacheDrawNode.invalidateDrawCache()
-    }
-
-    override fun isDrawingWave(): Boolean = amplitude > 0f
-
-    /**
-     * Starts specific indeterminate animations, which include the global rotation, additional
-     * rotation, and progress sweep animation.
-     */
-    private fun startIndeterminateAnimations() {
-        indeterminateAnimationsJob?.cancel()
-
-        if (!isAttached || !coroutineScope.isActive) return
-
-        // Initialize the animatables if they are null
-        globalRotationAnimatable = globalRotationAnimatable ?: Animatable(0f)
-        additionalRotationAnimatable = additionalRotationAnimatable ?: Animatable(0f)
-        progressSweepAnimatable =
-            progressSweepAnimatable ?: Animatable(CircularIndeterminateMinProgress)
-
-        indeterminateAnimationsJob = coroutineScope.launch {
-            // Launch all three indeterminate animations concurrently
-            launch {
-                val globalRotationAnim = globalRotationAnimatable ?: return@launch // Safety check
-                globalRotationAnim.animateTo(
-                    targetValue = globalRotationAnim.value + CircularGlobalRotationDegreesTarget,
-                    animationSpec = circularIndeterminateGlobalRotationAnimationSpec,
-                ) {
-                    cacheDrawNode.invalidateDraw()
-                }
-            }
-            launch {
-                val additionalRotationAnim =
-                    additionalRotationAnimatable ?: return@launch // Safety check
-                additionalRotationAnim.animateTo(
-                    targetValue =
-                        additionalRotationAnim.value + CircularAdditionalRotationDegreesTarget,
-                    animationSpec = circularIndeterminateRotationAnimationSpec,
-                ) {
-                    cacheDrawNode.invalidateDraw()
-                }
-            }
-            launch {
-                val progressSweepAnim = progressSweepAnimatable ?: return@launch // Safety check
-                progressSweepAnim.animateTo(
-                    targetValue =
-                        if (
-                            progressSweepAnim.value <
-                                (CircularIndeterminateMinProgress +
-                                    CircularIndeterminateMaxProgress) / 2
-                        )
-                            CircularIndeterminateMaxProgress
-                        else CircularIndeterminateMinProgress,
-                    animationSpec = circularIndeterminateProgressAnimationSpec,
-                ) {
-                    cacheDrawNode.invalidateDraw()
-                }
-            }
-        }
-    }
-
-    private val cacheDrawNode =
-        delegate(
-            CacheDrawModifierNode {
-                val currentWavelengthPx = wavelength.toPx()
-                val currentGapPx = gapSize.toPx()
-                val enableMotion = waveSpeed > 0.dp && amplitude > 0f
-
-                // Update the CircularShapes with the values. It will generate the RoundedPolygons
-                // required for the progress and track. Since the amplitude is not animating in the
-                // indeterminate indicator, the requiresMorph is set to true only when the amplitude
-                // is between 0 and 1. In those cases we will need a Morph object to generate a Path
-                // that represents that amplitude.
-                circularShapes.update(
-                    size = size,
-                    wavelength = currentWavelengthPx,
-                    strokeWidth = stroke.width,
-                    requiresMorph = amplitude > 0f && amplitude < 1f,
-                )
-
-                // Update the vertexCountForCurrentAnimation after the circularShapes.update().
-                if (vertexCountForCurrentAnimation != circularShapes.currentVertexCount.intValue) {
-                    vertexCountForCurrentAnimation =
-                        circularShapes.currentVertexCount.intValue.coerceAtLeast(
-                            MinCircularVertexCount
-                        )
-                }
-
-                // Start the offset animation when the amplitude changes to a positive number. The
-                // animation will end when the amplitudeAnimatable finishes and reached
-                // zero amplitude again.
-                if (
-                    amplitude > 0f &&
-                        (offsetAnimationJob == null || offsetAnimationJob?.isCompleted == true)
-                ) {
-                    startOffsetAnimation()
-                }
-
-                onDrawWithContent {
-                    // Get the current animation values (or defaults if not yet running).
-                    // Read from the states here and update the CircularProgressDrawingCache inside
-                    // the onDrawWithContent to avoid voiding the cache at this
-                    // CacheDrawModifierNode.
-                    val currentGlobalRotation = globalRotationAnimatable?.value ?: 0f
-                    val currentAdditionalRotation = additionalRotationAnimatable?.value ?: 0f
-                    val currentProgressSweep =
-                        progressSweepAnimatable?.value ?: CircularIndeterminateMinProgress
-
-                    // Update the drawing cache
-                    progressDrawingCache.updatePaths(
-                        size = size,
-                        progressPathProvider = ::progressPathProvider,
-                        trackPathProvider = ::trackPathProvider,
-                        enableProgressMotion = enableMotion,
-                        startProgress = 0f,
-                        endProgress = currentProgressSweep,
-                        amplitude = amplitude,
-                        waveOffset = if (enableMotion) waveOffsetState.floatValue else 0f,
-                        wavelength = currentWavelengthPx,
-                        gapSize = currentGapPx,
-                        stroke = stroke,
-                        trackStroke = trackStroke,
-                    )
-
-                    // Draw
-                    withTransform(
-                        transformBlock = {
-                            // Apply rotation
-                            rotate(
-                                degrees = currentGlobalRotation + currentAdditionalRotation + 90f
-                            )
-                        }
-                    ) {
+                    if (rotation == 0f) {
                         drawCircularIndicator(
                             color = color,
                             trackColor = trackColor,
@@ -865,11 +589,43 @@ private class IndeterminateCircularWavyProgressNode(
                             trackStroke = trackStroke,
                             drawingCache = progressDrawingCache,
                         )
+                    } else {
+                        withTransform(transformBlock = { rotate(degrees = rotation) }) {
+                            drawCircularIndicator(
+                                color = color,
+                                trackColor = trackColor,
+                                stroke = stroke,
+                                trackStroke = trackStroke,
+                                drawingCache = progressDrawingCache,
+                            )
+                        }
                     }
                 }
             }
         )
 }
+
+private const val CircularIndeterminateBaseRotation = 90f
+private val MinHandoffDurationMillis = MotionTokens.DurationMedium2.toFloat()
+private val MaxHandoffDurationMillis = MotionTokens.DurationLong4.toFloat()
+
+private val ZeroVector = AnimationVector1D(0f)
+private val AdditionalRotationTarget = AnimationVector1D(CircularAdditionalRotationDegreesTarget)
+private val MinProgressVector = AnimationVector1D(CircularIndeterminateMinProgress)
+
+// Keyframes truncate the play time to whole milliseconds, so round away the float error first.
+private fun VectorizedAnimationSpec<AnimationVector1D>.valueAt(
+    playTimeMillis: Float,
+    initialValue: AnimationVector1D,
+    targetValue: AnimationVector1D,
+): Float =
+    getValueFromNanos(
+            playTimeMillis.fastRoundToInt() * 1_000_000L,
+            initialValue,
+            targetValue,
+            ZeroVector,
+        )
+        .value
 
 /** Draws the track and the progress of a circular progress indicator. */
 private fun DrawScope.drawCircularIndicator(

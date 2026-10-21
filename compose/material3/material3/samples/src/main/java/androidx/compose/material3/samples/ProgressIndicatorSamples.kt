@@ -18,6 +18,7 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -32,9 +33,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 @Preview
 @Sampled
@@ -131,6 +136,40 @@ fun LinearThickWavyProgressIndicatorSample() {
 @Composable
 fun IndeterminateLinearProgressIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) { LinearProgressIndicator() }
+}
+
+@Preview
+@Sampled
+@Composable
+fun IndeterminateToDeterminateWavyProgressIndicatorSample() {
+    var progress by remember { mutableFloatStateOf(Float.NaN) }
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = if (progress.isNaN()) 0f else progress,
+            animationSpec = WavyProgressIndicatorDefaults.ProgressAnimationSpec,
+        )
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            progress = Float.NaN
+            delay(3000)
+            progress = 0f
+            while (progress < 1f) {
+                delay(200)
+                progress = (progress + 0.03f).coerceAtMost(1f)
+            }
+            delay(1500)
+        }
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        val indicatorProgress = { if (progress.isNaN()) Float.NaN else animatedProgress }
+        LinearWavyProgressIndicator(progress = indicatorProgress)
+        CircularWavyProgressIndicator(progress = indicatorProgress)
+    }
 }
 
 @Preview
