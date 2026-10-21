@@ -59,6 +59,7 @@ class PullToRefreshStateImplTest {
             PullToRefreshBox(
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = isRefreshing,
+                state = state,
                 onRefresh = {
                     isRefreshing = true
                     refreshCount++
@@ -88,7 +89,10 @@ class PullToRefreshStateImplTest {
             swipeDown(endY = 2 * positionalThreshold + touchSlop + 1f)
         }
 
-        rule.runOnIdle { assertThat(refreshCount).isEqualTo(1) }
+        rule.runOnIdle {
+            assertThat(refreshCount).isEqualTo(1)
+            assertThat(state.distanceFraction).isEqualTo(0f)
+        }
     }
 
     @Test
