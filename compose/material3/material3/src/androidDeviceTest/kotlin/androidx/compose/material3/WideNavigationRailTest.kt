@@ -501,8 +501,8 @@ class WideNavigationRailTest {
             WNRItemNoLabelIndicatorPadding + iconBounds.height + WNRItemNoLabelIndicatorPadding
 
         // Assert the item has its minimal width and height values.
-        Truth.assertThat(itemBounds.width).isEqualTo(itemWidth)
-        Truth.assertThat(itemBounds.height).isEqualTo(itemHeight)
+        itemBounds.width.assertIsEqualTo(itemWidth, "width")
+        itemBounds.height.assertIsEqualTo(itemHeight, "height")
 
         // The icon should be centered in the item, as there is no text placeable provided
         rule
