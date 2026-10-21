@@ -43,6 +43,9 @@ public class VolumeConstraints(
     @IntRange(from = 0) public val maxDepth: Int = INFINITY,
 ) {
     init {
+        require(minWidth >= 0) { "minWidth ($minWidth) must be >= 0." }
+        require(minHeight >= 0) { "minHeight ($minHeight) must be >= 0." }
+        require(minDepth >= 0) { "minDepth ($minDepth) must be >= 0." }
         require(maxWidth >= minWidth) { "maxWidth ($maxWidth) must be >= minWidth ($minWidth)." }
         require(maxHeight >= minHeight) {
             "maxHeight ($maxHeight) must be >= minHeight ($minHeight)."
@@ -73,7 +76,7 @@ public class VolumeConstraints(
 
     /** Returns a string representation of the [VolumeConstraints]. */
     override fun toString(): String =
-        "width: $minWidth-$maxWidth, height: $minHeight-$maxHeight, depth=$minDepth-$maxDepth"
+        "width: $minWidth-$maxWidth, height: $minHeight-$maxHeight, depth: $minDepth-$maxDepth"
 
     /** Checks if this [VolumeConstraints] object is equal to [other] object. */
     override fun equals(other: Any?): Boolean {
