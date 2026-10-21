@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -34,8 +35,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
+import androidx.xr.glimmer.calculateLowEmphasisContentColor
 import androidx.xr.glimmer.currentContentColor
-import androidx.xr.glimmer.pager.GlimmerHorizontalPagerDefaults.UnselectedIndicatorAlpha
 
 @Suppress("ModifierNodeInspectableProperties")
 internal class PageIndicatorElement(
@@ -163,17 +164,16 @@ internal class PageIndicatorNode(
         // Calculate the starting draw position adjusting for direction
         val startPosition = center.x - (indicatorLength * directionMultiplier) / 2
 
-        val resolvedSelectedColor =
-            if (selectedIndicatorColor.isSpecified) selectedIndicatorColor
-            else currentContentColor()
-        val resolvedUnselectedColor =
-            if (unselectedIndicatorColor.isSpecified) {
-                unselectedIndicatorColor
+        val contentColor =
+            if (selectedIndicatorColor.isSpecified && unselectedIndicatorColor.isSpecified) {
+                Color.Unspecified
             } else {
-                resolvedSelectedColor.copy(
-                    alpha = resolvedSelectedColor.alpha * UnselectedIndicatorAlpha
-                )
+                currentContentColor()
             }
+        val resolvedSelectedColor = selectedIndicatorColor.takeOrElse { contentColor }
+        val resolvedUnselectedColor = unselectedIndicatorColor.takeOrElse {
+            calculateLowEmphasisContentColor(contentColor)
+        }
 
         drawContent()
         drawIndicators(

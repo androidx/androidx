@@ -708,8 +708,6 @@ package androidx.xr.glimmer.pager {
     method @KotlinOnly @androidx.compose.runtime.Composable public void PageIndicator(androidx.xr.glimmer.pager.GlimmerPagerState state, optional androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void PageIndicator(androidx.xr.glimmer.pager.GlimmerPagerState, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void PageIndicator-eopBjH0(androidx.xr.glimmer.pager.GlimmerPagerState, long, long, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
-    method @InaccessibleFromKotlin public float getUnselectedIndicatorAlpha();
-    property public float UnselectedIndicatorAlpha;
     field public static final androidx.xr.glimmer.pager.GlimmerHorizontalPagerDefaults INSTANCE;
   }
 

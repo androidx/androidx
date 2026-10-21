@@ -78,6 +78,18 @@ internal fun DelegatableNode.currentContentColor(): Color {
     return contentColor
 }
 
+/**
+ * Calculates a low emphasis version of [contentColor], for less prominent content such as
+ * unselected page indicator dots. Returns a light gray for light content colors, and a dark gray
+ * for dark content colors.
+ */
+internal fun calculateLowEmphasisContentColor(contentColor: Color): Color =
+    if (contentColor.luminance() >= LuminanceContrastRatioBreakpoint) {
+        LowEmphasisLightContentColor
+    } else {
+        LowEmphasisDarkContentColor
+    }
+
 private class ContentColorProviderElement(private val contentColor: Color) :
     ModifierNodeElement<ContentColorProviderNodeImpl>() {
     override fun create(): ContentColorProviderNodeImpl = ContentColorProviderNodeImpl(contentColor)
@@ -135,3 +147,9 @@ private const val ContentColorTraverseKey = "androidx.xr.glimmer.ContentColor"
  * whether (1.05) / (L + 0.05) > (L + 0.05) / (0.05) - this can be simplified down to L < 0.179129.
  */
 private const val LuminanceContrastRatioBreakpoint = 0.179129f
+
+// Color.White with its tone lowered by 19 (HCT tone 81)
+private val LowEmphasisLightContentColor = Color(0xFFC9C9C9)
+
+// Color.Black with its tone raised by 19 (HCT tone 19)
+private val LowEmphasisDarkContentColor = Color(0xFF2E2E2E)
