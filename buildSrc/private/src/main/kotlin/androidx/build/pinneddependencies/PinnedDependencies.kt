@@ -143,8 +143,8 @@ internal fun findDependenciesNeedingExemption(
     dependencies: Collection<ProjectCoordinates>,
 ): List<ProjectCoordinates> =
     dependencies
-        .distinctBy { it.projectPath }
-        .filterNot { it.projectPath == library.projectPath || library.releasesTogetherWith(it) }
+        .distinctBy { it.coordinate }
+        .filterNot { it.coordinate == library.coordinate || library.releasesTogetherWith(it) }
 
 /**
  * A new exemption for [library] depending on [dependsOn], seeded with a suggested expiry version
@@ -170,10 +170,10 @@ internal fun findVerificationErrors(
     exemptions: Collection<DependencyExemption>,
 ): List<String> {
     val applicableExemptions =
-        exemptions.filter { it.library == library.projectPath }.associateBy { it.dependsOn }
+        exemptions.filter { it.library == library.coordinate }.associateBy { it.dependsOn }
 
     return findDependenciesNeedingExemption(library, dependencies).mapNotNull { dependency ->
-        val exemption = applicableExemptions[dependency.projectPath]
+        val exemption = applicableExemptions[dependency.coordinate]
         val validThrough = exemption?.let { Version.parseOrNull(it.validThroughLibraryVersion) }
 
         when {
@@ -195,25 +195,25 @@ private fun formatShouldBePinnedError(
         "prebuilts/androidx/internal/${dependency.groupId.replace('.', '/')}/${dependency.artifactId}"
     val depArtifact = dependency.artifactId
     return """
-        ${library.projectPath} depends on tip-of-tree ${dependency.projectPath}.
+        ${library.coordinate} depends on tip-of-tree ${dependency.coordinate}.
         They release separately (${library.versionGroup ?: "independent"} vs ${dependency.versionGroup ?: "independent"}).
 
-        This couples ${library.projectPath}'s release schedule to ${dependency.projectPath}'s, preventing it from releasing independently.
+        This couples ${library.coordinate}'s release schedule to ${dependency.coordinate}'s, preventing it from releasing independently.
 
-        In ${library.projectPath}'s build file, change:
+        In ${library.coordinate}'s build file, change:
           - <configuration>(project("${dependency.projectPath}"))
           + <configuration>("${dependency.coordinate}:<latest-version>")
         (Pick the latest released version in $prebuiltsPath)
 
         CI still builds this against tip-of-tree $depArtifact via -Pandroidx.useMaxDepVersions, so pinning does not reduce head coverage.
 
-        If ${library.projectPath} genuinely needs unreleased $depArtifact APIs, add an exemption to $EXEMPTIONS_FILE_NAME:
+        If ${library.coordinate} genuinely needs unreleased $depArtifact APIs, add an exemption to $EXEMPTIONS_FILE_NAME:
           [[$EXEMPTION_TABLE]]
-          library = "${library.projectPath}"
-          dependsOn = "${dependency.projectPath}"
-          # ${library.projectPath}'s own version, not ${dependency.projectPath}'s.
+          library = "${library.coordinate}"
+          dependsOn = "${dependency.coordinate}"
+          # ${library.coordinate}'s own version, not ${dependency.coordinate}'s.
           # Its version is ${library.version?.let { "$it today" } ?: "unspecified"}
-          validThroughLibraryVersion = "${library.version?.let { suggestedExemptionVersion(it) } ?: "<a future version of ${library.projectPath}>"}"
+          validThroughLibraryVersion = "${library.version?.let { suggestedExemptionVersion(it) } ?: "<a future version of ${library.coordinate}>"}"
           reason = "b/NNNNN - <which unreleased $depArtifact API you need>"
     """
         .trimIndent()
@@ -225,7 +225,7 @@ private fun formatExpiredError(
     exemption: DependencyExemption,
 ): String =
     """
-        ${library.projectPath} is at version ${library.version}, which has moved past ${exemption.validThroughLibraryVersion} (the version its exemption for ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME was valid through).
+        ${library.coordinate} is at version ${library.version}, which has moved past ${exemption.validThroughLibraryVersion} (the version its exemption for ${dependency.coordinate} in $EXEMPTIONS_FILE_NAME was valid through).
 
         Pin ${dependency.coordinate} to a released version, or, if it is still genuinely needed, raise validThroughLibraryVersion and refresh the reason. Raising it is a decision to keep paying for the coupling, not a routine version bump.
 
@@ -239,7 +239,7 @@ private fun formatMissingBugError(
     exemption: DependencyExemption,
 ) =
     """
-    The exemption for ${library.projectPath} -> ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME must give a reason referencing a bug (b/NNNNN or a GitHub issue URL). Found: "${exemption.reason}"
+    The exemption for ${library.coordinate} -> ${dependency.coordinate} in $EXEMPTIONS_FILE_NAME must give a reason referencing a bug (b/NNNNN or a GitHub issue URL). Found: "${exemption.reason}"
     """
         .trimIndent()
 
@@ -249,7 +249,7 @@ private fun formatUnparseableVersionError(
     exemption: DependencyExemption,
 ) =
     """
-        The exemption for ${library.projectPath} -> ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME has validThroughLibraryVersion "${exemption.validThroughLibraryVersion}", which is not a valid version. It must be a version of ${library.projectPath} itself (e.g., "${library.version ?: "1.0.0-alpha01"}").
+        The exemption for ${library.coordinate} -> ${dependency.coordinate} in $EXEMPTIONS_FILE_NAME has validThroughLibraryVersion "${exemption.validThroughLibraryVersion}", which is not a valid version. It must be a version of ${library.coordinate} itself (e.g., "${library.version ?: "1.0.0-alpha01"}").
     """
         .trimIndent()
 

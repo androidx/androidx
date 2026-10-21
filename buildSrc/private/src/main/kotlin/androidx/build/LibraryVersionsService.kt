@@ -72,9 +72,9 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         }
     }
 
-    /** Returns only the exemptions applicable to [projectPath]. */
-    internal fun exemptionsFor(projectPath: String): List<DependencyExemption> =
-        dependencyExemptionsByLibrary[projectPath] ?: emptyList()
+    /** Returns only the exemptions for the library published at [libraryCoordinate]. */
+    internal fun exemptionsFor(libraryCoordinate: String): List<DependencyExemption> =
+        dependencyExemptionsByLibrary[libraryCoordinate] ?: emptyList()
 
     private fun getTable(key: String): JsonNode {
         val table = parsedTomlFile.get(key)

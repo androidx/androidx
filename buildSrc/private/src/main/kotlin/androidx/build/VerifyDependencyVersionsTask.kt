@@ -143,11 +143,11 @@ internal fun Project.createVerifyDependencyVersionsTask(
     libraryVersionsService: Provider<LibraryVersionsService>
 ): TaskProvider<VerifyDependencyVersionsTask> {
     val usingMaxDepsVersions = project.usingMaxDepVersions()
-    val projectPath = project.path
     val taskProvider =
         tasks.register("verifyDependencyVersions", VerifyDependencyVersionsTask::class.java) { task
             ->
-            task.library.set(getLibraryProjectCoordinates(libraryVersionsService))
+            val library = getLibraryProjectCoordinates(libraryVersionsService)
+            task.library.set(library)
             task.androidXDependencySet.set(
                 project.provider {
                     project.configurations
@@ -167,7 +167,9 @@ internal fun Project.createVerifyDependencyVersionsTask(
             )
             task.exemptionCandidates.set(getExemptionCandidates(libraryVersionsService))
             task.exemptions.set(
-                libraryVersionsService.map { service -> service.exemptionsFor(projectPath) }
+                library.zip(libraryVersionsService) { lib, service ->
+                    service.exemptionsFor(lib.coordinate)
+                }
             )
 
             task.onlyIf {
@@ -235,7 +237,6 @@ internal fun Project.getExemptionCandidates(
                             projectPath = dependency.path,
                             groupId = dependency.group!!,
                             artifactId = dependency.name,
-                            version = dependency.version?.let { Version.parseOrNull(it) },
                             versionGroup =
                                 parseBuildFile(project(dependency.path).buildFile)
                                     .mavenVersionGroup,

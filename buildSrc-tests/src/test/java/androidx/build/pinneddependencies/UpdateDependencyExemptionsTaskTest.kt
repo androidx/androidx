@@ -26,14 +26,14 @@ class UpdateDependencyExemptionsTaskTest {
         val exemptions =
             listOf(
                 DependencyExemption(
-                    library = ":a2ui:a2ui-engine",
-                    dependsOn = ":collection:collection",
+                    library = "androidx.a2ui:a2ui-engine",
+                    dependsOn = "androidx.collection:collection",
                     validThroughLibraryVersion = "1.0.0-beta01",
                     reason = "b/12345 - needs new API",
                 ),
                 DependencyExemption(
-                    library = ":fragment:fragment",
-                    dependsOn = ":tracing:tracing",
+                    library = "androidx.fragment:fragment",
+                    dependsOn = "androidx.tracing:tracing",
                     validThroughLibraryVersion = "1.9.0-rc01",
                     reason = "b/67890 - needs trace counter",
                 ),
@@ -48,8 +48,8 @@ class UpdateDependencyExemptionsTaskTest {
         val exemptions =
             listOf(
                 DependencyExemption(
-                    library = ":sample:sample",
-                    dependsOn = ":core:core",
+                    library = "androidx.sample:sample",
+                    dependsOn = "androidx.core:core",
                     validThroughLibraryVersion = "1.0.0",
                     reason = "b/12345 - reasons with \"quotes\" and \\backslashes\\ and \ttabs",
                 )
@@ -68,56 +68,59 @@ class UpdateDependencyExemptionsTaskTest {
         val existing =
             listOf(
                 DependencyExemption(
-                    library = ":activity:activity",
-                    dependsOn = ":core:core",
+                    library = "androidx.activity:activity",
+                    dependsOn = "androidx.core:core",
                     validThroughLibraryVersion = "1.10.0-alpha01",
                     reason = "b/11111 - obsolete entry that was pinned",
                 ),
                 DependencyExemption(
-                    library = ":fragment:fragment",
-                    dependsOn = ":tracing:tracing",
+                    library = "androidx.fragment:fragment",
+                    dependsOn = "androidx.tracing:tracing",
                     validThroughLibraryVersion = "1.9.0-rc01",
                     reason = "b/22222 - custom reason to preserve",
                 ),
             )
         val reports =
             listOf(
-                // :activity:activity was evaluated and no longer has dependencies needing exemption
+                // androidx.activity:activity was evaluated and no longer has dependencies needing
+                // exemption
                 DependencyExemptionsReport(
-                    library = ":activity:activity",
+                    library = "androidx.activity:activity",
                     libraryVersion = "1.10.0-alpha01",
                     dependenciesNeedingExemption = emptyList(),
                 ),
-                // :fragment:fragment was evaluated and still has its exempted dependency
+                // androidx.fragment:fragment was evaluated and still has its exempted dependency
                 DependencyExemptionsReport(
-                    library = ":fragment:fragment",
+                    library = "androidx.fragment:fragment",
                     libraryVersion = "1.9.0-alpha01",
-                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf("androidx.tracing:tracing"),
                 ),
-                // :wear:wear was evaluated and has a new dependency needing exemption
+                // androidx.wear:wear was evaluated and has a new dependency needing exemption
                 DependencyExemptionsReport(
-                    library = ":wear:wear",
+                    library = "androidx.wear:wear",
                     libraryVersion = "1.0.0-alpha01",
-                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf("androidx.tracing:tracing"),
                 ),
             )
 
         val updated = reconcileExemptions(existing, reports)
 
-        // :activity:activity was pruned because it was evaluated with no dependencies needing
+        // androidx.activity:activity was pruned because it was evaluated with no dependencies
+        // needing
         // exemption
-        assertThat(updated.map { it.library }).containsExactly(":fragment:fragment", ":wear:wear")
-        // :fragment:fragment preserved its custom reason and version
-        val fragmentExemption = updated.first { it.library == ":fragment:fragment" }
+        assertThat(updated.map { it.library })
+            .containsExactly("androidx.fragment:fragment", "androidx.wear:wear")
+        // androidx.fragment:fragment preserved its custom reason and version
+        val fragmentExemption = updated.first { it.library == "androidx.fragment:fragment" }
         assertThat(fragmentExemption.reason).isEqualTo("b/22222 - custom reason to preserve")
         assertThat(fragmentExemption.validThroughLibraryVersion).isEqualTo("1.9.0-rc01")
-        // :wear:wear added as a new placeholder entry, expiring one phase after its version
-        val wearExemption = updated.first { it.library == ":wear:wear" }
+        // androidx.wear:wear added as a new placeholder entry, expiring one phase after its version
+        val wearExemption = updated.first { it.library == "androidx.wear:wear" }
         assertThat(wearExemption)
             .isEqualTo(
                 DependencyExemption(
-                    library = ":wear:wear",
-                    dependsOn = ":tracing:tracing",
+                    library = "androidx.wear:wear",
+                    dependsOn = "androidx.tracing:tracing",
                     validThroughLibraryVersion = "1.0.0-beta01",
                     reason = "b/TODO - <reason>",
                 )
@@ -129,44 +132,50 @@ class UpdateDependencyExemptionsTaskTest {
         val existing =
             listOf(
                 DependencyExemption(
-                    library = ":camera:camera-core",
-                    dependsOn = ":core:core",
+                    library = "androidx.camera:camera-core",
+                    dependsOn = "androidx.core:core",
                     validThroughLibraryVersion = "1.5.0-alpha01",
                     reason = "b/33333 - camera reason",
                 ),
                 DependencyExemption(
-                    library = ":wear:wear-compose",
-                    dependsOn = ":compose:ui:ui",
+                    library = "androidx.wear:wear-compose",
+                    dependsOn = "androidx.compose.ui:ui",
                     validThroughLibraryVersion = "1.4.0-alpha01",
                     reason = "b/44444 - wear compose reason",
                 ),
             )
-        // Scoped execution: ONLY :wear:wear-compose was evaluated
+        // Scoped execution: ONLY androidx.wear:wear-compose was evaluated
         val scopedReports =
             listOf(
                 DependencyExemptionsReport(
-                    library = ":wear:wear-compose",
+                    library = "androidx.wear:wear-compose",
                     libraryVersion = "1.4.0-alpha01",
                     dependenciesNeedingExemption =
-                        listOf(":compose:material:material", ":compose:ui:ui"),
+                        listOf("androidx.compose.material:material", "androidx.compose.ui:ui"),
                 )
             )
 
         val updated = reconcileExemptions(existing, scopedReports)
 
-        // :camera:camera-core was outside the evaluation scope and is preserved untouched!
+        // androidx.camera:camera-core was outside the evaluation scope and is preserved untouched!
         assertThat(updated.map { it.library })
-            .containsExactly(":camera:camera-core", ":wear:wear-compose", ":wear:wear-compose")
-        val cameraExemption = updated.first { it.library == ":camera:camera-core" }
+            .containsExactly(
+                "androidx.camera:camera-core",
+                "androidx.wear:wear-compose",
+                "androidx.wear:wear-compose",
+            )
+        val cameraExemption = updated.first { it.library == "androidx.camera:camera-core" }
         assertThat(cameraExemption.reason).isEqualTo("b/33333 - camera reason")
 
-        // :wear:wear-compose preserved its existing reason for :compose:ui:ui and added new entry
+        // androidx.wear:wear-compose preserved its existing reason for androidx.compose.ui:ui and
+        // added new entry
         val wearUi = updated.first {
-            it.library == ":wear:wear-compose" && it.dependsOn == ":compose:ui:ui"
+            it.library == "androidx.wear:wear-compose" && it.dependsOn == "androidx.compose.ui:ui"
         }
         assertThat(wearUi.reason).isEqualTo("b/44444 - wear compose reason")
         val wearMaterial = updated.first {
-            it.library == ":wear:wear-compose" && it.dependsOn == ":compose:material:material"
+            it.library == "androidx.wear:wear-compose" &&
+                it.dependsOn == "androidx.compose.material:material"
         }
         assertThat(wearMaterial.reason).isEqualTo("b/TODO - <reason>")
     }
@@ -176,9 +185,9 @@ class UpdateDependencyExemptionsTaskTest {
         val reports =
             listOf(
                 DependencyExemptionsReport(
-                    library = ":wear:wear",
+                    library = "androidx.wear:wear",
                     libraryVersion = null,
-                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf("androidx.tracing:tracing"),
                 )
             )
         val updated = reconcileExemptions(emptyList(), reports)

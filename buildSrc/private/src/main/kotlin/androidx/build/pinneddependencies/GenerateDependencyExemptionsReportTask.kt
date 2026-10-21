@@ -50,11 +50,11 @@ internal abstract class GenerateDependencyExemptionsReportTask : DefaultTask() {
         val lib = library.get()
         val report =
             DependencyExemptionsReport(
-                library = lib.projectPath,
+                library = lib.coordinate,
                 libraryVersion = lib.version?.toString(),
                 dependenciesNeedingExemption =
                     findDependenciesNeedingExemption(lib, exemptionCandidates.get())
-                        .map { it.projectPath }
+                        .map { it.coordinate }
                         .sorted(),
             )
         val file = reportFile.get().asFile
