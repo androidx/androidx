@@ -259,6 +259,13 @@ private class RotateToLookAtUserNode(
 
     private fun manageHeadPoseJob() {
         if (headPoseJob?.isActive == true) return
+
+        if (session.config.deviceTracking == DeviceTrackingMode.DISABLED) return
+
+        if (!::arDevice.isInitialized) {
+            arDevice = ArDevice.getInstance(session)
+        }
+
         headPoseJob = coroutineScope.launch {
             arDevice.state.collect { state -> updatePose(state) }
         }
@@ -276,6 +283,7 @@ private class RotateToLookAtUserNode(
     override fun onDetach() {
         super.onDetach()
         headPoseJob?.cancel()
+        headPoseJob = null
     }
 
     private companion object {
