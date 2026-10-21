@@ -28,11 +28,13 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
@@ -40,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -53,8 +56,17 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
 import androidx.glance.wear.GlanceWearProfiles
+import androidx.glance.wear.GlanceWearWidget
+import androidx.glance.wear.WearWidgetBrush
+import androidx.glance.wear.WearWidgetContentTooLargeException
+import androidx.glance.wear.WearWidgetData
+import androidx.glance.wear.WearWidgetDocument
+import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.RendererVersion
+import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetRawContent
+import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.createNoiseBitmap
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
@@ -256,5 +268,71 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
         composeTestRule
             .onNodeWithContentDescription("PendingIntent 1")
             .assertPendingIntentMatch(createTestPendingIntent(context, requestCode1))
+    }
+
+    @Test
+    fun capture_largeContent_doesNotCheckSize() = runTest {
+        val creationDisplayInfo =
+            RemoteCreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
+        // Random noise doesn't compress, so this bitmap is embedded as a ~750 KB PNG.
+        val noiseBitmap = createNoiseBitmap(width = 500, height = 500).asImageBitmap()
+
+        // The size is checked by GlanceWearWidget.provideWidgetDataAsRawContent, so that it also
+        // applies to custom WearWidgetData implementations.
+        val rawContent =
+            WearWidgetCapture.capture(
+                context,
+                creationDisplayInfo,
+                RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS,
+            ) {
+                RemoteImage(
+                    remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                    contentDescription = null,
+                    modifier = RemoteModifier.size(60.rdp),
+                )
+            }
+
+        assertThat(rawContent.rcDocument.size)
+            .isGreaterThan(WearWidgetContentTooLargeException.MAX_CONTENT_SIZE_BYTES)
+    }
+
+    @Test
+    fun provideWidgetDataAsRawContent_contentTooLarge_throws() = runTest {
+        // Random noise doesn't compress, so this bitmap is embedded as a ~750 KB PNG.
+        val noiseBitmap = createNoiseBitmap(width = 500, height = 500).asImageBitmap()
+        val widget =
+            object : GlanceWearWidget() {
+                override suspend fun provideWidgetData(
+                    context: Context,
+                    params: WearWidgetParams,
+                ): WearWidgetData =
+                    WearWidgetDocument(background = WearWidgetBrush) {
+                        RemoteImage(
+                            remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                            contentDescription = null,
+                            modifier = RemoteModifier.size(60.rdp),
+                        )
+                    }
+            }
+        val params =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("namespace", 17),
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 200f,
+                heightDp = 200f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+            )
+
+        val exception = runCatching {
+            widget.provideWidgetDataAsRawContent(context, params)
+        }
+            .exceptionOrNull()
+
+        assertThat(exception).isInstanceOf(WearWidgetContentTooLargeException::class.java)
+        val tooLargeException = exception as WearWidgetContentTooLargeException
+        assertThat(tooLargeException.contentSizeBytes)
+            .isGreaterThan(WearWidgetContentTooLargeException.MAX_CONTENT_SIZE_BYTES)
     }
 }

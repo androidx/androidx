@@ -82,6 +82,17 @@ package androidx.glance.wear {
     property public static String EXTRA_CONFIG_WIDGET_ID;
   }
 
+  public final class WearWidgetContentTooLargeException extends java.lang.RuntimeException {
+    method @InaccessibleFromKotlin public int getContentSizeBytes();
+    property public int contentSizeBytes;
+    field public static final androidx.glance.wear.WearWidgetContentTooLargeException.Companion Companion;
+    field public static final int MAX_CONTENT_SIZE_BYTES = 409600; // 0x64000
+  }
+
+  public static final class WearWidgetContentTooLargeException.Companion {
+    property public static int MAX_CONTENT_SIZE_BYTES;
+  }
+
   public interface WearWidgetData {
   }
 

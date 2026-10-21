@@ -19,9 +19,11 @@ package androidx.glance.wear.parcel
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import android.os.RemoteException
 import android.util.Log
 import androidx.glance.wear.ActiveWidgetStore
 import androidx.glance.wear.GlanceWearWidget
+import androidx.glance.wear.WearWidgetContentTooLargeException
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.RendererVersion
@@ -78,8 +80,18 @@ internal class WearWidgetProviderImpl(
                 }
             }
 
-            val rawContent = widget.provideWidgetDataAsRawContentInternal(context, params)
-            callback.updateWidgetContent(rawContent.toParcel())
+            val rawContent =
+                try {
+                    widget.provideWidgetDataAsRawContent(context, params)
+                } catch (e: WearWidgetContentTooLargeException) {
+                    Log.e(TAG, "Not sending widget content for ${params.instanceId}.", e)
+                    return@launch
+                }
+            try {
+                callback.updateWidgetContent(rawContent.toParcel())
+            } catch (e: RemoteException) {
+                Log.e(TAG, "Failed to send widget content for ${params.instanceId}.", e)
+            }
         }
     }
 

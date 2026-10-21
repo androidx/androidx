@@ -18,10 +18,16 @@ package androidx.glance.wear.parcel
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
@@ -35,6 +41,7 @@ import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.glance.wear.core.WearWidgetVisibleEvent
 import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.createNoiseBitmap
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
@@ -137,6 +144,55 @@ class WearWidgetProviderImplTest {
                     .trimIndent()
             )
             .isEqualTo(expectedRcDocumentHierarchy)
+    }
+
+    @Test
+    fun onWidgetRequest_contentTooLarge_doesNotCrashOrSendContent() = runBlocking {
+        val widgetParams =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("namespace", 17),
+                containerType = CONTAINER_TYPE_LARGE,
+                widthDp = 200f,
+                heightDp = 200f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
+            )
+        // Random noise doesn't compress, so this bitmap is embedded as a ~750 KB PNG.
+        val noiseBitmap = createNoiseBitmap(width = 500, height = 500).asImageBitmap()
+        testWidget.content = {
+            RemoteImage(
+                remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                contentDescription = null,
+                modifier = RemoteModifier.size(60.rdp),
+            )
+        }
+        var uncaughtException: Throwable? = null
+        val requestJob = SupervisorJob()
+        val requestScope =
+            CoroutineScope(
+                Dispatchers.Main.immediate +
+                    requestJob +
+                    CoroutineExceptionHandler { _, e -> uncaughtException = e }
+            )
+        var updateWidgetContentCalled = false
+        val callback =
+            object : IWearWidgetCallback.Stub() {
+                override fun updateWidgetContent(contentParcel: WearWidgetRawContentParcel?) {
+                    updateWidgetContentCalled = true
+                }
+
+                override fun getInterfaceVersion(): Int = VERSION
+            }
+        val provider = WearWidgetProviderImpl(context, testName, requestScope, testWidget)
+
+        provider.onWidgetRequest(widgetParams.toParcel(), callback)
+        requestJob.complete()
+        requestJob.join()
+
+        assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetParams.instanceId)
+        assertThat(uncaughtException).isNull()
+        assertThat(updateWidgetContentCalled).isFalse()
     }
 
     @Test
