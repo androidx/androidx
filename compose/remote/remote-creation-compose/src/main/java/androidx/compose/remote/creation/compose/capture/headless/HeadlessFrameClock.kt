@@ -193,17 +193,19 @@ internal class HeadlessFrameClock(
      */
     suspend fun <T> withFrameBudget(maxFrames: Int, block: suspend CoroutineScope.() -> T): T? {
         var current: Budget? = null
-        if (isBudgetExhausted) {
-            isBudgetExhausted = false
-            // Awaiters that arrived while paused never re-trigger onNewAwaiters; wake the pump.
-            if (broadcast.hasAwaiters) requestFrame()
-        }
         return try {
             coroutineScope {
                 val newBudget = Budget(sent.get() + maxFrames, coroutineContext.job)
                 current = newBudget
                 budget = newBudget
                 try {
+                    if (isBudgetExhausted) {
+                        isBudgetExhausted = false
+                        // Awaiters that arrived while paused never re-trigger onNewAwaiters; wake
+                        // the pump after installing newBudget so unconfined pumps count against it.
+                        if (broadcast.hasAwaiters) requestFrame()
+                    }
+                    ensureActive()
                     block()
                 } finally {
                     budget = null

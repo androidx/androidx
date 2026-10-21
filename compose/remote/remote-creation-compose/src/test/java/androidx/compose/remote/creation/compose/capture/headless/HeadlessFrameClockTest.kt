@@ -22,7 +22,9 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -31,13 +33,9 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
 class HeadlessFrameClockTest {
 
     private var now = 0L
@@ -337,6 +335,45 @@ class HeadlessFrameClockTest {
         // The next budget resumes the pump, which serves the waiting awaiter.
         clock.withFrameBudget(maxFrames = 5) { clock.withFrameNanos {} }
         assertThat(frame.isCompleted).isTrue()
+        pump.cancelAndJoin()
+    }
+
+    @Test
+    fun exhaustedBudget_resumedOnUnconfinedDispatcher_appliesNewBudgetBeforeWakingPump() = runTest {
+        val clock = HeadlessFrameClock(nanoTime = { now })
+        val pump = launch(Dispatchers.Unconfined) { clock.runClock() }
+        var frames = 0
+        var anim: Job? = null
+        assertThat(
+                clock.withFrameBudget(maxFrames = 2) {
+                    anim =
+                        this@runTest.launch(Dispatchers.Unconfined) {
+                            while (frames < 10) {
+                                clock.withFrameNanos { frames++ }
+                            }
+                        }
+                    while (true) {
+                        clock.awaitFrame()
+                    }
+                }
+            )
+            .isNull()
+        assertThat(frames).isEqualTo(3)
+
+        // Calling withFrameBudget from outside an active unconfined event loop resumes the parked
+        // Unconfined pump inline inside requestFrame().
+        val second =
+            withContext(Dispatchers.Default) {
+                clock.withFrameBudget(maxFrames = 2) {
+                    while (frames < 10) {
+                        clock.awaitFrame()
+                    }
+                }
+            }
+
+        assertThat(second).isNull()
+        assertThat(frames).isEqualTo(6)
+        anim?.cancelAndJoin()
         pump.cancelAndJoin()
     }
 

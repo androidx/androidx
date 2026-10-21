@@ -30,6 +30,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import com.google.common.truth.Truth.assertThat
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -46,12 +47,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
 class RenderLoopTest {
 
     private object NoopApplier : AbstractApplier<Unit>(Unit) {
@@ -630,6 +626,114 @@ class RenderLoopTest {
         }
     }
 
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_unrelatedWriteBeforeRenderIfChanged_doesNotCancelBody() =
+        runTest {
+            val state = mutableStateOf("a")
+            val unrelated = mutableStateOf(0)
+            val rendered = mutableListOf<String>()
+            var settles = 0
+            var bodyCancelled = 0
+            val beforeRenderGate = CompletableDeferred<Unit>()
+            val host = startHost()
+            coroutineScope {
+                host.session.start(this)
+                host.setContent { state.value }
+                val loop = launch {
+                    host.session.renderLoop(
+                        cancelRenderOnInvalidation = true,
+                        beforeSettle = { settles++ },
+                    ) {
+                        try {
+                            beforeRenderGate.await()
+                        } catch (e: CancellationException) {
+                            bodyCancelled++
+                            throw e
+                        }
+                        renderIfChanged { state.value }?.let { rendered += it }
+                        false
+                    }
+                }
+                runCurrent()
+                assertThat(settles).isEqualTo(1)
+
+                unrelated.write(1)
+                runCurrent()
+                beforeRenderGate.complete(Unit)
+                runCurrent()
+
+                assertThat(bodyCancelled).isEqualTo(0)
+                assertThat(settles).isEqualTo(1)
+                assertThat(rendered).containsExactly("a")
+                loop.join()
+                host.session.close()
+            }
+        }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_stateWriteBeforeRenderIfChanged_composesInPlace() =
+        runTest {
+            val state = mutableStateOf("a")
+            val rendered = mutableListOf<String>()
+            var settles = 0
+            var bodyCancelled = 0
+            val beforeRenderGate = CompletableDeferred<Unit>()
+            val host = startHost()
+            coroutineScope {
+                host.session.start(this)
+                host.setContent { state.value }
+                val loop = launch {
+                    host.session.renderLoop(
+                        cancelRenderOnInvalidation = true,
+                        beforeSettle = { settles++ },
+                    ) {
+                        try {
+                            beforeRenderGate.await()
+                        } catch (e: CancellationException) {
+                            bodyCancelled++
+                            throw e
+                        }
+                        renderIfChanged { state.value }?.let { rendered += it }
+                        false
+                    }
+                }
+                runCurrent()
+                assertThat(settles).isEqualTo(1)
+
+                // Even when composed state changes before renderIfChanged runs, runCancellable
+                // composes it in place without cancelling the body or repeating beforeSettle.
+                state.write("b")
+                runCurrent()
+                beforeRenderGate.complete(Unit)
+                runCurrent()
+
+                assertThat(bodyCancelled).isEqualTo(0)
+                assertThat(settles).isEqualTo(1)
+                assertThat(rendered).containsExactly("b")
+                loop.join()
+                host.session.close()
+            }
+        }
+
+    @Test
+    fun renderLoop_cancelRenderOnInvalidation_propagatesFailuresFromTheBody() = runTest {
+        val host = startHost()
+        coroutineScope {
+            host.session.start(this)
+            host.setContent {}
+            val failure = runCatching {
+                host.session.renderLoop(cancelRenderOnInvalidation = true) {
+                    renderIfChanged { Unit }
+                    error("boom-cancellable")
+                }
+            }
+                .exceptionOrNull()
+            assertThat(failure).hasMessageThat().isEqualTo("boom-cancellable")
+            host.session.renderLoop(cancelRenderOnInvalidation = true) { false }
+            host.session.close()
+        }
+    }
+
     // --- pacing ---------------------------------------------------------------------------------
 
     @Test
@@ -726,7 +830,7 @@ class RenderLoopTest {
                 parentContext = Dispatchers.Unconfined + Job(),
                 name = "unconfined",
                 nanoTime = { System.nanoTime() },
-                timeSource = kotlin.time.TimeSource.Monotonic,
+                timeSource = TimeSource.Monotonic,
             )
         var compositions = 0
         val composition = Composition(NoopApplier, session.recomposer)
@@ -754,7 +858,7 @@ class RenderLoopTest {
                 parentContext = Dispatchers.Unconfined + Job(),
                 name = "unconfined",
                 nanoTime = { System.nanoTime() },
-                timeSource = kotlin.time.TimeSource.Monotonic,
+                timeSource = TimeSource.Monotonic,
             )
         var frames by mutableStateOf(0)
         var composed = -1

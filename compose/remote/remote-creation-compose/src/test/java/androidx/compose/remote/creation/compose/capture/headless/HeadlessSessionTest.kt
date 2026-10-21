@@ -25,26 +25,38 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.startCoroutine
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
 class HeadlessSessionTest {
 
     /** Content emits no nodes; tests observe state and effects only. */
@@ -117,6 +129,46 @@ class HeadlessSessionTest {
         }
         // The coroutineScope above returned, so the pump and the recomposer runner completed.
         assertThat(session.frameClock.hasAwaiters).isFalse()
+    }
+
+    @Test
+    fun close_whileAwaitingRunning_cancelsTheWait() = runTest {
+        val session = newSession()
+        coroutineScope {
+            session.start(this)
+            val awaiting = async(start = CoroutineStart.UNDISPATCHED) { session.awaitRunning() }
+            try {
+                assertThat(awaiting.isActive).isTrue()
+
+                session.close()
+                runCurrent()
+
+                assertThat(awaiting.isCancelled).isTrue()
+            } finally {
+                awaiting.cancel()
+            }
+        }
+    }
+
+    @Test
+    fun awaitRunning_registersInvalidationObserverBeforeReturning() = runTest {
+        val session = newSession()
+        val state = mutableStateOf(0)
+        coroutineScope {
+            session.start(this)
+            val signalledImmediatelyAfterRunning =
+                async(Dispatchers.Unconfined) {
+                    session.awaitRunning()
+                    while (session.invalidations.tryReceive().isSuccess) {}
+                    state.value = 1
+                    Snapshot.sendApplyNotifications()
+                    session.invalidations.tryReceive().isSuccess
+                }
+            runCurrent()
+
+            assertThat(signalledImmediatelyAfterRunning.await()).isTrue()
+            session.close()
+        }
     }
 
     @Test
@@ -252,6 +304,206 @@ class HeadlessSessionTest {
             assertThat(result).isEqualTo(QuiescenceResult.Quiescent)
             assertThat(seen).isEqualTo(2)
             session.close()
+        }
+    }
+
+    @Test
+    fun cancellingStartScope_whileAwaitingRunning_cancelsTheWait() = runTest {
+        val session = newSession()
+        val childScope = CoroutineScope(currentCoroutineContext() + Job())
+        session.start(childScope)
+        val awaiting = async(start = CoroutineStart.UNDISPATCHED) { session.awaitRunning() }
+        assertThat(awaiting.isActive).isTrue()
+
+        childScope.cancel()
+        runCurrent()
+
+        assertThat(awaiting.isCancelled).isTrue()
+        session.close()
+    }
+
+    @Test
+    fun defaultNanoTime_advancesWithTimeSource() = runTest {
+        val session =
+            HeadlessSession(
+                parentContext = currentCoroutineContext(),
+                name = "defaultNanoTime",
+                timeSource = testScheduler.timeSource,
+            )
+        coroutineScope {
+            session.start(this)
+            session.awaitRunning()
+            advanceTimeBy(25)
+            var frameTimeNanos = -1L
+            val composition = session.setContent {
+                LaunchedEffect(Unit) { withFrameNanos { frameTimeNanos = it } }
+            }
+
+            assertThat(session.awaitQuiescence()).isEqualTo(QuiescenceResult.Quiescent)
+            assertThat(frameTimeNanos).isEqualTo(25_000_000L)
+            session.close()
+            composition.dispose()
+        }
+    }
+
+    @Test
+    fun awaitQuiescence_unstableComposition_returnsUnstable() = runTest {
+        val session = newSession()
+        coroutineScope {
+            session.start(this)
+            session.awaitRunning()
+            var tick by mutableStateOf(0)
+            val composition = session.setContent {
+                // Mutates state on every recomposition without requesting frames, exhausting
+                // maxIterations rather than maxFrames.
+                val observed = tick
+                LaunchedEffect(observed) { tick = observed + 1 }
+            }
+
+            val result = session.awaitQuiescence(maxIterations = 5)
+
+            assertThat(result).isEqualTo(QuiescenceResult.Unstable)
+            session.close()
+            composition.dispose()
+        }
+    }
+
+    @Test
+    fun awaitQuiescence_effectYieldingAndLaunchingChildBeforeFrame_settlesCompletely() = runTest {
+        val session = newSession()
+        coroutineScope {
+            session.start(this)
+            session.awaitRunning()
+            var state by mutableStateOf("initial")
+            var composed = ""
+            val composition = session.setContent {
+                composed = state
+                LaunchedEffect(Unit) {
+                    yield()
+                    launch {
+                        yield()
+                        withFrameNanos { state = "settled" }
+                    }
+                }
+            }
+
+            val result = session.awaitQuiescence()
+
+            assertThat(result).isEqualTo(QuiescenceResult.Quiescent)
+            assertThat(composed).isEqualTo("settled")
+            session.close()
+            composition.dispose()
+        }
+    }
+
+    @Test
+    fun awaitQuiescence_onRawThreadWithEmptyContext_fallsBackToDefaultDispatcherAndSettles() {
+        val executor = Executors.newSingleThreadExecutor()
+        val outcome = AtomicReference<Result<String>>()
+        val done = CountDownLatch(1)
+        try {
+            executor.execute {
+                val block: suspend () -> String = {
+                    val session = HeadlessSession(EmptyCoroutineContext, name = "raw")
+                    var value by mutableStateOf("init")
+                    var seen = ""
+                    val composition = Composition(NoopApplier, session.recomposer)
+                    try {
+                        coroutineScope {
+                            session.start(this)
+                            session.awaitRunning()
+                            withContext(session.recomposerDispatcher) {
+                                composition.setContent {
+                                    seen = value
+                                    LaunchedEffect(Unit) { withFrameNanos { value = "done" } }
+                                }
+                            }
+                            check(session.awaitQuiescence() == QuiescenceResult.Quiescent)
+                            session.close()
+                        }
+                        seen
+                    } finally {
+                        session.close()
+                        composition.dispose()
+                    }
+                }
+                block.startCoroutine(
+                    object : Continuation<String> {
+                        override val context = EmptyCoroutineContext
+
+                        override fun resumeWith(result: Result<String>) {
+                            outcome.set(result)
+                            done.countDown()
+                        }
+                    }
+                )
+            }
+            assertThat(done.await(5, TimeUnit.SECONDS)).isTrue()
+            assertThat(outcome.get().getOrThrow()).isEqualTo("done")
+        } finally {
+            executor.shutdownNow()
+        }
+    }
+
+    @Test
+    fun awaitQuiescence_effectWriteClaimedByAnotherThreadsApply_waitsForDelivery() = runBlocking {
+        val text = mutableStateOf("init")
+        val claimed = CountDownLatch(1)
+        val awaitingDelivery = CountDownLatch(1)
+        val claimingThreadName = "HeadlessSessionTest-Claimer"
+        val delayingObserver = Snapshot.registerApplyObserver { changed, _ ->
+            if (text in changed && Thread.currentThread().name == claimingThreadName) {
+                claimed.countDown()
+                awaitingDelivery.await(5, TimeUnit.SECONDS)
+            }
+        }
+        onCaptureAwaitingWriteDelivery = {
+            if (claimed.count == 0L) awaitingDelivery.countDown()
+        }
+        try {
+            withContext(Dispatchers.Default) {
+                val session = HeadlessSession(currentCoroutineContext(), name = "claimedWrite")
+                val composition = Composition(NoopApplier, session.recomposer)
+                var seen = ""
+                try {
+                    coroutineScope {
+                        session.start(this)
+                        session.awaitRunning()
+                        withContext(session.recomposerDispatcher) {
+                            composition.setContent {
+                                seen = text.value
+                                LaunchedEffect(Unit) {
+                                    withFrameNanos {}
+                                    val snapshot = Snapshot.takeMutableSnapshot()
+                                    text.value = "delivered"
+                                    val claimer =
+                                        Thread(
+                                            {
+                                                try {
+                                                    snapshot.apply().check()
+                                                } finally {
+                                                    snapshot.dispose()
+                                                }
+                                            },
+                                            claimingThreadName,
+                                        )
+                                    claimer.start()
+                                    assertThat(claimed.await(5, TimeUnit.SECONDS)).isTrue()
+                                }
+                            }
+                        }
+                        assertThat(session.awaitQuiescence()).isEqualTo(QuiescenceResult.Quiescent)
+                        assertThat(seen).isEqualTo("delivered")
+                        session.close()
+                    }
+                } finally {
+                    session.close()
+                    composition.dispose()
+                }
+            }
+        } finally {
+            onCaptureAwaitingWriteDelivery = null
+            delayingObserver.dispose()
         }
     }
 }
