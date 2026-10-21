@@ -119,7 +119,7 @@ public class InitializeStatsTest {
                 // BaseStats fields.
                 .setLaunchVmEnabled(true)
                 .setLaunchAiSealEnabled(true)
-                .setJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
+                .addJavaLockAcquisitionLatencyMillis(javaLockAcquisitionLatencyMillis)
                 .setLastBlockingOperation(lastBlockingOperation)
                 .setLastBlockingOperationLatencyMillis(lastBlockingOperationLatencyMillis)
                 .addGetVmLatencyMillis(getVmLatencyMillis);
@@ -289,7 +289,7 @@ public class InitializeStatsTest {
         assertThat(iStats.getNativeSchemaProtoByteSize()).isEqualTo(0);
         // BaseStats fields.
         assertThat(iStats.getEnabledFeatures()).isEqualTo(0);
-        assertThat(iStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(-1);
+        assertThat(iStats.getJavaLockAcquisitionLatencyMillis()).isEqualTo(0);
         assertThat(iStats.getLastBlockingOperation()).isEqualTo(BaseStats.CALL_TYPE_UNKNOWN);
         assertThat(iStats.getLastBlockingOperationLatencyMillis()).isEqualTo(-1);
         assertThat(iStats.getGetVmLatencyMillis()).isEqualTo(0);
