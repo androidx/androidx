@@ -37,7 +37,9 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
 import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk;
@@ -63,7 +65,7 @@ public class AudioStreamImpl implements AudioStream {
     private static final String TAG = "AudioStreamImpl";
     private static final long DIFF_LIMIT_FROM_SYSTEM_TIME_NS = MILLISECONDS.toNanos(500L);
 
-    private @NonNull AudioRecord mAudioRecord;
+    private volatile @NonNull AudioRecord mAudioRecord;
     private final AudioSettings mSettings;
     private final AtomicBoolean mIsReleased = new AtomicBoolean(false);
     private final AtomicBoolean mIsStarted = new AtomicBoolean(false);
@@ -71,10 +73,12 @@ public class AudioStreamImpl implements AudioStream {
     private final int mBufferSize;
     private final int mBytesPerFrame;
     private final AudioTimestamp mAudioTimestamp = new AudioTimestamp();
+    private final boolean mHasAudioTimestampQuirk;
     private @Nullable AudioStreamCallback mAudioStreamCallback;
     private @Nullable Executor mCallbackExecutor;
     private long mTotalFramesRead;
     private AudioManager.@Nullable AudioRecordingCallback mAudioRecordingCallback;
+    private boolean mIsAudioRecordingCallbackRegistered = false;
     private boolean mShouldFallbackToSystemTime = false;
 
     /**
@@ -101,6 +105,18 @@ public class AudioStreamImpl implements AudioStream {
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public AudioStreamImpl(@NonNull AudioSettings settings, @Nullable Context attributionContext)
             throws IllegalArgumentException, AudioStreamException {
+        this(settings, attributionContext, DeviceQuirks.getAll());
+    }
+
+    /**
+     * Creates an AudioStreamImpl with the given device quirks.
+     *
+     * @see #AudioStreamImpl(AudioSettings, Context)
+     */
+    @VisibleForTesting
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    AudioStreamImpl(@NonNull AudioSettings settings, @Nullable Context attributionContext,
+            @NonNull Quirks quirks) throws IllegalArgumentException, AudioStreamException {
         if (!isSettingsSupported(settings.getCaptureSampleRate(), settings.getChannelCount(),
                 settings.getAudioFormat())) {
             throw new UnsupportedOperationException(String.format(
@@ -112,6 +128,8 @@ public class AudioStreamImpl implements AudioStream {
 
         mSettings = settings;
         mBytesPerFrame = settings.getBytesPerFrame();
+        mHasAudioTimestampQuirk =
+                quirks.get(AudioTimestampFramePositionIncorrectQuirk.class) != null;
 
         int minBufferSize = getMinBufferSize(settings.getCaptureSampleRate(),
                 settings.getChannelCount(), settings.getAudioFormat());
@@ -131,7 +149,7 @@ public class AudioStreamImpl implements AudioStream {
             return;
         }
 
-        if (hasAudioTimestampQuirk()) {
+        if (mHasAudioTimestampQuirk) {
             // Check if the re-created AudioRecord is in the correct state.
             checkAudioRecordInitialStateOrReleaseAndThrow(mAudioRecord);
         }
@@ -167,13 +185,17 @@ public class AudioStreamImpl implements AudioStream {
                     + mAudioRecord.getRecordingState());
         }
 
-        if (hasAudioTimestampQuirk()) {
+        if (mHasAudioTimestampQuirk) {
             // Release and re-create the AudioRecord to workaround the negative frame position
             // issue. Note that the context is passed as null here because the current known
             // problematic devices are all below API 31. If this is not the case in the future, a
-            // different approach might be needed.
+            // different approach might be needed. The AudioRecordingCallback, if any, is moved
+            // from the released AudioRecord to the re-created one so that silence state changes
+            // are still reported for the following recordings.
+            unregisterAudioRecordingCallback();
             mAudioRecord.release();
             mAudioRecord = createAudioRecord(mBufferSize, mSettings, null);
+            registerAudioRecordingCallback();
         }
     }
 
@@ -182,10 +204,11 @@ public class AudioStreamImpl implements AudioStream {
         if (mIsReleased.getAndSet(true)) {
             return;
         }
-        if (Build.VERSION.SDK_INT >= 29 && mAudioRecordingCallback != null) {
-            Api29Impl.unregisterAudioRecordingCallback(mAudioRecord, mAudioRecordingCallback);
+        try {
+            unregisterAudioRecordingCallback();
+        } finally {
+            mAudioRecord.release();
         }
-        mAudioRecord.release();
     }
 
     /**
@@ -223,19 +246,8 @@ public class AudioStreamImpl implements AudioStream {
                 "executor can't be null with non-null callback.");
         mAudioStreamCallback = callback;
         mCallbackExecutor = executor;
-        if (Build.VERSION.SDK_INT >= 29) {
-            if (mAudioRecordingCallback != null) {
-                Api29Impl.unregisterAudioRecordingCallback(mAudioRecord, mAudioRecordingCallback);
-            }
-            if (callback == null) {
-                return;
-            }
-            if (mAudioRecordingCallback == null) {
-                mAudioRecordingCallback = new AudioRecordingApi29Callback();
-            }
-            Api29Impl.registerAudioRecordingCallback(mAudioRecord, executor,
-                    mAudioRecordingCallback);
-        }
+        unregisterAudioRecordingCallback();
+        registerAudioRecordingCallback();
     }
 
     void notifySilenced(boolean isSilenced) {
@@ -245,6 +257,52 @@ public class AudioStreamImpl implements AudioStream {
             if (!Objects.equals(mNotifiedSilenceState.getAndSet(isSilenced), isSilenced)) {
                 executor.execute(() -> callback.onSilenceStateChanged(isSilenced));
             }
+        }
+    }
+
+    /**
+     * Registers {@link #mAudioRecordingCallback} on the current {@link #mAudioRecord} with
+     * {@link #mCallbackExecutor}, creating the callback if needed.
+     *
+     * <p>Does nothing below API 29, if it is already registered, or if no
+     * {@link AudioStreamCallback} is set.
+     */
+    private void registerAudioRecordingCallback() {
+        if (Build.VERSION.SDK_INT < 29) {
+            return;
+        }
+        if (mIsAudioRecordingCallbackRegistered || mAudioStreamCallback == null
+                || mCallbackExecutor == null) {
+            return;
+        }
+        if (mAudioRecordingCallback == null) {
+            mAudioRecordingCallback = new AudioRecordingApi29Callback();
+        }
+        Api29Impl.registerAudioRecordingCallback(mAudioRecord, mCallbackExecutor,
+                mAudioRecordingCallback);
+        mIsAudioRecordingCallbackRegistered = true;
+    }
+
+    /**
+     * Unregisters the {@link AudioManager.AudioRecordingCallback} from the current
+     * {@link AudioRecord} if it is registered. Does nothing below API 29.
+     *
+     * <p>The platform throws {@link IllegalArgumentException} if the callback was not registered
+     * to the {@link AudioRecord}. It is caught and logged defensively so that callers can
+     * continue to release the resources.
+     */
+    private void unregisterAudioRecordingCallback() {
+        if (Build.VERSION.SDK_INT < 29) {
+            return;
+        }
+        if (!mIsAudioRecordingCallbackRegistered || mAudioRecordingCallback == null) {
+            return;
+        }
+        mIsAudioRecordingCallbackRegistered = false;
+        try {
+            Api29Impl.unregisterAudioRecordingCallback(mAudioRecord, mAudioRecordingCallback);
+        } catch (IllegalArgumentException e) {
+            Logger.w(TAG, "Failed to unregister AudioRecordingCallback.", e);
         }
     }
 
@@ -338,10 +396,6 @@ public class AudioStreamImpl implements AudioStream {
             return false;
         }
         return true;
-    }
-
-    private static boolean hasAudioTimestampQuirk() {
-        return DeviceQuirks.get(AudioTimestampFramePositionIncorrectQuirk.class) != null;
     }
 
     private static int getMinBufferSize(int sampleRate, int channelCount, int audioFormat) {
