@@ -18,9 +18,7 @@ package androidx.car.app.media.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.StrokeCap;
 
 import org.junit.Test;
@@ -37,15 +35,6 @@ public class MediaPlaybackStyleTest {
     @Test
     public void create_defaultValues() {
         MediaPlaybackStyle style = new MediaPlaybackStyle.Builder().build();
-        assertNull(style.getMediaAccentColor());
-        assertEquals(style.getProgressBarStrokeCap(), StrokeCap.DEFAULT);
-    }
-
-    @Test
-    public void setMediaAccentColor() {
-        MediaPlaybackStyle style =
-                new MediaPlaybackStyle.Builder().setMediaAccentColor(CarColor.BLUE).build();
-        assertEquals(style.getMediaAccentColor(), CarColor.BLUE);
         assertEquals(style.getProgressBarStrokeCap(), StrokeCap.DEFAULT);
     }
 
@@ -53,7 +42,6 @@ public class MediaPlaybackStyleTest {
     public void setProgressBarStrokeCap() {
         MediaPlaybackStyle style =
                 new MediaPlaybackStyle.Builder().setProgressBarStrokeCap(StrokeCap.ROUND).build();
-        assertNull(style.getMediaAccentColor());
         assertEquals(style.getProgressBarStrokeCap(), StrokeCap.ROUND);
     }
 
@@ -61,27 +49,15 @@ public class MediaPlaybackStyleTest {
     public void equals_and_hashCode() {
         MediaPlaybackStyle style1 =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.GREEN)
                         .setProgressBarStrokeCap(StrokeCap.SQUARE)
                         .build();
         MediaPlaybackStyle style2 =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.GREEN)
                         .setProgressBarStrokeCap(StrokeCap.SQUARE)
                         .build();
 
         assertEquals(style1, style2);
         assertEquals(style1.hashCode(), style2.hashCode());
-    }
-
-    @Test
-    public void notEquals_differentColors() {
-        MediaPlaybackStyle style1 =
-                new MediaPlaybackStyle.Builder().setMediaAccentColor(CarColor.BLUE).build();
-        MediaPlaybackStyle style2 =
-                new MediaPlaybackStyle.Builder().setMediaAccentColor(CarColor.RED).build();
-
-        assertNotEquals(style1, style2);
     }
 
     @Test
@@ -98,13 +74,11 @@ public class MediaPlaybackStyleTest {
     public void copyBuilder_copiesAllFields() {
         MediaPlaybackStyle style =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.YELLOW)
                         .setProgressBarStrokeCap(StrokeCap.ROUND)
                         .build();
         MediaPlaybackStyle copy = new MediaPlaybackStyle.Builder(style).build();
 
         assertEquals(style, copy);
-        assertEquals(copy.getMediaAccentColor(), CarColor.YELLOW);
         assertEquals(copy.getProgressBarStrokeCap(), StrokeCap.ROUND);
     }
 }

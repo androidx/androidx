@@ -969,7 +969,6 @@ package androidx.car.app.media {
 package androidx.car.app.media.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class MediaPlaybackStyle {
-    method public androidx.car.app.model.CarColor? getMediaAccentColor();
     method public int getProgressBarStrokeCap();
   }
 
@@ -977,7 +976,6 @@ package androidx.car.app.media.model {
     ctor public MediaPlaybackStyle.Builder();
     ctor public MediaPlaybackStyle.Builder(androidx.car.app.media.model.MediaPlaybackStyle);
     method public androidx.car.app.media.model.MediaPlaybackStyle build();
-    method public androidx.car.app.media.model.MediaPlaybackStyle.Builder setMediaAccentColor(androidx.car.app.model.CarColor?);
     method public androidx.car.app.media.model.MediaPlaybackStyle.Builder setProgressBarStrokeCap(int);
   }
 
@@ -1027,6 +1025,8 @@ package androidx.car.app.mediaextensions {
     field public static final String KEY_DESCRIPTION_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
     field public static final String KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST = "androidx.car.app.mediaextensions.KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST";
     field public static final String KEY_IMMERSIVE_AUDIO = "androidx.car.app.mediaextensions.KEY_IMMERSIVE_AUDIO";
+    field public static final String KEY_MEDIA_ACCENT_COLOR = "androidx.car.app.mediaextensions.KEY_MEDIA_ACCENT_COLOR";
+    field public static final String KEY_MEDIA_ACCENT_COLOR_DARK = "androidx.car.app.mediaextensions.KEY_MEDIA_ACCENT_COLOR_DARK";
     field public static final String KEY_SUBTITLE_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
     field public static final String KEY_TINTABLE_INDICATOR_ICON_URI_LIST = "androidx.car.app.mediaextensions.KEY_TINTABLE_INDICATOR_ICON_URI_LIST";
   }

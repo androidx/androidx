@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Banner;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.StrokeCap;
 
@@ -81,7 +80,6 @@ public class MediaPlaybackTemplateTest {
     public void createInstance_styleProvided_isValid() {
         MediaPlaybackStyle style =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.BLUE)
                         .setProgressBarStrokeCap(StrokeCap.ROUND)
                         .build();
         MediaPlaybackTemplate template =
@@ -139,12 +137,12 @@ public class MediaPlaybackTemplateTest {
     public void notEquals_differentStyles() {
         MediaPlaybackStyle style1 =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.BLUE)
+                        .setProgressBarStrokeCap(StrokeCap.ROUND)
                         .build();
 
         MediaPlaybackStyle style2 =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.RED)
+                        .setProgressBarStrokeCap(StrokeCap.SQUARE)
                         .build();
 
         MediaPlaybackTemplate template1 =
@@ -159,7 +157,6 @@ public class MediaPlaybackTemplateTest {
     public void copyBuilder_copiesStyle() {
         MediaPlaybackStyle style =
                 new MediaPlaybackStyle.Builder()
-                        .setMediaAccentColor(CarColor.BLUE)
                         .setProgressBarStrokeCap(StrokeCap.SQUARE)
                         .build();
         MediaPlaybackTemplate template =
