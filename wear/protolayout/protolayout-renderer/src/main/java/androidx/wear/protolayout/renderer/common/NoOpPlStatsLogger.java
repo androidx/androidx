@@ -25,13 +25,13 @@ import androidx.wear.protolayout.renderer.common.Constants.UpdateRequestReason;
 
 import org.jspecify.annotations.NonNull;
 
-/** A No-Op implementation of {@link ProviderStatsLogger}. */
+/** A No-Op implementation of {@link PlStatsLogger}. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class NoOpProviderStatsLogger implements ProviderStatsLogger {
-    private static final String TAG = "NoOpProviderStatsLogger";
+public class NoOpPlStatsLogger implements PlStatsLogger {
+    private static final String TAG = "NoOpPlStatsLogger";
 
-    /** Creates an instance of {@link NoOpProviderStatsLogger}. */
-    public NoOpProviderStatsLogger(@NonNull String reason) {
+    /** Creates an instance of {@link NoOpPlStatsLogger}. */
+    public NoOpPlStatsLogger(@NonNull String reason) {
         Log.i(TAG, "Instance used because " + reason);
     }
 

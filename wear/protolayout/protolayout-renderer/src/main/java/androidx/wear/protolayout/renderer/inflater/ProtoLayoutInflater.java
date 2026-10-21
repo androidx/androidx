@@ -189,11 +189,11 @@ import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme.FontSet;
 import androidx.wear.protolayout.renderer.R;
 import androidx.wear.protolayout.renderer.common.LoggingUtils;
-import androidx.wear.protolayout.renderer.common.NoOpProviderStatsLogger;
+import androidx.wear.protolayout.renderer.common.NoOpPlStatsLogger;
+import androidx.wear.protolayout.renderer.common.PlStatsLogger.InflaterStatsLogger;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.LayoutDiff;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.TreeNodeWithChange;
-import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
 import androidx.wear.protolayout.renderer.common.RenderingArtifact;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline.PipelineMaker;
@@ -898,7 +898,7 @@ public final class ProtoLayoutInflater {
 
                 if (mInflaterStatsLogger == null) {
                     mInflaterStatsLogger =
-                            new NoOpProviderStatsLogger("No implementation was provided")
+                            new NoOpPlStatsLogger("No implementation was provided")
                                     .createInflaterStatsLogger();
                 }
 
