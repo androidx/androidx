@@ -61,7 +61,9 @@ public object SemanticsProperties {
             name = "PaneTitle",
             mergePolicy = { _, _ ->
                 throw IllegalStateException(
-                    "merge function called on unmergeable property PaneTitle."
+                    "merge function called on unmergeable property PaneTitle. " +
+                        "A pane should not be a descendant of a node that merges descendant " +
+                        "semantics, such as a clickable."
                 )
             },
         )
@@ -1093,10 +1095,18 @@ public fun SemanticsPropertyReceiver.textEntryKey(): Unit {
 
 /**
  * Accessibility-friendly title for a screen's pane. For accessibility purposes, a pane is a
- * visually distinct portion of a window, such as the contents of a open drawer. In order for
- * accessibility services to understand a pane's window-like behavior, you should give descriptive
- * titles to your app's panes. Accessibility services can then provide more granular information to
- * users when a pane's appearance or content changes.
+ * visually distinct portion of a window, such as the contents of an open drawer, bottom sheet, or
+ * snackbar. In order for accessibility services to understand a pane's window-like behavior, you
+ * should give descriptive titles to your app's panes. Accessibility services can then provide more
+ * granular information to users when a pane's appearance or content changes.
+ *
+ * A pane acts like a window or fragment container: it can host interactive or clickable elements
+ * inside it, but a node with [paneTitle] cannot be merged into an ancestor node. Placing a node
+ * with [paneTitle] (or a component that sets [paneTitle] internally) inside a parent that merges
+ * descendant semantics (such as `Modifier.semantics(mergeDescendants = true)`,
+ * `Modifier.clickable`, `Modifier.toggleable`, or `Modifier.selectable`) breaks the semantic
+ * hierarchy and will throw an [IllegalStateException] when the merged semantics tree is computed
+ * (for example, when an accessibility service or autofill is active, or during UI tests).
  *
  * @see SemanticsProperties.PaneTitle
  */
