@@ -142,6 +142,24 @@ public fun LayoutModifierNode.invalidatePlacement(): Unit = requireLayoutNode().
 public fun LayoutModifierNode.invalidateMeasurement(): Unit =
     requireLayoutNode().invalidateMeasurements()
 
+/**
+ * Invalidates [Ruler][androidx.compose.ui.layout.Ruler] values provided by this node.
+ *
+ * Layouts reading affected rulers are relaid out. Rulers are recalculated automatically when the
+ * node is remeasured or when [State][androidx.compose.runtime.State] read while providing them
+ * changes. Use this function when ruler values depend on non-snapshot state.
+ *
+ * Has no effect if the node is not attached.
+ *
+ * @sample androidx.compose.ui.samples.InvalidateRulersSample
+ */
+public fun LayoutModifierNode.invalidateRulers() {
+    if (!node.isAttached) return
+    val coordinator = requireCoordinator(Nodes.Layout)
+    coordinator.invalidateRulers()
+    coordinator.lookaheadDelegate?.invalidateRulers()
+}
+
 internal fun LayoutModifierNode.requestRemeasure() = requireLayoutNode().requestRemeasure()
 
 internal object NodeMeasuringIntrinsics {

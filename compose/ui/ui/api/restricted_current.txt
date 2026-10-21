@@ -3891,6 +3891,7 @@ package androidx.compose.ui.node {
     method public static void invalidateLayer(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidateMeasurement(androidx.compose.ui.node.LayoutModifierNode);
     method public static void invalidatePlacement(androidx.compose.ui.node.LayoutModifierNode);
+    method public static void invalidateRulers(androidx.compose.ui.node.LayoutModifierNode);
     method public static void remeasureSync(androidx.compose.ui.node.LayoutModifierNode);
     method public static void updateLayerBlock(androidx.compose.ui.node.LayoutModifierNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit>? layerBlock);
   }
