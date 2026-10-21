@@ -69,6 +69,7 @@ import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
+import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
@@ -163,6 +164,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
     var hasDiscreteTime = false
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
+    var inLoop = false
 
     fun visitOp(op: Operation) {
         if (op is FloatFunctionDefine) {
@@ -170,11 +172,15 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
         }
         val prevLayoutComponent = currentLayoutComponent
         val prevInScroll = inScrollModifier
+        val prevInLoop = inLoop
         if (op is LayoutComponent) {
             currentLayoutComponent = op
         }
         if (op is ScrollModifierOperation) {
             inScrollModifier = true
+        }
+        if (op is LoopOperation) {
+            inLoop = true
         }
         try {
             val definedId =
@@ -232,14 +238,15 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
             }
 
             if (
-                op is ColorConstant ||
-                    op is FloatConstant ||
-                    op is ColorTheme ||
-                    op is NamedVariable ||
-                    op is IntegerConstant ||
-                    op is LongConstant ||
-                    op is BooleanConstant ||
-                    op is MatrixConstant
+                op is NamedVariable ||
+                    (!inLoop &&
+                        (op is ColorConstant ||
+                            op is FloatConstant ||
+                            op is ColorTheme ||
+                            op is IntegerConstant ||
+                            op is LongConstant ||
+                            op is BooleanConstant ||
+                            op is MatrixConstant))
             ) {
                 constantOps.add(op)
             }
@@ -348,8 +355,15 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
 
             if (op is LayoutComponent) {
                 val content = op.getLayoutContent()
-                if (content != null && content.componentId !in componentsById) {
-                    componentsById[content.componentId] = content
+                if (content != null) {
+                    if (content.componentId !in componentsById) {
+                        componentsById[content.componentId] = content
+                    }
+                    content.list.fastForEach { childOp ->
+                        if (childOp is NamedVariable) {
+                            visitOp(childOp)
+                        }
+                    }
                 }
                 op.componentModifiers?.list?.fastForEach { visitOp(it) }
                 val canvasOps = op.getCanvasOperations()
@@ -374,6 +388,7 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
         } finally {
             currentLayoutComponent = prevLayoutComponent
             inScrollModifier = prevInScroll
+            inLoop = prevInLoop
         }
     }
 
