@@ -1143,6 +1143,48 @@ class SliderTest {
         }
     }
 
+    @Test
+    fun rangeSlider_overlappingThumbs_tapUpdatesValue() {
+        val state = RangeSliderState(0.5f, 0.8f)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            RangeSlider(
+                state = state,
+                onValueChange = {
+                    state.startValue = it.start
+                    state.endValue = it.endInclusive
+                },
+                modifier = Modifier.testTag(tag),
+            )
+        }
+
+        // Drag start thumb past end thumb so both thumbs overlap at 0.8f
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveTo(Offset(right, centerY))
+            up()
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(state.startValue).isWithin(SliderTolerance).of(0.8f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(0.8f)
+        }
+
+        // Tap to the right of the overlapping thumbs to move the end thumb
+        var expectedEnd = 0f
+        rule.onNodeWithTag(tag).performTouchInput {
+            val tapX = left + (right - left) * 0.9f
+            down(Offset(tapX, centerY))
+            up()
+            expectedEnd = calculateFraction(left, right, tapX)
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(state.startValue).isWithin(SliderTolerance).of(0.8f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expectedEnd)
+        }
+    }
+
     /**
      * Regression test for bug: 210289161 where RangeSlider was ignoring some modifiers like weight.
      */
