@@ -68,13 +68,33 @@ public class A2uiOpenUrlFunction(private val urlOpener: A2uiUrlOpener) : A2uiFun
      * Hands over [url] to the platform-specific URL opener.
      *
      * @param url the URL to open
-     * @throws A2uiException.A2uiRuntimeException if [url] is empty
+     * @throws A2uiException.A2uiRuntimeException if [url] is empty, contains control characters,
+     *   has no scheme, or has a scheme other than http, https, mailto or tel
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public fun typedExecute(url: String) {
         if (url.isEmpty()) {
             throw A2uiException.A2uiRuntimeException(
                 "Function ${definition.name} was invoked with an empty URL"
+            )
+        }
+        if (url.any { it.isISOControl() }) {
+            throw A2uiException.A2uiRuntimeException(
+                "Function ${definition.name} was invoked with a URL with control characters"
+            )
+        }
+        // The scheme is the text before the first ':'. A value with no scheme (a relative path or
+        // a bare host) is rejected: there is no base URL to resolve it against.
+        val scheme = url.substringBefore(':', missingDelimiterValue = "")
+        if (scheme.isEmpty()) {
+            throw A2uiException.A2uiRuntimeException(
+                "Function ${definition.name} was invoked with a URL that has no scheme"
+            )
+        }
+        if (scheme.lowercase() !in ALLOWED_SCHEMES) {
+            throw A2uiException.A2uiRuntimeException(
+                "Function ${definition.name} was invoked with the unsupported URL scheme " +
+                    "'$scheme'. Allowed schemes: ${ALLOWED_SCHEMES.joinToString()}"
             )
         }
         urlOpener.openUrl(url)
@@ -105,5 +125,8 @@ public class A2uiOpenUrlFunction(private val urlOpener: A2uiUrlOpener) : A2uiFun
             }
 
         private const val ARG_URL_KEY: String = "url"
+
+        /** Schemes the A2UI basic catalog implementation guide allows `openUrl` to open. */
+        private val ALLOWED_SCHEMES: Set<String> = setOf("https", "http", "mailto", "tel")
     }
 }
