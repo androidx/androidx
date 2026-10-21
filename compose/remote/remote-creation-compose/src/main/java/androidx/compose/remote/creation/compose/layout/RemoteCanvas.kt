@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteLong
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStateIdKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -585,18 +586,18 @@ public class RemoteCanvas(
         buffer.addRoots(op, text, bitmapFont, x, y, glyphSpacing)
     }
 
-    /** Draws a path using the specified [paint]. */
+    /** Draws a path using the specified [pathFillType] and [paint]. */
     public fun drawPath(
         path: RemotePath,
-        winding: Int = WINDING_NON_ZERO,
+        pathFillType: RemotePathFillType = RemotePathFillType.NonZero,
         paint: RemotePaint? = null,
     ) {
         val op =
             recordRenderingOp(paint) {
-                if (winding == WINDING_NON_ZERO) {
+                if (pathFillType == RemotePathFillType.NonZero) {
                     document.drawPath(path)
                 } else {
-                    val pathId = document.addPathData(path, winding)
+                    val pathId = document.addPathData(path, pathFillType.value)
                     document.drawPath(pathId)
                 }
             }
@@ -1784,20 +1785,6 @@ public class RemoteCanvas(
     /** Ends a state layout. */
     public fun endStateLayout() {
         recordRenderingOp { document.endStateLayout() }
-    }
-
-    public companion object {
-        /** Non-zero winding rule (default). */
-        public const val WINDING_NON_ZERO: Int = 0
-
-        /** Even-odd winding rule. */
-        public const val WINDING_EVEN_ODD: Int = 1
-
-        /** Inverse even-odd winding rule. */
-        public const val WINDING_INVERSE_EVEN_ODD: Int = 2
-
-        /** Inverse non-zero winding rule. */
-        public const val WINDING_INVERSE_NON_ZERO: Int = 3
     }
 }
 

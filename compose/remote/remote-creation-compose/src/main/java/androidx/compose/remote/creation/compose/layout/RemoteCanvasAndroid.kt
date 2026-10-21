@@ -35,9 +35,7 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
@@ -511,21 +509,6 @@ public fun RemoteCanvas.drawRPath(path: RemotePath, paint: Paint) {
     drawPath(path, paint = paint.asRemotePaint())
 }
 
-/** Draws a path using the specified [pathFillType] and [paint]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.drawPath(
-    path: RemotePath,
-    pathFillType: PathFillType,
-    paint: RemotePaint? = null,
-) {
-    drawPath(
-        path,
-        if (pathFillType == PathFillType.EvenOdd) RemoteCanvas.WINDING_EVEN_ODD
-        else RemoteCanvas.WINDING_NON_ZERO,
-        paint,
-    )
-}
-
 /**
  * Draws a path that is an interpolation (tween) between two Compose UI
  * [androidx.compose.ui.graphics.Path] objects.
@@ -778,27 +761,6 @@ public fun RemoteCanvas.drawScaledBitmap(
         dstBottom,
         scaleFactor,
     )
-}
-
-/** Clips the current canvas state to the specified rectangle. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.clipRect(
-    left: RemoteFloat,
-    top: RemoteFloat,
-    right: RemoteFloat,
-    bottom: RemoteFloat,
-    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
-) {
-    clipRect(left, top, right, bottom)
-}
-
-/** Clips the current canvas state to the specified [path]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteCanvas.clipPath(
-    path: RemotePath,
-    @Suppress("UNUSED_PARAMETER") clipOp: ClipOp,
-) {
-    clipPath(path)
 }
 
 /** Draws a [RoundedPolygon] using the specified [paint]. */

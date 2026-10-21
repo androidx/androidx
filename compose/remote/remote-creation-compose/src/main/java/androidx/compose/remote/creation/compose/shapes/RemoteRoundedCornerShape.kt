@@ -17,18 +17,18 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.IntRange
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A shape describing the rectangle with rounded corners.
  *
- * This shape will automatically mirror the corner sizes in [LayoutDirection.Rtl].
+ * This shape will automatically mirror the corner sizes in [RemoteLayoutDirection.Rtl].
  *
  * @param topStart a size of the top start corner
  * @param topEnd a size of the top end corner

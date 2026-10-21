@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -220,7 +221,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
                 RemotePathComponent().apply {
                     pathData = vectorNode.pathData.toRemotePathNodes()
                     name = vectorNode.name
-                    pathFillType = vectorNode.pathFillType
+                    pathFillType = vectorNode.pathFillType.toRemotePathFillType()
                     fill = vectorNode.fill
                     fillAlpha = vectorNode.fillAlpha.rf
                     stroke = vectorNode.stroke
@@ -264,7 +265,7 @@ internal fun RemoteGroupComponent.createGroupComponent(
                 RemotePathComponent().apply {
                     pathData = vectorNode.pathData
                     name = vectorNode.name
-                    pathFillType = vectorNode.pathFillType
+                    pathFillType = vectorNode.pathFillType.toRemotePathFillType()
                     fill = vectorNode.fill
                     fillAlpha = vectorNode.fillAlpha
                     stroke = vectorNode.stroke

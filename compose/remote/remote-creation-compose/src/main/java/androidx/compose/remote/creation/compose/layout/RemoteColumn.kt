@@ -56,7 +56,7 @@ internal class RemoteColumnNode : RemoteComposeNode() {
         }
         creationState.document.startColumn(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection),
+            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
             verticalArrangement.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
