@@ -22,6 +22,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.cos
@@ -32,8 +34,6 @@ import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.PathParser
 import kotlin.math.PI
 
@@ -415,15 +415,15 @@ private fun buildDynamicPath(
         component.trimPathOffset = trimOffset
         component.strokeLineCap =
             when (path.strokeLineCap) {
-                1 -> StrokeCap.Round
-                2 -> StrokeCap.Square
-                else -> StrokeCap.Butt
+                1 -> RemoteStrokeCap.Round
+                2 -> RemoteStrokeCap.Square
+                else -> RemoteStrokeCap.Butt
             }
         component.strokeLineJoin =
             when (path.strokeLineJoin) {
-                1 -> StrokeJoin.Round
-                2 -> StrokeJoin.Bevel
-                else -> StrokeJoin.Miter
+                1 -> RemoteStrokeJoin.Round
+                2 -> RemoteStrokeJoin.Bevel
+                else -> RemoteStrokeJoin.Miter
             }
         component.strokeLineMiter = path.strokeLineMiter.rf
         component.remoteStrokeColor = strokeColorDynamic

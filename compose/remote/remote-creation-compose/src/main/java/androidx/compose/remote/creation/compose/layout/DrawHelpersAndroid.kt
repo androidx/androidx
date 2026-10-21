@@ -24,6 +24,8 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
@@ -277,20 +279,20 @@ internal fun RemoteBlendMode.toComposeBlendMode(): BlendMode =
         else -> BlendMode.SrcOver
     }
 
-internal fun StrokeCap.toInt(): Int =
+internal fun StrokeCap.toRemoteStrokeCap(): RemoteStrokeCap =
     when (this) {
-        StrokeCap.Butt -> 0
-        StrokeCap.Round -> 1
-        StrokeCap.Square -> 2
-        else -> 0
+        StrokeCap.Butt -> RemoteStrokeCap.Butt
+        StrokeCap.Round -> RemoteStrokeCap.Round
+        StrokeCap.Square -> RemoteStrokeCap.Square
+        else -> RemoteStrokeCap.Butt
     }
 
-internal fun StrokeJoin.toInt(): Int =
+internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
     when (this) {
-        StrokeJoin.Miter -> 0
-        StrokeJoin.Round -> 1
-        StrokeJoin.Bevel -> 2
-        else -> 0
+        StrokeJoin.Miter -> RemoteStrokeJoin.Miter
+        StrokeJoin.Round -> RemoteStrokeJoin.Round
+        StrokeJoin.Bevel -> RemoteStrokeJoin.Bevel
+        else -> RemoteStrokeJoin.Miter
     }
 
 internal fun PaintingStyle.toInt(): Int =
