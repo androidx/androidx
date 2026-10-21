@@ -63,7 +63,9 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.SwipeInfo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.multiTouchSwipeWithVelocity
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performMouseInput
@@ -602,6 +604,42 @@ class DraggableTest {
             )
         }
         rule.runOnIdle { assertThat(velocityTriggered - 112f).isLessThan(0.1f) }
+    }
+
+    /**
+     * Validate that pointer velocities are tracked independently, and last pointer determines
+     * velocity of the gesture.
+     */
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun draggable_velocityProxy_multiTouch() {
+        assumeTrue(ComposeFoundationFlags.isDraggableVelocityTrackerFixEnabled)
+        var velocityTriggered = 0f
+        setDraggableContent {
+            Modifier.draggable(
+                Orientation.Horizontal,
+                onDragStopped = { velocityTriggered = it },
+            ) {}
+        }
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            this.multiTouchSwipeWithVelocity(
+                swipes =
+                    listOf(
+                        SwipeInfo(
+                            start = this.center,
+                            end = Offset(this.center.x + 100f, this.center.y),
+                            endVelocity = 112f,
+                        ),
+                        SwipeInfo(
+                            start = this.center,
+                            end = Offset(this.center.x + 100f, this.center.y),
+                            endVelocity = 150f,
+                        ),
+                    ),
+                durationMillis = 200,
+            )
+        }
+        rule.runOnIdle { assertThat(velocityTriggered - 150f).isLessThan(0.1f) }
     }
 
     @Test

@@ -19,8 +19,10 @@ package androidx.compose.ui.test.samples
 import androidx.annotation.Sampled
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SwipeInfo
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.multiTouchSwipeWithVelocity
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
@@ -107,5 +109,16 @@ fun touchInputMultiTouchWithHistory() {
         // And finish the gesture by lifting both fingers. Can be done in any order
         up(1)
         up(0)
+    }
+}
+
+@Sampled
+fun touchInputMultiTouchSwipeWithVelocity() {
+    // Pinch open (zoom in) with two fingers starting at the center and moving outwards with
+    // velocity
+    composeTestRule.onNodeWithTag("myComponent").performTouchInput {
+        val swipe0 = SwipeInfo(start = center, end = center - Offset(200f, 0f), endVelocity = 1000f)
+        val swipe1 = SwipeInfo(start = center, end = center + Offset(200f, 0f), endVelocity = 1000f)
+        multiTouchSwipeWithVelocity(listOf(swipe0, swipe1))
     }
 }
