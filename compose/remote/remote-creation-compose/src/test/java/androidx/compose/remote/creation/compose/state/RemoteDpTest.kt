@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
@@ -46,9 +45,6 @@ class RemoteDpTest {
 
     private val context: RemoteContext
         get() = remoteComposeTestRule.context
-
-    private val testScope =
-        NoRemoteCompose().apply { remoteDensity = remoteComposeTestRule.density }
 
     @Test
     fun constructor_createsCorrectly() {
@@ -108,7 +104,7 @@ class RemoteDpTest {
         val (resultDpId, resultPxId, resultPxId2) =
             remoteComposeTestRule.initialise {
                 val remoteFloatDp = RemoteDp(floatValue.rf)
-                val remoteFloatPx = remoteFloatDp.toPx(testScope.remoteDensity)
+                val remoteFloatPx = remoteFloatDp.toPx(remoteComposeTestRule.density)
                 val remoteFloatPx2 = remoteFloatDp.toPx()
 
                 val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
@@ -197,7 +193,7 @@ class RemoteDpTest {
         val (resultDpId, resultPxId) =
             remoteComposeTestRule.initialise {
                 val remoteFloatDp = RemoteDp(floatValue.rf)
-                val remoteFloatPx = remoteFloatDp.toPx(testScope.remoteDensity)
+                val remoteFloatPx = remoteFloatDp.toPx(remoteComposeTestRule.density)
 
                 val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
                 val resultPxId = remoteFloatPx.getIdForCreationState(it)
@@ -464,17 +460,11 @@ class RemoteDpTest {
 
         val (namedDpId, namedPxId) =
             remoteComposeTestRule.initialise { creationState ->
-                val prevDensity = creationState.remoteDensity
-                try {
-                    creationState.remoteDensity = RemoteDensity.Host
-                    val namedDp = createNamedRemoteDp("hostDp") { 48.rdp }
-                    val namedPx = namedDp.toPx()
-                    val namedDpId = namedDp.value.getIdForCreationState(creationState)
-                    val namedPxId = namedPx.getIdForCreationState(creationState)
-                    Pair(namedDpId, namedPxId)
-                } finally {
-                    creationState.remoteDensity = prevDensity
-                }
+                val namedDp = createNamedRemoteDp("hostDp") { 48.rdp }
+                val namedPx = namedDp.toPx(RemoteDensity.Host)
+                val namedDpId = namedDp.value.getIdForCreationState(creationState)
+                val namedPxId = namedPx.getIdForCreationState(creationState)
+                Pair(namedDpId, namedPxId)
             }
 
         // Under RemoteDensity.Host, the DP value should still be 48f
