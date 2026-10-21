@@ -31,12 +31,12 @@ import androidx.compose.remote.creation.compose.state.PlatformRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.util.fastForEach
+import androidx.compose.remote.creation.compose.util.fastForEachReversed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachReversed
 
 internal abstract class RemoteComposeNode {
     val children = mutableListOf<RemoteComposeNode>()

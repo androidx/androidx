@@ -23,6 +23,8 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.util.fastFilter
+import androidx.compose.remote.creation.compose.util.fastFirstOrNull
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
@@ -38,8 +40,6 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.util.fastFilter
-import androidx.compose.ui.util.fastFirstOrNull
 
 /**
  * A remote-aware text style that mirrors [androidx.compose.ui.text.TextStyle] but uses remote types

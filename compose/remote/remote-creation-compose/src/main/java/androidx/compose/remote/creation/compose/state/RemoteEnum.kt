@@ -20,12 +20,12 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.util.fastFold
+import androidx.compose.remote.creation.compose.util.fastForEach
+import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
-import androidx.compose.ui.util.fastFold
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
 

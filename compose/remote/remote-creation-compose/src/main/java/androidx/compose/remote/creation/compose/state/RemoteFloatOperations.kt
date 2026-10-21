@@ -22,8 +22,8 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
 import androidx.compose.remote.core.operations.utilities.easing.MonotonicSpline
-import androidx.compose.ui.util.fastAll
-import androidx.compose.ui.util.fastMap
+import androidx.compose.remote.creation.compose.util.fastAll
+import androidx.compose.remote.creation.compose.util.fastMap
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.asin
