@@ -305,6 +305,7 @@ constructor(
         val closingJobs =
             synchronized(lock) {
                 closeCurrentUseCases()
+                cameraGraphConfigProvider.onUseCasesEmpty()
                 meteringRepeating.onUnbind()
                 closingCameraJobs.toList()
             }
@@ -349,12 +350,14 @@ constructor(
 
         // Update list of active useCases
         if (useCases.isEmpty()) {
+            cameraGraphConfigProvider.onUseCasesEmpty()
             for (control in allControls) {
                 control.requestControl = null
                 control.reset()
             }
             return
         }
+        cameraGraphConfigProvider.onUseCasesAttached()
 
         if (!shouldCreateCameraGraphImmediately) {
             // We will need to set the UseCaseCamera to null since the new UseCaseCamera along with

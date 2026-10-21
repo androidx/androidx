@@ -44,10 +44,12 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 public class CameraFactoryProvider(
     private val sharedCameraPipe: CameraPipe? = null,
-    private val sharedAppContext: Context? = null,
+    sharedAppContext: Context? = null,
     private val sharedThreadConfig: CameraThreadConfig? = null,
 ) : CameraFactory.Provider {
-    private val sharedInteropCallbacks = CameraInteropStateCallbackRepository()
+    private val sharedAppContext: Context? = sharedAppContext?.let {
+        ContextUtil.getPersistentApplicationContext(it)
+    }
 
     override fun newInstance(
         context: Context,
@@ -66,31 +68,43 @@ public class CameraFactoryProvider(
         // Detected here so CameraFactoryAdapter can safely shut down CameraPipe. The user's
         // executor is still used everywhere, as requested via CameraXConfig.
         val isDirectExecutor = isDirectExecutor(effectiveThreadConfig.cameraExecutor)
+        val sequentialCameraExecutor =
+            CameraXExecutors.newSequentialExecutor(effectiveThreadConfig.cameraExecutor)
+
+        val appContext = sharedAppContext ?: ContextUtil.getPersistentApplicationContext(context)
+        val interopCallbacks = CameraInteropStateCallbackRepository()
 
         val lazyCameraPipe = lazy {
             if (sharedCameraPipe != null) {
                 Camera2Logger.debug { "Using shared a $sharedCameraPipe instance." }
                 sharedCameraPipe
             } else {
-                createCameraPipe(context, effectiveThreadConfig, openRetryMaxTimeout)
+                createCameraPipe(
+                    appContext,
+                    sequentialCameraExecutor,
+                    interopCallbacks,
+                    openRetryMaxTimeout,
+                )
             }
         }
 
         return CameraFactoryAdapter(
             lazyCameraPipe,
-            sharedAppContext ?: context,
+            appContext,
             effectiveThreadConfig,
-            sharedInteropCallbacks,
+            interopCallbacks,
             availableCamerasLimiter,
             streamSpecsCalculator,
             cameraXConfig ?: CameraXConfig.Builder().build(),
             isDirectExecutor,
+            sequentialCameraExecutor,
         )
     }
 
     private fun createCameraPipe(
         context: Context,
-        threadConfig: CameraThreadConfig,
+        defaultCameraExecutor: Executor,
+        interopCallbacks: CameraInteropStateCallbackRepository,
         openRetryMaxTimeout: Duration?,
     ): CameraPipe =
         Debug.trace("Create CameraPipe") {
@@ -100,21 +114,18 @@ public class CameraFactoryProvider(
             val cameraPipe =
                 CameraPipe(
                     CameraPipe.Config(
-                        appContext = ContextUtil.getPersistentApplicationContext(context),
+                        appContext = context,
                         threadConfig =
                             CameraPipe.ThreadConfig(
                                 // This executor should be single-threaded or a sequential executor
                                 // to avoid bugs on various API levels (29 ~ 34). See b/446771606
                                 // for more details.
-                                defaultCameraExecutor =
-                                    CameraXExecutors.newSequentialExecutor(
-                                        threadConfig.cameraExecutor
-                                    )
+                                defaultCameraExecutor = defaultCameraExecutor
                             ),
                         cameraInteropConfig =
                             CameraPipe.CameraInteropConfig(
-                                sharedInteropCallbacks.deviceStateCallback,
-                                sharedInteropCallbacks.sessionStateCallback,
+                                interopCallbacks.deviceStateCallback,
+                                interopCallbacks.sessionStateCallback,
                                 openRetryMaxTimeout,
                             ),
                         flags = CameraPipe.Flags(),
