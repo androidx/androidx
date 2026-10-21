@@ -2039,6 +2039,60 @@ class SliderTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "0.0"))
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, -50f..50f, 0))
     }
+
+    @Test
+    fun slider_discreteIntegerTicks_returnsExactIntegers() {
+        val state = SliderState(value = 2f, steps = 13, trackRange = 2f..16f)
+        val emittedValues = mutableListOf<Float>()
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val widthDp = with(LocalDensity.current) { 1080.toDp() }
+            Slider(
+                state = state,
+                onValueChange = {
+                    emittedValues.add(it)
+                    state.value = it
+                },
+                modifier = Modifier.testTag(tag).requiredWidth(widthDp),
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(centerLeft)
+            val stepPx = width / 50f
+            for (i in 1..50) {
+                moveBy(Offset(stepPx, 0f))
+            }
+            up()
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(emittedValues)
+                .containsExactly(
+                    3f,
+                    4f,
+                    5f,
+                    6f,
+                    7f,
+                    8f,
+                    9f,
+                    10f,
+                    11f,
+                    12f,
+                    13f,
+                    14f,
+                    15f,
+                    16f,
+                )
+                .inOrder()
+        }
+
+        val stateDivisibleBy7 = SliderState(value = 0f, steps = 6, trackRange = 0f..21f)
+        for (expected in 0..21 step 3) {
+            stateDivisibleBy7.value = expected + 0.1f
+            Truth.assertThat(stateDivisibleBy7.value).isEqualTo(expected.toFloat())
+        }
+    }
 }
 
 @Stable

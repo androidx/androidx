@@ -2784,10 +2784,20 @@ private fun snapValueToTick(
     minPx: Float,
     maxPx: Float,
 ): Float {
-    // target is a closest anchor to the `current`, if exists
-    return tickFractions
-        .minByOrNull { abs(lerp(minPx, maxPx, it) - current) }
-        ?.run { lerp(minPx, maxPx, this) } ?: current
+    if (tickFractions.isEmpty()) return current
+    val totalSteps = tickFractions.size - 1
+    var closestValue = current
+    var minDistance = Float.POSITIVE_INFINITY
+    for (i in tickFractions.indices) {
+        val tickValue =
+            (minPx.toDouble() + (maxPx.toDouble() - minPx.toDouble()) * i / totalSteps).toFloat()
+        val distance = abs(tickValue - current)
+        if (distance < minDistance) {
+            minDistance = distance
+            closestValue = tickValue
+        }
+    }
+    return closestValue
 }
 
 private suspend fun AwaitPointerEventScope.awaitSlop(
@@ -2810,25 +2820,6 @@ private fun stepsToTickFractions(steps: Int): FloatArray {
 // Scale x1 from a1..b1 range to a2..b2 range
 private fun scale(a1: Float, b1: Float, x1: Float, a2: Float, b2: Float) =
     lerp(a2, b2, calcFraction(a1, b1, x1))
-
-// Scale x.start, x.endInclusive from a1..b1 range to a2..b2 range
-private fun scale(
-    isStart: Boolean,
-    a1: Float,
-    b1: Float,
-    x: SliderRange,
-    a2: Float,
-    b2: Float,
-): SliderRange {
-    val start = scale(a1, b1, x.start, a2, b2)
-    val end = scale(a1, b1, x.endInclusive, a2, b2)
-
-    return if (isStart) {
-        SliderRange(start.coerceAtMost(end), end)
-    } else {
-        SliderRange(start, end.coerceAtLeast(start))
-    }
-}
 
 // Calculate the 0..1 fraction that `pos` value represents between `a` and `b`
 private fun calcFraction(a: Float, b: Float, pos: Float) =
@@ -3524,8 +3515,8 @@ public constructor(
         }
         rawOffset = (rawOffset + delta + pressOffset)
         pressOffset = 0f
-        val offsetInTrack = snapValueToTick(rawOffset, tickFractions, minPx, maxPx)
-        val scaledUserValue = scaleToUserValue(minPx, maxPx, offsetInTrack)
+        val offsetInTrack = rawOffset.coerceIn(minPx, maxPx)
+        val scaledUserValue = calculateSnappedValue(scaleToUserValue(minPx, maxPx, offsetInTrack))
         if (scaledUserValue != this.value) {
             if (onValueChange != null) {
                 onValueChange(scaledUserValue)
@@ -3749,23 +3740,34 @@ public constructor(
         offset: Float,
         onValueChange: ((SliderRange) -> Unit)? = null,
     ) {
-        val offsetRange =
+        val scaledUserValue =
             if (isStart) {
                 rawOffsetStart = (rawOffsetStart + offset)
                 rawOffsetEnd = scaleToOffset(minPx, maxPx, endValue)
                 val offsetEnd = rawOffsetEnd
-                var offsetStart = rawOffsetStart.coerceIn(minPx, offsetEnd)
-                offsetStart = snapValueToTick(offsetStart, tickFractions, minPx, maxPx)
-                SliderRange(offsetStart.coerceAtMost(offsetEnd), offsetEnd)
+                val offsetStart = rawOffsetStart.coerceIn(minPx, offsetEnd)
+                val userStart =
+                    snapValueToTick(
+                        scaleToUserValue(minPx, maxPx, offsetStart),
+                        tickFractions,
+                        trackRange.start,
+                        trackRange.endInclusive,
+                    )
+                SliderRange(userStart.coerceAtMost(endValue), endValue)
             } else {
                 rawOffsetEnd = (rawOffsetEnd + offset)
                 rawOffsetStart = scaleToOffset(minPx, maxPx, startValue)
                 val offsetStart = rawOffsetStart
-                var offsetEnd = rawOffsetEnd.coerceIn(offsetStart, maxPx)
-                offsetEnd = snapValueToTick(offsetEnd, tickFractions, minPx, maxPx)
-                SliderRange(offsetStart, offsetEnd.coerceAtLeast(offsetStart))
+                val offsetEnd = rawOffsetEnd.coerceIn(offsetStart, maxPx)
+                val userEnd =
+                    snapValueToTick(
+                        scaleToUserValue(minPx, maxPx, offsetEnd),
+                        tickFractions,
+                        trackRange.start,
+                        trackRange.endInclusive,
+                    )
+                SliderRange(startValue, userEnd.coerceAtLeast(startValue))
             }
-        val scaledUserValue = scaleToUserValue(isStart, minPx, maxPx, offsetRange)
         if (scaledUserValue != SliderRange(startValue, endValue)) {
             if (onValueChange != null) {
                 onValueChange(scaledUserValue)
@@ -3788,13 +3790,9 @@ public constructor(
     internal val endSteps
         get() = floor(steps * (1f - coercedStartValueAsFraction)).toInt()
 
-    // scales range offset from within minPx..maxPx to within trackRange.start..trackRange.end
-    private fun scaleToUserValue(
-        isStart: Boolean,
-        minPx: Float,
-        maxPx: Float,
-        offset: SliderRange,
-    ) = scale(isStart, minPx, maxPx, offset, trackRange.start, trackRange.endInclusive)
+    // scales offset from within minPx..maxPx to within trackRange.start..trackRange.end
+    private fun scaleToUserValue(minPx: Float, maxPx: Float, offset: Float) =
+        scale(minPx, maxPx, offset, trackRange.start, trackRange.endInclusive)
 
     // scales float userValue within trackRange.start..trackRange.end to within minPx..maxPx
     private fun scaleToOffset(minPx: Float, maxPx: Float, userValue: Float) =
