@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -67,13 +66,8 @@ class RemoteTextUnitTest {
     }
 
     @Test
+    @Config(fontScale = 1.5f)
     fun remoteFloatRsp_dynamicExpression_calculatesToPxCorrectly() {
-        val density = 2f
-        val fontScale = 1.5f
-        val customDensity = RemoteDensity(density.rf, fontScale.rf)
-        val originalDensity = remoteComposeTestRule.creationState.remoteDensity
-        remoteComposeTestRule.creationState.remoteDensity = customDensity
-
         val (dynamicPxId, staticPxId) =
             remoteComposeTestRule.initialise {
                 val baseSize = RemoteFloat.createNamedRemoteFloat("baseSize", 14f)
@@ -86,8 +80,6 @@ class RemoteTextUnitTest {
             }
 
         assertThat(context.getFloat(dynamicPxId)).isEqualTo(context.getFloat(staticPxId))
-
-        remoteComposeTestRule.creationState.remoteDensity = originalDensity
     }
 
     @Test
@@ -123,15 +115,9 @@ class RemoteTextUnitTest {
     }
 
     @Test
+    @Config(fontScale = 2.5f)
     fun toRsp_isNonScalableWithFontSize() {
         val dpValue = 12.dp
-        val density = 2f
-        val fontScale = 2.5f
-
-        // Set up a custom density/fontScale on the creation state
-        val customDensity = RemoteDensity(density.rf, fontScale.rf)
-        val originalDensity = remoteComposeTestRule.creationState.remoteDensity
-        remoteComposeTestRule.creationState.remoteDensity = customDensity
 
         val (nonScalableTextId, scalableTextId) =
             remoteComposeTestRule.initialise {
@@ -149,8 +135,5 @@ class RemoteTextUnitTest {
 
         // 12.rsp * 2.0 (density) * 2.5 (fontScale) = 60.0 px
         assertThat(context.getFloat(scalableTextId)).isEqualTo(60f)
-
-        // Reset density
-        remoteComposeTestRule.creationState.remoteDensity = originalDensity
     }
 }
