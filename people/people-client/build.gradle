@@ -31,16 +31,31 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(project(":people:people"))
+    api(libs.kotlinCoroutinesCore)
+    api("androidx.annotation:annotation:1.8.1")
+
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testExtJunit)
 }
 
 
 android {
-    namespace = "people.client"
+    namespace = "androidx.people.client"
+    // Matches :people:people, whose AAR metadata requires compileSdk 37.
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
 }
 
 androidx {
-    name = "people:people-client"
+    name = "androidx.people:people-client"
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "Client library for consumer applications (such as dialers, contacts, " +
