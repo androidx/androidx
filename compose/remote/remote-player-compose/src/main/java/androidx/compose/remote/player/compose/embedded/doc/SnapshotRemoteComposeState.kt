@@ -16,7 +16,7 @@
 
 @file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.doc
 
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.operations.utilities.ArrayAccess

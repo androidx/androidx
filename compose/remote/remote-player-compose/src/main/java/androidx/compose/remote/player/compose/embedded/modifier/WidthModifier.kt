@@ -28,6 +28,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
@@ -101,9 +102,8 @@ internal fun Float.constraintDimensionToDp(behavior: Int, density: Float): Dp =
 /**
  * Maps a [DimensionConstraintsModifierOperation] (emitted by `widthIn`/`heightIn`) to a Compose
  * width/height-in constraint. Without this, such constraints were silently dropped (the dispatch
- * `when` only matched the
- * [WidthInModifierOperation]/[androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation]
- * siblings). Min/max follow the same dp convention as [widthIn]/[heightIn]; -1 means "unspecified".
+ * `when` only matched the [WidthInModifierOperation]/[HeightInModifierOperation] siblings). Min/max
+ * follow the same dp convention as [widthIn]/[heightIn]; -1 means "unspecified".
  */
 @Composable
 internal fun Modifier.dimensionConstraints(op: DimensionConstraintsModifierOperation): Modifier {

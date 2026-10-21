@@ -39,6 +39,17 @@ import androidx.compose.remote.core.operations.utilities.CollectionsAccess
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.StoreBackedRemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.buildComputedOpIndex
+import androidx.compose.remote.player.compose.embedded.doc.forEachListenedVariableId
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.doc.isContinuousTimeVariable
+import androidx.compose.remote.player.compose.embedded.doc.isExpressionContinuousTimeDependent
+import androidx.compose.remote.player.compose.embedded.doc.isExpressionDiscreteTimeDependent
+import androidx.compose.remote.player.compose.embedded.doc.isExpressionTimeDependent
+import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.remote.player.compose.embedded.state.AddOp
 import androidx.compose.remote.player.compose.embedded.state.DivOp
 import androidx.compose.remote.player.compose.embedded.state.LerpOp

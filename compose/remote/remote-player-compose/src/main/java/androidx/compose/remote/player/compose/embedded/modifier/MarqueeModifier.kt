@@ -23,7 +23,7 @@ import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.remote.core.operations.layout.modifiers.MarqueeModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.rawDimensionDp
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

@@ -21,7 +21,7 @@ package androidx.compose.remote.player.compose.embedded.modifier
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.rawDimensionDp
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

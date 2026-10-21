@@ -49,6 +49,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier

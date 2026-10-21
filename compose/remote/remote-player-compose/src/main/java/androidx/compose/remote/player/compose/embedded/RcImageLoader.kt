@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
+@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.player.compose.embedded.resources.EmbeddedRcImageLoader
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
@@ -52,34 +48,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 public fun interface RcImageLoader {
     /** A reactive holder for the [Drawable] of `bitmapId`; `null` until/unless one is available. */
     public fun loadImage(bitmapId: Int): State<Drawable?>
-}
-
-/**
- * Default [RcImageLoader]: resolves the document's embedded `BitmapData` for an id to a
- * [BitmapDrawable]. Decoding is lazy (on first request) and the result tracks the snapshot-backed
- * bitmap store, so a host swap of the underlying bitmap updates the returned [State]. States are
- * cached per id so repeated requests (composable + canvas) share one instance.
- */
-internal class EmbeddedRcImageLoader(private val context: RemoteContext) : RcImageLoader {
-    private val cache = HashMap<Int, State<Drawable?>>()
-
-    override fun loadImage(bitmapId: Int): State<Drawable?> =
-        cache.getOrPut(bitmapId) {
-            // Trigger the lazy decode (a snapshot write, done outside any derived read), then
-            // expose
-            // the store-backed bitmap reactively as a Drawable.
-            resolveBitmap(context, bitmapId)
-            var lastBitmap: Bitmap? = null
-            var lastDrawable: Drawable? = null
-            derivedStateOf {
-                val bitmap = context.mRemoteComposeState.getFromId(bitmapId) as? Bitmap
-                if (bitmap !== lastBitmap) {
-                    lastBitmap = bitmap
-                    lastDrawable = bitmap?.let { BitmapDrawable(Resources.getSystem(), it) }
-                }
-                lastDrawable
-            }
-        }
 }
 
 /**

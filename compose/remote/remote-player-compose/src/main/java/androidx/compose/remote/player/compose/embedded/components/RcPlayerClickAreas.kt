@@ -16,13 +16,14 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.player.compose.embedded.LocalRemoteActionHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier

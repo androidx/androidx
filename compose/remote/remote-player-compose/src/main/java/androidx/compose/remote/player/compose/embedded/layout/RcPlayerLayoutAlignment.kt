@@ -19,7 +19,7 @@
 package androidx.compose.remote.player.compose.embedded.layout
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.remote.player.compose.embedded.rawDimensionDp
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 

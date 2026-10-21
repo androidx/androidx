@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.rawDimensionDp
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable

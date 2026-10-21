@@ -49,6 +49,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier

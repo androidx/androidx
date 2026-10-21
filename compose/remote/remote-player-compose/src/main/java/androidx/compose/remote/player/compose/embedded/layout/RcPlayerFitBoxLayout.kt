@@ -37,7 +37,7 @@ import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
-import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
+import androidx.compose.remote.player.compose.embedded.components.RcPlayerComponent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember

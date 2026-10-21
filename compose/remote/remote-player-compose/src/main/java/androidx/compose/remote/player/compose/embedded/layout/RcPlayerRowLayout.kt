@@ -32,7 +32,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOpe
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
+import androidx.compose.remote.player.compose.embedded.components.RcPlayerChildren
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

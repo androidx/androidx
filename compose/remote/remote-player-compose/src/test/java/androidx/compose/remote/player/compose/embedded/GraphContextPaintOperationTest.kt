@@ -32,6 +32,15 @@ import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation
+import androidx.compose.remote.player.compose.embedded.components.resolveCoreTextLineHeight
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.modifier.toModifier
+import androidx.compose.remote.player.compose.embedded.resources.buildFontVariationSettings
+import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.platform.testTag

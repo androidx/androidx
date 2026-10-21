@@ -16,10 +16,11 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.doc
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp

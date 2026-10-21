@@ -19,15 +19,11 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.managers.Custom
-import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
-import androidx.compose.remote.player.compose.embedded.modifier.rememberClickActionHandlers
+import androidx.compose.remote.player.compose.embedded.components.RcPlayerComponent
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
@@ -39,7 +35,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 
 /** Base interface for custom component property schemas. */
@@ -421,62 +416,6 @@ public val LocalRcCustomPlugins: ProvidableCompositionLocal<CustomPluginRegistry
     compositionLocalOf {
         null
     }
-
-/** Resolves the config name of a [Custom] component. */
-@Composable
-private fun rememberCustomConfig(layout: Custom): String {
-    return if (layout.configId != -1) {
-        rememberRemoteStringAsState(layout.configId).value
-    } else {
-        layout.config ?: ""
-    }
-}
-
-/**
- * Returns the click handlers for [layout] if its plugin handles clicks itself (see
- * [CustomComposablePlugin.handlesClick]), otherwise `null`. When non-null, the player must not also
- * apply the component's click modifiers, and each individual handler on [ClickActionHandlers] is
- * `null` if the component has no actions for that gesture.
- */
-@Composable
-internal fun rememberCustomClickHandlers(layout: Custom): ClickActionHandlers? {
-    val customPlugins = LocalRcCustomPlugins.current ?: return null
-    val config = rememberCustomConfig(layout)
-    if (!customPlugins.handlesClick(config)) return null
-    val clickOps =
-        layout.componentModifiers.list.fastFilter {
-            it is ClickModifierOperation || it is MultiClickModifier
-        }
-    return rememberClickActionHandlers(clickOps)
-}
-
-/** Renders a [Custom] component by delegating to the host's [LocalRcCustomPlugins] registry. */
-@Composable
-internal fun RcPlayerCustom(
-    layout: Custom,
-    modifier: Modifier,
-    clickHandlers: ClickActionHandlers? = null,
-) {
-    val remoteContext = LocalRemoteContext.current
-    val customPlugins = LocalRcCustomPlugins.current
-
-    val config = rememberCustomConfig(layout)
-
-    Box(modifier = modifier) {
-        val component =
-            RcCustomComponent(
-                config = config,
-                componentId = layout.componentId,
-                rawProperties = layout.properties,
-                remoteContext = remoteContext,
-                children = layout.childrenComponents,
-                onClick = clickHandlers?.onClick,
-                onDoubleClick = clickHandlers?.onDoubleClick,
-                onLongClick = clickHandlers?.onLongClick,
-            )
-        customPlugins?.Render(component, modifier = Modifier)
-    }
-}
 
 private fun Custom.CustomProperty.isFloat(): Boolean =
     mDataType == Custom.CustomProperty.FLOAT_PROP || mDataType == Custom.CustomProperty.FLOAT_RETURN
