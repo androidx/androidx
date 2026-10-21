@@ -115,6 +115,7 @@ class CallsManagerTest : BaseTelecomTest() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @SmallTest
     @Test
     fun testRegisterPhoneAccount() {
@@ -149,6 +150,7 @@ class CallsManagerTest : BaseTelecomTest() {
      * Register all the capabilities currently exposed by the CallsManager class and verify they are
      * re-mapped to the correct platform capabilities.
      */
+    @Suppress("DEPRECATION")
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
     @Test
@@ -170,6 +172,7 @@ class CallsManagerTest : BaseTelecomTest() {
      * Ensure all backwards compat builds can register video capabilities and the values are
      * re-mapped to the correct platform capabilities.
      */
+    @Suppress("DEPRECATION")
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @SmallTest
     @Test

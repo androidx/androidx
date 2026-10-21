@@ -150,6 +150,9 @@ internal class JetpackConnectionService : ConnectionService() {
                     attributes.callType,
                     attributes.callCapabilities,
                     attributes.preferredStartingCallEndpoint,
+                    attributes.isLogExcluded,
+                    attributes.contactUri,
+                    attributes.isGroupCall,
                 )
             pendingConnectionRequest.callAttributes.mHandle = attributes.mHandle
             Log.i(

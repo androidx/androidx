@@ -7,19 +7,26 @@ package androidx.core.telecom {
     ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
     ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint);
     ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint, optional Boolean? isLogExcluded);
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, int callType, int callCapabilities, androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint, Boolean? isLogExcluded, android.net.Uri? contactUri);
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint, optional Boolean? isLogExcluded, optional android.net.Uri? contactUri, optional boolean isGroupCall);
+    ctor @BytecodeOnly public CallAttributesCompat(CharSequence!, android.net.Uri!, int, int, int, androidx.core.telecom.CallEndpointCompat!, Boolean!, android.net.Uri!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public CallAttributesCompat(CharSequence!, android.net.Uri!, int, int, int, androidx.core.telecom.CallEndpointCompat!, Boolean!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public android.net.Uri getAddress();
     method @InaccessibleFromKotlin public int getCallCapabilities();
     method @InaccessibleFromKotlin public int getCallType();
+    method @InaccessibleFromKotlin public android.net.Uri? getContactUri();
     method @InaccessibleFromKotlin public int getDirection();
     method @InaccessibleFromKotlin public CharSequence getDisplayName();
     method @InaccessibleFromKotlin public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
+    method @InaccessibleFromKotlin public boolean isGroupCall();
     method @InaccessibleFromKotlin public Boolean? isLogExcluded();
     property public android.net.Uri address;
     property public int callCapabilities;
     property public int callType;
+    property public android.net.Uri? contactUri;
     property public int direction;
     property public CharSequence displayName;
+    property public boolean isGroupCall;
     property public Boolean? isLogExcluded;
     property public androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint;
     field public static final int CALL_TYPE_AUDIO_CALL = 1; // 0x1

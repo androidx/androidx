@@ -22,7 +22,7 @@ plugins {
 
 android {
     namespace = "androidx.core.telecom.test"
-    compileSdk { version = release(36) { minorApiLevel = 1 }}
+    compileSdk { version = release(37) }
     defaultConfig {
         applicationId = "androidx.core.telecom.icstest"
         minSdk { version = release(29) } // Move down to 23 if we support CallingApp:checkDialerRole for < Q

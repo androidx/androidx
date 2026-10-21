@@ -106,4 +106,39 @@ internal object CallAttributesUtils {
                 .build()
         }
     }
+
+    /** Implementation for Android 37 (Cinnamon Bun) and above. */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    internal object Api37PlusImpl {
+        @JvmStatic
+        fun toTelecomCallAttributes(
+            phoneAccountHandle: PhoneAccountHandle,
+            direction: Int,
+            displayName: CharSequence,
+            address: Uri,
+            callType: Int,
+            callCapabilities: Int,
+            isLogExcluded: Boolean?,
+            contactUri: Uri?,
+            isGroupCall: Boolean,
+        ): android.telecom.CallAttributes {
+            val builder =
+                android.telecom.CallAttributes.Builder(
+                        phoneAccountHandle,
+                        direction,
+                        displayName,
+                        address,
+                    )
+                    .setCallType(remapCallType(callType))
+                    .setCallCapabilities(remapCapabilities(callCapabilities))
+                    .setIsGroupCall(isGroupCall)
+            if (isLogExcluded != null) {
+                builder.setLogExcluded(isLogExcluded)
+            }
+            if (contactUri != null) {
+                builder.setContactUri(contactUri)
+            }
+            return builder.build()
+        }
+    }
 }

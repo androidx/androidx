@@ -22,7 +22,7 @@ plugins {
 
 android {
     namespace = "androidx.core.telecom.reference"
-    compileSdk { version = release(36) { minorApiLevel = 1 }}
+    compileSdk { version = release(37) }
     defaultConfig {
         applicationId = "androidx.core.telecom.reference"
         minSdk { version = release(26) }

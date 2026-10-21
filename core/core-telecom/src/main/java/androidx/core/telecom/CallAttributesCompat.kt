@@ -47,10 +47,18 @@ import kotlin.jvm.JvmOverloads
  * @param isLogExcluded Whether this call should be excluded from the call log. This is only
  *   applicable on sdks 36.1+. Pass null if the default platform behavior is desired or when running
  *   on older versions.
+ * @param contactUri Contacts provider
+ *   ([android.provider.ContactsContract.Contacts.CONTENT_LOOKUP_URI]) or VoIP contact directory URI
+ *   used by the system dialer to look up enriched contact information. This is only applicable on
+ *   SDKs 37+ ([Build.VERSION_CODES.CINNAMON_BUN]). When non-null, the URI must use the `content://`
+ *   scheme ([android.content.ContentResolver.SCHEME_CONTENT]) with authority `com.android.contacts`
+ *   ([android.provider.ContactsContract.AUTHORITY]) for the calling user; otherwise
+ *   [CallsManager.addCall] throws an [IllegalArgumentException] on SDKs 37+. Pass null if no
+ *   contact URI is associated with the call or when running on older versions.
+ * @param isGroupCall Whether this call is a group call. This is only applicable on SDKs 37+
+ *   ([Build.VERSION_CODES.CINNAMON_BUN]). Defaults to `false` and is ignored on older versions.
  */
-public class CallAttributesCompat
-@JvmOverloads
-constructor(
+public class CallAttributesCompat(
     public val displayName: CharSequence,
     public val address: Uri,
     @Direction public val direction: Int,
@@ -58,8 +66,63 @@ constructor(
     @CallCapability public val callCapabilities: Int = SUPPORTS_SET_INACTIVE,
     public val preferredStartingCallEndpoint: CallEndpointCompat? = null,
     @get:SuppressLint("AutoBoxing") public val isLogExcluded: Boolean? = null,
+    public val contactUri: Uri? = null,
+    public val isGroupCall: Boolean = false,
 ) {
     internal var mHandle: PhoneAccountHandle? = null
+
+    /**
+     * Constructs a [CallAttributesCompat] instance with [contactUri] set to `null` and
+     * [isGroupCall] set to `false`.
+     *
+     * @see CallAttributesCompat
+     */
+    @JvmOverloads
+    public constructor(
+        displayName: CharSequence,
+        address: Uri,
+        @Direction direction: Int,
+        @CallType callType: Int = CALL_TYPE_AUDIO_CALL,
+        @CallCapability callCapabilities: Int = SUPPORTS_SET_INACTIVE,
+        preferredStartingCallEndpoint: CallEndpointCompat? = null,
+        isLogExcluded: Boolean? = null,
+    ) : this(
+        displayName = displayName,
+        address = address,
+        direction = direction,
+        callType = callType,
+        callCapabilities = callCapabilities,
+        preferredStartingCallEndpoint = preferredStartingCallEndpoint,
+        isLogExcluded = isLogExcluded,
+        contactUri = null,
+        isGroupCall = false,
+    )
+
+    /**
+     * Constructs a [CallAttributesCompat] instance with [isGroupCall] set to `false`.
+     *
+     * @see CallAttributesCompat
+     */
+    public constructor(
+        displayName: CharSequence,
+        address: Uri,
+        @Direction direction: Int,
+        @CallType callType: Int,
+        @CallCapability callCapabilities: Int,
+        preferredStartingCallEndpoint: CallEndpointCompat?,
+        isLogExcluded: Boolean?,
+        contactUri: Uri?,
+    ) : this(
+        displayName = displayName,
+        address = address,
+        direction = direction,
+        callType = callType,
+        callCapabilities = callCapabilities,
+        preferredStartingCallEndpoint = preferredStartingCallEndpoint,
+        isLogExcluded = isLogExcluded,
+        contactUri = contactUri,
+        isGroupCall = false,
+    )
 
     override fun toString(): String {
         return "CallAttributes(" +
@@ -67,8 +130,10 @@ constructor(
             "address=[$address], " +
             "direction=[${directionToString()}], " +
             "callType=[${callTypeToString()}], " +
-            "capabilities=[${capabilitiesToString()}, " +
-            "isLogExcluded=[$isLogExcluded]" +
+            "capabilities=[${capabilitiesToString()}], " +
+            "isLogExcluded=[$isLogExcluded], " +
+            "contactUri=[$contactUri], " +
+            "isGroupCall=[$isGroupCall]" +
             ")"
     }
 
@@ -79,7 +144,9 @@ constructor(
             direction == other.direction &&
             callType == other.callType &&
             callCapabilities == other.callCapabilities &&
-            isLogExcluded == other.isLogExcluded
+            isLogExcluded == other.isLogExcluded &&
+            contactUri == other.contactUri &&
+            isGroupCall == other.isGroupCall
     }
 
     override fun hashCode(): Int {
@@ -90,6 +157,8 @@ constructor(
             callType,
             callCapabilities,
             isLogExcluded,
+            contactUri,
+            isGroupCall,
         )
     }
 
@@ -150,7 +219,19 @@ constructor(
     internal fun toCallAttributes(
         phoneAccountHandle: PhoneAccountHandle
     ): android.telecom.CallAttributes {
-        return if (
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            CallAttributesUtils.Api37PlusImpl.toTelecomCallAttributes(
+                phoneAccountHandle,
+                direction,
+                displayName,
+                address,
+                callType,
+                callCapabilities,
+                isLogExcluded,
+                contactUri,
+                isGroupCall,
+            )
+        } else if (
             isLogExcluded != null &&
                 Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
         ) {
@@ -204,19 +285,18 @@ constructor(
     }
 
     private fun capabilitiesToString(): String {
-        val sb = StringBuilder()
-        sb.append("[")
-        if (hasSupportsSetInactiveCapability()) {
-            sb.append("SetInactive")
-        }
-        if (hasStreamCapability()) {
-            sb.append(", Stream")
-        }
-        if (hasTransferCapability()) {
-            sb.append(", Transfer")
-        }
-        sb.append("])")
-        return sb.toString()
+        return buildList {
+                if (hasSupportsSetInactiveCapability()) {
+                    add("SetInactive")
+                }
+                if (hasStreamCapability()) {
+                    add("Stream")
+                }
+                if (hasTransferCapability()) {
+                    add("Transfer")
+                }
+            }
+            .joinToString(", ")
     }
 
     internal fun isOutgoingCall(): Boolean {
