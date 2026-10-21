@@ -42,6 +42,7 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceStreamSpecQueryResult
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.stabilization.VideoStabilization
+import androidx.camera.core.impl.utils.ContextUtil
 import androidx.core.util.Preconditions
 
 /**
@@ -51,11 +52,12 @@ import androidx.core.util.Preconditions
  * outputs, and its internal state is updated transactionally.
  */
 public class CameraSurfaceAdapter(
-    private val context: Context,
+    context: Context,
     cameraComponent: Any?,
     availableCameraIds: Set<String>,
     private val extraSupportedSurfaceCombinations: String? = null,
 ) : CameraDeviceSurfaceManager {
+    private val context: Context = ContextUtil.getPersistentApplicationContext(context)
     private val component = cameraComponent as CameraAppComponent
     private val lock = Any()
 
@@ -210,7 +212,7 @@ public class CameraSurfaceAdapter(
      */
     @VisibleForTesting
     internal fun checkIfSupportedCombinationExist(cameraId: String): Boolean {
-        return supportedSurfaceCombinationMap.containsKey(cameraId)
+        return synchronized(lock) { supportedSurfaceCombinationMap.containsKey(cameraId) }
     }
 
     /**
