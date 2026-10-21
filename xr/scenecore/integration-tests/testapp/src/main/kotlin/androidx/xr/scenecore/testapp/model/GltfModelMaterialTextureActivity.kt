@@ -43,7 +43,9 @@ import androidx.xr.scenecore.GltfAnimation
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
+import androidx.xr.scenecore.ImageBasedLightingAsset
 import androidx.xr.scenecore.KhronosPbrMaterial
+import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.TextureSampler
 import androidx.xr.scenecore.scene
@@ -71,6 +73,10 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
     private var dragonModelEntity: GltfModelEntity? = null
     private var khronosPbrMaterial: KhronosPbrMaterial? = null
     private var patternTexture: Texture? = null
+    // Optional image based light with a strong, structured highlight so that metallic/roughness
+    // changes are visible regardless of the system environment (b/445719973).
+    private var studioImageBasedLightingAsset: ImageBasedLightingAsset? = null
+    private var isStudioLightingEnabled = false
     private var selectedNode: GltfModelNode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -192,6 +198,13 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
             val tex = patternTexture
             if (mat != null && tex != null) {
                 mat.setBaseColorTexture(tex, TextureSampler())
+                // Apply the slider values once the texture is assigned. The glTF defaults
+                // (metallic 1, roughness 1) make a fully rough metal that is visually
+                // indistinguishable from a dielectric, which hides the metallic slider's effect.
+                // Factors are intentionally applied after the first texture: setting them before
+                // it trips a Split Engine sampler-slot leak that aborts the app (b/493450239).
+                mat.setMetallicFactor(findViewById<Slider>(R.id.gltf_model_metallic_slider).value)
+                mat.setRoughnessFactor(findViewById<Slider>(R.id.gltf_model_roughness_slider).value)
             } else {
                 Log.w(TAG, "Material or Texture not created yet")
             }
@@ -199,6 +212,35 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
 
         findViewById<Slider>(R.id.gltf_model_metallic_slider).addOnChangeListener { _, value, _ ->
             khronosPbrMaterial?.setMetallicFactor(value)
+        }
+        findViewById<Slider>(R.id.gltf_model_roughness_slider).addOnChangeListener { _, value, _ ->
+            khronosPbrMaterial?.setRoughnessFactor(value)
+        }
+        // Toggle a bright studio IBL. Without a structured environment light (e.g. in passthrough
+        // or in the default emulator environment) a metallic surface has nothing to reflect, so
+        // the metallic and roughness sliders produce no visible change.
+        val studioLightingButton = findViewById<Button>(R.id.gltf_model_studio_ibl_button)
+        studioLightingButton.setOnClickListener {
+            lifecycleScope.launch {
+                val currentSession = session ?: return@launch
+                if (isStudioLightingEnabled) {
+                    currentSession.scene.spatialEnvironment.preferredSpatialEnvironment = null
+                    isStudioLightingEnabled = false
+                } else {
+                    val ibl =
+                        studioImageBasedLightingAsset
+                            ?: ImageBasedLightingAsset.createFromZip(
+                                    currentSession,
+                                    Paths.get("skyboxes", "BlueSkybox.zip"),
+                                )
+                                .also { studioImageBasedLightingAsset = it }
+                    currentSession.scene.spatialEnvironment.preferredSpatialEnvironment =
+                        SpatialEnvironment.SpatialEnvironmentPreference(ibl, null)
+                    isStudioLightingEnabled = true
+                }
+                studioLightingButton.text =
+                    if (isStudioLightingEnabled) "Studio Lighting: On" else "Studio Lighting: Off"
+            }
         }
 
         // Create GLTF Model Entity
