@@ -70,9 +70,7 @@ private class FocusableAndIndirectPointerInputElement(
         )
 
     override fun update(node: FocusableAndIndirectPointerInputNode) {
-        node.onEvent = onEvent
-        node.onCancel = onCancel
-        node.onFocusChange = onFocusChange
+        node.update(onEvent = onEvent, onCancel = onCancel, onFocusChange = onFocusChange)
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -99,13 +97,11 @@ private class FocusableAndIndirectPointerInputElement(
     }
 }
 
-// To allow indirect events to work properly with delegation, developers must implement the
-// interface at the top of the class (even if they pass along the functions to the delegate).
 private class FocusableAndIndirectPointerInputNode(
-    var onEvent: (event: IndirectPointerEvent, pass: PointerEventPass) -> Unit,
-    var onCancel: () -> Unit,
-    var onFocusChange: (previous: FocusState, current: FocusState) -> Unit,
-) : DelegatingNode(), SemanticsModifierNode, IndirectPointerInputModifierNode {
+    onEvent: (event: IndirectPointerEvent, pass: PointerEventPass) -> Unit,
+    onCancel: () -> Unit,
+    onFocusChange: (previous: FocusState, current: FocusState) -> Unit,
+) : DelegatingNode(), SemanticsModifierNode {
     private var currentOnFocusChange = onFocusChange
 
     private val focusTargetNode =
@@ -130,18 +126,20 @@ private class FocusableAndIndirectPointerInputNode(
     private val indirectPointerInputNode =
         delegate(SimpleIndirectPointerInputNode(onEvent, onCancel))
 
+    fun update(
+        onEvent: (event: IndirectPointerEvent, pass: PointerEventPass) -> Unit,
+        onCancel: () -> Unit,
+        onFocusChange: (previous: FocusState, current: FocusState) -> Unit,
+    ) {
+        indirectPointerInputNode.onEvent = onEvent
+        indirectPointerInputNode.onCancel = onCancel
+        currentOnFocusChange = onFocusChange
+    }
+
     // Enables testing semantic APIs (requestFocus(), assertIsFocused(), etc.)
     override fun SemanticsPropertyReceiver.applySemantics() {
         requestFocus { focusTargetNode.requestFocus() }
         focused = focusTargetNode.focusState.isFocused
-    }
-
-    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
-        indirectPointerInputNode.onEvent(event, pass)
-    }
-
-    override fun onCancelIndirectPointerInput() {
-        indirectPointerInputNode.onCancel()
     }
 }
 
