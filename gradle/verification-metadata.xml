@@ -133,6 +133,7 @@
          <trusted-key id="0D8F8561AA7A5DD20BAE27043C0A8F4744F37328" group="com.github.ben-manes.caffeine"/>
          <trusted-key id="0E225917414670F4442C250DFD533C07C264648F">
             <trusting group="com.android"/>
+            <trusting group="org.chromium.net"/>
             <trusting group="^androidx\..*" regex="true"/>
             <trusting group="^com\.android\..*" regex="true"/>
             <trusting group="^com\.google\..*" regex="true"/>
