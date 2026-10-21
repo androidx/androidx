@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo van voortgangsbalk"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo van sectiekop"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo van gedeelte Spotlight"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demo van zoeken in opgesplitste items"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo van deelvenstertemplate"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo template voor plaatslijst"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browsen door plaatsen"</string>

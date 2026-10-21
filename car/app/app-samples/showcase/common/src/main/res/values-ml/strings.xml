@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"പ്രോഗ്രസ് ബാർ ഡെമോ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"വിഭാഗത്തിന്റെ പേരിന്റെ ഡെമോ"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"സ്പോട്ട്ലൈറ്റ് വിഭാഗത്തിന്റെ ഡെമോ"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"വിഭാഗങ്ങളാക്കിയ ഇന തിരയലിന്റെ ഡെമോ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>

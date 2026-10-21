@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demonstracija trake napretka"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Pokazna verzija zaglavlja odjeljka"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstracija odjeljka Istaknuto"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Pokazna verzija pretraživanja stavki po odjeljcima"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pokazna verzija predloška okna"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Pokazna verzija predloška popisa mjesta"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Pregledajte mjesta"</string>
