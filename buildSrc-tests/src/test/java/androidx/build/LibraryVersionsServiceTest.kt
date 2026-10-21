@@ -16,8 +16,7 @@
 
 package androidx.build
 
-import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
-import androidx.build.pinneddependencies.TipOfTreeExemption
+import androidx.build.pinneddependencies.DependencyExemption
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.Project
@@ -361,7 +360,7 @@ class LibraryVersionsServiceTest {
                 "[versions]\n[groups]\n",
                 exemptions =
                     """
-                    [[tipOfTreeExemptions]]
+                    [[exemption]]
                     library = ":fragment:fragment"
                     dependsOn = ":tracing:tracing"
                     validThroughLibraryVersion = "1.9.0-rc01"
@@ -370,7 +369,7 @@ class LibraryVersionsServiceTest {
                         .trimIndent(),
             )
         val expected =
-            TipOfTreeExemption(
+            DependencyExemption(
                 library = ":fragment:fragment",
                 dependsOn = ":tracing:tracing",
                 validThroughLibraryVersion = "1.9.0-rc01",
@@ -573,7 +572,7 @@ class LibraryVersionsServiceTest {
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",
-        exemptions: String? = "tipOfTreeExemptions = []",
+        exemptions: String? = "exemption = []",
         allPossibleProjects: List<IncludedProject> = emptyList(),
         project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build(),
     ): LibraryVersionsService {
@@ -584,8 +583,7 @@ class LibraryVersionsServiceTest {
             ) { spec ->
                 spec.parameters.tomlFileContents.set(tomlFileContents)
                 spec.parameters.tomlFileName.set(tomlFileName)
-                spec.parameters.tipOfTreeExemptionsFileName.set(TIP_OF_TREE_EXEMPTIONS_FILE_NAME)
-                spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
+                spec.parameters.dependencyExemptionsFileContents.set(exemptions)
                 spec.parameters.allPossibleProjects.set(allPossibleProjects)
             }
         return serviceProvider.get()

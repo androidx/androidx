@@ -17,8 +17,8 @@
 package androidx.build.pinneddependencies
 
 import androidx.build.LibraryVersionsService
+import androidx.build.getExemptionCandidates
 import androidx.build.getLibraryProjectCoordinates
-import androidx.build.getTipOfTreeDependencies
 import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -33,15 +33,15 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Writes a JSON [UnpinnedDependenciesReport] listing this library's tip-of-tree dependencies that
- * release separately from it, for aggregation by [UpdateTipOfTreeExemptionsTask].
+ * Writes a JSON [DependencyExemptionsReport] listing this library's dependencies that need an
+ * exemption, for aggregation by [UpdateDependencyExemptionsTask].
  */
 @CacheableTask
-internal abstract class GeneratePinnedDependenciesReportTask : DefaultTask() {
+internal abstract class GenerateDependencyExemptionsReportTask : DefaultTask() {
 
     @get:Input abstract val library: Property<ProjectCoordinates>
 
-    @get:Input abstract val tipOfTreeDependencies: SetProperty<ProjectCoordinates>
+    @get:Input abstract val exemptionCandidates: SetProperty<ProjectCoordinates>
 
     @get:OutputFile abstract val reportFile: RegularFileProperty
 
@@ -49,11 +49,11 @@ internal abstract class GeneratePinnedDependenciesReportTask : DefaultTask() {
     fun generate() {
         val lib = library.get()
         val report =
-            UnpinnedDependenciesReport(
+            DependencyExemptionsReport(
                 library = lib.projectPath,
                 libraryVersion = lib.version?.toString(),
-                unpinnedDependencies =
-                    findUnpinnedDependencies(lib, tipOfTreeDependencies.get())
+                dependenciesNeedingExemption =
+                    findDependenciesNeedingExemption(lib, exemptionCandidates.get())
                         .map { it.projectPath }
                         .sorted(),
             )
@@ -63,48 +63,48 @@ internal abstract class GeneratePinnedDependenciesReportTask : DefaultTask() {
     }
 
     companion object {
-        const val TASK_NAME = "generatePinnedDependenciesReport"
+        const val TASK_NAME = "generateDependencyExemptionsReport"
     }
 }
 
-/** Artifact category under which each project publishes its [UnpinnedDependenciesReport]. */
-internal const val PINNED_DEPENDENCY_REPORTS_CATEGORY = "androidx-pinned-dependency-reports"
+/** Artifact category under which each project publishes its [DependencyExemptionsReport]. */
+internal const val DEPENDENCY_EXEMPTIONS_REPORTS_CATEGORY = "androidx-dependency-exemptions-reports"
 
 /**
- * Registers [GeneratePinnedDependenciesReportTask] and exposes its report through a consumable
+ * Registers [GenerateDependencyExemptionsReportTask] and exposes its report through a consumable
  * configuration so that the root project can aggregate it.
  */
-internal fun Project.configurePinnedDependenciesReport(
+internal fun Project.configureDependencyExemptionsReport(
     versionService: Provider<LibraryVersionsService>
 ) {
     val reportTask =
         tasks.register(
-            GeneratePinnedDependenciesReportTask.TASK_NAME,
-            GeneratePinnedDependenciesReportTask::class.java,
+            GenerateDependencyExemptionsReportTask.TASK_NAME,
+            GenerateDependencyExemptionsReportTask::class.java,
         ) { task ->
             task.library.set(getLibraryProjectCoordinates(versionService))
-            task.tipOfTreeDependencies.set(getTipOfTreeDependencies(versionService))
+            task.exemptionCandidates.set(getExemptionCandidates(versionService))
             task.reportFile.set(
-                layout.buildDirectory.file("intermediates/pinnedDependencies/report.json")
+                layout.buildDirectory.file("intermediates/dependencyExemptions/report.json")
             )
         }
     val elements =
-        configurations.register("pinnedDependencyReportElements") { conf ->
+        configurations.register("dependencyExemptionsReportElements") { conf ->
             conf.isCanBeConsumed = true
             conf.isCanBeResolved = false
             conf.attributes { attrs ->
                 attrs.attribute(
                     Category.CATEGORY_ATTRIBUTE,
-                    objects.named(Category::class.java, PINNED_DEPENDENCY_REPORTS_CATEGORY),
+                    objects.named(Category::class.java, DEPENDENCY_EXEMPTIONS_REPORTS_CATEGORY),
                 )
             }
         }
     artifacts.add(elements.name, reportTask.flatMap { it.reportFile })
 }
 
-/** A library's tip-of-tree dependencies that release separately from it. */
-internal data class UnpinnedDependenciesReport(
+/** A library's dependencies that need an exemption. */
+internal data class DependencyExemptionsReport(
     val library: String,
     val libraryVersion: String?,
-    val unpinnedDependencies: List<String>,
+    val dependenciesNeedingExemption: List<String>,
 )
