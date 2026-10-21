@@ -2475,35 +2475,35 @@ private fun MonthsNavigation(
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // A menu button for selecting a year.
-        YearPickerMenuButton(
-            onClick = onYearPickerButtonClicked,
-            expanded = yearPickerVisible,
-            modifier =
-                Modifier.focusRequester(yearSelectionButtonFocusRequester).onKeyEvent {
-                    if (yearPickerVisible && it.isTab) {
-                        onYearPickerButtonTabPressed()
-                        return@onKeyEvent true
-                    }
-                    false
-                },
-        ) {
-            Text(
-                text = yearPickerText,
+        CompositionLocalProvider(LocalContentColor provides colors.navigationContentColor) {
+            // A menu button for selecting a year.
+            YearPickerMenuButton(
+                onClick = onYearPickerButtonClicked,
+                expanded = yearPickerVisible,
                 modifier =
-                    Modifier.semantics {
-                        // Make the screen reader read out updates to the menu button text as
-                        // the user navigates the arrows or scrolls to change the displayed
-                        // month.
-                        liveRegion = LiveRegionMode.Polite
-                        contentDescription = yearPickerText
+                    Modifier.focusRequester(yearSelectionButtonFocusRequester).onKeyEvent {
+                        if (yearPickerVisible && it.isTab) {
+                            onYearPickerButtonTabPressed()
+                            return@onKeyEvent true
+                        }
+                        false
                     },
-                color = colors.navigationContentColor,
-            )
-        }
-        // Show arrows for traversing months (only visible when the year selection is off)
-        if (!yearPickerVisible) {
-            CompositionLocalProvider(LocalContentColor provides colors.navigationContentColor) {
+            ) {
+                Text(
+                    text = yearPickerText,
+                    modifier =
+                        Modifier.semantics {
+                            // Make the screen reader read out updates to the menu button text as
+                            // the user navigates the arrows or scrolls to change the displayed
+                            // month.
+                            liveRegion = LiveRegionMode.Polite
+                            contentDescription = yearPickerText
+                        },
+                    color = colors.navigationContentColor,
+                )
+            }
+            // Show arrows for traversing months (only visible when the year selection is off)
+            if (!yearPickerVisible) {
                 Row {
                     IconButtonWithTooltip(
                         onClick = onPreviousClicked,
