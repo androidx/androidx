@@ -24,6 +24,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
+import androidx.credentials.registry.digitalcredentials.openid4vci.filter.OpenId4VciFilter
 import androidx.credentials.registry.provider.RegisterCreationOptionsRequest
 import androidx.credentials.registry.provider.RegistryManager
 import java.io.ByteArrayOutputStream

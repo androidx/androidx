@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.credentials.registry.digitalcredentials.openid4vci
+package androidx.credentials.registry.digitalcredentials.openid4vci.filter
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
