@@ -17,6 +17,7 @@
 package androidx.compose.material3.ripple
 
 import android.os.Build
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.node.DelegatableNode
@@ -65,6 +68,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -319,6 +323,156 @@ class RippleModifierNodeTest {
             )
 
         assertRippleMatches(scope!!, interactionSource, FocusInteraction.Focus(), expectedColor)
+    }
+
+    @Test
+    fun focused_insetFocusRing_roundedShape() {
+        val interactionSource = MutableInteractionSource()
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val shape = RoundedCornerShape(10.dp)
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                            shape = shape,
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            outerStrokeColor = { outerColor },
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 3.dp,
+                            innerStrokeColor = { innerColor },
+                            focusingAnimationSpec = snap(),
+                            unfocusingAnimationSpec = snap(),
+                        ),
+                    hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.Opacity(0.3f),
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(
+                    interactionSource,
+                    ripple,
+                    bounded = true,
+                    shape = shape,
+                    border = null,
+                )
+            }
+        }
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be outer stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+
+        // Inner pixel should be inner stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+    }
+
+    @Test
+    fun focused_insetFocusRing_genericShape() {
+        val interactionSource = MutableInteractionSource()
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val shape = CutCornerShape(10.dp)
+
+        val ripple =
+            TestIndicationNodeFactory({
+                RippleNodeConfiguration(
+                    isBounded = true,
+                    radius = Dp.Unspecified,
+                    color = { TestRippleColor },
+                    pressConfiguration = RippleNodeConfiguration.PressConfiguration.Opacity(0.1f),
+                    focusConfiguration =
+                        RippleNodeConfiguration.FocusConfiguration.InsetRing(
+                            shape = shape,
+                            outerStrokeInset = 0.dp,
+                            outerStrokeWidth = 2.dp,
+                            outerStrokeColor = { outerColor },
+                            innerStrokeInset = 1.dp,
+                            innerStrokeWidth = 3.dp,
+                            innerStrokeColor = { innerColor },
+                            focusingAnimationSpec = snap(),
+                            unfocusingAnimationSpec = snap(),
+                        ),
+                    hoverConfiguration = RippleNodeConfiguration.HoverConfiguration.Opacity(0.3f),
+                    dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(0.4f),
+                )
+            })
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                RippleBoxWithBackground(
+                    interactionSource,
+                    ripple,
+                    bounded = true,
+                    shape = shape,
+                    border = null,
+                )
+            }
+        }
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be outer stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+
+        // Inner pixel should be inner stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
     }
 
     @Test
@@ -706,10 +860,11 @@ private fun RippleBoxWithBackground(
     interactionSource: MutableInteractionSource,
     ripple: Indication,
     bounded: Boolean,
+    shape: Shape = RoundedCornerShape(20),
+    border: BorderStroke? = BorderStroke(2.dp, Color.Black),
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
         Box(Modifier.padding(25.dp).background(RippleBoxBackgroundColor)) {
-            val shape = RoundedCornerShape(20)
             // If the ripple is bounded, we want to clip to the shape, otherwise don't clip as
             // the ripple should draw outside the bounds.
             val clip = if (bounded) Modifier.clip(shape) else Modifier
@@ -717,7 +872,7 @@ private fun RippleBoxWithBackground(
                 Modifier.padding(25.dp)
                     .width(40.dp)
                     .height(40.dp)
-                    .border(BorderStroke(2.dp, Color.Black), shape)
+                    .then(if (border != null) Modifier.border(border, shape) else Modifier)
                     .background(color = RippleBoxBackgroundColor, shape = shape)
                     .then(clip)
                     .indication(interactionSource = interactionSource, indication = ripple)

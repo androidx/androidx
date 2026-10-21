@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.runtime.Composable
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
@@ -629,6 +631,70 @@ class RippleTest {
         Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
     }
 
+    @Test
+    fun rippleConfiguration_insetFocusRing_genericShape_focused() {
+        val interactionSource = MutableInteractionSource()
+
+        val outerColor = Color.Red
+        val innerColor = Color.Green
+        val shape = CutCornerShape(10.dp)
+
+        val rippleConfiguration =
+            RippleConfiguration(focus = RippleConfiguration.Focus.InsetRing(outerColor, innerColor))
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalRippleThemeConfiguration provides
+                        RippleDefaults.InsetFocusRingThemeConfiguration,
+                    LocalRippleConfiguration provides rippleConfiguration,
+                ) {
+                    Surface {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(
+                                interactionSource,
+                                ripple(focusRingShape = shape),
+                                bounded = true,
+                                shape = shape,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Pause the clock
+        rule.mainClock.autoAdvance = false
+
+        // Start focus
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        // Advance to the end of the animation
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(milliseconds = 300)
+
+        val bitmap = rule.onNodeWithTag(Tag).captureToImage().asAndroidBitmap()
+
+        // Use density to get pixel coordinates
+        val density = rule.density
+        val edgePx = with(density) { 51.dp.toPx().roundToInt() }
+        val innerPx = with(density) { 53.dp.toPx().roundToInt() }
+        val centerPx = with(density) { 70.dp.toPx().roundToInt() }
+
+        // Center pixel should be background color
+        Truth.assertThat(Color(bitmap.getPixel(centerPx, centerPx)))
+            .isEqualTo(RippleBoxBackgroundColor)
+
+        // Edge pixel should be outer stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(edgePx, centerPx))).isEqualTo(outerColor)
+
+        // Inner pixel should be inner stroke color from configuration
+        Truth.assertThat(Color(bitmap.getPixel(innerPx, centerPx))).isEqualTo(innerColor)
+    }
+
     /**
      * Test case for changing RippleConfiguration during an existing ripple effect
      *
@@ -847,10 +913,10 @@ private fun RippleBoxWithBackground(
     interactionSource: MutableInteractionSource,
     ripple: Indication,
     bounded: Boolean,
+    shape: Shape = RoundedCornerShape(20),
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
         Surface(Modifier.padding(25.dp), color = RippleBoxBackgroundColor) {
-            val shape = RoundedCornerShape(20)
             // If the ripple is bounded, we want to clip to the shape, otherwise don't clip as
             // the ripple should draw outside the bounds.
             val clip = if (bounded) Modifier.clip(shape) else Modifier
