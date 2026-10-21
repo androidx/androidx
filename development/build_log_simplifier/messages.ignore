@@ -276,6 +276,9 @@ WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
 ERROR: An attempt to write .*\/reference\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
 ERROR: An attempt to write .*\/reference\/kotlin\/androidx\/lifecycle\/ViewModelProvider\.NewInstanceFactory\.html several times!
+# b/576220918
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/ui/compose/material[0-9]+/indicator/BufferingIndicator\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction BufferingIndicator
+WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/ui/compose/state/PlayPauseButtonState\.kt:[0-9]+ Missing @param tag for parameter `player` in DFunction PlayPauseButtonState
 # https://github.com/Kotlin/dokka/issues/4554
 WARN: `java\.io\.Serializable` is unresolved in .*
 # b/493983427
@@ -283,6 +286,10 @@ WARN: `ArrayMap` is unresolved in .*
 # b/527069050
 WARN: Couldn't resolve JavaDoc link '.*' in .*\/build\/unzippedJvmSources\/org\/chromium\/.*
 WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzipped(Jvm|Multiplatform)Sources\/(androidMain\/)?androidx\/(?!media3)(?!test).*
+# b/576220918
+WARN: Couldn't resolve JavaDoc link 'APPLICATION_STOPPED' in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SESSION_ENDED_WITH_REASON_ROUTE_CHANGED' in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'SESSION_ENDED_WITH_REASON_STOPPED' in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/media[0-9]+/cast/RemoteCastPlayer\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link '.*' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/android\/.*
 WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV29\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
 WARN: Couldn't resolve link: \[callback\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedMultiplatformSources\/androidMain\/androidx\/ink\/authoring\/internal\/CanvasInProgressStrokesRenderHelperV33\.kt:[0-9]+:[0-9]+ \(androidx\/androidMain\)
