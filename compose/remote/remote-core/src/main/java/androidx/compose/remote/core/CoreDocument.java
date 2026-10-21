@@ -121,6 +121,7 @@ public class CoreDocument implements Serializable {
     private static final int DEFAULT_FEATURE_ARRAY_LISTENERS = 1;
     private static final int DEFAULT_FEATURE_DISALLOW_INTERCEPT_TOUCH = 1;
     private static final int DEFAULT_FEATURE_DATA_PASS_CANVAS_OPS = 1;
+    private static final int DEFAULT_FEATURE_UNIFIED_POINTER_INPUT = 0;
     public static final int OPTIMIZATION_NONE = 0;
     public static final int OPTIMIZATION_MEASURE_CACHE = 1;
     public static final int OPTIMIZATION_LAYOUT_BOUNDARIES = 2;
@@ -877,6 +878,9 @@ public class CoreDocument implements Serializable {
         }
         if (featureId == Header.FEATURE_DATA_PASS_CANVAS_OPS) {
             return useFeature(featureId, DEFAULT_FEATURE_DATA_PASS_CANVAS_OPS);
+        }
+        if (featureId == Header.FEATURE_UNIFIED_POINTER_INPUT) {
+            return useFeature(featureId, DEFAULT_FEATURE_UNIFIED_POINTER_INPUT);
         }
         return useFeature(featureId, 0);
     }
