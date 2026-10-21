@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +56,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -87,7 +91,10 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.wear.compose.foundation.BasicSwipeToDismissBox
 import androidx.wear.compose.foundation.GestureInclusion
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material3.RevealActionType.Companion.None
 import androidx.wear.compose.material3.RevealActionType.Companion.PrimaryAction
@@ -2299,6 +2306,279 @@ class SwipeToRevealTest {
     ) {
         val widthPx = anchorWidth.value * density
         swipeRight(startX = left, endX = left + widthPx)
+    }
+
+    @Test
+    fun swipeToReveal_inTransformingLazyColumnInsideLookaheadScope_scrollDoesNotCrash() {
+        lateinit var listState: TransformingLazyColumnState
+        rule.setContent {
+            LookaheadScope {
+                listState = rememberTransformingLazyColumnState()
+                TransformingLazyColumn(
+                    state = listState,
+                    modifier = Modifier.testTag(SWIPE_TO_REVEAL_TAG),
+                ) {
+                    items(20) { index ->
+                        SwipeToReveal(
+                            primaryAction = { DefaultPrimaryActionButton() },
+                            onSwipePrimaryAction = {},
+                        ) {
+                            Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                                Text("Item $index")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeUp() }
+        rule.waitForIdle()
+        rule.runOnIdle { assertTrue(listState.anchorItemIndex > 0) }
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_swipeLeftToRevealing_drawsActionAndUpdatesOffset() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            LookaheadScope {
+                revealState = rememberRevealState()
+                SwipeToRevealWithDefaults(
+                    modifier = Modifier.testTag(SWIPE_TO_REVEAL_TAG),
+                    revealState = revealState,
+                    primaryAction = {
+                        DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                    },
+                    enableTouchSlop = false,
+                ) {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeLeftToRevealing(density) }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(PRIMARY_ACTION_TAG).assertExists()
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            assertTrue(revealState.requireOffset() < 0f)
+        }
+        val contentBounds =
+            rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getUnclippedBoundsInRoot()
+        assertTrue(contentBounds.left < 0.dp)
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_initialRightRevealing_placesContentAtRevealingOffset() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            LookaheadScope {
+                revealState = rememberRevealState(initialValue = RightRevealing)
+                SwipeToRevealWithDefaults(
+                    revealState = revealState,
+                    primaryAction = {
+                        DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                    },
+                ) {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(PRIMARY_ACTION_TAG).assertExists()
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            assertTrue(revealState.requireOffset() < 0f)
+        }
+        val contentBounds =
+            rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getUnclippedBoundsInRoot()
+        assertTrue(contentBounds.left < 0.dp)
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_unsupportedInitialValue_fallsBackToCovered() {
+        lateinit var revealState: RevealState
+        rule.setContent {
+            LookaheadScope {
+                revealState = rememberRevealState(initialValue = RightRevealing)
+                SwipeToRevealWithDefaults(
+                    revealState = revealState,
+                    hasPartiallyRevealedState = false,
+                    primaryAction = {
+                        DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                    },
+                ) {
+                    DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(PRIMARY_ACTION_TAG).assertDoesNotExist()
+        rule.runOnIdle {
+            assertEquals(Covered, revealState.currentValue)
+            assertEquals(0f, revealState.requireOffset())
+        }
+        rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_widthChange_updatesAnchorsAndOffset() {
+        lateinit var revealState: RevealState
+        val boxWidth = mutableStateOf(100.dp)
+        rule.setContent {
+            LookaheadScope {
+                Box(modifier = Modifier.width(boxWidth.value)) {
+                    revealState = rememberRevealState(initialValue = RightRevealing)
+                    SwipeToRevealWithDefaults(
+                        revealState = revealState,
+                        primaryAction = {
+                            DefaultPrimaryActionButton(
+                                modifier = Modifier.testTag(PRIMARY_ACTION_TAG)
+                            )
+                        },
+                    ) {
+                        DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        var initialOffset = 0f
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            initialOffset = revealState.requireOffset()
+            assertTrue(initialOffset < 0f)
+        }
+        val initialContentLeft =
+            rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getUnclippedBoundsInRoot().left
+        assertTrue(initialContentLeft < 0.dp)
+
+        rule.runOnIdle { boxWidth.value = 300.dp }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            val newOffset = revealState.requireOffset()
+            assertTrue(newOffset < initialOffset)
+        }
+        val newContentLeft =
+            rule.onNodeWithTag(SWIPE_TO_REVEAL_CONTENT_TAG).getUnclippedBoundsInRoot().left
+        assertTrue(newContentLeft < initialContentLeft)
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_doubleActionWidthShrink_preservesRightRevealing() {
+        lateinit var revealState: RevealState
+        val boxWidth = mutableStateOf(200.dp)
+        var primaryActionTriggered = false
+        rule.setContent {
+            LookaheadScope {
+                Box(modifier = Modifier.width(boxWidth.value)) {
+                    revealState = rememberRevealState(initialValue = RightRevealing)
+                    SwipeToRevealWithDefaults(
+                        revealState = revealState,
+                        onSwipePrimaryAction = { primaryActionTriggered = true },
+                        primaryAction = {
+                            DefaultPrimaryActionButton(
+                                modifier = Modifier.testTag(PRIMARY_ACTION_TAG)
+                            )
+                        },
+                        secondaryAction = {
+                            DefaultSecondaryActionButton(
+                                modifier = Modifier.testTag(SECONDARY_ACTION_TAG)
+                            )
+                        },
+                    ) {
+                        DefaultContent(modifier = Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG))
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            assertFalse(primaryActionTriggered)
+        }
+
+        rule.runOnIdle { boxWidth.value = 80.dp }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            assertFalse(primaryActionTriggered)
+        }
+    }
+
+    @Test
+    fun swipeToReveal_insideLookaheadScope_swipeDoesNotRemeasureContentInLookahead() {
+        lateinit var revealState: RevealState
+        var rootLookaheadMeasureCount = 0
+        var contentLookaheadMeasureCount = 0
+        rule.setContent {
+            LookaheadScope {
+                revealState = rememberRevealState()
+                SwipeToRevealWithDefaults(
+                    modifier =
+                        Modifier.testTag(SWIPE_TO_REVEAL_TAG).layout { measurable, constraints ->
+                            if (isLookingAhead) {
+                                rootLookaheadMeasureCount++
+                            }
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        },
+                    revealState = revealState,
+                    primaryAction = {
+                        DefaultPrimaryActionButton(modifier = Modifier.testTag(PRIMARY_ACTION_TAG))
+                    },
+                    enableTouchSlop = false,
+                ) {
+                    DefaultContent(
+                        modifier =
+                            Modifier.testTag(SWIPE_TO_REVEAL_CONTENT_TAG).layout {
+                                measurable,
+                                constraints ->
+                                if (isLookingAhead) {
+                                    contentLookaheadMeasureCount++
+                                }
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertEquals(1, rootLookaheadMeasureCount)
+        assertEquals(1, contentLookaheadMeasureCount)
+
+        rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeLeftToRevealing(density) }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(RightRevealing, revealState.currentValue)
+            // Remeasured only once when shouldDrawActions transitions false -> true and inserts
+            // the background actions Box, never on each intermediate drag/animation frame.
+            assertEquals(2, contentLookaheadMeasureCount)
+            assertEquals(2, rootLookaheadMeasureCount)
+        }
+
+        // Swiping further from RightRevealing to RightRevealed while shouldDrawActions remains
+        // true should not trigger any lookahead remeasurement of the root Box or foreground
+        // content.
+        rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeLeft() }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(RightRevealed, revealState.currentValue)
+            assertEquals(2, contentLookaheadMeasureCount)
+            assertEquals(2, rootLookaheadMeasureCount)
+        }
     }
 
     companion object {
