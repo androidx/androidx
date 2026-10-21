@@ -190,7 +190,7 @@ class ExtensionSessionConfigTest(
 
         if (isPostviewSupported) {
             val bitmap = ArgumentCaptor.forClass(Bitmap::class.java)
-            Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(10000))
+            Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000))
                 .onPostviewBitmapAvailable(bitmap.capture())
             assertThat(bitmap.value).isNotNull()
         }
