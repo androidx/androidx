@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -442,11 +443,13 @@ class SwipeToRevealTest {
             swipeToRevealWithDefaults(state = revealStateTwo)
 
             val coroutineScope = rememberCoroutineScope()
-            coroutineScope.launch {
-                // First change
-                revealStateOne.snapTo(RevealValue.RightRevealing)
-                // Second change, in a different state
-                revealStateTwo.snapTo(RevealValue.RightRevealing)
+            SideEffect {
+                coroutineScope.launch {
+                    // First change
+                    revealStateOne.snapTo(RevealValue.RightRevealing)
+                    // Second change, in a different state
+                    revealStateTwo.snapTo(RevealValue.RightRevealing)
+                }
             }
         }
 
@@ -465,9 +468,11 @@ class SwipeToRevealTest {
             swipeToRevealWithDefaults(state = revealStateTwo)
 
             val coroutineScope = rememberCoroutineScope()
-            coroutineScope.launch {
-                revealStateOne.snapTo(RevealValue.RightRevealing) // First change
-                revealStateOne.snapTo(lastValue) // Second change, same state
+            SideEffect {
+                coroutineScope.launch {
+                    revealStateOne.snapTo(RevealValue.RightRevealing) // First change
+                    revealStateOne.snapTo(lastValue) // Second change, same state
+                }
             }
         }
 
