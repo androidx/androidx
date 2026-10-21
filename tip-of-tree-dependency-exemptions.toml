@@ -30,26 +30,26 @@ reason = "b/TODO - <reason>"
 [[tipOfTreeExemptions]]
 library = ":camera:camera-camera2-pipe"
 dependsOn = ":camera:featurecombinationquery:featurecombinationquery"
-validThroughLibraryVersion = "1.7.0"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.8.0"
+reason = "b/576165603 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":camera:camera-camera2-pipe-testing"
 dependsOn = ":camera:featurecombinationquery:featurecombinationquery"
-validThroughLibraryVersion = "1.7.0"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.8.0"
+reason = "b/576165603 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":camera:camera-compose"
 dependsOn = ":camera:viewfinder:viewfinder-compose"
-validThroughLibraryVersion = "1.7.0"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.8.0"
+reason = "b/576165603 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":camera:camera-compose"
 dependsOn = ":camera:viewfinder:viewfinder-core"
-validThroughLibraryVersion = "1.7.0"
-reason = "b/TODO - <reason>"
+validThroughLibraryVersion = "1.8.0"
+reason = "b/576165603 - same team ownership and libraries are always released together"
 
 [[tipOfTreeExemptions]]
 library = ":camera:camera-testing"
