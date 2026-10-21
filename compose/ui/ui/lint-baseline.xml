@@ -83,15 +83,6 @@
     </issue>
 
     <issue
-        id="ComposableLambdaParameterPosition"
-        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
-        errorLine1="    content: @Composable @UiComposable () -> Unit,"
-        errorLine2="    ~~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/modifier/CompositionLocalMapInjectionTest.kt"/>
-    </issue>
-
-    <issue
         id="ComposableNaming"
         message="Composable functions that return Unit should start with an uppercase letter"
         errorLine1="    private fun createUi() {"
