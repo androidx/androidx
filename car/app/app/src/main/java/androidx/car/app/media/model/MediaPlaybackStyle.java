@@ -22,9 +22,7 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.StrokeCap;
-import androidx.car.app.model.constraints.CarColorConstraints;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -34,25 +32,16 @@ import java.util.Objects;
 /**
  * Defines the visual style for a {@link MediaPlaybackTemplate}.
  *
- * <p>This style can be used to customize media playback interactive controls and progress
- * indicators, such as their accent color and stroke cap shape.
+ * <p>This style can be used to customize media playback progress indicators, such as their
+ * stroke cap shape.
  */
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)
 @ExperimentalCarApi
 public final class MediaPlaybackStyle {
-    private final @Nullable CarColor mMediaAccentColor;
     @StrokeCap.StrokeCapType
     private final int mProgressBarStrokeCap;
-
-    /**
-     * Returns the custom media accent {@link CarColor} for interactive controls, or {@code null}
-     * if none was set.
-     */
-    public @Nullable CarColor getMediaAccentColor() {
-        return mMediaAccentColor;
-    }
 
     /**
      * Returns the {@link StrokeCap} shape for the playback progress bar, or
@@ -66,16 +55,14 @@ public final class MediaPlaybackStyle {
     @Override
     public @NonNull String toString() {
         return "MediaPlaybackStyle{"
-                + "mediaAccentColor="
-                + mMediaAccentColor
-                + ", progressBarStrokeCap="
+                + "progressBarStrokeCap="
                 + mProgressBarStrokeCap
                 + "}";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mMediaAccentColor, mProgressBarStrokeCap);
+        return Objects.hash(mProgressBarStrokeCap);
     }
 
     @Override
@@ -87,42 +74,22 @@ public final class MediaPlaybackStyle {
             return false;
         }
         MediaPlaybackStyle otherStyle = (MediaPlaybackStyle) other;
-        return Objects.equals(mMediaAccentColor, otherStyle.mMediaAccentColor)
-                && mProgressBarStrokeCap == otherStyle.mProgressBarStrokeCap;
+        return mProgressBarStrokeCap == otherStyle.mProgressBarStrokeCap;
     }
 
     private MediaPlaybackStyle(Builder builder) {
-        mMediaAccentColor = builder.mMediaAccentColor;
         mProgressBarStrokeCap = builder.mProgressBarStrokeCap;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private MediaPlaybackStyle() {
-        mMediaAccentColor = null;
         mProgressBarStrokeCap = StrokeCap.DEFAULT;
     }
 
     /** A builder of {@link MediaPlaybackStyle}. */
     public static final class Builder {
-        @Nullable CarColor mMediaAccentColor;
         @StrokeCap.StrokeCapType
         int mProgressBarStrokeCap = StrokeCap.DEFAULT;
-
-        /**
-         * Sets the custom accent {@link CarColor} for media interactive controls (such as the
-         * play/pause button container and seekbar track) or {@code null} to use default host
-         * styling.
-         *
-         * <p>Defaults to {@code null}, which means default host styling or album art palette
-         * color extraction is used.
-         */
-        public @NonNull Builder setMediaAccentColor(@Nullable CarColor mediaAccentColor) {
-            if (mediaAccentColor != null) {
-                CarColorConstraints.UNCONSTRAINED.validateOrThrow(mediaAccentColor);
-            }
-            this.mMediaAccentColor = mediaAccentColor;
-            return this;
-        }
 
         /**
          * Sets the {@link StrokeCap} shape for the playback progress bar displayed in the media
@@ -148,7 +115,6 @@ public final class MediaPlaybackStyle {
         /** Creates a new {@link Builder}, populated from the input {@link MediaPlaybackStyle}. */
         public Builder(@NonNull MediaPlaybackStyle style) {
             requireNonNull(style);
-            mMediaAccentColor = style.mMediaAccentColor;
             mProgressBarStrokeCap = style.mProgressBarStrokeCap;
         }
 
