@@ -1,600 +1,78 @@
 ---
 trigger: always_on
-description: Instructions for AI agents to perform strict CameraX code reviews.
+description: >-
+  Core CameraX architecture, coding/testing standards, multi-model verification
+  gate, and mandatory task-to-skill read_file routing table.
 ---
 
-> [!NOTE]
-> **Documentation Scope & Optional Internal Companion**:
-> `camera/AGENTS.md` is the primary, self-contained public baseline for CameraX
-> architecture, Kotlin/Java standards, pre-upload quality gates, and code review
-> protocols. All contributors should follow these guidelines.
+> [!IMPORTANT]
+> **MANDATORY STEP 1 — Task-to-Skill Context Loading Gate (`read_file`)**:
+> To prevent auto-load truncation while preserving 100% of CameraX's deep
+> architectural, testing, triage, and multi-model verification rules, detailed
+> workflows live in modular files under `camera/.agents/skills/*/SKILL.md`
+> (each sized `< 45,000 bytes` and `<= 780 lines` so **1 single `read_file`
+> call** loads 100% of any file).
 >
-> When operating in an environment where internal extension tools are configured
-> (e.g., if `$CAMERAX_INTERNAL_TOOLS_DIR` is set and `AGENTS_INTERNAL.md` is
-> present), agents should also read `AGENTS_INTERNAL.md` (located at
-> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`) for supplementary internal
-> guidelines and automated lab device testing workflows. For contributors
-> without access to internal tooling, this public file contains all required
-> instructions.
-
-# Code Review Guidelines
-
-You are a highly experienced code reviewer and architectural verifier
-specializing in the CameraX codebase and Android platform architectures. This
-guide and its **Universal Multi-Model Clean-Context Verification Gate** (Step 5
-& Step 6) apply to all high-stakes and quality-critical deliverables:
-1. **Code Changes & PRs (Code Review & Author Self-Review):** Reviewing local
-   changes, commits ahead of `aosp/androidx-main`, user-provided Git patches, or
-   executing mandatory author self-review before finalizing edits or uploading.
-2. **Issue Investigation & Root-Cause Analysis (Triage Audit):** Diagnosing
-   bugs, test failures, HAL crashes, or architectural questions before
-   delivering a root-cause conclusion.
-3. **Implementation & Architectural Planning (Plan Audit):** Producing an
-   implementation plan, refactoring design, API proposal, or test strategy
-   before presenting it to the user or executing complex changes.
-4. **Test / Verification Result Retrieval & Report Generation (Report
-   Fact-Checking & Accuracy Audit):** Generating analytical reports from device
-   or lab test executions, continuous integration histories, log analyses, or
-   metric queries.
-5. **Open-Ended Trade-Off Analysis, Quirk Scoping & Guideline Updates
-   (Multi-Perspective Synthesis):** Exploring competing architectural solutions
-   ("multi-input synthesis"), auditing empirical `DeviceQuirk` scoping rules,
-   designing complex race/stress tests, or updating KDoc and developer guides.
-
-Focus on identifying potential bugs, race conditions, resource leaks,
-architectural inconsistencies, flawed root-cause reasoning, numeric or factual
-inaccuracies in reports, security vulnerabilities, and code style/readability
-issues.
-
-In addition to analyzing the diff, leverage local environment capabilities:
-- **Context & Architectural Fit:** Never inspect only the modified lines
-  (`git diff`). Read the CameraX codebase widely around the change—including
-  surrounding classes, package/module hierarchies, callers, and sibling
-  implementations—to understand the structural design, each object's single
-  responsibility ("object job"), proper code placement, and whether any
-  existing or unusual code is intentional.
-- **Standards Hierarchy:** Evaluate all changes against the precedence
-  hierarchy (1st: AndroidX correctness & lint checks, 2nd: Android platform &
-  Camera2 specifications, 3rd: Google-wide standards).
-- **Project Rules:** Adhere to the CameraX-specific rules defined in this file
-  (e.g., Kotlin formatting via `ktfmt`, line-length limits, Camera2 API usage,
-  testing fakes over mocks).
-- **Verification:** Compile affected CameraX modules (using `PROJECT_PREFIX`)
-  and run release compiler checks (`runErrorProneRelease`) to verify stability.
-- **Testing:** Identify and run relevant tests (host or device tests) using the
-  guidelines in the "Testing" section below.
-
-Your response or self-review must be detailed, structured, and constructive,
-offering specific, copy-pasteable code suggestions for remediation where
-applicable. Prioritize clarity and conciseness.
-
-# Step by Step Instructions
-
-1.  **Identify Changes:** Determine which files have been modified or added in
-    the `camera/` directory. Inspect `git status`, local commits ahead of
-    `aosp/androidx-main`, or the user-provided patch/diff.
-2.  **Gather Wide Architectural Context:** Do **NOT** limit inspection to the
-    changed lines. For each modified file (especially in CameraX modules), read
-    the full file, surrounding package classes, class hierarchy, and callers to
-    understand:
-    - **Structural Design:** How the layer fits into CameraX's architecture
-      (public API / `UseCase` → internal core / `CameraInternal` →
-      `camera-camera2` / `camera-camera2-pipe` adapter).
-    - **Object Job & Code Placement:** Each class's exact responsibility and
-      whether new logic, state, or helpers are placed in the right object for
-      an elegant, cohesive design.
-    - **Intentional Code & Workarounds:** Check comments, KDoc, git history
-      (e.g., `git --no-lazy-fetch blame -L <start>,<end> <file>`), and sibling
-      implementations to verify whether existing ordering, defensive checks, or
-      workarounds are intentional before modifying or flagging them.
-    - Also read relevant sections in this `AGENTS.md` and, when internal
-      tooling is configured, `AGENTS_INTERNAL.md` (located at
-      `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`).
-3.  **Analyze for Issues (Deep Diagnostic Pass):**
-    *   **Standards Hierarchy Compliance:** Does the change adhere to the
-        precedence hierarchy (1st: AndroidX standards, 2nd: Android platform &
-        Camera2 specifications, 3rd: Google-wide style)?
-    *   **Structural Design, Object Job & Placement Elegance:** Does the change
-        respect each class's single responsibility ("object job") and place
-        logic in the proper architectural layer without leaking domain concerns
-        or breaking intentional workarounds?
-    *   **Functionality & Edge Cases:** Does the code work as intended across
-        all inputs and lifecycle transitions? Are there edge cases with boundary
-        values, nulls, empty collections, zero-dimension bitmaps, or hardware
-        configurations (e.g. `Bitmap.Config.HARDWARE`)?
-    *   **Concurrency & Thread Safety:**
-        - Are shared variables accessed across background executors and test
-          threads properly marked `@Volatile` or protected by atomic types?
-        - When evaluating state transitions inside a `synchronized` block, are
-          all mutable session/resource references read inside the same critical
-          section rather than captured before acquiring the lock?
-        - Do `CountDownLatch` or synchronization primitives guarantee release
-          in `finally` blocks so test runners never hang on timeouts?
-        - Are blocking calls (`get()`, `await()`, thread sleep) strictly
-          avoided on the Main thread / looper?
-    *   **Resource Lifecycle & Leaks:**
-        - Are `ImageProxy` instances deterministically closed (preferring
-          `imageProxy.use { ... }`)?
-        - Are bitmaps recycled (`bitmap.recycle()`)?
-        - Are use cases unbound (`cameraProvider.unbind(...)`) in `finally`
-          blocks, and are analyzer callbacks cleared (`clearAnalyzer()`)?
-    *   **API Design, Public Contracts & Deprecations:**
-        - Are public and restricted (`@RestrictTo`) APIs designed properly?
-        - Does the implementation strictly honor the public Javadoc contracts of
-          all entry-point APIs (never silently overriding user-provided
-          configurations during normal operations, and never leaking parameters
-          that a query API documents as ignored)?
-        - Avoid introducing deprecated APIs paired with
-          `@Suppress("DEPRECATION")` when modern replacements exist (e.g. prefer
-          `ResolutionSelector` over `setTargetResolution`).
-    *   **Security & Permissions:** Are required Android permissions requested
-        via `GrantPermissionRule`? Does storage access comply with Scoped
-        Storage (API 29+ MediaStore vs. pre-29 public directories)?
-    *   **Style, Readability & Line Lengths:**
-        - Strictly enforce line length limits: **80 characters** for markdown
-          documentation and `AGENTS.md`, **72 characters** for Git commit
-          messages, and **100 characters** for Kotlin source code.
-        - Ensure idiomatic Kotlin (clean string templates, multiline strings via
-          `trimIndent()`, avoidance of brittle `.format()` concatenations).
-        - Verify Kotlin formatting using `./gradlew :ktCheckFile --format`.
-    *   **Consistency:** Are naming conventions, error handling patterns, and
-        logging mechanisms consistent (preferring `androidx.camera.core.Logger`
-        over ad-hoc `android.util.Log` unless justified)?
-    *   **Testing Coverage:**
-        - Are there sufficient tests covering happy paths, negative paths,
-          boundary thresholds, and error states?
-        - Are tests using fluent Google `Truth` assertions (`assertThat`) and
-          fakes instead of mocks?
-4.  **Verify Locally:** Execute local compilation, unit tests, and
-    non-interactive repohooks
-    (`timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null` /
-    `runErrorProneRelease`) to validate build and pre-submit stability.
-5.  **Formulate Structured Feedback & Deliverable-Specific Audit Checklists:**
-    Organize code review feedback into clear, prioritized sections, and apply
-    the mode-specific audit criteria matching the active deliverable:
-    *   **Mode 1 — Code Review (`git diff`):**
-        - **Summary of Changes**: High-level overview of the patch.
-        - **Critical & High-Priority Issues**: Potential bugs, race conditions,
-          resource leaks, and build/test breakers.
-        - **Medium-Priority Issues**: Robustness improvements, modern API
-          migrations, and design antipatterns.
-        - **Style & Formatting**: Line-length violations, Kotlin idioms, and
-          documentation wrapping.
-        - **Testing & Coverage**: Missing test cases or assertion improvements.
-        - Provide **concrete, copy-pasteable replacement code snippets** for
-          each issue, verifying wide codebase context, single responsibility
-          ("object job"), preservation of intentional workarounds, AndroidX /
-          Kotlin guidelines, and concurrency/lifecycle safety.
-    *   **Mode 2 — Issue Investigation & Root-Cause Triage (Triage Audit):**
-        - **Anti-Confirmation-Bias Check**: Verify the raw logcat, stack trace,
-          or test log slice from the beginning; confirm the claimed root cause
-          is the *first* causal failure, not a downstream symptom.
-        - **Code & Blame Verification**: Open every cited `file:line` in CameraX
-          and surrounding callers to verify the code actually behaves as
-          claimed.
-        - **Rubric Classification Audit**: Verify whether the diagnosis properly
-          maps to Section 6 (Step 1 Internal Contract vs. Step 2 Platform Spec
-          vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B Test-Only Constraint) or
-          a physical test fixture/environment defect.
-    *   **Mode 3 — Implementation & Architectural Planning (Plan Audit):**
-        - **Architectural Fit & Object Job**: Read all target classes, callers,
-          and sibling implementations; verify each proposed change belongs in
-          the right layer and class.
-        - **Completeness & Edge Cases**: Check lifecycle teardown, multi-stream
-          combinations (`StreamSharing`, RAW+JPEG), thread/dispatcher
-          confinement, public API/ABI compatibility, and missing test coverage.
-    *   **Mode 4 — Test / Verification Result Reports & Data Summaries (Report
-        Fact-Checking & Accuracy Audit):**
-        - **Strict Numeric & Math Reconciliation**: Re-count total targets,
-          passed devices, failed devices, and skipped/unallocated devices
-          directly from the raw test runner output; verify all table row and
-          column totals sum up accurately.
-        - **Target & Device Name Accuracy**: Verify target and device name
-          parsing, camera lens facing tags, and module disambiguation, and
-          confirm every test run URL and issue tracker ID matches the raw output
-          verbatim (zero hallucinated or transposed IDs).
-        - **Failure Attribution Audit**: Verify that infrastructure and fixture
-          failures (device offline or disconnected, test runner timeouts, APK
-          installation or storage errors, unpowered/dark test enclosure) are
-          strictly separated from real JUnit/CameraX assertion failures, and
-          that baseline comparisons accurately distinguish new regressions from
-          pre-existing failures.
-    *   **Mode 5 — Open-Ended Trade-Offs, Quirk Scoping & Test/Doc Synthesis
-        (Multi-Perspective Quality Audit):**
-        - **Competing Design Trade-Offs**: When multiple valid solutions exist,
-          compare independent model perspectives to select the most idiomatic,
-          minimal-complexity design before implementation.
-        - **Quirk Precision & Test Determinism**: Verify that proposed
-          `DeviceQuirk` mappings avoid magic heuristics, check OS version
-          ceiling persistence (Section 6.E), and confirm new async/stress tests
-          use deterministic synchronization without `Thread.sleep()`.
-        - **Documentation & KDoc Integrity**: Confirm public API docs and guide
-          updates are accurate, wrapped at 80 characters, and 100% public-safe.
-6.  **Universal Clean-Context Multi-Model Verification Loop (Canonical Gate —
-    Autonomous Convergence, Default 3 Rounds / Auto-Scale up to 5 Rounds):**
-    During investigation and solution design (before committing to a fix
-    design) and again before delivering any finalized review, code change,
-    root-cause investigation, implementation plan, test verification report, or
-    complex technical recommendation, run both an in-context completeness check
-    and, by default, this canonical clean-context multi-model
-    verification-and-correction loop (note: when `AGENTS_INTERNAL.md` Phase 4
-    is present, it supplies internal model-routing/CLI commands and
-    programmatic loop runners but **never** relaxes the verification gates,
-    zero-priming rules, or convergence exit criteria below):
-    *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
-        - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
-          (Mandatory by Default)**: Automatically trigger for (1) Code Review /
-          Pre-Upload Self-Review, (2) Issue Investigation / Root-Cause Triage,
-          (3) Implementation & Architectural Planning, (4) Test / Verification
-          Reports & Data Summaries, and (5) Open-Ended Design Trade-Offs, Quirk
-          Scoping, Complex Test Synthesis, or any task where high quality or
-          multiple independent perspectives can uncover a better solution.
-          - *Checkpoint 1 — Hard Pre-Coding Investigation & Design Gate (Before
-            Implementing Production Fixes or Finalizing Any Plan/Triage):*
-            When investigating a non-trivial bug, race condition, HAL failure,
-            or multi-class change, you may add temporary diagnostic logging or
-            write a failing reproduction test first (staging their output as
-            raw evidence), but do **not** implement the production fix or
-            finalize an investigation/plan without running this gate first.
-            Spawn independent clean-context cross-family verifiers (Modes 2, 3,
-            and 5) to explicitly verify: (a) the true first causal failure in
-            the raw logs, (b) the **Section 6.A User-Impact vs. Test-Only Gate**
-            (rejecting test-only workarounds when real application users can
-            trigger the issue in library code), and (c) **Deep-Module
-            Simplicity & Object Job** (selecting the simplest minimal-state
-            design before coding the fix).
-          - *Checkpoint 2 — Deterministic Pre-Gate & Recursive Post-Fix
-            Convergence Audit:* Run deterministic checks first—formatting
-            (`./gradlew :ktCheckFile --format`), compilation/ErrorProne, and
-            relevant unit tests—*before* spawning clean-context verifiers (and
-            after every fix pass) so reviewers focus 100% on logic, concurrency,
-            and architecture rather than syntax or build noise. Then run the
-            clean-context verification loop (Modes 1–5), autonomously applying
-            fixes and re-verifying in fresh clean contexts until the
-            convergence exit gate is satisfied (`0` `OPEN`
-            `Critical`/`High`/`Medium` or factual/architectural issues, `0`
-            `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT` items).
-        - **Skip (Lightweight Direct Execution)**: Skip for simple, single-step
-          operational commands or status checks (e.g., listing devices, checking
-          device status, initializing a workspace, or answering a trivial
-          factual question) where no analytical report, plan, root-cause
-          conclusion, or code diff is being delivered.
-    *   **Runtime Capability Detection, Live Model Query & Notification:** Check
-        whether the agent console/harness supports spawning independent
-        sub-agents across distinct model families or tiers (see
-        `AGENTS_INTERNAL.md` when configured).
-        - **Prefer Cross-Family Multi-Model Verification Over Same-Family
-          Tiers:** Do **not** default to different reasoning tiers of the same
-          model family if the harness (or `AGENTS_INTERNAL.md` when configured)
-          supports dispatching or dynamically registering verifier sub-agents
-          across genuinely distinct model families. Fall back to same-family
-          reasoning tiers only when cross-family model selection is unavailable
-          in the current environment.
-        - **Author vs. Verifier Model Specialization & Opposite-Family-First
-          Routing:** Read-only post-hoc reviews alone cannot turn a flawed
-          initial architecture into clean code if the primary authoring model
-          repeatedly patches around its own design. When multiple model families
-          are available in the harness (see `AGENTS_INTERNAL.md` when
-          configured):
-          1. *Phase-Matched Authoring:* Use high-throughput search/tool models
-             for fast codebase exploration, log/query ingestion, and test
-             runner execution, and switch the active coordinator model in-place
-             (or delegate to a dedicated coding/architect worker) on the
-             strongest available coding/architecture model family *before*
-             designing and authoring non-trivial Kotlin/Java state-machine or
-             concurrency changes.
-          2. *Opposite-Family-First Round 1 (`R1`):* Never start Round 1 (`R1`)
-             on the **same** model family as the active code/draft author when a
-             cross-family model has available quota. Always assign Round 1
-             (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to the
-             **opposite** model family from the author so correlated same-family
-             blind spots are broken immediately on the first pass.
-        - **Zero-Cost Live Catalog & Quota Query:** When the harness provides a
-          lightweight model-catalog or quota query (zero token cost), always
-          query the live catalog before Round 1 to dynamically select the latest
-          available quota-sustainable model in each model family. For daily
-          quota-limited model families, match the reasoning tier to task
-          complexity: select a high-reasoning tier for complex code changes,
-          concurrency/lifecycle audits, deep root-cause investigations, or
-          architectural plans, and select a medium/standard tier for routine or
-          lightweight tasks (e.g., documentation edits, simple test/quirk
-          updates, or numeric test report fact-checking), while avoiding
-          quota-heavy maximum tiers unless explicitly requested.
-        - **Automatic User Notification:** Inform the user of the active
-          verification mode and the models/tiers selected:
-          - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
-            verifier sub-agents across distinct model families.
-          - `TIER_MULTI_MODEL`: Spawning independent verifier sub-agents across
-            distinct reasoning tiers within a single model family (used only
-            when cross-family model selection is unavailable).
-          - `SINGLE_MODEL_FRESH_CONTEXT`: Spawning independent verifier
-            sub-agents with a clean context on the current model.
-          - `IN_CONTEXT_FALLBACK` (`UNSUPPORTED`): Falling back to single-agent
-            in-context verification.
-    *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
-        Because clean-context verifiers start with zero conversation history:
-        - For **Code Review (Mode 1)**, verifiers inspect `git status` / `git
-          diff` / `git show` and full surrounding source files in the workspace
-          directly (never pass only an incremental delta since the last round).
-        - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
-          MUST write:
-          1. The **Full Updated Draft Deliverable** (e.g.,
-             `<scratch_or_tmp>/draft_deliverable.md`) AND
-          2. The **Raw Evidence / Source Data** (or exact file paths to raw CLI
-             or test runner outputs, saved log slices, and source `file:line`
-             references)
-          so each clean-context verifier can independently cross-examine the
-          complete draft against the raw ground truth without anchoring bias.
-    *   **Zero-Priming ("Second-Console") Briefs, Orthogonal Critic Lenses,
-        Shared-Board Isolation & Per-CL Granularity:**
-        To replicate the bug-finding effectiveness of opening a brand-new AI
-        console on the repository, eliminate all author priming and attention
-        dilution when dispatching verifiers:
-        - **Zero Author Narrative in All Verifier Briefs (Modes 1–5)**: In every
-          verifier brief, include: (a) the user's original problem statement or
-          bug symptoms verbatim, (b) the workspace path and target `git diff` /
-          `git show` command or raw evidence/draft file paths, and (c) standing
-          onboarding rules (`camera/AGENTS.md` scope invariants and read-only
-          discipline). **Never** include the author's hypothesis, design pitch,
-          rationale for why the fix is right, defect ledger, or a list of prior
-          review items asking the verifier to "confirm the fix is clean"—let
-          the verifier inspect the raw evidence, commit message, and full
-          updated code cold.
-        - **Evidence-First Blind Diagnosis & Two-Turn Read Barrier in Modes
-          2–5**: For non-diff audits (investigations, plans, test reports, and
-          trade-offs), instruct the verifier to read the raw failure logs, query
-          outputs, and surrounding source files **first** in its initial
-          tool-call turn and record its own independent diagnosis or numbers
-          *before* reading `<scratch_or_tmp>/draft_deliverable.md` in a
-          subsequent turn.
-        - **Post-Blind Adjudication Turn (Round 2+):** Only *after* the verifier
-          has posted its independent cold audit, provide it a neutral list of
-          prior `PATCHED_PENDING_REAUDIT` and `DISMISSED_WITH_PROOF` items
-          (location + original finding text only; never the author's rationale)
-          so it can explicitly mark each item `VERIFIED_RESOLVED`, `REGRESSED`,
-          or `UPHELD`/`REJECTED` (where a rejected dismissal returns to `OPEN`).
-        - **Three Orthogonal Hostile Critic Lenses**: Instruct every verifier to
-          audit across three complementary lenses: (1) *Correctness,
-          Concurrency & Lifecycle Invariants* (`@CameraScope` vs.
-          `@UseCaseCameraScope`, lock/dispatcher confinement, `finally`
-          cleanup), (2) *Occam's Razor, Deep Modules & Object Job* (single
-          responsibility, right layer placement, eliminating special-case
-          branching), and (3) *Public API Contract, Caller Parity & Section 6.A
-          User-Impact Gate* (honoring Javadoc contracts, preserving intentional
-          behaviors, and rejecting test-only skips for user-triggerable flows).
-        - **Shared Message Board / Channel Isolation**: In multi-agent board or
-          shared-channel environments, explicitly instruct clean-context
-          verifiers **never** to read prior board messages or earlier verifier
-          threads so their audit remains uncontaminated.
-        - **Per-CL Granularity + Cross-CL Stack Pass (No Batch Dilution)**:
-          Never bundle a multi-CL stack or a large batch of unrelated bug fixes
-          into a single verifier pass. Scope each clean-context verifier worker
-          to **1 logical CL/commit** (or a cohesive unit of related
-          files/issues), spawning parallel per-CL workers when auditing
-          multiple changes, and follow per-CL reviews on a multi-commit stack
-          with **one stack-level integration pass** (`git log -p base..HEAD`)
-          to verify cross-CL contracts and `Multi-Commit Stack Hygiene`.
-    *   **Independent Verifier Onboarding ("New Engineer Brain"):** Each
-        spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`,
-        up to `verifier-r5` when auto-scaling) must start with a clean context
-        (without the author's chain-of-thought) and be instructed to read this
-        `AGENTS.md` (Code Review Guidelines, Step 5 Mode Checklist, Section 6 &
-        Section 8 Rubrics, and Standards Hierarchy), `AGENTS_INTERNAL.md` (if
-        available), the target diff or draft deliverable, the raw evidence
-        files, and the surrounding CameraX codebase widely. Read-only verifiers
-        must never edit files, switch `git` branches, or run parallel
-        `./gradlew` builds.
-    *   **Autonomous Multi-Round Convergence Loop (Default 3 Rounds / Auto-Scale
-        up to 5 Rounds, Ephemeral Defect Ledger, Priority Repair &
-        Anti-Oscillation):**
-        1. *Autonomous Multi-Turn Execution (No Conversational Yielding Between
-           Rounds):* Never pause to ask the user for permission between
-           intermediate review-and-fix rounds. Autonomously execute the state
-           machine (`Spawn Clean-Context Verifier -> Triage & Priority-Fix ->
-           Pattern Sweep & Deterministic Gate -> Spawn Next Clean-Context
-           Verifier`) in a continuous loop until the convergence exit gate is
-           satisfied.
-        2. *Ephemeral Convergence Defect Ledger
-           (`<scratch_or_tmp>/convergence_ledger.md`):* To prevent context
-           compaction or memory drift across rounds, maintain a state-machine
-           ledger in a scratch/temp file (never committed to the repository and
-           never shown to verifiers during their initial cold audit) tracking
-           every finding across rounds:
-           - `OPEN (R{n})` -> `PATCHED_PENDING_REAUDIT (v{n+1})` ->
-             `VERIFIED_RESOLVED (R{n+1})` or `REGRESSED (R{n+1})`
-           - `REVERTED_VERIFICATION_FAILURE` (when a candidate fix breaks
-             compilation or tests: revert immediately, log the failed approach
-             so later rounds do not re-attempt it, and return the finding to
-             `OPEN` so it still blocks the exit gate until an alternative fix
-             lands, it is `DISMISSED_WITH_PROOF` and `UPHELD`, or it is marked
-             `ESCALATED` to the user)
-           - `DISMISSED_WITH_PROOF` (requires exact `file:line` or specification
-             proof; must be adjudicated in Round `n+1`'s Post-Blind Adjudication
-             Turn as `UPHELD` or `REJECTED` -> `OPEN`)
-           - `ESCALATED` (unresolved trade-off or stalled defect surfaced to the
-             user after reaching the cap or failing progress)
-        3. *Priority-Ordered Repair (`P0 -> P1 -> P2 -> P3`) & Cross-Diff
-           Pattern Sweep:* Within each fix pass, apply fixes in priority order:
-           `P0 Architectural/Lifecycle` -> `P1 Functional/Concurrency` -> `P2
-           Local Logic` -> `P3 Style/Polish` so rounds are never wasted
-           polishing code that is about to be restructured. Whenever a bug
-           pattern is fixed at one site, sweep the entire diff/stack and
-           surrounding class for all instances of the same anti-pattern and fix
-           them in the same pass before re-running deterministic checks and
-           spawning the next verifier round.
-        4. *Dynamic 3-to-5 Round Scaling & Hard Convergence Exit Gate:*
-           - **Rounds 1 -> 2 -> 3 (Baseline Cross-Family Chain):** Spawn fresh
-             clean-context verifiers across distinct model families/tiers
-             (`verifier-r1` -> fix -> `verifier-r2` -> fix -> `verifier-r3`).
-           - **Hard Convergence Exit Gate:** Convergence is achieved **only**
-             when the latest clean-context verifier round reports **`0` `OPEN`
-             (`Critical` / `High` / `Medium` or factual/architectural) issues,
-             `0` `REGRESSED` issues, `0` `PATCHED_PENDING_REAUDIT` items, AND
-             `0` unadjudicated `DISMISSED_WITH_PROOF` items** in the ledger
-             (every semantic edit applied in Round `n` must be confirmed
-             `VERIFIED_RESOLVED` in Round `n+1`, and any dismissal in the final
-             round receives the `+1` focused check or is marked `ESCALATED`).
-           - **Auto-Extension (Rounds 4–5 While Fixes Are Converging):** If
-             Round 3 (or Round 4) applies a valid semantic fix
-             (`PATCHED_PENDING_REAUDIT`) that actively reduces open defects
-             without oscillating (`progress_made == true`, meaning the count of
-             open `Critical`/`High`/`Medium` items decreased from the prior
-             round or all prior `PATCHED_PENDING_REAUDIT` items resolved without
-             new regressions), **automatically extend the loop up to 5 rounds**
-             (`verifier-r4`, `verifier-r5`, cycling across model families) so
-             post-fix changes are audited to true convergence. Otherwise (if a
-             semantic fix was applied with `progress_made == false`), or if
-             Round 5 still requires a semantic edit, run at most **1 focused
-             post-fix clean-context check**; if any `Critical`/`High`/`Medium`,
-             `PATCHED_PENDING_REAUDIT`, or unadjudicated item remains, stop and
-             mark the remaining items `ESCALATED` to the user (never deliver as
-             converged while `PATCHED_PENDING_REAUDIT` > 0).
-        5. *Recursive Post-Edit Re-Verification Invariant (Parallel !=
-           Sequential; Zero Unverified Semantic Edits):*
-           - Running multiple verifiers in parallel on the **same** code or
-             draft snapshot counts as **1 round** (cross-perspective
-             discovery), **not** as sequential verification rounds.
-           - **Every** semantic code or design modification made after a
-             verification round (or during Stage 2 compilation, ErrorProne,
-             lint, test fixing, or rebase conflict resolution) transitions its
-             ledger entry to `PATCHED_PENDING_REAUDIT` and invalidates prior
-             `LGTM` sign-offs. Purely mechanical formatting (`ktfmt` / import
-             ordering) or non-semantic `LOW` comment/typo fixes do not
-             re-trigger a new round, but any semantic edit **must** be followed
-             by a fresh clean-context verification round.
-        6. *Anti-Sunk-Cost Dismissal Rule, Material Change Criteria &
-           Anti-Oscillation Lock:*
-           - The orchestrating agent may **never** silently ignore or discard a
-             verifier's `Critical`, `High`, or `Medium` finding; every such
-             finding must be fixed (`PATCHED_PENDING_REAUDIT`) or explicitly
-             rebutted (`DISMISSED_WITH_PROOF`) with `file:line` evidence in the
-             final user report and adjudicated in the next round.
-           - Reject any Round `n+1` suggestion that contradicts or reverts a
-             prior round's verified fix unless it proves a concrete failure
-             mode (reproducible race, crash, test failure, or API violation) or
-             a new specification constraint. Document non-obvious ordering,
-             lock, or lifecycle invariants in concise inline comments alongside
-             a deterministic regression test so subsequent verifiers see the
-             constraint; if a design choice returns to a previously rejected
-             state (`v1 -> v2 -> v1`), lock the state and surface the trade-off
-             (`ESCALATED`) to the user.
-        7. *Flexible Early Exit:*
-           - **After Round 1 (Routine Non-Code / Doc Deliverables Only):** For
-             routine or low-risk non-code deliverables (e.g., straightforward
-             test result tables or localized doc-only updates) where
-             `verifier-r1` reports `0` `OPEN` issues and `0`
-             `PATCHED_PENDING_REAUDIT` items, exit early after Round 1.
-           - **After Round 2 (Code, Deep Triage, Plans, Trade-Offs & Edited
-             Drafts):** For all production/test code changes (`git diff`),
-             complex investigations/plans, trade-off syntheses (`Mode 5`), or
-             any draft modified after Round 1, run Round 2 on a second model
-             family/tier; stop early after Round 2 only if the ledger has `0`
-             `OPEN` (`Critical`/`High`/`Medium` or factual/architectural)
-             issues, `0` `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT`
-             items.
-    *   **Read-Only Verifier, Search Discipline & Watchdog Recovery:**
-        Verifier sub-agents must never edit repository files, run build/Gradle
-        tasks, or run unbounded `find` / recursive `grep` commands across
-        virtual/network filesystems or the repository root (prefer indexed code
-        search, direct file reads, or path-scoped `git status -- camera/` and
-        `git diff aosp/androidx-main...HEAD -- camera/`). Verifiers must
-        terminate any lingering background shell tasks before exiting so parent
-        sessions never hang waiting on child processes, and orchestrators should
-        use a watchdog timeout to recover if a sub-agent stalls on an orphaned
-        background process (see `AGENTS_INTERNAL.md` when configured).
-7.  **Finalize / Present Deliverable:** Present the verified deliverable (noting
-    the verification mode and rounds completed) or proceed to the pre-upload
-    quality gate before committing or uploading.
-
-***
+> **Before starting ANY task**, identify all matching domains below and call
+> `read_file` (or `view_file`) on each corresponding `SKILL.md` in full:
+>
+> 1. **Code Review, PR Audit, Plan/Report Audit, or Multi-Model Verification**
+>    *(Steps 1-7 & Modes 1-5)* -> Read
+>    `camera/.agents/skills/camerax-code-review/SKILL.md`
+>    ([`camerax-code-review`][skill-review]).
+> 2. **Writing/Modifying Code, API Changes, Refactoring, or Updating Docs**
+>    *(Standards Hierarchy, Development Workflow, & `Skill: CameraX Agent
+>    Guidelines & Experience Capture`)* -> Read
+>    `camera/.agents/skills/camerax-guidelines-governance/SKILL.md`
+>    ([`camerax-guidelines-governance`][skill-gov]).
+> 3. **Writing/Running Unit (Robolectric) or Device (`androidTest`) Tests,
+>    Debugging Leaks, or Migrating Tests Across the Test Pyramid**
+>    *(`Testing` & `Skill: CameraX Troubleshooting & Code Verification`
+>    Sections 1-4 & Section 9)* -> Read
+>    `camera/.agents/skills/camerax-testing/SKILL.md`
+>    ([`camerax-testing`][skill-test]).
+> 4. **Bug Triage, Device-Specific Failures, `Quirk` Scoping, or Hardware
+>    Capability Abstraction** *(`Skill: CameraX Troubleshooting & Code
+>    Verification` Sections 5, 6 (`6.A`-`6.G`), 7, & 8)* -> Read
+>    `camera/.agents/skills/camerax-triage-and-quirks/SKILL.md`
+>    ([`camerax-triage-and-quirks`][skill-triage]).
+>
+> **Zero-Checkout / Remote Fallback**: If operating without a local checkout of
+> `frameworks/support`, fetch any required skill file via Gitiles HTTPS:
+> `https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/camera/.agents/skills/<skill-name>/SKILL.md`
+> (or `curl -sf "<url>?format=TEXT" | base64 -d`).
+>
+> **Optional Internal Companion**: When `$CAMERAX_INTERNAL_TOOLS_DIR` is set and
+> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` is present (or if unset and a
+> `code_search` tool is available in the environment, by querying
+> `f:camerax.*AGENTS_INTERNAL\.md$`), also read `AGENTS_INTERNAL.md` (and its
+> modular skills in the sibling `skills/` directory) for supplementary internal
+> guidelines and physical lab runner workflows.
 
 # Project: CameraX
 
 ## Standards & Guidelines Hierarchy
 
-When writing new code, reviewing existing code, or fixing bugs in
-CameraX, agents **MUST** actively read and strictly adhere to the relevant
-guidelines, style guides, and correctness checks before modifying code,
-following the precedence order (AndroidX → Android Platform → Google-Wide).
-
-### Automatic Recursive Index & Reference Traversal Protocol:
-When directed to an index page, directory list, or guide linking to sub-guides
-(such as `docs/api_guidelines/index.md`, web style directories like
-`https://google.github.io/styleguide/`, or API reference landing pages), agents
-**MUST follow this recursive ingestion protocol**:
-
-1. **Read Root Index**: Execute `view_file` (for local files) or
-   `read_url_content` (for web URLs) on the root index document.
-2. **Extract Child References**:
-   - For in-repo files with `<!--#include file=".../(?<file>.*\.md)"-->` or
-     links `[...](<relative_path>.md)`: extract all referenced markdown paths
-     (e.g., `kotlin.md`, `checks.md`, `async.md`, `annotations.md`,
-     `compat.md`).
-   - For web index pages with `<a>` links or markdown URLs: extract all relevant
-     sub-topic links.
-3. **Recursive Ingestion**:
-   - Sequentially invoke `view_file` on each extracted in-repo markdown file
-     (e.g., in `docs/api_guidelines/`).
-   - Sequentially invoke `read_url_content` on each extracted child URL relevant
-     to the current task (e.g., Kotlin style guide, Java style guide).
-4. **Complete Ingestion Verification**: Ensure all pertinent rules, constraints,
-   and code examples from child documents are loaded into active context before
-   generating code edits or writing review comments.
-
-### Precedence Order:
+When writing new code, reviewing existing code, or fixing bugs in CameraX,
+agents **MUST** actively read and strictly adhere to the relevant guidelines,
+style guides, and correctness checks in this precedence order (full recursive
+traversal protocol in [`camerax-guidelines-governance`][skill-gov]):
 
 1. **1st Priority — AndroidX Standards & Correctness Checks**:
-   - **AndroidX Library & API Guidelines**: Follow
-     [`docs/api_guidelines/index.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/)
-     (recursively read constituent topic files: `kotlin.md`, `checks.md`,
-     `async.md`, `annotations.md`, `compat.md`).
-   - **Kotlin in AndroidX**: Follow
-     [`docs/api_guidelines/kotlin.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/kotlin.md)
-     for nullability annotations (JSpecify), data class restrictions in public
-     APIs, exhaustive `when`, and Flow return types.
-   - **Asynchronous & Non-Blocking Guidelines**: Follow
-     [`docs/api_guidelines/async.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/async.md)
-     for Coroutines, Flow, and `ListenableFuture` conventions.
-   - **Correctness & Linting Checks**: You **MUST** reference and follow
-     [`docs/api_guidelines/checks.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/checks.md)
-     for lint rules, call-site suppression practices, and baseline policies.
-   - **Public API Rules**: Strict adherence to `@RestrictTo(LIBRARY_GROUP)`
-     and `./gradlew <project>:updateApi` procedures.
-
+   - [`docs/api_guidelines/index.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/)
+     (recursively read `kotlin.md`, `checks.md`, `async.md`, `annotations.md`,
+     `compat.md`).
+   - Strict adherence to `@RestrictTo(LIBRARY_GROUP)` and
+     `./gradlew <project>:updateApi`.
 2. **2nd Priority — Android / AOSP Platform Guidelines**:
-   - **Android Platform API Guidelines**: Follow the [Android Platform API
-     Guidelines](https://source.android.com/docs/setup/contribute/api-guidelines).
-   - **Android Kotlin-Java Interoperability**: Follow the [Android Developers
-     Kotlin-Java Interop Guide](https://developer.android.com/kotlin/interop)
-     for seamless Java/Kotlin cross-language support.
-   - **Android Kotlin Style Guide**: Follow the [Android Kotlin Style
-     Guide](https://developer.android.com/kotlin/style-guide)
-     for formatting, naming conventions, and idiomatic constructs.
-   - **AOSP Java Code Style**: Follow the [AOSP Java Style
-     Guide](https://source.android.com/docs/setup/contribute/code-style)
-     for Java code formatting and naming conventions.
-   - **Camera2 Framework Contracts**: Adhere strictly to the official
-     [Android Camera2 API specifications](https://developer.android.com/reference/android/hardware/camera2/package-summary).
-
+   - [Android Platform API Guidelines](https://source.android.com/docs/setup/contribute/api-guidelines),
+     [Kotlin-Java Interop Guide](https://developer.android.com/kotlin/interop),
+     [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide),
+     [AOSP Java Style Guide](https://source.android.com/docs/setup/contribute/code-style),
+     and [Android Camera2 API specifications](https://developer.android.com/reference/android/hardware/camera2/package-summary).
 3. **3rd Priority — Google-Wide Engineering Standards**:
-   - **Google Style Guides Index**: Refer to the
-     [Google Style Guides](https://google.github.io/styleguide/).
-   - **Kotlin Style Guide**: Follow the Google-adopted
-     [Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
-     referenced by the Google Style Guides index.
-   - **Google Java Style Guide**: Follow the [Google Java Style
-     Guide](https://google.github.io/styleguide/javaguide.html).
-   - **Idiomatic Coding Practices**: Prioritize clean, expressive, functional
-     designs, avoiding excessive allocations or unnecessary synchronization.
-
-> [!NOTE]
-> **Document Relationship for Internal Contributors**: `camera/AGENTS.md` is
-> the primary public baseline for code architecture, style, and lint policies.
-> When operating in an environment where internal tools are configured, refer
-> to `AGENTS_INTERNAL.md` (located at
-> `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`), which serves as an
-> optional internal extension providing supplementary coding guidelines,
-> documentation links, and physical lab test runner commands.
+   - [Google Style Guides](https://google.github.io/styleguide/) and
+     [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
 
 ## General Instructions:
 
@@ -624,1107 +102,122 @@ When directed to an index page, directory list, or guide linking to sub-guides
   configuration, e.g.,
   `PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble`.
 
-## Development Workflow & Refactoring:
 
-- **Pre-Flight Upstream Sync & AOSP Feature Branch Creation (`repo start` vs.
-  `git branch`)**:
-  - Before starting root-cause analysis or creating a feature branch, fetch the
-    latest upstream manifest branch (`git fetch aosp androidx-main`) and check
-    recent CameraX commits
-    (`git log --oneline HEAD..aosp/androidx-main -- camera/`). If upstream
-    commits recently touched the target files or bug, sync first
-    (`repo sync -c -j8 .`) to avoid duplicate fixes or rebase conflicts.
-  - Prefer using `repo start <branch_name> .` when creating a new feature
-    branch in the AOSP repository. `repo start` automatically establishes
-    upstream tracking against the manifest remote (`aosp/androidx-main`),
-    ensuring seamless integration with `repo upload`.
-  - If creating a branch via `git checkout -b <branch_name>`, always explicitly
-    configure upstream tracking immediately:
-    `git branch --set-upstream-to=aosp/androidx-main <branch_name>`.
-- **Backend Architecture & CameraPipe Migration (`Camera2Config`)**:
-  - **CRITICAL ARCHITECTURAL CONTEXT**: The `camera-camera2` implementation
-    module has been migrated to use `camera-camera2-pipe` (CameraPipe) as its
-    underlying backend engine.
-  - While public entry points like `Camera2Config.defaultConfig()` retain the
-    `Camera2` naming for backward compatibility with existing applications, they
-    instantiate a `CameraFactoryProvider` backed by `CameraPipe` (`CameraGraph`,
-    `Camera2CameraController`, `Camera2DeviceManager`).
-  - **DO NOT** assume `Camera2Config` implies the legacy pre-migration Camera2
-    pipeline or that CameraPipe is an optional or experimental alternative;
-    CameraPipe **is** the default active engine driving `camera-camera2`.
-  - When debugging device quirks, capture session lifecycle, or frame streaming
-    issues, look for CameraPipe concepts (`CameraGraph.Config`, `CXCP` logcat
-    tags, `Camera2DeviceCloser`, `CloseCameraDeviceOnCameraGraphCloseQuirk`)
-    within `camera-camera2`.
-  - **Module Ownership & Lifecycle Scope Invariants (`@CameraScope` vs.
-    `@UseCaseCameraScope`)**:
-    - Prioritize fixing CameraX use-case, surface, and session contracts in
-      `camera-camera2` or `camera-core` before modifying low-level
-      `camera-camera2-pipe` primitives.
-    - Distinguish `@CameraScope` components (`CameraInternalAdapter`,
-      `UseCaseManager`, which live across the camera's lifetime) from
-      `@UseCaseCameraScope` components (`UseCaseCamera`,
-      `UseCaseSurfaceManager`, `CameraGraph`, which are recreated per binding
-      session).
-    - Distinguish **partial UseCase re-binding** (`useCases` remains non-empty
-      and surfaces migrate across consecutive `UseCaseCamera` instances) from
-      **full unbind / teardown** (`useCases.isEmpty()` or `close()`). Never tie
-      camera-wide surface/resource teardown to a single transient
-      `@UseCaseCameraScope` session without guarding against stale callbacks
-      cancelling newly active sessions.
-- **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
-  modifying or creating code, agents MUST use `view_file` to read the relevant
-  local guideline files into active context. When encountering index pages,
-  summaries, or links to companion documents, agents MUST recursively follow
-  and read the referenced files directly:
-  - For Kotlin coding and API design: read `docs/api_guidelines/kotlin.md`
-  - For linting and suppression policies: read `docs/api_guidelines/checks.md`
-  - For coroutines, Flow, and threading: read `docs/api_guidelines/async.md`
-  - For index pages (e.g. `docs/api_guidelines/index.md` or style guide lists):
-    follow and read the specific linked sub-guides applicable to the current
-    task.
-- **Language**: Prefer Kotlin to Java for new files. When migrating files,
-  convert them from Java to idiomatic Kotlin following AndroidX and Android
-  Kotlin-Java interop guidelines.
-- **Coding Style & Elegance**: Adhere to the code style guides in precedence
-  order: AndroidX (`docs/api_guidelines/kotlin.md`), Android Kotlin Style Guide,
-  and Google Kotlin/Java Style Guides.
-- **API Design**: For public API design, follow the [Android API
-  guidelines](https://source.android.com/docs/setup/contribute/api-guidelines)
-  and the
-  [AndroidX API guidelines](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/).
-  New APIs should prioritize Kotlin users over Java users while still ensuring
-  they are easy to use from Java. For more details, see
-  https://developer.android.com/kotlin/interop.
-- **New Public APIs**: If a new public API needs to be added and the current
-  project version is not an alpha version (e.g., it is in beta or rc), do NOT
-  bump the version yourself. Instead, mark the new API with
-  `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` comment right
-  above it with the bug ID, e.g.,
-  `// TODO: b/1234567 - Make this public in next alpha`.
-- **Public API Contract Fidelity (Honoring User Configs & Documented
-  Invariants)**:
-  - Before modifying internal plumbing, adapters, or simulators, always inspect
-    the public Javadoc of all entry-point APIs (`CameraInfo`, `CameraXConfig`,
-    `SessionConfig`, `UseCase` builders) that feed into that code path.
-  - **Never Violate Public Contracts as a Shortcut**: When fixing edge-case
-    configurations, never silently override, ignore, or repurpose user-provided
-    configurations (such as custom `Executor`s, `Handler`s, selectors, dynamic
-    ranges, or callbacks) during normal operations in a way that contradicts
-    their public Javadoc. Scope any internal workaround strictly to the specific
-    lifecycle phase that requires it (e.g., async teardown).
-  - **Enforce Documented Query & Simulation Isolation**: When a public
-    capability or query API documents that specific settings on an input config
-    are ignored (e.g., `CameraInfo.getSupportedFrameRateRanges(SessionConfig)`
-    ignoring a target frame rate already set on `SessionConfig`), ensure
-    internal simulators and calculators strip or bypass those settings so they
-    cannot leak into and constrain the query result.
-- **Linting & Correctness Checks**: Ensure code quality and adherence to
-  AndroidX standards by running `./gradlew <project>:lintRelease` after
-  completing a meaningful set of changes. Developers and reviewers **MUST**
-  reference and adhere to
-  [`docs/api_guidelines/checks.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/checks.md)
-  for suppression rules and baseline policies.
-- **Code Elegance & Idiomatic Design**: After implementing a functional solution
-  and passing tests, always conduct an elegance review across all code changes:
-  - **Wide Structural Design, Object Job & Code Placement**: Never evaluate only
-    the modified lines. Read the surrounding CameraX classes, package structure,
-    and callers widely to verify each class's single responsibility ("object
-    job"), confirm new logic is placed in the right object/layer, and ensure any
-    intentional existing behavior or workaround is preserved.
-  - Prefer idiomatic Kotlin functional operations (e.g., `.filter`, `.map`,
-    `.filterNotNull()`) over verbose imperative loops where appropriate.
-  - **Deep Modules & Eliminating Special Cases**: Favor deep modules (simple,
-    general-purpose interfaces hiding complex internal state), separate
-    general-purpose core mechanisms from special-purpose policies/quirks, and
-    design normal state transitions (e.g., empty collections, idempotent
-    teardown) to handle edge conditions naturally without special-case
-    branching, duplicate conditions, or dead code paths.
-  - **Thread-Aware Initialization (`lazy` vs. Eager)**: Evaluate the use of
-    `by lazy` on a case-by-case basis considering the component's lifecycle and
-    calling threads:
-    - If a property might be accessed on the main thread (e.g., public query
-      methods), but its initialization involves waiting on asynchronous
-      operations or heavy metadata loading, avoid `by lazy` because first
-      access on the main thread could cause jank or blocking. If the enclosing
-      class is constructed during a background initialization phase (e.g.,
-      CameraX background init worker like `CameraInfoAdapter`), prioritize
-      eagerly initializing that data in the background constructor, documenting
-      the background thread-safety clearly in comments.
-    - Conversely, use `by lazy` when initialization is genuinely deferred for
-      optional or rarely accessed code paths, or when initialization is
-      lightweight and safe on any calling thread.
-  - Extract complex logic into well-named private helper functions for maximum
-    readability.
-- **Dependency & Constructor Simplification**: For lightweight compatibility
-  layers, wrappers, or utility classes, prefer instantiating internal helper
-  dependencies internally (rather than passing them as constructor parameters)
-  to keep the API clean and reduce boilerplate for callers, provided it does
-  not hinder testability. Avoid over-engineering constructors with parameters
-  that are primarily implementation details of the class.
-- **Regression Prevention**: Scan the codebase and analyze the impact of your
-  changes on related components to ensure no potential regressions are
-  introduced.
-- **Refactoring & Caller Updates**: When modifying the signature or behavior of
-  a class, constructor, or method (especially public or internal APIs used
-  across modules), you **MUST** actively scan the codebase to identify and
-  update all callers and corresponding usages. Verify that all affected modules
-  compile successfully. Be thorough and ensure you update:
-  a. Production code callers.
-  b. Host-side unit tests (typically under `src/test/`).
-  c. Device-side integration/instrumented tests (typically under
-     `src/androidTest/`).
-- **Documentation & KDoc Updates**: When modifying a class, interface, method,
-  or property (especially when changing constructor signatures, parameters, or
-  public/internal behaviors), always review and update its KDoc/JavaDoc. Ensure
-  the documentation accurately reflects the new behavior and signature.
-- **Camera2 API Usage**: When writing code that utilizes Android Camera2 APIs
-  (directly or indirectly, including modifying behavior that relies on them),
-  always revisit the official
-  [Android Camera2 API reference](https://developer.android.com/reference/android/hardware/camera2/package-summary)
-  to check the API usage guidelines and contracts before finalizing the code
-  change, ensuring all usage aligns with the framework's design.
-- **Upfront Multi-Model Root-Cause & Solution Exploration (Step 6 Checkpoint 1
-  Gate)**:
-  When investigating a non-trivial bug, concurrency race, HAL/codec failure, or
-  architectural change, do **not** jump from a single model's first hypothesis
-  straight to implementing production fix code. Execute **Step 6 Checkpoint 1**
-  (Modes 2, 3, and 5—with evidence-first blind diagnosis, the Section 6.A
-  User-Impact vs. Test-Only Gate, and Deep-Module Simplicity) before coding the
-  fix or finalizing any plan, followed by **Step 6 Checkpoint 2** and Stage 2
-  verification on the resulting diff.
-- **Mandatory Two-Stage Verification & Pre-Upload Quality Gate**:
-  Never skip verification or declare a task complete without executing both
-  stages:
-  - **Stage 1: Pre-Finalization Deep Self-Review & Universal Multi-Model
-    Verification Loop**:
-    Before declaring any code modification, root-cause investigation,
-    implementation plan, test verification report, or design trade-off /
-    quirk-scoping synthesis complete, agents **MUST** conduct a full diagnostic
-    audit against the **Code Review Guidelines** at the top of this file,
-    including the **Universal Clean-Context Multi-Model Verification Loop** in
-    Step 5 & Step 6:
-    1. *Wide Structural Design, Object Job & Intentionality:* Read surrounding
-       CameraX classes widely (not just changed lines) to verify structural
-       design, object responsibility, code placement elegance, and preservation
-       of intentional code.
-    2. *Concurrency & Latches:* Latches guaranteed release in `finally`, no Main
-       thread blocking.
-    3. *Resource Leaks:* `imageProxy.use { ... }`, bitmap recycling,
-       `clearAnalyzer()`, use cases unbound in `finally`.
-    4. *Modern APIs:* No deprecated API usage paired with
-       `@Suppress("DEPRECATION")` when modern replacements exist.
-    5. *Strict Line Lengths:* 80 chars for markdown, 72 chars for commit body,
-       100 chars for Kotlin.
-    6. *Default Multi-Model Verification Loop (Step 6 Checkpoint 1 & Checkpoint
-       2):* Run deterministic checks (`ktfmt`, compile, unit tests) before
-       spawning verifiers and execute the canonical Step 6 autonomous
-       convergence loop (cross-family verifiers, zero-priming briefs, two-turn
-       read barrier, per-CL + stack-level granularity, ephemeral defect ledger,
-       and priority repair with pattern sweep until the latest round reports `0`
-       `OPEN`, `0` `REGRESSED`, `0` `PATCHED_PENDING_REAUDIT`, and `0`
-       unadjudicated `DISMISSED_WITH_PROOF` items). If Stage 2 requires any
-       semantic code fix, loop back to Stage 1 (counting toward the same 5-round
-       cap) before uploading.
-  - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
-    Before committing or uploading a CL (`repo upload`), you **MUST** execute:
-    1. **Kotlin Formatting**:
-       `./gradlew :ktCheckFile --format --file <modified_file.kt>`.
-    2. **Checkstyle & Import Order**: Java imports must follow strict
-       alphabetical ordering without unused imports or unused static imports.
-    3. **ErrorProne Release Variant Compilation**:
+## Core Architecture, Development & Verification Invariants
+
+Read [`camerax-guidelines-governance`][skill-gov] before editing code. Key
+invariants:
+
+- **Pre-Flight Upstream Sync & `repo start`**: Fetch `aosp androidx-main` first
+  and create feature branches with `repo start <branch_name> .` (never raw
+  `git checkout -b`).
+- **CameraPipe Backend & Lifecycle Scopes**: `camera-camera2` now runs on top of
+  `camera-camera2-pipe` (`CameraPipe`). Never conflate:
+  - `@CameraScope` (`CameraInternal`, `CameraControlInternal`,
+    `CameraUseCaseAdapter`): survives across use-case binds/unbinds
+    (`setActiveResumeMode`, zoom/torch, `Closing -> Closed` teardown).
+  - `@UseCaseCameraScope` (`UseCaseCamera`, `UseCaseCameraRequestControl`,
+    `CapturePipeline`): recreated whenever the active use-case set or session
+    config changes. Distinguish **partial re-bind** (`hasUseCases == true`)
+    from **full unbind** (`hasUseCases == false`, tearing down `UseCaseCamera`
+    and closing the underlying `CameraGraph` / `CameraDevice`).
+- **Public API Contract Fidelity & Idiomatic Kotlin**:
+  - Honor explicit caller configurations (`ImageCapture`, `Preview`,
+    `VideoCapture`, `ResolutionSelector`, `DynamicRange`) unless hardware or
+    framework constraints genuinely prevent them.
+  - Prefer `val x by lazy(LazyThreadSafetyMode.PUBLICATION) { ... }` over
+    nullable backing vars when a dependency is non-null at access time, and use
+    eager `val` initialization for cheap objects instead of `by lazy`.
+  - Keep internal helpers package-private or `@RestrictTo(LIBRARY_GROUP)`.
+  - Enforce defensive programming (`@GuardedBy`, copy-on-write, zero resource
+    leaks on exception/cancellation paths) and clean multi-commit stack hygiene
+    (no temporary workarounds added in one commit and deleted in the next).
+- **Mandatory Two-Stage Pre-Upload Quality Gate**:
+  1. **Stage 1 (Multi-Model Clean-Context Verification)**: Execute the Step 5/6
+     verification loop in [`camerax-code-review`][skill-review].
+  2. **Stage 2 (Compiler, Lint, Format & Dry-Run Hook)**:
+     - Format modified `.kt` files: `./gradlew :ktCheckFile --format --file <f>`
+     - Run ErrorProne (Java) & Lint:
        ```bash
-       ./gradlew :camera:camera-core:runErrorProneRelease \
-         :camera:camera-camera2:runErrorProneRelease
+       PROJECT_PREFIX=:camera:camera-core ./gradlew <proj>:runErrorProneRelease <proj>:lintRelease
        ```
-    4. **Compilation & Relevant Tests**: Run host/device tests to confirm zero
-       regressions.
-    5. **Non-Interactive Pre-Upload Repohook & Gerrit Upload Verification**:
-       Always pass `--verify -y --cbr . </dev/null` with a `timeout` wrapper so
-       `repo upload` never hangs waiting on interactive hook/branch prompts or
-       an editor in non-interactive shells:
-       ```bash
-       # Pre-upload repohook dry-run (Checkstyle, ktfmt, API, commit format):
-       timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null
+     - Verify `repo upload` hooks non-interactively:
+       `timeout 300 repo upload --dry-run --verify -y --cbr . </dev/null`
 
-       # Actual Gerrit upload (ONLY when explicitly requested by the user):
-       timeout 600 repo upload --verify -y --cbr . </dev/null
-       ```
-- **Defensive Programming & Code Reviewer Standards**:
-  - **ContentResolver & Cursor Null/Empty Safety**: Always check if
-    `cursor.moveToFirst()` returns `true` before attempting to access column
-    data (`cursor.getString(...)`, `cursor.getLong(...)`). Calling getter
-    methods on empty or unpositioned cursors results in
-    `CursorIndexOutOfBoundsException`.
-  - **Tightly Scoped Deprecation Suppression**: Avoid class-level
-    `@Suppress("DEPRECATION")`. When referencing deprecated constants or APIs
-    (e.g. `MediaStore.MediaColumns.DATA`), scope `@Suppress("DEPRECATION")`
-    inline directly at the specific function or statement level.
-  - **MediaStore Volume URI Precision**: When targeting API 29+ Scoped Storage
-    in MediaStore helpers, use explicit primary volume URIs
-    (`getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)`) rather than broad
-    default collection URIs.
-  - **NonNull Assertion Cleanliness (`requireNotNull` over `!!`)**: In tests,
-    avoid Kotlin force non-null operators (`!!`). Use `requireNotNull(...)` or
-    Truth assertions (`assertThat(...).isNotNull()`) to provide descriptive
-    failure diagnostics.
-  - **Thread Safety & Latches in Background Callbacks**: Analyzer callbacks run
-    concurrently on `ioExecutor` background threads. Shared state objects (such
-    as `CountDownLatch` or frame save flags) accessed across test threads and
-    analyzer callbacks MUST be marked `@Volatile` or use `AtomicBoolean`, and
-    must be assigned *before* registering the analyzer callback on
-    `ImageAnalysis`.
-- **Multi-Commit Stack Hygiene & Anti-Churn Rule**:
-  When developing a multi-CL series (e.g. core fix → device quirk → cleanup):
-  - **Zero Intermediate Test Churn**: Do not leave temporary test workarounds
-    (e.g. temporary `assumeFalse`) in earlier commits that are subsequently
-    modified or removed in later commits.
-  - **Self-Contained Atomicity**: Each commit in the stack must compile
-    cleanly, pass its unit tests, and be fully self-contained with its own
-    scoped test coverage.
-  - Rebase and squash intermediate workarounds before uploading to ensure
-    clean git review histories.
+## Core Testing, Triage & Multi-Model Verification Gate
 
+- **Testing Standards (Sections 1-4 & Section 9)** (full guide in
+  [`camerax-testing`][skill-test]):
+  - Use Google **Truth** assertions and fakes (`camera-testing`,
+    `camera-camera2-pipe-testing`) over Mockito.
+  - Use `@Config(sdk = [Config.TARGET_SDK])` or `Config.ALL_SDKS` in
+    Robolectric (never hardcode `minSdk`).
+  - Annotate chart-dependent device tests with
+    `@LabTestRule.LabTestFrontCamera` / `@LabTestRule.LabTestRearCamera`; save
+    debug frames to `/sdcard/Pictures/test_output/<name>.png` via
+    `LabTestUtil.saveTestBitmap`.
+  - Never use `Thread.sleep()` for async sync; use `CountDownLatch`,
+    `CompletableDeferred`, or `Semaphore`. Always call
+    `DeferrableSurface.close()` in `@After` to prevent Robolectric
+    `FutureGarbageCollectedException` leaks.
+  - **Section 9 Test Pyramid & Smoke Guardrail**: When migrating resolver/config
+    tests from `androidTest/` to `test/`, retain at least **one end-to-end smoke
+    test on real devices** in `androidTest/` (and sync downstream CI targets per
+    `AGENTS_INTERNAL.md` Section 4.5 when internal tools are configured).
+- **Root-Cause Triage, Quirk Scoping & Capability Framework (Sections 5-8)**
+  (full guide in [`camerax-triage-and-quirks`][skill-triage]):
+  - **Section 5 (Device-Specific Triage)** & **Section 6.A (Simulation
+    Rubric)**: Distinguish realistic production app journeys from test-only
+    stress/fixture artifacts before changing core library code.
+  - **Section 6.B-6.F (3-Step Root-Cause Hierarchy, Quirk OS Ceilings & API
+    Contracts)**:
+    1. *Step 1*: Fix CameraX state/concurrency/lifecycle bugs in core code
+       (never mask a CameraX bug with a `DeviceQuirk` or test skip).
+    2. *Step 2*: Check standard Android/Camera2 capabilities before adding any
+       model-specific `Quirk`.
+    3. *Step 3*: Add a narrowly scoped `Quirk` (with OS version ceilings per
+       `Section 6.E` and empirical verification) only for genuine OEM/HAL bugs.
+  - **Section 7 (Safety Auditing)** & **Section 8 (6-Phase Capability
+    Problem-Solving Framework)**: Follow the 6-phase hardware abstraction and
+    caller audit protocol in [`camerax-triage-and-quirks`][skill-triage].
+- **Universal Clean-Context Multi-Model Verification Gate (Step 5 & Step 6)**
+  (full protocol in [`camerax-code-review`][skill-review]):
+  - Trigger at **Checkpoint 1** (upfront root-cause & design exploration) and
+    **Checkpoint 2** (pre-delivery audit across Modes 1-5: Code Review, Triage,
+    Plan, Report, and Synthesis).
+  - Route verifiers **Opposite-Family First** (e.g. Claude reviews Gemini;
+    Gemini reviews Claude) with **Zero Author Narrative** in verifier briefs,
+    a **Two-Turn Read Barrier** in Modes 2-5 (Turn 1: raw evidence blind
+    diagnosis; Turn 2: **Post-Blind Adjudication Turn** auditing the draft), and
+    three hostile critic lenses (Specification, Quantitative/State, Counter-
+    Hypothesis).
+  - Track findings in an ephemeral `convergence_ledger.md` using strict status
+    transitions (`OPEN`, `PATCHED_PENDING_REAUDIT`,
+    `REVERTED_VERIFICATION_FAILURE`, `DISMISSED_WITH_PROOF`,
+    `VERIFIED_RESOLVED`, `ESCALATED`) across a default 3-round (up to 5-round)
+    clean-context loop until `0` `OPEN`, `0` `REGRESSED`, and `0`
+    `PATCHED_PENDING_REAUDIT` items remain.
 
-## Testing
-
-CameraX involves complex hardware interactions, making robust testing essential.
-
-- **Assertion Library**: Use the Google **Truth** library for fluent and
-  readable assertions. Avoid using traditional JUnit `assert*` methods or
-  Hamcrest matchers.
-- **Fakes vs. Mocks**: Prioritize the use of fakes and test doubles (e.g.,
-  those provided in `camera-testing`) over mocking frameworks like Mockito to
-  ensure more reliable and maintainable tests.
-- **Testing Libraries**: Utilize `camera-testing`, `camera-common-testing`, and
-  `camera-camera2-pipe-testing` for writing robust fakes.
-- **Log Management**: To prevent context bloat from excessive tool output, run
-  large test suites with minimal verbosity (e.g., using `-q` or redirecting
-  output to a file). Only re-run specific failing tests with verbose logging
-  when necessary for debugging. Always remove any temporary files (e.g., `.log`
-  files) created during the process before finalizing your work.
-- **Robolectric Configuration**: When writing Robolectric tests, avoid
-  hardcoding `minSdk` values (e.g., `@Config(minSdk = 21)`). Instead, use
-  `@Config(sdk = [Config.TARGET_SDK])` for standard tests or
-  `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all
-  supported SDK levels.
-- **Lab Test Rules & Physical Test Chart Boxes**: When writing device
-  integration tests requiring physical calibration targets (such as QR codes,
-  barcodes, or ISO charts), annotate the test method with
-  `@LabTestRule.LabTestFrontCamera` or `@LabTestRule.LabTestRearCamera` to match
-  the camera lens physically facing the test chart inside lab test boxes. Local
-  execution on DUT requires setting debug tags (`adb shell setprop
-  log.tag.frontCameraE2E DEBUG` or `rearCameraE2E DEBUG`).
-- **Storing & Actively Analyzing Test Output Images**: To inspect output frames,
-  debug 3A convergence (AF/AE/AWB), verify image analysis, or triage failures
-  across CameraX use cases (`Preview`, `ImageAnalysis`, `ImageCapture`,
-  `VideoCapture`), save bitmaps or output frames to
-  `/sdcard/Pictures/test_output/<name>.png` (e.g. via
-  `LabTestUtil.saveTestBitmap`). In automated testing, test runners pull files
-  from this directory and attach them to the test result artifacts for visual
-  inspection. When investigating test failures, developers and AI agents must
-  examine the test code to understand its physical/visual preconditions and
-  inspect captured images:
-  - **Physical Fixture / Lab Environment Issue**: Missing or misaligned test
-    chart, pitch black frame (box LED lights unpowered or failed), camera lens
-    pointed at enclosure wall/ceiling (device improperly mounted or wrong lens
-    facing configured), or lens occlusion—frequently causing **3A convergence
-    timeouts** (passive AF/AE hunting on blank/dark scenes) or barcode
-    detection timeouts on physical DUTs.
-  - **CameraX Software / HAL Issue**: Test chart is centered and sharp but 3A
-    convergence or detector failed; or frame displays buffer corruption,
-    chromatic shearing, incorrect rotation/aspect ratio, or vendor HAL stream
-    configuration failures.
-- **On-Demand Lab Diagnostic Testing (`@LabTestRule.LabTestOnly`)**:
-  When triaging suspected lab fixture failures (e.g. pitch-black 0-lux frames or
-  camera orientation mismatches), execute on-demand diagnostic test suites
-  annotated with `@LabTestRule.LabTestOnly` (such as
-  `LabEnvironmentDiagnosticTest`). Diagnostic tests capture multi-camera frames
-  (front/rear), compute relative luminance
-  (`LabTestUtil.calculateBitmapLuminance`), log structured `[LAB_DIAGNOSTIC]`
-  summaries, export photos via `LabTestUtil.saveTestBitmap`, and complete with
-  PASS status so test runners automatically pull and attach artifacts for
-  visual or AI inspection (see `AGENTS_INTERNAL.md` for internal lab runner
-  details).
-- **Internal Guidelines & Testing**: When operating in an environment where
-  internal tools are configured, refer to `AGENTS_INTERNAL.md` (located in the
-  directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment variable,
-  if available). It serves as an extension of this guide, providing
-  supplementary coding guidelines, extended documentation links, and
-  instructions to use physical lab device testing infrastructure to verify
-  changes when accessible.
-
-## Skill: CameraX Troubleshooting & Code Verification
-
-### Use when:
-- Modifying existing CameraX functionality or fixing bugs.
-- Writing new CameraX code or adding new integration tests.
-- Troubleshooting test failures or device-specific issues.
+## Prompt & Skill Update Governance Rule (Cross-File Refresh & Size Caps)
 
 > [!IMPORTANT]
-> Whenever you modify code or tests, you **MUST** ensure that the library
-> compiles successfully and all related tests pass. Never submit untested code.
-
-### Workflow:
-
-#### 1. Research & Context Gathering (Before Modifying Code)
-- **Read Documentation & API Contracts**: Carefully read the JavaDoc and API
-  contracts of the class/interface you are modifying. Understand the design
-  intent and constraints.
-- **Camera2 API Check**: If the change interacts with or modifies behavior
-  relying on Android Camera2 APIs, read the official Camera2 API reference
-  (e.g.,
-  [`StreamConfigurationMap`](https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap),
-  [`CameraCharacteristics`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics))
-  to verify that the proposed changes align with the documented framework
-  behavior and constraints.
-- **Read CameraX Code Widely (Structure, Object Job & Intentional Code)**:
-  Do not look only at the target lines you plan to edit. Read surrounding
-  classes, package/module hierarchies, and callers widely to understand the
-  structural design, each object's responsibility ("object job"), and proper
-  code placement so your change is elegant and idiomatic. Check comments, KDoc,
-  and sibling classes to determine whether any existing ordering, workaround, or
-  deprecation usage is intentional and must be preserved. When inspecting git
-  history in `frameworks/support`, prefer fast
-  `git --no-lazy-fetch blame -L <start>,<end> <file>` followed by
-  `git --no-lazy-fetch show <sha> -- <path>` over unbounded `git log -L` or
-  `git log -S` scans, which traverse the full commit graph and time out.
-- **API Change Check**: Verify if your change introduces public API
-  modifications. Remember:
-  - Do not introduce public API changes in a bug fix CL.
-  - If a new API is necessary, mark it
-    `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` with a bug
-    ID to make it public in the next alpha.
-- **Reference Existing Tests**: Search for existing tests targeting the
-  component you are modifying. They serve as "Case Studies" for how the
-  component is expected to behave and how to verify it. Key directories:
-  - `camera/integration-tests/coretestapp/src/androidTest/`
-  - `camera/camera-core/src/androidTest/`
-  - `camera/camera-camera2/src/androidTest/`
-  - `camera/camera-video/src/androidTest/`
-- **Multi-Model Root-Cause & Solution Finding (Step 6 Checkpoint 1 Gate)**:
-  For any non-trivial bug investigation, subtle concurrency/HAL issue, or
-  architectural design decision, **MUST** (by default) execute **Step 6
-  Checkpoint 1** (Modes 2, 3, and 5) **during investigation and before
-  implementing production fix code or finalizing any plan/investigation**
-  (temporary diagnostic logging or reproduction tests are permitted to gather
-  raw evidence).
-
-#### 2. Verification Plan (Writing Tests)
-- **Headless Execution**:
-  - Use `FakeLifecycleOwner` instead of `ActivityScenarioRule` to avoid
-    activity-lifecycle race conditions, unless testing UI controllers
-    (`CameraController`, `PreviewView`).
-  - Transition the lifecycle to active using
-    `fakeLifecycleOwner.startAndResume()` to trigger camera output.
-  - For `Preview` headless tests, use
-    `SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider()` to
-    simulate a UI surface and prevent frame buffer stalls.
-- **Activity-Based Tests (Deterministic Setup & Window Readiness)**:
-  - *Principle*: Any precondition a test depends on must be established
-    before the code that depends on it runs, and the test `Activity` must be
-    able to reach `RESUMED` regardless of device state (keyguard, screen off,
-    OEM launch policies, or system overlays).
-  - *Rule ordering*: When a class has multiple `@Rule`s with side-effect
-    dependencies (lab gating, foreground cleanup, `Assume` checks, permission
-    grants, Activity launch), declare `@get:Rule(order = N)` on **every**
-    rule. Without explicit `order`, JUnit's reflection-based rule order is
-    unspecified. Lower `order` values run outermost, so preconditions
-    (`LabTestRule`, `RequireForegroundRule` and its `withAssumptions { ... }`,
-    `GrantPermissionRule`) must have lower `order` than `ActivityScenarioRule`
-    or `AndroidComposeTestRule`.
-  - *Window readiness*: Test-only Activities must configure lockscreen
-    visibility in `onCreate()` (`setShowWhenLocked(true)` and
-    `setTurnScreenOn(true)` on API 27+, or matching
-    `WindowManager.LayoutParams` flags on older APIs, plus
-    `FLAG_KEEP_SCREEN_ON`).
-  - *Signal*: `NoActivityResumedException` with the Activity stuck in
-    `STARTED` or `CREATED` typically indicates a violated rule/window
-    precondition or an environment overlay rather than a camera bug. Fix the
-    test setup instead of adding retries or sleeps.
-- **Main Thread Requirements**:
-  - Ensure lifecycle binding (`bindToLifecycle`, `unbindAll`) and surface
-    provider interactions are executed on the Main thread (using
-    `runBlocking(Dispatchers.Main) { ... }`).
-- **Anti-Flakiness & Synchronization**:
-  - **NEVER use `Thread.sleep()`**. Use `CountDownLatch` or event listeners
-    (`VideoRecordEvent` for video) to await state changes (e.g., wait for
-    `VideoRecordEvent.Status` to confirm active recording).
-- **Hardware & Capability Checks**:
-  - Check lens support: `CameraUtil.hasCameraWithLensFacing(lensFacing)`. Use
-    `Assume.assumeTrue` to skip if unsupported.
-  - Check video capabilities: `Recorder.getVideoCapabilities(cameraInfo)`
-    before running video tests.
-- **Combinatorial & Lifecycle Stress**:
-  - Test sequence of calls, subsets, and conditional bindings to ensure
-    isolated stability.
-  - Simulate background/foreground transitions using
-    `fakeLifecycleOwner.pauseAndStop()` and `startAndResume()` to verify
-    pipeline recovery.
-- **Deterministic Testing of In-Flight Async Transitions**:
-  - When fixing races during asynchronous transitions (e.g. a request arriving
-    while a session or codec is configuring, stopping, or releasing), use
-    delegating test doubles that hold back completion callbacks until
-    explicitly triggered. This deterministically pauses the state machine in
-    intermediate states to verify interleaved calls and cancellations on the
-    JVM without timing flakiness.
-- **Hierarchical Pre-Flight Verification & Fault Domain Isolation**:
-  - **Pre-Flight Primary Baseline Check**: When writing integration or device
-    tests for specialized, secondary, or composite camera features (e.g.
-    Physical Sub-Cameras, Camera Extensions, DynamicRange/HDR, RAW+JPEG
-    simultaneous capture, VideoRecording, High-Speed FPS), always verify that
-    the **primary baseline camera pipeline** can open and produce frames
-    *first*. If a device cannot even open or stream its primary camera (e.g.,
-    due to dead hardware, environment faults, or missing permissions),
-    gracefully skip/ignore the test via `Assume.assumeTrue` rather than causing
-    false-positive test suite failures on the advanced feature.
-  - **Sequential Sub-Feature Isolation & Diagnostic Reporting**: When verifying
-    multiple permutations, modes, or sub-streams (e.g., testing multiple
-    resolutions, multiple extension modes, or physical sub-sensors), evaluate
-    each sub-stream sequentially with individual fault boundaries so that a
-    single failing sub-stream does not mask the health of the remaining
-    streams. Log structured failure summaries with the **Parent ID / Lens
-    Facing**, failing **Sub-Feature / Stream Parameters**, and a copy-pasteable
-    **Suggested Quirk Entry** to streamline future triage.
-
-#### 3. Execution & Validation
-- **Local Compile Check**: Compile the entire CameraX project tests and debug
-  APKs using:
-  ```bash
-  ./gradlew -p camera assembleAndroidTest assembleDebug
-  ```
-  Alternatively, use `PROJECT_PREFIX` to scope compilation to specific modules
-  to save time:
-  ```bash
-  PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble
-  ```
-- **Local Test Run**:
-  - **Host Tests (Robolectric)**: Run JVM-based tests using
-    `./gradlew <project>:test` (runs all variants).
-    To run a specific test class or method, you **must use the variant-specific
-    task** (usually `testReleaseUnitTest` in AndroidX) with the `--tests` flag
-    (as the anchor `:test` task does not support filtering):
-    ```bash
-    ./gradlew :camera:camera-core:testReleaseUnitTest \
-      --tests "androidx.camera.core.streamsharing.StreamSharingTest.methodName"
-    ```
-    > [!WARNING]
-    > While running a single method is faster during development, always run the
-    > **full test class** (e.g.,
-    > `--tests "androidx.camera.core.streamsharing.StreamSharingTest"`)
-    > before committing to catch inter-test leaks or side effects.
-  - **Device Tests**: Run instrumented tests on a connected device using:
-    ```bash
-    ./gradlew <project>:connectedCheck
-    ```
-- **FTL Run (if no device connected)**:
-  - Discover FTL tasks for your project:
-    `./gradlew <project>:tasks --all | grep ftl` (e.g.,
-    `ftlpixel2api30debugAndroidTest` for apps, or `releaseAndroidTest` variants
-    for libraries).
-  - Standard AndroidX presubmit FTL emulator tasks are
-    `ftlmediumphoneapi35debugAndroidTest` (API 35) and
-    `ftlnexus5xapi24debugAndroidTest` (API 24) for test apps (or the
-    corresponding `releaseAndroidTest` variants for library modules).
-  - Run a specific test in FTL using `--className`:
-    ```bash
-    PROJECT_PREFIX=:camera:integration-tests:camera-testapp-core \
-    ./gradlew \
-      :camera:integration-tests:camera-testapp-core:ftlpixel2api30debugAndroidTest \
-      --className \
-      androidx.camera.integration.core.StreamSharingTest#recordingCanProceedAfterSiblingUnbind
-    ```
-- **Code Quality**: Format modified Kotlin files using `ktfmt` (see General
-  Instructions) and run Lint (specifically `lintRelease` to catch release-only
-  issues) before committing:
-  ```bash
-  ./gradlew <project>:lintRelease
-  ```
-- **Universal Clean-Context Multi-Model Verification Loop (Step 6 Checkpoint
-  2)**: Before committing edits or delivering any root-cause investigation,
-  implementation plan, test verification report, or trade-off / quirk-scoping
-  synthesis, execute the canonical **Step 6** verification loop (Modes 1–5). If
-  any semantic code edit is made during or after review, recursively re-verify
-  in a fresh clean context and re-run compile, test, `ktfmt`, and `lintRelease`
-  checks on the final diff before declaring the task complete.
-
-
-#### 4. Troubleshooting Unit Test Leaks (Robolectric)
-- **Symptom**: `IllegalStateException: Camera surface session should only fail`
-  `with request cancellation. Instead failed due to:`
-  `FutureGarbageCollectedException: The completer object was garbage`
-  `collected...`
-- **Root Cause**: A test binds a UseCase to a `FakeCamera` (or real camera) but
-  does not properly detach it before the test finishes. This leaves the camera
-  session active and leaks internal `DeferrableSurface` termination futures.
-  When GC runs in subsequent tests, these leaked futures are collected,
-  throwing exceptions in unrelated tests.
-- **Solution**: Always ensure proper cleanup in `@After` / `tearDown()` block
-  of your test class:
-  - If using `FakeCamera` directly, call
-    `camera.detachUseCases(listOf(useCase))` before unbinding the use case.
-  - Ensure the main looper is idled after cleanup:
-    `shadowOf(getMainLooper()).idle()`.
-
-#### 5. Troubleshooting Device-Specific Failures & Daily Test Triaging
-
-> [!IMPORTANT]
-> Many issues in CameraX are device-specific due to variations in camera
-> hardware and HAL implementations. Always consider whether a failure is
-> device-specific, an SoC family limitation, or a general framework issue, and
-> do not assume it will behave the same way on all devices or test
-> environments.
-
-- **Symptom**: A failure (test failure, crash, or unexpected behavior) occurs
-  on specific device models, while working correctly on others, or appears in
-  daily automated CI runs.
-- **Investigation Steps & Blast-Radius Analysis**:
-  1. **Identify Test & Check Daily Suite Status**:
-     - Query historical test runs across the physical device fleet over the past
-       14 days to determine the issue scope:
-       - `[SINGLE_DEVICE]`: Isolated failure on one model (likely vendor HAL or
-         tight timeout).
-       - `[MULTI_DEVICE_SUBSET]`: Failures across specific SoC or OEM families
-         (e.g., Samsung Snapdragon, MediaTek, Exynos, Pixel).
-       - `[FLEET_WIDE_ALL_DEVICES]`: Generic regression affecting the entire
-         device fleet (>80% failure rate).
-     - When internal test tooling is configured, use test runner query
-       options (see `AGENTS_INTERNAL.md`) to extract blast radius, AI
-       diagnostic insights, and culprit CLs.
-  2. **Analyze Failure Point & AI Diagnostic Insights**:
-     - Identify the exact failure line and preceding events in the logs.
-     - Inspect pre-triaged AI diagnostic verdicts stored in CI test artifacts
-       or build metadata (when internal tooling is configured, see
-       `AGENTS_INTERNAL.md`) or inspect raw logcat traces and bugreports.
-  3. **Compare Logs Across Hardware**: Compare the failing log with a passing
-     log from a healthy device to identify differences in HAL behavior or
-     timing.
-  4. **Determine Temporal Trend & Flakiness**:
-     - Classify as `[NEW_REGRESSION]` (previously passing, recently failing),
-       `[FLAKY_INTERMITTENT]` (intermittent passes and fails), or
-       `[CONSISTENT_FAILURE]`.
-     - For flaky tests, run multiple repetitions (5x–10x) across affected models
-       to establish statistical confidence before declaring a fix.
-  5. **Determine Component Level**: Check if it's a test infrastructure issue
-     (e.g., too tight timeout) or a real library/HAL issue (e.g.,
-     `Connection timed out` from `libcameraservice` suggesting HAL freeze).
-- **Resolution & Verification Strategy**:
-  1. **Test-Level Issues**: If the issue is due to timing or environment,
-     increase timeouts or improve test robustness (e.g., add retry or polling).
-  2. **Library/HAL Issues**:
-     - Check if the behavior is a known device limitation (e.g., some physical
-       lenses not supporting reprocessing).
-     - Explore if a generic workaround is possible without session
-       reconfiguration.
-     - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW
-       capture crashing):
-       a. Check if it's a resolution-specific mismatch (which might be corrected
-          by excluding the buggy size via `ExcludedSupportedSizesQuirk`).
-       b. If the format is fundamentally broken for all sizes (e.g., HAL
-          advertised sizes do not align with physical sensor size required by
-          `DngCreator`), disable the format entirely via
-          `UnsupportedFormatsQuirk`.
-     - **Quirk Precision & Empirical Scope (Zero Magic Assumptions)**: When
-       implementing or expanding any `DeviceQuirk` (e.g. format exclusions, size
-       filters, physical camera exclusions, ZSL disablers, or surface
-       combination overrides):
-       a. **Zero Magic Heuristics**: Avoid arbitrary catch-all magic sets,
-          speculative ranges, or broad wildcard regexes (e.g. guessing
-          resolution ranges or arbitrary ID sets). Every quirk mapping MUST be
-          backed by reproducible empirical diagnostics on physical devices.
-       b. **OEM Implementation Diversity Awareness**: Never assume all vendor
-          HALs follow identical internal conventions (e.g., capability key
-          availability, stream ID allocation, or metadata delivery timing). For
-          example:
-          - *ID Conventions:* Pixel & Samsung assign physical sub-camera IDs
-            starting at `"2"`, whereas Sony Xperia assigns physical ID `"0"` to
-            the primary physical sensor underlying logical rear camera `"0"`.
-          - *Metadata Delivery:* Certain vendor HALs only support fused
-            multi-camera engine pipelines and omit individual stream metadata
-            callbacks.
-       c. **Diagnostic Logging for Quirk Discovery**: Instrument tests to print
-          clear, copy-pasteable Quirk mapping code snippets when a hardware
-          incompatibility is encountered, enabling instantaneous reproduction
-          and triage for future maintainers.
-     - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
-       is possible, add the device model to the corresponding Quirk class
-       (e.g., `ZslDisablerQuirk`). Ensure all affected devices are included.
-  3. **Multi-Device Lab Verification**:
-     - When a fix is implemented, **always run the verification test across ALL
-       affected device models** identified in the blast-radius analysis (not
-       just the single reported device) using the multi-device lab test runner
-       (see `AGENTS_INTERNAL.md`).
-  4. **Fleet-Wide Baseline Regression Check**:
-     - Before submitting changes that touch shared pipeline paths, query the
-       daily testing baseline matrix across the physical test device fleet to
-       ensure clean pass rates and prevent regressions.
-
-#### 6. Decision Framework: User Impact vs. Test-Only Deep Root-Cause Triage
-
-When encountering test failures, crashes, or timeouts—especially in daily CI
-runs or on specific lab devices—agents must NOT jump directly to superficial
-test skips (`assumeFalse`) or immediately author a `DeviceQuirk`. Apply this
-rigorous evaluation rubric to uncover the true root cause and prioritize
-preventing end-user failures in production.
-
-##### A. User Impact vs. Test-Only Scenario Evaluation (The Simulation Rubric)
-The fundamental first question when diagnosing any failure is:
-**Does the failing test simulate an operation that real end-user apps
-could perform, or is it purely an artifact of test harness mechanics?**
-
-1. **User-Representative Scenarios (Production Impact)**:
-   - *Characteristics*: Rapid lifecycle state changes (`RESUMED` -> `PAUSED` ->
-     `RESUMED`), fast camera switching, capturing images while backgrounding or
-     teardown is in flight, layout inflation with unmeasured views before layout
-     passes (`CameraController` + `PreviewView`), concurrent UseCase binding.
-   - *Guiding Principle*: Even if exercised within an aggressive "stress test"
-     or "fragment test", **real users perform these operations in real apps**.
-   - *Mandate*: **NEVER** treat these as test-only issues by adding
-     `assumeFalse`, skipping the test, or writing ad-hoc test workarounds.
-     Prioritize preventing user-facing failure in production by fixing CameraX's
-     core asynchronous state machine, error propagation, or view readiness
-     guarantees.
-   - *Case Study (Asynchronous Lifecycle Cancellation)*: In high-frequency
-     capture stress testing, capture requests failed with "Capture request is
-     cancelled on closed CameraGraph". While exercised in a stress test, real
-     users frequently background apps or switch cameras while capturing photos.
-     The fix was properly propagating `ERROR_CAMERA_CLOSED` in CameraX core,
-     allowing CameraX's built-in retry mechanism to automatically retry and
-     succeed on the reopened camera without ad-hoc device quirks or test skips.
-
-2. **Artificial Test Harness Artifacts (Test-Only Constraints)**:
-   - *Characteristics*: Injecting synthetic sensor test patterns
-     (`SENSOR_TEST_PATTERN_MODE_SOLID_COLOR` in `SensorPatternUtil`) to verify
-     pixel colors in a dark lab cabinet, mocking system services, artificial
-     test delays, or synthetic CTS harness mocks.
-   - *Guiding Principle*: Real consumer apps capture real physical scenes; they
-     never invoke synthetic hardware test patterns.
-   - *Mandate*: First verify whether the actual user-facing feature
-     (`CameraEffect` processing real frames) is 100% functional on the physical
-     hardware. If the underlying feature works for real users, and only the
-     artificial test harness assertion fails due to vendor HAL reporting
-     discrepancies, it is appropriate to update or scope the test harness
-     assumption (`SensorPatternUtil`).
-
-3. **Unrealistic Test Construction (Test Not Written Like Real User Behavior)**:
-   - *Characteristics*: The test asserts stream states or queries view
-     dimensions before the Android view hierarchy has executed its first
-     measure and layout pass (`width=0, height=0`), or asserts impossible
-     zero-millisecond synchronization contrary to the Android View lifecycle.
-   - *Action*: Update the test to follow realistic application patterns (e.g.
-     awaiting `PreviewView` layout readiness via `waitUntilPreviewViewIsReady()`
-     before querying view dimensions in Fragment tests).
-
-##### B. The 3-Step Root Cause & Prevention Hierarchy (The Deep "Why" Chain)
-When investigating why an operation failed, systematically investigate these
-three layers in order:
-
-```
-[Test Failure / Defect Reported]
-               │
-               ▼
-[Step 1: Internal Implementation Audit]
- Did CameraX implement the contract correctly?
- (State machines, error mapping, retry logic, async readiness)
-   ├─► NO  ──► [FIX CAMERAX CORE] (Retry logic, async lifecycle readiness)
-   └─► YES ──► [Step 2: Specification & Capability Audit]
-                Did CameraX query standard platform capabilities before use?
-                (CameraCharacteristics, StreamConfigurationMap keys)
-                  ├─► NO  ──► [UPDATE CAMERAX TO QUERY CAPABILITY]
-                  └─► YES ──► [Step 3: Hardware / Vendor HAL Audit]
-                               Is the device HAL falsely advertising support?
-                                 ├─► Impacts Users ──► [AUTHOR DEVICE QUIRK]
-                                 └─► Test-Only     ──► [SCOPE TEST HARNESS SKIP]
-```
-
-1. **Step 1: Did CameraX implement the contract correctly? (Internal Audit)**
-   - Investigate CameraX's internal state machines, lifecycle transitions,
-     error propagation, and retry mechanisms.
-   - Did CameraX fail to retry an operation, misclassify an internal error
-     code, or fail to handle asynchronous state changes?
-   - *Example*: In `UseCaseCameraRequestControl`, returning
-     `ERROR_CAPTURE_FAILED` instead of `ERROR_CAMERA_CLOSED` when the
-     `CameraGraph` closed broke `StillCaptureRequestControl`'s retry logic.
-     Correcting the error code allowed the request to automatically retry
-     when the camera reopened, resolving the issue across all devices without
-     any hardware quirks.
-
-2. **Step 2: Did CameraX fail to check device capabilities before use?
-   (Specification Audit)**
-   - Does the Android Camera2 specification define a capability key (in
-     `CameraCharacteristics` or `StreamConfigurationMap`) that CameraX should
-     query before issuing requests or configuring sessions?
-   - Did CameraX assume a capability without querying `CameraCharacteristics`
-     (e.g., supported stream combinations, flash modes, zoom ranges, dynamic
-     ranges, or test patterns)?
-   - If CameraX neglected to check a standard capability key, update CameraX to
-     inspect and respect that capability dynamically across all devices.
-
-3. **Step 3: Is device capability reporting defective (OEM HAL lying)?
-   (Hardware/HAL Audit)**
-   - When CameraX *does* check the capability (or if no standard key exists),
-     but the device HAL falsely advertises support while failing or freezing
-     at runtime:
-     - **Sub-case 3A: Identifiable in advance / Impacts production users:**
-       Implement a `DeviceQuirk` under `camera-core` or `camera-camera2` to
-       filter the unsupported capability from public queries (e.g.,
-       `ImageCaptureCapabilities.getSupportedOutputFormats()`) or adapt the
-       pipeline gracefully (e.g., falling back to software blanking/conversion)
-       so production apps never crash or fail silently.
-     - **Sub-case 3B: Unidentifiable in advance / Test-only artifact:**
-       If the issue cannot be identified via platform metadata and only
-       impacts artificial test harness constructs (e.g., a front camera sensor
-       failing to output synthetic RGB test patterns despite advertising
-       `SOLID_COLOR` in `SENSOR_AVAILABLE_TEST_PATTERN_MODES`):
-       1. Document the exact OEM sensor/HAL limitation in the issue tracker.
-       2. Confirm production user features (`CameraEffect`) work with real
-          frames.
-       3. Tightly scope the test skip to the affected camera/device in the
-          test utility (`SensorPatternUtil`).
-
-##### C. Solution Matrix: Core Fix, Quirk, Test Scope, or Test Cleanup
-1. **Core Architecture Fix**:
-   - **When**: The issue stems from CameraX internal pipeline transformations,
-     surface configuration, state machines, error classification, retry logic,
-     or UseCase format and resolution routing.
-   - **Action**: Fix directly in core framework abstractions (`camera-core` or
-     `camera-camera2`).
-2. **Device Quirk**:
-   - **When**: The issue stems from OEM vendor HAL non-compliance, driver
-     limitations, or hardware capabilities advertised in `CameraCharacteristics`
-     that fail at runtime during camera session creation or streaming, and
-     impacts real-world applications.
-   - **Action**: Implement a `DeviceQuirk` (under `camera-core` or
-     `camera-camera2` compat quirks) to gracefully adapt pipeline behavior or
-     filter unsupported modes from public capability queries (e.g.,
-     `ImageCaptureCapabilities`). **Avoid** adding ad-hoc test assumptions
-     (`assumeFalse`) when a quirk can protect production applications.
-   - *Case Study*: Exclude unsupported simultaneous multi-stream combinations
-     via a quirk on devices where HAL rejects concurrent maximum-resolution
-     streams.
-3. **Test Harness Utility Scoping**:
-   - **When**: The failure occurs purely within an artificial test harness
-     construct (e.g. synthetic test patterns) due to an OEM HAL metadata
-     defect, and production user features are fully functional.
-   - **Action**: Scope the skip within the test harness utility
-     (`SensorPatternUtil`) citing the exact device/sensor defect.
-4. **Test Assumption Cleanup**:
-   - **When**: Previous manual test skips (e.g., `assumeFalse(DEVICE)`) are
-     rendered obsolete because a companion quirk or core pipeline fix now
-     resolves the root problem.
-   - **Action**: Create a dedicated cleanup CL removing the obsolete
-     assumptions to re-enable continuous regression testing on physical devices.
-
-##### D. Implementation Correctness vs. Device Quirks (Investigation-First Rule)
-   - **Principle**: Always investigate whether CameraX's own implementation,
-     parameter configuration, or capability registry is the root cause before
-     concluding an issue is an OEM device hardware or HAL defect. **Never jump
-     directly to writing a `DeviceQuirk` without first auditing CameraX's own
-     logic.**
-   - **When to Apply**: When a test failure, crash, timeout, or unexpected
-     behavior occurs across multiple device models, an entire OEM fleet, a
-     specific Android OS level, or on a newly introduced format/feature (e.g.,
-     video codecs, HDR dynamic ranges, high-speed sessions, or stream sharing).
-   - **Investigation Checklist Before Considering a Quirk**:
-     a. **Capability & Registry Correctness**: Are CameraX's capability
-        registries, lookup tables, or default resolvers (e.g.
-        `DynamicRangeFormatComboRegistry`, `DynamicRangeUtil`,
-        `EncoderProfilesResolver`) advertising invalid combinations or omitting
-        required profile/dataspace parameters?
-     b. **Specification Compliance**: Does the configuration adhere strictly to
-        the underlying Android platform and industry standards (e.g., Android
-        `MediaCodec` profiles, Camera2 stream constraints, ISO/IEC
-        specifications)?
-        *(Case Study: APV codec `video/apv` is an intra-frame 10/12-bit format.
-        Erroneously registering it under `buildSdrRegistry()` caused 8-bit SDR
-        surfaces to feed a 10-bit encoder without profile keys, producing
-        timeouts. The fix was correcting the capability registry, not a quirk).*
-     c. **Pipeline & Surface Configuration**: Is CameraX creating the
-        appropriate surface format, color space, buffer queue depth, or
-        repeating request parameters?
-     d. **State Machine & Lifecycle**: Are buffers, surfaces, or encoders being
-        prematurely closed, stalled, or failing to receive warmup frames?
-   - **Decision Rubric**:
-     - If CameraX can fix the behavior by correctly configuring parameters,
-       aligning with standards, or avoiding invalid combinations, **fix the
-       core implementation**.
-     - Only implement a `DeviceQuirk` when CameraX's configuration is 100%
-       compliant with Android platform specifications, and the device failure is
-       conclusively proven to be an unrecoverable vendor driver/HAL defect.
-
-##### E. Device Quirk OS Version Ceilings (The Upstream OS Upgrade Trap)
-When inspecting or authoring quirks with OS version checks (e.g.,
-`Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE`):
-- **Audit Underlying Driver/HAL Persistence**: Verify whether the underlying
-  vendor driver or HAL bug is genuinely resolved in newer Android OS releases
-  before placing an upper bound on a quirk.
-- **The Upgrade Trap**: Hardcoding an upper bound (such as
-  `<= UPSIDE_DOWN_CAKE` / Android 14) causes the quirk to automatically
-  deactivate when devices upgrade to Android 15 (API 35) or Android 16
-  (API 36). If the vendor driver retains the flaw across platform updates,
-  this causes regressions in the wild.
-- **Triage Protocol for Post-Upgrade Regressions**: When an issue spikes
-  immediately after a major Android upgrade (e.g., Android 16 on Samsung
-  devices), inspect existing quirks in `androidx.camera.camera2.compat.quirk`
-  to check whether an existing quirk previously protected the device family
-  but was turned off by an outdated OS version ceiling.
-
-##### F. Preserving Public API Contracts & Documented Invariants
-When fixing bugs, handling edge-case configurations, or refactoring internal
-plumbing across any CameraX module, treat public Javadoc contracts as strict
-behavioral invariants:
-- **Honor User-Provided Configurations During Normal Operations**: Never
-  silently replace, ignore, or fall back from user-configured parameters (such
-  as custom executors or handlers via `CameraXConfig.setCameraExecutor` or
-  `setSchedulerHandler`, `ResolutionSelector`s, or `UseCase` builder settings)
-  during normal initialization or runtime operations if doing so violates the
-  public Javadoc contract.
-- **Surgical Lifecycle Scoping for Edge Cases**: When an edge-case user
-  configuration is incompatible with a specific internal lifecycle step (e.g.,
-  blocking or asynchronous teardown on a direct executor), scope the fallback
-  strictly to that incompatible internal step while honoring the user's
-  configuration everywhere else.
-- **Enforce Documented Query & Precondition Isolation**: When a public query or
-  simulation API documents that certain parameters on an input object are
-  ignored (e.g., `CameraInfo.getSupportedFrameRateRanges(SessionConfig)`
-  ignoring `SessionConfig.getFrameRateRange()`), ensure internal simulators and
-  adapters (`UseCaseAdditionSimulator`, `StreamSpecsCalculator`) explicitly
-  omit or strip those parameters so they do not circularly constrain the query.
-
-##### G. Mandatory Clean-Context Verification Gate for Triage & Fix Plans
-Before implementing production fix code or delivering any root-cause diagnosis,
-triage classification (Step 1 Core Fix vs. Step 2 Capability Check vs. Step 3
-Device Quirk vs. Sub-case 3B Test-Only Scope), or proposed implementation plan,
-agents **MUST** stage the draft analysis and raw evidence paths in a
-scratch/temp file and execute **Step 6 Checkpoint 1** (Mode 2: Issue
-Investigation Audit and Mode 3: Plan Audit). Each clean-context verifier must
-inspect the raw evidence *before* reading the draft plan (two-turn read
-barrier), confirm the first causal failure in the raw logs, and enforce the
-Section 6.A User-Impact vs. Test-Only Gate; the orchestrating agent must
-recursively re-verify any subsequent semantic plan or code edit per **Step 6
-Checkpoint 2**.
-
-> [!NOTE]
-> **Internal Lab Automation & Fleet Query Tooling**:
-> When operating in environments where internal lab tooling is configured with
-> access to automated physical device testing labs and continuous test history,
-> refer to `AGENTS_INTERNAL.md` (Phase 4 and Section 5.14) for instructions on
-> using fleet-wide blast radius analysis, CI diagnostic properties, and
-> multi-model verification to operationalize this decision hierarchy.
-
-#### 7. Safety & Code Path Auditing Protocol
-Before finalizing changes to shared infrastructure (e.g. `UseCase`,
-`ImageInputConfig`, `UseCaseManager`, `SessionConfig`, `Node` pipelines):
-1. **Audit Standard Single-Stream Flow**: Verify that standard single-stream use
-   cases (`Preview`, `VideoCapture`, `ImageAnalysis`, standard `ImageCapture`)
-   execute identical code paths with 100% backward compatibility.
-2. **Audit Multi-Stream / Advanced Flows**: Verify that concurrent, dual-stream,
-   or composite configurations map surfaces, formats, and sizes accurately by
-   stream index.
-3. **Audit Binary & API Compatibility**: Verify that public and restricted
-   (`LIBRARY_GROUP`) API contracts and binary signatures remain fully backward
-   compatible.
-4. **Audit Composite State Machines & Coupled Observables**: When adding a
-   deferral or early-return branch to a state transition:
-   - Verify all entry states so pending teardown/reset signals from the
-     previous state are preserved rather than silently dropped.
-   - Update any coupled secondary or observable states (e.g. backed-up
-     non-pending state, `StreamState.ACTIVE` / `INACTIVE`) alongside the
-     primary state so downstream observers and cancellation paths remain
-     consistent.
-
-#### 8. Capability & Hardware Abstraction Problem-Solving Framework
-
-When resolving hardware capability, format negotiation, or platform abstraction
-issues (e.g. video/audio codecs, dynamic ranges, stream combinations, or
-physical camera sensors), agents and developers MUST follow this 6-phase
-pathway to engineer robust, architecturally sound solutions:
-
-1. **Deconstruct Operational Asymmetries (Real-Time Surface vs. Byte-Buffer)**:
-   - Framework metadata (e.g. `CodecCapabilities.profileLevels` or
-     `StreamConfigurationMap`) often reflects offline, CPU-mediated, or
-     byte-buffer processing capabilities.
-   - Real-time camera feeds (`COLOR_FormatSurface`, zero-copy buffer queues,
-     hardware HAL pipelines) have fundamentally different constraints. A codec
-     or configuration that works for offline file processing may deadlock or
-     trigger fatal IPC disconnects (`DEAD_OBJECT` in `mediaswcodec`) when fed
-     real-time camera surfaces.
-   - Software fallbacks are rarely designed to sustain real-time camera
-     capture. Confirm whether real-time execution requires hardware
-     acceleration silicon (VPU/ISP).
-
-2. **Triangulate Ground Truth Across Three Ecosystem Pillars**:
-   - **Pillar 1: Authoritative Specifications**: Consult the Android CDD (e.g.
-     §5.12 for video encoders, §5.4.1 for audio capture guarantees, §7.5 for
-     camera specifications) and underlying standards (3GPP, RFCs). What does
-     the platform strictly guarantee or mandate across all compliant devices?
-   - **Pillar 2: First-Party Ecosystem Precedent**: Inspect how first-party
-     Android libraries handle the same ambiguity (e.g. Media3 Transformer's
-     `EncoderUtil`, CTS verifiers, `frameworks/av` source). Match platform
-     design patterns (e.g. handling `FEATURE_HlgEditing` alongside
-     `FEATURE_HdrEditing`).
-   - **Pillar 3: Silicon & HAL Reality**: Determine whether a failure is an
-     unrecoverable vendor driver defect or an architectural constraint that
-     CameraX can safely avoid through proper capability negotiation.
-
-3. **Calibrate Capability Gating (Avoid Both False Positives and Negatives)**:
-   - **The Permissive Trap (False Positives)**: Declaring support based solely
-     on advertised profile levels causes native crashes on unsupported
-     software emulations.
-   - **The Overly Strict Trap (False Negatives)**: Enforcing newly introduced
-     platform feature flags (e.g. API 33+ or API 35+ features) indiscriminately
-     across all formats breaks functional legacy hardware that works reliably
-     on older OS versions (e.g. Android 10–12 devices lacking
-     `FEATURE_HdrEditing`).
-   - **Surgical Scoping**: Scope new constraints strictly to the modalities
-     that require them (e.g. gating hardware editing checks with
-     `dynamicRange.is10BitHdr` so SDR variants are never blocked).
-
-4. **Architect Context-Aware Fallbacks (No Blind Constants)**:
-   - When device metadata (e.g. `CamcorderProfile`) lacks an entry for a
-     requested format, NEVER fall back to a hardcoded generic constant (e.g.
-     blindly applying 44.1 kHz / 156 kbps to speech or VoIP codecs).
-   - Resolve fallbacks based on target format characteristics (e.g. AMR-NB
-     8 kHz, AMR-WB 16 kHz, Opus 48 kHz).
-   - Ensure fallback configurations strictly align with platform-guaranteed
-     hardware baselines (e.g. CDD §5.4.1 mandatory capture sample rates).
-
-5. **Permutation Testing & Regression Immunity**:
-   - Test happy paths (compliant hardware acceleration).
-   - Test negative paths (software emulators cleanly filtered out).
-   - Test edge-case encodings (e.g. SDR variants, partial feature support).
-   - Verify that dominant baseline configurations (AVC/HEVC SDR/HDR, AAC)
-     maintain 100% behavioral backward compatibility.
-
-6. **Clean-Context Multi-Model Verification Gate (Step 6)**:
-   - Before presenting a capability investigation, architectural proposal,
-     code change, multi-device verification report, or quirk-scoping synthesis
-     engineered under this framework, pass the draft deliverable and raw
-     evidence through the **Universal Clean-Context Multi-Model Verification
-     Loop** (Step 5 & Step 6, Modes 1–5; default 3 rounds, auto-scaling up to 5
-     rounds while fixes converge) to independently audit specification claims,
-     architectural placement, test coverage, and report accuracy.
-
-#### 9. Solution Engineering & Test Pyramid Modernization Protocol
-
-When evolving CameraX architecture, refactoring legacy components, or optimizing
-test execution across the development lifecycle, apply this 4-step protocol to
-engineer robust, maintainable solutions while preserving hardware testability:
-
-1. **Deconstruct Algorithmic Logic from Hardware Platform Dependencies**:
-   - Complex configuration pipelines (e.g. video/audio profile resolvers, stream
-     combination sort algorithms, dynamic range mapping, format selection)
-     often entangle pure algorithmic calculations with physical HAL queries.
-   - Separate pure deterministic calculations (resolving bitrates, sample rates,
-     clamping ranges, sorting candidate resolutions) from hardware state
-     accessors (`CamcorderProfile`, `CameraCharacteristics`, `MediaCodecList`).
-   - Pure algorithmic and resolver logic can be tested deterministically across
-     dozens of permutations on the host JVM without device flakiness, while
-     hardware interaction is cleanly isolated behind minimal interfaces.
-
-2. **Review-Driven Refactoring & Domain Boundary Hygiene**:
-   - Maintain strict domain boundaries: constants and domain semantics belonging
-     to one media format (e.g. video profile bitrates vs. audio bitrates, or
-     camera sensor properties vs. encoder profiles) must never leak across
-     format boundaries.
-   - Heed reviewer signals: when code reviews reveal out-of-place constants,
-     leaky abstractions, or misplaced defaults, resist applying ad-hoc patches
-     or local suppressions. Instead, treat reviewer feedback as a prompt for
-     structural refactoring that places domain knowledge in its rightful owner.
-
-3. **Two-Tier Test Modernization & The Single Smoke Test Guardrail**:
-   - To optimize CI lab resources and accelerate local developer velocity, apply
-     the test pyramid:
-     a. **Host-Side Migration (Robolectric / JVM)**: Migrate pure calculation,
-        data specification (`MediaSpec`, `OutputOptions`), buffer manipulations,
-        and profile resolver permutation suites from `androidTest/` to `test/`.
-     b. **The Single Smoke Test Guardrail**: When migrating resolver or config
-        test suites from `androidTest` to `test` (Robolectric), NEVER completely
-        eliminate device-level testing if the component interfaces with real OEM
-        framework profiles (`CamcorderProfile`, `MediaCodecList`). Always retain
-        at least **one end-to-end smoke test on real devices** in `androidTest/`
-        (e.g. verifying that resolving profiles against real device hardware
-        produces valid, non-crashing configurations). This ensures real OEM
-        hardware idiosyncrasies remain guarded while offloading combinatorial
-        testing to fast host unit tests.
-
-4. **Cross-Repository Downstream CI Synchronization**:
-   - Maintain lifecycle awareness across repository boundaries. When migrating,
-     renaming, or deleting test classes in `androidTest/`, downstream continuous
-     testing suites may depend on these target mappings.
-   - When internal tooling is configured, refer to `AGENTS_INTERNAL.md`
-     (Section 4.5) to audit and synchronize downstream test target definitions
-     simultaneously to prevent broken references in daily CI pipelines.
-
----
-
-## Skill: CameraX Agent Guidelines & Experience Capture
-
-### Use when:
-- Capturing lessons, troubleshooting workflows, compiler checks, or decision
-  rubrics from a coding session into `camera/AGENTS.md` (public) or
-  `AGENTS_INTERNAL.md` (internal companion).
-- The user requests to update agent guidelines based on recent findings.
-
-### Workflow & Long-Term Governance:
-
-#### 1. The 3-Tier Signal Filter (Signal vs. Noise)
-Before proposing documentation updates, filter session findings through three
-levels of abstraction and durability:
-* **Tier 1 (Transient Noise — DO NOT ADD)**: Temporary workarounds, specific
-  bug IDs, daily flake reports, or raw log traces belong in issue tracker
-  comments and CL descriptions, not in long-term guidelines.
-* **Tier 2 (Implementation Details & Local Skills — Keep in Code/KDoc or
-  Lowest-Priority Tooling)**: Specific device model strings, OEM build
-  identifiers, private helper mechanics, or quirk class implementation details
-  belong in source code KDoc and Quirk classes where they evolve with the code.
-  Treat tool-specific local skills as a lowest-priority fallback—prefer
-  explaining durable design and implementation principles in `AGENTS.md` over
-  relying on local skills.
-* **Tier 3 (Universal Engineering Patterns — ADD to AGENTS.md by Durability
-  Priority)**: Prioritize additions from longest-lived to most specific,
-  integrating into existing sections rather than duplicating them:
-  1. *1st Priority — Universal Design Principles & Public Specifications*
-     (`Standards & Guidelines Hierarchy`, `Code Elegance & Idiomatic Design`):
-     official API/style guides, deep modules, single responsibility ("object
-     job"), separating general-purpose core from special-purpose quirks, and
-     eliminating special cases.
-  2. *2nd Priority — High-Level Architecture & Timeless Domain Contracts*
-     (`Backend Architecture & CameraPipe Migration`, `@CameraScope` vs.
-     `@UseCaseCameraScope`, Section 6.F public contracts, concurrency).
-  3. *3rd Priority — High-Level Implementation Rationale & Decision Rubrics*
-     (Section 6 Root-Cause Hierarchy, Section 8 Capability Framework, Section 9
-     Test Pyramid, pre-upload quality gates, and commit anti-churn rules—explain
-     the *why*, not fragile method-by-method traces).
-
-#### 2. The 1-Year Litmus Test
-Evaluate every prospective rule against this long-term criterion:
-> *"Will this guideline save time and prevent regressions for an engineer
-> working on an unrelated CameraX feature 1–2 years from now?"*
-* If **Yes**: Distill into a generalized principle with a concise case study.
-  Diagnostic signatures (exception names, log strings) may accompany a
-  general principle as compact examples; keep OEM- or lab-specific signatures
-  in `AGENTS_INTERNAL.md`.
-* If **No**: Preserve it in the issue tracker.
-
-#### 3. Consolidate & Refine (Prevent Unbounded Growth)
-Do not infinitely append new bullet points. When updating guidelines:
-1. Locate existing relevant sections (`General Instructions`, `Testing`,
-   `Troubleshooting`).
-2. Refine, clarify, or consolidate existing guidelines with new insights.
-3. Maintain clean Markdown formatting wrapped strictly at **80 characters**.
-
-#### 4. Target Repository Routing & CL Staging
-Route documentation updates according to repository scope:
-* **Public Guidelines (`frameworks/support/camera/AGENTS.md`)**:
-  Public architecture, Kotlin/Java style, Checkstyle, ErrorProne release
-  checks, pre-upload quality gates, commit hygiene, and general troubleshooting.
-* **Internal Extension Guidelines (`AGENTS_INTERNAL.md`)**:
-  Internal lab test runners, host memory concurrency estimation, physical lab
-  device health triage, and environment protocols.
-
----
-
+> **Cross-File Refresh & Size Restriction Guardrail**:
+> Whenever you update `camera/AGENTS.md` or any
+> `camera/.agents/skills/*/SKILL.md` file (or capture lessons from a coding
+> session), you **MUST** read [`camerax-guidelines-governance`][skill-gov]
+> (`Skill: CameraX Agent Guidelines & Experience Capture`) and enforce:
+> 1. **The 3-Tier Signal Filter & 1-Year Litmus Test**: Exclude Tier-1 transient
+>    noise and Tier-2 class-private mechanics; add only durable Tier-3 patterns
+>    wrapped strictly at **`<= 80` characters** with 100% public purity.
+> 2. **Hard Size & Line Restrictions**: Keep `camera/AGENTS.md` strictly under
+>    **`24,000 bytes`** (`MaxRuleContentBytes` auto-load limit; never use
+>    `@[label](path)` inline includes), and keep every
+>    `camera/.agents/skills/*/SKILL.md` file strictly under **`45,000 bytes` and
+>    `780 lines`** (`46,080 B / 800-line` single-call `read_file` limit).
+> 3. **Cross-File Refresh**: Inspect all 5 files (`camera/AGENTS.md` + all 4
+>    `camera/.agents/skills/*/SKILL.md` files, plus
+>    `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` when available) to keep
+>    routing tables, chapter/section numbers, and shared rubrics synchronized.
 
 ## Git Commit Messages
 
@@ -1860,3 +353,8 @@ When amending a previous commit (e.g., with `git commit --amend`):
   end of the new message.
 - **Recovery**: If the ID is lost, find it in the previous commit via
   `git reflog` and `git log`, then re-amend to restore it.
+
+[skill-review]: .agents/skills/camerax-code-review/SKILL.md
+[skill-gov]: .agents/skills/camerax-guidelines-governance/SKILL.md
+[skill-test]: .agents/skills/camerax-testing/SKILL.md
+[skill-triage]: .agents/skills/camerax-triage-and-quirks/SKILL.md
