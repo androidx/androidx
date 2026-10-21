@@ -140,12 +140,12 @@ public data class RemoteRadialGradient(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteRadialShader(
-    public var centerX: RemoteFloat,
-    public var centerY: RemoteFloat,
-    public var radius: RemoteFloat,
-    public var colors: List<RemoteColor>,
-    public var positions: List<RemoteFloat>?,
-    public var tileMode: ComposeTileMode,
+    public val centerX: RemoteFloat,
+    public val centerY: RemoteFloat,
+    public val radius: RemoteFloat,
+    public val colors: List<RemoteColor>,
+    public val positions: List<RemoteFloat>?,
+    public val tileMode: ComposeTileMode,
 ) : RemoteShader() {
 
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
