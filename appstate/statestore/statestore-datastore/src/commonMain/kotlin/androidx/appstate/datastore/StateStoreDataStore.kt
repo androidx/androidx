@@ -21,11 +21,10 @@ import androidx.appstate.statestore.StateStoreKey
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.okio.OkioSerializer
-import kotlin.reflect.typeOf
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import okio.BufferedSink
 import okio.BufferedSource
 
@@ -33,9 +32,50 @@ import okio.BufferedSource
  * Marks a [StateStoreKey] to be persisted to [DataStore].
  *
  * Keys implementing this interface will have their state automatically saved and restored if the
- * [StateStore] calls the [syncToDataStore] function.
+ * [StateStore] calls the [syncToDataStore] function. The key provides the [name] its value is
+ * stored under and the [KSerializer] for the value:
+ * ```
+ * @Serializable
+ * object SettingsKey : StateStoreKey<Settings>(Settings()), PersistToDataStore<Settings> {
+ *     override val name = "settings"
+ *     override val serializer = Settings.serializer()
+ * }
+ * ```
+ *
+ * @param T the type of the value held by the implementing [StateStoreKey]
  */
-public interface PersistToDataStore
+public interface PersistToDataStore<T> {
+    /**
+     * The name the value is stored under.
+     *
+     * It must be unique among the keys synced to the same [DataStore] and must not change between
+     * versions of the app, since persisted data is looked up by it.
+     */
+    public val name: String
+
+    /** The serializer used to save and restore the value of the implementing [StateStoreKey]. */
+    public val serializer: KSerializer<T>
+}
+
+/** Encodes [value] with the key's [serializer], mapping failures to [CorruptionException]. */
+internal fun <T> encodeValue(serializer: KSerializer<T>, value: T, name: String): String =
+    try {
+        Json.encodeToString(serializer, value)
+    } catch (e: SerializationException) {
+        throw CorruptionException("Unable to serialize the value of $name to JSON.", e)
+    } catch (e: Exception) {
+        throw CorruptionException("Unexpected error saving state for key: $name", e)
+    }
+
+/** Decodes [json] with the key's [serializer], mapping failures to [CorruptionException]. */
+internal fun <T> decodeValue(serializer: KSerializer<T>, json: String, name: String): T =
+    try {
+        Json.decodeFromString(serializer, json)
+    } catch (e: SerializationException) {
+        throw CorruptionException("Unable to deserialize the value of $name from JSON.", e)
+    } catch (e: Exception) {
+        throw CorruptionException("Unexpected error restoring state for key: $name", e)
+    }
 
 /**
  * Preferences map for [StateStore] backed by [DataStore].
@@ -61,17 +101,10 @@ public abstract class StateStorePreferences internal constructor() {
      * @return the deserialized value, or null if the key is not set.
      * @throws CorruptionException if the key cannot be deserialized.
      */
-    internal inline operator fun <reified T : Any> get(key: StateStoreKey<T>): T? {
-        val keyName = key::class.qualifiedName ?: return null
-        val valueJson = asMap()[keyName] ?: return null
-        return try {
-            val serializer = serializer(typeOf<T>())
-            Json.decodeFromString(serializer, valueJson) as T
-        } catch (e: SerializationException) {
-            throw CorruptionException("Unable to deserialize JSON from String.", e)
-        } catch (e: Exception) {
-            throw CorruptionException("Unexpected error restoring state for key: ", e)
-        }
+    internal operator fun <T, K> get(key: K): T?
+        where K : StateStoreKey<T>, K : PersistToDataStore<T> {
+        val valueJson = asMap()[key.name] ?: return null
+        return decodeValue(key.serializer, valueJson, key.name)
     }
 
     /**
@@ -86,9 +119,8 @@ public abstract class StateStorePreferences internal constructor() {
 
 /** Mutable version of [StateStorePreferences]. */
 internal class MutableStateStorePreferences
-internal constructor(
-    @PublishedApi internal val preferencesMap: MutableMap<String, String> = mutableMapOf()
-) : StateStorePreferences() {
+internal constructor(internal val preferencesMap: MutableMap<String, String> = mutableMapOf()) :
+    StateStorePreferences() {
 
     override fun asMap(): Map<String, String> {
         return preferencesMap.toMap()
@@ -101,16 +133,9 @@ internal constructor(
      * @param value the value to set for the key
      * @throws CorruptionException if the key cannot be serialized.
      */
-    internal inline operator fun <reified T : Any> set(key: StateStoreKey<T>, value: T) {
-        val keyName = key::class.qualifiedName ?: return
-        try {
-            val serializer = serializer(typeOf<T>())
-            preferencesMap[keyName] = Json.encodeToString(serializer, value)
-        } catch (e: SerializationException) {
-            throw CorruptionException("Unable to serialize String to JSON.", e)
-        } catch (e: Exception) {
-            throw CorruptionException("Unexpected error saving state for key: ", e)
-        }
+    internal operator fun <T, K> set(key: K, value: T)
+        where K : StateStoreKey<T>, K : PersistToDataStore<T> {
+        preferencesMap[key.name] = encodeValue(key.serializer, value, key.name)
     }
 }
 

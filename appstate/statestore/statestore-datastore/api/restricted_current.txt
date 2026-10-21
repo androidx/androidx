@@ -2,7 +2,11 @@
 // - surface=restricted-atomic-group
 package androidx.appstate.datastore {
 
-  public interface PersistToDataStore {
+  public interface PersistToDataStore<T> {
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public kotlinx.serialization.KSerializer<T> getSerializer();
+    property public abstract String name;
+    property public abstract kotlinx.serialization.KSerializer<T> serializer;
   }
 
   public final class StateStoreKt {

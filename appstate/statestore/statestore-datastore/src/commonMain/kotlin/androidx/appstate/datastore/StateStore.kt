@@ -19,23 +19,19 @@ package androidx.appstate.datastore
 import androidx.appstate.statestore.StateStore
 import androidx.appstate.statestore.StateStoreKey
 import androidx.appstate.transform.listener
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import kotlin.reflect.KType
-import kotlin.reflect.full.allSupertypes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
+import kotlinx.serialization.KSerializer
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -71,84 +67,61 @@ public suspend fun StateStore.syncToDataStore(path: String, coroutineScope: Coro
 public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePreferences>) {
     listener {
         val activeKeys = keys
-        for (key in activeKeys) {
-            if (key is PersistToDataStore) {
-                val restored = remember(key) { mutableStateOf(false) }
-                val restoredValue = remember(key) { mutableStateOf<Any?>(null) }
-                val state = getUntypedState<Any>(key, null)
-                val value = state.value
-
-                LaunchedEffect(key) {
-                    val preferences = dataStore.data.first()
-                    val keyName =
-                        checkNotNull(key::class.qualifiedName) {
-                            "Keys implementing PersistToDataStore must have a qualified name."
-                        }
-                    val valueJson = preferences.asMap()[keyName]
-                    if (valueJson != null) {
-                        try {
-                            val valueType = key.getValueType()
-                            val serializer = serializer(valueType)
-                            val decoded = Json.decodeFromString(serializer, valueJson)
-                            @Suppress("UNCHECKED_CAST")
-                            this@syncToDataStore.setState(key as StateStoreKey<Any>, decoded as Any)
-                            restoredValue.value = decoded
-                        } catch (e: SerializationException) {
-                            throw CorruptionException("Unable to deserialize JSON from String.", e)
-                        } catch (e: Exception) {
-                            throw CorruptionException(
-                                "Unexpected error restoring state for key: ",
-                                e,
-                            )
-                        }
-                    }
-                    restored.value = true
-                }
-
-                LaunchedEffect(key, value, restored.value) {
-                    if (restored.value) {
-                        if (value != null && value != restoredValue.value) {
-                            val keyName =
-                                checkNotNull(key::class.qualifiedName) {
-                                    "Keys implementing PersistToDataStore must have a qualified name."
-                                }
-                            withContext(Dispatchers.IO) {
-                                dataStore.edit { settings ->
-                                    try {
-                                        val valueType = key.getValueType()
-                                        val serializer = serializer(valueType)
-                                        val jsonValue = Json.encodeToString(serializer, value)
-                                        settings.preferencesMap[keyName] = jsonValue
-                                        restoredValue.value = value
-                                    } catch (e: SerializationException) {
-                                        throw CorruptionException(
-                                            "Unable to serialize String to JSON.",
-                                            e,
-                                        )
-                                    } catch (e: Exception) {
-                                        throw CorruptionException(
-                                            "Unexpected error saving state for key: ",
-                                            e,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+        for (activeKey in activeKeys) {
+            if (activeKey is PersistToDataStore<*>) {
+                // Each key owns its own restore/save state, independent of iteration order.
+                key(activeKey) {
+                    @Suppress("UNCHECKED_CAST")
+                    SyncKey(
+                        key = activeKey as StateStoreKey<Any?>,
+                        name = activeKey.name,
+                        serializer = (activeKey as PersistToDataStore<Any?>).serializer,
+                        dataStore = dataStore,
+                    )
                 }
             }
         }
     }
 }
 
-private fun StateStoreKey<*>.getValueType(): KType {
-    val stateStoreKeySupertype =
-        this::class.allSupertypes.firstOrNull { it.classifier == StateStoreKey::class }
-    return stateStoreKeySupertype?.arguments?.firstOrNull()?.type
-        ?: error("Could not find StateStoreKey supertype for ")
-}
+/**
+ * Restores [key] from [dataStore] once, then writes every subsequent change of its value.
+ *
+ * Runs inside the [listener] composition: reading the key's state here is what re-runs the save
+ * effect when the value changes.
+ */
+@Composable
+private fun <T> StateStore.SyncKey(
+    key: StateStoreKey<T>,
+    name: String,
+    serializer: KSerializer<T>,
+    dataStore: DataStore<StateStorePreferences>,
+) {
+    val restored = remember { mutableStateOf(false) }
+    // The last value read from or written to DataStore, so restoring does not write it back.
+    val lastSynced = remember { mutableStateOf<T?>(null) }
+    val value = getState(key).value
 
-@Suppress("UNCHECKED_CAST")
-private fun <T> StateStore.getUntypedState(key: StateStoreKey<*>, defaultValue: T?): State<T?> {
-    return this.getState(key as StateStoreKey<T?>, defaultValue)
+    // Keyed on Unit because we only want to restore the persisted value once, when this key
+    // enters composition. Later changes are saved by the effect below.
+    LaunchedEffect(Unit) {
+        val valueJson = dataStore.data.first().asMap()[name]
+        if (valueJson != null) {
+            val decoded = decodeValue(serializer, valueJson, name)
+            setState(key, decoded)
+            lastSynced.value = decoded
+        }
+        restored.value = true
+    }
+
+    LaunchedEffect(value, restored.value) {
+        if (restored.value && value != null && value != lastSynced.value) {
+            withContext(Dispatchers.IO) {
+                dataStore.edit { settings ->
+                    settings.preferencesMap[name] = encodeValue(serializer, value, name)
+                    lastSynced.value = value
+                }
+            }
+        }
+    }
 }

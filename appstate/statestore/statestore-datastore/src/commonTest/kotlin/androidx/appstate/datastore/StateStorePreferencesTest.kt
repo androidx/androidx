@@ -28,7 +28,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 import okio.FileSystem
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -42,9 +44,17 @@ class StateStorePreferencesTest {
         Dispatchers.resetMain()
     }
 
-    @Serializable object StringKey : StateStoreKey<String>("default"), PersistToDataStore
+    @Serializable
+    object StringKey : StateStoreKey<String>("default"), PersistToDataStore<String> {
+        override val name: String = "string"
+        override val serializer: KSerializer<String> = String.serializer()
+    }
 
-    @Serializable object IntKey : StateStoreKey<Int>(0), PersistToDataStore
+    @Serializable
+    object IntKey : StateStoreKey<Int>(0), PersistToDataStore<Int> {
+        override val name: String = "int"
+        override val serializer: KSerializer<Int> = Int.serializer()
+    }
 
     @Test
     fun testGetStateReturnsDefaultValue() = runTest {

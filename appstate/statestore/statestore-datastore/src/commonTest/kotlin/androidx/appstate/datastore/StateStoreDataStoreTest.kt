@@ -35,7 +35,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
 import okio.FileSystem
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,9 +53,17 @@ class StateStoreDataStoreTest {
 
     val defaultValue = "default"
 
-    @Serializable object StringKey : StateStoreKey<String>("default"), PersistToDataStore
+    @Serializable
+    object StringKey : StateStoreKey<String>("default"), PersistToDataStore<String> {
+        override val name: String = "string"
+        override val serializer: KSerializer<String> = String.serializer()
+    }
 
-    @Serializable object IntKey : StateStoreKey<Int>(0), PersistToDataStore
+    @Serializable
+    object IntKey : StateStoreKey<Int>(0), PersistToDataStore<Int> {
+        override val name: String = "int"
+        override val serializer: KSerializer<Int> = Int.serializer()
+    }
 
     @Serializable object NonPersistedStringKey : StateStoreKey<String>("default")
 
@@ -176,8 +186,7 @@ class StateStoreDataStoreTest {
         val stateStoreDataStore = dataStore.data.first()
 
         // Confirm datastore does not reflect the updated state store
-        val keyName = NonPersistedStringKey::class.qualifiedName
-        assertThat(stateStoreDataStore.asMap().containsKey(keyName)).isFalse()
+        assertThat(stateStoreDataStore.asMap()).isEmpty()
 
         job.cancel()
     }
