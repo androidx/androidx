@@ -193,10 +193,10 @@ public class AgeSignalManagerJavaTest {
         assertThat(boundedResponse.getAssuranceTier()).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_B);
 
         GetAgeRangeResponse openEndedResponse =
-                new GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_D);
+                new GetAgeRangeResponse(18, null, GetAgeRangeResponse.ASSURANCE_TIER_A);
         assertThat(openEndedResponse.getLowerAgeBound()).isEqualTo(18);
         assertThat(openEndedResponse.getUpperAgeBound()).isNull();
-        assertThat(openEndedResponse.getAssuranceTier()).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_D);
+        assertThat(openEndedResponse.getAssuranceTier()).isEqualTo(GetAgeRangeResponse.ASSURANCE_TIER_A);
     }
 
     @Test
@@ -204,7 +204,5 @@ public class AgeSignalManagerJavaTest {
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_UNSPECIFIED).isEqualTo(0);
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_A).isEqualTo(1);
         assertThat(GetAgeRangeResponse.ASSURANCE_TIER_B).isEqualTo(2);
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_C).isEqualTo(3);
-        assertThat(GetAgeRangeResponse.ASSURANCE_TIER_D).isEqualTo(4);
     }
 }

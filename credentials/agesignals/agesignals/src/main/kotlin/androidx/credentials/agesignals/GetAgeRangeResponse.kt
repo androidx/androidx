@@ -72,7 +72,7 @@ public class GetAgeRangeResponse(
      * The assurance tier of the age signal returned by the provider.
      *
      * Higher tiers indicate stronger assurance that the user belongs to the specified age range
-     * with [ASSURANCE_TIER_A] as the lowest and [ASSURANCE_TIER_D] as the highest tiers
+     * with [ASSURANCE_TIER_A] as the lowest and [ASSURANCE_TIER_B] as the highest tiers
      * respectively, or [ASSURANCE_TIER_UNSPECIFIED] when the assurance tier is not shared by the
      * provider.
      */
@@ -91,8 +91,6 @@ public class GetAgeRangeResponse(
                 ASSURANCE_TIER_UNSPECIFIED,
                 ASSURANCE_TIER_A,
                 ASSURANCE_TIER_B,
-                ASSURANCE_TIER_C,
-                ASSURANCE_TIER_D,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -102,23 +100,14 @@ public class GetAgeRangeResponse(
         /** The assurance tier is not specified or shared by the provider. */
         public const val ASSURANCE_TIER_UNSPECIFIED: Int = 0
 
-        /** User has self declared their age. */
+        /**
+         * User has provided their age information to the age provider. The age provider may or may
+         * not have confirmed this information.
+         */
         public const val ASSURANCE_TIER_A: Int = 1
 
         /** User's age is managed by a parent or a guardian. */
         public const val ASSURANCE_TIER_B: Int = 2
-
-        /**
-         * User's age is assessed by using credit card, email address, selfie assessment, Government
-         * ID, or Tax ID.
-         */
-        public const val ASSURANCE_TIER_C: Int = 3
-
-        /**
-         * User's age is checked by using a combination of Government ID and selfie assessment, or
-         * Digital ID.
-         */
-        public const val ASSURANCE_TIER_D: Int = 4
 
         private const val TAG = "GetAgeRangeResponse"
 
