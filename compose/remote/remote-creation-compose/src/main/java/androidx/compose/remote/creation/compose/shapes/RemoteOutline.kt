@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.shapes
 
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -25,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * Defines a simple shape, used for bounding graphical regions.
@@ -118,14 +118,14 @@ public fun RemoteDrawScope.drawOutline(outline: RemoteOutline, paint: RemotePain
             val rBottomRight: RemoteFloat
             val rBottomLeft: RemoteFloat
 
-            when (remoteCanvas.layoutDirection) {
-                LayoutDirection.Ltr -> {
+            when (remoteCanvas.remoteLayoutDirection) {
+                RemoteLayoutDirection.Ltr -> {
                     rTopLeft = outline.topStart
                     rTopRight = outline.topEnd
                     rBottomRight = outline.bottomEnd
                     rBottomLeft = outline.bottomStart
                 }
-                LayoutDirection.Rtl -> {
+                RemoteLayoutDirection.Rtl -> {
                     rTopLeft = outline.topEnd
                     rTopRight = outline.topStart
                     rBottomRight = outline.bottomStart

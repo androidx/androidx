@@ -25,6 +25,9 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
+import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
+import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.LayoutDirection
@@ -41,6 +44,11 @@ public interface RemoteStateScope {
 
     /** The [LayoutDirection] associated with the document being drawn into. */
     public val layoutDirection: LayoutDirection
+
+    /** The [RemoteLayoutDirection] associated with the document being drawn into. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteLayoutDirection: RemoteLayoutDirection
+        get() = layoutDirection.toRemoteLayoutDirection()
 
     /** The [RemoteComposeWriter] associated with the document being drawn into. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -66,6 +74,11 @@ public interface RemoteStateScope {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val RemoteState<*>.longId: Long
         get() = (this as BaseRemoteState<*>).getLongIdForCreationState(creationState)
+}
+
+internal interface PlatformRemoteStateScope : RemoteStateScope {
+    override val layoutDirection: LayoutDirection
+        get() = remoteLayoutDirection.toComposeLayoutDirection()
 }
 
 /** Build the [RemotePath], encoding using this [RemoteStateScope]. */

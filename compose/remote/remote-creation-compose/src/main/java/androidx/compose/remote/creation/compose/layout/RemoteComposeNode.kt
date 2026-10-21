@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.resolveBottom
 import androidx.compose.remote.creation.compose.modifier.resolveLeft
 import androidx.compose.remote.creation.compose.modifier.resolveRight
 import androidx.compose.remote.creation.compose.modifier.resolveTop
+import androidx.compose.remote.creation.compose.state.PlatformRemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
@@ -34,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 
@@ -44,7 +44,7 @@ internal abstract class RemoteComposeNode {
     var remoteDensity: RemoteDensity = RemoteDensity.Host
 
     fun overriddenScope(creationState: RemoteComposeCreationState): RemoteStateScope {
-        return OverriddenScope(creationState, remoteDensity, creationState.layoutDirection)
+        return OverriddenScope(creationState, remoteDensity, creationState.remoteLayoutDirection)
     }
 
     abstract fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas)
@@ -207,5 +207,5 @@ internal fun shouldReverse(
 internal class OverriddenScope(
     override val parentScope: RemoteStateScope,
     override val remoteDensity: RemoteDensity,
-    override val layoutDirection: LayoutDirection,
-) : RemoteStateScope
+    override val remoteLayoutDirection: RemoteLayoutDirection,
+) : PlatformRemoteStateScope
