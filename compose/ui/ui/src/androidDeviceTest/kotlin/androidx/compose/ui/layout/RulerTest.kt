@@ -567,6 +567,89 @@ class RulerTest(val useIndividualRulers: Boolean) {
         assertThat(vertRead).isEqualTo(!useIndividualRulers)
     }
 
+    @Test
+    fun repeatedReadsWithoutValueChange_stillInvalidateOnChange() {
+        val verticalKeylineValues = mutableFloatListOf()
+        var vertValue by mutableFloatStateOf(35f)
+        var replaceTrigger by mutableIntStateOf(0)
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.size(100.toDp(), 150.toDp())
+                        .provideRulers(horz = { 53f }, vert = { vertValue })
+                ) {
+                    Box(
+                        Modifier.align(AbsoluteAlignment.TopLeft)
+                            .offset(x = 25.toDp(), y = 50.toDp())
+                            .requiredSize(50.toDp())
+                            .layout { measurable, constraints ->
+                                val p = measurable.measure(constraints)
+                                layout(p.width, p.height) {
+                                    replaceTrigger // re-place without changing the ruler value
+                                    verticalKeylineValues += verticalRuler.current(0f)
+                                    p.place(0, 0)
+                                }
+                            }
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        repeat(20) {
+            replaceTrigger++
+            rule.waitForIdle()
+        }
+        assertThat(verticalKeylineValues.size).isEqualTo(21)
+        assertThat(verticalKeylineValues.last()).isEqualTo(10f)
+
+        // A single value change re-places the reader exactly once with the new value.
+        vertValue = 34f
+        rule.waitForIdle()
+        assertThat(verticalKeylineValues.size).isEqualTo(22)
+        assertThat(verticalKeylineValues.last()).isEqualTo(9f)
+
+        // The reader is re-registered and observes subsequent changes.
+        vertValue = 33f
+        rule.waitForIdle()
+        assertThat(verticalKeylineValues.size).isEqualTo(23)
+        assertThat(verticalKeylineValues.last()).isEqualTo(8f)
+    }
+
+    @Test
+    fun removedReader_notReplacedOnValueChange() {
+        var readerPlacements = 0
+        var vertValue by mutableFloatStateOf(35f)
+        var showReader by mutableStateOf(true)
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(
+                    Modifier.size(100.toDp(), 150.toDp())
+                        .provideRulers(horz = { 53f }, vert = { vertValue })
+                ) {
+                    if (showReader) {
+                        Box(
+                            Modifier.requiredSize(50.toDp()).layout { measurable, constraints ->
+                                val p = measurable.measure(constraints)
+                                layout(p.width, p.height) {
+                                    readerPlacements++
+                                    verticalRuler.current(0f)
+                                    p.place(0, 0)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(readerPlacements).isEqualTo(1)
+        showReader = false
+        rule.waitForIdle()
+        vertValue = 34f
+        rule.waitForIdle()
+        assertThat(readerPlacements).isEqualTo(1)
+    }
+
     fun Modifier.provideRulers(horz: Float = 53f, vert: Float = 35f) =
         if (useIndividualRulers) {
             layout { measurable, constraints ->
