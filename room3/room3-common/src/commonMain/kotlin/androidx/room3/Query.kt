@@ -159,5 +159,6 @@ public annotation class Query(
      *
      * @return The query to be run.
      */
+    @Language("RoomSql")
     val value: String
 )
