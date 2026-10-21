@@ -1966,6 +1966,103 @@ class SnapshotTests {
         assertEquals(0, deepState.intValue)
     }
 
+    @Test // b/573222121
+    fun globalWriteToNewlyCreatedObject() {
+        val state = Snapshot.withMutableSnapshot {
+            Snapshot.withMutableSnapshot {
+                val state = mutableIntStateOf(1)
+                Snapshot.global { state.intValue = 2 }
+                state
+            }
+        }
+        assertEquals(2, state.intValue)
+    }
+
+    @Test // b/573222121
+    fun nestedThreadWrite() {
+        fun direct() {
+            // Direct case from 573222121
+            val state = Snapshot.withMutableSnapshot {
+                Snapshot.withMutableSnapshot {
+                    val state = mutableIntStateOf(1)
+                    Snapshot.global { state.intValue = 2 }
+                    state
+                }
+            }
+            assertEquals(2, state.intValue)
+        }
+
+        fun simulateComposition(
+            preCreatedState: MutableState<String?>? = null
+        ): MutableState<String?> = atomic {
+            preCreatedState ?: mutableStateOf(null)
+        }
+
+        fun simulateBackgroundThread(block: () -> Unit) {
+            // Simulate work in a background thread by switch to the global snapshot synchronously.
+            Snapshot.global(block)
+        }
+
+        fun runCase(
+            composeInNestedSnapshot: Boolean,
+            bgWrite: (MutableState<String?>) -> Unit,
+            preCreatedState: MutableState<String?>? = null,
+        ): State<String?> {
+            lateinit var state: MutableState<String?>
+            if (composeInNestedSnapshot) {
+                atomic {
+                    state = simulateComposition(preCreatedState)
+                    simulateBackgroundThread { bgWrite(state) }
+                }
+            } else {
+                state = simulateComposition(preCreatedState)
+                simulateBackgroundThread { bgWrite(state) }
+            }
+            return state
+        }
+
+        // Directly reproduce 573222121
+        direct()
+
+        val backgroundValue = "from background"
+        val plain: (MutableState<String?>) -> Unit = { it.value = backgroundValue }
+        val inSnapshot: (MutableState<String?>) -> Unit = { s ->
+            atomic { s.value = backgroundValue }
+        }
+
+        // Ensure all related cases are equivalent (caseB is the equivalent of direct() above)
+        val caseA = runCase(composeInNestedSnapshot = false, bgWrite = plain)
+        assertEquals(backgroundValue, caseA.value)
+        val caseB = runCase(composeInNestedSnapshot = true, bgWrite = plain)
+        assertEquals(backgroundValue, caseB.value)
+        val caseC = runCase(composeInNestedSnapshot = false, bgWrite = inSnapshot)
+        assertEquals(backgroundValue, caseC.value)
+        val caseD = runCase(composeInNestedSnapshot = true, bgWrite = inSnapshot)
+        assertEquals(backgroundValue, caseD.value)
+
+        val preCreatedValue: MutableState<String?> = mutableStateOf(null)
+        runCase(composeInNestedSnapshot = false, bgWrite = plain, preCreatedState = preCreatedValue)
+        assertEquals(backgroundValue, preCreatedValue.value)
+        preCreatedValue.value = null
+        runCase(composeInNestedSnapshot = true, bgWrite = plain, preCreatedState = preCreatedValue)
+        assertEquals(backgroundValue, preCreatedValue.value)
+        preCreatedValue.value = null
+        runCase(
+            composeInNestedSnapshot = false,
+            bgWrite = inSnapshot,
+            preCreatedState = preCreatedValue,
+        )
+        assertEquals(backgroundValue, preCreatedValue.value)
+        preCreatedValue.value = null
+        runCase(
+            composeInNestedSnapshot = true,
+            bgWrite = inSnapshot,
+            preCreatedState = preCreatedValue,
+        )
+        assertEquals(backgroundValue, preCreatedValue.value)
+        preCreatedValue.value = null
+    }
+
     private fun usedRecords(state: StateObject): Int {
         var used = 0
         var current: StateRecord? = state.firstStateRecord
