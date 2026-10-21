@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 @ExperimentalComposeApi
@@ -74,6 +75,16 @@ public object ComposeRuntimeFlags {
                 field = value
             }
         }
+
+    /**
+     * This flag causes parent snapshots to advance when a nested snapshot is created. This ensures
+     * that state objects created and modified in the nested snapshot are considered to be before
+     * changes made in the parent snapshot.
+     */
+    // TODO: b/573697066
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var advanceParentSnapshotsWhenTakingNestedSnapshot: Boolean = true
 
     /**
      * Assigned to `true` via proguard rule. When the Runtime is used with an application's release
