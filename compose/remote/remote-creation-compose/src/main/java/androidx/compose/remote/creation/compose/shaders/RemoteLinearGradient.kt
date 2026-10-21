@@ -260,13 +260,13 @@ public fun RemoteBrush.Companion.verticalGradient(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteLinearShader(
-    public var x0: RemoteFloat,
-    public var y0: RemoteFloat,
-    public var x1: RemoteFloat,
-    public var y1: RemoteFloat,
-    public var colors: List<RemoteColor>,
-    public var positions: List<RemoteFloat>?,
-    public var tileMode: ComposeTileMode,
+    public val x0: RemoteFloat,
+    public val y0: RemoteFloat,
+    public val x1: RemoteFloat,
+    public val y1: RemoteFloat,
+    public val colors: List<RemoteColor>,
+    public val positions: List<RemoteFloat>?,
+    public val tileMode: ComposeTileMode,
 ) : RemoteShader() {
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
         var mask = 0

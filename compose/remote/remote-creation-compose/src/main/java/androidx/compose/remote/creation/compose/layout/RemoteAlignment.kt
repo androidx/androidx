@@ -203,7 +203,7 @@ internal data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBia
      *
      * @see Horizontal
      */
-    internal data class Vertical(var type: Int) : RemoteAlignment.Vertical {
+    internal data class Vertical(val type: Int) : RemoteAlignment.Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = type
     }
 }
