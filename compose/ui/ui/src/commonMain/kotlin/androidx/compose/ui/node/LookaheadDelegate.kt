@@ -217,15 +217,23 @@ internal abstract class LookaheadCapablePlaceable :
             .also { it.coordinatesAccessed = false }
 
     private fun addRulerReader(layoutNode: LayoutNode, ruler: Ruler) {
-        rulerReaders?.forEachValue { set -> set.removeIf { it.get()?.isAttached != true } }
-        rulerReaders?.removeIf { _, value -> value.isEmpty() }
         val readerMap =
             rulerReaders
                 ?: MutableScatterMap<Ruler, MutableScatterSet<WeakReference<LayoutNode>>>().also {
                     rulerReaders = it
                 }
         val readers = readerMap.getOrPut(ruler) { MutableScatterSet() }
-        readers += WeakReference(layoutNode)
+        // WeakReference uses identity equality, so check for an existing entry for this node
+        // instead of adding a new reference on every read. Drop detached readers while scanning.
+        var alreadyRegistered = false
+        readers.removeIf {
+            val reader = it.get()
+            if (reader === layoutNode) alreadyRegistered = true
+            reader?.isAttached != true
+        }
+        if (!alreadyRegistered) {
+            readers += WeakReference(layoutNode)
+        }
     }
 
     private fun findAncestorRulerDefiner(ruler: Ruler): LookaheadCapablePlaceable {
