@@ -36,6 +36,7 @@ import androidx.compose.remote.integration.view.demos.blog.DslParticlBreakupKt;
 import androidx.compose.remote.integration.view.demos.blog.DslTouchBounceKt;
 import androidx.compose.remote.integration.view.demos.dsl.DSLJetpackDroidKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslButtonsDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslClickTouchDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslControlledHorizontalScrollKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslControlledScrollKt;
@@ -61,6 +62,7 @@ import androidx.compose.remote.integration.view.demos.dsl.DslHostileActorKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslLayoutComputeDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslMetronomeKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslModernShowcaseDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslNestedInteractionDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPieChartKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPlotDemosKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslPressureGaugeKt;
@@ -298,6 +300,10 @@ public abstract class DemosCreation {
                     get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),
                     get("0/034b/rcJsonStopwatch", RcJsonStopwatchKt::rcJsonStopwatch),
                     get("0/035/dslMetronome", DslMetronomeKt::dslMetronomeDemo),
+                    get("0/036/ClickTouchShowcase",
+                            DslClickTouchDemoKt::dslClickTouchDemo),
+                    get("0/037/NestedInteractionShowcase",
+                            DslNestedInteractionDemoKt::dslNestedInteractionDemo),
                     get("0/033/Demo3", RcDslDemoKt::dslDemo),
                     get("0/021/gameAstroDodger", DslGameAstroDodgerKt::dslGameAstroDodger),
                     get("0/022/gameMarbleTilt", DslGameMarbleTiltKt::dslGameMarbleTilt),
