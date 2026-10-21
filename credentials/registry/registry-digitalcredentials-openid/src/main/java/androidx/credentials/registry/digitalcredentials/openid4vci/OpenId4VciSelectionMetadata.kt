@@ -56,7 +56,7 @@ private constructor(
         return "OpenId4VciSelectionMetadata(entryId=$entryId, requestIndex=$requestIndex)"
     }
 
-    public companion object {
+    internal companion object {
         private const val KEY_ENTRY_ID = "eid"
         private const val KEY_REQUEST_INDEX = "ridx"
 
@@ -67,9 +67,8 @@ private constructor(
          * @return the parsed metadata
          * @throws JSONException if the JSON is malformed or missing required keys
          */
-        @JvmStatic
         @Throws(JSONException::class)
-        public fun parse(metadataJson: String): OpenId4VciSelectionMetadata {
+        internal fun parse(metadataJson: String): OpenId4VciSelectionMetadata {
             val json = JSONObject(metadataJson)
             return OpenId4VciSelectionMetadata(
                 entryId = json.getString(KEY_ENTRY_ID),
