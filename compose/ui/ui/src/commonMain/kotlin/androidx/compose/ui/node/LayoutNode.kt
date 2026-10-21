@@ -22,7 +22,6 @@ import androidx.collection.ObjectList
 import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionLocalMap
-import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.tooling.CompositionErrorContext
 import androidx.compose.runtime.tooling.LocalCompositionErrorContext
 import androidx.compose.ui.InternalComposeUiApi
@@ -637,15 +636,17 @@ internal class LayoutNode(
         }
 
     /**
-     * A copy of [zSortedChildrenList] as a [MutableVector]. Kept only for binary compatibility with
-     * prebuilt code that calls this [PublishedApi] getter; use [zSortedChildrenList] instead.
+     * A copy of [zSortedChildrenList] as a [androidx.compose.runtime.collection.MutableVector].
+     * Kept only for binary compatibility with prebuilt code that calls this [PublishedApi] getter;
+     * use [zSortedChildrenList] instead.
      */
     @Deprecated("Use zSortedChildrenList instead.", ReplaceWith("zSortedChildrenList"))
     @PublishedApi
-    internal val zSortedChildren: MutableVector<LayoutNode>
+    @Suppress("DEPRECATION") // MutableVector is deprecated; kept for binary compatibility.
+    internal val zSortedChildren: androidx.compose.runtime.collection.MutableVector<LayoutNode>
         get() {
             val list = zSortedChildrenList
-            val vector = MutableVector<LayoutNode>(list.size)
+            val vector = androidx.compose.runtime.collection.MutableVector<LayoutNode>(list.size)
             list.forEach { vector.add(it) }
             return vector
         }

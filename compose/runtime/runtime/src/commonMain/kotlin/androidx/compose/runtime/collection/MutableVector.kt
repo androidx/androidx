@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST", "KotlinRedundantDiagnosticSuppress")
+@file:Suppress(
+    "NOTHING_TO_INLINE",
+    "UNCHECKED_CAST",
+    "KotlinRedundantDiagnosticSuppress",
+    "DEPRECATION",
+)
 
 package androidx.compose.runtime.collection
 
@@ -27,6 +32,10 @@ import kotlin.math.max
  * A [MutableList]-like structure with a simplified interface that offers faster access than
  * [ArrayList].
  */
+@Deprecated(
+    message = "Use androidx.collection.MutableObjectList instead.",
+    replaceWith = ReplaceWith("MutableObjectList<T>", "androidx.collection.MutableObjectList"),
+)
 @OptIn(ExperimentalContracts::class)
 public class MutableVector<T>
 @PublishedApi
@@ -1082,6 +1091,11 @@ private fun throwReversedIndicesException(fromIndex: Int, toIndex: Int) {
  *
  * @see MutableVector.ensureCapacity
  */
+@Deprecated(
+    message = "Use androidx.collection.MutableObjectList instead.",
+    replaceWith =
+        ReplaceWith("MutableObjectList<T>(capacity)", "androidx.collection.MutableObjectList"),
+)
 public inline fun <reified T> MutableVector(capacity: Int = 16): MutableVector<T> =
     MutableVector(arrayOfNulls<T>(capacity), 0)
 
@@ -1092,6 +1106,7 @@ public inline fun <reified T> MutableVector(capacity: Int = 16): MutableVector<T
  * [init] is called for each element in the [MutableVector], starting from the first one and should
  * return the value to be assigned to the element at its given index.
  */
+@Deprecated(message = "Use androidx.collection.MutableObjectList instead.")
 @Suppress("LEAKED_IN_PLACE_LAMBDA")
 @OptIn(ExperimentalContracts::class)
 public inline fun <reified T> MutableVector(
@@ -1104,12 +1119,22 @@ public inline fun <reified T> MutableVector(
 }
 
 /** Creates an empty [MutableVector] with a [capacity][MutableVector.ensureCapacity] of 16. */
+@Deprecated(
+    message = "Use androidx.collection.mutableObjectListOf instead.",
+    replaceWith =
+        ReplaceWith("mutableObjectListOf<T>()", "androidx.collection.mutableObjectListOf"),
+)
 public inline fun <reified T> mutableVectorOf(): MutableVector<T> = MutableVector<T>()
 
 /**
  * Creates a [MutableVector] with the given values. This will use the passed vararg [elements]
  * storage.
  */
+@Deprecated(
+    message = "Use androidx.collection.mutableObjectListOf instead.",
+    replaceWith =
+        ReplaceWith("mutableObjectListOf(*elements)", "androidx.collection.mutableObjectListOf"),
+)
 public inline fun <reified T> mutableVectorOf(vararg elements: T): MutableVector<T> {
     return MutableVector(elements as Array<T?>, elements.size)
 }
