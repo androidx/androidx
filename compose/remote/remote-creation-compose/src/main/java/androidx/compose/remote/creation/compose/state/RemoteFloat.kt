@@ -37,7 +37,6 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.StringUtils
-import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
@@ -1585,7 +1584,7 @@ public class MutableRemoteFloat
 @RememberInComposition
 internal constructor(
     cacheKey: RemoteStateCacheKey,
-    private var idProvider: (creationState: RemoteComposeCreationState) -> Float,
+    private val idProvider: (creationState: RemoteComposeCreationState) -> Float,
 ) : RemoteFloat(cacheKey), MutableRemoteState<Float> {
 
     @RememberInComposition
@@ -1948,23 +1947,12 @@ internal constructor(
     public override val constantValueOrNull: Float?
         get() = null
 
-    public val easing: FloatAnimation = FloatAnimation(*anim)
-    public val exp: AnimatedFloatExpression = AnimatedFloatExpression()
-
-    public var lastValue: Float = Float.NaN
-    public var lastChanged: Float = Float.NaN
-    public val start: Long = System.nanoTime()
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = input.arrayForCreationState(creationState)
         return creationState.getOrPutFloatExpressionId(array, anim) {
             Utils.idFromNan(creationState.document.floatExpression(array, anim))
         }
-    }
-
-    public fun getAnimationTime(): Float {
-        return (System.nanoTime() - start) * 1E-9f
     }
 }
 
