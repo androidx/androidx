@@ -20,11 +20,13 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
@@ -47,6 +49,8 @@ class DrawHelpersTest {
         assertEquals(1, RemoteTileMode.Repeated.value)
         assertEquals(2, RemoteTileMode.Mirror.value)
         assertEquals(3, RemoteTileMode.Decal.value)
+        assertEquals(0, RemotePathFillType.NonZero.value)
+        assertEquals(1, RemotePathFillType.EvenOdd.value)
     }
 
     @Test
@@ -57,6 +61,8 @@ class DrawHelpersTest {
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
         assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
+        assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
+        assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
 
         assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
         assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
