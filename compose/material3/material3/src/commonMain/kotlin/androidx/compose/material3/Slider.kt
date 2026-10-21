@@ -3104,6 +3104,7 @@ private fun Modifier.rangeSliderPressDragModifier(
 
                 try {
                     val down = awaitFirstDown(requireUnconsumed = false)
+                    state.updateMinMaxPx()
 
                     val posX =
                         if (state.isRtl) state.totalWidth - down.position.x else down.position.x
@@ -3138,9 +3139,19 @@ private fun Modifier.rangeSliderPressDragModifier(
 
                         press = null
 
+                        val shouldUpdateCapturedThumb =
+                            abs(state.rawOffsetEnd - posX) < pointerSlop &&
+                                abs(state.rawOffsetStart - posX) < pointerSlop
+                        if (shouldUpdateCapturedThumb) {
+                            val dir = overSlop.x
+                            draggingStart = if (state.isRtl) dir >= 0f else dir < 0f
+                        }
+
+                        val dragInteractionSource =
+                            rangeSliderLogic.activeInteraction(draggingStart)
                         val interaction = DragInteraction.Start()
                         activeDragInteraction = interaction
-                        launch { interactionSource.emit(interaction) }
+                        launch { dragInteractionSource.emit(interaction) }
 
                         // Apply the slop from the initial drag detection
                         val initialOffset =
@@ -3171,7 +3182,7 @@ private fun Modifier.rangeSliderPressDragModifier(
                                 DragInteraction.Cancel(interaction)
                             }
                         currentOnValueChangeFinished.value?.invoke()
-                        launch { interactionSource.emit(finishInteraction) }
+                        launch { dragInteractionSource.emit(finishInteraction) }
                         activeDragInteraction = null
                     } else if (drag?.pressed == false) {
                         // The press is completed, so emit a release.
@@ -3792,7 +3803,7 @@ public constructor(
     internal fun updateMinMaxPx() {
         val newMaxPx = max(totalWidth - endThumbWidth / 2, 0f)
         val newMinPx = min(startThumbWidth / 2, newMaxPx)
-        if (!isDragging && (minPx != newMinPx || maxPx != newMaxPx || startValue != endValue)) {
+        if (!isDragging) {
             minPx = newMinPx
             maxPx = newMaxPx
             rawOffsetStart = scaleToOffset(minPx, maxPx, startValue)
