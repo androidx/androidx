@@ -29,12 +29,7 @@ private abstract class StylePaddingValues(val resolver: StyleResolver) : Padding
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
-
-        other as StylePaddingValues
-
-        if (resolver != other.resolver) return false
-
-        return true
+        return resolver == (other as StylePaddingValues).resolver
     }
 
     override fun hashCode(): Int = resolver.hashCode()

@@ -73,7 +73,14 @@ import androidx.compose.ui.unit.isSpecified
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    StyleDeprecation,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun interface Style : CustomStyle<StyleScope> {
+    @Suppress("DEPRECATION")
     public companion object : Style {
         @Suppress("MissingJvmStatic") public override fun StyleScope.applyStyle() {}
     }
@@ -88,6 +95,12 @@ public fun interface Style : CustomStyle<StyleScope> {
  * removing code that was written using the experimental 1.11 version of this API.
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    StyleToCustomStyle,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun Style.toCommonStyle(): CommonStyle = CommonStyle {
     val scope =
         object : CommonStyleScope by this, StyleScope {
@@ -373,6 +386,12 @@ public fun Style.toCommonStyle(): CommonStyle = CommonStyle {
  * @param other the style to merge into the receiver.
  */
 @ExperimentalFoundationStyleApi
+@Suppress("DEPRECATION")
+@Deprecated(
+    StyleDeprecation,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public infix fun Style.then(other: Style): Style = Style(this, other)
 
 /**
@@ -382,6 +401,12 @@ public infix fun Style.then(other: Style): Style = Style(this, other)
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
+@Suppress("DEPRECATION")
+@Deprecated(
+    StyleDeprecation,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public fun Style(style1: Style, style2: Style): Style =
     when {
         style1 === Style -> style2
@@ -399,6 +424,12 @@ public fun Style(style1: Style, style2: Style): Style =
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
+@Suppress("DEPRECATION")
+@Deprecated(
+    StyleDeprecation,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public fun Style(style1: Style, style2: Style, style3: Style): Style =
     when {
         style1 === Style -> Style(style2, style3)
@@ -425,6 +456,12 @@ public fun Style(style1: Style, style2: Style, style3: Style): Style =
  * right" will override styles to the left of them, on a per-property basis.
  */
 @ExperimentalFoundationStyleApi
+@Suppress("DEPRECATION")
+@Deprecated(
+    StyleDeprecation,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public fun Style(vararg styles: Style): Style =
     if (styles.fastAny { it === Style }) {
         val count = styles.fastCount { it !== Style }
@@ -480,6 +517,7 @@ private inline fun <T> Array<T>.fastForEach(block: (T) -> Unit) {
  * [applyStyle] will apply all the styles in the [styles] field in order.
  */
 @ExperimentalFoundationStyleApi
+@Suppress("DEPRECATION")
 internal class CombinedStyle(vararg val styles: Style) : Style {
     override fun StyleScope.applyStyle() {
         for (style in styles) {
@@ -496,3 +534,9 @@ internal class CombinedStyle(vararg val styles: Style) : Style {
 
     override fun hashCode(): Int = styles.contentHashCode()
 }
+
+private const val StyleDeprecation =
+    "Use CustomStyle or CustomStyle derived type instead. " + StyleTransition
+
+private const val StyleToCustomStyle =
+    "Replace with the toCommonStyle of a CustomStyle derived type.$StyleTransition"

@@ -107,6 +107,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border() {
         checkEquivalence(
             styleVersion = {
@@ -123,6 +124,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun contentPadding() {
         checkEquivalence(
             styleVersion = {
@@ -139,6 +141,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_fillArea() {
         checkEquivalence(
             styleVersion = {
@@ -161,6 +164,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_genericShape_background() {
         checkEquivalence(
             styleVersion = {
@@ -189,6 +193,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_shape_notSimple() {
         checkEquivalence(
             styleVersion = {
@@ -215,6 +220,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_customOutline_rectangle() {
         val customShape =
             object : Shape {
@@ -249,6 +255,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_customOutline_rounded() {
         val customShape =
             object : Shape {
@@ -286,6 +293,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_customOutline_rounded_notSimple() {
         val customShape =
             object : Shape {
@@ -330,6 +338,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_customOutline_generic() {
         val customShape =
             object : Shape {
@@ -368,6 +377,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun border_customOutline_generic_background() {
         val customShape =
             object : Shape {
@@ -413,6 +423,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun externalPadding() {
         checkEquivalence(
             styleVersion = {
@@ -429,6 +440,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun shape() {
         checkEquivalence(
             styleVersion = {
@@ -473,6 +485,7 @@ class StyleEquivalenceTests {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun size() {
         checkEquivalence(
             styleVersion = {
@@ -527,6 +540,7 @@ class StyleEquivalenceTests {
     }
 
     @Test // b482308908
+    @Suppress("DEPRECATION")
     fun roundedCornerShapeBrushBackground() {
         checkEquivalence(
             styleVersion = {
@@ -555,6 +569,7 @@ class StyleEquivalenceTests {
     }
 
     @Test // b/509438572
+    @Suppress("DEPRECATION")
     fun textStylePriority() {
         checkEquivalence(
             styleVersion = {
@@ -719,6 +734,7 @@ private fun Bitmap.differenceToString(other: Bitmap): String {
 /** A typical button shaped composable using style for customization. */
 @ExperimentalFoundationStyleApi
 @Composable
+@Suppress("DEPRECATION")
 internal fun BaseStyleableButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -799,7 +815,7 @@ internal fun BaseModifierButton(
                 }
                 .ifNonNull(border) {
                     // Compute the padding necessary to match the border. Padding uses
-                    // `value.roundToPx()`. Border uses `ceil(value.toPx()`. The styleable modifier
+                    // `value.roundToPx()`. Border uses `ceil(value.toPx())`. The styleable modifier
                     // uses width computed for the border width to compute the padding. This
                     // uses the border computation to compute the Dp value that will produce the
                     // same number of pixels used by the border.

@@ -70,6 +70,7 @@ import kotlinx.coroutines.CoroutineScope
  * impact might be worse. This is all implementation detail however, and could be experimented with
  * over time.
  */
+@Suppress("DEPRECATION")
 internal class ResolvedStyle internal constructor() : StyleScope, InspectableValue {
     // TODO: there's currently ~50 individual properties on this class. We could use a single bit
     //  for every single property if flags became a Long, which might allow for some functions to
@@ -109,6 +110,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         }
     }
 
+    @Suppress("unused")
     internal fun buildForTesting(
         style: Style,
         density: Density,
@@ -120,6 +122,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         doneBuild()
     }
 
+    @Suppress("unused")
     internal fun closeForTesting() {
         animations?.close()
     }
