@@ -16,6 +16,7 @@
 
 package androidx.webkit.internal;
 
+import androidx.annotation.OptIn;
 import androidx.webkit.NavigationListener;
 import androidx.webkit.NavigationRedirectParameters;
 import androidx.webkit.NavigationState;
@@ -37,7 +38,8 @@ public class NavigationListenerAdapter implements WebViewNavigationListenerBound
 
     private static final String[] SUPPORTED_FEATURES = {Features.WEB_VIEW_NAVIGATION_LISTENER_V1,
             Features.WEB_VIEW_NAVIGATION_LISTENER_V2,
-            Features.NAVIGATION_LISTENER_NAVIGATION_STATE};
+            Features.NAVIGATION_LISTENER_NAVIGATION_STATE,
+            Features.WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE};
 
     private final NavigationListener mImpl;
 
@@ -89,6 +91,18 @@ public class NavigationListenerAdapter implements WebViewNavigationListenerBound
     public void onNavigationCompletedThreadsafe(@NonNull InvocationHandler navigationState) {
         mImpl.onNavigationCompleted(
                 NavigationState.forInvocationHandler(navigationState));
+    }
+
+    @Override
+    @OptIn(markerClass = NavigationListener.ExperimentalOnNavigationVisible.class)
+    public void onNavigationVisible(@NonNull InvocationHandler navigation) {
+        mImpl.onNavigationVisible(new NavigationState(new CopiedNavigationState(navigation)));
+    }
+
+    @Override
+    @OptIn(markerClass = NavigationListener.ExperimentalOnNavigationVisible.class)
+    public void onNavigationVisibleThreadsafe(@NonNull InvocationHandler navigationState) {
+        mImpl.onNavigationVisible(NavigationState.forInvocationHandler(navigationState));
     }
 
     @Override
