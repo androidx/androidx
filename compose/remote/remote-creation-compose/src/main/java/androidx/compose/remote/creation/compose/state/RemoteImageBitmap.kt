@@ -19,12 +19,14 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_HEIGHT
 import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.IntSize
 
 /**
  * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
@@ -169,24 +171,62 @@ internal constructor(
         }
 
         /**
+         * Sentinel [IntSize] (`0x0`) indicating that a URL-backed [RemoteImageBitmap] should derive
+         * its dimensions from the loaded image at runtime rather than enforcing fixed bounds.
+         */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val IntrinsicSize: IntSize = IntSize.Zero
+
+        /**
          * Creates a named [RemoteImageBitmap] backed by an image [url].
          *
-         * @param name A unique name to identify this state within its [domain].
-         * @param url The URL of the image.
-         * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
-         * @return A [RemoteImageBitmap] representing the named bitmap.
+         * Defaults to `1x1` dimensions for compatibility with existing players. Pass
+         * [IntrinsicSize] to the `size` overload to instruct updated players to take the actual
+         * size from the loaded image.
+         *
+         * @param name unique name to identify this state within its [domain]
+         * @param url URL of the image
+         * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+         * @return a [RemoteImageBitmap] for the named bitmap
          */
         @JvmStatic
         public fun createNamedRemoteImageBitmap(
             name: String,
             url: String,
             domain: RemoteState.Domain = RemoteState.Domain.User,
+        ): RemoteImageBitmap = createNamedRemoteImageBitmap(name, url, IntSize(1, 1), domain)
+
+        /**
+         * Creates a named [RemoteImageBitmap] backed by an image [url] with explicit [size].
+         *
+         * Note: Passing [IntrinsicSize] (`0x0`) for [size] instructs the player to use the loaded
+         * image's intrinsic dimensions.
+         *
+         * @param name unique name to identify this state within its [domain]
+         * @param url URL of the image
+         * @param size expected dimensions of the bitmap in pixels, or [IntrinsicSize] to use the
+         *   loaded image's dimensions
+         * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+         * @return a [RemoteImageBitmap] for the named bitmap
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createNamedRemoteImageBitmap(
+            name: String,
+            url: String,
+            size: IntSize,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteImageBitmap {
             return MutableRemoteImageBitmap(
                 constantValueOrNull = null,
                 cacheKey = RemoteNamedCacheKey(domain, name),
             ) { creationState ->
-                creationState.document.addNamedBitmapUrl(domain.prefixed(name), url)
+                val id = creationState.document.addBitmapUrl(url, size.width, size.height)
+                creationState.document.setNamedVariable(
+                    id,
+                    domain.prefixed(name),
+                    NamedVariable.IMAGE_TYPE,
+                )
+                id
             }
         }
 
@@ -318,10 +358,10 @@ public fun rememberNamedRemoteImageBitmap(
 /**
  * Remembers a named [RemoteImageBitmap] loaded from a [url].
  *
- * @param name A unique name to identify this state within its [domain].
- * @param url The URL of the image.
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @return A [RemoteImageBitmap] representing the named bitmap from [url].
+ * @param name unique name to identify this state within its [domain]
+ * @param url URL of the image
+ * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+ * @return a [RemoteImageBitmap] for the named bitmap from [url]
  */
 @Composable
 public fun rememberNamedRemoteImageBitmap(
@@ -330,6 +370,27 @@ public fun rememberNamedRemoteImageBitmap(
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteImageBitmap {
     return remember(name, domain) { createNamedRemoteImageBitmap(name, url, domain) }
+}
+
+/**
+ * Remembers a named [RemoteImageBitmap] loaded from a [url] with explicit [size].
+ *
+ * @param name unique name to identify this state within its [domain]
+ * @param url URL of the image
+ * @param size expected dimensions of the bitmap in pixels, or [RemoteImageBitmap.IntrinsicSize] to
+ *   use the loaded image's dimensions
+ * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
+ * @return a [RemoteImageBitmap] for the named bitmap from [url]
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+public fun rememberNamedRemoteImageBitmap(
+    name: String,
+    url: String,
+    size: IntSize,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+): RemoteImageBitmap {
+    return remember(name, domain, size) { createNamedRemoteImageBitmap(name, url, size, domain) }
 }
 
 /** Extension property to convert a [ImageBitmap] to a [RemoteImageBitmap]. */

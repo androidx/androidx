@@ -23,7 +23,9 @@ import androidx.compose.remote.core.operations.BitmapData;
 
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LimitsTest {
 
@@ -103,6 +105,52 @@ public class LimitsTest {
                         BitmapData.read(buffer, new ArrayList<>());
                     });
             assertTrue(e.getMessage().contains("URL image not supported"));
+        } finally {
+            Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls;
+        }
+    }
+
+    @Test
+    public void testBitmapDataZeroDimensionsAllowedOnlyForUrlOrFile() {
+        boolean originalEnableImageUrls = Limits.ENABLE_IMAGE_URLS;
+        try {
+            Limits.ENABLE_IMAGE_URLS = true;
+
+            // 0x0 allowed for ENCODING_URL
+            WireBuffer urlBuffer = new WireBuffer();
+            byte[] urlBytes = "http://example.com/test.png".getBytes(StandardCharsets.UTF_8);
+            BitmapData.apply(
+                    urlBuffer,
+                    1,
+                    BitmapData.TYPE_PNG,
+                    (short) 0,
+                    BitmapData.ENCODING_URL,
+                    (short) 0,
+                    urlBytes);
+            urlBuffer.setIndex(0);
+            urlBuffer.readByte(); // consume OP_CODE
+            List<Operation> ops = new ArrayList<>();
+            BitmapData.read(urlBuffer, ops);
+            assertEquals(1, ops.size());
+            BitmapData bd = (BitmapData) ops.get(0);
+            assertEquals(0, bd.getWidth());
+            assertEquals(0, bd.getHeight());
+
+            // 0x0 rejected for ENCODING_INLINE
+            WireBuffer inlineBuffer = new WireBuffer();
+            BitmapData.apply(
+                    inlineBuffer,
+                    2,
+                    BitmapData.TYPE_PNG_8888,
+                    (short) 0,
+                    BitmapData.ENCODING_INLINE,
+                    (short) 0,
+                    new byte[10]);
+            inlineBuffer.setIndex(0);
+            inlineBuffer.readByte(); // consume OP_CODE
+            assertThrows(
+                    RuntimeException.class,
+                    () -> BitmapData.read(inlineBuffer, new ArrayList<>()));
         } finally {
             Limits.ENABLE_IMAGE_URLS = originalEnableImageUrls;
         }

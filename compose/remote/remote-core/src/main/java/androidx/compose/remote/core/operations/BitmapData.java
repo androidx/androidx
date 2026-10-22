@@ -292,8 +292,11 @@ public class BitmapData extends Operation
                 throw new RuntimeException("File image not supported [" + imageId + "]");
             }
         }
-        if (width < 1
-                || height < 1
+        boolean allowZeroDimensions =
+                (encoding == ENCODING_URL || encoding == ENCODING_FILE)
+                        && width == 0
+                        && height == 0;
+        if ((!allowZeroDimensions && (width < 1 || height < 1))
                 || height > Limits.MAX_IMAGE_DIMENSION
                 || width > Limits.MAX_IMAGE_DIMENSION
                 || width * height > Limits.MAX_BITMAP_MEMORY) {

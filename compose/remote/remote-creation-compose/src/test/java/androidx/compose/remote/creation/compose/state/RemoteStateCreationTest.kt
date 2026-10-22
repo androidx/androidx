@@ -18,7 +18,9 @@ package androidx.compose.remote.creation.compose.state
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
@@ -46,6 +48,7 @@ import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -220,6 +223,36 @@ class RemoteStateCreationTest {
                             .background(painterRemoteImageBitmap(namedBitmap))
                 )
             }
+        val box = coreDoc.rootLayoutComponent!!.list.filterIsInstance<LayoutComponent>().single()
+        val bitmapData = box.canvasOperations!!.list.filterIsInstance<BitmapData>().single()
+        assertThat(bitmapData.width).isEqualTo(1)
+        assertThat(bitmapData.height).isEqualTo(1)
+    }
+
+    @Test
+    fun rememberNamedRemoteBitmap_FromUrlWithExplicitDimensions_encodesDimensions() = runTest {
+        limitsRule.setEnableImageUrls(true)
+        limitsRule.setEnableImageFiles(true)
+        val coreDoc =
+            remoteCaptureRule.captureDocument(context) {
+                val namedBitmap = remember {
+                    createNamedRemoteImageBitmap(
+                        name = "testBitmapUrl",
+                        url =
+                            "android.resource://androidx.compose.remote.foundation/drawable/dummy",
+                        size = IntSize(300, 200),
+                    )
+                }
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp)
+                            .background(painterRemoteImageBitmap(namedBitmap))
+                )
+            }
+        val box = coreDoc.rootLayoutComponent!!.list.filterIsInstance<LayoutComponent>().single()
+        val bitmapData = box.canvasOperations!!.list.filterIsInstance<BitmapData>().single()
+        assertThat(bitmapData.width).isEqualTo(300)
+        assertThat(bitmapData.height).isEqualTo(200)
     }
 
     @Test

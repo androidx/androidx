@@ -29,6 +29,7 @@ import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.SystemClock;
 import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableSupport;
+import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.FloatExpression;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
@@ -422,6 +423,14 @@ public class AndroidRemoteContext extends RemoteContext {
                             imageId, encoding, type, width, height, data, mBitmapLoader);
             if (image != null) {
                 mRemoteComposeState.cacheData(imageId, image);
+                if (width == 0 && height == 0) {
+                    updateBitmapDataDimensions(imageId, image);
+                }
+            }
+        } else if (width == 0 && height == 0) {
+            Object cached = mRemoteComposeState.getFromId(imageId);
+            if (cached instanceof Bitmap) {
+                updateBitmapDataDimensions(imageId, (Bitmap) cached);
             }
         }
     }
@@ -463,6 +472,18 @@ public class AndroidRemoteContext extends RemoteContext {
      */
     public void overrideData(int id, @NonNull Object value) {
         mRemoteComposeState.overrideData(id, value);
+        if (value instanceof Bitmap) {
+            updateBitmapDataDimensions(id, (Bitmap) value);
+        }
+    }
+
+    private void updateBitmapDataDimensions(int imageId, @NonNull Bitmap bitmap) {
+        Object obj = mRemoteComposeState.getObject(imageId);
+        if (obj instanceof BitmapData) {
+            BitmapData bitmapData = (BitmapData) obj;
+            bitmapData.setWidth(bitmap.getWidth());
+            bitmapData.setHeight(bitmap.getHeight());
+        }
     }
 
     /**
