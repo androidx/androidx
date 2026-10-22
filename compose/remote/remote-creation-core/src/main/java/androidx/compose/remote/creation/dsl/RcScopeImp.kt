@@ -81,72 +81,72 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun Custom(
         config: String,
-        properties: List<CustomProperty>,
+        properties: List<RcCustomProperty>,
         modifier: Modifier,
         content: RcScope.() -> Unit,
     ) {
         val corePropList: List<Custom.CustomProperty> = properties.map {
             when (it.mDataType) {
-                CustomProperty.INT_PROP ->
+                RcCustomProperty.INT_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.INT_PROP,
                         it.mIntValue,
                     )
 
-                CustomProperty.STRING_PROP ->
+                RcCustomProperty.STRING_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.STRING_PROP,
                         it.mIntValue,
                     )
 
-                CustomProperty.FLOAT_PROP ->
+                RcCustomProperty.FLOAT_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.FLOAT_PROP,
                         it.mFloatValue,
                     )
 
-                CustomProperty.FLOAT_RETURN ->
+                RcCustomProperty.FLOAT_RETURN ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.FLOAT_RETURN,
                         it.mFloatValue,
                     )
 
-                CustomProperty.TEXT_RETURN ->
+                RcCustomProperty.TEXT_RETURN ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.TEXT_RETURN,
                         it.mIntValue,
                     )
 
-                CustomProperty.INT_RETURN ->
+                RcCustomProperty.INT_RETURN ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.INT_RETURN,
                         it.mIntValue,
                     )
-                CustomProperty.COLOR_RETURN ->
+                RcCustomProperty.COLOR_RETURN ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.COLOR_RETURN,
                         it.mIntValue,
                     )
-                CustomProperty.COLOR_PROP ->
+                RcCustomProperty.COLOR_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.COLOR_PROP,
                         it.mIntValue,
                     )
-                CustomProperty.COLOR_ID_PROP ->
+                RcCustomProperty.COLOR_ID_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.COLOR_ID_PROP,
                         it.mIntValue,
                     )
-                CustomProperty.INT_ID_PROP ->
+                RcCustomProperty.INT_ID_PROP ->
                     Custom.CustomProperty(
                         it.mType,
                         Custom.CustomProperty.INT_ID_PROP,
@@ -313,7 +313,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun RcBitmapFont.measure(
         text: RcText,
-        type: BitmapTextMeasure,
+        type: RcBitmapTextMeasure,
         glyphSpacing: Float,
     ): RcFloat {
         return RcFloat(writer, writer.bitmapTextMeasure(text.id, this.id, type.value, glyphSpacing))
@@ -1312,7 +1312,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun drawOnBitmap(
         image: RcImage,
-        mode: DrawOnBitmapMode,
+        mode: RcDrawOnBitmapMode,
         color: RcColorValue,
         block: RcCanvasScope.() -> Unit,
     ) {

@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.integration.view.demos.dsl
 
-import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.dsl.RcCanvasScope
@@ -26,14 +25,10 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.rcColor
+import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.integration.view.demos.examples.Plot
 import androidx.compose.remote.integration.view.demos.examples.XYGraphProperties
 import androidx.compose.remote.integration.view.demos.examples.rcPlotXY
-
-@Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
-fun RcPaint.setStyle(style: RcPaintStyle): RcPaint {
-    return this.setStyle(style.value)
-}
 
 @Suppress("RestrictedApiAndroidX") // Referring to drawPath, remote-creation
 fun RcCanvasScope.translate(dx: Float, dy: Float) {

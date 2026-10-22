@@ -18,9 +18,9 @@ package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.dsl.DrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColorValue
+import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcMeshBlend
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcMeshMatrix
@@ -248,7 +248,7 @@ public fun dslMesh2DTexturedTapestry(): ByteArray {
             // Build a 128x128 geometric tile texture inside the document itself, so the demo is
             // self-contained and works identically on device and in headless unit tests.
             val medallion = createBitmap(128, 128)
-            drawOnBitmap(medallion, DrawOnBitmapMode.CLEAR, RcColorValue(0xFF162238.toInt())) {
+            drawOnBitmap(medallion, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF162238.toInt())) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFF2B4C7E.toInt())

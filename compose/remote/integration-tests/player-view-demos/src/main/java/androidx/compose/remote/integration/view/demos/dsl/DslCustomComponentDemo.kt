@@ -17,9 +17,9 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
-import androidx.compose.remote.creation.dsl.CustomProperty
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcCustomProperty
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextAlign
@@ -122,17 +122,13 @@ public fun dslCustomComponentDemo(): ByteArray {
                     config = "TextView",
                     properties =
                         listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
-                            CustomProperty.color(
+                            RcCustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
+                            RcCustomProperty.color(
                                 SupportTextView.PROP_TEXT_COLOR,
                                 Color.rgb(56, 189, 248).rcColor(),
                             ),
-                            CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(SupportTextView.PROP_BACKGROUND_COLOR, col),
+                            RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                            RcCustomProperty.color(SupportTextView.PROP_BACKGROUND_COLOR, col),
                         ),
                     modifier =
                         Modifier.fillMaxWidth()
@@ -154,17 +150,13 @@ public fun dslCustomComponentDemo(): ByteArray {
                     config = "TextView",
                     properties =
                         listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
-                            CustomProperty.color(
+                            RcCustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
+                            RcCustomProperty.color(
                                 SupportTextView.PROP_TEXT_COLOR,
                                 Color.rgb(56, 248, 189).rcColor(),
                             ),
-                            CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(
+                            RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                            RcCustomProperty.color(
                                 SupportTextView.PROP_BACKGROUND_COLOR,
                                 col, // Color.rgb(30, 41, 59).rcColor(),
                             ),
@@ -173,27 +165,15 @@ public fun dslCustomComponentDemo(): ByteArray {
                 )
             }
 
-            val prop = CustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
+            val prop = RcCustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
             val slider = prop.getFloatValue()
             // Native hosted Custom Component ProgressBar!
             val progressProps =
                 listOf(
-                    CustomProperty(
-                        SupportProgressBar.PROP_PROGRESS,
-                        CustomProperty.FLOAT_PROP,
-                        slider,
-                    ),
-                    CustomProperty(
-                        SupportProgressBar.PROP_MAX_PROGRESS,
-                        CustomProperty.INT_PROP,
-                        100,
-                    ),
-                    CustomProperty(
-                        SupportProgressBar.PROP_INDETERMINATE,
-                        CustomProperty.INT_PROP,
-                        0,
-                    ),
-                    CustomProperty.color(
+                    RcCustomProperty.float(SupportProgressBar.PROP_PROGRESS, slider),
+                    RcCustomProperty.int(SupportProgressBar.PROP_MAX_PROGRESS, 100),
+                    RcCustomProperty.int(SupportProgressBar.PROP_INDETERMINATE, 0),
+                    RcCustomProperty.color(
                         SupportProgressBar.PROP_PROGRESS_COLOR,
                         Color.rgb(56, 189, 248).rcColor(),
                     ),
@@ -236,17 +216,13 @@ public fun dslCustomComponentDemo(): ByteArray {
                     config = "TextView",
                     properties =
                         listOf(
-                            CustomProperty.text(SupportTextView.PROP_TEXT, sum.genTextId(3)),
-                            CustomProperty.color(
+                            RcCustomProperty.text(SupportTextView.PROP_TEXT, sum.genTextId(3)),
+                            RcCustomProperty.color(
                                 SupportTextView.PROP_TEXT_COLOR,
                                 Color.rgb(248, 189, 56).rcColor(),
                             ),
-                            CustomProperty(
-                                SupportTextView.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(
+                            RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                            RcCustomProperty.color(
                                 SupportTextView.PROP_BACKGROUND_COLOR,
                                 Color.rgb(30, 41, 59).rcColor(),
                             ),

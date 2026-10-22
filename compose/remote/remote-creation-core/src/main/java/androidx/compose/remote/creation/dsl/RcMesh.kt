@@ -40,24 +40,29 @@ public value class RcMesh internal constructor(internal val id: Int)
  * ordinary canvas matrix is what places and sizes them.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcMeshLayout(public val value: Int) {
-    /** u across, v down. Warps, cloth, gradient fields, heat maps. */
-    Grid(Mesh2DGenerator.LAYOUT_GRID),
-    /** u is an angle over a full turn, v is radius 0..1. Radial gradients, ripples, sunbursts. */
-    Polar(Mesh2DGenerator.LAYOUT_POLAR),
-    /** u is an angle, v crosses a band between two radii. Gauges, arcs, donuts, dials. */
-    Ring(Mesh2DGenerator.LAYOUT_RING),
-    /** u along, v across. Ribbons, trails, variable width strokes. */
-    Strip(Mesh2DGenerator.LAYOUT_STRIP),
-    /** u is an angle about a shared centre vertex. Pie wedges, cones of light. */
-    Fan(Mesh2DGenerator.LAYOUT_FAN),
-    /** u is arclength along a path, v crosses its width. Strokes that follow a path. */
-    PathStrip(Mesh2DGenerator.LAYOUT_PATH_STRIP),
+@JvmInline
+public value class RcMeshLayout internal constructor(internal val value: Int) {
+    public companion object {
+        /** u across, v down. Warps, cloth, gradient fields, heat maps. */
+        public val Grid: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_GRID)
+        /**
+         * u is an angle over a full turn, v is radius 0..1. Radial gradients, ripples, sunbursts.
+         */
+        public val Polar: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_POLAR)
+        /** u is an angle, v crosses a band between two radii. Gauges, arcs, donuts, dials. */
+        public val Ring: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_RING)
+        /** u along, v across. Ribbons, trails, variable width strokes. */
+        public val Strip: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_STRIP)
+        /** u is an angle about a shared centre vertex. Pie wedges, cones of light. */
+        public val Fan: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_FAN)
+        /** u is arclength along a path, v crosses its width. Strokes that follow a path. */
+        public val PathStrip: RcMeshLayout = RcMeshLayout(Mesh2DGenerator.LAYOUT_PATH_STRIP)
+    }
 }
 
 /** How a mesh's vertex colours combine with the texel sampled from its image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcMeshBlend(public val value: Int) {
+public enum class RcMeshBlend(internal val value: Int) {
     /** Ignore the image and use the vertex colours alone. */
     ColorsOnly(DrawMesh2D.BLEND_COLORS_ONLY),
     /** Multiply texel by vertex colour, so the colours tint the image. */
@@ -73,7 +78,7 @@ public enum class RcMeshBlend(public val value: Int) {
  * next level down rather than emitting a matrix that scales content to nothing.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcMeshMatrix(public val value: Int) {
+public enum class RcMeshMatrix(internal val value: Int) {
     /** Translate to the mesh position only. */
     Origin(MatrixFromMesh2D.FLAG_ORIGIN),
     /** Position, plus the rotation of the surface. Text along a path strip. */

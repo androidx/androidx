@@ -93,7 +93,7 @@ private fun RcScope.emitText(text: RcText, keyValues: IntArray) {
     var strikethrough = false
     var color = 0xFF000000.toInt()
     var fontSize = 46f
-    var fontStyle = FontStyle.Normal
+    var fontStyle = RcFontStyle.Normal
     var fontWeight = 400f
     var modifier: Modifier = Modifier.alignByBaseline()
 
@@ -103,7 +103,7 @@ private fun RcScope.emitText(text: RcText, keyValues: IntArray) {
             AttributeRun.POSTURE -> {
                 when (keyValues[i + 1]) {
                     AttributeRun.POSTURE_BOLD -> fontWeight = 700f
-                    AttributeRun.POSTURE_ITALIC -> fontStyle = FontStyle.Italic
+                    AttributeRun.POSTURE_ITALIC -> fontStyle = RcFontStyle.Italic
                 }
             }
 

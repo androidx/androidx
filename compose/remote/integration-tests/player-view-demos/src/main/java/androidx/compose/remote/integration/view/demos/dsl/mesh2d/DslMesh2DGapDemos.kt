@@ -18,9 +18,9 @@ package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.dsl.DrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColorValue
+import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcMeshBlend
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcMeshMatrix
@@ -265,7 +265,7 @@ public fun dslMesh2DTexturedValues(): ByteArray {
 
             // Offscreen 128x128 crisp 4x4 checkerboard + bullseye texture
             val checker = createBitmap(128, 128)
-            drawOnBitmap(checker, DrawOnBitmapMode.CLEAR, RcColorValue(0xFFF8FAFC.toInt())) {
+            drawOnBitmap(checker, RcDrawOnBitmapMode.Clear, RcColorValue(0xFFF8FAFC.toInt())) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFF1D4ED8.toInt())
