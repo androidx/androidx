@@ -62,7 +62,6 @@ import android.widget.ToggleButton;
 
 import androidx.compose.remote.core.CoreDocument.ShaderControl;
 import androidx.compose.remote.core.Limits;
-import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.creation.RemoteComposeContext;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.integration.view.demos.customviews.AndroidCustomSupport;
@@ -93,7 +92,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
@@ -107,7 +105,7 @@ import java.util.zip.ZipOutputStream;
 @SuppressLint("RestrictedApiAndroidX")
 public class ExperimentRecyclerActivity extends Activity {
     static Bitmap sPersonImage3;
-    static RemoteComposeBuffer sCurrentBuffer = DemoPaths.pathTest().getBuffer();
+    static byte @NonNull [] sCurrentDoc = DemoPaths.pathTest().encodeToByteArray();
     private FrameMetrics mMetrics;
     static final String CHANNEL_ID = "custom_notification_channel";
     static int sNotificationId = 1;
@@ -119,8 +117,8 @@ public class ExperimentRecyclerActivity extends Activity {
     }
 
 
-    public static @NonNull RemoteComposeBuffer getCurrentDoc() {
-        return sCurrentBuffer;
+    public static byte @NonNull [] getCurrentDoc() {
+        return sCurrentDoc;
     }
 
     @Override
@@ -185,7 +183,10 @@ public class ExperimentRecyclerActivity extends Activity {
                 return d1.toString().compareTo(d2.toString());
             }
         });
-        sCurrentBuffer = Objects.requireNonNull(mDocList.get(0).getDoc()).getDocument().getBuffer();
+        byte[] firstBytes = docToBytes(mDocList.get(0));
+        if (firstBytes != null) {
+            sCurrentDoc = firstBytes;
+        }
 
         // Set adapter to RecyclerView
         mRecyclerView.setAdapter(new MyAdapter(mDocList));
@@ -542,18 +543,11 @@ public class ExperimentRecyclerActivity extends Activity {
     }
 
     private void sendDoc(RCDoc doc) {
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            Log.v("MAIN", "save   " + read + " bytes");
+        byte[] bytes = docToBytes(doc);
+        if (bytes != null) {
+            sCurrentDoc = bytes;
+            Log.v("MAIN", "save   " + bytes.length + " bytes");
             saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (IOException e) {
-            Log.e("MAIN", "Error reading bytes");
         }
     }
 
@@ -575,19 +569,12 @@ public class ExperimentRecyclerActivity extends Activity {
         RCDoc doc = mDocList.get(off);
 //        MyViewHolder holder = (MyViewHolder) mRecyclerView.findViewHolderForAdapterPosition(off);
 
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            System.out.println("read " + read);
-            saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (IOException e) {
-            Log.e("MAIN", "Error reading bytes");
+        byte[] bytes = docToBytes(doc);
+        if (bytes == null) {
+            return;
         }
+        sCurrentDoc = bytes;
+        saveDoc(doc.toString(), bytes, getApplicationContext(), false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             RemoteViews.DrawInstructions drawInstruction = new RemoteViews.DrawInstructions.Builder(
@@ -693,22 +680,12 @@ public class ExperimentRecyclerActivity extends Activity {
     }
 
     static byte[] docToBytes(RCDoc doc) {
-        RemoteDocument rcdoc = doc.getDoc();
-        if (rcdoc == null) {
+        if (doc == null) {
             return null;
         }
-        sCurrentBuffer = rcdoc.getDocument().getBuffer();
-
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            Log.v("MAIN", "read " + read);
-        } catch (IOException e) {
-            Log.d("MAIN", "Unable to read doc ");
+        byte[] bytes = doc.getBytes();
+        if (bytes != null) {
+            sCurrentDoc = bytes;
         }
         return bytes;
     }
@@ -750,19 +727,12 @@ public class ExperimentRecyclerActivity extends Activity {
 
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
 
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
-        byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
-                sCurrentBuffer.getBuffer().getSize());
-        int bufferSize = buffer.length;
-        byte[] bytes = new byte[bufferSize];
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0,
-                bufferSize)) {
-            int read = byteArrayInputStream.read(bytes);
-            System.out.println("read " + read);
-            saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (Exception e) {
-            // Handle the exception
+        byte[] bytes = docToBytes(doc);
+        if (bytes == null) {
+            return;
         }
+        sCurrentDoc = bytes;
+        saveDoc(doc.toString(), bytes, getApplicationContext(), false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             RemoteViews.DrawInstructions drawInstruction = new RemoteViews.DrawInstructions.Builder(
                     List.of(bytes)).build();
@@ -1214,6 +1184,11 @@ public class ExperimentRecyclerActivity extends Activity {
             }
 
             @Override
+            public byte @NonNull [] getBytes() {
+                return doc();
+            }
+
+            @Override
             public RemoteDocument getDoc() {
                 Log.v("perf", "build doc \"" + name + "\"");
                 long time = System.nanoTime();
@@ -1288,6 +1263,11 @@ public class ExperimentRecyclerActivity extends Activity {
             @NonNull
             public String toString() {
                 return name;
+            }
+
+            @Override
+            public byte @NonNull [] getBytes() {
+                return writer().encodeToByteArray();
             }
 
             @Override
@@ -1383,6 +1363,11 @@ public class ExperimentRecyclerActivity extends Activity {
                 RemoteComposeWriter w = writer2();
                 return new RemoteDocument(
                         new ByteArrayInputStream(w.buffer(), 0, w.bufferSize()));
+            }
+
+            @Override
+            public byte @NonNull [] getBytes() {
+                return writer().encodeToByteArray();
             }
 
             @Override

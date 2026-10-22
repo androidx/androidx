@@ -21,23 +21,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.testing.RemoteBaseContentTestRule
+import androidx.compose.remote.testing.RemoteBaseContentTestRule.Creation
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
-import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.matchers.BitmapMatcher
+import java.io.ByteArrayInputStream
 import java.io.File
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -48,9 +58,9 @@ import org.junit.runners.model.Statement
  * Common implementation shared by the Remote Compose screenshot [TestRule]s, such as
  * [RemoteScreenshotTestRule] and [RemoteEmbeddedScreenshotTestRule].
  *
- * Uses [RemoteContentTestRule] to create and play the Remote Compose content with a given [Player]
- * and [AndroidXScreenshotTestRule] to verify it against golden screenshots. The created document
- * and its draw commands are saved to the device output directory for debugging.
+ * Uses [RemoteBaseContentTestRule] to create and play the Remote Compose content with a given
+ * [Player] and [AndroidXScreenshotTestRule] to verify it against golden screenshots. The created
+ * document and its draw commands are saved to the device output directory for debugging.
  */
 internal class RemoteBaseScreenshotTestRule(
     moduleDirectory: String,
@@ -58,15 +68,17 @@ internal class RemoteBaseScreenshotTestRule(
     val matcher: BitmapMatcher?,
 ) : TestRule {
 
-    private val remoteContentTestRule: RemoteContentTestRule = RemoteContentTestRule()
+    private val remoteBaseContentTestRule: RemoteBaseContentTestRule = RemoteBaseContentTestRule()
 
     private val screenshotTestRule = AndroidXScreenshotTestRule(moduleDirectory)
 
     private val goldenScreenshotNameTestRule = GoldenScreenshotNameTestRule()
 
+    private var currentBuffer: RemoteComposeBuffer? = null
+
     private val delegateChain: RuleChain =
         RuleChain.outerRule(goldenScreenshotNameTestRule)
-            .around(remoteContentTestRule)
+            .around(remoteBaseContentTestRule)
             .around(screenshotTestRule)
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -74,7 +86,7 @@ internal class RemoteBaseScreenshotTestRule(
     }
 
     /** [ComposeContentTestRule] used by this [TestRule]. */
-    val composeTestRule: ComposeContentTestRule = remoteContentTestRule.composeTestRule
+    val composeTestRule: ComposeContentTestRule = remoteBaseContentTestRule.composeTestRule
 
     /** Creates the document from [composable] and plays it with [player]. */
     fun setContent(
@@ -89,12 +101,45 @@ internal class RemoteBaseScreenshotTestRule(
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
         val displayInfo = remoteCreationDisplayInfo ?: this.remoteCreationDisplayInfo
-        remoteContentTestRule.setContent(
-            remoteCreationDisplayInfo = displayInfo,
-            profile = profile,
+        val creation =
+            object : Creation {
+                @Composable
+                override fun rememberRemoteDocument(
+                    composable: @RemoteComposable @Composable () -> Unit
+                ): MutableState<CoreDocument?> {
+                    val layoutDirection = LocalLayoutDirection.current
+                    val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
+                    val context = LocalContext.current
+                    LaunchedEffect(Unit) {
+                        val document =
+                            captureSingleRemoteDocument(
+                                creationDisplayInfo = displayInfo,
+                                layoutDirection = layoutDirection,
+                                context = context,
+                                content = composable,
+                                profile = profile,
+                            )
+                        val buffer =
+                            RemoteComposeBuffer.fromInputStream(
+                                ByteArrayInputStream(document.bytes)
+                            )
+                        buffer.setVersion(
+                            profile.apiLevel,
+                            profile.operationsProfiles,
+                            profile.supportedOperations,
+                        )
+                        currentBuffer = buffer
+                        doc.value = CoreDocument().apply { initFromBuffer(buffer) }
+                    }
+                    return doc
+                }
+            }
+        remoteBaseContentTestRule.setContent(
+            creation = creation,
             creationComposableWrapper = creationComposableWrapper,
             onCoreDocumentCreated = getOnCoreDocumentCreated(onCoreDocumentCreated),
             player = player,
+            size = displayInfo.size,
             playComposableWrapper = customPlayComposableWrapper(displayInfo, playComposableWrapper),
             composable = composable,
         )
@@ -103,7 +148,7 @@ internal class RemoteBaseScreenshotTestRule(
     fun verifyScreenshot(goldenScreenshotName: GoldenScreenshotName?) {
         val name = getGoldenScreenshotName(goldenScreenshotName).getName()
         val screenshot =
-            remoteContentTestRule.composeTestRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage()
+            remoteBaseContentTestRule.composeTestRule.onNodeWithTag(ROOT_TEST_TAG).captureToImage()
 
         if (matcher == null) {
             screenshot.assertAgainstGolden(screenshotTestRule, name)
@@ -116,17 +161,22 @@ internal class RemoteBaseScreenshotTestRule(
         onCoreDocumentCreated: ((CoreDocument) -> Unit)?
     ): ((CoreDocument) -> Unit) = { coreDocument ->
         val name = getGoldenScreenshotName(null).getName()
-        saveDocument(coreDocument.buffer, "$name.rc")
-        saveDrawCommands(coreDocument, "$name.txt")
+        currentBuffer?.let { buffer ->
+            saveDocument(buffer, "$name.rc")
+            saveDrawCommands(buffer, coreDocument.clock, "$name.txt")
+        }
         onCoreDocumentCreated?.invoke(coreDocument)
     }
 
-    private fun saveDrawCommands(coreDocument: CoreDocument, fileName: String) {
+    private fun saveDrawCommands(
+        buffer: RemoteComposeBuffer,
+        clock: RemoteClock,
+        fileName: String,
+    ) {
         try {
             val width = remoteCreationDisplayInfo.widthDp.value
             val height = remoteCreationDisplayInfo.heightDp.value
-            val docForTestPlayer =
-                CoreDocument(coreDocument.clock).apply { initFromBuffer(coreDocument.buffer) }
+            val docForTestPlayer = CoreDocument(clock).apply { initFromBuffer(buffer) }
             val player = TestPlayer(docForTestPlayer, width, height)
             val actualCommands = player.paint()
 

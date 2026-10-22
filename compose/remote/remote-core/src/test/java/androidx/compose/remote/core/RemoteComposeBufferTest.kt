@@ -155,7 +155,9 @@ class RemoteComposeBufferTest {
 
         // no crash; can read correct api level from buffer and init the core doc.
         val coreDoc = CoreDocument().apply { initFromBuffer(writer.buffer) }
-        assertThat(coreDoc.mBuffer.mApiLevel).isEqualTo(7)
+        assertThat(writer.buffer.mApiLevel).isEqualTo(7)
+        assertThat(coreDoc.mVersion.major).isEqualTo(1)
+        assertThat(coreDoc.mVersion.minor).isEqualTo(1)
         assertThat(coreDoc.mHeader?.profiles ?: 0).isEqualTo(rcProfile.operationsProfiles)
     }
 
@@ -208,7 +210,9 @@ class RemoteComposeBufferTest {
         )
 
         val coreDoc = CoreDocument().apply { initFromBuffer(writer.buffer) }
-        assertThat(coreDoc.mBuffer.mApiLevel).isEqualTo(7)
+        assertThat(writer.buffer.mApiLevel).isEqualTo(7)
+        assertThat(coreDoc.mVersion.major).isEqualTo(1)
+        assertThat(coreDoc.mVersion.minor).isEqualTo(1)
         assertThat(coreDoc.mHeader?.profiles ?: 0).isEqualTo(RcProfiles.PROFILE_ANDROID_NATIVE)
     }
 
@@ -276,7 +280,9 @@ class RemoteComposeBufferTest {
         // 5. Continue to read/inflate the document
         val coreDoc = CoreDocument().apply { initFromBuffer(headerBuffer) }
 
-        assertThat(coreDoc.mBuffer.mApiLevel).isEqualTo(7)
+        assertThat(headerBuffer.mApiLevel).isEqualTo(7)
+        assertThat(coreDoc.mVersion.major).isEqualTo(1)
+        assertThat(coreDoc.mVersion.minor).isEqualTo(1)
         assertThat(coreDoc.mHeader?.profiles ?: 0).isEqualTo(RcProfiles.PROFILE_ANDROID_NATIVE)
     }
 

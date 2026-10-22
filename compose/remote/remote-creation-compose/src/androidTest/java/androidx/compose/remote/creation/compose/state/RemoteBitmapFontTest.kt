@@ -117,7 +117,7 @@ class RemoteBitmapFontTest {
         }
 
         val document = constructDocument()
-        saveDocument(document.buffer, "drawBitmapFontTextRun.rc")
+        saveDocument(creationState.document.buffer, "drawBitmapFontTextRun.rc")
         assertScreenshot(document, "drawBitmapFontTextRun_glyphSpacingTest")
     }
 
@@ -168,7 +168,7 @@ class RemoteBitmapFontTest {
         )
 
         val document = constructDocument()
-        saveDocument(document.buffer, "drawBitmapFontTextRunOnPath.rc")
+        saveDocument(creationState.document.buffer, "drawBitmapFontTextRunOnPath.rc")
         assertScreenshot(document, "drawBitmapFontTextRunOnPath_glyphSpacingTest")
     }
 

@@ -41,6 +41,8 @@ private fun createRCDoc(writer: RemoteComposeWriter, name: String): RCDoc {
             return remoteComposeDocument
         }
 
+        override fun getBytes(): ByteArray = writer.encodeToByteArray()
+
         override fun getColor(): Int = 0xFF0047AB.toInt()
 
         override fun getBuildTime(): Float = buildTime

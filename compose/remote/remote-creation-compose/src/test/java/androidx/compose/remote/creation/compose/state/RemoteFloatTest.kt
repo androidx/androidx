@@ -2083,14 +2083,6 @@ class RemoteFloatTest {
             paint(context, 0)
         }
 
-    private fun makeAndPaintCoreDocument(document: CoreDocument) =
-        CoreDocument().apply {
-            val buffer = document.buffer
-            buffer.buffer.index = 0
-            initFromBuffer(buffer)
-            paint(context, 0)
-        }
-
     private fun makeAndUpdateCoreDocument(
         buffer: RemoteComposeBuffer? = null,
         runAfterInit: (CoreDocument) -> Unit = {},

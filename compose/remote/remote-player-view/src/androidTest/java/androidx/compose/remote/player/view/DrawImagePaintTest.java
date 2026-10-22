@@ -88,14 +88,10 @@ public class DrawImagePaintTest {
         System.out.println("size of doc " + bufferSize / 1024 + "KB");
         RemoteDocument recreatedDocument =
                 new RemoteDocument(new ByteArrayInputStream(buffer, 0, bufferSize));
-        System.out.println(
-                "recreated doc 1 "
-                        + recreatedDocument.getDocument().getBuffer().getBuffer().getSize());
+        System.out.println("recreated doc 1 " + bufferSize);
 
         recreatedDocument.initializeContext(context);
-        System.out.println(
-                "recreated doc 2 "
-                        + recreatedDocument.getDocument().getBuffer().getBuffer().getSize());
+        System.out.println("recreated doc 2 " + bufferSize);
         return recreatedDocument;
     }
 
@@ -313,9 +309,6 @@ public class DrawImagePaintTest {
         assertEquals("not eaquals", expected, result);
 
         RemoteDocument doc = createDocument(debugContext, cb);
-        System.out.println(
-                "(DrawImagePaintTest.java:296). "
-                        + doc.getDocument().getBuffer().getBuffer().getSize());
         Bitmap remoteBitmap = TestUtils.docToBitmap(tw, th, appContext, doc);
 
         Bitmap blankBitmap = TestUtils.blank(tw, th);

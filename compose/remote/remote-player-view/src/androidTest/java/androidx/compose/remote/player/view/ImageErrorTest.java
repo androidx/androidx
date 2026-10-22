@@ -110,15 +110,6 @@ public class ImageErrorTest {
         return recreatedDocument;
     }
 
-    ByteBuffer docGetBuffer(RemoteDocument doc) {
-        RemoteComposeBuffer buff = doc.getDocument().getBuffer();
-        int size = buff.getBuffer().getSize();
-        ByteBuffer b = ByteBuffer.allocate(size);
-        b.put(buff.getBuffer().getBuffer(), 0, size);
-        System.out.println("(ImageErrorTest.java:95). docGetBuffer " + size);
-        return b;
-    }
-
     // ########################### END TEST UTILS ######################################
 
     @Test
@@ -419,11 +410,7 @@ public class ImageErrorTest {
     }
 
     ByteBuffer createDoc(Bitmap lightImage, Bitmap darkImage) {
-        DebugPlayerContext debugContext = new DebugPlayerContext();
-        RemoteDocument doc = createDocument(debugContext, lightImage, darkImage);
-        doc.paint(debugContext, Theme.UNSPECIFIED);
-        ByteBuffer b = docGetBuffer(doc);
-        return b;
+        return ByteBuffer.wrap(create(lightImage, darkImage));
     }
 
     @Test
