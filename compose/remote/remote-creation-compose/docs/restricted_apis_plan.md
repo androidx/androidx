@@ -72,7 +72,7 @@ The following API reviews and cleanups are currently in flight:
   - [x] Review `RemoteText` (1 restricted overload remaining; primary `RemoteText` composable exposed with full Compose styling parameters).
   - [x] Review `RemoteTextStyle` (1 restricted constructor remaining; public class and `fromTextStyle` factory exposed; in-flight [CL 4295551](https://android-review.googlesource.com/c/platform/frameworks/support/+/4295551) removing `combinedFontVariationSettings`).
   - [ ] Review `RemoteTextMeasurer` and `RemoteTextLayoutResult` (in-flight [CL 4279995](https://android-review.googlesource.com/c/platform/frameworks/support/+/4279995) exposing `RemoteTextMeasurer`, `RemoteTextLayoutResult`, and `rememberRemoteTextMeasurer`).
-  - [x] Review `RemoteTypeface` (in-flight [CL 4177957](https://android-review.googlesource.com/c/platform/frameworks/support/+/4177957) moving `toAndroidTypeface` to an Android extension for KMP).
+  - [x] Review `RemoteTypeface` (removed `toAndroidTypeface` and `fromAndroidTypeface`).
 
 - [x] **Batch 6: `androidx.compose.remote.creation.compose.state` (Part 1: Primitives)**
   - [x] Review `RemoteBoolean` ([CL 4097154](https://android-review.googlesource.com/c/platform/frameworks/support/+/4097154); non-composable `MutableRemoteBoolean` constructor and `RemoteBoolean.createNamedRemoteBoolean` exposed; in-flight [CL 4224689](https://android-review.googlesource.com/c/platform/frameworks/support/+/4224689) deprecating `remember*` composable functions).

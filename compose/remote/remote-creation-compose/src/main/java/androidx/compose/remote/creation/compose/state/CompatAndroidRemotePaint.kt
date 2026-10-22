@@ -18,7 +18,9 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.BlendModeColorFilter as AndroidBlendModeColorFilter
 import android.graphics.ColorFilter as AndroidColorFilter
 import android.graphics.Paint as AndroidPaint
+import android.graphics.Typeface
 import android.graphics.fonts.FontVariationAxis
+import android.os.Build
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
@@ -146,7 +148,7 @@ public fun Paint.asRemotePaint(): RemotePaint {
     remotePaint.color = color.rc
     remotePaint.colorFilter = colorFilter?.let { ComposeRemoteColorFilter(it) }
     remotePaint.textSize = nativePaint.textSize.rf
-    remotePaint.typeface = RemoteTypeface.fromAndroidTypeface(nativePaint.typeface)
+    remotePaint.typeface = fromAndroidTypeface(nativePaint.typeface)
     remotePaint.fontFeatureSettings = nativePaint.fontFeatureSettings
     remotePaint.fontVariationSettings =
         parseFontVariationSettings(nativePaint.fontVariationSettings)
@@ -174,10 +176,36 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
                 RemoteBlendModeColorFilter(Color(it.color).rc, it.mode.toComposeBlendMode())
             }
     remotePaint.textSize = textSize.rf
-    remotePaint.typeface = RemoteTypeface.fromAndroidTypeface(typeface)
+    remotePaint.typeface = fromAndroidTypeface(typeface)
     remotePaint.fontFeatureSettings = fontFeatureSettings
     remotePaint.fontVariationSettings = parseFontVariationSettings(fontVariationSettings)
     return remotePaint
+}
+
+/** Maps an Android framework Typeface to a RemoteTypeface. */
+private fun fromAndroidTypeface(typeface: Typeface?): RemoteTypeface {
+    return when (typeface) {
+        null -> RemoteTypeface.Default
+        Typeface.DEFAULT -> RemoteTypeface.Default
+        Typeface.DEFAULT_BOLD -> RemoteTypeface.DefaultBold
+        Typeface.SANS_SERIF -> RemoteTypeface.SansSerif
+        Typeface.SERIF -> RemoteTypeface.Serif
+        Typeface.MONOSPACE -> RemoteTypeface.Monospace
+        else -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                val name = typeface.systemFontFamilyName
+                val weight = typeface.weight
+                val italic = typeface.isItalic
+                if (name != null) {
+                    RemoteTypeface.Named(name, weight, italic)
+                } else {
+                    RemoteTypeface.Default
+                }
+            } else {
+                RemoteTypeface.Default
+            }
+        }
+    }
 }
 
 @Suppress("deprecation")

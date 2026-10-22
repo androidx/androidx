@@ -19,7 +19,6 @@ package androidx.compose.remote.player.compose.embedded
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
-import android.graphics.Typeface
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
@@ -1657,7 +1656,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        typeface = RemoteTypeface.fromAndroidTypeface(Typeface.DEFAULT_BOLD)
+                        typeface = RemoteTypeface.DefaultBold
                     }
                 drawText("Bold Text".rs, 0f.rf, 0f.rf, paint)
             }

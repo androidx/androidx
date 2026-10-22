@@ -317,4 +317,13 @@ class RemotePaintTest {
         assertThat(remotePaint.textSize.constantValue).isEqualTo(22f)
         assertThat(remotePaint.typeface).isEqualTo(RemoteTypeface.Serif)
     }
+
+    @Test
+    fun remotePaintTypefaceTest() {
+        val remotePaint =
+            StandardRemotePaint().apply {
+                typeface = RemoteTypeface.Serif
+            }
+        assertThat(remotePaint.typeface).isEqualTo(RemoteTypeface.Serif)
+    }
 }
