@@ -51,9 +51,11 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun panelSeparation_matchesPhysicalMetricDistanceInSystem() =
         runTestWithSession { activity, session ->
+            session.scene.requestFullSpaceAndAwait()
+
             // Create Primary Panel at (0, 0, -1) and Secondary Panel at (0, 0, 1) directly under
             // activitySpace (2.000m separation)
             val primaryPanel =
@@ -109,8 +111,10 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun panelRotation_rotatesInSystem() = runTestWithSession { activity, session ->
+        session.scene.requestFullSpaceAndAwait()
+
         // Unrotated reference panel under activity space (Identity rotation)
         val unrotatedPanel =
             PanelEntity.create(
@@ -169,9 +173,11 @@ class PanelTransformationTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun hierarchicalScale_doublesPhysicalDistanceAndNodeScale() =
         runTestWithSession { activity, session ->
+            session.scene.requestFullSpaceAndAwait()
+
             // Unscaled reference panel at origin (1.0x scale)
             val unscaledReferencePanel =
                 PanelEntity.create(
