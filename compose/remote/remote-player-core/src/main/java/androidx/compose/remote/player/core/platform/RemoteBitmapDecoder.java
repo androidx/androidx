@@ -169,6 +169,15 @@ public class RemoteBitmapDecoder {
     }
 
     private static void checkBounds(BitmapFactory.Options opts, int maxWidth, int maxHeight) {
+        if (maxWidth == 0 && maxHeight == 0) {
+            if (opts.outWidth > Limits.MAX_IMAGE_DIMENSION
+                    || opts.outHeight > Limits.MAX_IMAGE_DIMENSION
+                    || (long) opts.outWidth * opts.outHeight * 4L > Limits.MAX_BITMAP_MEMORY) {
+                throw new RuntimeException(
+                        "Dimension of image is invalid " + opts.outWidth + "x" + opts.outHeight);
+            }
+            return;
+        }
         if (opts.outWidth > maxWidth || opts.outHeight > maxHeight) {
             throw new RuntimeException(
                     "dimensions don't match "

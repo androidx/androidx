@@ -47,6 +47,10 @@ public class ImageAttribute extends PaintOperation {
     public static final short IMAGE_WIDTH = 0;
     public static final short IMAGE_HEIGHT = 1;
 
+    public int getImageId() {
+        return mImageId;
+    }
+
     /**
      * Create a new ImageAttribute operation
      *
