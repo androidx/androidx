@@ -186,7 +186,8 @@ class RemoteTypographyTest {
     fun typography_from_compose_typography_inherits_correctly() {
         val myComposeTypography =
             Typography(bodyLarge = TextStyle(fontSize = 40.sp, color = Color.Red))
-        val myTypography = RemoteTypography(myComposeTypography)
+        val myTypography =
+            RemoteTypography(myComposeTypography, defaultFontFamily = RemoteFontFamily.Default)
 
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
