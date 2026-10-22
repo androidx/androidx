@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -28,8 +29,10 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLog
@@ -44,7 +47,8 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
     }
 
     /**
-     * Delegate for a surface without AppWidgets, and therefore without dynamic previews or pinning.
+     * Delegate for a surface without AppWidgets, and therefore without dynamic previews, pinning,
+     * or configuration activities.
      */
     private class OtherSurfaceDelegate : GlanceAdaptiveWidgetDelegate {
         var callCount = 0
@@ -72,10 +76,18 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
         val successCallback: PendingIntent?,
     )
 
-    /** AppWidget delegate that records the previews and pin requests it is asked for. */
+    /** Arguments of one [GlanceAdaptiveAppWidgetDelegate.setConfigurationResult] call. */
+    private data class SetConfigurationResultCall(
+        val activity: Activity,
+        val widgetId: String?,
+        val options: Bundle,
+    )
+
+    /** AppWidget delegate that records the previews, pin requests, and configuration results. */
     private class FakeAppWidgetDelegate : GlanceAdaptiveAppWidgetDelegate {
         val setPreviewCalls = mutableListOf<Pair<String, AdaptiveGlanceTemplate>>()
         val requestPinCalls = mutableListOf<RequestPinCall>()
+        val setConfigurationResultCalls = mutableListOf<SetConfigurationResultCall>()
 
         override suspend fun pushUpdate(
             widgetName: String,
@@ -100,6 +112,14 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
             requestPinCalls +=
                 RequestPinCall(widgetName, widgetId, initialData, options, successCallback)
             return true
+        }
+
+        override fun setConfigurationResult(
+            activity: Activity,
+            widgetId: String?,
+            options: Bundle,
+        ) {
+            setConfigurationResultCalls += SetConfigurationResultCall(activity, widgetId, options)
         }
     }
 
@@ -208,12 +228,60 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
     }
 
     @Test
+    fun setConfigurationResult_withAppWidgetDelegate_forwardsToDelegate() {
+        val delegate = FakeAppWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+        val options = Bundle().apply { putString("meal_window", "lunch") }
+
+        manager.setConfigurationResult(
+            activity = activity,
+            widgetId = "window_lunch",
+            options = options,
+        )
+
+        assertThat(delegate.setConfigurationResultCalls)
+            .containsExactly(SetConfigurationResultCall(activity, "window_lunch", options))
+        assertThat(fallbackWarnings()).isEmpty()
+    }
+
+    @Test
+    fun setConfigurationResult_withOnlyActivity_forwardsDefaultsToDelegate() {
+        val delegate = FakeAppWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+
+        manager.setConfigurationResult(activity = activity)
+
+        assertThat(delegate.setConfigurationResultCalls)
+            .containsExactly(
+                SetConfigurationResultCall(
+                    activity = activity,
+                    widgetId = null,
+                    options = Bundle.EMPTY,
+                )
+            )
+    }
+
+    @Test
+    fun setConfigurationResult_withNonAppWidgetDelegate_throwsIllegalStateException() {
+        val delegate = OtherSurfaceDelegate()
+        val manager = GlanceAdaptiveWidgetManager(delegate)
+        val activity = Robolectric.buildActivity(Activity::class.java).get()
+
+        assertThrows(IllegalStateException::class.java) {
+            manager.setConfigurationResult(activity = activity, widgetId = "window_lunch")
+        }
+        assertThat(delegate.callCount).isEqualTo(0)
+    }
+
+    @Test
     fun glanceAdaptiveWidgetManager_doesNotDeclareAppWidgetOnlyMembers() {
         // A member would always win over the extension of the same name, silently shadowing it
         // and making the operation callable without depending on adaptive-appwidget.
         val memberNames = GlanceAdaptiveWidgetManager::class.java.methods.map { it.name }
 
-        assertThat(memberNames).containsNoneOf("setPreview", "requestPin")
+        assertThat(memberNames).containsNoneOf("setPreview", "requestPin", "setConfigurationResult")
     }
 
     private fun fallbackWarnings() = ShadowLog.getLogsForTag(LOG_TAG).filter { it.type == Log.WARN }

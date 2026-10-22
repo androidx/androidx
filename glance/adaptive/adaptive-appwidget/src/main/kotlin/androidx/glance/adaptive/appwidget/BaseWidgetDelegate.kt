@@ -16,11 +16,13 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -298,6 +300,59 @@ internal class BaseWidgetDelegate(
         }
 
     /**
+     * Completes the configuration of the widget identified by [AppWidgetManager.EXTRA_APPWIDGET_ID]
+     * in [activity]'s intent, storing [widgetId] and [options] in its options, then setting
+     * [Activity.RESULT_OK] with the widget's `appWidgetId`.
+     *
+     * Failures to read or store the options of the widget are propagated rather than logged, so
+     * that the host does not keep a widget that is not configured as requested. The result is not
+     * set if this throws. Exceptions reach the caller in [activity], never the host: if [activity]
+     * then finishes without [Activity.RESULT_OK], the host removes a newly placed widget, or keeps
+     * the previous configuration of a reconfigured one.
+     *
+     * This is a blocking call: it reads and stores the options of the widget through synchronous
+     * [AppWidgetManager] Binder calls, and returns only once they are stored and the result is set.
+     * It is not a suspend function so that the result is always set before the caller finishes
+     * [activity].
+     *
+     * @param activity Configuration [Activity] started with
+     *   [AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
+     * @param widgetId Widget instance String identifier to assign to the configured widget. If null
+     *   or blank, the one in [options] or already stored for the widget is used, or one is
+     *   generated if there is none.
+     * @param options Configuration options to store in the options of the configured widget.
+     * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
+     *   [AppWidgetManager.EXTRA_APPWIDGET_ID].
+     */
+    override fun setConfigurationResult(activity: Activity, widgetId: String?, options: Bundle) {
+        val appWidgetId =
+            activity.intent?.getIntExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID,
+            ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+        require(appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            "setConfigurationResult must be called from a configuration activity started with a " +
+                "valid EXTRA_APPWIDGET_ID"
+        }
+
+        val requestedWidgetId =
+            resolveRequestedWidgetId(widgetId, options)
+                ?: appWidgetManager
+                    .getAppWidgetOptions(appWidgetId)
+                    ?.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+                    ?.takeIf { it.isNotBlank() }
+        // Merged into the options the host placed the widget with. Stored before the result is
+        // set, so that the result is not set if storing fails.
+        appWidgetManager.updateAppWidgetOptions(
+            appWidgetId,
+            optionsWithWidgetId(requestedWidgetId, options),
+        )
+
+        val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        activity.setResult(Activity.RESULT_OK, resultValue)
+    }
+
+    /**
      * Returns the success callback of a pin request: [successCallback] itself if there is nothing
      * to store, or otherwise one that first stores [widgetId] and [options] in the options of the
      * pinned widget.
@@ -307,36 +362,46 @@ internal class BaseWidgetDelegate(
         options: Bundle,
         successCallback: PendingIntent?,
     ): PendingIntent? {
-        // An identifier already in [options] is kept unless [widgetId] is set, and a blank one is
-        // treated as absent, as GlanceAdaptiveWidgetReceiver does.
-        val requestedWidgetId =
-            widgetId?.takeUnless { it.isBlank() }
-                ?: options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeUnless {
-                    it.isBlank()
-                }
+        val requestedWidgetId = resolveRequestedWidgetId(widgetId, options)
         if (requestedWidgetId == null && options.isEmpty) {
             // A default widgetId is still generated later by GlanceAdaptiveWidgetReceiver once the
             // widget is placed, so there is nothing to store here.
             return successCallback
         }
 
-        val optionsToStore =
-            Bundle(options).apply {
-                // Generated now if not requested, rather than by the receiver once the widget is
-                // placed: the receiver updates a placed widget again when its identifier changes,
-                // but not when only other options do, so this makes sure the widget is updated with
-                // [options] even if it was first updated before they were stored.
-                putString(
-                    GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID,
-                    requestedWidgetId ?: WidgetOptionsCache.generateWidgetId(),
-                )
-            }
         return RequestPinCallbackReceiver.createSuccessCallback(
             context = context,
-            options = optionsToStore,
+            options = optionsWithWidgetId(requestedWidgetId, options),
             successCallback = successCallback,
         )
     }
+
+    /**
+     * Resolves the requested widget identifier from [widgetId] or [options], treating a blank
+     * identifier as absent, as [GlanceAdaptiveWidgetReceiver] does.
+     */
+    private fun resolveRequestedWidgetId(widgetId: String?, options: Bundle): String? =
+        widgetId?.takeIf { it.isNotBlank() }
+            ?: options.getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)?.takeIf {
+                it.isNotBlank()
+            }
+
+    /**
+     * Returns a copy of [options] with [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] set to
+     * [requestedWidgetId], or a newly generated identifier if [requestedWidgetId] is null.
+     *
+     * The identifier is generated now if not requested, rather than by the receiver once the widget
+     * is placed: the receiver updates a placed widget again when its identifier changes, but not
+     * when only other options do, so this makes sure the widget is updated with [options] even if
+     * it was first updated before they were stored.
+     */
+    private fun optionsWithWidgetId(requestedWidgetId: String?, options: Bundle): Bundle =
+        Bundle(options).apply {
+            putString(
+                GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID,
+                requestedWidgetId ?: WidgetOptionsCache.generateWidgetId(),
+            )
+        }
 
     /**
      * Resolves the installed [AppWidgetProviderInfo] of each receiver matching [widgetName],
