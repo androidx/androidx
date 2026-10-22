@@ -1179,14 +1179,14 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
      * [action] will be invoked when the current frame fully finishes composing. If a frame isn't
      * currently in-progress, a new frame will be scheduled (if one hasn't been already) and
      * [action] will execute at the completion of the next frame's composition. If a new frame is
-     * scheduled and there is no other work to execute, [action] will still execute.
+     * scheduled and there is no other work to execute, [action] will still execute. [action] will
+     * always execute on the applier thread.
      *
-     * [action] will always execute on the applier thread.
-     *
-     * @return A [CancellationHandle] that can be used to unregister the [action]. The returned
-     *   handle is thread-safe and may be cancelled from any thread. Cancelling the handle only
-     *   removes the callback from the queue. If [action] is currently executing, it will not be
-     *   cancelled by this handle.
+     * @return A [CancellationHandle] to unregister [action]. The handle is thread-safe and may be
+     *   cancelled from any thread. Cancelling the handle only removes the callback from the queue.
+     *   If [action] is currently executing, it will not be cancelled by this handle.
+     * @throws kotlin.coroutines.cancellation.CancellationException if the [Recomposer] that owns
+     *   the associated composition is shutting down or has shut down.
      */
     public override fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle {
         return nextFrameEndCallbackQueue.scheduleFrameEndCallback(action)
