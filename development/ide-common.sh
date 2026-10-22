@@ -1,4 +1,4 @@
-# Shared logic for studiow and codew
+# Shared logic for aswbw, studiow, and codew
 
 function show_project_subsets() {
   echo "Project subsets:"
@@ -118,7 +118,7 @@ function parse_project_arg() {
   return 0
 }
 
-# Shared arguments parsing logic for studiow and codew.
+# Shared arguments parsing logic for aswbw, studiow, and codew.
 # Usage: parse_ide_args "$@"
 # Sets: clearCaches, cleanSettings, reinstall, acceptTos, projectSubset, projectPrefix
 # Returns 0 if parsed successfully, 1 otherwise.
@@ -179,9 +179,9 @@ function parse_ide_args() {
 
 # ensures the nonexistence of a file or directory, and makes a backup
 function backup_and_remove() {
-  path="$1"
-  backup_dir_name="$2"
-  backup="$(dirname $path)/$backup_dir_name/$(basename $path)"
+  local path="$1"
+  local backup_dir_name="$2"
+  local backup="$(dirname $path)/$backup_dir_name/$(basename $path)"
   if [ -e "$path" ]; then
     echo "Moving $path to $backup"
     rm -rf "$backup"
@@ -192,9 +192,14 @@ function backup_and_remove() {
 
 function show_usage() {
   local script_name="$1"
+  local extra_options="${2:-${IDE_EXTRA_OPTIONS}}"
   echo "Usage: ${script_name} [--clear-caches] [--clean] [--reinstall] <project subset>|<comma-separated project prefixes>"
   echo
   show_usage_options
+  if [ -n "$extra_options" ]; then
+    echo "$extra_options"
+    echo
+  fi
   show_project_subsets
   echo "Or use project prefixes to scope down even further. For example:"
   echo " ${script_name} :palette:palette"
@@ -216,5 +221,67 @@ function setup_env() {
   else
     unset ANDROIDX_PROJECTS
     export PROJECT_PREFIX=$projectPrefix
+  fi
+}
+
+# Parses IDE arguments and sets up the environment.
+# Exits with usage if parsing fails.
+# Usage: init_ide <script_name> "$@"
+function init_ide() {
+  local script_name="$1"
+  shift
+  if ! parse_ide_args "$@"; then
+    show_usage "$script_name"
+    exit 1
+  fi
+  setup_env "$script_name"
+}
+
+# Removes IDE installation directory so Gradle will re-download it if reinstall is true.
+# Usage: clean_reinstall <dir>...
+function clean_reinstall() {
+  if [ "$reinstall" == "true" ]; then
+    for dir in "$@"; do
+      rm -rf "$dir"
+    done
+  fi
+}
+
+# Backs up and removes settings directories if cleanSettings is true.
+# Usage: clean_settings <backup_dir_name> <path>...
+function clean_settings() {
+  if [ "$cleanSettings" == "true" ]; then
+    local backup_name="$1"
+    shift
+    for path in "$@"; do
+      backup_and_remove "$path" "$backup_name"
+    done
+  fi
+}
+
+# Cleans untracked/ignored cache files from git if clearCaches is true.
+# Usage: clear_ide_caches <path>...
+function clear_ide_caches() {
+  if [ "$clearCaches" == "true" ]; then
+    git clean -fdX "$@"
+  fi
+}
+
+# Launches the IDE using Gradle (or cleanBuild.sh if clearCaches is true).
+# Usage: run_ide <gradle-task> [extra-args...]
+function run_ide() {
+  local target="$1"
+  shift
+  local extraArgs=("$@")
+  if [ "$acceptTos" == "true" ]; then
+    extraArgs+=("--acceptTos")
+  fi
+
+  if [ "$clearCaches" == "true" ]; then
+    # remove gradle caches too and build
+    ./cleanBuild.sh -y "$target" "${extraArgs[@]}"
+  else
+    # ask gradle to launch
+    ./gradlew "$target" "${extraArgs[@]}"
   fi
 }
