@@ -26,6 +26,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.view.ViewTreeObserver
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntList
@@ -50,6 +51,7 @@ import androidx.compose.remote.player.compose.embedded.components.RcPlayerHaptic
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerRawDocument
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerRootLayoutComponent
 import androidx.compose.remote.player.compose.embedded.components.rootTouchExpressions
+import androidx.compose.remote.player.compose.embedded.doc.ClockScheduler
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.inspectable.rcPlayerRootInspector
 import androidx.compose.remote.player.compose.embedded.resources.AndroidColorThemeResolver
@@ -73,6 +75,7 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -167,6 +170,9 @@ public fun RcPlayer(
     // The loop awaits infinite-animation frames, so a host can pause clock-driven content (e.g. in
     // previews or offscreen) with an InfiniteAnimationPolicy in the composition's coroutine
     // context; finite tween, spring and visibility animations keep running.
+    // The document scan is an upper bound. ClockScheduler narrows it from the time reads that the
+    // active composition, layout and draw passes make, so an unreferenced expression or an
+    // inactive state or fit-box branch that reads time doesn't keep the loop ticking.
     val currentTimeMillisState = state.currentTimeMillisState
     val needsContinuousLoop =
         state.hasContinuousTime || preprocessed.hasParticles || preprocessed.hasWakeIn
@@ -189,6 +195,21 @@ public fun RcPlayer(
         onDispose { graphContext.typefaceCache.onDetach() }
     }
 
+    // Frame draws of the host window mean draw passes really run, so from then on time fields that
+    // nobody reads after a change let the clock loop idle. Environments that never run frame draws
+    // (such as Robolectric without real draw traversals) never see this and keep ticking.
+    val view = LocalView.current
+    DisposableEffect(view, state) {
+        val timeReads = state.timeReads
+        val listener = ViewTreeObserver.OnDrawListener { timeReads.drawObserved = true }
+        // A detached view's observer is merged into the window's when the view is attached.
+        view.viewTreeObserver.addOnDrawListener(listener)
+        onDispose {
+            val observer = view.viewTreeObserver
+            if (observer.isAlive) observer.removeOnDrawListener(listener)
+        }
+    }
+
     val startClockMillis = remember(document, clock) { clock.millis() }
     val limiter = remember(document) { Limiter() }
     LaunchedEffect(
@@ -201,20 +222,37 @@ public fun RcPlayer(
         // Static document: time stays at the t = 0 seeded at setup, so don't wait for any frame.
         if (!needsContinuousLoop && !needsDiscreteLoop) return@LaunchedEffect
 
+        val scheduler =
+            ClockScheduler(
+                reads = state.timeReads,
+                needsContinuous = needsContinuousLoop,
+                discreteTimeMask = state.discreteTimeMask,
+                // Particles and wake-in operations need frames whether or not time is read.
+                canIdle = !preprocessed.hasParticles && !preprocessed.hasWakeIn,
+            )
         val startMillis = withInfiniteAnimationFrameMillis { it }
         while (true) {
             val frameMillis = withInfiniteAnimationFrameMillis { it } - startMillis
+            if (scheduler.evaluate() == ClockScheduler.Mode.PARKED) {
+                // Nothing composed, laid out or drawn reads time: wait for a read, then take a
+                // fresh frame so the reader sees the current time.
+                scheduler.awaitRead()
+                continue
+            }
+            val continuous = scheduler.mode == ClockScheduler.Mode.CONTINUOUS
             limiter.recordDrawStart(frameMillis * 1_000_000L)
-            state.updateTime(
-                frameMillis = frameMillis.toFloat(),
-                updateContinuous = needsContinuousLoop,
-            )
+            state.updateTime(frameMillis = frameMillis.toFloat(), updateContinuous = continuous)
             remoteContext.currentTime = startClockMillis + frameMillis
+            val timeState = graphContext.timeState
+            // Slow fields (hour, day, year, ...) rarely change, so probe whether anything reads
+            // them.
+            timeState.probe(scheduler.probeMask(timeState.lastChangedDiscreteMask))
+            scheduler.afterWrite(timeState.lastChangedDiscreteMask)
 
-            if (needsDiscreteLoop) {
+            if (!continuous) {
                 val currentMillis = startClockMillis + frameMillis
                 val millisToNextSecond = 1000L - Math.floorMod(currentMillis, 1000L)
-                delay(millisToNextSecond)
+                scheduler.awaitDiscreteTick(millisToNextSecond)
             } else {
                 val delayNs = limiter.computeDelay(0L, frameMillis * 1_000_000L)
                 if (delayNs > limiter.minIntervalNs) {

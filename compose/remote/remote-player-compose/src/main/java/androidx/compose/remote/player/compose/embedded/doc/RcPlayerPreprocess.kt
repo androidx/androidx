@@ -101,6 +101,12 @@ internal class DocumentPreprocessResult(
     val hasWakeIn: Boolean,
     val hasContinuousTime: Boolean,
     val hasDiscreteTime: Boolean,
+    /**
+     * Bitmask of the discrete time variables (indexed as in [DISCRETE_TIME_VARIABLES]) the document
+     * refers to. All bits are set when the document reads the clock in a way the scan can't
+     * attribute to specific fields.
+     */
+    val discreteTimeMask: Int = 0,
 )
 
 /**
@@ -173,6 +179,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
     var hasWakeIn = false
     var hasContinuousTime = false
     var hasDiscreteTime = false
+    var discreteTimeMask = 0
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
     var inLoop = false
@@ -223,6 +230,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     hasContinuousTime = true
                 } else if (isDiscreteTimeVariable(id)) {
                     hasDiscreteTime = true
+                    discreteTimeMask = discreteTimeMask or (1 shl discreteTimeIndex(id))
                 }
             } else {
                 forEachListenedVariableId(op) { id ->
@@ -230,6 +238,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                         hasContinuousTime = true
                     } else if (isDiscreteTimeVariable(id)) {
                         hasDiscreteTime = true
+                        discreteTimeMask = discreteTimeMask or (1 shl discreteTimeIndex(id))
                     }
                 }
             }
@@ -245,6 +254,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     hasContinuousTime = true
                 } else {
                     hasDiscreteTime = true
+                    discreteTimeMask = ALL_DISCRETE_TIME_MASK
                 }
             }
 
@@ -427,6 +437,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         hasWakeIn = hasWakeIn,
         hasContinuousTime = hasContinuousTime,
         hasDiscreteTime = hasDiscreteTime,
+        discreteTimeMask = discreteTimeMask,
     )
 }
 
@@ -525,6 +536,18 @@ internal fun RemoteComposeState.listensToContinuousTime(): Boolean = CONTINUOUS_
  */
 internal fun RemoteComposeState.listensToDiscreteTime(): Boolean = DISCRETE_TIME_VARIABLES.any {
     hasListener(it)
+}
+
+/**
+ * Bitmask (indexed as in [DISCRETE_TIME_VARIABLES]) of the discrete time variables that some
+ * operation registered a listener for while the document was set up. See [listensToDiscreteTime].
+ */
+internal fun RemoteComposeState.discreteTimeListenerMask(): Int {
+    var mask = 0
+    DISCRETE_TIME_VARIABLES.forEachIndexed { index, id ->
+        if (hasListener(id)) mask = mask or (1 shl index)
+    }
+    return mask
 }
 
 internal fun mapEasing(type: Int): ComposeEasing {

@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.player.compose.embedded.doc.DocumentPreprocessResult
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.TimeReadTracker
+import androidx.compose.remote.player.compose.embedded.doc.discreteTimeListenerMask
 import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
 import androidx.compose.remote.player.compose.embedded.doc.listensToContinuousTime
@@ -102,6 +104,17 @@ public class RcPlayerState(
     internal val hasDiscreteTime: Boolean =
         preprocessed.hasDiscreteTime || remoteContext.mRemoteComposeState.listensToDiscreteTime()
 
+    /**
+     * The discrete time variables the document refers to, as a bitmask indexed like
+     * `DISCRETE_TIME_VARIABLES`.
+     */
+    internal val discreteTimeMask: Int =
+        preprocessed.discreteTimeMask or
+            remoteContext.mRemoteComposeState.discreteTimeListenerMask()
+
+    /** Counts reads of the time fields, so the clock loop can idle when nothing reads time. */
+    internal val timeReads: TimeReadTracker = TimeReadTracker()
+
     internal val currentTimeMillisState: MutableFloatState = mutableFloatStateOf(0f)
     internal val graphContext: GraphContext =
         GraphContext(
@@ -110,6 +123,7 @@ public class RcPlayerState(
                 timeMillis = currentTimeMillisState,
                 clock = document.clock,
                 touchExpressionIds = preprocessed.touchExpressionIds,
+                timeReads = timeReads,
             )
             .also { gc ->
                 gc.store = remoteContext

@@ -79,6 +79,7 @@ internal class GraphContext(
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
     private val touchExpressionIds: IntSet = emptyIntSet(),
     internal var animatedFloatStates: Map<Int, State<Float>> = emptyMap(),
+    timeReads: TimeReadTracker = TimeReadTracker(),
 ) : StoreBackedRemoteContext(clock) {
 
     internal val typefaceCache = RcTypefaceCache()
@@ -118,7 +119,7 @@ internal class GraphContext(
         // Share the leaf store so collections/objects/paths and plain variables resolve against the
         // same (snapshot-backed) data the rest of the player uses.
         mRemoteComposeState = realState
-        _timeState = GraphTimeState(clock, timeMillis.value)
+        _timeState = GraphTimeState(clock, timeMillis.value, timeReads)
     }
 
     internal val startClockMillis: Long
