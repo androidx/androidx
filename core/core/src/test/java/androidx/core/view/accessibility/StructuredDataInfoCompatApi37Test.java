@@ -27,7 +27,9 @@ import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo.MathInfo;
 import android.view.accessibility.AccessibilityNodeInfo.StructuredDataInfo;
 
+import androidx.annotation.OptIn;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.PublicationInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat;
 
 import org.junit.Test;
@@ -158,6 +160,38 @@ public final class StructuredDataInfoCompatApi37Test {
         assertThat(withPlatformObject).isEqualTo(withoutPlatformObject);
         assertThat(withoutPlatformObject).isEqualTo(withPlatformObject);
         assertThat(withPlatformObject.hashCode()).isEqualTo(withoutPlatformObject.hashCode());
+    }
+
+    @Test
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    public void setStructuredDataInfo_publicationInfo_storesInfoInExtrasAndClearsPlatformField() {
+        AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+        node.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION));
+        PublicationInfoCompat chapter =
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_CHAPTER);
+
+        node.setStructuredDataInfo(chapter);
+
+        assertThat(node.unwrap().getStructuredDataInfo()).isNull();
+        assertThat(node.getExtras().getString(STRUCTURED_DATA_TYPE_KEY))
+                .isEqualTo(PublicationInfoCompat.EXTRAS_TYPE);
+        assertThat(node.getStructuredDataInfo()).isEqualTo(chapter);
+    }
+
+    @Test
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    public void setStructuredDataInfo_mathInfoAfterPublicationInfo_removesPublicationInfo() {
+        AccessibilityNodeInfoCompat node = AccessibilityNodeInfoCompat.obtain();
+        node.setStructuredDataInfo(
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_CHAPTER));
+
+        node.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION));
+        StructuredDataInfoCompat retrieved = node.getStructuredDataInfo();
+        node.unwrap().setStructuredDataInfo(null);
+
+        assertThat(retrieved).isInstanceOf(MathInfoCompat.class);
+        assertThat(node.getExtras().containsKey(STRUCTURED_DATA_TYPE_KEY)).isFalse();
+        assertThat(node.getStructuredDataInfo()).isNull();
     }
 
     private static void putMathExtras(Bundle extras, String tag) {

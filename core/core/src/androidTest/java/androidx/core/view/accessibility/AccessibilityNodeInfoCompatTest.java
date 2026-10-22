@@ -48,8 +48,10 @@ import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompatActivity;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.PublicationInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -340,6 +342,56 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(retrieved.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_SQUARE_ROOT);
         assertThat(retrieved.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
                 .isEqualTo("square-root($x)");
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testPublicationInfoSurvivesParceling() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        PublicationInfoCompat footnote =
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+        footnote.putAttribute("attribute", "value");
+        nodeCompat.setStructuredDataInfo(footnote);
+
+        Parcel parcel = Parcel.obtain();
+        nodeCompat.unwrap().writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        AccessibilityNodeInfo parceledNode = AccessibilityNodeInfo.CREATOR.createFromParcel(parcel);
+        parcel.recycle();
+
+        StructuredDataInfoCompat retrieved =
+                AccessibilityNodeInfoCompat.wrap(parceledNode).getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(PublicationInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+        assertThat(retrieved.getAttribute("attribute")).isEqualTo("value");
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testPublicationInfoReplacesMathInfo() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION));
+
+        nodeCompat.setStructuredDataInfo(
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE));
+
+        StructuredDataInfoCompat retrieved = nodeCompat.getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(PublicationInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testMathInfoReplacesPublicationInfo() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setStructuredDataInfo(
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE));
+
+        nodeCompat.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_ROW));
+
+        StructuredDataInfoCompat retrieved = nodeCompat.getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(MathInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_ROW);
     }
 
     @Test

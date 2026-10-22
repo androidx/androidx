@@ -1775,6 +1775,7 @@ public class AccessibilityNodeInfoCompat {
          * {@link #writeToExtras(Bundle)}, or {@code null} if there isn't one of a type known to
          * this version of the library.
          */
+        @OptIn(markerClass = PreviewAccessibilityApi.class)
         static @Nullable StructuredDataInfoCompat readFromExtras(@Nullable Bundle extras) {
             if (extras == null) {
                 return null;
@@ -1788,6 +1789,8 @@ public class AccessibilityNodeInfoCompat {
             switch (type) {
                 case MathInfoCompat.EXTRAS_TYPE:
                     return new MathInfoCompat(tag, attributes);
+                case PublicationInfoCompat.EXTRAS_TYPE:
+                    return new PublicationInfoCompat(tag, attributes);
                 default:
                     // A type this version of the library doesn't know, such as one stored by a
                     // newer version of the library.
@@ -2052,6 +2055,250 @@ public class AccessibilityNodeInfoCompat {
         @Nullable
         public String getAttribute(@NonNull @MathAttribute String attributeKey) {
             return super.getAttribute(attributeKey);
+        }
+    }
+
+    /**
+     * Holds information about a node that represents a part of a digital publication, such as a
+     * chapter, footnote, or glossary entry.
+     *
+     * <p>An accessibility service can use this information to provide a richer experience for users
+     * reading digital publications, such as ebooks, articles, and long-form documents. For example,
+     * a screen reader could announce when a user enters a chapter or footnote and allow jumping
+     * between publication sections.
+     *
+     * <p>To add publication information to a node, create an instance of
+     * {@link PublicationInfoCompat} and call
+     * {@link AccessibilityNodeInfoCompat#setStructuredDataInfo(StructuredDataInfoCompat)}.
+     *
+     * <p>On all API levels, this information is currently stored in the node's extras, where
+     * accessibility services can read it with
+     * {@link AccessibilityNodeInfoCompat#getStructuredDataInfo()}. See
+     * {@link StructuredDataInfoCompat}.
+     */
+    @PreviewAccessibilityApi
+    public static final class PublicationInfoCompat extends StructuredDataInfoCompat {
+        /** Identifies this type in a node's extras. */
+        static final String EXTRAS_TYPE = "publication";
+
+        @StringDef(
+            value = {
+                PUBLICATION_TAG_ABSTRACT,
+                PUBLICATION_TAG_ACKNOWLEDGMENTS,
+                PUBLICATION_TAG_AFTERWORD,
+                PUBLICATION_TAG_APPENDIX,
+                PUBLICATION_TAG_BACK_LINK,
+                PUBLICATION_TAG_BIBLIOGRAPHY,
+                PUBLICATION_TAG_BIBLIOGRAPHY_REFERENCE,
+                PUBLICATION_TAG_CHAPTER,
+                PUBLICATION_TAG_COLOPHON,
+                PUBLICATION_TAG_CONCLUSION,
+                PUBLICATION_TAG_COVER,
+                PUBLICATION_TAG_CREDIT,
+                PUBLICATION_TAG_CREDITS,
+                PUBLICATION_TAG_DEDICATION,
+                PUBLICATION_TAG_ENDNOTES,
+                PUBLICATION_TAG_EPIGRAPH,
+                PUBLICATION_TAG_EPILOGUE,
+                PUBLICATION_TAG_ERRATA,
+                PUBLICATION_TAG_EXAMPLE,
+                PUBLICATION_TAG_FOOTNOTE,
+                PUBLICATION_TAG_FOREWORD,
+                PUBLICATION_TAG_GLOSSARY,
+                PUBLICATION_TAG_GLOSSARY_REFERENCE,
+                PUBLICATION_TAG_INDEX,
+                PUBLICATION_TAG_INTRODUCTION,
+                PUBLICATION_TAG_NOTE_REFERENCE,
+                PUBLICATION_TAG_NOTICE,
+                PUBLICATION_TAG_PAGE_BREAK,
+                PUBLICATION_TAG_PAGE_FOOTER,
+                PUBLICATION_TAG_PAGE_HEADER,
+                PUBLICATION_TAG_PAGE_LIST,
+                PUBLICATION_TAG_PART,
+                PUBLICATION_TAG_PREFACE,
+                PUBLICATION_TAG_PROLOGUE,
+                PUBLICATION_TAG_PULL_QUOTE,
+                PUBLICATION_TAG_QUESTIONS_AND_ANSWERS,
+                PUBLICATION_TAG_SUBTITLE,
+                PUBLICATION_TAG_TABLE_OF_CONTENTS,
+                PUBLICATION_TAG_TIP,
+            })
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface PublicationTag {}
+
+        /** A short summary of the work, or of a section or excerpt of it. */
+        public static final String PUBLICATION_TAG_ABSTRACT = "doc-abstract";
+
+        /** A section that acknowledges contributions to the work. */
+        public static final String PUBLICATION_TAG_ACKNOWLEDGMENTS = "doc-acknowledgments";
+
+        /** A closing statement, typically about how the work came to be or what followed it. */
+        public static final String PUBLICATION_TAG_AFTERWORD = "doc-afterword";
+
+        /** Supplemental information placed after the main content. */
+        public static final String PUBLICATION_TAG_APPENDIX = "doc-appendix";
+
+        /** A link back to a related location, such as from a note to where it's referenced. */
+        public static final String PUBLICATION_TAG_BACK_LINK = "doc-backlink";
+
+        /** A list of external sources cited in the work. */
+        public static final String PUBLICATION_TAG_BIBLIOGRAPHY = "doc-bibliography";
+
+        /** A reference to a bibliography entry. */
+        public static final String PUBLICATION_TAG_BIBLIOGRAPHY_REFERENCE = "doc-biblioref";
+
+        /** A major thematic section of the work. */
+        public static final String PUBLICATION_TAG_CHAPTER = "doc-chapter";
+
+        /** Production notes for the edition, such as the typeface used. */
+        public static final String PUBLICATION_TAG_COLOPHON = "doc-colophon";
+
+        /** A section that summarizes the work or wraps up its narrative. */
+        public static final String PUBLICATION_TAG_CONCLUSION = "doc-conclusion";
+
+        /** A cover image, typically showing the title and author. */
+        public static final String PUBLICATION_TAG_COVER = "doc-cover";
+
+        /** An acknowledgment of the source of third-party content, such as a photo. */
+        public static final String PUBLICATION_TAG_CREDIT = "doc-credit";
+
+        /** A collection of credits. */
+        public static final String PUBLICATION_TAG_CREDITS = "doc-credits";
+
+        /** An inscription dedicating the work to one or more people. */
+        public static final String PUBLICATION_TAG_DEDICATION = "doc-dedication";
+
+        /** A collection of notes at the end of the work or of a section. */
+        public static final String PUBLICATION_TAG_ENDNOTES = "doc-endnotes";
+
+        /** A quotation at the start of the work or a section that sets its theme or mood. */
+        public static final String PUBLICATION_TAG_EPIGRAPH = "doc-epigraph";
+
+        /**
+         * A concluding section of narrative that comments on the work's events, typically from a
+         * later time.
+         */
+        public static final String PUBLICATION_TAG_EPILOGUE = "doc-epilogue";
+
+        /** A list of corrections made after publication. */
+        public static final String PUBLICATION_TAG_ERRATA = "doc-errata";
+
+        /** An illustration of a key concept, such as a code listing or case study. */
+        public static final String PUBLICATION_TAG_EXAMPLE = "doc-example";
+
+        /** Ancillary information, such as a citation or comment, about a referenced passage. */
+        public static final String PUBLICATION_TAG_FOOTNOTE = "doc-footnote";
+
+        /** An introductory section, typically written by someone other than the author. */
+        public static final String PUBLICATION_TAG_FOREWORD = "doc-foreword";
+
+        /** A list of terms used in the work, with their definitions. */
+        public static final String PUBLICATION_TAG_GLOSSARY = "doc-glossary";
+
+        /** A reference to a glossary definition. */
+        public static final String PUBLICATION_TAG_GLOSSARY_REFERENCE = "doc-glossref";
+
+        /** A detailed list of links to the subjects, names and topics in the work. */
+        public static final String PUBLICATION_TAG_INDEX = "doc-index";
+
+        /** A section that introduces the scope or nature of the work. */
+        public static final String PUBLICATION_TAG_INTRODUCTION = "doc-introduction";
+
+        /**
+         * A reference to a footnote or endnote, typically a superscript number or symbol.
+         */
+        public static final String PUBLICATION_TAG_NOTE_REFERENCE = "doc-noteref";
+
+        /** A warning about the consequences of an action or event. */
+        public static final String PUBLICATION_TAG_NOTICE = "doc-notice";
+
+        /**
+         * The point where one page of a paginated edition ends and the next begins. Its accessible
+         * name is normally the number of the page that follows.
+         */
+        public static final String PUBLICATION_TAG_PAGE_BREAK = "doc-pagebreak";
+
+        /**
+         * Text at the bottom of a page that gives context about the work and the reader's place in
+         * it.
+         */
+        public static final String PUBLICATION_TAG_PAGE_FOOTER = "doc-pagefooter";
+
+        /**
+         * Text at the top of a page that gives context about the work and the reader's place in
+         * it.
+         */
+        public static final String PUBLICATION_TAG_PAGE_HEADER = "doc-pageheader";
+
+        /** A list of links to the page breaks in the content. */
+        public static final String PUBLICATION_TAG_PAGE_LIST = "doc-pagelist";
+
+        /**
+         * A major division of the work that groups related sections, such as several chapters.
+         */
+        public static final String PUBLICATION_TAG_PART = "doc-part";
+
+        /** An introductory section, typically written by the author. */
+        public static final String PUBLICATION_TAG_PREFACE = "doc-preface";
+
+        /**
+         * An introductory section that sets the background, typically as part of the narrative.
+         */
+        public static final String PUBLICATION_TAG_PROLOGUE = "doc-prologue";
+
+        /** A quotation from the content, set apart to draw attention to it. */
+        public static final String PUBLICATION_TAG_PULL_QUOTE = "doc-pullquote";
+
+        /** Content structured as questions and answers, such as an interview or FAQ. */
+        public static final String PUBLICATION_TAG_QUESTIONS_AND_ANSWERS = "doc-qna";
+
+        /** An explanatory or alternate title for the work or a section. */
+        public static final String PUBLICATION_TAG_SUBTITLE = "doc-subtitle";
+
+        /** An ordered list of links to the major headings in the content. */
+        public static final String PUBLICATION_TAG_TABLE_OF_CONTENTS = "doc-toc";
+
+        /** Helpful information that clarifies the content. */
+        public static final String PUBLICATION_TAG_TIP = "doc-tip";
+
+        /**
+         * Instantiates a new PublicationInfoCompat.
+         *
+         * @param tag The publication tag for this node.
+         * @throws IllegalArgumentException if {@code tag} is empty.
+         */
+        public PublicationInfoCompat(@NonNull @PublicationTag String tag) {
+            // TODO(b/575192538): Revisit before this leaves preview.
+            this(checkTag(tag), null);
+        }
+
+        /**
+         * Instantiates a new PublicationInfoCompat that holds its own data rather than wrapping a
+         * platform object, such as one stored in a node's extras.
+         *
+         * @param tag The publication tag for this node.
+         * @param attributes The attributes.
+         */
+        PublicationInfoCompat(@NonNull String tag, @Nullable Bundle attributes) {
+            super(null, EXTRAS_TYPE, tag, attributes);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        @NonNull
+        @PublicationTag
+        public String getTag() {
+            return Objects.requireNonNull(super.getTag());
+        }
+
+        private static @NonNull String checkTag(@NonNull String tag) {
+            if (Objects.requireNonNull(tag).isEmpty()) {
+                throw new IllegalArgumentException("Tag cannot be empty");
+            }
+            return tag;
         }
     }
 
