@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.text
 
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.ui.graphics.Color
@@ -426,19 +427,42 @@ class RemoteTextStyleTest {
                 fontWeight = FontWeight.SemiBold,
                 fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center,
+                textDecoration = TextDecoration.Underline + TextDecoration.LineThrough,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.Auto,
             )
 
         assertThat(style.remoteFontWeight).isEqualTo(RemoteFontWeight.SemiBold)
         assertThat(style.remoteFontStyle).isEqualTo(RemoteFontStyle.Italic)
         assertThat(style.remoteTextAlign).isEqualTo(RemoteTextAlign.Center)
+        assertThat(style.remoteTextDecoration)
+            .isEqualTo(RemoteTextDecoration.Underline + RemoteTextDecoration.LineThrough)
+        assertThat(style.remoteTextDecoration!!.toString())
+            .isEqualTo("RemoteTextDecoration[Underline, LineThrough]")
+        assertThat(RemoteTextDecoration.None.toString()).isEqualTo("RemoteTextDecoration.None")
+        assertThat(RemoteTextDecoration.Underline.toString())
+            .isEqualTo("RemoteTextDecoration.Underline")
+        assertThat(RemoteTextDecoration.LineThrough.toString())
+            .isEqualTo("RemoteTextDecoration.LineThrough")
+        assertThat(RemoteTextDecoration.Underline in style.remoteTextDecoration!!).isTrue()
+        assertThat(RemoteTextDecoration.LineThrough in style.remoteTextDecoration!!).isTrue()
+        assertThat(style.remoteLineBreak).isEqualTo(RemoteLineBreak.Heading)
+        assertThat(style.remoteLineBreak!!.value).isEqualTo(CoreText.BREAK_STRATEGY_BALANCED)
+        assertThat(style.remoteHyphens).isEqualTo(RemoteHyphens.Auto)
+        assertThat(style.remoteHyphens!!.value).isEqualTo(CoreText.HYPHENATION_FREQUENCY_FULL)
 
         val defaultStyle = RemoteTextStyle()
         assertThat(defaultStyle.remoteFontWeight).isNull()
         assertThat(defaultStyle.remoteFontStyle).isNull()
         assertThat(defaultStyle.remoteTextAlign).isNull()
         assertThat(RemoteTextStyle(textAlign = TextAlign.Unspecified).remoteTextAlign).isNull()
+        assertThat(defaultStyle.remoteTextDecoration).isNull()
+        assertThat(defaultStyle.remoteLineBreak).isNull()
+        assertThat(defaultStyle.remoteHyphens).isNull()
 
         assertThat(RemoteTextAlign.Start.toString()).isEqualTo("RemoteTextAlign.Start")
         assertThat(RemoteTextOverflow.Ellipsis.value).isEqualTo(3)
+        assertThat(RemoteTextDecoration.None.plus(RemoteTextDecoration.Underline))
+            .isEqualTo(RemoteTextDecoration.Underline)
     }
 }

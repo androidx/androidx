@@ -28,7 +28,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteHyphens
+import androidx.compose.remote.creation.compose.text.RemoteLineBreak
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
@@ -42,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 
 /** Converts a Compose [BlendMode] to an Android framework [android.graphics.BlendMode]. */
@@ -309,21 +313,37 @@ internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =
         else -> RemoteFilterQuality.Low
     }
 
-internal fun LineBreak.encode(): Int =
+internal fun LineBreak.toRemoteLineBreak(): RemoteLineBreak =
     when (this.strategy) {
-        LineBreak.Strategy.Simple -> 0
-        LineBreak.Strategy.HighQuality -> 1
-        LineBreak.Strategy.Balanced -> 2
-        else -> 0
+        LineBreak.Strategy.Simple -> RemoteLineBreak.Simple
+        LineBreak.Strategy.HighQuality -> RemoteLineBreak.Paragraph
+        LineBreak.Strategy.Balanced -> RemoteLineBreak.Heading
+        else -> RemoteLineBreak.Simple
     }
 
-internal fun Hyphens.encode(): Int =
+internal fun Hyphens.toRemoteHyphens(): RemoteHyphens =
     when (this) {
-        Hyphens.Auto -> 2 // Layout.HYPHENATION_FREQUENCY_FULL
+        Hyphens.Auto -> RemoteHyphens.Auto
         Hyphens.None,
-        Hyphens.Unspecified -> 0 // Layout.HYPHENATION_FREQUENCY_NONE
-        else -> 0
+        Hyphens.Unspecified -> RemoteHyphens.None
+        else -> RemoteHyphens.None
     }
+
+internal fun TextDecoration.toRemoteTextDecoration(): RemoteTextDecoration {
+    val underline =
+        if (contains(TextDecoration.Underline)) {
+            RemoteTextDecoration.Underline
+        } else {
+            RemoteTextDecoration.None
+        }
+    val lineThrough =
+        if (contains(TextDecoration.LineThrough)) {
+            RemoteTextDecoration.LineThrough
+        } else {
+            RemoteTextDecoration.None
+        }
+    return underline + lineThrough
+}
 
 internal fun TileMode.toRemoteTileMode(): RemoteTileMode =
     when (this) {
