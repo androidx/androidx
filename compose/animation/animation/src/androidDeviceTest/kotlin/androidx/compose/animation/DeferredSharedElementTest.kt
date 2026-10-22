@@ -47,8 +47,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +60,16 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalSharedTransitionApi::class)
 class DeferredSharedElementTest {
     @get:Rule val rule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        testTimeSource = { rule.mainClock.currentTime }
+    }
+
+    @After
+    fun tearDown() {
+        testTimeSource = null
+    }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
@@ -330,7 +342,7 @@ class DeferredSharedElementTest {
                 myState = state
                 val transition = rememberDeferredTransition(state)
                 val mutableTransform =
-                    remember(state.pendingTargetState, previewScale) {
+                    remember(state.pendingTargetState) {
                         MutableContentTransform {
                             if (state.pendingTargetState != null) {
                                 initialContentTransform {
@@ -374,8 +386,10 @@ class DeferredSharedElementTest {
         rule.waitForIdle()
 
         // Switch to A, but hold in preview
-        myState?.defer("A")
-        previewScale = 0.5f // Scale the parent AnimatedContent down by half
+        rule.runOnIdle {
+            myState?.defer("A")
+            previewScale = 0.5f // Scale the parent AnimatedContent down by half
+        }
         rule.waitForIdle()
 
         // Scale 0.5 with origin (150, 150): (75, 75) to (175, 175)
@@ -643,8 +657,6 @@ class DeferredSharedElementTest {
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun testHandoffVelocity() {
-        testTimeSource = { rule.mainClock.currentTime }
-
         var myState: DeferredTransitionState<String>? = null
         val targetState = "B"
         var previewScale by mutableStateOf(1f)
@@ -775,8 +787,6 @@ class DeferredSharedElementTest {
             "Expected $boundsFast to be smaller than $boundsSlow",
             boundsFast.width < boundsSlow.width && boundsFast.height < boundsSlow.height,
         )
-
-        testTimeSource = null
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -1170,8 +1180,10 @@ class DeferredSharedElementTest {
         rule.waitForIdle()
 
         // Switch to A, but hold in preview
-        myState?.defer("A")
-        previewScale = 0.5f // Scale the parent AnimatedContent down by half
+        rule.runOnIdle {
+            myState?.defer("A")
+            previewScale = 0.5f // Scale the parent AnimatedContent down by half
+        }
         rule.waitForIdle()
 
         val handoffBounds = getBounds()

@@ -48,8 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +61,16 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTransitionApi::class)
 class DeferredAnimatedContentTest {
     @get:Rule val rule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        testTimeSource = { rule.mainClock.currentTime }
+    }
+
+    @After
+    fun tearDown() {
+        testTimeSource = null
+    }
 
     @Test
     fun waitToEnterTest() {
@@ -842,8 +854,6 @@ class DeferredAnimatedContentTest {
 
     @Test
     fun animatedContent_previewTransforms_handoffVelocity() {
-        testTimeSource = { rule.mainClock.currentTime }
-
         val state = DeferredTransitionState("A")
         var previewScale by mutableStateOf(1f)
 
@@ -937,8 +947,6 @@ class DeferredAnimatedContentTest {
             "Expected exitWidth drop with fast gesture ($exitDropFast) to be greater than with slow gesture ($exitDropSlow)",
             exitDropFast > exitDropSlow,
         )
-
-        testTimeSource = null
     }
 
     @Test
@@ -1509,7 +1517,6 @@ class DeferredAnimatedContentTest {
         var measuredWidth = 0f
 
         rule.setContent {
-            testTimeSource = { rule.mainClock.currentTime }
             state = remember { DeferredTransitionState("A") }
             val transition = rememberDeferredTransition(state!!)
 
