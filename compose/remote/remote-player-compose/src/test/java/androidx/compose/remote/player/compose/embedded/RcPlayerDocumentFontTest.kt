@@ -18,19 +18,23 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import android.graphics.Paint
-import android.graphics.Typeface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
-import androidx.compose.remote.player.compose.embedded.resources.documentFontTypeface
-import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.operations.layout.managers.CoreText
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -38,145 +42,211 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /** Fonts embedded in the document (`FontData`) in the embedded player's text paths. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerDocumentFontTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    @get:Rule val rule = RcPlayerTestRule()
 
-    @get:Rule val rule = createComposeRule()
-
-    private var fontId = 0
-    private lateinit var context: RemoteContext
-
-    private fun setUpPlayer(trustedContent: Boolean = true) {
-        val font =
-            requireNotNull(javaClass.getResourceAsStream("/font/karla_regular.ttf")).use {
-                it.readBytes()
-            }
-        val document = buildDocument {
-            fontId = writer.addFont(font)
-            writer.drawCircle(1f, 1f, 1f)
+    private fun loadKarlaBytes(): ByteArray =
+        requireNotNull(javaClass.getResourceAsStream("/font/karla_regular.ttf")).use {
+            it.readBytes()
         }
-        rule.setContent {
-            val state = rememberRcPlayerState(document)
-            context = state.remoteContext
-            Box(modifier = Modifier.size(100.dp)) {
-                if (trustedContent) {
-                    RcPlayer(state = state, trustedContent = true)
-                } else {
-                    RcPlayer(state = state)
-                }
-            }
-        }
-        rule.waitForIdle()
-    }
 
     @Test
     fun canvasTextIgnoresDocumentFontByDefault() {
-        setUpPlayer(trustedContent = false)
-        val paint =
-            ComposeLocalPaint().apply {
-                fontFamily = fontId
-                isTypefaceSet = true
-                textSize = 40f
+        val fontBytes = loadKarlaBytes()
+        val docWithEmbeddedFont = canvasFontDocument(fontBytes) { embeddedId -> embeddedId }
+        val docWithDefaultFont = canvasFontDocument(fontBytes) { PaintBundle.FONT_TYPE_DEFAULT }
+
+        var currentDocument by mutableStateOf(docWithEmbeddedFont)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(200.dp, 100.dp)) {
+                    RcPlayer(document = currentDocument, trustedContent = false)
+                }
             }
+        }
+        val embeddedPixels = rule.captureRootPixels(200, 100)
 
-        val nativePaint = paint.toNativeTextPaint(context)
+        currentDocument = docWithDefaultFont
+        rule.waitForIdle()
+        val defaultPixels = rule.captureRootPixels(200, 100)
 
-        assertThat(documentFontTypeface(context, fontId, 400, false)).isNull()
-        val default = Paint().apply { textSize = 40f }
-        assertThat(nativePaint.measureText(SAMPLE)).isEqualTo(default.measureText(SAMPLE))
+        assertThat(embeddedPixels).isEqualTo(defaultPixels)
     }
 
     @Test
     fun layoutTextIgnoresDocumentFontByDefault() {
-        setUpPlayer(trustedContent = false)
-        val family =
-            resolveFontFamily(
-                fontFamilyType = fontId,
-                fontName = null,
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Normal,
-                fontAxis = null,
-                fontAxisValues = null,
-                context = context,
-            )
+        val doc = layoutFontDocument(loadKarlaBytes()) { embeddedId -> embeddedId }
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = doc, trustedContent = false)
+            }
+        }
+        rule.waitForIdle()
 
-        assertThat(family).isEqualTo(FontFamily.SansSerif)
+        assertThat(fetchFontFamily(SAMPLE)).isEqualTo(FontFamily.SansSerif)
     }
 
     @Test
     fun canvasTextUsesTheDocumentFont() {
-        setUpPlayer(trustedContent = true)
-        val paint =
-            ComposeLocalPaint().apply {
-                fontFamily = fontId
-                isTypefaceSet = true
-                textSize = 40f
+        val fontBytes = loadKarlaBytes()
+        val docWithEmbeddedFont = canvasFontDocument(fontBytes) { embeddedId -> embeddedId }
+        val docWithDefaultFont = canvasFontDocument(fontBytes) { PaintBundle.FONT_TYPE_DEFAULT }
+
+        var currentDocument by mutableStateOf(docWithEmbeddedFont)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(200.dp, 100.dp)) {
+                    RcPlayer(document = currentDocument, trustedContent = true)
+                }
             }
+        }
+        val embeddedPixels = rule.captureRootPixels(200, 100)
 
-        val nativePaint = paint.toNativeTextPaint(context)
+        currentDocument = docWithDefaultFont
+        rule.waitForIdle()
+        val defaultPixels = rule.captureRootPixels(200, 100)
 
-        assertThat(nativePaint.typeface).isNotEqualTo(Typeface.DEFAULT)
-        val default = Paint().apply { textSize = 40f }
-        assertThat(nativePaint.measureText(SAMPLE)).isNotEqualTo(default.measureText(SAMPLE))
+        assertThat(embeddedPixels).isNotEqualTo(defaultPixels)
     }
 
     @Test
     fun layoutTextUsesTheDocumentFont() {
-        setUpPlayer(trustedContent = true)
-        val family =
-            resolveFontFamily(
-                fontFamilyType = fontId,
-                fontName = null,
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Normal,
-                fontAxis = null,
-                fontAxisValues = null,
-                context = context,
-            )
+        val doc = layoutFontDocument(loadKarlaBytes()) { embeddedId -> embeddedId }
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = doc, trustedContent = true)
+            }
+        }
+        rule.waitForIdle()
 
-        // Without the document font this falls back to sans-serif.
+        val family = fetchFontFamily(SAMPLE)
         assertThat(family).isNotEqualTo(FontFamily.SansSerif)
         assertThat(family).isNotEqualTo(FontFamily.Default)
     }
 
     @Test
     fun ordinaryFontIdsAreNotDocumentFonts() {
-        setUpPlayer(trustedContent = true)
-        assertThat(documentFontTypeface(context, 1, 400, false)).isNull()
+        val doc = layoutFontDocument(loadKarlaBytes()) { PaintBundle.FONT_TYPE_SERIF }
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = doc, trustedContent = true)
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(fetchFontFamily(SAMPLE)).isEqualTo(FontFamily.Serif)
     }
 
     @Test
     fun corruptFontDataFallsBackWithoutThrowing() {
-        setUpPlayer(trustedContent = true)
-        val badFontId = 999
-        context.loadFont(badFontId, byteArrayOf(0x01, 0x02, 0x03))
+        val doc = layoutFontDocument(byteArrayOf(0x01, 0x02, 0x03)) { embeddedId -> embeddedId }
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = doc, trustedContent = true)
+            }
+        }
+        rule.waitForIdle()
 
-        assertThat(documentFontTypeface(context, badFontId, 400, false)).isNull()
+        assertThat(fetchFontFamily(SAMPLE)).isEqualTo(FontFamily.SansSerif)
     }
 
     @Test
     fun customFontFamilyNameResolvesNormally() {
-        setUpPlayer(trustedContent = true)
-        val customNameId = 500
-        context.loadText(customNameId, "monospace")
+        val doc = layoutFontDocument(loadKarlaBytes()) { addText("monospace") }
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = doc, trustedContent = true)
+            }
+        }
+        rule.waitForIdle()
 
-        val family =
-            resolveFontFamily(
-                fontFamilyType = customNameId,
-                fontName = context.getText(customNameId),
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Normal,
-                fontAxis = null,
-                fontAxisValues = null,
-                context = context,
-            )
+        assertThat(fetchFontFamily(SAMPLE)).isEqualTo(FontFamily.Monospace)
+    }
 
-        assertThat(family).isEqualTo(FontFamily.Monospace)
+    private fun fetchFontFamily(text: String): FontFamily? {
+        val results = mutableListOf<TextLayoutResult>()
+        rule
+            .onNodeWithText(text, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult]
+            .action
+            ?.invoke(results)
+        return results.single().layoutInput.style.fontFamily
+    }
+
+    private fun canvasFontDocument(
+        fontBytes: ByteArray,
+        fontFamilyIdProvider: RemoteComposeContextAndroid.(Int) -> Int,
+    ): CoreDocument = buildDocument {
+        val embeddedId = writer.addFont(fontBytes)
+        val fontFamilyId = fontFamilyIdProvider(embeddedId)
+        val textId = addText(SAMPLE)
+        val pathId = addPathString("M 5 60 L 195 60")
+        writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+        drawRect(0f, 0f, 200f, 100f)
+        writer.buffer.addPaint(
+            PaintBundle().apply {
+                setColor(0xFF000000.toInt())
+                setTextSize(40f)
+                setTextStyle(fontFamilyId, 400, false)
+            }
+        )
+        drawTextOnPath(textId, pathId, 0f, 0f)
+    }
+
+    private fun layoutFontDocument(
+        fontBytes: ByteArray? = null,
+        fontFamilyIdProvider: RemoteComposeContextAndroid.(Int) -> Int,
+    ): CoreDocument {
+        var resolvedFontFamilyId = 0
+        val document = buildDocument {
+            val embeddedId = if (fontBytes != null) writer.addFont(fontBytes) else -1
+            resolvedFontFamilyId = fontFamilyIdProvider(embeddedId)
+            val textId = addText(SAMPLE)
+            root {
+                writer.buffer.addTextComponentStart(
+                    -1,
+                    -1,
+                    textId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    24f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    resolvedFontFamilyId,
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    null,
+                    null,
+                    false,
+                    0,
+                )
+                writer.buffer.addContentStart()
+                endTextComponent()
+            }
+        }
+        val coreText = document.rootLayoutComponent!!.mList.first { it is CoreText } as CoreText
+        coreText.mPaint.setTextStyle(resolvedFontFamilyId, 400, false)
+        return document
     }
 
     private companion object {
