@@ -31,6 +31,8 @@ import androidx.compose.foundation.gestures.rememberScrollable2DState
 import androidx.compose.foundation.gestures.scrollable2D
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +49,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.materialize
 import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
+import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithTag
@@ -144,6 +148,86 @@ class Scrollable2DTest : AbstractScrollable2DTest() {
             assertThat(outerDrag.y).isGreaterThan(0f)
             assertThat(innerDrag).isEqualTo(outerDrag)
             innerDrag
+        }
+    }
+
+    @Test
+    fun scrollable_nestedScroll_scrollCaptureInProgress_doesNotDispatchForSemantics() {
+        var captureInProgress by mutableStateOf(true)
+        var preScrollDelta = Offset.Zero
+        var postScrollDelta = Offset.Zero
+        var scrolledDelta = Offset.Zero
+        var consumedScroll = Offset.Unspecified
+        val scrollable2DState =
+            Scrollable2DState(
+                consumeScrollDelta = {
+                    val consumed = it / 2f
+                    scrolledDelta += consumed
+                    consumed
+                }
+            )
+        val parentNestedScroll =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    preScrollDelta += available
+                    return available / 2f
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    postScrollDelta += available
+                    return available
+                }
+            }
+
+        @Suppress("UNCHECKED_CAST")
+        val providableScrollCaptureInProgress =
+            LocalScrollCaptureInProgress as ProvidableCompositionLocal<Boolean>
+
+        rule.setContentAndGetScope {
+            CompositionLocalProvider(providableScrollCaptureInProgress provides captureInProgress) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.size(300.dp).nestedScroll(parentNestedScroll),
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.testTag(scrollable2DBoxTag)
+                                .size(300.dp)
+                                .scrollable2D(state = scrollable2DState)
+                    )
+                }
+            }
+        }
+
+        val action =
+            rule.onNodeWithTag(scrollable2DBoxTag).fetchSemanticsNode().config[ScrollByOffset]
+
+        scope.launch(TestScrollMotionDurationScale(0f)) {
+            consumedScroll = action(Offset(60f, 80f))
+        }
+        rule.runOnIdle {
+            assertThat(preScrollDelta).isEqualTo(Offset.Zero)
+            assertThat(postScrollDelta).isEqualTo(Offset.Zero)
+            assertThat(scrolledDelta).isEqualTo(Offset(30f, 40f))
+            assertThat(consumedScroll).isEqualTo(Offset(30f, 40f))
+        }
+
+        scrolledDelta = Offset.Zero
+        captureInProgress = false
+        rule.waitForIdle()
+
+        scope.launch(TestScrollMotionDurationScale(0f)) {
+            consumedScroll = action(Offset(60f, 80f))
+        }
+        rule.runOnIdle {
+            assertThat(preScrollDelta).isEqualTo(Offset(60f, 80f))
+            assertThat(postScrollDelta).isEqualTo(Offset(15f, 20f))
+            assertThat(scrolledDelta).isEqualTo(Offset(15f, 20f))
+            assertThat(consumedScroll).isEqualTo(Offset(60f, 80f))
         }
     }
 

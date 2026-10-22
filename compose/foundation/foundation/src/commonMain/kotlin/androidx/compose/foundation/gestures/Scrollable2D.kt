@@ -242,8 +242,8 @@ internal class Scrollable2DNode(
         )
     }
 
-    override suspend fun semanticsScrollBy(offset: Offset): Offset {
-        return scrollLogic.semanticsScrollBy(offset)
+    override suspend fun semanticsScrollBy(offset: Offset, dispatchNestedScroll: Boolean): Offset {
+        return scrollLogic.semanticsScrollBy(offset, dispatchNestedScroll)
     }
 }
 
@@ -267,8 +267,12 @@ internal class ScrollingLogic2D(
 
     private val nestedScrollScope =
         object : NestedScrollScope {
-            override fun scrollBy(offset: Offset, source: NestedScrollSource): Offset {
-                return with(outerStateScope) { performScroll(offset, source) }
+            override fun scrollBy(
+                offset: Offset,
+                source: NestedScrollSource,
+                dispatchNestedScroll: Boolean,
+            ): Offset {
+                return with(outerStateScope) { performScroll(offset, source, dispatchNestedScroll) }
             }
 
             override fun scrollByWithOverscroll(
@@ -289,8 +293,17 @@ internal class ScrollingLogic2D(
         with(outerStateScope) { performScroll(delta, latestScrollSource) }
     }
 
-    private fun Scroll2DScope.performScroll(delta: Offset, source: NestedScrollSource): Offset {
-        val consumedByPreScroll = nestedScrollDispatcher.dispatchPreScroll(delta, source)
+    private fun Scroll2DScope.performScroll(
+        delta: Offset,
+        source: NestedScrollSource,
+        dispatchNestedScroll: Boolean = true,
+    ): Offset {
+        val consumedByPreScroll =
+            if (dispatchNestedScroll) {
+                nestedScrollDispatcher.dispatchPreScroll(delta, source)
+            } else {
+                Offset.Zero
+            }
 
         val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
 
@@ -298,11 +311,15 @@ internal class ScrollingLogic2D(
 
         val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
         val consumedByPostScroll =
-            nestedScrollDispatcher.dispatchPostScroll(
-                consumedBySelfScroll,
-                deltaAvailableAfterScroll,
-                source,
-            )
+            if (dispatchNestedScroll) {
+                nestedScrollDispatcher.dispatchPostScroll(
+                    consumedBySelfScroll,
+                    deltaAvailableAfterScroll,
+                    source,
+                )
+            } else {
+                Offset.Zero
+            }
         return consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
     }
 
@@ -460,12 +477,20 @@ private val NoOpScrollScope: Scroll2DScope =
         override fun scrollBy(delta: Offset): Offset = delta
     }
 
-private suspend fun ScrollingLogic2D.semanticsScrollBy(offset: Offset): Offset {
+private suspend fun ScrollingLogic2D.semanticsScrollBy(
+    offset: Offset,
+    dispatchNestedScroll: Boolean,
+): Offset {
     var previousValue = Offset.Zero
     scroll(scrollPriority = MutatePriority.Default) {
         animate(Offset.VectorConverter, Offset.Zero, offset) { currentValue, _ ->
             val delta = currentValue - previousValue
-            val consumed = scrollBy(offset = delta, source = UserInput)
+            val consumed =
+                scrollBy(
+                    offset = delta,
+                    source = UserInput,
+                    dispatchNestedScroll = dispatchNestedScroll,
+                )
             previousValue += consumed
         }
     }
