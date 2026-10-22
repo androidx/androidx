@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.runtime.Composable
@@ -167,7 +168,7 @@ public fun RemoteText(
             set(color) { this.color = it }
             set(fontWeightAdjustment) { this.fontWeightAdjustment = it }
             set(fontWeight) { this.fontWeight = it }
-            set(fontStyle) { this.fontStyle = it }
+            set(fontStyle.toRemoteFontStyle()) { this.fontStyle = it }
             set(fontSize) { this.fontSize = it }
             set(fontFamily) { this.fontFamily = it }
             set(textAlign) { this.textAlign = it }
@@ -193,7 +194,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
     lateinit var fontSize: RemoteTextUnit
     var fontWeightAdjustment: Int = 0
     var fontWeight: RemoteFloat = 400f.rf
-    var fontStyle: FontStyle = FontStyle.Normal
+    var fontStyle: RemoteFontStyle = RemoteFontStyle.Normal
     var fontFamily: String? = null
     var textAlign: TextAlign = TextAlign.Start
     var overflow: TextOverflow = TextOverflow.Clip
@@ -273,7 +274,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
             fontSizePxId,
             minFontSize ?: -1f,
             maxFontSize ?: -1f,
-            fontStyle.encode(),
+            fontStyle.value,
             adjustedFontWeight,
             fontFamily,
             resolvedTextAlign.encode(),
