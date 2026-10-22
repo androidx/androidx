@@ -3123,6 +3123,10 @@ private fun Modifier.rangeSliderPressDragModifier(
                     )
 
                     if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
+                        // Consume the change that crossed the slop so that parent containers
+                        // (e.g. a horizontalScroll) do not also pick up this gesture as a scroll.
+                        drag.consume()
+
                         // The press is converted to a drag, so we cancel the press interaction
                         press?.let {
                             launch { interactionSource.emit(PressInteraction.Cancel(it)) }
