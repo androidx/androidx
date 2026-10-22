@@ -112,7 +112,6 @@ public interface NavigationListener {
      * Navigation is redirected.
      * @param navigationRedirectParameters An object which exposes response headers for the callback
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default void onNavigationRedirected(
             @NonNull NavigationState navigationState,
             @NonNull NavigationRedirectParameters navigationRedirectParameters) {
