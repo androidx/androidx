@@ -43,13 +43,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.referentialEqualityPolicy
-import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.RetainedValuesStore
-import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.platform.LocalConfiguration
@@ -124,9 +121,10 @@ public suspend fun captureSingleRemoteDocument(
 /**
  * Like the public [captureSingleRemoteDocument], but with an optional [savedState] used to
  * initialize and save [LocalSaveableStateRegistry] during the capture so values held with
- * [rememberSaveable] can be saved and restored across captures, and an optional
- * [retainedValuesStore] provided as [LocalRetainedValuesStore] so values held with [retain] are
- * preserved across captures.
+ * [androidx.compose.runtime.saveable.rememberSaveable] can be saved and restored across captures,
+ * and an optional [retainedValuesStore] provided as
+ * [androidx.compose.runtime.retain.LocalRetainedValuesStore] so values held with
+ * [androidx.compose.runtime.retain.retain] are preserved across captures.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocument(

@@ -104,8 +104,8 @@ internal constructor(
      * Builder used to construct a Vector graphic tree. This is useful for caching the result of
      * expensive operations used to construct a vector graphic for compose. For example, the vector
      * graphic could be serialized and downloaded from a server and represented internally in a
-     * ImageVector before it is composed through The generated ImageVector is recommended to be
-     * memoized across composition calls to avoid doing redundant work
+     * [RemoteImageVector] before it is composed through The generated [RemoteImageVector] is
+     * recommended to be memoized across composition calls to avoid doing redundant work
      *
      * @param defaultWidth The default width of the vector asset in [RemoteDp]
      * @param defaultHeight The default height of the vector asset in [RemoteDp]
@@ -295,10 +295,11 @@ internal constructor(
         }
 
         /**
-         * Construct a ImageVector. This concludes the creation process of a ImageVector graphic
-         * This builder cannot be re-used to create additional ImageVector instances
+         * Construct a [RemoteImageVector]. This concludes the creation process of a
+         * [RemoteImageVector] graphic This builder cannot be re-used to create additional
+         * [RemoteImageVector] instances
          *
-         * @return The newly created ImageVector instance
+         * @return The newly created [RemoteImageVector] instance
          */
         public fun build(): RemoteImageVector {
             ensureNotConsumed()

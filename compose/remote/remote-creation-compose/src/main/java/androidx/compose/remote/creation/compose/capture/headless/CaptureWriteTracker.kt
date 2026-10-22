@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.Collections
@@ -40,8 +39,9 @@ import kotlinx.coroutines.asContextElement
  * render snapshot) claims every pending global write and delivers it to apply observers only after
  * releasing the global lock, outside [Snapshot.isApplyObserverNotificationPending]. If that claims
  * a write made by this capture's effect, [Snapshot.sendApplyNotifications] here finds nothing to
- * send and [Recomposer.hasPendingWork] stays `false` until the other thread delivers it, so the
- * capture could sample itself as quiescent and render stale state (b/571028326).
+ * send and [androidx.compose.runtime.Recomposer.hasPendingWork] stays `false` until the other
+ * thread delivers it, so the capture could sample itself as quiescent and render stale state
+ * (b/571028326).
  *
  * TODO(b/573872754): Remove once [Snapshot.isApplyObserverNotificationPending] also covers global
  *   writes delivered by `MutableSnapshot.apply()`; [awaitRecomposerQuiescence] then only needs its

@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.Profile.SupportedOperationsProvider
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
 
 /**
@@ -32,7 +31,8 @@ import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
  * This provides a Kotlin-friendly factory for [Profile] with sensible defaults, avoiding the need
  * to manually configure internal platform services and writer implementations.
  *
- * For predefined profiles, see [RcPlatformProfiles], such as [RcPlatformProfiles.ANDROIDX].
+ * For predefined profiles, see [androidx.compose.remote.creation.profile.RcPlatformProfiles], such
+ * as [androidx.compose.remote.creation.profile.RcPlatformProfiles.ANDROIDX].
  *
  * @param docApiLevel The document API level supported by this profile. Defaults to the latest
  *   document API level ([CoreDocument.DOCUMENT_API_LEVEL]).

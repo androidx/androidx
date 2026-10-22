@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -219,7 +218,7 @@ public constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
      * Writes the Remote Value to the [creationState] and returns the allocated ID.
      *
      * @param creationState The [RemoteComposeCreationState] to write to.
-     * @return The ID allocated by the [RemoteComposeWriter].
+     * @return The ID allocated by the [androidx.compose.remote.creation.RemoteComposeWriter].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun writeToDocument(creationState: RemoteComposeCreationState): Int
