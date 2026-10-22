@@ -22,13 +22,21 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Scene
+import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import java.util.function.Consumer
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+
+/** Timeout applied when waiting for a space mode transition to be observed. */
+private val SPACE_MODE_TIMEOUT = 5.seconds
 
 /**
  * Launches [ComponentActivity], initializes a [Session], awaits the OS ActivitySpace
@@ -64,7 +72,7 @@ internal inline fun runTestWithSession(
             session.scene.activitySpace.addOriginChangedListener(originListener)
 
             try {
-                withTimeoutOrNull(2000) { originSettled.await() }
+                withTimeoutOrNull(2.seconds) { originSettled.await() }
                 testBody(activity, session)
             } finally {
                 session.scene.activitySpace.removeOriginChangedListener(originListener)
@@ -79,6 +87,36 @@ internal inline fun runTestWithSession(crossinline testBody: suspend (Session) -
     runTestWithSession { _, session ->
         testBody(session)
     }
+
+/**
+ * Requests Full Space Mode via [Scene.requestFullSpace] and suspends until
+ * [SpatialCapability.SPATIAL_UI] is present in [Scene.spatialCapabilities].
+ */
+internal suspend fun Scene.requestFullSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = true)
+
+/**
+ * Requests Home Space Mode via [Scene.requestHomeSpace] and suspends until
+ * [SpatialCapability.SPATIAL_UI] is removed from [Scene.spatialCapabilities].
+ */
+internal suspend fun Scene.requestHomeSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = false)
+
+private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
+    val reached = CompletableDeferred<Unit>()
+    val listener =
+        Consumer<Set<SpatialCapability>> { capabilities ->
+            if (capabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) {
+                reached.complete(Unit)
+            }
+        }
+    addSpatialCapabilitiesChangedListener(listener)
+    try {
+        if (spatialCapabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) return
+        if (fullSpace) requestFullSpace() else requestHomeSpace()
+        withTimeout(SPACE_MODE_TIMEOUT) { reached.await() }
+    } finally {
+        removeSpatialCapabilitiesChangedListener(listener)
+    }
+}
 
 internal fun assertPose(actual: Pose, expected: Pose, epsilon: Float = 1e-5f) {
     assertVector3(actual.translation, expected.translation, epsilon)
