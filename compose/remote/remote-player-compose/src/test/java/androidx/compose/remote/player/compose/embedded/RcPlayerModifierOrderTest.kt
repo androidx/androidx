@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifie
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
+import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier

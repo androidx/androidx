@@ -37,6 +37,12 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.applyOperationsWithoutBitmaps
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
+import androidx.compose.remote.player.compose.embedded.draw.executeOperations
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier

@@ -24,6 +24,7 @@ import android.os.Build
 import androidx.annotation.ArrayRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.player.compose.embedded.resources.applyVariationSettings
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat

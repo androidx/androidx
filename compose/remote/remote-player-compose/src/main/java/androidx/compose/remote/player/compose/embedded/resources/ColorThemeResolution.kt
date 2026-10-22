@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.resources
 
+import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.Theme
 
 /**
  * Resolves an authored or overridden theme integer to a concrete [Theme.LIGHT] or [Theme.DARK]
  * mode.
  *
- * In remote-core, [androidx.compose.remote.core.operations.ColorTheme.apply] treats anything other
- * than [Theme.LIGHT] as dark mode. Resolving [Theme.SYSTEM] and [Theme.UNSPECIFIED] against the
- * host's [isSystemInDarkTheme] ensures documents render in light mode when the host is in light
- * mode.
+ * In remote-core, [ColorTheme.apply] treats anything other than [Theme.LIGHT] as dark mode.
+ * Resolving [Theme.SYSTEM] and [Theme.UNSPECIFIED] against the host's [isSystemInDarkTheme] ensures
+ * documents render in light mode when the host is in light mode.
  */
 internal fun resolveThemeMode(theme: Int, isSystemInDarkTheme: Boolean): Int {
     return when (theme) {

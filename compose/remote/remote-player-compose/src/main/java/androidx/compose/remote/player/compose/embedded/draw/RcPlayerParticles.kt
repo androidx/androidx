@@ -16,12 +16,13 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.draw
 
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.core.platform.AndroidPaintContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas

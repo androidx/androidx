@@ -32,7 +32,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierO
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.RcPlayerTestRule
-import androidx.compose.remote.player.compose.embedded.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier

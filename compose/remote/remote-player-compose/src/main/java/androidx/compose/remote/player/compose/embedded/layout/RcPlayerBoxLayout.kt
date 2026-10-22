@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
+import androidx.compose.remote.player.compose.embedded.components.RcPlayerChildren
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 

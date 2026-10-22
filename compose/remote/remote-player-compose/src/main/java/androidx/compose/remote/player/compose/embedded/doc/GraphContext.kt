@@ -16,7 +16,7 @@
 
 @file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection", "BanConcurrentHashMap")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.doc
 
 import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
@@ -32,6 +32,12 @@ import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.remote.player.compose.embedded.RcImageLoader
+import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.GraphPaintContext
+import androidx.compose.remote.player.compose.embedded.resources.RcTypefaceCache
+import androidx.compose.remote.player.compose.embedded.resources.typefaceCache
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State

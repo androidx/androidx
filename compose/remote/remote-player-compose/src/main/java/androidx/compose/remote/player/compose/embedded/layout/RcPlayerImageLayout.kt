@@ -24,8 +24,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.utilities.ImageScaling
-import androidx.compose.remote.player.compose.embedded.DrawablePainter
 import androidx.compose.remote.player.compose.embedded.LocalRcImageLoader
+import androidx.compose.remote.player.compose.embedded.resources.DrawablePainter
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
