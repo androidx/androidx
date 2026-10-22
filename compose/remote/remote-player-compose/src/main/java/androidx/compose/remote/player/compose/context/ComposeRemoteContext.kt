@@ -18,15 +18,20 @@
 package androidx.compose.remote.player.compose.context
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.core.operations.utilities.DataMap
 import androidx.compose.remote.core.types.LongConstant
+import androidx.compose.remote.player.compose.embedded.resources.isIntrinsicPlaceholder
+import androidx.compose.remote.player.compose.embedded.resources.setDimensions
 import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.remote.player.core.platform.RemoteBitmapDecoder
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -108,6 +113,9 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
     }
 
     fun overrideData(id: Int, value: Any?) {
+        if (value is Bitmap) {
+            (mRemoteComposeState.getObject(id) as? BitmapData)?.setDimensions(value)
+        }
         mRemoteComposeState.overrideData(id, value!!)
     }
 
@@ -231,17 +239,21 @@ internal class ComposeRemoteContext(clock: RemoteClock) : RemoteContext(clock) {
         bitmap: ByteArray,
     ) {
         if (!mRemoteComposeState.containsId(imageId)) {
+            val decodeAsIntrinsic = isIntrinsicPlaceholder(width, height, encoding)
             val image =
-                androidx.compose.remote.player.core.platform.RemoteBitmapDecoder.decodeBitmap(
+                RemoteBitmapDecoder.decodeBitmap(
                     imageId,
                     encoding,
                     type,
-                    width,
-                    height,
+                    if (decodeAsIntrinsic) 0 else width,
+                    if (decodeAsIntrinsic) 0 else height,
                     bitmap,
                     bitmapLoader,
                 )
             if (image != null) {
+                if (decodeAsIntrinsic) {
+                    (mRemoteComposeState.getObject(imageId) as? BitmapData)?.setDimensions(image)
+                }
                 mRemoteComposeState.cacheData(imageId, image)
             }
         }
