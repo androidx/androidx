@@ -31,7 +31,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.11.0")
+    api("androidx.compose.foundation:foundation:1.13.0-beta01")
     api("androidx.compose.runtime:runtime:1.12.0")
     api("androidx.compose.ui:ui:1.11.0")
     api("androidx.compose.ui:ui-text:1.11.0")
@@ -51,8 +51,8 @@ dependencies {
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
-    androidTestImplementation(project(":compose:ui:ui-test"))
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.ui:ui-test:1.13.0-beta01")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.13.0-beta01")
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testParameterInjector)
@@ -76,7 +76,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         minSdk { version = release(25) }
     }
