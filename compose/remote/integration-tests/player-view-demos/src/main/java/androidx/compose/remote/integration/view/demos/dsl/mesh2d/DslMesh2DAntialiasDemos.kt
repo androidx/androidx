@@ -19,10 +19,10 @@ package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 import android.annotation.SuppressLint
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.dsl.DrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColorValue
+import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcMesh
 import androidx.compose.remote.creation.dsl.RcMeshLayout
@@ -282,7 +282,7 @@ private fun RcCanvasScope.drawMagnified(
     size: RcFloat,
 ) {
     val image = createBitmap(ZOOM_PIXELS, ZOOM_PIXELS)
-    drawOnBitmap(image, DrawOnBitmapMode.CLEAR, RcColorValue(BACKDROP)) {
+    drawOnBitmap(image, RcDrawOnBitmapMode.Clear, RcColorValue(BACKDROP)) {
         save {
             translate(ZOOM_PIXELS / 2f, ZOOM_PIXELS / 2f)
             rotate(degrees)
@@ -396,7 +396,7 @@ public fun dslMesh2DAntialiasTextured(): ByteArray {
 
             // A checkerboard, drawn by the document into an offscreen bitmap.
             val checks = createBitmap(64, 64)
-            drawOnBitmap(checks, DrawOnBitmapMode.CLEAR, RcColorValue(0xFF1D4ED8.toInt())) {
+            drawOnBitmap(checks, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF1D4ED8.toInt())) {
                 paint {
                     style(RcPaintStyle.Fill)
                     color(0xFFFBBF24.toInt())

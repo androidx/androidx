@@ -23,11 +23,11 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.dsl.DrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcColorValue
 import androidx.compose.remote.creation.dsl.RcContentScale
+import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
 import androidx.compose.remote.creation.dsl.RcImage
@@ -190,7 +190,7 @@ private class Motion(
 private fun RcCanvasScope.drawCommandsPanel() {
     // Procedural texture for drawScaledBitmap: a 64x64 four-color quadrant tile with a ring.
     val texture = createBitmap(64, 64)
-    drawOnBitmap(texture, DrawOnBitmapMode.CLEAR, RcColorValue(0xFF4285F4.toInt())) {
+    drawOnBitmap(texture, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4285F4.toInt())) {
         paint { color(0xFFEA4335.toInt()) }
         drawRect(32f, 0f, 64f, 32f)
         paint { color(0xFFFBBC04.toInt()) }
@@ -394,7 +394,7 @@ private fun RcCanvasScope.imagesPanel() {
     val imgW = 160f
     val imgH = 90f
     val photo = createBitmap(imgW.toInt(), imgH.toInt())
-    drawOnBitmap(photo, DrawOnBitmapMode.CLEAR, RcColorValue(0xFF4FC3F7.toInt())) {
+    drawOnBitmap(photo, RcDrawOnBitmapMode.Clear, RcColorValue(0xFF4FC3F7.toInt())) {
         paint { color(0xFF2E7D32.toInt()) }
         drawRect(0f, 60f, imgW, imgH)
         paint { color(0xFFFFEB3B.toInt()) }

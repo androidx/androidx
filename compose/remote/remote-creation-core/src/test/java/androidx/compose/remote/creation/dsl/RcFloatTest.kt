@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.profile.Profile
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /** Test of RcFloat class verifying internal consistency and expression generation. */
@@ -100,6 +101,25 @@ class RcFloatTest {
                 res.toArray(),
                 0.0001f,
             )
+        }
+    }
+
+    @Test
+    fun equalsAndHashCode_invariantAcrossFlush() {
+        val writer = RemoteComposeWriter(testProfile)
+        val scope = RcScopeImpl(writer)
+        scope.apply {
+            val expr1 = 10.rf + 5.rf
+            val expr2 = 10.rf + 5.rf
+            val initialHash = expr1.hashCode()
+            assertEquals(expr1, expr2)
+            assertEquals(initialHash, expr2.hashCode())
+
+            // Flushing mutates internal `id` and `isEvaluated` cache fields, but equality and
+            // hashCode must remain stable.
+            expr1.flush()
+            assertEquals(initialHash, expr1.hashCode())
+            assertEquals(expr1, expr2)
         }
     }
 }

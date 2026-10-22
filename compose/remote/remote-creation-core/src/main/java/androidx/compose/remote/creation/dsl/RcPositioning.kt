@@ -23,8 +23,6 @@ import androidx.annotation.RestrictTo
 /** Base class for child positioning in layouts. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface RcPositioning {
-    public val value: Int
-
     public companion object {
         /** Centers children along the axis. */
         @get:JvmStatic public val Center: RcPositioning = CenterPositioning
@@ -36,9 +34,7 @@ private object CenterPositioning :
     RcHorizontalPositioning,
     RcVerticalPositioning,
     RcRowHorizontalPositioning,
-    RcColumnVerticalPositioning {
-    override val value: Int = 2 // CENTER
-}
+    RcColumnVerticalPositioning
 
 /** Horizontal child positioning. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -87,30 +83,29 @@ public sealed interface RcColumnVerticalPositioning : RcVerticalPositioning {
     }
 }
 
-private object StartPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning {
-    override val value: Int = 1 // START
-}
+private object StartPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning
 
-private object EndPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning {
-    override val value: Int = 3 // END
-}
+private object EndPositioning : RcHorizontalPositioning, RcRowHorizontalPositioning
 
-private object TopPositioning : RcVerticalPositioning, RcColumnVerticalPositioning {
-    override val value: Int = 4 // TOP
-}
+private object TopPositioning : RcVerticalPositioning, RcColumnVerticalPositioning
 
-private object BottomPositioning : RcVerticalPositioning, RcColumnVerticalPositioning {
-    override val value: Int = 5 // BOTTOM
-}
+private object BottomPositioning : RcVerticalPositioning, RcColumnVerticalPositioning
 
-private object SpaceBetweenPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
-    override val value: Int = 6 // SPACE_BETWEEN
-}
+private object SpaceBetweenPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
 
-private object SpaceEvenlyPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
-    override val value: Int = 7 // SPACE_EVENLY
-}
+private object SpaceEvenlyPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
 
-private object SpaceAroundPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning {
-    override val value: Int = 8 // SPACE_AROUND
-}
+private object SpaceAroundPositioning : RcRowHorizontalPositioning, RcColumnVerticalPositioning
+
+internal val RcPositioning.value: Int
+    get() =
+        when (this) {
+            StartPositioning -> 1 // START
+            CenterPositioning -> 2 // CENTER
+            EndPositioning -> 3 // END
+            TopPositioning -> 4 // TOP
+            BottomPositioning -> 5 // BOTTOM
+            SpaceBetweenPositioning -> 6 // SPACE_BETWEEN
+            SpaceEvenlyPositioning -> 7 // SPACE_EVENLY
+            SpaceAroundPositioning -> 8 // SPACE_AROUND
+        }

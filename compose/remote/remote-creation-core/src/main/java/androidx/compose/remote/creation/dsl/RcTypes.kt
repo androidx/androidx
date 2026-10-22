@@ -31,7 +31,9 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 
 /** Type-safe reference for remote text resources. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline public value class RcText(public val id: Int)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RcText internal constructor(internal val id: Int)
 
 /** Type-safe reference for remote image resources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -60,25 +62,31 @@ public value class RcSoundExpression internal constructor(internal val id: Int)
  * Synthesis type for a [RcScope.soundExpression].
  *
  * Values mirror the NaN-encoded type constants in {@code SoundExpression.java} but the wire format
- * is owned by remote-core, so this enum is platform-independent.
+ * is owned by remote-core, so this value class is platform-independent.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcSoundType(internal val value: Int) {
-    /** A pure waveform tone defined by frequency (Hz), duration (s), and waveform kind. */
-    Tone(SoundExpression.TYPE_TONE)
+@JvmInline
+public value class RcSoundType internal constructor(internal val value: Int) {
+    public companion object {
+        /** A pure waveform tone defined by frequency (Hz), duration (s), and waveform kind. */
+        public val Tone: RcSoundType = RcSoundType(SoundExpression.TYPE_TONE)
+    }
 }
 
 /** Waveform shape for a [RcSoundType.Tone] sound expression. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcWaveform(internal val value: Float) {
-    /** Smooth sinusoidal wave (default). */
-    Sine(SoundExpression.WAVEFORM_SINE),
-    /** Hard square wave. */
-    Square(SoundExpression.WAVEFORM_SQUARE),
-    /** Sawtooth wave. */
-    Sawtooth(SoundExpression.WAVEFORM_SAWTOOTH),
-    /** Triangle wave. */
-    Triangle(SoundExpression.WAVEFORM_TRIANGLE),
+@JvmInline
+public value class RcWaveform internal constructor(internal val value: Float) {
+    public companion object {
+        /** Smooth sinusoidal wave (default). */
+        public val Sine: RcWaveform = RcWaveform(SoundExpression.WAVEFORM_SINE)
+        /** Hard square wave. */
+        public val Square: RcWaveform = RcWaveform(SoundExpression.WAVEFORM_SQUARE)
+        /** Sawtooth wave. */
+        public val Sawtooth: RcWaveform = RcWaveform(SoundExpression.WAVEFORM_SAWTOOTH)
+        /** Triangle wave. */
+        public val Triangle: RcWaveform = RcWaveform(SoundExpression.WAVEFORM_TRIANGLE)
+    }
 }
 
 /**
@@ -124,7 +132,12 @@ public value class RcTextList internal constructor(internal val id: Float)
 /** Type-safe reference for remote custom shaders. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcShader(public val id: Int)
+public value class RcShader internal constructor(internal val id: Int) {
+    public companion object {
+        /** Clears any active shader when passed to [RcPaintScope.shader]. */
+        public val None: RcShader = RcShader(0)
+    }
+}
 
 /** Returns an [RcFloat] interpolated from [array] at [position]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -349,7 +362,7 @@ public val Double.rsp: RcSp
 
 /** Text alignment options for the remote player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTextAlign(public val value: Int) {
+public enum class RcTextAlign(internal val value: Int) {
     Start(Rc.Text.ALIGN_START),
     Center(Rc.Text.ALIGN_CENTER),
     End(Rc.Text.ALIGN_END),
@@ -360,7 +373,7 @@ public enum class RcTextAlign(public val value: Int) {
 
 /** Text overflow strategies for the remote player. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTextOverflow(public val value: Int) {
+public enum class RcTextOverflow(internal val value: Int) {
     Clip(Rc.Text.OVERFLOW_CLIP),
     Visible(Rc.Text.OVERFLOW_VISIBLE),
     Ellipsis(Rc.Text.OVERFLOW_ELLIPSIS),
@@ -370,7 +383,7 @@ public enum class RcTextOverflow(public val value: Int) {
 
 /** Content scaling strategies for images. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcContentScale(public val value: Int) {
+public enum class RcContentScale(internal val value: Int) {
     Fit(Rc.ImageScale.FIT),
     Crop(Rc.ImageScale.CROP),
     FillBounds(Rc.ImageScale.FILL_BOUNDS),
@@ -382,7 +395,7 @@ public enum class RcContentScale(public val value: Int) {
 
 /** Stroke cap styles for lines and paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcStrokeCap(public val value: Int) {
+public enum class RcStrokeCap(internal val value: Int) {
     Butt(0),
     Round(1),
     Square(2),
@@ -395,7 +408,7 @@ public fun RcPaint.setStrokeCap(v: RcStrokeCap): RcPaint {
 
 /** Stroke join styles for paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcStrokeJoin(public val value: Int) {
+public enum class RcStrokeJoin(internal val value: Int) {
     Miter(0),
     Round(1),
     Bevel(2),
@@ -407,7 +420,7 @@ public fun RcPaint.setStrokeJoin(v: RcStrokeJoin): RcPaint {
 
 /** Paint styles for drawing shapes. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPaintStyle(public val value: Int) {
+public enum class RcPaintStyle(internal val value: Int) {
     Fill(0),
     Stroke(1),
     FillAndStroke(2),
@@ -443,37 +456,44 @@ public object RcFontWeight {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTextTransformOp(internal val value: Int) {
-    /** Converts the text to uppercase. */
-    UPPERCASE(Rc.TextTransform.TEXT_TO_UPPERCASE),
-    /** Converts the text to lowercase. */
-    LOWERCASE(Rc.TextTransform.TEXT_TO_LOWERCASE),
-    /** Makes the first character uppercase */
-    UPPERCASE_FIRST_CAR(Rc.TextTransform.TEXT_UPPERCASE_FIRST_CHAR),
-    /** converts to first letter of each word to upper case */
-    TEXT_CAPITALIZE(Rc.TextTransform.TEXT_CAPITALIZE),
-    /** Trims whitespace from the start and end of the text. */
-    TRIM(Rc.TextTransform.TEXT_TRIM),
+@JvmInline
+public value class RcTextTransformOp internal constructor(internal val value: Int) {
+    public companion object {
+        /** Converts the text to uppercase. */
+        public val Uppercase: RcTextTransformOp =
+            RcTextTransformOp(Rc.TextTransform.TEXT_TO_UPPERCASE)
+        /** Converts the text to lowercase. */
+        public val Lowercase: RcTextTransformOp =
+            RcTextTransformOp(Rc.TextTransform.TEXT_TO_LOWERCASE)
+        /** Makes the first character uppercase. */
+        public val UppercaseFirstChar: RcTextTransformOp =
+            RcTextTransformOp(Rc.TextTransform.TEXT_UPPERCASE_FIRST_CHAR)
+        /** Converts the first letter of each word to uppercase. */
+        public val Capitalize: RcTextTransformOp =
+            RcTextTransformOp(Rc.TextTransform.TEXT_CAPITALIZE)
+        /** Trims whitespace from the start and end of the text. */
+        public val Trim: RcTextTransformOp = RcTextTransformOp(Rc.TextTransform.TEXT_TRIM)
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class DrawOnBitmapMode(internal val value: Int) {
-    CLEAR(Rc.DrawOnBitmap.CLEAR_BITMAP),
-    NO_CLEAR(Rc.DrawOnBitmap.DO_NOT_CLEAR),
+public enum class RcDrawOnBitmapMode(internal val value: Int) {
+    Clear(Rc.DrawOnBitmap.CLEAR_BITMAP),
+    NoClear(Rc.DrawOnBitmap.DO_NOT_CLEAR),
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class BitmapTextMeasure(internal val value: Int) {
-    BOTTOM(Rc.BitmapTextMeasure.BOTTOM),
-    HEIGHT(Rc.BitmapTextMeasure.HEIGHT),
-    TOP(Rc.BitmapTextMeasure.TOP),
-    LEFT(Rc.BitmapTextMeasure.LEFT),
-    RIGHT(Rc.BitmapTextMeasure.RIGHT),
-    WIDTH(Rc.BitmapTextMeasure.WIDTH),
+public enum class RcBitmapTextMeasure(internal val value: Int) {
+    Bottom(Rc.BitmapTextMeasure.BOTTOM),
+    Height(Rc.BitmapTextMeasure.HEIGHT),
+    Top(Rc.BitmapTextMeasure.TOP),
+    Left(Rc.BitmapTextMeasure.LEFT),
+    Right(Rc.BitmapTextMeasure.RIGHT),
+    Width(Rc.BitmapTextMeasure.WIDTH),
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class FontStyle(internal val value: Int) {
+public enum class RcFontStyle(internal val value: Int) {
     Normal(0),
     Italic(1),
 }
@@ -483,38 +503,40 @@ public enum class FontStyle(internal val value: Int) {
  * Wraps `PaintBundle.BLEND_MODE_*` constants.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcBlendMode(internal val value: Int) {
-    Clear(0),
-    Src(1),
-    Dst(2),
-    SrcOver(3),
-    DstOver(4),
-    SrcIn(5),
-    DstIn(6),
-    SrcOut(7),
-    DstOut(8),
-    SrcAtop(9),
-    DstAtop(10),
-    Xor(11),
-    Plus(12),
-    Modulate(13),
-    Screen(14),
-    Overlay(15),
-    Darken(16),
-    Lighten(17),
-    ColorDodge(18),
-    ColorBurn(19),
-    HardLight(20),
-    SoftLight(21),
-    Difference(22),
-    Exclusion(23),
-    Multiply(24),
-    Hue(25),
-    Saturation(26),
-    Color(27),
-    Luminosity(28),
-    Null(29),
-    Add(30),
+@JvmInline
+public value class RcBlendMode internal constructor(internal val value: Int) {
+    public companion object {
+        public val Clear: RcBlendMode = RcBlendMode(0)
+        public val Src: RcBlendMode = RcBlendMode(1)
+        public val Dst: RcBlendMode = RcBlendMode(2)
+        public val SrcOver: RcBlendMode = RcBlendMode(3)
+        public val DstOver: RcBlendMode = RcBlendMode(4)
+        public val SrcIn: RcBlendMode = RcBlendMode(5)
+        public val DstIn: RcBlendMode = RcBlendMode(6)
+        public val SrcOut: RcBlendMode = RcBlendMode(7)
+        public val DstOut: RcBlendMode = RcBlendMode(8)
+        public val SrcAtop: RcBlendMode = RcBlendMode(9)
+        public val DstAtop: RcBlendMode = RcBlendMode(10)
+        public val Xor: RcBlendMode = RcBlendMode(11)
+        public val Plus: RcBlendMode = RcBlendMode(12)
+        public val Modulate: RcBlendMode = RcBlendMode(13)
+        public val Screen: RcBlendMode = RcBlendMode(14)
+        public val Overlay: RcBlendMode = RcBlendMode(15)
+        public val Darken: RcBlendMode = RcBlendMode(16)
+        public val Lighten: RcBlendMode = RcBlendMode(17)
+        public val ColorDodge: RcBlendMode = RcBlendMode(18)
+        public val ColorBurn: RcBlendMode = RcBlendMode(19)
+        public val HardLight: RcBlendMode = RcBlendMode(20)
+        public val SoftLight: RcBlendMode = RcBlendMode(21)
+        public val Difference: RcBlendMode = RcBlendMode(22)
+        public val Exclusion: RcBlendMode = RcBlendMode(23)
+        public val Multiply: RcBlendMode = RcBlendMode(24)
+        public val Hue: RcBlendMode = RcBlendMode(25)
+        public val Saturation: RcBlendMode = RcBlendMode(26)
+        public val Color: RcBlendMode = RcBlendMode(27)
+        public val Luminosity: RcBlendMode = RcBlendMode(28)
+        public val Add: RcBlendMode = RcBlendMode(30)
+    }
 }
 
 /** Tiling mode for shader/texture sampling. Wraps `Rc.Texture.TILE_*` constants. */
@@ -547,23 +569,29 @@ public enum class RcFontType(internal val value: Int) {
  * `Notches*Even` modes are uniform spacings driven by a count.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTouchStopMode(internal val value: Int) {
-    /** Decelerate gradually after release. */
-    Gently(Rc.Touch.STOP_GENTLY),
-    /** Stop immediately on release. */
-    Instantly(Rc.Touch.STOP_INSTANTLY),
-    /** Snap to the nearest range endpoint. */
-    Ends(Rc.Touch.STOP_ENDS),
-    /** Snap to evenly-spaced notches across the range. */
-    NotchesEven(Rc.Touch.STOP_NOTCHES_EVEN),
-    /** Snap to notches at the given percentages of the range. */
-    NotchesPercents(Rc.Touch.STOP_NOTCHES_PERCENTS),
-    /** Snap to notches at the given absolute coordinates. */
-    NotchesAbsolute(Rc.Touch.STOP_NOTCHES_ABSOLUTE),
-    /** Set the value to the absolute touch position. */
-    AbsolutePosition(Rc.Touch.STOP_ABSOLUTE_POS),
-    /** Snap to evenly-spaced single-step notches. */
-    NotchesSingleEven(Rc.Touch.STOP_NOTCHES_SINGLE_EVEN),
+@JvmInline
+public value class RcTouchStopMode internal constructor(internal val value: Int) {
+    public companion object {
+        /** Decelerate gradually after release. */
+        public val Gently: RcTouchStopMode = RcTouchStopMode(Rc.Touch.STOP_GENTLY)
+        /** Stop immediately on release. */
+        public val Instantly: RcTouchStopMode = RcTouchStopMode(Rc.Touch.STOP_INSTANTLY)
+        /** Snap to the nearest range endpoint. */
+        public val Ends: RcTouchStopMode = RcTouchStopMode(Rc.Touch.STOP_ENDS)
+        /** Snap to evenly-spaced notches across the range. */
+        public val NotchesEven: RcTouchStopMode = RcTouchStopMode(Rc.Touch.STOP_NOTCHES_EVEN)
+        /** Snap to notches at the given percentages of the range. */
+        public val NotchesPercents: RcTouchStopMode =
+            RcTouchStopMode(Rc.Touch.STOP_NOTCHES_PERCENTS)
+        /** Snap to notches at the given absolute coordinates. */
+        public val NotchesAbsolute: RcTouchStopMode =
+            RcTouchStopMode(Rc.Touch.STOP_NOTCHES_ABSOLUTE)
+        /** Set the value to the absolute touch position. */
+        public val AbsolutePosition: RcTouchStopMode = RcTouchStopMode(Rc.Touch.STOP_ABSOLUTE_POS)
+        /** Snap to evenly-spaced single-step notches. */
+        public val NotchesSingleEven: RcTouchStopMode =
+            RcTouchStopMode(Rc.Touch.STOP_NOTCHES_SINGLE_EVEN)
+    }
 }
 
 // =====================================================================================
@@ -665,19 +693,22 @@ public infix fun RcFloat.gte(other: Float): RcCondition = gte(RcFloat(this.write
  * (`IfApi*`) or the document profile bitmask (`IfProfile*`).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcSkipKind(internal val value: Short) {
-    /** Skip the block when the player API level is < value. */
-    IfApiLessThan(Rc.Skip.IF_API_LESS_THAN),
-    /** Skip the block when the player API level is > value. */
-    IfApiGreaterThan(Rc.Skip.IF_API_GREATER_THAN),
-    /** Skip the block when the player API level == value. */
-    IfApiEqualTo(Rc.Skip.IF_API_EQUAL_TO),
-    /** Skip the block when the player API level != value. */
-    IfApiNotEqualTo(Rc.Skip.IF_API_NOT_EQUAL_TO),
-    /** Skip the block when the document profile bitmask includes value. */
-    IfProfileIncludes(Rc.Skip.IF_PROFILE_INCLUDES),
-    /** Skip the block when the document profile bitmask excludes value. */
-    IfProfileExcludes(Rc.Skip.IF_PROFILE_EXCLUDES),
+@JvmInline
+public value class RcSkipKind internal constructor(internal val value: Short) {
+    public companion object {
+        /** Skip the block when the player API level is < value. */
+        public val IfApiLessThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_LESS_THAN)
+        /** Skip the block when the player API level is > value. */
+        public val IfApiGreaterThan: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_GREATER_THAN)
+        /** Skip the block when the player API level == value. */
+        public val IfApiEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_EQUAL_TO)
+        /** Skip the block when the player API level != value. */
+        public val IfApiNotEqualTo: RcSkipKind = RcSkipKind(Rc.Skip.IF_API_NOT_EQUAL_TO)
+        /** Skip the block when the document profile bitmask includes value. */
+        public val IfProfileIncludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_INCLUDES)
+        /** Skip the block when the document profile bitmask excludes value. */
+        public val IfProfileExcludes: RcSkipKind = RcSkipKind(Rc.Skip.IF_PROFILE_EXCLUDES)
+    }
 }
 
 /**
@@ -687,37 +718,40 @@ public enum class RcSkipKind(internal val value: Short) {
  * wrapper API can encode that constraint in the future replacement.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcTimeAttr(internal val value: Short) {
-    /** (value − currentTimeMillis) × 1e-3 — seconds till`value`. */
-    TimeFromNowSec(Rc.TimeAttributes.TIME_FROM_NOW_SEC),
-    /** (value − currentTimeMillis) × 1e-3 / 60 — minutes till `value`. */
-    TimeFromNowMin(Rc.TimeAttributes.TIME_FROM_NOW_MIN),
-    /** (value − currentTimeMillis) × 1e-3 / 3600 — hours till `value`. */
-    TimeFromNowHr(Rc.TimeAttributes.TIME_FROM_NOW_HR),
-    /** (value − arg[0]) × 1e-3 — seconds elapsed since `arg[0]`. */
-    TimeFromArgSec(Rc.TimeAttributes.TIME_FROM_ARG_SEC),
-    /** (value − arg[0]) × 1e-3 / 60 — minutes elapsed since `arg[0]`. */
-    TimeFromArgMin(Rc.TimeAttributes.TIME_FROM_ARG_MIN),
-    /** (value − arg[0]) × 1e-3 / 3600 — hours elapsed since `arg[0]`. */
-    TimeFromArgHr(Rc.TimeAttributes.TIME_FROM_ARG_HR),
-    /** Second of the minute (0–59). */
-    TimeInSec(Rc.TimeAttributes.TIME_IN_SEC),
-    /** Minute of the hour (0–59). */
-    TimeInMin(Rc.TimeAttributes.TIME_IN_MIN),
-    /** Hour of the day (0–23). */
-    TimeInHr(Rc.TimeAttributes.TIME_IN_HR),
-    /** Day of the month (1–31). */
-    TimeDayOfMonth(Rc.TimeAttributes.TIME_DAY_OF_MONTH),
-    /** Month of the year (0–11). */
-    TimeMonthValue(Rc.TimeAttributes.TIME_MONTH_VALUE),
-    /** Day of the week (0–6). */
-    TimeDayOfWeek(Rc.TimeAttributes.TIME_DAY_OF_WEEK),
-    /** Year. */
-    TimeYear(Rc.TimeAttributes.TIME_YEAR),
-    /** (value − doc-load-time) × 1e-3 — seconds elapsed since the document loaded. */
-    TimeFromLoadSec(Rc.TimeAttributes.TIME_FROM_LOAD_SEC),
-    /** Day of the year (1–366). */
-    TimeDayOfYear(Rc.TimeAttributes.TIME_DAY_OF_YEAR),
+@JvmInline
+public value class RcTimeAttr internal constructor(internal val value: Short) {
+    public companion object {
+        /** (value − currentTimeMillis) × 1e-3 — seconds till `value`. */
+        public val TimeFromNowSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_SEC)
+        /** (value − currentTimeMillis) × 1e-3 / 60 — minutes till `value`. */
+        public val TimeFromNowMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_MIN)
+        /** (value − currentTimeMillis) × 1e-3 / 3600 — hours till `value`. */
+        public val TimeFromNowHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_NOW_HR)
+        /** (value − arg[0]) × 1e-3 — seconds elapsed since `arg[0]`. */
+        public val TimeFromArgSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_SEC)
+        /** (value − arg[0]) × 1e-3 / 60 — minutes elapsed since `arg[0]`. */
+        public val TimeFromArgMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_MIN)
+        /** (value − arg[0]) × 1e-3 / 3600 — hours elapsed since `arg[0]`. */
+        public val TimeFromArgHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_ARG_HR)
+        /** Second of the minute (0–59). */
+        public val TimeInSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_SEC)
+        /** Minute of the hour (0–59). */
+        public val TimeInMin: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_MIN)
+        /** Hour of the day (0–23). */
+        public val TimeInHr: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_IN_HR)
+        /** Day of the month (1–31). */
+        public val TimeDayOfMonth: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_MONTH)
+        /** Month of the year (0–11). */
+        public val TimeMonthValue: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_MONTH_VALUE)
+        /** Day of the week (0–6). */
+        public val TimeDayOfWeek: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_WEEK)
+        /** Year. */
+        public val TimeYear: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_YEAR)
+        /** (value − doc-load-time) × 1e-3 — seconds elapsed since the document loaded. */
+        public val TimeFromLoadSec: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_FROM_LOAD_SEC)
+        /** Day of the year (1–366). */
+        public val TimeDayOfYear: RcTimeAttr = RcTimeAttr(Rc.TimeAttributes.TIME_DAY_OF_YEAR)
+    }
 }
 
 /** Color attribute selector for [RcScope.getColorAttribute]. Wraps `Rc.ColorAttribute.*`. */
@@ -746,27 +780,30 @@ public enum class RcColorAttr(internal val value: Short) {
  * API can require those parameters in the future replacement.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcAnimationCurve(internal val value: Int) {
-    /** Standard cubic ease-in-out. */
-    CubicStandard(Rc.Animate.CUBIC_STANDARD),
-    /** Cubic ease that accelerates. */
-    CubicAccelerate(Rc.Animate.CUBIC_ACCELERATE),
-    /** Cubic ease that decelerates. */
-    CubicDecelerate(Rc.Animate.CUBIC_DECELERATE),
-    /** Linear (no easing). */
-    CubicLinear(Rc.Animate.CUBIC_LINEAR),
-    /** Cubic that recoils backward before accelerating forward. */
-    CubicAnticipate(Rc.Animate.CUBIC_ANTICIPATE),
-    /** Cubic that overshoots and settles back. */
-    CubicOvershoot(Rc.Animate.CUBIC_OVERSHOOT),
-    /** Caller-supplied cubic Bézier control points. */
-    CubicCustom(Rc.Animate.CUBIC_CUSTOM),
-    /** Caller-supplied monotonic spline control points. */
-    SplineCustom(Rc.Animate.SPLINE_CUSTOM),
-    /** Bouncing decay. */
-    EaseOutBounce(Rc.Animate.EASE_OUT_BOUNCE),
-    /** Elastic decay. */
-    EaseOutElastic(Rc.Animate.EASE_OUT_ELASTIC),
+@JvmInline
+public value class RcAnimationCurve internal constructor(internal val value: Int) {
+    public companion object {
+        /** Standard cubic ease-in-out. */
+        public val CubicStandard: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_STANDARD)
+        /** Cubic ease that accelerates. */
+        public val CubicAccelerate: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_ACCELERATE)
+        /** Cubic ease that decelerates. */
+        public val CubicDecelerate: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_DECELERATE)
+        /** Linear (no easing). */
+        public val CubicLinear: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_LINEAR)
+        /** Cubic that recoils backward before accelerating forward. */
+        public val CubicAnticipate: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_ANTICIPATE)
+        /** Cubic that overshoots and settles back. */
+        public val CubicOvershoot: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_OVERSHOOT)
+        /** Caller-supplied cubic Bézier control points. */
+        public val CubicCustom: RcAnimationCurve = RcAnimationCurve(Rc.Animate.CUBIC_CUSTOM)
+        /** Caller-supplied monotonic spline control points. */
+        public val SplineCustom: RcAnimationCurve = RcAnimationCurve(Rc.Animate.SPLINE_CUSTOM)
+        /** Bouncing decay. */
+        public val EaseOutBounce: RcAnimationCurve = RcAnimationCurve(Rc.Animate.EASE_OUT_BOUNCE)
+        /** Elastic decay. */
+        public val EaseOutElastic: RcAnimationCurve = RcAnimationCurve(Rc.Animate.EASE_OUT_ELASTIC)
+    }
 }
 
 /**
@@ -790,53 +827,58 @@ public enum class RcBorderShape(internal val value: Int) {
  * Haptic feedback kind for [RcScope.performHaptic]. Wraps `Rc.Haptic.*` constants.
  *
  * Values mirror `android.view.HapticFeedbackConstants` but the wire format is owned by
- * remote-creation-core, so this enum is platform-independent — the player chooses how (or whether)
- * to map each kind to a local haptic engine.
+ * remote-creation-core, so this value class is platform-independent — the player chooses how (or
+ * whether) to map each kind to a local haptic engine.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcHaptic(internal val value: Int) {
-    /** No haptic feedback should be performed. */
-    NoHaptics(Rc.Haptic.NO_HAPTICS),
-    /** A long press on an object. */
-    LongPress(Rc.Haptic.LONG_PRESS),
-    /** Pressed an on-screen virtual key. */
-    VirtualKey(Rc.Haptic.VIRTUAL_KEY),
-    /** Pressed a soft-keyboard key. */
-    KeyboardTap(Rc.Haptic.KEYBOARD_TAP),
-    /** Hour/minute tick of a clock. */
-    ClockTick(Rc.Haptic.CLOCK_TICK),
-    /** Context click on an object. */
-    ContextClick(Rc.Haptic.CONTEXT_CLICK),
-    /** P a virtual or software keyboard key. */
-    KeyboardPress(Rc.Haptic.KEYBOARD_PRESS),
-    /** Released a soft-keyboard key. */
-    KeyboardRelease(Rc.Haptic.KEYBOARD_RELEASE),
-    /** Released an on-screen virtual key. */
-    VirtualKeyRelease(Rc.Haptic.VIRTUAL_KEY_RELEASE),
-    /** Selection/insertion handle move on a text field. */
-    TextHandleMove(Rc.Haptic.TEXT_HANDLE_MOVE),
-    /** Began a multi-touch gesture (e.g. on the soft keyboard). */
-    GestureStart(Rc.Haptic.GESTURE_START),
-    /** Ended a multi-touch gesture. */
-    GestureEnd(Rc.Haptic.GESTURE_END),
-    /** Confirmation / successful completion of an interaction. */
-    Confirm(Rc.Haptic.CONFIRM),
-    /** Rejection / failure of an interaction. */
-    Reject(Rc.Haptic.REJECT),
-    /** Toggled a switch into the on position. */
-    ToggleOn(Rc.Haptic.TOGGLE_ON),
-    /** Toggled a switch into the off position. */
-    ToggleOff(Rc.Haptic.TOGGLE_OFF),
-    /** A swipe/drag gesture passed an activation threshold. */
-    GestureThresholdActivate(Rc.Haptic.GESTURE_THRESHOLD_ACTIVATE),
-    /** A swipe/drag gesture cancelled by reversing past the threshold. */
-    GestureThresholdDeactivate(Rc.Haptic.GESTURE_THRESHOLD_DEACTIVATE),
-    /** Drag-and-drop target picked up. */
-    DragStart(Rc.Haptic.DRAG_START),
-    /** Switching between potential choices. */
-    SegmentTick(Rc.Haptic.SEGMENT_TICK),
-    /** Switching quickly between potential choices. */
-    SegmentFrequentTick(Rc.Haptic.SEGMENT_FREQUENT_TICK),
+@JvmInline
+public value class RcHaptic internal constructor(internal val value: Int) {
+    public companion object {
+        /** No haptic feedback should be performed. */
+        public val NoHaptics: RcHaptic = RcHaptic(Rc.Haptic.NO_HAPTICS)
+        /** A long press on an object. */
+        public val LongPress: RcHaptic = RcHaptic(Rc.Haptic.LONG_PRESS)
+        /** Pressed an on-screen virtual key. */
+        public val VirtualKey: RcHaptic = RcHaptic(Rc.Haptic.VIRTUAL_KEY)
+        /** Pressed a soft-keyboard key. */
+        public val KeyboardTap: RcHaptic = RcHaptic(Rc.Haptic.KEYBOARD_TAP)
+        /** Hour/minute tick of a clock. */
+        public val ClockTick: RcHaptic = RcHaptic(Rc.Haptic.CLOCK_TICK)
+        /** Context click on an object. */
+        public val ContextClick: RcHaptic = RcHaptic(Rc.Haptic.CONTEXT_CLICK)
+        /** Pressed a virtual or software keyboard key. */
+        public val KeyboardPress: RcHaptic = RcHaptic(Rc.Haptic.KEYBOARD_PRESS)
+        /** Released a soft-keyboard key. */
+        public val KeyboardRelease: RcHaptic = RcHaptic(Rc.Haptic.KEYBOARD_RELEASE)
+        /** Released an on-screen virtual key. */
+        public val VirtualKeyRelease: RcHaptic = RcHaptic(Rc.Haptic.VIRTUAL_KEY_RELEASE)
+        /** Selection/insertion handle move on a text field. */
+        public val TextHandleMove: RcHaptic = RcHaptic(Rc.Haptic.TEXT_HANDLE_MOVE)
+        /** Began a multi-touch gesture (e.g. on the soft keyboard). */
+        public val GestureStart: RcHaptic = RcHaptic(Rc.Haptic.GESTURE_START)
+        /** Ended a multi-touch gesture. */
+        public val GestureEnd: RcHaptic = RcHaptic(Rc.Haptic.GESTURE_END)
+        /** Confirmation / successful completion of an interaction. */
+        public val Confirm: RcHaptic = RcHaptic(Rc.Haptic.CONFIRM)
+        /** Rejection / failure of an interaction. */
+        public val Reject: RcHaptic = RcHaptic(Rc.Haptic.REJECT)
+        /** Toggled a switch into the on position. */
+        public val ToggleOn: RcHaptic = RcHaptic(Rc.Haptic.TOGGLE_ON)
+        /** Toggled a switch into the off position. */
+        public val ToggleOff: RcHaptic = RcHaptic(Rc.Haptic.TOGGLE_OFF)
+        /** A swipe/drag gesture passed an activation threshold. */
+        public val GestureThresholdActivate: RcHaptic =
+            RcHaptic(Rc.Haptic.GESTURE_THRESHOLD_ACTIVATE)
+        /** A swipe/drag gesture cancelled by reversing past the threshold. */
+        public val GestureThresholdDeactivate: RcHaptic =
+            RcHaptic(Rc.Haptic.GESTURE_THRESHOLD_DEACTIVATE)
+        /** Drag-and-drop target picked up. */
+        public val DragStart: RcHaptic = RcHaptic(Rc.Haptic.DRAG_START)
+        /** Switching between potential choices. */
+        public val SegmentTick: RcHaptic = RcHaptic(Rc.Haptic.SEGMENT_TICK)
+        /** Switching quickly between potential choices. */
+        public val SegmentFrequentTick: RcHaptic = RcHaptic(Rc.Haptic.SEGMENT_FREQUENT_TICK)
+    }
 }
 
 /**
@@ -1045,7 +1087,12 @@ public value class RcSkipToken internal constructor(internal val offset: Int)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcComponentId(public val id: Int)
+public value class RcComponentId internal constructor(internal val id: Int) {
+    public companion object {
+        /** Creates a component ID from a raw integer identifier. */
+        public fun of(id: Int): RcComponentId = RcComponentId(id)
+    }
+}
 
 /** Type-safe reference for remote animation specs. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1060,7 +1107,16 @@ public value class RcMacro internal constructor(internal val id: Int)
 /** Type-safe reference for remote macro argument placeholders or blocks. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class RcMacroArg(public val paramId: Int)
+public value class RcMacroArg internal constructor(internal val paramId: Int) {
+    /** Returns this macro argument placeholder as an [RcText] handle. */
+    public fun asText(): RcText = RcText(paramId)
+
+    /** Returns this macro argument placeholder as an [RcColor] handle. */
+    public fun asColor(): RcColor = RcColor(paramId)
+
+    /** Returns this macro argument placeholder as an [RcImage] handle. */
+    public fun asImage(): RcImage = RcImage(paramId)
+}
 
 /** Type-safe reference for remote key-value data maps. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1177,34 +1233,34 @@ internal constructor(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("NoByteOrShort")
-public class CustomProperty {
-    public val mType: Short
-    public val mDataType: Short
-    public val mIntValue: Int
-    public val mFloatValue: Float
+public class RcCustomProperty {
+    internal val mType: Short
+    internal val mDataType: Short
+    internal val mIntValue: Int
+    internal val mFloatValue: Float
 
-    public constructor(type: Short, dataType: Short, value: Int) {
+    internal constructor(type: Short, dataType: Short, value: Int) {
         mType = type
         mDataType = dataType
         mIntValue = value
         mFloatValue = 0f
     }
 
-    public constructor(type: Short, dataType: Short, value: Float) {
+    internal constructor(type: Short, dataType: Short, value: Float) {
         mType = type
         mDataType = dataType
         mFloatValue = value
         mIntValue = 0
     }
 
-    public constructor(type: Short, dataType: Short, value: RcFloat) {
+    internal constructor(type: Short, dataType: Short, value: RcFloat) {
         mType = type
         mDataType = dataType
         mFloatValue = value.toFloat()
         mIntValue = 0
     }
 
-    public constructor(type: Short, dataType: Short, value: RcInteger) {
+    internal constructor(type: Short, dataType: Short, value: RcInteger) {
         mType = type
         mDataType = dataType
         mIntValue = value.toRawInt()
@@ -1228,56 +1284,89 @@ public class CustomProperty {
     }
 
     public companion object {
-        public const val INT_PROP: Short = 0
-        public const val FLOAT_PROP: Short = 1
-        public const val STRING_PROP: Short = 2
-        public const val FLOAT_RETURN: Short = 3
-        public const val TEXT_RETURN: Short = 4
-        public const val INT_RETURN: Short = 5
-        public const val COLOR_RETURN: Short = 6
-        public const val COLOR_ID_PROP: Short = 7
-        public const val COLOR_PROP: Short = 8
-        public const val INT_ID_PROP: Short = 9
+        internal const val INT_PROP: Short = 0
+        internal const val FLOAT_PROP: Short = 1
+        internal const val STRING_PROP: Short = 2
+        internal const val FLOAT_RETURN: Short = 3
+        internal const val TEXT_RETURN: Short = 4
+        internal const val INT_RETURN: Short = 5
+        internal const val COLOR_RETURN: Short = 6
+        internal const val COLOR_ID_PROP: Short = 7
+        internal const val COLOR_PROP: Short = 8
+        internal const val INT_ID_PROP: Short = 9
 
-        public fun int(type: Short, value: Int): CustomProperty =
-            CustomProperty(type, INT_PROP, value)
+        public fun int(type: Short, value: Int): RcCustomProperty =
+            RcCustomProperty(type, INT_PROP, value)
 
-        public fun int(type: Short, value: RcInteger): CustomProperty =
-            CustomProperty(type, INT_ID_PROP, value.toRawInt())
+        public fun int(type: Int, value: Int): RcCustomProperty =
+            RcCustomProperty(type.toShort(), INT_PROP, value)
 
-        public fun float(type: Short, value: Float): CustomProperty =
-            CustomProperty(type, FLOAT_PROP, value)
+        public fun int(type: Short, value: RcInteger): RcCustomProperty =
+            RcCustomProperty(type, INT_ID_PROP, value.toRawInt())
 
-        public fun float(type: Short, value: RcFloat): CustomProperty =
-            CustomProperty(type, FLOAT_PROP, value)
+        public fun int(type: Int, value: RcInteger): RcCustomProperty =
+            RcCustomProperty(type.toShort(), INT_ID_PROP, value.toRawInt())
 
-        public fun color(type: Short, value: RcColorValue): CustomProperty =
-            CustomProperty(type, COLOR_PROP, value.id)
+        public fun float(type: Short, value: Float): RcCustomProperty =
+            RcCustomProperty(type, FLOAT_PROP, value)
 
-        public fun color(type: Short, value: RcColor): CustomProperty =
-            CustomProperty(type, COLOR_ID_PROP, value.id)
+        public fun float(type: Int, value: Float): RcCustomProperty =
+            RcCustomProperty(type.toShort(), FLOAT_PROP, value)
 
-        public fun text(type: Short, value: RcText): CustomProperty =
-            CustomProperty(type, STRING_PROP, value.id)
+        public fun float(type: Short, value: RcFloat): RcCustomProperty =
+            RcCustomProperty(type, FLOAT_PROP, value)
 
-        public fun returnFloat(type: Short, scope: RcScope): CustomProperty {
+        public fun float(type: Int, value: RcFloat): RcCustomProperty =
+            RcCustomProperty(type.toShort(), FLOAT_PROP, value)
+
+        public fun color(type: Short, value: RcColorValue): RcCustomProperty =
+            RcCustomProperty(type, COLOR_PROP, value.id)
+
+        public fun color(type: Int, value: RcColorValue): RcCustomProperty =
+            RcCustomProperty(type.toShort(), COLOR_PROP, value.id)
+
+        public fun color(type: Short, value: RcColor): RcCustomProperty =
+            RcCustomProperty(type, COLOR_ID_PROP, value.id)
+
+        public fun color(type: Int, value: RcColor): RcCustomProperty =
+            RcCustomProperty(type.toShort(), COLOR_ID_PROP, value.id)
+
+        public fun text(type: Short, value: RcText): RcCustomProperty =
+            RcCustomProperty(type, STRING_PROP, value.id)
+
+        public fun text(type: Int, value: RcText): RcCustomProperty =
+            RcCustomProperty(type.toShort(), STRING_PROP, value.id)
+
+        public fun returnFloat(type: Short, scope: RcScope): RcCustomProperty {
             val id = (scope as RcScopeImpl).writer.createFloatId()
-            return CustomProperty(type, FLOAT_RETURN, id)
+            return RcCustomProperty(type, FLOAT_RETURN, id)
         }
 
-        public fun returnText(type: Short, scope: RcScope): CustomProperty {
+        public fun returnFloat(type: Int, scope: RcScope): RcCustomProperty =
+            returnFloat(type.toShort(), scope)
+
+        public fun returnText(type: Short, scope: RcScope): RcCustomProperty {
             val id = (scope as RcScopeImpl).writer.nextId()
-            return CustomProperty(type, TEXT_RETURN, id)
+            return RcCustomProperty(type, TEXT_RETURN, id)
         }
 
-        public fun returnInt(type: Short, scope: RcScope): CustomProperty {
+        public fun returnText(type: Int, scope: RcScope): RcCustomProperty =
+            returnText(type.toShort(), scope)
+
+        public fun returnInt(type: Short, scope: RcScope): RcCustomProperty {
             val id = (scope as RcScopeImpl).writer.nextId()
-            return CustomProperty(type, INT_RETURN, id)
+            return RcCustomProperty(type, INT_RETURN, id)
         }
 
-        public fun returnColor(type: Short, scope: RcScope): CustomProperty {
+        public fun returnInt(type: Int, scope: RcScope): RcCustomProperty =
+            returnInt(type.toShort(), scope)
+
+        public fun returnColor(type: Short, scope: RcScope): RcCustomProperty {
             val id = (scope as RcScopeImpl).writer.nextId()
-            return CustomProperty(type, COLOR_RETURN, id)
+            return RcCustomProperty(type, COLOR_RETURN, id)
         }
+
+        public fun returnColor(type: Int, scope: RcScope): RcCustomProperty =
+            returnColor(type.toShort(), scope)
     }
 }

@@ -61,7 +61,7 @@ fun dslCountdown(): ByteArray {
 
         drawCircle(300f, 300f, 200f)
 
-        paint { shader(RcShader(0)) }
+        paint { shader(RcShader.None) }
 
         val color1 = remoteColorExpression(0x8F, hue, 0.9f, 0.9f)
         paint { color(color1) }
