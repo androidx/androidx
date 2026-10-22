@@ -1430,6 +1430,14 @@ public class CoreDocument implements Serializable {
             if (op instanceof Container) {
                 collectExpressionsRecursive(((Container) op).getList());
             }
+            // Draw operations (e.g. drawWithContent) are held by the component rather than in its
+            // list once inflated, so expressions first defined there must be collected too.
+            if (op instanceof LayoutComponent) {
+                CanvasOperations canvasOperations = ((LayoutComponent) op).getCanvasOperations();
+                if (canvasOperations != null) {
+                    collectExpressionsRecursive(canvasOperations.getList());
+                }
+            }
         }
     }
 
