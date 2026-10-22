@@ -51,7 +51,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -94,23 +93,8 @@ class RcPlayerClockIdleTest {
     }
 
     /** Runs [frames] frames and returns how many of them applied a snapshot state change. */
-    private fun framesWithStateChanges(frames: Int): Int {
-        var changedFrames = 0
-        var changed = false
-        val handle = Snapshot.registerApplyObserver { set, _ ->
-            if (set.isNotEmpty()) changed = true
-        }
-        try {
-            repeat(frames) {
-                changed = false
-                frame()
-                if (changed) changedFrames++
-            }
-        } finally {
-            handle.dispose()
-        }
-        return changedFrames
-    }
+    private fun framesWithStateChanges(frames: Int): Int =
+        rule.framesWithStateChanges(frames, ::frame)
 
     private fun setToggledStateContent(branch: @Composable (Boolean) -> Unit) {
         rule.mainClock.autoAdvance = false

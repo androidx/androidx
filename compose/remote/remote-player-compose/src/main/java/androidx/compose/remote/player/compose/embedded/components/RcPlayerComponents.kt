@@ -61,6 +61,7 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayou
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
 import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -205,6 +206,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         val placement = remember(component) { ComponentPlacementHolder() }
         var outerModifier =
             Modifier.sharedElementTransition(component)
+                .stateBranchEnterExit(component)
                 .then(
                     // Allow StateLayout to adopt its active child's measured dimensions rather than
                     // expanding to incoming minimum parent constraints.
@@ -380,7 +382,11 @@ private fun RcPlayerLayoutComponent(
         is RowLayout -> RcPlayerRow(component, modifier)
         is CoreText -> RcPlayerText(component, modifier)
         is TextLayout -> RcPlayerText(component, modifier)
-        is FitBoxLayout -> RcPlayerFitBoxLayout(component, modifier)
+        // A fit box's alternatives are not state layout branches.
+        is FitBoxLayout ->
+            CompositionLocalProvider(LocalStateBranchScope provides null) {
+                RcPlayerFitBoxLayout(component, modifier)
+            }
         is StateLayout -> RcPlayerStateLayout(component, modifier)
         is ImageLayout -> RcPlayerImageLayout(component, modifier)
         is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)

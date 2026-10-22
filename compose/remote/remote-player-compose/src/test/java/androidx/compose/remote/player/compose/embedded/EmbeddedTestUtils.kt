@@ -30,6 +30,7 @@ import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsActions
@@ -155,4 +156,28 @@ internal fun ComposeContentTestRule.observeClockCadence(
     } else {
         ClockCadence.STATIC
     }
+}
+
+/**
+ * Runs [frames] frames, each advanced by [frame], and returns how many of them applied a snapshot
+ * state change. An idle player applies none, so this catches per-frame work that outlives an
+ * animation.
+ */
+internal fun ComposeContentTestRule.framesWithStateChanges(
+    frames: Int,
+    frame: () -> Unit = { mainClock.advanceTimeByFrame() },
+): Int {
+    var changedFrames = 0
+    var changed = false
+    val handle = Snapshot.registerApplyObserver { set, _ -> if (set.isNotEmpty()) changed = true }
+    try {
+        repeat(frames) {
+            changed = false
+            frame()
+            if (changed) changedFrames++
+        }
+    } finally {
+        handle.dispose()
+    }
+    return changedFrames
 }
