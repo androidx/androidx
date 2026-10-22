@@ -93,4 +93,7 @@ dependencies {
 }
 
 androidx {
+    deviceTests {
+        maxShardCount = 1
+    }
 }
