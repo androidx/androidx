@@ -49,6 +49,13 @@ androidXMultiplatform {
     }
 }
 
+// Benchmarks use their own Node executable, not a distributable Node library.
+tasks.matching {
+    it.name in ["jsNodeDevelopmentLibraryDistribution", "jsNodeProductionLibraryDistribution"]
+}.configureEach {
+    enabled = false
+}
+
 benchmark {
     configurations {
         main {
