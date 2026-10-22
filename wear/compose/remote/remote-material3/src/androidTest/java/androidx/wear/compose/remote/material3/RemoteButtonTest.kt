@@ -20,14 +20,22 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.collection.buildObjectIntMap
 import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteOutline
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -40,6 +48,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -60,17 +69,20 @@ import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondary
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSmallImageBackground
 import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.PathClip
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
+import androidx.wear.compose.remote.material3.util.withPathClip
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @SuppressLint("UnrememberedMutableState")
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class RemoteButtonTest {
     @get:Rule
     val remoteComposeTestRule =
@@ -482,5 +494,120 @@ class RemoteButtonTest {
         }
     }
 
+    @Test
+    fun button_enabled_container_background_image_ab(@TestParameter pathClip: PathClip) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText.withPathClip(pathClip),
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            val backgroundImage = remember {
+                createNamedRemoteImageBitmap(name = "backgroundImage") {
+                    createImage(200, 200).asImageBitmap()
+                }
+            }
+            ComponentContainer {
+                val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.buttonSizeModifier(),
+                    containerPainter = containerPainter,
+                ) {
+                    RemoteText("image_background".rs)
+                }
+            }
+        }
+    }
+
+    /**
+     * A hexagon shape can only be clipped with a path clip. Without one, [RemoteModifier.clip]
+     * falls back to a rectangle so the container image fills the full button bounds.
+     */
+    @Test
+    fun button_hexagon_shape_container_background_image_ab(@TestParameter pathClip: PathClip) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText.withPathClip(pathClip),
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            val backgroundImage = remember {
+                createNamedRemoteImageBitmap(name = "backgroundImage") {
+                    createImage(200, 200).asImageBitmap()
+                }
+            }
+            ComponentContainer {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.buttonSizeModifier(),
+                    containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage),
+                    shape = HexagonShape,
+                ) {
+                    RemoteText("hexagon".rs)
+                }
+            }
+        }
+    }
+
+    /**
+     * The container painter draws over the full rectangular bounds, including the corners outside
+     * the default stadium shape. These corners are clipped away both by the rounded rectangle clip
+     * of [RemoteModifier.clip] and by the path clip, so both variants should match.
+     */
+    @Test
+    fun button_container_painter_draws_in_corners_ab(@TestParameter pathClip: PathClip) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText.withPathClip(pathClip),
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.buttonSizeModifier(),
+                    containerPainter = CornerMarkersPainter,
+                ) {
+                    RemoteText("corners".rs)
+                }
+            }
+        }
+    }
+
     private val testAction = hostAction("testAction".rs, 1.rf)
+}
+
+/** A hexagon with points at the start and end, which can't be expressed as a rounded rectangle. */
+private object HexagonShape : RemoteShape {
+    override fun createOutline(
+        size: RemoteSize,
+        density: RemoteDensity,
+        layoutDirection: LayoutDirection,
+    ): RemoteOutline {
+        val w = size.width
+        val h = size.height
+        val inset = h / 2f.rf
+        return RemoteOutline.Generic {
+            moveTo(0f.rf, h / 2f.rf)
+            lineTo(inset, 0f.rf)
+            lineTo(w - inset, 0f.rf)
+            lineTo(w, h / 2f.rf)
+            lineTo(w - inset, h)
+            lineTo(inset, h)
+            close()
+        }
+    }
+}
+
+/**
+ * Fills the full bounds and draws a marker in each corner, so drawing outside of a rounded shape is
+ * visible.
+ */
+private object CornerMarkersPainter : RemotePainter() {
+    override val intrinsicSize: RemoteSize? = null
+
+    override fun RemoteDrawScope.onDraw() {
+        drawRect(RemotePaint { color = Color.Blue.rc })
+        val marker = RemoteSize(height / 3f.rf, height / 3f.rf)
+        val markerPaint = RemotePaint { color = Color.Yellow.rc }
+        drawRect(markerPaint, RemoteOffset(0f.rf, 0f.rf), marker)
+        drawRect(markerPaint, RemoteOffset(width - marker.width, 0f.rf), marker)
+        drawRect(markerPaint, RemoteOffset(0f.rf, height - marker.height), marker)
+        drawRect(markerPaint, RemoteOffset(width - marker.width, height - marker.height), marker)
+    }
 }
