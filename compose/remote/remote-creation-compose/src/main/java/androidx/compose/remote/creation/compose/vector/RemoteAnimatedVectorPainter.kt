@@ -426,8 +426,8 @@ private fun buildDynamicPath(
                 else -> RemoteStrokeJoin.Miter
             }
         component.strokeLineMiter = path.strokeLineMiter.rf
-        component.remoteStrokeColor = strokeColorDynamic
-        component.remoteFillColor = fillColorDynamic
+        component.stroke = strokeColorDynamic
+        component.fill = fillColorDynamic
     }
 
     val pathAnimators = ArrayList<RemotePropertyAnimator>()
