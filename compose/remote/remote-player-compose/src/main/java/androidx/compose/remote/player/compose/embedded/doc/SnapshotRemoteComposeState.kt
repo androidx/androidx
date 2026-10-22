@@ -18,8 +18,11 @@
 
 package androidx.compose.remote.player.compose.embedded.doc
 
+import android.graphics.Bitmap
 import androidx.compose.remote.core.RemoteComposeState
+import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.remote.player.compose.embedded.resources.setDimensions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -212,6 +215,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     }
 
     override fun cacheData(id: Int, item: Any) {
+        updateBitmapDimensions(id, item)
         super.cacheData(id, item)
         data[id] = item
     }
@@ -221,6 +225,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
         // other update of an *existing* data id) goes through here, and without the mirror the
         // stale snapshot entry keeps being served and nothing recomposes — the update would not
         // be visible until some unrelated write refreshed the id.
+        updateBitmapDimensions(id, item)
         val old = data[id]
         super.updateData(id, item)
         val new = super.getFromId(id)
@@ -235,9 +240,16 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     }
 
     override fun overrideData(id: Int, item: Any) {
+        updateBitmapDimensions(id, item)
         super.overrideData(id, item)
         overriddenData[id] = true
         data[id] = item
+    }
+
+    private fun updateBitmapDimensions(id: Int, item: Any) {
+        if (item is Bitmap) {
+            (getObject(id) as? BitmapData)?.setDimensions(item)
+        }
     }
 
     override fun clearDataOverride(id: Int) {

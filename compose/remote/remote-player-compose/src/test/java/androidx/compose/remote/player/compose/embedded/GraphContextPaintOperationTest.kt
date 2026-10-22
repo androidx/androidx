@@ -16,6 +16,10 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -43,6 +47,7 @@ import androidx.compose.remote.player.compose.embedded.resources.buildFontVariat
 import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.onNodeWithTag
@@ -173,6 +178,102 @@ class GraphContextPaintOperationTest {
 
         assertThat(graphContext.getFloat(30)).isEqualTo(320f)
         assertThat(graphContext.getFloat(31)).isEqualTo(240f)
+    }
+
+    @Test
+    fun imageAttributeUpdatesZeroDimensionUrlBitmapFromLoadedAndOverriddenImage() {
+        val state = SnapshotRemoteComposeState()
+        val imageId = 8
+        val bitmapData =
+            BitmapData(
+                imageId,
+                BitmapData.TYPE_PNG,
+                0,
+                BitmapData.ENCODING_URL,
+                0,
+                "https://example.com/avatar.png".toByteArray(),
+            )
+        state.updateObject(imageId, bitmapData)
+
+        val widthOp = ImageAttribute(32, imageId, ImageAttribute.IMAGE_WIDTH, null)
+        val heightOp = ImageAttribute(33, imageId, ImageAttribute.IMAGE_HEIGHT, null)
+
+        val computedOps =
+            mutableIntObjectMapOf<Operation>().apply {
+                put(32, widthOp)
+                put(33, heightOp)
+            }
+
+        val loadedBitmap = Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888)
+        val drawableState =
+            mutableStateOf<Drawable?>(BitmapDrawable(Resources.getSystem(), loadedBitmap))
+
+        val graphContext =
+            GraphContext(
+                    realState = state,
+                    computedOps = computedOps,
+                    timeMillis = mutableFloatStateOf(0f),
+                    clock = RemoteClock.SYSTEM,
+                )
+                .apply { imageLoader = RcImageLoader { drawableState } }
+
+        assertThat(graphContext.getFloat(32)).isEqualTo(240f)
+        assertThat(graphContext.getFloat(33)).isEqualTo(160f)
+        assertThat(bitmapData.width).isEqualTo(240)
+        assertThat(bitmapData.height).isEqualTo(160)
+
+        // Overriding the bitmap via state updates the dimensions reported by ImageAttribute
+        drawableState.value = null
+        val overriddenBitmap = Bitmap.createBitmap(480, 360, Bitmap.Config.ARGB_8888)
+        state.overrideData(imageId, overriddenBitmap)
+
+        assertThat(graphContext.getFloat(32)).isEqualTo(480f)
+        assertThat(graphContext.getFloat(33)).isEqualTo(360f)
+        assertThat(bitmapData.width).isEqualTo(480)
+        assertThat(bitmapData.height).isEqualTo(360)
+    }
+
+    @Test
+    fun imageAttributeUpdatesDefault1x1UrlBitmapFromLoadedImage() {
+        val state = SnapshotRemoteComposeState()
+        val imageId = 8
+        val bitmapData =
+            BitmapData(
+                imageId,
+                BitmapData.TYPE_PNG,
+                1,
+                BitmapData.ENCODING_URL,
+                1,
+                "https://example.com/avatar.png".toByteArray(),
+            )
+        state.updateObject(imageId, bitmapData)
+
+        val widthOp = ImageAttribute(32, imageId, ImageAttribute.IMAGE_WIDTH, null)
+        val heightOp = ImageAttribute(33, imageId, ImageAttribute.IMAGE_HEIGHT, null)
+
+        val computedOps =
+            mutableIntObjectMapOf<Operation>().apply {
+                put(32, widthOp)
+                put(33, heightOp)
+            }
+
+        val loadedBitmap = Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888)
+        val drawableState =
+            mutableStateOf<Drawable?>(BitmapDrawable(Resources.getSystem(), loadedBitmap))
+
+        val graphContext =
+            GraphContext(
+                    realState = state,
+                    computedOps = computedOps,
+                    timeMillis = mutableFloatStateOf(0f),
+                    clock = RemoteClock.SYSTEM,
+                )
+                .apply { imageLoader = RcImageLoader { drawableState } }
+
+        assertThat(graphContext.getFloat(32)).isEqualTo(240f)
+        assertThat(graphContext.getFloat(33)).isEqualTo(160f)
+        assertThat(bitmapData.width).isEqualTo(240)
+        assertThat(bitmapData.height).isEqualTo(160)
     }
 
     @Test
