@@ -40,36 +40,6 @@ validThroughLibraryVersion = "1.8.0"
 reason = "b/576165603 - same team ownership and libraries are always released together"
 
 [[exemption]]
-library = ":camera:camera-testing"
-dependsOn = ":camera:camera-camera2"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
-library = ":camera:camera-testing"
-dependsOn = ":camera:camera-common-testing"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
-library = ":camera:camera-testing"
-dependsOn = ":camera:camera-core"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
-library = ":camera:camera-testing"
-dependsOn = ":camera:camera-lifecycle"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
-library = ":camera:camera-testing"
-dependsOn = ":camera:camera-video"
-validThroughLibraryVersion = "1.0.0-beta01"
-reason = "b/TODO - <reason>"
-
-[[exemption]]
 library = ":compose:material3:material3-a2ui"
 dependsOn = ":a2ui:a2ui-engine"
 validThroughLibraryVersion = "1.0.0-beta01"
