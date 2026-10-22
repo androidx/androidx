@@ -327,4 +327,38 @@ class TextAnnotatedStringNodeTest {
                 .isEqualTo("T")
         }
     }
+
+    @Test
+    fun getTextLayoutResult_whenShowingTextSubstitution_returnsSubstitutedTextLayout() {
+        val originalText = "Bonjour"
+        val substitutedText = "Hello World"
+        val subject =
+            TextAnnotatedStringElement(
+                AnnotatedString(originalText),
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                TEST_LOCALE_LIST,
+            )
+
+        rule.setContent { Box(Modifier.fillMaxSize().testTag("textNode") then subject) }
+
+        val initialLayout = rule.onNodeWithTag("textNode").fetchTextLayoutResult()
+        Truth.assertThat(initialLayout.layoutInput.text.text).isEqualTo(originalText)
+
+        val node = rule.onNodeWithTag("textNode").fetchSemanticsNode()
+        rule.runOnIdle {
+            node.config[SemanticsActions.SetTextSubstitution]
+                .action
+                ?.invoke(AnnotatedString(substitutedText))
+            node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(true)
+        }
+
+        val substitutedLayout = rule.onNodeWithTag("textNode").fetchTextLayoutResult()
+        Truth.assertThat(substitutedLayout.layoutInput.text.text).isEqualTo(substitutedText)
+
+        rule.runOnIdle { node.config[SemanticsActions.ShowTextSubstitution].action?.invoke(false) }
+
+        val restoredLayout = rule.onNodeWithTag("textNode").fetchTextLayoutResult()
+        Truth.assertThat(restoredLayout.layoutInput.text.text).isEqualTo(originalText)
+    }
 }

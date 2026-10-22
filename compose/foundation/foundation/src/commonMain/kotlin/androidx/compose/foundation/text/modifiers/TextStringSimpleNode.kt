@@ -308,7 +308,7 @@ internal class TextStringSimpleNode(
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
                 val layout =
-                    layoutCache
+                    getLayoutCache()
                         .slowCreateTextLayoutResultOrNull(
                             style =
                                 style.merge(color = overrideColor?.invoke() ?: Color.Unspecified)

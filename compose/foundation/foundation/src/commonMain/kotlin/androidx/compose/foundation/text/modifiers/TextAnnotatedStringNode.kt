@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
+import kotlin.jvm.JvmName
 
 /** Node that implements Text for [AnnotatedString] or [onTextLayout] parameters. */
 internal class TextAnnotatedStringNode(
@@ -128,14 +129,25 @@ internal class TextAnnotatedStringNode(
      * Otherwise, it will return the layout cache for the original text.
      */
     private fun getLayoutCache(density: Density): MultiParagraphLayoutCache {
+        return getLayoutCache().also { it.density = density }
+    }
+
+    /**
+     * Get the layout cache for the current state of the node without updating the density.
+     *
+     * If text substitution is active, this will return the layout cache for the substitution.
+     * Otherwise, it will return the layout cache for the original text.
+     */
+    @JvmName("getLayoutCacheOrSubstitute")
+    private fun getLayoutCache(): MultiParagraphLayoutCache {
         textSubstitution?.let { textSubstitutionValue ->
             if (textSubstitutionValue.isShowingSubstitution) {
                 textSubstitutionValue.layoutCache?.let { cache ->
-                    return cache.also { it.density = density }
+                    return cache
                 }
             }
         }
-        return layoutCache.also { it.density = density }
+        return layoutCache
     }
 
     /** Element has draw parameters to update */
@@ -371,7 +383,7 @@ internal class TextAnnotatedStringNode(
         var localSemanticsTextLayoutResult = semanticsTextLayoutResult
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
-                val inputLayout = layoutCache.layoutOrNull
+                val inputLayout = getLayoutCache().layoutOrNull
                 val layout =
                     inputLayout
                         ?.copy(
