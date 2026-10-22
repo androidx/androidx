@@ -427,11 +427,12 @@ class CameraInfoAdapterTest {
     @OptIn(ExperimentalCamera2Interop::class)
     @Test
     fun cameraInfo_getPhysicalCameraInfos() {
-        val physicalCameraIds = setOf(CameraId.fromCamera2Id("5"), CameraId.fromCamera2Id("6"))
         val cameraInfo: CameraInfo = createCameraInfoAdapter()
+        val physicalCameraIds =
+            checkNotNull(cameraInfo.unwrapAs(CameraMetadata::class.java)).physicalCameraIds
 
         assertThat(cameraInfo.physicalCameraInfos).isNotNull()
-        assertThat(cameraInfo.physicalCameraInfos.size).isEqualTo(2)
+        assertThat(cameraInfo.physicalCameraInfos.size).isEqualTo(physicalCameraIds.size)
         for (info in cameraInfo.physicalCameraInfos) {
             assertThat(physicalCameraIds)
                 .contains(CameraId(Camera2CameraInfo.from(info).getCameraId()))
