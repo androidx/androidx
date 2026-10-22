@@ -1,0 +1,35 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:com.airbnb.lottie.animation.keyframe/BaseKeyframeAnimation.AnimationListener///PointingToDeclaration/com/airbnb/lottie/animation/keyframe/BaseKeyframeAnimation.AnimationListener.html
+$dokka.location:com.airbnb.lottie.model.content/Mask.MaskMode///PointingToDeclaration/com/airbnb/lottie/model/content/Mask.MaskMode.html
+$dokka.location:com.airbnb.lottie.model.content/MergePaths.MergePathsMode///PointingToDeclaration/com/airbnb/lottie/model/content/MergePaths.MergePathsMode.html
+$dokka.location:com.airbnb.lottie.model.content/PolystarShape.Type///PointingToDeclaration/com/airbnb/lottie/model/content/PolystarShape.Type.html
+$dokka.location:com.airbnb.lottie.model.content/ShapeStroke.LineCapType///PointingToDeclaration/com/airbnb/lottie/model/content/ShapeStroke.LineCapType.html
+$dokka.location:com.airbnb.lottie.model.content/ShapeStroke.LineJoinType///PointingToDeclaration/com/airbnb/lottie/model/content/ShapeStroke.LineJoinType.html
+$dokka.location:com.airbnb.lottie.model.content/ShapeTrimPath.Type///PointingToDeclaration/com/airbnb/lottie/model/content/ShapeTrimPath.Type.html
+$dokka.location:com.airbnb.lottie.model.layer/Layer.LayerType///PointingToDeclaration/com/airbnb/lottie/model/layer/Layer.LayerType.html
+$dokka.location:com.airbnb.lottie.model.layer/Layer.MatteType///PointingToDeclaration/com/airbnb/lottie/model/layer/Layer.MatteType.html
+$dokka.location:com.airbnb.lottie.model/DocumentData.Justification///PointingToDeclaration/com/airbnb/lottie/model/DocumentData.Justification.html
+$dokka.location:com.airbnb.lottie.parser.moshi/JsonReader.Options///PointingToDeclaration/com/airbnb/lottie/parser/moshi/JsonReader.Options.html
+$dokka.location:com.airbnb.lottie.parser.moshi/JsonReader.Token///PointingToDeclaration/com/airbnb/lottie/parser/moshi/JsonReader.Token.html
+$dokka.location:com.airbnb.lottie.utils/OffscreenLayer.ComposeOp///PointingToDeclaration/com/airbnb/lottie/utils/OffscreenLayer.ComposeOp.html
+$dokka.location:com.airbnb.lottie/LottieComposition.Factory///PointingToDeclaration/com/airbnb/lottie/LottieComposition.Factory.html
+$dokka.location:com.airbnb.lottie/LottieConfig.Builder///PointingToDeclaration/com/airbnb/lottie/LottieConfig.Builder.html
+$dokka.location:com.airbnb.lottie/LottieDrawable.RepeatMode///PointingToDeclaration/com/airbnb/lottie/LottieDrawable.RepeatMode.html
+$dokka.location:com.airbnb.lottie/PerformanceTracker.FrameListener///PointingToDeclaration/com/airbnb/lottie/PerformanceTracker.FrameListener.html
+com.airbnb.lottie
+com.airbnb.lottie.animation
+com.airbnb.lottie.animation.content
+com.airbnb.lottie.animation.keyframe
+com.airbnb.lottie.configurations.reducemotion
+com.airbnb.lottie.manager
+com.airbnb.lottie.model
+com.airbnb.lottie.model.animatable
+com.airbnb.lottie.model.content
+com.airbnb.lottie.model.layer
+com.airbnb.lottie.network
+com.airbnb.lottie.parser
+com.airbnb.lottie.parser.moshi
+com.airbnb.lottie.utils
+com.airbnb.lottie.value
+

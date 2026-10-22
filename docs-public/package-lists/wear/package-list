@@ -1,0 +1,12 @@
+com.google.wear
+com.google.wear.expression
+com.google.wear.input
+com.google.wear.modes
+com.google.wear.services.ambient
+com.google.wear.services.complications
+com.google.wear.services.media
+com.google.wear.services.remoteinteractions
+com.google.wear.services.tiles
+com.google.wear.services.watchfaces
+com.google.wear.services.watchfaces.watchfacepush
+com.google.wear.settings

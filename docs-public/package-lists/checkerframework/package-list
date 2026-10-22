@@ -46,6 +46,13 @@ org.checkerframework.checker.interning
 org.checkerframework.checker.interning.qual
 org.checkerframework.checker.lock
 org.checkerframework.checker.lock.qual
+org.checkerframework.checker.modifiability
+org.checkerframework.checker.modifiability.grow
+org.checkerframework.checker.modifiability.iterator
+org.checkerframework.checker.modifiability.qual
+org.checkerframework.checker.modifiability.replace
+org.checkerframework.checker.modifiability.seqgrow
+org.checkerframework.checker.modifiability.shrink
 org.checkerframework.checker.mustcall
 org.checkerframework.checker.mustcall.qual
 org.checkerframework.checker.nonempty
