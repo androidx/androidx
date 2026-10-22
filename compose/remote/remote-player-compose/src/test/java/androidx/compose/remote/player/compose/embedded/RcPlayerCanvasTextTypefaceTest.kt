@@ -31,6 +31,14 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
+import androidx.compose.remote.player.compose.embedded.resources.RcTypefaceCache
+import androidx.compose.remote.player.compose.embedded.resources.applyVariationSettings
+import androidx.compose.remote.player.compose.embedded.resources.rcTypefaceResolver
+import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.currentComposer

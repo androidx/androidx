@@ -32,6 +32,8 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush

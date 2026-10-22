@@ -46,7 +46,7 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalRemoteActionHandler
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteNamedActionHandler
-import androidx.compose.remote.player.compose.embedded.getOperationsList
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

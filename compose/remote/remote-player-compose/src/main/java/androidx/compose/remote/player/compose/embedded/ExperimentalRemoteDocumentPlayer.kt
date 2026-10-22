@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.embedded.resources.RemoteImageSupport
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.runtime.Composable

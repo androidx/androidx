@@ -30,8 +30,8 @@ import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.isTimeVariable
-import androidx.compose.remote.player.compose.embedded.mapEasing
+import androidx.compose.remote.player.compose.embedded.doc.isTimeVariable
+import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable

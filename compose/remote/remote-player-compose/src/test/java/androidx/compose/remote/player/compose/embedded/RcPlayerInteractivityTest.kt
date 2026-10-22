@@ -129,6 +129,8 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

@@ -24,6 +24,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.player.compose.embedded.components.resolveEffectiveMaxLines
+import androidx.compose.remote.player.compose.embedded.components.resolveTextAlign
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.style.TextAlign

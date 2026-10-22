@@ -17,21 +17,14 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
-import androidx.collection.IntObjectMap
-import androidx.collection.mutableIntObjectMapOf
-import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.VariableProvider
-import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
@@ -52,42 +45,6 @@ internal val LocalCoreDocument: ProvidableCompositionLocal<CoreDocument> = compo
  */
 internal val LocalGraphContext: ProvidableCompositionLocal<GraphContext?> = compositionLocalOf {
     null
-}
-
-/**
- * Index of computed-value operations by the id they produce — `VariableSupport`+`VariableProvider`
- * ops that compute from other variables. Everything, including
- * `FloatExpression`/`IntegerExpression`, is included so the graph can resolve them when a derived
- * op reads them as an input (chains).
- */
-internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectMap<Operation> {
-    val map = mutableIntObjectMapOf<Operation>()
-    val touchIds = mutableIntSetOf()
-    fun walk(ops: Collection<Operation>) {
-        for (op in ops) {
-            if (op is TouchExpression) {
-                val id = op.id
-                if (id > 0) {
-                    touchIds.add(id)
-                    map.remove(id)
-                }
-            } else if (op is VariableSupport && op is VariableProvider) {
-                val id = op.id
-                if (id > 0 && !touchIds.contains(id) && !map.containsKey(id)) {
-                    map[id] = op
-                }
-            }
-            if (op is Container) walk(op.getList())
-            if (op is LayoutComponent) {
-                val canvasOps = op.getCanvasOperations()
-                if (canvasOps != null) {
-                    walk(listOf(canvasOps))
-                }
-            }
-        }
-    }
-    walk(operations)
-    return map
 }
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

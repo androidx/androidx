@@ -32,6 +32,10 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.resources.AndroidColorThemeResolver
+import androidx.compose.remote.player.compose.embedded.resources.resolveThemeMode
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.getValue

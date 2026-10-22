@@ -16,7 +16,7 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.components
 
 import android.view.View
 import androidx.compose.remote.core.CoreDocument

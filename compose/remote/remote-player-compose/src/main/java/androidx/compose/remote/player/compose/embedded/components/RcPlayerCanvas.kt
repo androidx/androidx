@@ -16,7 +16,7 @@
 
 @file:Suppress("RestrictedApiAndroidX", "PrimitiveInCollection")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -25,6 +25,9 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
+import androidx.compose.remote.player.compose.embedded.LocalGraphContext
+import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
+import androidx.compose.remote.player.compose.embedded.draw.executeOperations
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier

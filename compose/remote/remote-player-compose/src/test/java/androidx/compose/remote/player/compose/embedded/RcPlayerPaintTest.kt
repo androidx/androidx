@@ -24,6 +24,10 @@ import androidx.compose.remote.core.operations.DrawOval
 import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.derefId
+import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
+import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color

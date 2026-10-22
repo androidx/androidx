@@ -23,7 +23,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.layout.modifiers.ClipRectModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.rawDimensionPx
+import androidx.compose.remote.player.compose.embedded.doc.rawDimensionPx
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State

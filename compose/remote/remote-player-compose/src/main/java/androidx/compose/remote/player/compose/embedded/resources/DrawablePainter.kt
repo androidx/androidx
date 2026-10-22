@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.resources
 
 import android.graphics.drawable.Drawable
+import androidx.compose.remote.player.compose.embedded.RcImageLoader
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -25,10 +26,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import kotlin.math.roundToInt
 
 /**
- * Renders an [android.graphics.drawable.Drawable] as a Compose [Painter] so a host-provided
- * [RcImageLoader] result can flow into a standard `Image` (honoring `contentScale`/`alpha`) without
- * any image-loading library dependency. The drawable is stretched to the painter's draw size; its
- * intrinsic size (if known) lets `Image` size itself when no explicit size is given.
+ * Renders a [Drawable] as a Compose [Painter] so a host-provided [RcImageLoader] result can flow
+ * into a standard `Image` (honoring `contentScale`/`alpha`) without any image-loading library
+ * dependency. The drawable is stretched to the painter's draw size; its intrinsic size (if known)
+ * lets `Image` size itself when no explicit size is given.
  */
 internal class DrawablePainter(private val drawable: Drawable) : Painter() {
     private var drawAlpha: Float = 1f

@@ -22,6 +22,8 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.WireBuffer
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
+import androidx.compose.remote.player.compose.embedded.resources.RemoteImageSupport
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import org.junit.Assert.assertThrows
