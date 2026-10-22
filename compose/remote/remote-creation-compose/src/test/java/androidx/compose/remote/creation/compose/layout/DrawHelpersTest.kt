@@ -27,6 +27,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
@@ -98,8 +100,13 @@ class DrawHelpersTest {
     @Test
     fun composeGraphicsConversions_toInt() {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toRemoteBlendMode().value)
-        assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.encode())
-        assertEquals(TextLayout.OVERFLOW_ELLIPSIS, TextOverflow.Ellipsis.encode())
+        assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.toRemoteTextAlign().value)
+        assertEquals(RemoteTextAlign.Left, TextAlign.Unspecified.toRemoteTextAlign())
+        assertEquals(
+            TextLayout.OVERFLOW_ELLIPSIS,
+            TextOverflow.Ellipsis.toRemoteTextOverflow().value,
+        )
+        assertEquals(RemoteTextOverflow.Clip, TextOverflow.Clip.toRemoteTextOverflow())
         assertEquals(1, FontStyle.Italic.toRemoteFontStyle().value)
         assertEquals(2, LineBreak.Heading.encode())
         assertEquals(2, Hyphens.Auto.encode())
