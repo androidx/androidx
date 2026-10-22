@@ -68,7 +68,7 @@ private constructor(private val boundary: WebSurfaceBoundaryInterface) {
         public fun create(@NonNull listener: InvalidateListener): WebSurfaceChromium {
             WebFeature.checkSupported(WebFeature.WEB_SURFACE)
             val eventListener =
-                BiConsumer<@WebSurfaceEvent Int, Any> { event, _ ->
+                BiConsumer<@WebSurfaceEvent Int, Any?> { event, _ ->
                     when (event) {
                         WebSurfaceEvent.INVALIDATE -> listener.onInvalidate()
                     }
