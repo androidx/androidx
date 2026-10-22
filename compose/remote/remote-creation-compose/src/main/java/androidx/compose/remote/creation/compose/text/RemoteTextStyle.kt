@@ -19,7 +19,10 @@ package androidx.compose.remote.creation.compose.text
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toRemoteFontStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteFontWeight
+import androidx.compose.remote.creation.compose.layout.toRemoteHyphens
+import androidx.compose.remote.creation.compose.layout.toRemoteLineBreak
 import androidx.compose.remote.creation.compose.layout.toRemoteTextAlign
+import androidx.compose.remote.creation.compose.layout.toRemoteTextDecoration
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
@@ -95,6 +98,28 @@ constructor(
                 null
             } else {
                 textAlign.toRemoteTextAlign()
+            }
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteTextDecoration: RemoteTextDecoration?
+        get() = textDecoration?.toRemoteTextDecoration()
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteLineBreak: RemoteLineBreak?
+        get() =
+            if (lineBreak == LineBreak.Unspecified) {
+                null
+            } else {
+                lineBreak.toRemoteLineBreak()
+            }
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteHyphens: RemoteHyphens?
+        get() =
+            if (hyphens == Hyphens.Unspecified) {
+                null
+            } else {
+                hyphens.toRemoteHyphens()
             }
 
     /**
