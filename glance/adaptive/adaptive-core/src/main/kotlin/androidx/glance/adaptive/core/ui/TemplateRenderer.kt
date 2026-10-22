@@ -19,12 +19,11 @@ package androidx.glance.adaptive.core.ui
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
- * Rendering contract turning a template of type [T], laid out as archetype [A] under
- * [HostConstraints] of surface type [S], into host content of type [R].
+ * Rendering contract turning a template of type [T], laid out as archetype [A] on a surface of type
+ * [S], into host content of type [R].
  *
  * The archetype is resolved by an [ArchetypeSelector] and handed in, not recomputed here: the
  * selector decides *what* to show, the renderer only decides *how* to draw it.
@@ -54,12 +53,13 @@ public fun interface TemplateRenderer<
 > {
 
     /**
-     * Produces host content for [template], laid out as [archetype], under [constraints].
+     * Produces host content for [template], laid out as [archetype], on [surface].
      *
      * @param template Declarative template data payload.
-     * @param archetype Layout archetype resolved for [template] under [constraints].
-     * @param constraints Target host placement: container size plus surface.
+     * @param archetype Layout archetype resolved for [template] on [surface].
+     * @param surface Target placement: the host surface, carrying its container size as
+     *   [GlanceSurface.dimensions].
      * @return Host content of type [R].
      */
-    public fun render(template: T, archetype: A, constraints: HostConstraints<S>): R
+    public fun render(template: T, archetype: A, surface: S): R
 }

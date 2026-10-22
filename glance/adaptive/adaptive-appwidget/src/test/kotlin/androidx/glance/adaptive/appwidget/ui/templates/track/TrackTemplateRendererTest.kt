@@ -20,7 +20,6 @@ import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceRenderOutput
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -50,12 +49,12 @@ class TrackTemplateRendererTest {
     @Test
     fun render_returnsGlanceOutputWithoutComposing() {
         // The contract is value-returning, so producing content needs no composer at all.
-        val constraints = constraints(widthDp = 120)
+        val surface = homeScreen(widthDp = 120)
         val output =
             TrackTemplateRenderer.render(
                 template,
-                TrackSizeSelector.select(template, constraints),
-                constraints,
+                TrackSizeSelector.select(template, surface),
+                surface,
             )
 
         assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
@@ -68,13 +67,13 @@ class TrackTemplateRendererTest {
             val output =
                 AppWidgetTemplateRegistry.render(
                     template,
-                    HostConstraints(Dimensions(120, 200), surfaces[i]),
+                    surfaces[i].withDimensions(Dimensions(120, 200)),
                 )
 
             assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
         }
     }
 
-    private fun constraints(widthDp: Int, heightDp: Int = 200) =
-        HostConstraints(Dimensions(widthDp, heightDp), AppWidgetSurface.MOBILE_HOME_SCREEN)
+    private fun homeScreen(widthDp: Int, heightDp: Int = 200) =
+        AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(widthDp, heightDp))
 }

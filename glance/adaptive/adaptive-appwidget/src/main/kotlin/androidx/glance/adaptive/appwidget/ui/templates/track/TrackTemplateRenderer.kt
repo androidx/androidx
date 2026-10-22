@@ -29,7 +29,6 @@ import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
 import androidx.glance.adaptive.appwidget.ui.components.fitMetric
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
@@ -119,14 +118,14 @@ internal object TrackTemplateRenderer :
      * Returns the Glance content rendering [template] with the slot plan [archetype].
      *
      * @param template The template data payload.
-     * @param archetype The [TrackSlots] plan resolved by [TrackSizeSelector] for [constraints].
-     * @param constraints Container size in DP plus the target AppWidget surface.
+     * @param archetype The [TrackSlots] plan resolved by [TrackSizeSelector] for [surface].
+     * @param surface The target AppWidget surface, carrying the container size in DP.
      * @return Glance content for [archetype].
      */
     override fun renderGlance(
         template: TrackTemplate,
         archetype: TrackSlots,
-        constraints: HostConstraints<AppWidgetSurface>,
+        surface: AppWidgetSurface,
     ): @Composable () -> Unit = { TrackLayout(template, archetype) }
 }
 

@@ -20,8 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
- * Resolves which layout archetype of type [A] a template of type [T] should use under given
- * [HostConstraints].
+ * Resolves which layout archetype of type [A] a template of type [T] should use on a surface of
+ * type [S], at the [GlanceSurface.dimensions] of the placement.
  *
  * Selection is data in, data out: it maps a payload plus a size and surface to a semantic layout
  * choice, and never touches a rendering API. That is why this contract lives in core alongside
@@ -42,11 +42,12 @@ public fun interface ArchetypeSelector<
 > {
 
     /**
-     * Selects the optimal archetype for [template] under [constraints].
+     * Selects the optimal archetype for [template] on [surface].
      *
      * @param template Declarative template data payload.
-     * @param constraints Target host placement: container size plus surface.
+     * @param surface Target placement: the host surface, carrying its container size as
+     *   [GlanceSurface.dimensions].
      * @return The resolved archetype.
      */
-    public fun select(template: T, constraints: HostConstraints<S>): A
+    public fun select(template: T, surface: S): A
 }

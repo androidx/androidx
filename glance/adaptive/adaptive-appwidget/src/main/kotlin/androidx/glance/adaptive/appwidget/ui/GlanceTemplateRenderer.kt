@@ -23,7 +23,6 @@ import androidx.glance.adaptive.appwidget.GlanceRemoteViewsComposer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
@@ -59,23 +58,17 @@ internal fun interface GlanceTemplateRenderer<
 > : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
-     * Produces the Glance `@Composable` content representation of [template] for [archetype] and
-     * [constraints].
+     * Produces the Glance `@Composable` content representation of [template] for [archetype] on
+     * [surface].
      *
      * @param template The declarative data payload describing the widget's content.
-     * @param archetype The layout archetype resolved for [template] under [constraints].
-     * @param constraints The layout constraints and target surface provided by the host.
+     * @param archetype The layout archetype resolved for [template] on [surface].
+     * @param surface The target surface, carrying the container size of the placement as
+     *   [GlanceSurface.dimensions].
      * @return The Glance `@Composable` content lambda to compose.
      */
-    fun renderGlance(
-        template: T,
-        archetype: A,
-        constraints: HostConstraints<S>,
-    ): @Composable () -> Unit
+    fun renderGlance(template: T, archetype: A, surface: S): @Composable () -> Unit
 
-    override fun render(
-        template: T,
-        archetype: A,
-        constraints: HostConstraints<S>,
-    ): AppWidgetRenderOutput = GlanceRenderOutput(renderGlance(template, archetype, constraints))
+    override fun render(template: T, archetype: A, surface: S): AppWidgetRenderOutput =
+        GlanceRenderOutput(renderGlance(template, archetype, surface))
 }
