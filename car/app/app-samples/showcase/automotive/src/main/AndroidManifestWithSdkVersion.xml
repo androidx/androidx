@@ -46,6 +46,9 @@
   <!-- SDK 33 onwards, apps require this permission to send any notifications to the system -->
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+  <!-- Required on API < 33 for ContextCompat.registerReceiver with RECEIVER_NOT_EXPORTED -->
+  <uses-permission android:name="androidx.car.app.sample.showcase.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
