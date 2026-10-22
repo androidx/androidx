@@ -24,6 +24,8 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.VideoEncoderMimeTypeUnsupportedQuirk
 import androidx.camera.video.internal.encoder.EncoderConfig
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import java.io.IOException
@@ -113,7 +115,20 @@ public object CodecUtil {
         }
     }
 
-    @JvmStatic public fun getVideoEncoderMimeTypes(): List<String> = allVideoEncoderMimeTypes
+    /**
+     * Returns the video encoder MIME types available on the device.
+     *
+     * MIME types that are reported by [MediaCodecList] but are known to be unusable for camera
+     * recording on the device are excluded. See [VideoEncoderMimeTypeUnsupportedQuirk].
+     */
+    @JvmStatic
+    public fun getVideoEncoderMimeTypes(): List<String> {
+        val quirk =
+            DeviceQuirks.get(VideoEncoderMimeTypeUnsupportedQuirk::class.java)
+                ?: return allVideoEncoderMimeTypes
+        val unsupportedMimeTypes = quirk.getUnsupportedMimeTypes()
+        return allVideoEncoderMimeTypes.filterNot { it in unsupportedMimeTypes }
+    }
 
     @JvmStatic public fun getAudioEncoderMimeTypes(): List<String> = allAudioEncoderMimeTypes
 

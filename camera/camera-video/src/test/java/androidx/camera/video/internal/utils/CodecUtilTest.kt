@@ -20,6 +20,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
+import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaFormat.createAudioFormat
@@ -35,6 +36,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.MediaCodecInfoBuilder
+import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.ShadowMediaCodecList
 
 @RunWith(RobolectricTestRunner::class)
@@ -71,6 +73,38 @@ class CodecUtilTest {
 
         // Assert.
         assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun getVideoEncoderMimeTypes_quirkDevice_excludesUnsupportedMimeTypes() {
+        // Arrange.
+        ShadowBuild.setBrand("google")
+        ShadowBuild.setDevice("redfin")
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_AVC, name = "FakeAvcEncoder")
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_AV1, name = "FakeAv1Encoder")
+
+        // Act.
+        val videoTypes = CodecUtil.getVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC)
+    }
+
+    @Config(minSdk = 29)
+    @Test
+    fun getVideoEncoderMimeTypes_nonQuirkDevice_keepsAllMimeTypes() {
+        // Arrange.
+        ShadowBuild.setBrand("google")
+        ShadowBuild.setDevice("panther")
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_AVC, name = "FakeAvcEncoder")
+        addVideoCodecInfo(mimeType = MIMETYPE_VIDEO_AV1, name = "FakeAv1Encoder")
+
+        // Act.
+        val videoTypes = CodecUtil.getVideoEncoderMimeTypes()
+
+        // Assert.
+        assertThat(videoTypes).containsExactly(MIMETYPE_VIDEO_AVC, MIMETYPE_VIDEO_AV1)
     }
 
     @Config(minSdk = 29)
