@@ -425,13 +425,20 @@ class RemoteTextStyleTest {
             RemoteTextStyle(
                 fontWeight = FontWeight.SemiBold,
                 fontStyle = FontStyle.Italic,
+                textAlign = TextAlign.Center,
             )
 
         assertThat(style.remoteFontWeight).isEqualTo(RemoteFontWeight.SemiBold)
         assertThat(style.remoteFontStyle).isEqualTo(RemoteFontStyle.Italic)
+        assertThat(style.remoteTextAlign).isEqualTo(RemoteTextAlign.Center)
 
         val defaultStyle = RemoteTextStyle()
         assertThat(defaultStyle.remoteFontWeight).isNull()
         assertThat(defaultStyle.remoteFontStyle).isNull()
+        assertThat(defaultStyle.remoteTextAlign).isNull()
+        assertThat(RemoteTextStyle(textAlign = TextAlign.Unspecified).remoteTextAlign).isNull()
+
+        assertThat(RemoteTextAlign.Start.toString()).isEqualTo("RemoteTextAlign.Start")
+        assertThat(RemoteTextOverflow.Ellipsis.value).isEqualTo(3)
     }
 }
