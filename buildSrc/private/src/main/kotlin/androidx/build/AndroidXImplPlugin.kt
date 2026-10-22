@@ -35,7 +35,7 @@ import androidx.build.ide.ManagedIdeTask
 import androidx.build.kythe.configureProjectForKzipTasks
 import androidx.build.license.addLicensesToPublishedArtifacts
 import androidx.build.lint.ValidateLintChecks
-import androidx.build.pinneddependencies.configurePinnedDependenciesReport
+import androidx.build.pinneddependencies.configureDependencyExemptionsReport
 import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
@@ -1303,7 +1303,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             ) {
                 val versionService = LibraryVersionsService.registerOrGet(project)
                 project.createVerifyDependencyVersionsTask(versionService)
-                project.configurePinnedDependenciesReport(versionService)
+                project.configureDependencyExemptionsReport(versionService)
             }
         }
 
