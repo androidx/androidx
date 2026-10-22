@@ -210,7 +210,8 @@ internal constructor(
 }
 
 /**
- * A mutable implementation of [RemoteImageBitmap] that holds its value in a [MutableState<Bitmap>].
+ * A mutable implementation of [RemoteImageBitmap] that holds its value in a
+ * [MutableRemoteState<ImageBitmap>].
  */
 public class MutableRemoteImageBitmap
 @RememberInComposition
@@ -298,12 +299,12 @@ public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
 }
 
 /**
- * Remembers a named remote bitmap expression.
+ * Remembers a named [RemoteImageBitmap] from a lambda providing the initial [ImageBitmap].
  *
  * @param name The unique name for this remote bitmap.
  * @param domain The domain of the named bitmap (defaults to [RemoteState.Domain.User]).
- * @param value A lambda that provides the [RemoteImageBitmap] expression.
- * @return A [RemoteImageBitmap] representing the named remote bitmap expression.
+ * @param value A lambda that provides the initial [ImageBitmap].
+ * @return A [RemoteImageBitmap] representing the named remote bitmap.
  */
 @Composable
 public fun rememberNamedRemoteImageBitmap(
