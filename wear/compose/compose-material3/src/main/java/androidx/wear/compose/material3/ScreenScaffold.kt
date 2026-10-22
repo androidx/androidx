@@ -29,7 +29,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -65,8 +64,10 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -1617,6 +1618,33 @@ private class DynamicHeightNode(
 private class ReplacePaddingValues(paddingValues: PaddingValues, val bottomPadding: Dp) :
     PaddingValues by paddingValues {
     override fun calculateBottomPadding(): Dp = bottomPadding
+}
+
+/**
+ * A [WindowInsets] whose values can change without changing the instance. This is useful to avoid
+ * recomposition when [WindowInsets] can change.
+ *
+ * Copied from [androidx.compose.foundation.layout.MutableWindowInsets] in
+ * `compose/foundation/foundation-layout/src/commonMain/kotlin/androidx/compose/foundation/layout/WindowInsets.kt`
+ * to avoid using the experimental `@ExperimentalLayoutApi` API from `compose.foundation.layout`.
+ */
+private class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) :
+    WindowInsets {
+    /**
+     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight], and
+     * [bottom][getBottom] values.
+     */
+    var insets: WindowInsets by mutableStateOf(initialInsets)
+
+    override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getLeft(density, layoutDirection)
+
+    override fun getTop(density: Density): Int = insets.getTop(density)
+
+    override fun getRight(density: Density, layoutDirection: LayoutDirection): Int =
+        insets.getRight(density, layoutDirection)
+
+    override fun getBottom(density: Density): Int = insets.getBottom(density)
 }
 
 /**
