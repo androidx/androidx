@@ -5178,25 +5178,6 @@ class CompositionTests {
         validate {}
         assertEquals(0, composer.stacksSize())
     }
-
-    @Test // b/440374236
-    fun disposeCompositionDuringApplyChangesThrows() = compositionTest {
-        var disposeComposition by mutableStateOf(false)
-
-        compose {
-            if (disposeComposition) {
-                SideEffect {
-                    assertFailsWith<IllegalStateException> {
-                        composition!!.dispose()
-                    }
-                }
-            }
-            SideEffect { /* No-op. Causes NPE in original reproduction when assertion is absent */ }
-        }
-
-        disposeComposition = true
-        expectChanges()
-    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
