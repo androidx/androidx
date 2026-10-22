@@ -54,6 +54,7 @@ import androidx.compose.ui.UiMediaScope.FoldOrientation
 import androidx.compose.ui.UiMediaScope.FoldState
 import androidx.compose.ui.UiMediaScope.PointerPrecision
 import androidx.compose.ui.UiMediaScope.ViewingDistance
+import androidx.compose.ui.computedMediaQuery
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -75,10 +76,44 @@ import java.util.Locale.getDefault
 
 @Sampled
 @Composable
-fun MediaQuerySample() {
+@Suppress("Deprecation")
+fun DerivedMediaQuerySample() {
     Box(Modifier.fillMaxSize().padding(top = 100.dp)) {
         val showDualPane by derivedMediaQuery { windowWidth >= 600.dp }
         val showNavigationRail by derivedMediaQuery {
+            windowWidth >= 500.dp && viewingDistance != ViewingDistance.Near
+        }
+
+        Column(Modifier.fillMaxSize()) {
+            Row(Modifier.weight(1f).fillMaxWidth()) {
+                if (showNavigationRail) {
+                    // Show navigation rail
+                    Box(Modifier.width(150.dp).background(Color.Red).fillMaxHeight())
+                }
+
+                // Actual content
+                Box(Modifier.weight(1f).background(Color.Yellow).fillMaxHeight())
+
+                if (showDualPane) {
+                    // Split screen into 2 panes for additional content
+                    Box(Modifier.weight(1f).background(Color.Cyan).fillMaxHeight())
+                }
+            }
+
+            if (!showNavigationRail && !showDualPane) {
+                // Show bottom navigation
+                Box(Modifier.background(Color.Blue).height(80.dp).fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun ComputedMediaQuerySample() {
+    Box(Modifier.fillMaxSize().padding(top = 100.dp)) {
+        val showDualPane by computedMediaQuery { windowWidth >= 600.dp }
+        val showNavigationRail by computedMediaQuery {
             windowWidth >= 500.dp && viewingDistance != ViewingDistance.Near
         }
 

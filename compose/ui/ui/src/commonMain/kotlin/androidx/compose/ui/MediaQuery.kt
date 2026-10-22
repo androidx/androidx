@@ -23,6 +23,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -369,20 +370,51 @@ public inline fun <T> mediaQuery(query: UiMediaScope.() -> T): T = LocalUiMediaS
  * recompose when the result of the [query] changes, not on every small change to the underlying
  * values (like a 1px size change).
  *
- * For queries on stable properties, you can use the simpler [mediaQuery] function.
+ * For queries on stable properties, you can use the simpler [mediaQuery] function. For queries that
+ * don't benefit from the caching behavior of [derivedStateOf], use [computedMediaQuery] for better
+ * performance.
  *
- * @sample androidx.compose.ui.samples.MediaQuerySample
+ * @sample androidx.compose.ui.samples.DerivedMediaQuerySample
  * @param query The condition to evaluate against the [UiMediaScope].
  * @return A [State] holding the result of the query. The state will only update when the evaluated
  *   result of the query changes.
  */
 @ExperimentalMediaQueryApi
+@Deprecated(
+    "Use `computedMediaQuery` instead, which offers better performance for trivial calculations",
+    ReplaceWith("computedMediaQuery(query)", "androidx.compose.ui.computedMediaQuery"),
+)
 @Composable
 public fun <T> derivedMediaQuery(query: UiMediaScope.() -> T): State<T> {
     val mediaScope = LocalUiMediaScope.current
     val currentQuery by rememberUpdatedState(query)
 
     return remember(mediaScope) { derivedStateOf { mediaScope.currentQuery() } }
+}
+
+/**
+ * Evaluates a query against the current [UiMediaScope], wrapped in a [computedStateOf].
+ *
+ * Use this function for queries that involve frequently changing values, such as
+ * [UiMediaScope.windowWidth] or [UiMediaScope.windowHeight]. It ensures that compositions only
+ * recompose when the result of the [query] changes, not on every small change to the underlying
+ * values (like a 1px size change).
+ *
+ * For queries on stable properties, you can use the simpler [mediaQuery] function.
+ *
+ * @param query The condition to evaluate against the [UiMediaScope].
+ * @return A [State] holding the result of the query. The state will only update when the evaluated
+ *   result of the query changes.
+ * @sample androidx.compose.ui.samples.ComputedMediaQuerySample
+ * @see derivedMediaQuery
+ */
+@ExperimentalMediaQueryApi
+@Composable
+public fun <T> computedMediaQuery(query: UiMediaScope.() -> T): State<T> {
+    val mediaScope = LocalUiMediaScope.current
+    val currentQuery by rememberUpdatedState(query)
+
+    return remember(mediaScope) { computedStateOf { mediaScope.currentQuery() } }
 }
 
 /**
