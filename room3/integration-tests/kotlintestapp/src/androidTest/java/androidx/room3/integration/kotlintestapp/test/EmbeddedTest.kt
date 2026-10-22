@@ -32,7 +32,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -148,7 +147,6 @@ class EmbeddedTest {
     }
 
     @Test
-    @Ignore
     fun loadSubFieldsAsPoKo() {
         loadSubFieldsTest { schoolDao.schoolAndManagerIdsAsPoKo().map { it } }
     }

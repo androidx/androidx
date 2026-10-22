@@ -19,8 +19,7 @@ package androidx.room3.vo
 import androidx.room3.compiler.processing.XNullability
 
 /** Used when a property is embedded inside an Entity or data class. */
-// used in cache matching, must stay as a data class or implement equals
-data class EmbeddedProperty(
+class EmbeddedProperty(
     val property: Property,
     val prefix: String = "",
     val parent: EmbeddedProperty?,

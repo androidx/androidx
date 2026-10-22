@@ -1161,6 +1161,17 @@ class DataClassProcessorTest {
                     )
                     .process()
             assertThat(dataClass7, sameInstance(dataClass6))
+
+            val fakeEmbedded2 = EmbeddedProperty(fakeProperty, "", null)
+            val dataClass8 =
+                DataClassProcessor.createFor(
+                        invocation.context,
+                        element,
+                        PropertyProcessor.BindingScope.TWO_WAY,
+                        fakeEmbedded2,
+                    )
+                    .process()
+            assertThat(dataClass8, not(sameInstance(dataClass6)))
         }
     }
 
