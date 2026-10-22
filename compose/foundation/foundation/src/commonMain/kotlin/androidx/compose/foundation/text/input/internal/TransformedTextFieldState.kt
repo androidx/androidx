@@ -28,8 +28,6 @@ import androidx.compose.foundation.text.input.internal.IndexTransformationType.D
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Insertion
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Replacement
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Untransformed
-import androidx.compose.foundation.text.input.internal.TransformedTextFieldState.Companion.mapFromTransformed
-import androidx.compose.foundation.text.input.internal.TransformedTextFieldState.Companion.mapToTransformed
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.foundation.text.input.setSelectionCoerced
 import androidx.compose.runtime.Stable
@@ -238,7 +236,7 @@ internal class TransformedTextFieldState(
     fun highlightCharsIn(type: TextHighlightType, transformedRange: TextRange) {
         val untransformedRange = mapFromTransformed(transformedRange)
         textFieldState.editAsUser(inputTransformation) {
-            setHighlight(type, untransformedRange.start, untransformedRange.end)
+            setHighlight(type, untransformedRange.min, untransformedRange.max)
         }
     }
 

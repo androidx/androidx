@@ -28,7 +28,6 @@ import androidx.compose.ui.text.input.getSelectedText
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
-import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 
 internal abstract class TextFieldSelectionAsserter<T>(
@@ -47,7 +46,26 @@ internal abstract class TextFieldSelectionAsserter<T>(
         hapticFeedback,
         getActual,
     ) {
-    var selection: TextRange = 0.collapsed
+    protected var selection: TextRange = 0.collapsed
+        private set
+
+    protected var isSelectionSetByTouch = false
+        private set
+
+    var selectionByTouch: TextRange
+        set(value) {
+            selection = value
+            isSelectionSetByTouch = true
+        }
+        get() = selection
+
+    var selectionByMouse: TextRange
+        set(value) {
+            selection = value
+            isSelectionSetByTouch = false
+        }
+        get() = selection
+
     var cursorHandleShown = false
 
     override fun assert() {
@@ -214,9 +232,16 @@ internal class TextField2SelectionAsserter(
         getActual,
     ) {
     override fun subAssert() {
+        val expectedSelection =
+            if (isSelectionSetByTouch) {
+                // BTF2 doesn't allow reversed selection by touch, but should contain the same
+                // min/max.
+                with(selection) { TextRange(min, max) }
+            } else {
+                selection
+            }
         Truth.assertAbout(TextFieldStateSubject.withContent(textContent))
             .that(getActual())
-            // BTF2 doesn't allow reversed selection, but it should contain the same min/max.
-            .hasSelection(selection.run { TextRange(min, max) })
+            .hasSelection(expectedSelection)
     }
 }

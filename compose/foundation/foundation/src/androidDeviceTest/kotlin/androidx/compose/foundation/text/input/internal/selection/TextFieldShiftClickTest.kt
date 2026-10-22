@@ -95,7 +95,7 @@ class TextFieldShiftClickTest : FocusedWindowTest {
                 key { withKeysDown(listOf(Key.ShiftLeft)) { mouse { click(centerLeft) } } }
             }
         }
-        assertThat(state.selection).isEqualTo(TextRange(0, state.value.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.value.length, 0))
     }
 
     @Test
@@ -135,7 +135,7 @@ class TextFieldShiftClickTest : FocusedWindowTest {
                 key { withKeysDown(listOf(Key.ShiftLeft)) { mouse { click(centerLeft) } } }
             }
         }
-        assertThat(state.selection).isEqualTo(TextRange(0, state.value.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.value.length, 0))
     }
 
     @Test
@@ -157,7 +157,7 @@ class TextFieldShiftClickTest : FocusedWindowTest {
                 key { withKeysDown(listOf(Key.ShiftLeft)) { mouse { click(centerRight) } } }
             }
         }
-        assertThat(state.selection).isEqualTo(TextRange(0, state.value.length))
+        assertThat(state.selection).isEqualTo(TextRange(state.value.length, 0))
     }
 
     @Test

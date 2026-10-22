@@ -169,8 +169,8 @@ internal fun EditorInfo.update(
         }
     }
 
-    this.initialSelStart = selection.start
-    this.initialSelEnd = selection.end
+    this.initialSelStart = selection.min
+    this.initialSelEnd = selection.max
 
     EditorInfoCompat.setInitialSurroundingText(this, text)
 
