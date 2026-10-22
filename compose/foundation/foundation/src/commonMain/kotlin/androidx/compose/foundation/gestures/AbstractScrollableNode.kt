@@ -35,8 +35,10 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.scrollByOffset
@@ -170,7 +172,14 @@ internal abstract class AbstractScrollableNode(
         }
     }
 
-    protected abstract suspend fun semanticsScrollBy(offset: Offset): Offset
+    /**
+     * Scrolls by [offset] from a semantics action. Pass `false` for [dispatchNestedScroll] to skip
+     * nested scroll dispatch while [LocalScrollCaptureInProgress] is true.
+     */
+    protected abstract suspend fun semanticsScrollBy(
+        offset: Offset,
+        dispatchNestedScroll: Boolean,
+    ): Offset
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         if (enabled && (scrollByAction == null || scrollByOffsetAction == null)) {
@@ -184,11 +193,16 @@ internal abstract class AbstractScrollableNode(
 
     private fun setScrollSemanticsActions() {
         scrollByAction = { x, y ->
-            coroutineScope.launch { semanticsScrollBy(Offset(x, y)) }
+            coroutineScope.launch { semanticsScrollBy(Offset(x, y), dispatchNestedScroll = true) }
             true
         }
 
-        scrollByOffsetAction = { offset -> semanticsScrollBy(offset) }
+        scrollByOffsetAction = { offset ->
+            // Scroll capture counts parent consumption as movement of this node.
+            // Skip nested scroll dispatch while a capture runs.
+            val inCapture = isAttached && currentValueOf(LocalScrollCaptureInProgress)
+            semanticsScrollBy(offset, dispatchNestedScroll = !inCapture)
+        }
     }
 
     protected fun clearScrollSemanticsActions() {
@@ -319,7 +333,12 @@ internal val UnityDensity =
 
 /** A scroll scope for nested scrolling and overscroll support. */
 internal interface NestedScrollScope {
-    fun scrollBy(offset: Offset, source: NestedScrollSource): Offset
+    /** Pass `false` for [dispatchNestedScroll] to skip pre and post nested scroll dispatch. */
+    fun scrollBy(
+        offset: Offset,
+        source: NestedScrollSource,
+        dispatchNestedScroll: Boolean = true,
+    ): Offset
 
     fun scrollByWithOverscroll(offset: Offset, source: NestedScrollSource): Offset
 }
