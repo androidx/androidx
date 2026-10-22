@@ -29,12 +29,18 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * Aggregates candidate tip-of-tree dependency exemptions from all published libraries, prunes
- * stale/obsolete entries that are no longer declared, preserves existing reasons and bugs for
- * active exemptions, and writes [TIP_OF_TREE_EXEMPTIONS_FILE_NAME].
+ * Aggregates candidate dependency exemptions from all published libraries, prunes stale/obsolete
+ * entries that are no longer declared, preserves existing reasons and bugs for active exemptions,
+ * and writes [EXEMPTIONS_FILE_NAME].
  */
 @DisableCachingByDefault(because = "Updates source TOML file in-place")
-internal abstract class UpdateTipOfTreeExemptionsTask : DefaultTask() {
+internal abstract class UpdateDependencyExemptionsTask : DefaultTask() {
+
+    init {
+        description =
+            "Rewrites $EXEMPTIONS_FILE_NAME to match the tip-of-tree dependencies that currently " +
+                "need an exemption"
+    }
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
@@ -44,12 +50,12 @@ internal abstract class UpdateTipOfTreeExemptionsTask : DefaultTask() {
 
     @TaskAction
     fun updateExemptions() {
-        val reports = mutableListOf<UnpinnedDependenciesReport>()
+        val reports = mutableListOf<DependencyExemptionsReport>()
 
         for (file in reportFiles.files) {
             if (!file.exists()) continue
-            val report: UnpinnedDependenciesReport? =
-                GSON.fromJson(file.readText(), UnpinnedDependenciesReport::class.java)
+            val report: DependencyExemptionsReport? =
+                GSON.fromJson(file.readText(), DependencyExemptionsReport::class.java)
             if (report != null) {
                 reports.add(report)
             }
@@ -58,7 +64,7 @@ internal abstract class UpdateTipOfTreeExemptionsTask : DefaultTask() {
         val outputFile = exemptionsFile.get().asFile
         val existingExemptions =
             if (outputFile.exists()) {
-                parseTipOfTreeExemptions(outputFile.readText(), outputFile.path)
+                parseDependencyExemptions(outputFile.readText(), outputFile.path)
             } else {
                 emptyList()
             }
@@ -72,7 +78,7 @@ internal abstract class UpdateTipOfTreeExemptionsTask : DefaultTask() {
     }
 
     companion object {
-        const val TASK_NAME = "updateTipOfTreeExemptions"
+        const val TASK_NAME = "updateDependencyExemptions"
     }
 }
 
@@ -80,21 +86,21 @@ internal abstract class UpdateTipOfTreeExemptionsTask : DefaultTask() {
  * Returns the exemptions that should exist after evaluating [reports].
  *
  * Libraries without a report were outside the evaluation scope, so their [existing] exemptions are
- * kept untouched. For evaluated libraries, each unpinned dependency keeps its existing exemption
- * (preserving its reason and version) or gets a [placeholderExemption]; exemptions for dependencies
- * that are no longer unpinned are dropped.
+ * kept untouched. For evaluated libraries, each dependency needing an exemption keeps its existing
+ * exemption (preserving its reason and version) or gets a [placeholderExemption]; exemptions for
+ * dependencies that no longer need one are dropped.
  */
 internal fun reconcileExemptions(
-    existing: List<TipOfTreeExemption>,
-    reports: List<UnpinnedDependenciesReport>,
-): List<TipOfTreeExemption> {
+    existing: List<DependencyExemption>,
+    reports: List<DependencyExemptionsReport>,
+): List<DependencyExemption> {
     val evaluatedLibraries = reports.mapTo(mutableSetOf()) { it.library }
     val existingByPair = existing.associateBy { it.library to it.dependsOn }
 
     val outOfScope = existing.filter { it.library !in evaluatedLibraries }
     val current = reports.flatMap { report ->
         val libraryVersion = report.libraryVersion?.let { Version.parseOrNull(it) }
-        report.unpinnedDependencies.map { dependsOn ->
+        report.dependenciesNeedingExemption.map { dependsOn ->
             existingByPair[report.library to dependsOn]
                 ?: placeholderExemption(report.library, libraryVersion, dependsOn)
         }
@@ -105,7 +111,7 @@ internal fun reconcileExemptions(
 
 private val GSON = GsonBuilder().disableHtmlEscaping().create()
 
-internal fun renderExemptionsToml(exemptions: List<TipOfTreeExemption>): String {
+internal fun renderExemptionsToml(exemptions: List<DependencyExemption>): String {
     val builder = StringBuilder()
     builder.append(
         """
@@ -131,7 +137,7 @@ internal fun renderExemptionsToml(exemptions: List<TipOfTreeExemption>): String 
     builder.append("\n")
 
     for ((library, dependsOn, validThroughLibraryVersion, reason) in exemptions) {
-        builder.append("\n[[tipOfTreeExemptions]]\n")
+        builder.append("\n[[$EXEMPTION_TABLE]]\n")
         builder.append("library = ${GSON.toJson(library)}\n")
         builder.append("dependsOn = ${GSON.toJson(dependsOn)}\n")
         builder.append("validThroughLibraryVersion = ${GSON.toJson(validThroughLibraryVersion)}\n")

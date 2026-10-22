@@ -16,9 +16,9 @@
 
 package androidx.build
 
-import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
-import androidx.build.pinneddependencies.TipOfTreeExemption
-import androidx.build.pinneddependencies.parseTipOfTreeExemptions
+import androidx.build.pinneddependencies.DependencyExemption
+import androidx.build.pinneddependencies.EXEMPTIONS_FILE_NAME
+import androidx.build.pinneddependencies.parseDependencyExemptions
 import kotlin.collections.forEach
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -36,8 +36,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     interface Parameters : BuildServiceParameters {
         val tomlFileName: Property<String>
         val tomlFileContents: Property<String>
-        val tipOfTreeExemptionsFileName: Property<String>
-        val tipOfTreeExemptionsFileContents: Property<String>
+        val dependencyExemptionsFileContents: Property<String>
         val allPossibleProjects: ListProperty<IncludedProject>
     }
 
@@ -62,26 +61,20 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     }
 
     /**
-     * Exemptions declared in [TIP_OF_TREE_EXEMPTIONS_FILE_NAME], parsed only if something reads
-     * them.
+     * Exemptions declared in [EXEMPTIONS_FILE_NAME], parsed only if something reads them.
      *
      * An absent file parses to an empty list rather than failing, so that a checkout without it, or
      * a build that never consults it, behaves as though nothing is exempted.
      */
-    private val tipOfTreeExemptions: List<TipOfTreeExemption> by lazy {
-        parseTipOfTreeExemptions(
-            parameters.tipOfTreeExemptionsFileContents.orNull,
-            parameters.tipOfTreeExemptionsFileName.get(),
-        )
-    }
-
-    private val tipOfTreeExemptionsByLibrary: Map<String, List<TipOfTreeExemption>> by lazy {
-        tipOfTreeExemptions.groupBy { it.library }
+    private val dependencyExemptionsByLibrary: Map<String, List<DependencyExemption>> by lazy {
+        parseDependencyExemptions(parameters.dependencyExemptionsFileContents.orNull).groupBy {
+            it.library
+        }
     }
 
     /** Returns only the exemptions applicable to [projectPath]. */
-    internal fun exemptionsFor(projectPath: String): List<TipOfTreeExemption> =
-        tipOfTreeExemptionsByLibrary[projectPath] ?: emptyList()
+    internal fun exemptionsFor(projectPath: String): List<DependencyExemption> =
+        dependencyExemptionsByLibrary[projectPath] ?: emptyList()
 
     private fun getTable(key: String): JsonNode {
         val table = parsedTomlFile.get(key)
@@ -275,11 +268,18 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     /**
      * The version group [projectPath] belongs to, or null if it versions on its own schedule.
      *
+     * [mavenVersionGroup] wins, because a project's own `mavenVersion` overrides its group's. Next,
      * `overrideInclude` wins over the group id, because it exists precisely to put a project in a
      * different version group from the rest of its Maven group.
      */
-    fun versionGroupFor(projectPath: String, groupId: String?): String? =
-        versionGroupByProjectPath[projectPath] ?: groupId?.let { versionGroupByGroupId[it] }
+    fun versionGroupFor(
+        projectPath: String,
+        groupId: String?,
+        mavenVersionGroup: String?,
+    ): String? =
+        mavenVersionGroup
+            ?: versionGroupByProjectPath[projectPath]
+            ?: groupId?.let { versionGroupByGroupId[it] }
 
     private val libraryGroupAssociations: List<LibraryGroupAssociation> by lazy {
         val groups = getTable("groups")
@@ -336,8 +336,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         internal fun registerOrGet(project: Project): Provider<LibraryVersionsService> {
             val tomlFileName = "libraryversions.toml"
             val toml = project.lazyReadFile(tomlFileName)
-            val exemptionsFileName = TIP_OF_TREE_EXEMPTIONS_FILE_NAME
-            val exemptions = project.lazyReadFile(exemptionsFileName)
+            val exemptions = project.lazyReadFile(EXEMPTIONS_FILE_NAME)
             val listProjectsService = ListProjectsService.registerOrGet(project)
 
             return project.gradle.sharedServices.registerIfAbsent(
@@ -346,8 +345,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
             ) { spec ->
                 spec.parameters.tomlFileName.set(tomlFileName)
                 spec.parameters.tomlFileContents.set(toml)
-                spec.parameters.tipOfTreeExemptionsFileName.set(exemptionsFileName)
-                spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
+                spec.parameters.dependencyExemptionsFileContents.set(exemptions)
                 spec.parameters.allPossibleProjects.set(
                     listProjectsService.map { it.allPossibleProjects }
                 )

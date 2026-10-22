@@ -16,8 +16,7 @@
 
 package androidx.build
 
-import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
-import androidx.build.pinneddependencies.TipOfTreeExemption
+import androidx.build.pinneddependencies.DependencyExemption
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.Project
@@ -361,7 +360,7 @@ class LibraryVersionsServiceTest {
                 "[versions]\n[groups]\n",
                 exemptions =
                     """
-                    [[tipOfTreeExemptions]]
+                    [[exemption]]
                     library = ":fragment:fragment"
                     dependsOn = ":tracing:tracing"
                     validThroughLibraryVersion = "1.9.0-rc01"
@@ -370,7 +369,7 @@ class LibraryVersionsServiceTest {
                         .trimIndent(),
             )
         val expected =
-            TipOfTreeExemption(
+            DependencyExemption(
                 library = ":fragment:fragment",
                 dependsOn = ":tracing:tracing",
                 validThroughLibraryVersion = "1.9.0-rc01",
@@ -391,7 +390,14 @@ class LibraryVersionsServiceTest {
             COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.V1" }
             """
             )
-        assertThat(service.versionGroupFor(":compose:ui:ui", "androidx.compose.ui")).isEqualTo("V1")
+        assertThat(
+                service.versionGroupFor(
+                    ":compose:ui:ui",
+                    "androidx.compose.ui",
+                    mavenVersionGroup = null,
+                )
+            )
+            .isEqualTo("V1")
     }
 
     @Test
@@ -405,8 +411,38 @@ class LibraryVersionsServiceTest {
             CORE = { group = "androidx.core" }
             """
             )
-        assertThat(service.versionGroupFor(":core:core", "androidx.core")).isNull()
-        assertThat(service.versionGroupFor(":core:core-splashscreen", "androidx.core")).isNull()
+        assertThat(service.versionGroupFor(":core:core", "androidx.core", mavenVersionGroup = null))
+            .isNull()
+        assertThat(
+                service.versionGroupFor(
+                    ":core:core-splashscreen",
+                    "androidx.core",
+                    mavenVersionGroup = null,
+                )
+            )
+            .isNull()
+    }
+
+    @Test
+    fun versionGroupFor_ownMavenVersionOverridesAtomicGroup() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            COMPOSE_MATERIAL3 = "1.6.0-alpha01"
+            COMPOSE_MATERIAL3_A2UI_QUARANTINE = "1.0.0-alpha02"
+            [groups]
+            COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
+            """
+            )
+        assertThat(
+                service.versionGroupFor(
+                    ":compose:material3:material3-a2ui",
+                    "androidx.compose.material3",
+                    mavenVersionGroup = "COMPOSE_MATERIAL3_A2UI_QUARANTINE",
+                )
+            )
+            .isEqualTo("COMPOSE_MATERIAL3_A2UI_QUARANTINE")
     }
 
     @Test
@@ -536,7 +572,7 @@ class LibraryVersionsServiceTest {
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",
-        exemptions: String? = "tipOfTreeExemptions = []",
+        exemptions: String? = "exemption = []",
         allPossibleProjects: List<IncludedProject> = emptyList(),
         project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build(),
     ): LibraryVersionsService {
@@ -547,8 +583,7 @@ class LibraryVersionsServiceTest {
             ) { spec ->
                 spec.parameters.tomlFileContents.set(tomlFileContents)
                 spec.parameters.tomlFileName.set(tomlFileName)
-                spec.parameters.tipOfTreeExemptionsFileName.set(TIP_OF_TREE_EXEMPTIONS_FILE_NAME)
-                spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
+                spec.parameters.dependencyExemptionsFileContents.set(exemptions)
                 spec.parameters.allPossibleProjects.set(allPossibleProjects)
             }
         return serviceProvider.get()

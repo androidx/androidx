@@ -22,7 +22,9 @@ import tools.jackson.core.JacksonException
 import tools.jackson.databind.JsonNode
 import tools.jackson.dataformat.toml.TomlMapper
 
-internal const val TIP_OF_TREE_EXEMPTIONS_FILE_NAME = "tip-of-tree-dependency-exemptions.toml"
+internal const val EXEMPTIONS_FILE_NAME = "tip-of-tree-dependency-exemptions.toml"
+
+internal const val EXEMPTION_TABLE = "exemption"
 
 private val ALLOWED_EXEMPTION_KEYS =
     setOf("library", "dependsOn", "validThroughLibraryVersion", "reason")
@@ -42,21 +44,19 @@ internal data class ProjectCoordinates(
         versionGroup != null && versionGroup == other.versionGroup
 }
 
-/** An entry in [TIP_OF_TREE_EXEMPTIONS_FILE_NAME]. */
-internal data class TipOfTreeExemption(
+/** An entry in [EXEMPTIONS_FILE_NAME]. */
+internal data class DependencyExemption(
     val library: String,
     val dependsOn: String,
     val validThroughLibraryVersion: String,
     val reason: String,
 ) : Serializable
 
-/**
- * Parses [TIP_OF_TREE_EXEMPTIONS_FILE_NAME] contents into a list of [TipOfTreeExemption] entries.
- */
-internal fun parseTipOfTreeExemptions(
+/** Parses [EXEMPTIONS_FILE_NAME] contents into a list of [DependencyExemption] entries. */
+internal fun parseDependencyExemptions(
     tomlContents: String?,
-    fileName: String = TIP_OF_TREE_EXEMPTIONS_FILE_NAME,
-): List<TipOfTreeExemption> {
+    fileName: String = EXEMPTIONS_FILE_NAME,
+): List<DependencyExemption> {
     if (tomlContents.isNullOrBlank()) return emptyList()
     val parsed: JsonNode =
         try {
@@ -80,37 +80,37 @@ internal fun parseTipOfTreeExemptions(
         throw GradleException("$fileName is not a valid TOML table")
     }
 
-    val unexpectedKeys = parsed.propertyNames().toSet() - "tipOfTreeExemptions"
+    val unexpectedKeys = parsed.propertyNames().toSet() - EXEMPTION_TABLE
     if (unexpectedKeys.isNotEmpty()) {
         throw GradleException(
-            "$fileName contains unexpected table/key(s): $unexpectedKeys. Expected '[[tipOfTreeExemptions]]'."
+            "$fileName contains unexpected table/key(s): $unexpectedKeys. Expected '[[$EXEMPTION_TABLE]]'."
         )
     }
 
-    val entries = parsed.get("tipOfTreeExemptions") ?: return emptyList()
+    val entries = parsed.get(EXEMPTION_TABLE) ?: return emptyList()
     if (!entries.isArray) {
-        throw GradleException("$fileName: tipOfTreeExemptions is not an array")
+        throw GradleException("$fileName: $EXEMPTION_TABLE is not an array")
     }
 
     return entries.mapIndexed { index, table ->
         if (!table.isObject) {
-            throw GradleException("$fileName: tipOfTreeExemptions[$index] is not a table")
+            throw GradleException("$fileName: $EXEMPTION_TABLE[$index] is not a table")
         }
 
         val extraKeys = table.propertyNames().toSet() - ALLOWED_EXEMPTION_KEYS
         if (extraKeys.isNotEmpty()) {
             throw GradleException(
-                "$fileName: tipOfTreeExemptions[$index] contains unrecognized key(s): $extraKeys"
+                "$fileName: $EXEMPTION_TABLE[$index] contains unrecognized key(s): $extraKeys"
             )
         }
 
         fun requireString(key: String): String =
             table.get(key)?.asString()
                 ?: throw GradleException(
-                    "$fileName: tipOfTreeExemptions[$index] is missing required key \"$key\""
+                    "$fileName: $EXEMPTION_TABLE[$index] is missing required key \"$key\""
                 )
 
-        TipOfTreeExemption(
+        DependencyExemption(
             library = requireString("library"),
             dependsOn = requireString("dependsOn"),
             validThroughLibraryVersion = requireString("validThroughLibraryVersion"),
@@ -138,7 +138,7 @@ internal fun suggestedExemptionVersion(current: Version): String =
  * Returns [library]'s tip-of-tree [dependencies] that release separately from it, and so must
  * either be pinned to a released version or exempted.
  */
-internal fun findUnpinnedDependencies(
+internal fun findDependenciesNeedingExemption(
     library: ProjectCoordinates,
     dependencies: Collection<ProjectCoordinates>,
 ): List<ProjectCoordinates> =
@@ -154,8 +154,8 @@ internal fun placeholderExemption(
     library: String,
     libraryVersion: Version?,
     dependsOn: String,
-): TipOfTreeExemption =
-    TipOfTreeExemption(
+): DependencyExemption =
+    DependencyExemption(
         library = library,
         dependsOn = dependsOn,
         validThroughLibraryVersion =
@@ -167,12 +167,12 @@ internal fun placeholderExemption(
 internal fun findVerificationErrors(
     library: ProjectCoordinates,
     dependencies: Collection<ProjectCoordinates>,
-    exemptions: Collection<TipOfTreeExemption>,
+    exemptions: Collection<DependencyExemption>,
 ): List<String> {
     val applicableExemptions =
         exemptions.filter { it.library == library.projectPath }.associateBy { it.dependsOn }
 
-    return findUnpinnedDependencies(library, dependencies).mapNotNull { dependency ->
+    return findDependenciesNeedingExemption(library, dependencies).mapNotNull { dependency ->
         val exemption = applicableExemptions[dependency.projectPath]
         val validThrough = exemption?.let { Version.parseOrNull(it.validThroughLibraryVersion) }
 
@@ -207,8 +207,8 @@ private fun formatShouldBePinnedError(
 
         CI still builds this against tip-of-tree $depArtifact via -Pandroidx.useMaxDepVersions, so pinning does not reduce head coverage.
 
-        If ${library.projectPath} genuinely needs unreleased $depArtifact APIs, add an exemption to $TIP_OF_TREE_EXEMPTIONS_FILE_NAME:
-          [[tipOfTreeExemptions]]
+        If ${library.projectPath} genuinely needs unreleased $depArtifact APIs, add an exemption to $EXEMPTIONS_FILE_NAME:
+          [[$EXEMPTION_TABLE]]
           library = "${library.projectPath}"
           dependsOn = "${dependency.projectPath}"
           # ${library.projectPath}'s own version, not ${dependency.projectPath}'s.
@@ -222,10 +222,10 @@ private fun formatShouldBePinnedError(
 private fun formatExpiredError(
     library: ProjectCoordinates,
     dependency: ProjectCoordinates,
-    exemption: TipOfTreeExemption,
+    exemption: DependencyExemption,
 ): String =
     """
-        ${library.projectPath} is at version ${library.version}, which has moved past ${exemption.validThroughLibraryVersion} (the version its exemption for ${dependency.projectPath} in $TIP_OF_TREE_EXEMPTIONS_FILE_NAME was valid through).
+        ${library.projectPath} is at version ${library.version}, which has moved past ${exemption.validThroughLibraryVersion} (the version its exemption for ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME was valid through).
 
         Pin ${dependency.coordinate} to a released version, or, if it is still genuinely needed, raise validThroughLibraryVersion and refresh the reason. Raising it is a decision to keep paying for the coupling, not a routine version bump.
 
@@ -236,20 +236,20 @@ private fun formatExpiredError(
 private fun formatMissingBugError(
     library: ProjectCoordinates,
     dependency: ProjectCoordinates,
-    exemption: TipOfTreeExemption,
+    exemption: DependencyExemption,
 ) =
     """
-    The exemption for ${library.projectPath} -> ${dependency.projectPath} in $TIP_OF_TREE_EXEMPTIONS_FILE_NAME must give a reason referencing a bug (b/NNNNN or a GitHub issue URL). Found: "${exemption.reason}"
+    The exemption for ${library.projectPath} -> ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME must give a reason referencing a bug (b/NNNNN or a GitHub issue URL). Found: "${exemption.reason}"
     """
         .trimIndent()
 
 private fun formatUnparseableVersionError(
     library: ProjectCoordinates,
     dependency: ProjectCoordinates,
-    exemption: TipOfTreeExemption,
+    exemption: DependencyExemption,
 ) =
     """
-        The exemption for ${library.projectPath} -> ${dependency.projectPath} in $TIP_OF_TREE_EXEMPTIONS_FILE_NAME has validThroughLibraryVersion "${exemption.validThroughLibraryVersion}", which is not a valid version. It must be a version of ${library.projectPath} itself (e.g., "${library.version ?: "1.0.0-alpha01"}").
+        The exemption for ${library.projectPath} -> ${dependency.projectPath} in $EXEMPTIONS_FILE_NAME has validThroughLibraryVersion "${exemption.validThroughLibraryVersion}", which is not a valid version. It must be a version of ${library.projectPath} itself (e.g., "${library.version ?: "1.0.0-alpha01"}").
     """
         .trimIndent()
 

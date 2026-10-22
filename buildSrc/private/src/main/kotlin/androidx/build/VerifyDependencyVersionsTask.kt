@@ -16,8 +16,8 @@
 
 package androidx.build
 
+import androidx.build.pinneddependencies.DependencyExemption
 import androidx.build.pinneddependencies.ProjectCoordinates
-import androidx.build.pinneddependencies.TipOfTreeExemption
 import androidx.build.pinneddependencies.findVerificationErrors
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import org.gradle.api.DefaultTask
@@ -38,7 +38,7 @@ import org.gradle.api.tasks.TaskProvider
  * Task for verifying the androidx dependency-stability-suffix rule (A library is only as stable as
  * its least stable dependency), and that tip-of-tree project dependencies on libraries that release
  * separately are either pinned to a released version or listed in
- * [androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME].
+ * [androidx.build.pinneddependencies.EXEMPTIONS_FILE_NAME].
  */
 @CacheableTask
 internal abstract class VerifyDependencyVersionsTask : DefaultTask() {
@@ -54,9 +54,9 @@ internal abstract class VerifyDependencyVersionsTask : DefaultTask() {
 
     @get:Input abstract val androidXDependencySet: SetProperty<AndroidXDependency>
 
-    @get:Input abstract val tipOfTreeDependencies: SetProperty<ProjectCoordinates>
+    @get:Input abstract val exemptionCandidates: SetProperty<ProjectCoordinates>
 
-    @get:Input abstract val exemptions: ListProperty<TipOfTreeExemption>
+    @get:Input abstract val exemptions: ListProperty<DependencyExemption>
 
     /**
      * Iterate through the dependencies of the project and ensure none of them are of an inferior
@@ -68,13 +68,13 @@ internal abstract class VerifyDependencyVersionsTask : DefaultTask() {
     @TaskAction
     fun verifyDependencyVersions() {
         androidXDependencySet.get().forEach { dependency -> verifyDependencyVersion(dependency) }
-        val tipOfTreeDependencies = tipOfTreeDependencies.get()
-        if (tipOfTreeDependencies.isEmpty()) return
+        val exemptionCandidates = exemptionCandidates.get()
+        if (exemptionCandidates.isEmpty()) return
 
         val errors =
             findVerificationErrors(
                 library = library.get(),
-                dependencies = tipOfTreeDependencies,
+                dependencies = exemptionCandidates,
                 exemptions = exemptions.get(),
             )
         if (errors.isEmpty()) return
@@ -165,7 +165,7 @@ internal fun Project.createVerifyDependencyVersionsTask(
                         }
                 }
             )
-            task.tipOfTreeDependencies.set(getTipOfTreeDependencies(libraryVersionsService))
+            task.exemptionCandidates.set(getExemptionCandidates(libraryVersionsService))
             task.exemptions.set(
                 libraryVersionsService.map { service -> service.exemptionsFor(projectPath) }
             )
@@ -214,12 +214,12 @@ internal fun Project.getLibraryProjectCoordinates(
             groupId = projectGroup,
             artifactId = projectArtifact,
             version = projectVersion,
-            versionGroup = service.versionGroupFor(projectPath, projectGroup) ?: mavenVersionGroup,
+            versionGroup = service.versionGroupFor(projectPath, projectGroup, mavenVersionGroup),
         )
     }
 }
 
-internal fun Project.getTipOfTreeDependencies(
+internal fun Project.getExemptionCandidates(
     libraryVersionService: Provider<LibraryVersionsService>
 ): Provider<Set<ProjectCoordinates>> {
     val declaredDependencies =
@@ -248,8 +248,11 @@ internal fun Project.getTipOfTreeDependencies(
             .map { dependency ->
                 dependency.copy(
                     versionGroup =
-                        service.versionGroupFor(dependency.projectPath, dependency.groupId)
-                            ?: dependency.versionGroup
+                        service.versionGroupFor(
+                            dependency.projectPath,
+                            dependency.groupId,
+                            dependency.versionGroup,
+                        )
                 )
             }
             .toSet()

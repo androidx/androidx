@@ -45,7 +45,7 @@ class PinnedDependenciesTest {
     private fun exemption(
         validThrough: String = "1.9.0-rc01",
         reason: String = "b/12345 - uses Trace.setCounter, which no released tracing has yet",
-    ) = TipOfTreeExemption(":fragment:fragment", ":tracing:tracing", validThrough, reason)
+    ) = DependencyExemption(":fragment:fragment", ":tracing:tracing", validThrough, reason)
 
     @Test
     fun dependencyInAnotherVersionGroupIsReported() {
@@ -189,44 +189,47 @@ class PinnedDependenciesTest {
     }
 
     @Test
-    fun findUnpinnedDependencies_keepsOnlySeparatelyReleasedDependencies() {
+    fun findDependenciesNeedingExemption_keepsOnlySeparatelyReleasedDependencies() {
         val self = tracing.copy(projectPath = ":fragment:fragment", versionGroup = null)
         val sibling =
             tracing.copy(projectPath = ":fragment:fragment-ktx", versionGroup = "FRAGMENT")
         val duplicateTracing = tracing.copy(version = Version.parse("1.0.0"))
 
-        val unpinned =
-            findUnpinnedDependencies(fragment, listOf(self, sibling, tracing, duplicateTracing))
+        val needingExemption =
+            findDependenciesNeedingExemption(
+                fragment,
+                listOf(self, sibling, tracing, duplicateTracing),
+            )
 
-        assertThat(unpinned.map { it.projectPath }).containsExactly(":tracing:tracing")
+        assertThat(needingExemption.map { it.projectPath }).containsExactly(":tracing:tracing")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_emptyOrNullReturnsEmpty() {
-        assertThat(parseTipOfTreeExemptions(null)).isEmpty()
-        assertThat(parseTipOfTreeExemptions("")).isEmpty()
-        assertThat(parseTipOfTreeExemptions("   ")).isEmpty()
+    fun parseDependencyExemptions_emptyOrNullReturnsEmpty() {
+        assertThat(parseDependencyExemptions(null)).isEmpty()
+        assertThat(parseDependencyExemptions("")).isEmpty()
+        assertThat(parseDependencyExemptions("   ")).isEmpty()
     }
 
     @Test
-    fun parseTipOfTreeExemptions_missingFieldThrows() {
+    fun parseDependencyExemptions_missingFieldThrows() {
         val toml =
             """
-            [[tipOfTreeExemptions]]
+            [[exemption]]
             library = ":fragment:fragment"
             dependsOn = ":tracing:tracing"
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
             .contains("is missing required key \"validThroughLibraryVersion\"")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_unrecognizedFieldThrows() {
+    fun parseDependencyExemptions_unrecognizedFieldThrows() {
         val toml =
             """
-            [[tipOfTreeExemptions]]
+            [[exemption]]
             library = ":fragment:fragment"
             dependsOn = ":tracing:tracing"
             validThroughLibraryVersion = "1.0.0"
@@ -234,54 +237,54 @@ class PinnedDependenciesTest {
             typoKey = "invalid"
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
             .contains("contains unrecognized key(s)")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_unexpectedHeaderThrows() {
+    fun parseDependencyExemptions_unexpectedHeaderThrows() {
         val toml =
             """
-            [[tipOfTreeExemption]]
+            [[exemptions]]
             library = ":fragment:fragment"
             dependsOn = ":tracing:tracing"
             validThroughLibraryVersion = "1.0.0"
             reason = "b/12345"
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
             .contains("contains unexpected table/key(s)")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_validEntries() {
+    fun parseDependencyExemptions_validEntries() {
         val toml =
             """
-            [[tipOfTreeExemptions]]
+            [[exemption]]
             library = ":fragment:fragment"
             dependsOn = ":tracing:tracing"
             validThroughLibraryVersion = "1.9.0-rc01"
             reason = "b/12345"
 
-            [[tipOfTreeExemptions]]
+            [[exemption]]
             library = ":activity:activity"
             dependsOn = ":core:core"
             validThroughLibraryVersion = "1.10.0-alpha01"
             reason = "b/67890"
             """
                 .trimIndent()
-        val exemptions = parseTipOfTreeExemptions(toml)
+        val exemptions = parseDependencyExemptions(toml)
         assertThat(exemptions)
             .containsExactly(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":fragment:fragment",
                     dependsOn = ":tracing:tracing",
                     validThroughLibraryVersion = "1.9.0-rc01",
                     reason = "b/12345",
                 ),
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":activity:activity",
                     dependsOn = ":core:core",
                     validThroughLibraryVersion = "1.10.0-alpha01",
@@ -292,39 +295,39 @@ class PinnedDependenciesTest {
     }
 
     @Test
-    fun parseTipOfTreeExemptions_invalidSyntaxThrows() {
+    fun parseDependencyExemptions_invalidSyntaxThrows() {
         val toml =
             """
-            [[tipOfTreeExemptions
+            [[exemption
             library = ":fragment:fragment"
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
             .contains("tip-of-tree-dependency-exemptions.toml has issues.")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_notAnArrayThrows() {
+    fun parseDependencyExemptions_notAnArrayThrows() {
         val toml =
             """
-            tipOfTreeExemptions = "not an array"
+            exemption = "not an array"
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
-            .contains("tipOfTreeExemptions is not an array")
+            .contains("exemption is not an array")
     }
 
     @Test
-    fun parseTipOfTreeExemptions_entryNotATableThrows() {
+    fun parseDependencyExemptions_entryNotATableThrows() {
         val toml =
             """
-            tipOfTreeExemptions = ["not a table"]
+            exemption = ["not a table"]
             """
                 .trimIndent()
-        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+        assertThrows<GradleException> { parseDependencyExemptions(toml) }
             .hasMessageThat()
-            .contains("tipOfTreeExemptions[0] is not a table")
+            .contains("exemption[0] is not a table")
     }
 }
