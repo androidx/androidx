@@ -29,14 +29,13 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.compose.remote.integration.view.demos.R;
-import androidx.compose.remote.player.core.RemoteDocument;
+import androidx.compose.remote.integration.view.demos.utils.RCDoc;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import org.jspecify.annotations.NonNull;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -76,13 +75,8 @@ public class RemoteNotification {
      * Set the Remote Compose document.
      */
     @SuppressLint("RestrictedApi")
-    public @NonNull RemoteNotification doc(@NonNull RemoteDocument document) {
-        byte[] bytes = document.getDocument().getBuffer().getBuffer().getBuffer();
-        int size = document.getDocument().getBuffer().getBuffer().getSize();
-        if (bytes.length > size) {
-            bytes = Arrays.copyOf(bytes, size);
-        }
-        mDocumentBytes = bytes;
+    public @NonNull RemoteNotification doc(@NonNull RCDoc document) {
+        mDocumentBytes = document.getBytes();
         return this;
     }
 
