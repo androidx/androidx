@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -58,10 +57,12 @@ import androidx.xr.testutils.performSpatialInteraction
 import androidx.xr.testutils.resetSpatialInteraction
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -73,121 +74,113 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MovableComponentTest {
-    @get:Rule val activityScenarioRule = ActivityScenarioRule(ComponentActivity::class.java)
-
-    private lateinit var session: Session
 
     @After
     fun tearDown() {
         resetSpatialInteraction()
-        if (this::session.isInitialized) {
-            // Some tests hide the main panel. It is backed by the task scoped
-            // MainPanelAndTaskWindowLeashNode, which is shared with the other tests in this class,
-            // so restore its visibility instead of leaking the hidden state.
-            activityScenarioRule.scenario.onActivity {
+    }
+
+    @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun movableComponent_mainPanelEntity_systemMovable_isMovable() =
+        runTestWithSession { activity, session ->
+            val moveListener = RecordingMoveListener(applyMoveToEntity = false)
+
+            // 1. Set the Compose content of the main panel.
+            activity.setContent { CenteredLabel("This is MainPanel") }
+
+            // 2. Request Full Space Mode and wait for the transition to complete.
+            session.scene.requestFullSpaceAndAwait()
+
+            // 3. Create the MovableComponent (system movable) and attach it to the main panel.
+            val mainPanelEntity = session.scene.mainPanelEntity
+            val movableComponent =
+                MovableComponent.createSystemMovable(session = session, scaleInZ = false)
+            movableComponent.addMoveListener(moveListener)
+            assertThat(mainPanelEntity.addComponent(movableComponent)).isTrue()
+
+            // Wait for the UI and the scene graph to sync before sampling the pose.
+            withContext(Dispatchers.IO) {
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            }
+            val initialPosition = mainPanelEntity.getPose(Space.ACTIVITY).translation
+
+            // 4. Grab the main panel by its move affordance and drag it.
+            withContext(Dispatchers.IO) {
+                findMainPanelNode().performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
+            }
+
+            // 5. Wait for the move to end and verify that the main panel pose was updated.
+            awaitMoveEnd(moveListener)
+            val distanceMoved =
+                (mainPanelEntity.getPose(Space.ACTIVITY).translation - initialPosition).length
+            assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
+        }
+
+    @Test
+    @XrDeviceTest
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun movableComponent_panelEntity_systemMovable_isMovable() =
+        runTestWithSession { activity, session ->
+            val panelName = "movablePanel"
+            val moveListener = RecordingMoveListener(applyMoveToEntity = false)
+
+            // 1. Request Full Space Mode and wait for the transition to complete.
+            session.scene.requestFullSpaceAndAwait()
+
+            // 2. Hide the main panel so it does not interfere with the spatial panel test, then
+            // create the PanelEntity under test.
+            try {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val panelEntity =
+                    createSpatialPanel(activity, session, panelName, "This is Spatial Panel")
+
+                // 3. Create the MovableComponent (system movable) and attach it to the panel
+                // entity.
+                val movableComponent =
+                    MovableComponent.createSystemMovable(session = session, scaleInZ = false)
+                movableComponent.addMoveListener(moveListener)
+                assertThat(panelEntity.addComponent(movableComponent)).isTrue()
+
+                // Wait for the UI and the scene graph to sync before sampling the pose.
+                withContext(Dispatchers.IO) {
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                }
+                val initialPosition = panelEntity.getPose(Space.ACTIVITY).translation
+
+                // 4. Grab the panel by its move affordance and drag it.
+                withContext(Dispatchers.IO) {
+                    findPanelNode(panelName).performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
+                }
+
+                // 5. Wait for the move to end and verify that the panel entity pose was updated.
+                awaitMoveEnd(moveListener)
+                val distanceMoved =
+                    (panelEntity.getPose(Space.ACTIVITY).translation - initialPosition).length
+                assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
+            } finally {
+                // Restore main panel visibility before closing the session, since it is backed by
+                // the task-scoped window leash node.
                 session.scene.mainPanelEntity.setEnabled(true)
             }
         }
-    }
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
-    fun movableComponent_mainPanelEntity_systemMovable_isMovable() {
-        val moveListener = RecordingMoveListener(applyMoveToEntity = false)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun movableComponent_mainPanelEntity_customMovable_isMovable() =
+        runTestWithSession { activity, session ->
+            val moveListener = RecordingMoveListener(applyMoveToEntity = true)
 
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 1. Set the Compose content of the main panel and create the XR session.
-            activity.setContent { CenteredLabel("This is MainPanel") }
-            session = createXrSession(activity)
-        }
-
-        // 2. Request Full Space Mode and wait for the transition to complete.
-        activityScenarioRule.scenario.requestAndAwaitFullSpace(session)
-
-        val mainPanelEntity = session.scene.mainPanelEntity
-        activityScenarioRule.scenario.onActivity {
-            // 3. Create the MovableComponent (system movable) and attach it to the main panel.
-            val movableComponent =
-                MovableComponent.createSystemMovable(session = session, scaleInZ = false)
-            movableComponent.addMoveListener(moveListener)
-            assertThat(mainPanelEntity.addComponent(movableComponent)).isTrue()
-        }
-
-        // Wait for the UI and the scene graph to sync before sampling the pose.
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        val initialPosition = activitySpacePosition(mainPanelEntity)
-
-        // 4. Grab the main panel by its move affordance and drag it.
-        findMainPanelNode().performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
-
-        // 5. Wait for the move to end and verify that the main panel pose was updated.
-        awaitMoveEnd(moveListener)
-        val distanceMoved = (activitySpacePosition(mainPanelEntity) - initialPosition).length
-        assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
-    }
-
-    @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
-    fun movableComponent_panelEntity_systemMovable_isMovable() {
-        val panelName = "movablePanel"
-        val moveListener = RecordingMoveListener(applyMoveToEntity = false)
-        lateinit var panelEntity: PanelEntity
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 1. Create the XR session. The main panel content is intentionally left unset because
-            // the main panel is hidden below.
-            session = createXrSession(activity)
-        }
-
-        // 2. Request Full Space Mode and wait for the transition to complete.
-        activityScenarioRule.scenario.requestAndAwaitFullSpace(session)
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 3. Hide the main panel so it does not interfere with the spatial panel test, then
-            // create the PanelEntity under test.
-            session.scene.mainPanelEntity.setEnabled(false)
-            panelEntity = createSpatialPanel(activity, panelName, "This is Spatial Panel")
-
-            // 4. Create the MovableComponent (system movable) and attach it to the panel entity.
-            val movableComponent =
-                MovableComponent.createSystemMovable(session = session, scaleInZ = false)
-            movableComponent.addMoveListener(moveListener)
-            assertThat(panelEntity.addComponent(movableComponent)).isTrue()
-        }
-
-        // Wait for the UI and the scene graph to sync before sampling the pose.
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        val initialPosition = activitySpacePosition(panelEntity)
-
-        // 5. Grab the panel by its move affordance and drag it.
-        findPanelNode(panelName).performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
-
-        // 6. Wait for the move to end and verify that the panel entity pose was updated.
-        awaitMoveEnd(moveListener)
-        val distanceMoved = (activitySpacePosition(panelEntity) - initialPosition).length
-        assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
-    }
-
-    @Test
-    @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
-    fun movableComponent_mainPanelEntity_customMovable_isMovable() {
-        val moveListener = RecordingMoveListener(applyMoveToEntity = true)
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 1. Set the Compose content of the main panel and create the XR session.
+            // 1. Set the Compose content of the main panel.
             activity.setContent { CenteredLabel("This is Custom Movable MainPanel") }
-            session = createXrSession(activity)
-        }
 
-        // 2. Request Full Space Mode and wait for the transition to complete.
-        activityScenarioRule.scenario.requestAndAwaitFullSpace(session)
+            // 2. Request Full Space Mode and wait for the transition to complete.
+            session.scene.requestFullSpaceAndAwait()
 
-        val mainPanelEntity = session.scene.mainPanelEntity
-        activityScenarioRule.scenario.onActivity {
             // 3. Create the MovableComponent (custom movable) and attach it to the main panel.
+            val mainPanelEntity = session.scene.mainPanelEntity
             val movableComponent =
                 MovableComponent.createCustomMovable(
                     session = session,
@@ -196,76 +189,89 @@ class MovableComponentTest {
                     entityMoveListener = moveListener,
                 )
             assertThat(mainPanelEntity.addComponent(movableComponent)).isTrue()
+
+            // Wait for the UI and the scene graph to sync before sampling the pose.
+            withContext(Dispatchers.IO) {
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            }
+            val initialPosition = mainPanelEntity.getPose(Space.ACTIVITY).translation
+
+            // 4. Grab the main panel by its move affordance and drag it.
+            withContext(Dispatchers.IO) {
+                findMainPanelNode().performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
+            }
+
+            // 5. Wait for the move to end and verify that every move callback fired and that the
+            // main panel pose was updated by the listener.
+            awaitMoveEnd(moveListener)
+            val distanceMoved =
+                (mainPanelEntity.getPose(Space.ACTIVITY).translation - initialPosition).length
+            assertThat(moveListener.onMoveStartCalled).isTrue()
+            assertThat(moveListener.onMoveUpdateCalled).isTrue()
+            assertThat(moveListener.onMoveEndCalled).isTrue()
+            assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
         }
-
-        // Wait for the UI and the scene graph to sync before sampling the pose.
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        val initialPosition = activitySpacePosition(mainPanelEntity)
-
-        // 4. Grab the main panel by its move affordance and drag it.
-        findMainPanelNode().performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
-
-        // 5. Wait for the move to end and verify that every move callback fired and that the main
-        // panel pose was updated by the listener.
-        awaitMoveEnd(moveListener)
-        val distanceMoved = (activitySpacePosition(mainPanelEntity) - initialPosition).length
-        assertThat(moveListener.onMoveStartCalled).isTrue()
-        assertThat(moveListener.onMoveUpdateCalled).isTrue()
-        assertThat(moveListener.onMoveEndCalled).isTrue()
-        assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
-    }
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
-    fun movableComponent_panelEntity_customMovable_isMovable() {
-        val panelName = "customMovablePanel"
-        val moveListener = RecordingMoveListener(applyMoveToEntity = true)
-        lateinit var panelEntity: PanelEntity
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
+    fun movableComponent_panelEntity_customMovable_isMovable() =
+        runTestWithSession { activity, session ->
+            val panelName = "customMovablePanel"
+            val moveListener = RecordingMoveListener(applyMoveToEntity = true)
 
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 1. Create the XR session. The main panel content is intentionally left unset because
-            // the main panel is hidden below.
-            session = createXrSession(activity)
-        }
+            // 1. Request Full Space Mode and wait for the transition to complete.
+            session.scene.requestFullSpaceAndAwait()
 
-        // 2. Request Full Space Mode and wait for the transition to complete.
-        activityScenarioRule.scenario.requestAndAwaitFullSpace(session)
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            // 3. Hide the main panel so it does not interfere with the spatial panel test, then
+            // 2. Hide the main panel so it does not interfere with the spatial panel test, then
             // create the PanelEntity under test.
-            session.scene.mainPanelEntity.setEnabled(false)
-            panelEntity =
-                createSpatialPanel(activity, panelName, "This is Custom Movable Spatial Panel")
+            try {
+                session.scene.mainPanelEntity.setEnabled(false)
+                val panelEntity =
+                    createSpatialPanel(
+                        activity,
+                        session,
+                        panelName,
+                        "This is Custom Movable Spatial Panel",
+                    )
 
-            // 4. Create the MovableComponent (custom movable) and attach it to the panel entity.
-            val movableComponent =
-                MovableComponent.createCustomMovable(
-                    session = session,
-                    scaleInZ = false,
-                    executor = null,
-                    entityMoveListener = moveListener,
-                )
-            assertThat(panelEntity.addComponent(movableComponent)).isTrue()
+                // 3. Create the MovableComponent (custom movable) and attach it to the panel
+                // entity.
+                val movableComponent =
+                    MovableComponent.createCustomMovable(
+                        session = session,
+                        scaleInZ = false,
+                        executor = null,
+                        entityMoveListener = moveListener,
+                    )
+                assertThat(panelEntity.addComponent(movableComponent)).isTrue()
+
+                // Wait for the UI and the scene graph to sync before sampling the pose.
+                withContext(Dispatchers.IO) {
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                }
+                val initialPosition = panelEntity.getPose(Space.ACTIVITY).translation
+
+                // 4. Grab the panel by its move affordance and drag it.
+                withContext(Dispatchers.IO) {
+                    findPanelNode(panelName).performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
+                }
+
+                // 5. Wait for the move to end and verify that every move callback fired and that
+                // the panel entity pose was updated by the listener.
+                awaitMoveEnd(moveListener)
+                val distanceMoved =
+                    (panelEntity.getPose(Space.ACTIVITY).translation - initialPosition).length
+                assertThat(moveListener.onMoveStartCalled).isTrue()
+                assertThat(moveListener.onMoveUpdateCalled).isTrue()
+                assertThat(moveListener.onMoveEndCalled).isTrue()
+                assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
+            } finally {
+                // Restore main panel visibility before closing the session, since it is backed by
+                // the task-scoped window leash node.
+                session.scene.mainPanelEntity.setEnabled(true)
+            }
         }
-
-        // Wait for the UI and the scene graph to sync before sampling the pose.
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        val initialPosition = activitySpacePosition(panelEntity)
-
-        // 5. Grab the panel by its move affordance and drag it.
-        findPanelNode(panelName).performSpatialInteraction { moveNodeBy(MOVE_DELTA) }
-
-        // 6. Wait for the move to end and verify that every move callback fired and that the panel
-        // entity pose was updated by the listener.
-        awaitMoveEnd(moveListener)
-        val distanceMoved = (activitySpacePosition(panelEntity) - initialPosition).length
-        assertThat(moveListener.onMoveStartCalled).isTrue()
-        assertThat(moveListener.onMoveUpdateCalled).isTrue()
-        assertThat(moveListener.onMoveEndCalled).isTrue()
-        assertThat(distanceMoved).isGreaterThan(MIN_MOVE_DISTANCE_METERS)
-    }
 
     /**
      * Creates a [PanelEntity] named [name] that hosts a [ComposeView] displaying [text].
@@ -274,6 +280,7 @@ class MovableComponentTest {
      */
     private fun createSpatialPanel(
         activity: ComponentActivity,
+        session: Session,
         name: String,
         text: String,
     ): PanelEntity {
@@ -340,20 +347,11 @@ class MovableComponentTest {
         }
     }
 
-    /** Reads the translation of [entity] in ActivitySpace on the main thread. */
-    private fun activitySpacePosition(entity: Entity): Vector3 {
-        lateinit var position: Vector3
-        activityScenarioRule.scenario.onActivity {
-            position = entity.getPose(Space.ACTIVITY).translation
-        }
-        return position
-    }
-
-    /** Blocks until [listener] has reported the end of the move, and fails on timeout. */
-    private fun awaitMoveEnd(listener: RecordingMoveListener) {
+    /** Suspends until [listener] has reported the end of the move, and fails on timeout. */
+    private suspend fun awaitMoveEnd(listener: RecordingMoveListener) {
         assertWithMessage("Timed out waiting for the move to end")
-            .that(listener.moveLatch.await(MOVE_TIMEOUT_SECONDS, TimeUnit.SECONDS))
-            .isTrue()
+            .that(withTimeoutOrNull(MOVE_TIMEOUT) { listener.moveEnded.await() })
+            .isNotNull()
     }
 
     private val packageName: String
@@ -361,7 +359,7 @@ class MovableComponentTest {
 
     private companion object {
         /** Timeout applied when waiting for a move to be reported by the component. */
-        const val MOVE_TIMEOUT_SECONDS = 5L
+        val MOVE_TIMEOUT = 5.seconds
 
         /** Name of the task scoped node that backs the main panel. */
         const val MAIN_PANEL_NODE_NAME = "MainPanelAndTaskWindowLeashNode"
@@ -388,18 +386,18 @@ class MovableComponentTest {
 }
 
 /**
- * An [EntityMoveListener] that records which callbacks were invoked, and counts [moveLatch] down
- * once the move has ended.
+ * An [EntityMoveListener] that records which callbacks were invoked, and completes [moveEnded] once
+ * the move has ended.
  *
  * @param applyMoveToEntity whether the reported transform should be written back to the entity. A
  *   custom movable component only reports the move and leaves it to the app to apply it, whereas a
  *   system movable component is moved by the system itself.
  */
 private class RecordingMoveListener(private val applyMoveToEntity: Boolean) : EntityMoveListener {
-    val moveLatch: CountDownLatch = CountDownLatch(1)
+    val moveEnded = CompletableDeferred<Unit>()
 
     // These flags are written on the callback thread and read by the test thread only after
-    // moveLatch has been counted down, which establishes the required happens-before edge.
+    // moveEnded.await() returns, which establishes the required happens-before edge.
     var onMoveStartCalled: Boolean = false
         private set
 
@@ -444,7 +442,7 @@ private class RecordingMoveListener(private val applyMoveToEntity: Boolean) : En
             entity.setPose(finalPose)
             entity.setScale(finalScale)
         }
-        moveLatch.countDown()
+        moveEnded.complete(Unit)
     }
 }
 

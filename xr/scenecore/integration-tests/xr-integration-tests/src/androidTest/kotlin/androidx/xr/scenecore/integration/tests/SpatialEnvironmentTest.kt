@@ -24,7 +24,6 @@ import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
-import androidx.xr.scenecore.Scene
 import androidx.xr.scenecore.SpatialCapability
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SpatialEnvironment.SpatialEnvironmentPreference
@@ -68,7 +67,7 @@ class SpatialEnvironmentTest {
     @XrDeviceTest
     fun appEnvironment_setAndClear_attachesGeometryAndUpdatesActiveState() =
         runTestWithSession { session ->
-            session.scene.requestSpaceModeAndAwait(fullSpace = true)
+            session.scene.requestFullSpaceAndAwait()
             val env = session.scene.spatialEnvironment
             assertThat(session.scene.spatialCapabilities)
                 .contains(SpatialCapability.APP_ENVIRONMENT)
@@ -108,7 +107,7 @@ class SpatialEnvironmentTest {
     @Test
     @XrDeviceTest
     fun appEnvironment_swapIblOrGeometry_keepsEnvironmentActive() = runTestWithSession { session ->
-        session.scene.requestSpaceModeAndAwait(fullSpace = true)
+        session.scene.requestFullSpaceAndAwait()
         val env = session.scene.spatialEnvironment
         assertThat(session.scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
 
@@ -172,7 +171,7 @@ class SpatialEnvironmentTest {
     @XrDeviceTest
     fun appEnvironment_blackVoidPreference_isDistinctFromSystemDefault() =
         runTestWithSession { session ->
-            session.scene.requestSpaceModeAndAwait(fullSpace = true)
+            session.scene.requestFullSpaceAndAwait()
             val env = session.scene.spatialEnvironment
             assertThat(session.scene.spatialCapabilities)
                 .contains(SpatialCapability.APP_ENVIRONMENT)
@@ -199,7 +198,7 @@ class SpatialEnvironmentTest {
     @SuppressLint("RestrictedApiAndroidX")
     fun geometryEntity_setAndClear_movesEntitySubspaceUnderEnvironmentRoot() =
         runTestWithSession { activity, session ->
-            session.scene.requestSpaceModeAndAwait(fullSpace = true)
+            session.scene.requestFullSpaceAndAwait()
             val env = session.scene.spatialEnvironment
             assertThat(session.scene.spatialCapabilities)
                 .contains(SpatialCapability.APP_ENVIRONMENT)
@@ -251,7 +250,7 @@ class SpatialEnvironmentTest {
     @XrDeviceTest
     fun passthroughOpacity_inFullSpaceMode_updatesCurrentOpacityAndNotifiesListeners() =
         runTestWithSession { session ->
-            session.scene.requestSpaceModeAndAwait(fullSpace = true)
+            session.scene.requestFullSpaceAndAwait()
             val env = session.scene.spatialEnvironment
             assertThat(session.scene.spatialCapabilities)
                 .contains(SpatialCapability.PASSTHROUGH_CONTROL)
@@ -306,7 +305,7 @@ class SpatialEnvironmentTest {
     @XrDeviceTest
     fun spaceModeToggle_betweenFullSpaceAndHomeSpace_updatesCapabilitiesAndEnvironmentActiveState() =
         runTestWithSession { session ->
-            session.scene.requestSpaceModeAndAwait(fullSpace = true)
+            session.scene.requestFullSpaceAndAwait()
             val env = session.scene.spatialEnvironment
 
             val blueIbl =
@@ -323,7 +322,7 @@ class SpatialEnvironmentTest {
                 assertThat(session.scene.activitySpace.bounds.width)
                     .isEqualTo(Float.POSITIVE_INFINITY)
 
-                session.scene.requestSpaceModeAndAwait(fullSpace = false)
+                session.scene.requestHomeSpaceAndAwait()
                 assertThat(session.scene.spatialCapabilities)
                     .doesNotContain(SpatialCapability.APP_ENVIRONMENT)
                 assertThat(session.scene.activitySpace.bounds.width)
@@ -334,7 +333,7 @@ class SpatialEnvironmentTest {
                 // The preference itself remains retained across HSM transitions
                 assertThat(env.preferredSpatialEnvironment).isEqualTo(targetPref)
 
-                session.scene.requestSpaceModeAndAwait(fullSpace = true)
+                session.scene.requestFullSpaceAndAwait()
                 assertThat(session.scene.spatialCapabilities)
                     .contains(SpatialCapability.APP_ENVIRONMENT)
                 assertThat(session.scene.activitySpace.bounds.width)
@@ -349,28 +348,6 @@ class SpatialEnvironmentTest {
                 geometry.close()
             }
         }
-
-    /**
-     * Requests Full Space Mode ([fullSpace] is true) or Home Space Mode, and suspends until
-     * [SpatialCapability.SPATIAL_UI] reflects the requested mode.
-     */
-    private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
-        val reached = CompletableDeferred<Unit>()
-        val listener =
-            Consumer<Set<SpatialCapability>> { capabilities ->
-                if (capabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) {
-                    reached.complete(Unit)
-                }
-            }
-        addSpatialCapabilitiesChangedListener(listener)
-        try {
-            if (spatialCapabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) return
-            if (fullSpace) requestFullSpace() else requestHomeSpace()
-            withTimeout(CALLBACK_TIMEOUT) { reached.await() }
-        } finally {
-            removeSpatialCapabilitiesChangedListener(listener)
-        }
-    }
 
     /**
      * Sets [preference] and yields the main thread once, so that the geometry attachment coroutine
