@@ -191,7 +191,7 @@ internal class SelectableTextAnnotatedStringNode(
         autoSize: TextAutoSize?,
     ) {
         textAnnotatedStringNode.doInvalidations(
-            drawChanged = textAnnotatedStringNode.updateDraw(color, style),
+            drawChanged = textAnnotatedStringNode.updateDraw(color, style, text),
             textChanged = textAnnotatedStringNode.updateText(text = text),
             layoutChanged =
                 textAnnotatedStringNode.updateLayoutRelatedArgs(
