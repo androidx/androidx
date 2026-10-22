@@ -24,7 +24,7 @@ import androidx.work.Logger;
 import androidx.work.impl.WorkManagerImpl;
 
 /**
- * Reschedules alarms on BOOT_COMPLETED.
+ * Reschedules work on {@code BOOT_COMPLETED}.
  */
 public class RescheduleReceiver extends BroadcastReceiver {
 

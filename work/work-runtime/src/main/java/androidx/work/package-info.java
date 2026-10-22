@@ -66,13 +66,8 @@
  *     <li>{@code android.intent.action.DEVICE_STORAGE_OK}</li>
  *     <li>{@code android.net.conn.CONNECTIVITY_CHANGE}</li>
  * </ul>
- * In addition, WorkManager listens to system time changes and reboots to properly reschedule work
- * in certain situations.  For this, it listens to the following Intents:
- * <p><ul>
- *     <li>{@code android.intent.action.BOOT_COMPLETED}</li>
- *     <li>{@code android.intent.action.TIME_SET}</li>
- *     <li>{@code android.intent.action.TIMEZONE_CHANGED}</li>
- * </ul>
+ * In addition, WorkManager listens to {@code android.intent.action.BOOT_COMPLETED} to properly
+ * reschedule work after the device reboots.
  * <p>
  * WorkManager uses the following permissions:
  * <p><ul>
