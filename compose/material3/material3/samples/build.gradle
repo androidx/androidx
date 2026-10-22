@@ -50,7 +50,7 @@ dependencies {
     implementation("androidx.savedstate:savedstate-ktx:1.2.1")
     implementation("androidx.compose.ui:ui-tooling:1.8.1")
     implementation("androidx.compose.ui:ui-tooling-preview:1.8.1")
-    implementation("androidx.graphics:graphics-shapes:1.0.1")
+    implementation("androidx.graphics:graphics-shapes:1.1.0")
 }
 
 androidx {
