@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.actions.ValueFloatChange
 import androidx.compose.remote.creation.actions.ValueStringChange
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
@@ -239,7 +240,7 @@ class DslComparisonTest {
                         modifier = Modifier.padding(10f),
                         fontSize = 32.rsp,
                         color = 0xFFFFFFFF.toInt(),
-                        fontWeight = 700f,
+                        fontWeight = RcFontWeight.Bold,
                         textAlign = RcTextAlign.Center, // CENTER
                         maxLines = 1,
                     )
@@ -459,7 +460,7 @@ class DslComparisonTest {
         val plainBytes =
             createRcBuffer(profile, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
         val compressedBytes =
-            createRcBuffer(profile, compress, experimental = true) { drawLine(0f, 0f, 100f, 100f) }
+            createRcBuffer(profile, experimental = true, compress) { drawLine(0f, 0f, 100f, 100f) }
 
         assertThat(compressedBytes).isEqualTo(Header.compressDocument(plainBytes, plainBytes.size))
     }

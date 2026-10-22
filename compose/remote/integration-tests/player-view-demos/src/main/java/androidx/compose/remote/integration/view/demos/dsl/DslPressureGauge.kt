@@ -38,10 +38,10 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 public fun dslDemoPressureGauge(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 500),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Pressure Gauge"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF4A6DA7.toInt())) {
             val w = componentWidth()

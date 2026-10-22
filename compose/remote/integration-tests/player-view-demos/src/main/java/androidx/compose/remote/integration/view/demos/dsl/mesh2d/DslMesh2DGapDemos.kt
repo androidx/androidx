@@ -63,13 +63,13 @@ private const val MUTED_SLATE = 0xFF475569.toInt()
 public fun dslMesh2DDefaultGeometry(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(
             Header.DOC_CONTENT_DESCRIPTION,
             "Mesh2D default geometry and apex fallback",
         ),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()
@@ -251,13 +251,13 @@ public fun dslMesh2DTexturedValues(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(
             Header.DOC_CONTENT_DESCRIPTION,
             "Mesh2D textured literal values and null colors",
         ),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()
@@ -358,13 +358,13 @@ public fun dslMesh2DTexturedValues(): ByteArray {
 public fun dslMesh2DInvisibleScaffold(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(
             Header.DOC_CONTENT_DESCRIPTION,
             "Mesh2D invisible matrix scaffold",
         ),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()

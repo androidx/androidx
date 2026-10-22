@@ -41,7 +41,7 @@ public fun dslFontAxisDemo(): ByteArray {
             // Title header
             Text(
                 text = "Variable Font Axis Demo",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 36.rsp,
                 textAlign = RcTextAlign.Center,
@@ -53,7 +53,7 @@ public fun dslFontAxisDemo(): ByteArray {
             // Slider label
             Text(
                 text = "Drag slider to adjust Font Axis 'wght' (100 - 900)",
-                weight = RcWeight.Medium,
+                fontWeight = RcFontWeight.Medium,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 20.rsp,
                 textAlign = RcTextAlign.Start,

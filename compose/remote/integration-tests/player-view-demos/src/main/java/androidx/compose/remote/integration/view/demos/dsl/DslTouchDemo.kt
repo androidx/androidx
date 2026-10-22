@@ -40,7 +40,7 @@ public fun dslTouchDemo(): ByteArray {
             // Header title
             Text(
                 text = "Interactive DSL Touch & Haptic Showcase",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 32.rsp,
                 textAlign = RcTextAlign.Center,
@@ -192,7 +192,7 @@ public fun dslTouchDemo(): ByteArray {
 private fun RcScope.sectionLabel(text: String) {
     Text(
         text = text,
-        weight = RcWeight.SemiBold,
+        fontWeight = RcFontWeight.SemiBold,
         modifier = Modifier.fillMaxWidth().padding(top = 8f, bottom = 8f),
         fontSize = 18.rsp,
         textAlign = RcTextAlign.Start,

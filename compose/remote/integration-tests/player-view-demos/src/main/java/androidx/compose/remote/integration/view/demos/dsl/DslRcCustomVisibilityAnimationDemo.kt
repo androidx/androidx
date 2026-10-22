@@ -729,10 +729,10 @@ private const val SHADER_SNAP_DUST_AGSL =
 public fun dslRcCustomVisibilityAnimationDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         HTag(Header.DOC_WIDTH, 360),
         HTag(Header.DOC_HEIGHT, 680),
         HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
-        experimental = true,
     ) {
         val visState1 = remoteNamedInteger("vis1", Component.Visibility.VISIBLE)
         val visState2 = remoteNamedInteger("vis2", Component.Visibility.VISIBLE)

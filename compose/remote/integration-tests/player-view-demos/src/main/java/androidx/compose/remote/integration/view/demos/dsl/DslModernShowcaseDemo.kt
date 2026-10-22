@@ -44,7 +44,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
             // Header Title
             Text(
                 text = "Premium Kotlin DSL Showcase",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 38.rsp,
                 textAlign = RcTextAlign.Center,
@@ -53,7 +53,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
             Spacer(Modifier.height(8.rdp))
             Text(
                 text = "Fully Architected Modern Type-Safe DSL",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 22.rsp,
                 textAlign = RcTextAlign.Center,
@@ -145,7 +145,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                 val merged = baseTxt merge extTxt
                 Text(
                     text = merged,
-                    weight = RcWeight.Bold,
+                    fontWeight = RcFontWeight.Bold,
                     fontSize = 42.rsp,
                     color = 0xFFF59E0B.toInt(),
                 )
@@ -153,7 +153,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                 val sub = baseTxt.subtext(0f, 4f)
                 Text(
                     text = sub,
-                    weight = RcWeight.SemiBold,
+                    fontWeight = RcFontWeight.SemiBold,
                     fontSize = 42.rsp,
                     color = 0xFFEC4899.toInt(),
                 )
@@ -180,7 +180,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                 ) {
                     Text(
                         text = "FitBox Parity",
-                        weight = RcWeight.Bold,
+                        fontWeight = RcFontWeight.Bold,
                         color = 0xFFFFFFFF.toInt(),
                         fontSize = 32.rsp,
                     )

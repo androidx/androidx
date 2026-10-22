@@ -47,7 +47,7 @@ public fun dslDrawWithContentDemo(): ByteArray {
             // Title
             Text(
                 text = "Draw Interception \n& Ripple",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 120.rsp,
                 textAlign = RcTextAlign.Center,
@@ -60,7 +60,7 @@ public fun dslDrawWithContentDemo(): ByteArray {
             Text(
                 text =
                     "Below is an interactive card.\n Click to trigger Ripple. The custom borders and background are painted dynamically using drawWithContent.",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 60.rsp,
                 textAlign = RcTextAlign.Center,
@@ -129,7 +129,7 @@ public fun dslDrawWithContentDemo(): ByteArray {
                 ) {
                     Text(
                         text = "INTERACTIVE HUD",
-                        weight = RcWeight.Bold,
+                        fontWeight = RcFontWeight.Bold,
                         fontSize = 28.rsp,
                         textAlign = RcTextAlign.Center,
                         color = 0xFF00FFCC.toInt(),
@@ -139,7 +139,7 @@ public fun dslDrawWithContentDemo(): ByteArray {
 
                     Text(
                         text = "TAP TO TRIGGER RIPPLE",
-                        weight = RcWeight.Medium,
+                        fontWeight = RcFontWeight.Medium,
                         fontSize = 18.rsp,
                         textAlign = RcTextAlign.Center,
                         color = 0xFFE2E8F0.toInt(),

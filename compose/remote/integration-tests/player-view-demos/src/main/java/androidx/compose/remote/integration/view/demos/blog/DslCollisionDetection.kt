@@ -51,10 +51,10 @@ import androidx.compose.ui.tooling.preview.Preview
 public fun dslCollisionDetection(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Collision Detection"),
-        experimental = true,
     ) {
         Box(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             Canvas(modifier = Modifier.fillMaxSize().onTouchDown {}) {

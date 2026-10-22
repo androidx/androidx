@@ -20,12 +20,12 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
 import androidx.compose.remote.creation.dsl.RcTileMode
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.arrayMax
 import androidx.compose.remote.creation.dsl.arrayMin
 import androidx.compose.remote.creation.dsl.arraySpline
@@ -79,10 +79,10 @@ public fun dslDemoStockSparkline(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 350),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Stock Sparkline"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF1C1C1E.toInt())) {
             val w = componentWidth()
@@ -110,7 +110,7 @@ public fun dslDemoStockSparkline(): ByteArray {
                 color(0xFFFFFFFF.toInt())
                 style(RcPaintStyle.Fill)
                 textSize((density * 32f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             val priceText =
                 createTextFromFloat(

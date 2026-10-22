@@ -20,9 +20,9 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -43,7 +43,7 @@ import kotlin.math.sin
  * Demonstrates:
  * - Mixed Float / RcFloat in drawSector — converted via `currentAngle.rf` etc. so the all-RcFloat
  *   overload matches.
- * - Typed `typeface(RcFontType.Default, RcWeight.Bold)` for bold legend labels.
+ * - Typed `typeface(RcFontType.Default, RcFontWeight.Bold)` for bold legend labels.
  */
 @Suppress("RestrictedApiAndroidX")
 public fun dslPieChart(): ByteArray {
@@ -60,10 +60,10 @@ public fun dslPieChart(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 500),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Pie Chart Demo"),
-        experimental = true,
     ) {
         Box(modifier = Modifier.fillMaxSize().background(0xFFF0F0F0.toInt())) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -118,7 +118,7 @@ public fun dslPieChart(): ByteArray {
                         color(0xFFFFFFFF.toInt())
                         textSize(24f)
                         style(RcPaintStyle.Fill)
-                        typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                        typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
                     }
                     val textId = remoteText(names[i])
                     drawTextAnchored(textId, lx, ly, 0.5f.rf, 0.5f.rf, 0)

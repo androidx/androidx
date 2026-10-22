@@ -23,8 +23,8 @@ import androidx.compose.remote.creation.RemoteComposeWriter.HTag
 
 private fun createRcBufferInternal(
     profile: RcProfile,
-    vararg tags: HTag,
     experimental: Boolean = false,
+    vararg tags: HTag,
     contentExecution: (RemoteComposeWriter, RcScope) -> Unit,
 ): ByteArray {
     val isExperimental = experimental || profile.experimental
@@ -83,10 +83,24 @@ private fun createRcBufferInternal(
 public fun createRcBuffer(
     profile: RcProfile,
     vararg tags: HTag,
-    experimental: Boolean = false,
     content: RcScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, *tags, experimental = experimental) { writer, scope ->
+    createRcBufferInternal(profile, experimental = false, *tags) { writer, scope ->
+        writer.root { scope.content() }
+    }
+
+/**
+ * Top-level builder for creating a serialized RemoteCompose document with an explicit
+ * [experimental] flag. It will also create root.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun createRcBuffer(
+    profile: RcProfile,
+    experimental: Boolean,
+    vararg tags: HTag,
+    content: RcScope.() -> Unit,
+): ByteArray =
+    createRcBufferInternal(profile, experimental, *tags) { writer, scope ->
         writer.root { scope.content() }
     }
 
@@ -95,10 +109,24 @@ public fun createRcBuffer(
 public fun createRawRcBuffer(
     profile: RcProfile,
     vararg tags: HTag,
-    experimental: Boolean = false,
     content: RcScope.() -> Unit,
 ): ByteArray =
-    createRcBufferInternal(profile, *tags, experimental = experimental) { _, scope ->
+    createRcBufferInternal(profile, experimental = false, *tags) { _, scope ->
+        scope.content()
+    }
+
+/**
+ * Top-level builder for creating a serialized RemoteCompose document with an explicit
+ * [experimental] flag, without creating root.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun createRawRcBuffer(
+    profile: RcProfile,
+    experimental: Boolean,
+    vararg tags: HTag,
+    content: RcScope.() -> Unit,
+): ByteArray =
+    createRcBufferInternal(profile, experimental, *tags) { _, scope ->
         scope.content()
     }
 

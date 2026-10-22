@@ -20,11 +20,11 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -39,7 +39,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
  *
  * Demonstrates:
  * - `remoteFloatArray(...)` to register a float-array resource and indexing via `arr.get(i.rf)`.
- * - Typed `typeface(RcFontType.Default, RcWeight.Bold)` (B6).
+ * - Typed `typeface(RcFontType.Default, RcFontWeight.Bold)` (B6).
  * - `RcTextFromFloatSpec.of(padPre = PadPre.None)` for the percentage formatting.
  */
 @Suppress("RestrictedApiAndroidX")
@@ -51,10 +51,10 @@ public fun dslDemoActivityRings(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Activity Rings"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF1C1C1E.toInt())) {
             val w = componentWidth()
@@ -99,7 +99,7 @@ public fun dslDemoActivityRings(): ByteArray {
                 paint {
                     color(ringColors[i])
                     textSize((density * 22f).toFloat())
-                    typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                    typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
                 }
                 val pctText =
                     createTextFromFloat(
@@ -113,7 +113,7 @@ public fun dslDemoActivityRings(): ByteArray {
 
                 paint {
                     textSize((density * 11f).toFloat())
-                    typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+                    typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
                 }
                 val labelText = remoteText(labels[i])
                 drawTextAnchored(labelText, labelX, labelY, 0f.rf, 2.5f.rf, 0)
