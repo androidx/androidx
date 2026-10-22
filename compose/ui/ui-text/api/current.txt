@@ -21,6 +21,7 @@ package androidx.compose.ui.text {
     method @BytecodeOnly public char charAt(int);
     method public androidx.compose.ui.text.AnnotatedString flatMapAnnotations(kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<? extends androidx.compose.ui.text.AnnotatedString.Annotation>,? extends java.util.List<? extends androidx.compose.ui.text.AnnotatedString.Range<? extends androidx.compose.ui.text.AnnotatedString.Annotation>>> transform);
     method public operator char get(int index);
+    method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.DrawAnnotation>> getDrawAnnotations(int start, int end);
     method @InaccessibleFromKotlin public int getLength();
     method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>> getLinkAnnotations(int start, int end);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle>> getParagraphStyles();
@@ -30,8 +31,11 @@ package androidx.compose.ui.text {
     method @InaccessibleFromKotlin public String getText();
     method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.TtsAnnotation>> getTtsAnnotations(int start, int end);
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.UrlAnnotation>> getUrlAnnotations(int start, int end);
+    method public boolean hasDrawAnnotations(int start, int end);
     method public boolean hasEqualAnnotations(androidx.compose.ui.text.AnnotatedString other);
     method public boolean hasLinkAnnotations(int start, int end);
+    method public boolean hasSameDrawAffectingAnnotations(androidx.compose.ui.text.AnnotatedString other);
+    method public boolean hasSameLayoutAffectingAnnotations(androidx.compose.ui.text.AnnotatedString other);
     method public boolean hasStringAnnotations(String tag, int start, int end);
     method @BytecodeOnly public int length();
     method public androidx.compose.ui.text.AnnotatedString mapAnnotations(kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<? extends androidx.compose.ui.text.AnnotatedString.Annotation>,? extends androidx.compose.ui.text.AnnotatedString.Range<? extends androidx.compose.ui.text.AnnotatedString.Annotation>> transform);
@@ -64,6 +68,7 @@ package androidx.compose.ui.text {
     method @KotlinOnly public void addBullet(androidx.compose.ui.text.Bullet bullet, androidx.compose.ui.unit.TextUnit indentation, int start, int end);
     method public void addBullet(androidx.compose.ui.text.Bullet bullet, int start, int end);
     method @BytecodeOnly public void addBullet-r9BaKPg(androidx.compose.ui.text.Bullet, long, int, int);
+    method public void addDrawAnnotation(androidx.compose.ui.text.DrawAnnotation drawAnnotation, int start, int end);
     method public void addLink(androidx.compose.ui.text.LinkAnnotation.Clickable clickable, int start, int end);
     method public void addLink(androidx.compose.ui.text.LinkAnnotation.Url url, int start, int end);
     method public void addStringAnnotation(String tag, String annotation, int start, int end);
@@ -143,6 +148,7 @@ package androidx.compose.ui.text {
     method public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.TtsAnnotation ttsAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.UrlAnnotation urlAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, String tag, String annotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
+    method public static inline <R> R withDrawAnnotation(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.DrawAnnotation drawAnnotation, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withLink(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.LinkAnnotation link, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.ParagraphStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method public static inline <R> R withStyle(androidx.compose.ui.text.AnnotatedString.Builder, androidx.compose.ui.text.SpanStyle style, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
@@ -181,6 +187,28 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.unit.TextUnit DefaultIndentation;
     property public androidx.compose.ui.unit.TextUnit DefaultPadding;
     property public androidx.compose.ui.unit.TextUnit DefaultSize;
+  }
+
+  @androidx.compose.runtime.Stable public abstract class DrawAnnotation implements androidx.compose.ui.text.AnnotatedString.Annotation {
+    ctor public DrawAnnotation();
+    method public void drawBehind(androidx.compose.ui.text.DrawAnnotationScope);
+    method public void drawOver(androidx.compose.ui.text.DrawAnnotationScope);
+    method public abstract boolean equals(Object? other);
+    method public abstract int hashCode();
+  }
+
+  public final class DrawAnnotationKt {
+    method public static androidx.compose.ui.text.DrawAnnotation DrawAnnotation(optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.DrawAnnotationScope,kotlin.Unit>? drawBehind, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.DrawAnnotationScope,kotlin.Unit>? drawOver);
+    method @BytecodeOnly public static androidx.compose.ui.text.DrawAnnotation! DrawAnnotation$default(kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public interface DrawAnnotationScope extends androidx.compose.ui.graphics.drawscope.DrawScope {
+    method @InaccessibleFromKotlin public int getEnd();
+    method @InaccessibleFromKotlin public int getStart();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.TextLayoutResult getTextLayoutResult();
+    property public abstract int end;
+    property public abstract int start;
+    property public abstract androidx.compose.ui.text.TextLayoutResult textLayoutResult;
   }
 
   @kotlin.jvm.JvmInline public final value class EmojiSupportMatch {

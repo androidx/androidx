@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isSpecified
@@ -53,6 +54,7 @@ import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.DrawAnnotationScope
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 
@@ -90,6 +93,12 @@ internal class TextAnnotatedStringNode(
 
     @Suppress("PrimitiveInCollection")
     private var baselineCache: MutableMap<AlignmentLine, Int>? = null
+
+    /**
+     * Reusable [DrawAnnotationScopeImpl] instance cached across draw frames to avoid allocating a
+     * new scope wrapper on each draw pass when `DrawAnnotation`s are present.
+     */
+    private var drawAnnotationScope: DrawAnnotationScopeImpl? = null
 
     private var _layoutCache: MultiParagraphLayoutCache? = null
     private val layoutCache: MultiParagraphLayoutCache
@@ -130,29 +139,34 @@ internal class TextAnnotatedStringNode(
     }
 
     /** Element has draw parameters to update */
-    fun updateDraw(color: ColorProducer?, style: TextStyle): Boolean {
+    fun updateDraw(
+        color: ColorProducer?,
+        style: TextStyle,
+        text: AnnotatedString = this.text,
+    ): Boolean {
         var changed = false
         if (color != this.overrideColor) {
             changed = true
         }
         overrideColor = color
-        changed = changed || !style.hasSameDrawAffectingAttributes(this.style)
+        changed =
+            changed ||
+                !style.hasSameDrawAffectingAttributes(this.style) ||
+                !text.hasSameDrawAffectingAnnotations(this.text)
         return changed
     }
 
     /** Element has text parameters to update */
     internal fun updateText(text: AnnotatedString): Boolean {
         val charDiff = this.text.text != text.text
-        val annotationDiff = !this.text.hasEqualAnnotations(text)
-        val anyDiff = charDiff || annotationDiff
-
-        if (anyDiff) {
+        val layoutTextDiff = charDiff || !this.text.hasSameLayoutAffectingAnnotations(text)
+        if (layoutTextDiff || !this.text.hasSameDrawAffectingAnnotations(text)) {
             this.text = text
         }
         if (charDiff) {
             clearSubstitution()
         }
-        return anyDiff
+        return layoutTextDiff
     }
 
     /** Element has layout parameters to update */
@@ -532,6 +546,28 @@ internal class TextAnnotatedStringNode(
         return contentDrawScope.draw()
     }
 
+    /**
+     * Returns a reusable [DrawAnnotationScopeImpl] bound to this [DrawScope] and updated with
+     * [textLayoutResult] when [activeText] contains at least one `DrawAnnotation`, or `null` when
+     * no draw annotations are present.
+     */
+    private fun DrawScope.getDrawAnnotationScope(
+        activeText: AnnotatedString,
+        textLayoutResult: TextLayoutResult,
+    ): DrawAnnotationScopeImpl? {
+        if (!activeText.hasDrawAnnotations(0, activeText.length)) {
+            drawAnnotationScope = null
+            return null
+        }
+        val existing = drawAnnotationScope
+        return if (existing != null && existing.drawScope === this) {
+            existing.textLayoutResult = textLayoutResult
+            existing
+        } else {
+            DrawAnnotationScopeImpl(this, textLayoutResult).also { drawAnnotationScope = it }
+        }
+    }
+
     override fun ContentDrawScope.draw() {
         if (!isAttached) {
             // no-up for !isAttached. The node will invalidate when attaching again.
@@ -539,11 +575,18 @@ internal class TextAnnotatedStringNode(
         }
 
         selectionController?.draw(this)
+        val layoutCache = getLayoutCache(this)
+        val textLayoutResult = layoutCache.textLayoutResult
+        val localParagraph = textLayoutResult.multiParagraph
+        val willClip = textLayoutResult.hasVisualOverflow && overflow != TextOverflow.Visible
+        val activeText =
+            if (textSubstitution?.isShowingSubstitution == true) {
+                textLayoutResult.layoutInput.text
+            } else {
+                text
+            }
+        val scope = getDrawAnnotationScope(activeText, textLayoutResult)
         drawIntoCanvas { canvas ->
-            val layoutCache = getLayoutCache(this)
-            val textLayoutResult = layoutCache.textLayoutResult
-            val localParagraph = textLayoutResult.multiParagraph
-            val willClip = textLayoutResult.hasVisualOverflow && overflow != TextOverflow.Visible
             if (willClip) {
                 val width = textLayoutResult.size.width.toFloat()
                 val height = textLayoutResult.size.height.toFloat()
@@ -552,6 +595,9 @@ internal class TextAnnotatedStringNode(
                 canvas.clipRect(bounds)
             }
             try {
+                if (scope != null) {
+                    drawDrawAnnotations(activeText, textLayoutResult, scope, isBehind = true)
+                }
                 val textDecoration = style.textDecoration ?: TextDecoration.None
                 val shadow = style.shadow ?: Shadow.None
                 val drawStyle = style.drawStyle ?: Fill
@@ -584,6 +630,9 @@ internal class TextAnnotatedStringNode(
                         decoration = textDecoration,
                     )
                 }
+                if (scope != null) {
+                    drawDrawAnnotations(activeText, textLayoutResult, scope, isBehind = false)
+                }
             } finally {
                 if (willClip) {
                     canvas.restore()
@@ -599,6 +648,40 @@ internal class TextAnnotatedStringNode(
                 }
             if (hasLinks || !placeholders.isNullOrEmpty()) {
                 drawContent()
+            }
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX") // b/329052205
+private class DrawAnnotationScopeImpl(
+    val drawScope: DrawScope,
+    override var textLayoutResult: TextLayoutResult,
+    override var start: Int = 0,
+    override var end: Int = 0,
+) : DrawAnnotationScope, DrawScope by drawScope
+
+private fun DrawScope.drawDrawAnnotations(
+    text: AnnotatedString,
+    textLayoutResult: TextLayoutResult,
+    scope: DrawAnnotationScopeImpl,
+    isBehind: Boolean,
+) {
+    val ranges = text.getDrawAnnotations(0, text.length)
+    if (ranges.isEmpty()) return
+
+    val totalLength = textLayoutResult.layoutInput.text.length
+    scope.textLayoutResult = textLayoutResult
+    ranges.fastForEach { range ->
+        val startOffset = range.start.coerceIn(0, totalLength)
+        val endOffset = range.end.coerceIn(startOffset, totalLength)
+        if (startOffset < endOffset) {
+            scope.start = startOffset
+            scope.end = endOffset
+            if (isBehind) {
+                with(range.item) { scope.drawBehind() }
+            } else {
+                with(range.item) { scope.drawOver() }
             }
         }
     }
