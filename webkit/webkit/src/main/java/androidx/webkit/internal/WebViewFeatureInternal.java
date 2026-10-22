@@ -1144,6 +1144,16 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_STATE,
                     Features.NAVIGATION_LISTENER_NAVIGATION_STATE);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationListener#onNavigationVisible(NavigationState)}
+     */
+    public static final ApiFeature.NoFramework NAVIGATION_LISTENER_NAVIGATION_VISIBLE =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
+                    Features.WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

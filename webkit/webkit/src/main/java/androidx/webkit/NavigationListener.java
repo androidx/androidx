@@ -16,9 +16,15 @@
 
 package androidx.webkit;
 
+import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Page identification and lifecycle APIs.
@@ -47,6 +53,17 @@ import org.jspecify.annotations.NonNull;
  * </ul>
  */
 public interface NavigationListener {
+    /**
+     * Denotes that the onNavigationVisible callback is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @interface ExperimentalOnNavigationVisible {
+    }
+
     /**
      * Called when a navigation starts, including same-document navigations.
      * <p>
@@ -127,6 +144,21 @@ public interface NavigationListener {
      */
     default void onNavigationCompleted(@NonNull NavigationState navigationState) {
         onNavigationCompleted(navigationState.getNavigation());
+    }
+
+    /**
+     * Called when a navigation is made visible
+     * <p>
+     * Note: This method is only called if
+     * {@link WebViewFeature#NAVIGATION_LISTENER_NAVIGATION_VISIBLE} is supported.
+     *
+     * @param navigationState An immutable snapshot of the Navigation's state at the point the
+     * Navigation is visible.
+     */
+    @ExperimentalOnNavigationVisible
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default void onNavigationVisible(@NonNull NavigationState navigationState) {
+
     }
 
     /**

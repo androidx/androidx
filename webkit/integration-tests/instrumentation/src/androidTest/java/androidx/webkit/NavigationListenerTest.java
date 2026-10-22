@@ -174,6 +174,9 @@ public class NavigationListenerTest {
                 mOnNavigationRedirectedStateQueue = new LinkedBlockingQueue<>();
         public final BlockingQueue<NavigationState> mOnNavigationCompletedStateQueue =
                 new LinkedBlockingQueue<>();
+
+        public final BlockingQueue<NavigationState> mOnNavigationVisibleStateQueue =
+                new LinkedBlockingQueue<>();
         public final BlockingQueue<PageState> mOnPageDeletedStateQueue =
                 new LinkedBlockingQueue<>();
         public final BlockingQueue<PageState> mOnPageLoadEventFiredStateQueue =
@@ -201,6 +204,11 @@ public class NavigationListenerTest {
         @Override
         public void onNavigationCompleted(@NonNull NavigationState navigationState) {
             mOnNavigationCompletedStateQueue.add(navigationState);
+        }
+
+        @Override
+        public void onNavigationVisible(@NonNull NavigationState navigationState) {
+            mOnNavigationVisibleStateQueue.add(navigationState);
         }
 
         @Override
@@ -697,6 +705,26 @@ public class NavigationListenerTest {
 
         Assert.assertEquals(onLoadedPage.getUrl(), onLoadedPageState.getUrl());
         Assert.assertEquals(onLoadedPage, onLoadedPageState.getPage());
+    }
+
+    @Test
+    public void testNavivationVisible() {
+        WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_LISTENER_NAVIGATION_VISIBLE);
+
+        String redirectUrl = getRedirectUrl(getSuccessUrl());
+        mWebViewOnUiThread.loadUrl(redirectUrl);
+
+        Navigation startNavigation = waitForNextQueueElement(
+                mStateListener.mOnNavigationStartedStateQueue).getNavigation();
+        Navigation visibleNavigation = waitForNextQueueElement(
+                mStateListener.mOnNavigationVisibleStateQueue).getNavigation();
+
+        Assert.assertNotNull(startNavigation);
+
+        Assert.assertNotNull(visibleNavigation);
+        Assert.assertNotNull(visibleNavigation.getUrl());
+
+        Assert.assertEquals(startNavigation, visibleNavigation);
     }
 
     @NonNull
