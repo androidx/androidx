@@ -39,15 +39,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 private val SPACE_MODE_TIMEOUT = 5.seconds
 
 /**
- * Launches [ComponentActivity], initializes a [Session], awaits the OS ActivitySpace
- * gravity-alignment and unscaling origin update, and executes [testBody].
- *
- * ### ActivitySpace Origin Settlement
- * When an Activity launches in XR, SpaceFlinger initially attaches the Activity under the OS
- * WindowManager task leash with an uncompensated scale factor (~1.75x on standard display
- * densities). Awaiting [androidx.xr.scenecore.ActivitySpace.addOriginChangedListener] ensures that
- * `ActivitySpaceImpl` has received the platform's reference space matrix and applied the unscaling
- * and gravity-alignment node transaction before test assertions run.
+ * Launches [ComponentActivity], initializes a [Session], and executes [testBody], closing the scene
+ * on completion.
  */
 internal inline fun runTestWithSession(
     crossinline testBody: suspend (ComponentActivity, Session) -> Unit
@@ -63,19 +56,9 @@ internal inline fun runTestWithSession(
             val session = (sessionResult as SessionCreateSuccess).session
             session.scene.keyEntity = session.scene.mainPanelEntity
 
-            // Await the initial origin update from the OS to ensure ActivitySpace has been
-            // unscaled and gravity-aligned. Otherwise, SpaceFlinger CPM initially reflects the
-            // uncompensated ~1.75x WindowManager task scale factor until ActivitySpaceImpl
-            // inverts the inherited scale.
-            val originSettled = CompletableDeferred<Unit>()
-            val originListener = Runnable { originSettled.complete(Unit) }
-            session.scene.activitySpace.addOriginChangedListener(originListener)
-
             try {
-                withTimeoutOrNull(2.seconds) { originSettled.await() }
                 testBody(activity, session)
             } finally {
-                session.scene.activitySpace.removeOriginChangedListener(originListener)
                 session.scene.close()
             }
         }
@@ -90,7 +73,8 @@ internal inline fun runTestWithSession(crossinline testBody: suspend (Session) -
 
 /**
  * Requests Full Space Mode via [Scene.requestFullSpace] and suspends until
- * [SpatialCapability.SPATIAL_UI] is present in [Scene.spatialCapabilities].
+ * [SpatialCapability.SPATIAL_UI] is present in [Scene.spatialCapabilities] and, when transitioning
+ * from Home Space Mode, [Scene.activitySpace] has received its origin update.
  */
 internal suspend fun Scene.requestFullSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = true)
 
@@ -101,6 +85,8 @@ internal suspend fun Scene.requestFullSpaceAndAwait() = requestSpaceModeAndAwait
 internal suspend fun Scene.requestHomeSpaceAndAwait() = requestSpaceModeAndAwait(fullSpace = false)
 
 private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
+    if (spatialCapabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) return
+
     val reached = CompletableDeferred<Unit>()
     val listener =
         Consumer<Set<SpatialCapability>> { capabilities ->
@@ -108,12 +94,27 @@ private suspend fun Scene.requestSpaceModeAndAwait(fullSpace: Boolean) {
                 reached.complete(Unit)
             }
         }
+    // Await the initial origin update from the OS when transitioning HSM -> FSM to ensure
+    // ActivitySpace has been unscaled and gravity-aligned.
+    val originSettled = CompletableDeferred<Unit>()
+    val originListener = Runnable { originSettled.complete(Unit) }
+
     addSpatialCapabilitiesChangedListener(listener)
+    if (fullSpace) {
+        activitySpace.addOriginChangedListener(originListener)
+    }
     try {
-        if (spatialCapabilities.contains(SpatialCapability.SPATIAL_UI) == fullSpace) return
-        if (fullSpace) requestFullSpace() else requestHomeSpace()
-        withTimeout(SPACE_MODE_TIMEOUT) { reached.await() }
+        if (spatialCapabilities.contains(SpatialCapability.SPATIAL_UI) != fullSpace) {
+            if (fullSpace) requestFullSpace() else requestHomeSpace()
+            withTimeout(SPACE_MODE_TIMEOUT) { reached.await() }
+            if (fullSpace) {
+                withTimeoutOrNull(2.seconds) { originSettled.await() }
+            }
+        }
     } finally {
+        if (fullSpace) {
+            activitySpace.removeOriginChangedListener(originListener)
+        }
         removeSpatialCapabilitiesChangedListener(listener)
     }
 }
