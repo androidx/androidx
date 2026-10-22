@@ -22,6 +22,12 @@ import androidx.core.util.Preconditions
 
 /** Default shader providers for [GLUtils]. */
 internal object ShaderProviders {
+    /**
+     * The int uniform of the HDR YUV fragment shader telling whether the input is full range (1) or
+     * limited range (0).
+     */
+    const val UNIFORM_IS_INPUT_FULL_RANGE: String = "uIsInputFullRange"
+
     @JvmField
     val DEFAULT_VERTEX_SHADER = createVertexShader(GLUtils.VAR_TEXTURE_COORD, isHdr = false)
 
@@ -62,7 +68,7 @@ internal object ShaderProviders {
             )
         }
         val isHdr = dynamicRange.is10BitHdr
-        val isYuvHdr = (inputFormat == GLUtils.InputFormat.YUV && isHdr)
+        val isYuvHdr = isYuvHdr(dynamicRange, inputFormat)
         return object : ShaderProvider {
             override fun createFragmentShader(
                 samplerVarName: String,
@@ -78,6 +84,14 @@ internal object ShaderProviders {
             }
         }
     }
+
+    /**
+     * Returns whether the default shader for the given [dynamicRange] and [inputFormat] is the HDR
+     * YUV shader, which declares [UNIFORM_IS_INPUT_FULL_RANGE].
+     */
+    @JvmStatic
+    fun isYuvHdr(dynamicRange: DynamicRange, inputFormat: GLUtils.InputFormat): Boolean =
+        dynamicRange.is10BitHdr && inputFormat == GLUtils.InputFormat.YUV
 
     private fun createVertexShader(fragCoordsVarName: String, isHdr: Boolean): String {
         val version = if (isHdr) "#version 300 es" else ""
@@ -175,27 +189,47 @@ internal object ShaderProviders {
             else ""
 
         if (isYuvHdr) {
-            // TODO(b/502166517): This yuvToRgb matrix assumes a specific YUV color space (BT.709).
-            //  The matrix should be selected based on the actual input color space, similar to
-            //  how it's done in Transformer.
-            return """ 
+            // Assumes BT.2020 primaries and matrix coefficients, since the Camera2 10-bit HDR
+            // profiles use BT.2100 colorimetry (HLG10, HDR10, HDR10+, and Dolby Vision 10-bit
+            // output, which is profile 8.4 in practice). The color
+            // range isn't assumed: both the Y offset and the matrix are selected by
+            // UNIFORM_IS_INPUT_FULL_RANGE, which is read from the input data space. The matrices
+            // match media3's color_conversions_es3.glsl.
+            return """
                 #version 300 es
                 #extension GL_EXT_YUV_target : require
                 precision mediump float;
                 uniform __samplerExternal2DY2YEXT $samplerVarName;
                 uniform float uAlphaScale;
+                uniform int $UNIFORM_IS_INPUT_FULL_RANGE;
                 $compositionUniforms
                 in vec2 $fragCoordsVarName;
                 in vec2 vPosition;
                 out vec4 outColor;
 
+                // BT.2020 YUV to RGB matrices in column-major order.
+                const mat3 BT2020_FULL_RANGE_YUV_TO_RGB = mat3(
+                  1.0000f, 1.0000f, 1.0000f,
+                  0.0000f, -0.1646f, 1.8814f,
+                  1.4746f, -0.5714f, 0.0000f
+                );
+                const mat3 BT2020_LIMITED_RANGE_YUV_TO_RGB = mat3(
+                  1.1689f, 1.1689f, 1.1689f,
+                  0.0000f, -0.1881f, 2.1502f,
+                  1.6853f, -0.6530f, 0.0000f
+                );
+
                 vec3 yuvToRgb(vec3 yuv) {
-                  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);
-                  const mat3 yuvToRgbColorMat = mat3(
-                    1.1689f, 1.1689f, 1.1689f,
-                    0.0000f, -0.1881f, 2.1502f,
-                    1.6853f, -0.6530f, 0.0000f
-                  );
+                  vec3 yuvOffset;
+                  mat3 yuvToRgbColorMat;
+                  if ($UNIFORM_IS_INPUT_FULL_RANGE == 1) {
+                    yuvOffset = vec3(0.0, 0.5, 0.5);
+                    yuvToRgbColorMat = BT2020_FULL_RANGE_YUV_TO_RGB;
+                  } else {
+                    // Limited range: Y black level is 64/1024 = 0.0625.
+                    yuvOffset = vec3(0.0625, 0.5, 0.5);
+                    yuvToRgbColorMat = BT2020_LIMITED_RANGE_YUV_TO_RGB;
+                  }
                   return clamp(yuvToRgbColorMat * (yuv - yuvOffset), 0.0, 1.0);
                 }
 

@@ -17,10 +17,12 @@
 package androidx.camera.core.processing
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
+import android.hardware.DataSpace
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.util.Size
 import android.view.Surface
@@ -35,6 +37,13 @@ import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FOR
 import androidx.camera.core.impl.ImageReaderProxy
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.core.processing.HdrYuvInputTestUtil.Y_LIMITED_BLACK
+import androidx.camera.core.processing.HdrYuvInputTestUtil.assertNeutralGray
+import androidx.camera.core.processing.HdrYuvInputTestUtil.assertWithinTolerance
+import androidx.camera.core.processing.HdrYuvInputTestUtil.createP010ImageWriter
+import androidx.camera.core.processing.HdrYuvInputTestUtil.fullRange8BitLevel
+import androidx.camera.core.processing.HdrYuvInputTestUtil.isHdrYuvSamplingSupported
+import androidx.camera.core.processing.HdrYuvInputTestUtil.queueP010Frame
 import androidx.camera.core.processing.util.GLUtils.InputFormat
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.CameraUtil
@@ -45,6 +54,7 @@ import androidx.camera.testing.impl.TestImageUtil.rotateBitmap
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
@@ -59,6 +69,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.fail
+import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
@@ -73,6 +84,7 @@ class DefaultSurfaceProcessorTest {
         private const val JPEG_QUALITY = 100
         private const val WIDTH = 640
         private const val HEIGHT = 480
+        private const val FRAME_TIMEOUT_MS = 5_000L
         private const val CUSTOM_SHADER_FORMAT =
             """
         #extension GL_OES_EGL_image_external : require
@@ -306,6 +318,31 @@ class DefaultSurfaceProcessorTest {
         assertThat(surfaceOutput.isClosed).isTrue()
     }
 
+    @SdkSuppress(minSdkVersion = 33) // HDR and ImageWriter data spaces are supported from API 33.
+    @Test
+    fun hdrYuvInput_limitedRangeDataSpace_limitedBlackMapsToBlack(): Unit = runBlocking {
+        // Limited range black (64) is stretched to 0.
+        val gray =
+            snapshotHdrYuvInputGray(
+                HdrYuvInputTestUtil.bt2020HlgDataSpace(DataSpace.RANGE_LIMITED),
+                Y_LIMITED_BLACK,
+            )
+        assertWithinTolerance(gray, expected = 0)
+    }
+
+    @SdkSuppress(minSdkVersion = 33) // HDR and ImageWriter data spaces are supported from API 33.
+    @Test
+    fun hdrYuvInput_fullRangeDataSpace_codeValueIsNotStretched(): Unit = runBlocking {
+        // In full range, 64 is 64/1023 rather than black. This fails if DefaultSurfaceProcessor
+        // doesn't pass the input range of the frame to the renderer.
+        val gray =
+            snapshotHdrYuvInputGray(
+                HdrYuvInputTestUtil.bt2020HlgDataSpace(DataSpace.RANGE_FULL),
+                Y_LIMITED_BLACK,
+            )
+        assertWithinTolerance(gray, expected = fullRange8BitLevel(Y_LIMITED_BLACK))
+    }
+
     @Test fun render(): Unit = runBlocking { testRender(OutputType.IMAGE_READER) }
 
     @Test
@@ -468,5 +505,79 @@ class DefaultSurfaceProcessorTest {
             }
             true
         } ?: fail("Timed out $timeoutMs milli-second to wait released")
+    }
+
+    /**
+     * Sends a P010 frame filled with [yValue] and neutral chroma in [dataSpace] to an HDR
+     * [DefaultSurfaceProcessor] like a camera stream, takes a snapshot and returns the gray level
+     * (0-255) of the output.
+     */
+    @Suppress("NewApi") // Only called by tests suppressed below API 33.
+    private suspend fun snapshotHdrYuvInputGray(dataSpace: Int, yValue: Int): Int {
+        assumeTrue("HDR YUV sampling is not supported.", isHdrYuvSamplingSupported())
+        createSurfaceProcessor(DynamicRange.HLG_10_BIT)
+        val surfaceRequest =
+            SurfaceRequest(
+                    Size(WIDTH, HEIGHT),
+                    fakeCamera,
+                    DynamicRange.HLG_10_BIT,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED,
+                ) {}
+                .apply { inputSurfaceRequestsToClose.add(this) }
+        surfaceProcessor.onInputSurface(surfaceRequest)
+        // A camera transform makes DefaultSurfaceProcessor sample the HDR input as YUV.
+        surfaceRequest.updateTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                Rect(0, 0, WIDTH, HEIGHT),
+                /*rotationDegrees=*/ 0,
+                Surface.ROTATION_0,
+                /*hasCameraTransform=*/ true,
+                Matrix(),
+                /*mirroring=*/ false,
+            )
+        )
+        val inputSurface = surfaceRequest.deferrableSurface.surface.await()
+        val jpegImageReader =
+            ImageReaderProxys.createIsolatedReader(WIDTH, HEIGHT, ImageFormat.JPEG, 2)
+        surfaceProcessor.onOutputSurface(
+            createSurfaceOutput(
+                surface = jpegImageReader.surface!!,
+                target = CameraEffect.IMAGE_CAPTURE,
+                format = ImageFormat.JPEG,
+            )
+        )
+        surfaceProcessor.snapshot(JPEG_QUALITY, /* rotationDegrees= */ 0)
+        surfaceProcessor.idle()
+
+        val imageWriter = createP010ImageWriter(inputSurface, WIDTH, HEIGHT, dataSpace)
+        try {
+            assumeTrue("P010 ImageWriter is not supported.", imageWriter != null)
+            assumeTrue(
+                "Failed to write a P010 frame by CPU.",
+                queueP010Frame(checkNotNull(imageWriter), WIDTH, HEIGHT, yValue),
+            )
+            // Nothing is rendered if the GPU can't sample P010 buffers written by CPU, in which
+            // case DefaultSurfaceProcessor only logs the updateTexImage() failure. A wrong color
+            // range can't cause this; it would produce a wrong gray level instead.
+            val image = withTimeoutOrNull(FRAME_TIMEOUT_MS) { jpegImageReader.awaitNextImage() }
+            assumeTrue("No frame is rendered from the P010 input.", image != null)
+            val pixel =
+                checkNotNull(image).use {
+                    val byteBuffer = checkNotNull(it.image).planes[0].buffer
+                    val bytes = ByteArray(byteBuffer.remaining()).also { b -> byteBuffer.get(b) }
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        .getPixel(WIDTH / 2, HEIGHT / 2)
+                }
+            assertNeutralGray(pixel)
+            // R, G and B are equal (within tolerance), so any channel can be returned as the gray
+            // level. This is the return value, not a check.
+            return Color.green(pixel)
+        } finally {
+            imageWriter?.close()
+            jpegImageReader.close()
+            // Release the input Surface, otherwise DefaultSurfaceProcessor#release() waits for it
+            // forever. This is what the camera does when it stops using the Surface.
+            surfaceRequest.deferrableSurface.close()
+        }
     }
 }
