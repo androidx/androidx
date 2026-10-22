@@ -16,6 +16,7 @@
 
 package androidx.glance.adaptive.appwidget
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.os.Bundle
@@ -115,6 +116,49 @@ public suspend fun GlanceAdaptiveWidgetManager.requestPin(
         options = options,
         successCallback = successCallback,
     )
+}
+
+/**
+ * Completes the configuration of a widget instance from within its configuration [Activity].
+ *
+ * Stores [widgetId] and [options] in the options of the widget being configured, then sets the
+ * [Activity.RESULT_OK] result expected by the AppWidget host. Call this before [Activity.finish].
+ * Failures to read or store the options of the widget are propagated, and the result is not set if
+ * this throws. Exceptions reach the caller, never the host: if the [Activity] then finishes without
+ * [Activity.RESULT_OK], the host removes a newly placed widget, or keeps the previous configuration
+ * of a reconfigured one.
+ *
+ * This is a blocking call that makes synchronous [android.appwidget.AppWidgetManager] Binder calls
+ * and returns only once the options are stored and the result is set. It is not a suspend function
+ * so that the result is always set before the caller finishes the [Activity].
+ *
+ * Configuration activities are only used by AppWidget hosts, so this operation is provided by this
+ * artifact as an extension rather than by [GlanceAdaptiveWidgetManager] itself.
+ *
+ * @param activity Configuration [Activity] started with
+ *   [android.appwidget.AppWidgetManager.ACTION_APPWIDGET_CONFIGURE].
+ * @param widgetId Optional developer-assigned widget instance String identifier for the configured
+ *   widget. If omitted or blank, the [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] in [options] or
+ *   already stored for the widget is used, or a unique identifier is generated if there is none.
+ * @param options Optional configuration options to store in the options of the configured widget.
+ * @throws IllegalArgumentException if [activity]'s intent does not carry a valid
+ *   [android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID].
+ * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
+ *   if it was created for another surface.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
+    activity: Activity,
+    widgetId: String? = null,
+    options: Bundle = Bundle.EMPTY,
+) {
+    // A local copy, as Kotlin can't smart cast a property declared in another module.
+    val delegate = delegate
+    check(delegate is GlanceAdaptiveAppWidgetDelegate) {
+        "setConfigurationResult requires a GlanceAdaptiveWidgetManager backed by an AppWidget " +
+            "delegate"
+    }
+    delegate.setConfigurationResult(activity = activity, widgetId = widgetId, options = options)
 }
 
 private const val TAG = "GlanceAdaptiveAppWidget"
