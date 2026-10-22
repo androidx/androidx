@@ -53,11 +53,17 @@ class TestLifecycleOwnerInCoroutineDetector : Detector(), SourceCodeScanner {
         testBody.accept(
             object : AbstractUastVisitor() {
                 override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
-                    val resolvedLeft = node.leftOperand.tryResolve() as? PsiField ?: return false
+                    // The node could be the backing field or accessor method of currentState,
+                    // depending on the version of lint used.
+                    val resolvedLeftIsCurrentState =
+                        when (val resolvedLeft = node.leftOperand.tryResolve()) {
+                            is PsiField -> resolvedLeft.name == CurrentState.shortName
+                            is PsiMethod -> resolvedLeft.name == "setCurrentState"
+                            else -> return false
+                        }
                     val resolvedRight = node.rightOperand.tryResolve() as? PsiField ?: return false
                     setsCurrentState =
-                        resolvedLeft.name == CurrentState.shortName &&
-                            isLifecycleState(resolvedRight.name)
+                        resolvedLeftIsCurrentState && isLifecycleState(resolvedRight.name)
                     return setsCurrentState
                 }
             }
