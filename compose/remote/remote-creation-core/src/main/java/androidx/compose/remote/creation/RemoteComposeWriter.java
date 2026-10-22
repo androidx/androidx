@@ -2612,7 +2612,18 @@ public class RemoteComposeWriter {
      * @return the id of the RemoteBitmap
      */
     public int addNamedBitmapUrl(@NonNull String name, @NonNull String url) {
-        int id = addBitmapUrl(url);
+        return addNamedBitmapUrl(name, url, 1, 1);
+    }
+
+    /**
+     * @param name   The String representing the name of the url.
+     * @param url    the initial url
+     * @param width  the bitmap width
+     * @param height the bitmap height
+     * @return the id of the RemoteBitmap
+     */
+    public int addNamedBitmapUrl(@NonNull String name, @NonNull String url, int width, int height) {
+        int id = addBitmapUrl(url, width, height);
         mBuffer.setNamedVariable(id, name, NamedVariable.IMAGE_TYPE);
         return id;
     }

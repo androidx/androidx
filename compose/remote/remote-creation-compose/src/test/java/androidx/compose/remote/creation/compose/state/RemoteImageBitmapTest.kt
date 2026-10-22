@@ -19,13 +19,15 @@ package androidx.compose.remote.creation.compose.state
 import android.graphics.Bitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteImageBitmapTest {
 
     @Test
@@ -67,5 +69,20 @@ class RemoteImageBitmapTest {
 
         val replaced = expr.transform { if (it == scale) 3f.rf else null }
         assertThat(replaced).isNotNull()
+    }
+
+    @Test
+    fun remoteBitmap_namedUrlWithDimensions() {
+        val url = "https://example.com/image.png"
+        val bitmap =
+            RemoteImageBitmap.createNamedRemoteImageBitmap(
+                name = "avatar",
+                url = url,
+                size = IntSize(300, 200),
+            )
+
+        assertThat(bitmap).isNotNull()
+        assertThat(bitmap.cacheKey)
+            .isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "avatar"))
     }
 }
