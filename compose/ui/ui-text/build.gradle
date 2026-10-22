@@ -24,6 +24,7 @@
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -107,4 +108,9 @@ androidx {
     inceptionYear = "2019"
     description = "Compose Text primitives and utilities"
     samples(project(":compose:ui:ui-text:ui-text-samples"))
+}
+
+// b/484004578
+tasks.withType(KotlinCompile).configureEach {
+    incremental = false
 }
