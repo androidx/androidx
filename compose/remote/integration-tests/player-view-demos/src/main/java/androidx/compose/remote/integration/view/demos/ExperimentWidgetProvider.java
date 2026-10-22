@@ -24,13 +24,9 @@ import android.os.Build;
 import android.widget.RemoteViews;
 
 import androidx.annotation.RequiresApi;
-import androidx.compose.remote.core.RemoteComposeBuffer;
-import androidx.compose.remote.core.WireBuffer;
 
 import org.jspecify.annotations.NonNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 
 /** This provide a widget provider for Adnvance Widget Demo */
@@ -75,25 +71,14 @@ public class ExperimentWidgetProvider extends AppWidgetProvider {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @SuppressLint("RestrictedApiAndroidX")
     private RemoteViews loadWidgetFromRemoteComposeContext() {
-        try {
-            byte[] bytes = RawViewActivity.getCurrentDoc();
-            if (bytes == null || bytes.length == 0) {
-                RemoteComposeBuffer doc = ExperimentRecyclerActivity.getCurrentDoc();
-
-                WireBuffer buffer = doc.getBuffer();
-                int bufferSize = buffer.size();
-                bytes = new byte[bufferSize];
-                ByteArrayInputStream b = new ByteArrayInputStream(buffer.getBuffer(), 0,
-                        bufferSize);
-                b.read(bytes);
-            }
-
-            RemoteViews.DrawInstructions.Builder r =
-                    new RemoteViews.DrawInstructions.Builder(List.of(bytes));
-
-            return new RemoteViews(r.build());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        byte[] bytes = RawViewActivity.getCurrentDoc();
+        if (bytes == null || bytes.length == 0) {
+            bytes = ExperimentRecyclerActivity.getCurrentDoc();
         }
+
+        RemoteViews.DrawInstructions.Builder r =
+                new RemoteViews.DrawInstructions.Builder(List.of(bytes));
+
+        return new RemoteViews(r.build());
     }
 }

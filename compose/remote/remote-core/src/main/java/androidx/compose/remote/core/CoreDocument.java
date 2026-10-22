@@ -181,8 +181,6 @@ public class CoreDocument implements Serializable {
 
     int mContentAlignment = RootContentBehavior.ALIGNMENT_CENTER;
 
-    @NonNull RemoteComposeBuffer mBuffer = new RemoteComposeBuffer();
-
     private final HashMap<Long, IntegerExpression> mIntegerExpressions = new HashMap<>();
 
     private final HashMap<Integer, FloatExpression> mFloatExpressions = new HashMap<>();
@@ -411,15 +409,6 @@ public class CoreDocument implements Serializable {
      */
     public float getOriginY() {
         return mOriginY;
-    }
-
-    @NonNull
-    public RemoteComposeBuffer getBuffer() {
-        return mBuffer;
-    }
-
-    public void setBuffer(@NonNull RemoteComposeBuffer buffer) {
-        this.mBuffer = buffer;
     }
 
     @NonNull
@@ -1354,7 +1343,6 @@ public class CoreDocument implements Serializable {
         hasTouchOperations |= finishInflation(mOperations, null, null);
         calculateBitmapMemory();
 
-        mBuffer = buffer;
         for (Operation op : mOperations) {
             if (op instanceof RootLayoutComponent) {
                 mRootLayoutComponent = (RootLayoutComponent) op;
