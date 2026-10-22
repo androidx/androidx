@@ -364,10 +364,9 @@ public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteF
 /**
  * Computes [from] + ([to] - [from]) * [tween].
  *
- * @param from The [RemoteFloat] we're interpolating from, i.e. when [tween] is 0, lerp evaluates to
+ * @param from The [Float] we're interpolating from, i.e. when [tween] is 0, lerp evaluates to
  *   [from]
- * @param to The [RemoteFloat] we're interpolating towards, i.e. when [tween] is 1, lerp evaluates
- *   to [to]
+ * @param to The [Float] we're interpolating towards, i.e. when [tween] is 1, lerp evaluates to [to]
  * @param tween The ratio between [from] and [to] that controls the result.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

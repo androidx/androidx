@@ -155,7 +155,7 @@ internal constructor(
          * a constant to the remote document.
          *
          * @param value The constant [Long] value.
-         * @return A [MutableRemoteLong] representing the constant value.
+         * @return A [RemoteLong] representing the constant value.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public operator fun invoke(value: Long): RemoteLong {

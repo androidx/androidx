@@ -41,7 +41,6 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tracing.Trace
@@ -147,9 +146,10 @@ public fun captureRemoteDocument(
  * - it fails instead of rendering when the composition does not settle, since there will be no
  *   later document to correct an unsettled one;
  * - it does not acquire [SnapshotWriteMonitor]: global writes made by effects are applied by the
- *   explicit [Snapshot.sendApplyNotifications] inside [awaitRecomposerQuiescence], which is enough
- *   for a one-shot capture and avoids starting a process-wide coalescing loop for a short-lived
- *   call ([CaptureWriteTracker] still tracks this capture's own writes);
+ *   explicit [androidx.compose.runtime.snapshots.Snapshot.sendApplyNotifications] inside
+ *   [awaitRecomposerQuiescence], which is enough for a one-shot capture and avoids starting a
+ *   process-wide coalescing loop for a short-lived call ([CaptureWriteTracker] still tracks this
+ *   capture's own writes);
  * - it may run without [RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled].
  */
 private fun captureRemoteDocumentImpl(

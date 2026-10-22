@@ -108,7 +108,7 @@ public sealed interface RemoteModifier {
      * contains no [elements][Element]. Use it to create a new [RemoteModifier] using modifier
      * extension factory functions.
      *
-     * Example: `RemoteModifier.padding(16.rdp).background(RemoteColor.Red)`
+     * Example: `RemoteModifier.padding(16.rdp).background(Color.Red.rc)`
      */
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.

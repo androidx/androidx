@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.text.TextMeasurer
 
 private val DefaultFontSize: RemoteTextUnit = 12.rsp
 
@@ -52,7 +51,7 @@ public fun rememberRemoteTextMeasurer(): RemoteTextMeasurer {
 /**
  * Measures remote text dimensions (width, height, size).
  *
- * Follows the [TextMeasurer] pattern from Compose UI.
+ * Follows the [androidx.compose.ui.text.TextMeasurer] pattern from Compose UI.
  *
  * @param density density of the measurement environment, used for scaling fonts.
  */

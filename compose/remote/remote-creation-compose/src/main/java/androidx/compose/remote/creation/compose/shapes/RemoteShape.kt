@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.shapes
 
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Defines a generic remote shape. */
@@ -29,7 +28,7 @@ public interface RemoteShape {
      * @param size the size of the shape boundary.
      * @param layoutDirection the current layout direction.
      * @param density the remote density to apply to the shape.
-     * @return [Outline] of this shape for the given [size].
+     * @return [RemoteOutline] of this shape for the given [size].
      */
     public fun createOutline(
         size: RemoteSize,

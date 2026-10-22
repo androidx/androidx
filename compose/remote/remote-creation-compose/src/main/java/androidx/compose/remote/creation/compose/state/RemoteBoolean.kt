@@ -264,7 +264,7 @@ internal constructor(
      *
      * @param ifTrue The [RemoteBoolean] to be selected if this boolean is `true`.
      * @param ifFalse The [RemoteBoolean] to be selected if this boolean is `false`.
-     * @return A new [RemoteBoolean] representing the conditionally selected integer value.
+     * @return A new [RemoteBoolean] representing the conditionally selected boolean value.
      */
     public fun select(ifTrue: RemoteBoolean, ifFalse: RemoteBoolean): RemoteBoolean {
         if (ifTrue.cacheKey == ifFalse.cacheKey) {

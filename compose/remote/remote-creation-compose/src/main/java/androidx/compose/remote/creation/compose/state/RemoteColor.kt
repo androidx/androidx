@@ -401,7 +401,7 @@ internal constructor(
          * @param hue A [RemoteFloat] representing the hue in the range [0..1].
          * @param saturation A [RemoteFloat] representing the saturation in the range [0..1].
          * @param value A [RemoteFloat] representing the brightness in the range [0..1].
-         * @param alpha The fixed alpha value the range [0..1].
+         * @param alpha A [RemoteFloat] representing the alpha in the range [0..1].
          * @return A new [RemoteColor] derived from the provided HSV components.
          */
         public fun hsv(

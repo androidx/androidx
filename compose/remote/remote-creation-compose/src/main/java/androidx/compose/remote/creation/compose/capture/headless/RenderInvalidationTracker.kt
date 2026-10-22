@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 
 /**
  * Runs [block], a render, inside a new mutable snapshot so that it sees a consistent view of state
@@ -64,11 +63,13 @@ internal fun <T> withRenderSnapshot(applyWrites: Boolean, block: () -> T): T {
  * Unrelated global snapshot writes elsewhere in the process therefore do not cost a full render and
  * encode.
  *
- * The states read by a render are tracked by a [SnapshotStateObserver], the same mechanism Compose
- * UI uses for reads during layout and draw (`OwnerSnapshotObserver`): the render runs inside
- * [SnapshotStateObserver.observeReads] with this tracker as the scope, and the observer calls
- * [onRenderReadChanged] when any of those states is later changed. Renders do not write state (see
- * [withRenderSnapshot]), so a notification can never be caused by the render itself.
+ * The states read by a render are tracked by a
+ * [androidx.compose.runtime.snapshots.SnapshotStateObserver], the same mechanism Compose UI uses
+ * for reads during layout and draw (`OwnerSnapshotObserver`): the render runs inside
+ * [androidx.compose.runtime.snapshots.SnapshotStateObserver.observeReads] with this tracker as the
+ * scope, and the observer calls [onRenderReadChanged] when any of those states is later changed.
+ * Renders do not write state (see [withRenderSnapshot]), so a notification can never be caused by
+ * the render itself.
  *
  * Limits: render inputs that are not snapshot state (e.g. plain fields mutated from an effect) are
  * not observed; they are only rendered alongside the next tree change or render-read state change.
@@ -90,7 +91,10 @@ internal class RenderInvalidationTracker {
         synchronized(lock) { if (isRendering) renderInputsChanged = true }
     }
 
-    /** [SnapshotStateObserver] hook: a state read by the previous render changed. */
+    /**
+     * [androidx.compose.runtime.snapshots.SnapshotStateObserver] hook: a state read by the previous
+     * render changed.
+     */
     fun onRenderReadChanged() {
         synchronized(lock) { renderInputsChanged = true }
     }

@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.creation.profile.WidgetsProfileWriterV6
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -230,8 +229,9 @@ public class PendingIntentAction(
         public const val FIRST_ACTION_ID: Int = 0x7E000000
 
         /**
-         * Whether the document is captured for launcher widgets. [RcPlatformProfiles.WIDGETS_V6]
-         * predates [RcProfiles.PROFILE_WIDGETS], so it is identified by its writer.
+         * Whether the document is captured for launcher widgets.
+         * [androidx.compose.remote.creation.profile.RcPlatformProfiles.WIDGETS_V6] predates
+         * [RcProfiles.PROFILE_WIDGETS], so it is identified by its writer.
          */
         internal fun RemoteStateScope.isLauncherWidget(): Boolean =
             creationState.profile.operationsProfiles and RcProfiles.PROFILE_WIDGETS != 0 ||

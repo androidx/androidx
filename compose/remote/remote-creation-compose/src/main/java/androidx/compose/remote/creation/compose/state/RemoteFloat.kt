@@ -860,7 +860,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
 
         /**
          * Creates a named [RemoteFloat] with an initial value. This allows referring to a float by
-         * a symbolic name in the remote document. Named remote ints can be set via
+         * a symbolic name in the remote document. Named remote floats can be set via
          * AndroidRemoteContext.setNamedFloat.
          *
          * @param name The name of the remote float.
@@ -1538,7 +1538,7 @@ public fun monthOfYearForReference(referenceEpochMillis: RemoteLong): RemoteFloa
  *
  * @param referenceEpochMillis The reference time in milliseconds since the epoch in the system
  *   default locale.
- * @return A [RemoteInt] that evaluates to the day of week for [referenceEpochMillis] (0-16).
+ * @return A [RemoteFloat] that evaluates to the day of week for [referenceEpochMillis] (0-16).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
@@ -1561,7 +1561,7 @@ public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat 
  *
  * @param referenceEpochMillis The reference time in milliseconds since the epoch in the system
  *   default locale.
- * @return A [RemoteInt] that evaluates to the year of [referenceEpochMillis].
+ * @return A [RemoteFloat] that evaluates to the year of [referenceEpochMillis].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
@@ -1677,7 +1677,8 @@ internal constructor(
 /**
  * An implementation of [RemoteFloat] that represents a float expression.
  *
- * @property hasConstantValue Indicates if this expression will always yield the same value.
+ * @property constantValueOrNull The constant [Float] value, or `null` if this expression is
+ *   dynamic.
  * @property arrayProvider A lambda that provides the [FloatArray] representing the expression.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -2002,13 +2003,11 @@ public fun toArray(a: Number): FloatArray =
     }
 
 /**
- * Converts a [Number] to a [FloatArray] using a specific [RemoteComposeCreationState]. If the
- * number is a [RemoteFloat], its `arrayForCreationState` is used. Otherwise, it\'s converted to a
- * single-element [FloatArray].
+ * Converts a [RemoteFloat] to a [FloatArray] using a specific [RemoteComposeCreationState].
  *
- * @param a The number to convert.
+ * @param a The [RemoteFloat] to convert.
  * @param creationState The [RemoteComposeCreationState] to use for conversion.
- * @return A [FloatArray] representation of the number.
+ * @return A [FloatArray] representation of [a].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): FloatArray =
