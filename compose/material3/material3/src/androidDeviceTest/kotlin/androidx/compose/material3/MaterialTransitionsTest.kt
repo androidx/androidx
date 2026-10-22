@@ -62,7 +62,7 @@ class MaterialTransitionsTest {
             MaterialTheme(
                 colorScheme = lightColorScheme(surface = Color.White, scrim = Color.Black)
             ) {
-                resolvedScrimColor = MaterialTransitions.scrimColor
+                resolvedScrimColor = MaterialTransitionDefaults.scrimColor
             }
         }
 
@@ -77,7 +77,7 @@ class MaterialTransitionsTest {
             MaterialTheme(
                 colorScheme = darkColorScheme(surface = Color.Black, scrim = Color.Black)
             ) {
-                resolvedScrimColor = MaterialTransitions.scrimColor
+                resolvedScrimColor = MaterialTransitionDefaults.scrimColor
             }
         }
 
