@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":xr:arcore:arcore"))
     implementation(project(":xr:arcore:arcore-openxr"))
     implementation(project(":xr:arcore:arcore-runtime"))
+    implementation(project(":xr:assets"))
     implementation(project(":xr:runtime:runtime"))
     implementation(project(":xr:scenecore:scenecore"))
 
