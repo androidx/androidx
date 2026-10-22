@@ -56,7 +56,6 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
                 api("androidx.compose.runtime:runtime:1.11.2")
             }
         }

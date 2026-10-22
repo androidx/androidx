@@ -24,8 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -34,16 +32,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TransformTest {
-
-    @BeforeTest
-    fun setUp() {
-        TransformScope.isGlobalSnapshotManagerEnabled = false
-    }
-
-    @AfterTest
-    fun tearDown() {
-        TransformScope.isGlobalSnapshotManagerEnabled = true
-    }
 
     @Test
     fun testBasicTransform() = transformTest {
