@@ -75,7 +75,7 @@ internal class TextAnnotatedStringElement(
 
     override fun update(node: TextAnnotatedStringNode) {
         node.doInvalidations(
-            drawChanged = node.updateDraw(color, style),
+            drawChanged = node.updateDraw(color, style, text),
             textChanged = node.updateText(text = text),
             layoutChanged =
                 node.updateLayoutRelatedArgs(

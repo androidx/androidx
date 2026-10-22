@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.intl.LocaleList
@@ -681,6 +682,51 @@ class MultiParagraphBoundingBoxesForRangeTest {
             )
         assertThat(layoutResult.calculateBoundingBoxList(2, 2)).isEmpty()
         assertThat(layoutResult.calculateBoundingBoxList(6, 11)).isEmpty()
+    }
+
+    @Test
+    fun drawAnnotationsBehindAndOver_reusesProvidedScopeAndUpdatesRangeAndLayout() {
+        val layoutResult1 = simpleTextLayoutResult(text = "Hello World!", fontSize = 10.sp)
+        val layoutResult2 = simpleTextLayoutResult(text = "Hello World!", fontSize = 10.sp)
+        val drawScope = CanvasDrawScope()
+        val recorded = mutableListOf<String>()
+
+        val annotation =
+            DrawAnnotation(
+                drawBehind = {
+                    val isLayout1 = textLayoutResult === layoutResult1
+                    recorded.add(
+                        "behind:$start..$end:layout1=$isLayout1:scope=${System.identityHashCode(this)}"
+                    )
+                },
+                drawOver = {
+                    val isLayout1 = textLayoutResult === layoutResult1
+                    recorded.add(
+                        "over:$start..$end:layout1=$isLayout1:scope=${System.identityHashCode(this)}"
+                    )
+                },
+            )
+
+        val text = buildAnnotatedString {
+            append("Hello ")
+            withDrawAnnotation(annotation) { append("World") }
+            append("!")
+        }
+
+        val sharedScope = DrawAnnotationScopeImpl(drawScope, layoutResult1)
+        val expectedScopeId = System.identityHashCode(sharedScope)
+
+        drawScope.drawAnnotationsBehind(text, layoutResult1, sharedScope)
+        drawScope.drawAnnotationsOver(text, layoutResult1, sharedScope)
+        drawScope.drawAnnotationsBehind(text, layoutResult2, sharedScope)
+
+        assertThat(recorded)
+            .containsExactly(
+                "behind:6..11:layout1=true:scope=$expectedScopeId",
+                "over:6..11:layout1=true:scope=$expectedScopeId",
+                "behind:6..11:layout1=false:scope=$expectedScopeId",
+            )
+            .inOrder()
     }
 
     private fun simpleTextLayoutResult(
