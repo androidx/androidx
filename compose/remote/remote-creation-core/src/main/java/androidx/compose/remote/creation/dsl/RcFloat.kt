@@ -34,8 +34,6 @@ import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.remoteContentEquals
 import androidx.compose.remote.creation.remoteContentHashCode
-import androidx.compose.remote.creation.remoteFloatEquals
-import androidx.compose.remote.creation.remoteFloatHashCode
 
 /**
  * Type-safe reference for remote float variables or expressions. This often encapsulates a
@@ -43,10 +41,10 @@ import androidx.compose.remote.creation.remoteFloatHashCode
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 open public class RcFloat {
-    public var array: FloatArray = floatArrayOf()
-    public var id: Float = 0f // if 0 it has not been sent
-    public var animation: FloatArray? = null
-    public var isEvaluated: Boolean = false
+    internal var array: FloatArray = floatArrayOf()
+    internal var id: Float = 0f // if 0 it has not been sent
+    internal var animation: FloatArray? = null
+    internal var isEvaluated: Boolean = false
     internal var writer: RemoteComposeWriter? = null
 
     internal constructor(writer: RemoteComposeWriter?, array: FloatArray) {
@@ -300,16 +298,17 @@ open public class RcFloat {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RcFloat) return false
-        // array and id hold NaN-encoded variable ids and operators, which contentEquals and
-        // Float equality don't distinguish.
+        // array and animation hold NaN-encoded variable ids and operators, which contentEquals and
+        // Float equality don't distinguish. `id` is a lazily populated cache of `array` +
+        // `animation`, so excluding `id` keeps equality and hashCode invariant across flush().
         if (!array.remoteContentEquals(other.array)) return false
-        if (!remoteFloatEquals(id, other.id)) return false
+        if (!animation.remoteContentEquals(other.animation)) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = array.remoteContentHashCode()
-        result = 31 * result + remoteFloatHashCode(id)
+        result = 31 * result + animation.remoteContentHashCode()
         return result
     }
 }

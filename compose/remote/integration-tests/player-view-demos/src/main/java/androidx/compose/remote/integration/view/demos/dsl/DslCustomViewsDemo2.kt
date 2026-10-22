@@ -17,9 +17,9 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
-import androidx.compose.remote.creation.dsl.CustomProperty
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcCustomProperty
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
@@ -115,7 +115,7 @@ public fun dslCustomViewsDemo(): ByteArray {
                 label("SeekBar :")
                 slider = progressBar()
             }
-            var rcText: RcText = RcText(0)
+            var rcText: RcText? = null
             Spacer(Modifier.height(12.rdp))
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 label("EditText :")
@@ -123,7 +123,7 @@ public fun dslCustomViewsDemo(): ByteArray {
             }
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
-                label(rcText)
+                label(rcText!!)
                 val sum = slider + seconds() % 100f
                 textView3(sum.genTextId(3))
             }
@@ -159,13 +159,13 @@ private fun RcScope.textView1(timeCount: RcText) {
         config = "TextView",
         properties =
             listOf(
-                CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
-                CustomProperty.color(
+                RcCustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
+                RcCustomProperty.color(
                     SupportTextView.PROP_TEXT_COLOR,
                     Color.rgb(56, 189, 248).rcColor(),
                 ),
-                CustomProperty(SupportTextView.PROP_TEXT_SIZE, CustomProperty.FLOAT_PROP, 120f / 3),
-                CustomProperty.color(
+                RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                RcCustomProperty.color(
                     SupportTextView.PROP_BACKGROUND_COLOR,
                     Color.rgb(30, 41, 59).rcColor(),
                 ),
@@ -181,13 +181,13 @@ private fun RcScope.textView2(timeCount: RcText) {
         config = "TextView",
         properties =
             listOf(
-                CustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
-                CustomProperty.color(
+                RcCustomProperty.text(SupportTextView.PROP_TEXT, timeCount),
+                RcCustomProperty.color(
                     SupportTextView.PROP_TEXT_COLOR,
                     Color.rgb(56, 248, 189).rcColor(),
                 ),
-                CustomProperty(SupportTextView.PROP_TEXT_SIZE, CustomProperty.FLOAT_PROP, 120f / 3),
-                CustomProperty.color(
+                RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                RcCustomProperty.color(
                     SupportTextView.PROP_BACKGROUND_COLOR,
                     Color.rgb(30, 41, 59).rcColor(),
                 ),
@@ -202,13 +202,13 @@ private fun RcScope.textView3(text: RcText) {
         config = "TextView",
         properties =
             listOf(
-                CustomProperty.text(SupportTextView.PROP_TEXT, text),
-                CustomProperty.color(
+                RcCustomProperty.text(SupportTextView.PROP_TEXT, text),
+                RcCustomProperty.color(
                     SupportTextView.PROP_TEXT_COLOR,
                     Color.rgb(248, 189, 56).rcColor(),
                 ),
-                CustomProperty(SupportTextView.PROP_TEXT_SIZE, CustomProperty.FLOAT_PROP, 120f / 3),
-                CustomProperty.color(
+                RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 120f / 3),
+                RcCustomProperty.color(
                     SupportTextView.PROP_BACKGROUND_COLOR,
                     Color.rgb(30, 41, 59).rcColor(),
                 ),
@@ -219,15 +219,15 @@ private fun RcScope.textView3(text: RcText) {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.progressBar(): RcFloat {
-    val prop = CustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
+    val prop = RcCustomProperty.returnFloat(SupportProgressBar.RET_PROGRESS, this)
     val slider = prop.getFloatValue()
 
     val progressProps =
         listOf(
-            CustomProperty(SupportProgressBar.PROP_PROGRESS, CustomProperty.FLOAT_PROP, slider),
-            CustomProperty(SupportProgressBar.PROP_MAX_PROGRESS, CustomProperty.INT_PROP, 100),
-            CustomProperty(SupportProgressBar.PROP_INDETERMINATE, CustomProperty.INT_PROP, 0),
-            CustomProperty.color(
+            RcCustomProperty.float(SupportProgressBar.PROP_PROGRESS, slider),
+            RcCustomProperty.int(SupportProgressBar.PROP_MAX_PROGRESS, 100),
+            RcCustomProperty.int(SupportProgressBar.PROP_INDETERMINATE, 0),
+            RcCustomProperty.color(
                 SupportProgressBar.PROP_PROGRESS_COLOR,
                 Color.rgb(56, 189, 248).rcColor(),
             ),
@@ -244,19 +244,19 @@ private fun RcScope.progressBar(): RcFloat {
 
 @Suppress("RestrictedApiAndroidX")
 private fun RcScope.textEdit(text: RcText): RcText {
-    val prop = CustomProperty.returnText(SupportEditText.RET_TEXT, this)
+    val prop = RcCustomProperty.returnText(SupportEditText.RET_TEXT, this)
     val textId = prop.getStringValue()
     Custom(
         config = "EditText",
         properties =
             listOf(
-                CustomProperty.text(SupportTextView.PROP_TEXT, text),
-                CustomProperty.color(
+                RcCustomProperty.text(SupportTextView.PROP_TEXT, text),
+                RcCustomProperty.color(
                     SupportTextView.PROP_TEXT_COLOR,
                     Color.rgb(248, 189, 56).rcColor(),
                 ),
-                CustomProperty(SupportTextView.PROP_TEXT_SIZE, CustomProperty.FLOAT_PROP, 60f / 3),
-                CustomProperty.color(
+                RcCustomProperty.float(SupportTextView.PROP_TEXT_SIZE, 60f / 3),
+                RcCustomProperty.color(
                     SupportTextView.PROP_BACKGROUND_COLOR,
                     Color.rgb(0, 41, 59).rcColor(),
                 ),

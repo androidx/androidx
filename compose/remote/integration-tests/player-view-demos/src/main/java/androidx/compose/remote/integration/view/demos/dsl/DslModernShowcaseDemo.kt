@@ -82,7 +82,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                                 color(0xFFFFFFFF.toInt())
                                 textSize(64f)
                             }
-                            val titleText = RcText(args["title"]!!.paramId)
+                            val titleText = args["title"]!!.asText()
                             drawTextAnchored(titleText, w / 2f, h / 2f, 0.rf, 0.rf, 0)
                         }
                     }
