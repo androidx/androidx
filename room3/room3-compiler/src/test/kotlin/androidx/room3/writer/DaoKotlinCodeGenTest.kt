@@ -1084,6 +1084,49 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun dataClassRowAdapter_variableProperty_embedded_inherited() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun getEntity(): MyEntity
+
+                  @Query("SELECT * FROM MyEntity")
+                  fun getEntitySub(): MyEntitySub
+
+                  @Insert
+                  fun addEntity(item: MyEntity)
+                }
+
+                @Entity
+                open class MyEntity(
+                    @PrimaryKey
+                    var pk: Int = 0,
+                    @Embedded(prefix = "nullable")
+                    var nullableFoo: Foo? = null,
+                )
+
+                class MyEntitySub : MyEntity()
+
+                data class Foo(
+                    val numberData: Long,
+                    val stringData: String
+                )
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
     fun dataClassRowAdapter_embedded_java() {
         val src =
             Source.kotlin(
