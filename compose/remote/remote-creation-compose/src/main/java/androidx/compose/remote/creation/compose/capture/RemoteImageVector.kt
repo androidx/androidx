@@ -20,6 +20,8 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -83,6 +85,9 @@ internal constructor(
     )
 
     internal lateinit var root: RemoteVectorGroup
+
+    internal val remoteTintBlendMode: RemoteBlendMode
+        get() = tintBlendMode.toRemoteBlendMode()
 
     /**
      * Indicates whether this [RemoteImageVector] contains any clip paths.
@@ -610,6 +615,4 @@ internal val DefaultTrimPathOffset = 0.0f.rf
 
 internal val DefaultStrokeLineCap = RemoteStrokeCap.Butt
 internal val DefaultStrokeLineJoin = RemoteStrokeJoin.Miter
-internal val DefaultTintBlendMode = BlendMode.SrcIn
-internal val DefaultTintColor = Color.Transparent
 internal val DefaultFillType = RemotePathFillType.NonZero
