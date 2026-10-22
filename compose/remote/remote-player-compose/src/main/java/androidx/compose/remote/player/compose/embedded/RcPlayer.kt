@@ -337,7 +337,18 @@ public fun RcPlayer(
                         }
                     }
                 }
-                .rootTouchExpressions(document, remoteContext, preprocessed, graphContext)
+                .then(
+                    // Only listen when root touch expressions or touch position readers need the
+                    // pointer, so a press or drag on a document without them writes no state.
+                    if (preprocessed.rootTouchExpressions.isNotEmpty() || state.readsTouchPosition)
+                        Modifier.rootTouchExpressions(
+                            document,
+                            remoteContext,
+                            preprocessed,
+                            graphContext,
+                        )
+                    else Modifier
+                )
     ) {
         // ColorConstant / IntegerConstant / FloatExpression defaults already live in the
         // snapshot-backed store (applied by applyOperations during setup); the single store is the

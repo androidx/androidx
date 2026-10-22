@@ -107,6 +107,12 @@ internal class DocumentPreprocessResult(
      * attribute to specific fields.
      */
     val discreteTimeMask: Int = 0,
+    /**
+     * Whether an operation other than a [TouchExpression] reads `ID_TOUCH_POS_X`/`Y` through an
+     * expression, so the root pointer handler has to publish the touch position. See also
+     * [listensToTouchPosition], which covers operations that bind the position directly.
+     */
+    val readsTouchPosition: Boolean = false,
 )
 
 /**
@@ -180,6 +186,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
     var hasContinuousTime = false
     var hasDiscreteTime = false
     var discreteTimeMask = 0
+    var readsTouchPosition = false
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
     var inLoop = false
@@ -234,7 +241,9 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                 }
             } else {
                 forEachListenedVariableId(op) { id ->
-                    if (isContinuousTimeVariable(id)) {
+                    if (isTouchPositionVariable(id)) {
+                        readsTouchPosition = true
+                    } else if (isContinuousTimeVariable(id)) {
                         hasContinuousTime = true
                     } else if (isDiscreteTimeVariable(id)) {
                         hasDiscreteTime = true
@@ -438,7 +447,29 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         hasContinuousTime = hasContinuousTime,
         hasDiscreteTime = hasDiscreteTime,
         discreteTimeMask = discreteTimeMask,
+        readsTouchPosition = readsTouchPosition,
     )
+}
+
+private fun isTouchPositionVariable(id: Int): Boolean =
+    id == RemoteContext.ID_TOUCH_POS_X || id == RemoteContext.ID_TOUCH_POS_Y
+
+/**
+ * Whether an operation other than a [TouchExpression] registered a listener for `ID_TOUCH_POS_X` or
+ * `ID_TOUCH_POS_Y` while the document was set up, i.e. reads the touch position directly (such as a
+ * draw positioned at the touch point). TouchExpressions read the position the touch handlers
+ * publish right before evaluating them, so they don't need it published otherwise.
+ */
+internal fun RemoteComposeState.listensToTouchPosition(): Boolean =
+    hasNonTouchExpressionListener(RemoteContext.ID_TOUCH_POS_X) ||
+        hasNonTouchExpressionListener(RemoteContext.ID_TOUCH_POS_Y)
+
+private fun RemoteComposeState.hasNonTouchExpressionListener(id: Int): Boolean {
+    val listeners = getListeners(id) ?: return false
+    for (i in 0 until listeners.size) {
+        if (listeners[i] !is TouchExpression) return true
+    }
+    return false
 }
 
 internal fun isExpressionContinuousTimeDependent(expr: FloatExpression): Boolean {

@@ -35,6 +35,7 @@ import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
 import androidx.compose.remote.player.compose.embedded.doc.listensToContinuousTime
 import androidx.compose.remote.player.compose.embedded.doc.listensToDiscreteTime
+import androidx.compose.remote.player.compose.embedded.doc.listensToTouchPosition
 import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.remote.player.compose.embedded.inspectable.RcComponentInspectable
 import androidx.compose.remote.player.compose.embedded.inspectable.RcFunctionDefineInspectable
@@ -111,6 +112,14 @@ public class RcPlayerState(
     internal val discreteTimeMask: Int =
         preprocessed.discreteTimeMask or
             remoteContext.mRemoteComposeState.discreteTimeListenerMask()
+
+    /**
+     * Whether something other than a touch expression reads the touch position, so the player has
+     * to publish it from the root pointer handler.
+     */
+    internal val readsTouchPosition: Boolean =
+        preprocessed.readsTouchPosition ||
+            remoteContext.mRemoteComposeState.listensToTouchPosition()
 
     /** Counts reads of the time fields, so the clock loop can idle when nothing reads time. */
     internal val timeReads: TimeReadTracker = TimeReadTracker()

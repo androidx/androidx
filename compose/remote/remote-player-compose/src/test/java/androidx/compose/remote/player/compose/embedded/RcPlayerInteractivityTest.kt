@@ -44,7 +44,6 @@ import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
-import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
@@ -129,11 +128,8 @@ import androidx.compose.remote.creation.compose.state.toRad
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -1141,35 +1137,28 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun multiClickModifier_dispatchesSingleDoubleAndLongClicks() {
-        val modifiers =
-            ComponentModifiers().apply {
-                add(
-                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_SINGLE).apply {
-                        list.add(HostActionOperation(101))
-                    }
-                )
-                add(
-                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_DOUBLE).apply {
-                        list.add(HostActionOperation(102))
-                    }
-                )
-                add(
-                    MultiClickModifier(MultiClickModifier.CLICK_TYPE_LONG).apply {
-                        list.add(HostActionOperation(103))
+        val document = buildDocument {
+            root {
+                box(
+                    RecordingModifier().fillMaxSize().then { w ->
+                        val wire = w.buffer.buffer
+                        MultiClickModifier.apply(wire, MultiClickModifier.CLICK_TYPE_SINGLE)
+                        HostActionOperation.apply(wire, 101)
+                        w.addContainerEnd()
+                        MultiClickModifier.apply(wire, MultiClickModifier.CLICK_TYPE_DOUBLE)
+                        HostActionOperation.apply(wire, 102)
+                        w.addContainerEnd()
+                        MultiClickModifier.apply(wire, MultiClickModifier.CLICK_TYPE_LONG)
+                        HostActionOperation.apply(wire, 103)
+                        w.addContainerEnd()
                     }
                 )
             }
-
-        val remoteContext = AndroidRemoteContext()
-        val document = CoreDocument(RemoteClock.SYSTEM)
+        }
         val triggeredIds = mutableListOf<Int>()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalCoreDocument provides document,
-                LocalRemoteContext provides remoteContext,
-                LocalRemoteActionHandler provides { id, _ -> triggeredIds.add(id) },
-            ) {
-                Box(modifier = modifiers.toModifier().size(100.dp))
+            Box(modifier = Modifier.size(100.dp)) {
+                RcPlayer(document = document, onAction = { id, _ -> triggeredIds.add(id) })
             }
         }
         rule.waitForIdle()
@@ -1220,7 +1209,11 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun snapshotRemoteComposeState_preservesLiteralIntegerIdsAndCachedIntegers() {
-        val state = SnapshotRemoteComposeState()
+        val playerState = RcPlayerState(CoreDocument(RemoteClock.SYSTEM))
+        val remoteContext =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
+        val state = remoteContext.mRemoteComposeState
 
         // Caching, updating, or overriding floats under small IDs (< START_ID) must not clobber
         // literal integer ID lookups such as Component.Visibility.VISIBLE (1) or INVISIBLE (2).
@@ -3130,7 +3123,11 @@ class RcPlayerInteractivityTest {
 
     @Test
     fun snapshotRemoteComposeState_getFloatBeforeGetInteger_preservesIntegerAndLargePrecision() {
-        val state = SnapshotRemoteComposeState()
+        val playerState = RcPlayerState(CoreDocument(RemoteClock.SYSTEM))
+        val remoteContext =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
+        val state = remoteContext.mRemoteComposeState
         val intId = 100
         val largeIntId = 101
         val floatId = 102
