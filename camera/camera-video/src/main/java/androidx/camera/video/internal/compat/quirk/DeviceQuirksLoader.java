@@ -165,6 +165,11 @@ public class DeviceQuirksLoader {
                 VideoEncoderLeaksThreadOnReleaseWithoutStartQuirk.load())) {
             quirks.add(VideoEncoderLeaksThreadOnReleaseWithoutStartQuirk.INSTANCE);
         }
+        if (quirkSettings.shouldEnableQuirk(
+                VideoEncoderMimeTypeUnsupportedQuirk.class,
+                VideoEncoderMimeTypeUnsupportedQuirk.load())) {
+            quirks.add(VideoEncoderMimeTypeUnsupportedQuirk.INSTANCE);
+        }
         return quirks;
     }
 }
