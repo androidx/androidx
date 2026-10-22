@@ -228,8 +228,7 @@ class RemotePaintTest {
         assertThat(remotePaint.isAntiAlias).isFalse()
         assertThat(remotePaint.style).isEqualTo(PaintingStyle.Stroke)
         assertThat(remotePaint.blendMode).isEqualTo(BlendMode.Clear)
-        assertThat(remotePaint.filterQuality)
-            .isEqualTo(androidx.compose.ui.graphics.FilterQuality.None)
+        assertThat(remotePaint.filterQuality).isEqualTo(RemoteFilterQuality.None)
     }
 
     @Test

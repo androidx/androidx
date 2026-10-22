@@ -20,7 +20,6 @@ import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -64,10 +63,10 @@ public sealed interface RemotePaint {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var isAntiAlias: Boolean
 
-    /** The [FilterQuality] to use when scaling bitmaps. */
+    /** The [RemoteFilterQuality] to use when scaling bitmaps. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var filterQuality: FilterQuality
+    public var filterQuality: RemoteFilterQuality
 
     /** The [RemoteShader] to use for drawing gradients or other patterns. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -109,7 +108,7 @@ public class StandardRemotePaint() : RemotePaint {
     public override var strokeWidth: RemoteFloat = 0.0f.rf
     public override var strokeCap: StrokeCap = StrokeCap.Butt
     public override var strokeJoin: StrokeJoin = StrokeJoin.Miter
-    public override var filterQuality: FilterQuality = FilterQuality.Low
+    public override var filterQuality: RemoteFilterQuality = RemoteFilterQuality.Low
     public override var shader: RemoteShader? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default

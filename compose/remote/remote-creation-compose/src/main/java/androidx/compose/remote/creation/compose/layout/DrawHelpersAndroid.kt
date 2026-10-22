@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -29,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
@@ -288,6 +290,15 @@ internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
         StrokeJoin.Round -> RemoteStrokeJoin.Round
         StrokeJoin.Bevel -> RemoteStrokeJoin.Bevel
         else -> RemoteStrokeJoin.Miter
+    }
+
+internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =
+    when (this) {
+        FilterQuality.None -> RemoteFilterQuality.None
+        FilterQuality.Low -> RemoteFilterQuality.Low
+        FilterQuality.Medium -> RemoteFilterQuality.Medium
+        FilterQuality.High -> RemoteFilterQuality.High
+        else -> RemoteFilterQuality.Low
     }
 
 internal fun PaintingStyle.toInt(): Int =

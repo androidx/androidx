@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -26,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
@@ -75,6 +77,8 @@ class DrawHelpersTest {
         assertEquals(RemoteStrokeJoin.Miter, StrokeJoin.Miter.toRemoteStrokeJoin())
         assertEquals(RemoteStrokeJoin.Round, StrokeJoin.Round.toRemoteStrokeJoin())
         assertEquals(RemoteStrokeJoin.Bevel, StrokeJoin.Bevel.toRemoteStrokeJoin())
+        assertEquals(RemoteFilterQuality.None, FilterQuality.None.toRemoteFilterQuality())
+        assertEquals(RemoteFilterQuality.High, FilterQuality.High.toRemoteFilterQuality())
 
         assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
         assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
