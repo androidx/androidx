@@ -45,9 +45,24 @@ class PermissionsProjectedActivity : ComponentActivity() {
 
     internal lateinit var viewModel: PermissionsViewModel
 
+    /** Set by [PermissionsHostActivity] when this activity is created to refresh the status. */
+    internal var onPermissionsResult: (() -> Unit)? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent { PermissionsProjectedScreen(viewModel) }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray,
+        deviceId: Int,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            onPermissionsResult?.invoke()
+        }
     }
 
     @Composable
@@ -87,5 +102,13 @@ class PermissionsProjectedActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Status: $statusMessage", color = Color(0xFFFFCC00), fontSize = 16.sp)
         }
+    }
+
+    internal companion object {
+        /**
+         * Arbitrary ID passed to `requestPermissions()` to uniquely identify the request. It is
+         * given back in [onRequestPermissionsResult] so the result can be matched to the request.
+         */
+        const val PERMISSION_REQUEST_CODE = 1234
     }
 }

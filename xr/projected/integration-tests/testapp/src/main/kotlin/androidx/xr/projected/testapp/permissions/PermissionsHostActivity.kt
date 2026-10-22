@@ -19,10 +19,10 @@ package androidx.xr.projected.testapp.permissions
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,9 +43,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.xr.projected.ProjectedActivityCompat
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /** Activity displaying individual status of each permission and controls to request permissions. */
 @OptIn(ExperimentalProjectedApi::class)
@@ -61,6 +65,7 @@ class PermissionsHostActivity : ComponentActivity() {
                 if (activity is PermissionsProjectedActivity) {
                     projectedActivity = activity
                     activity.viewModel = this@PermissionsHostActivity.viewModel
+                    activity.onPermissionsResult = { controller.refreshPermissionsStatus() }
                 }
             }
 
@@ -80,11 +85,6 @@ class PermissionsHostActivity : ComponentActivity() {
                     finish()
                 }
             }
-        }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            controller.refreshPermissionsStatus()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,6 +114,44 @@ class PermissionsHostActivity : ComponentActivity() {
         controller.close()
         application.unregisterActivityLifecycleCallbacks(lifecycleCallbacks)
         projectedActivity?.finish()
+    }
+
+    /**
+     * Requests the permissions for the projected device. The request must be made from the
+     * projected activity, and the result is delivered to its `onRequestPermissionsResult`.
+     */
+    private fun requestProjectedPermissions() {
+        val activity = projectedActivity
+        if (activity == null) {
+            viewModel.setStatusMessage("Projected activity is not running.")
+            return
+        }
+        val missingPermissions =
+            arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                )
+                .filter {
+                    ContextCompat.checkSelfPermission(activity, it) !=
+                        PackageManager.PERMISSION_GRANTED
+                }
+        if (missingPermissions.isEmpty()) {
+            controller.refreshPermissionsStatus()
+            return
+        }
+        // ProjectedActivityCompat.requestPermissions blocks, so it must not run on the main thread.
+        lifecycleScope.launch(Dispatchers.Default) {
+            try {
+                ProjectedActivityCompat.requestPermissions(
+                    activity,
+                    missingPermissions.toTypedArray(),
+                    PermissionsProjectedActivity.PERMISSION_REQUEST_CODE,
+                )
+            } catch (e: Exception) {
+                viewModel.setStatusMessage("Permission request failed: ${e.message}")
+            }
+        }
     }
 
     @Composable
@@ -172,15 +210,7 @@ class PermissionsHostActivity : ComponentActivity() {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = {
-                    requestPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.RECORD_AUDIO,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                        )
-                    )
-                },
+                onClick = { requestProjectedPermissions() },
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Request Permissions on Phone")
