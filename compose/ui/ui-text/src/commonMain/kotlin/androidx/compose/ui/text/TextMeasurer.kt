@@ -575,7 +575,8 @@ internal class CacheTextLayoutInput(val textLayoutInput: TextLayoutInput) {
 
     override fun hashCode(): Int =
         with(textLayoutInput) {
-            var result = text.hashCode()
+            var result = text.text.hashCode()
+            result = 31 * result + text.hashCodeLayoutAffectingAnnotations()
             result = 31 * result + style.hashCodeLayoutAffectingAttributes()
             result = 31 * result + placeholders.hashCode()
             result = 31 * result + maxLines
@@ -594,7 +595,8 @@ internal class CacheTextLayoutInput(val textLayoutInput: TextLayoutInput) {
         if (other !is CacheTextLayoutInput) return false
 
         with(textLayoutInput) {
-            if (text != other.textLayoutInput.text) return false
+            if (text.text != other.textLayoutInput.text.text) return false
+            if (!text.hasSameLayoutAffectingAnnotations(other.textLayoutInput.text)) return false
             if (!style.hasSameLayoutAffectingAttributes(other.textLayoutInput.style)) return false
             if (placeholders != other.textLayoutInput.placeholders) return false
             if (maxLines != other.textLayoutInput.maxLines) return false

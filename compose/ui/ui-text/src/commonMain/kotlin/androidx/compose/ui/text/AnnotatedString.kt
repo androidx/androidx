@@ -328,6 +328,33 @@ internal constructor(
             it.item is LinkAnnotation && intersect(start, end, it.start, it.end)
         } ?: false
 
+    /**
+     * Queries all [DrawAnnotation]s attached on this [AnnotatedString].
+     *
+     * @param start inclusive start of the query range
+     * @param end exclusive end of the query range
+     * @return a list of annotations stored in [Range]. Returns all annotations that intersect with
+     *   `[start, end)`, or an empty list when [start] is greater than [end]
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun getDrawAnnotations(start: Int, end: Int): List<Range<DrawAnnotation>> =
+        ((annotations?.fastFilter {
+            it.item is DrawAnnotation && intersect(start, end, it.start, it.end)
+        } ?: listOf())
+            as List<Range<DrawAnnotation>>)
+
+    /**
+     * Returns true if [getDrawAnnotations] with the same parameters would return a non-empty list.
+     *
+     * @param start inclusive start of the query range
+     * @param end exclusive end of the query range
+     * @see DrawAnnotation
+     */
+    public fun hasDrawAnnotations(start: Int, end: Int): Boolean =
+        annotations?.fastAny {
+            it.item is DrawAnnotation && intersect(start, end, it.start, it.end)
+        } ?: false
+
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AnnotatedString) return false
@@ -361,6 +388,99 @@ internal constructor(
      */
     public fun hasEqualAnnotations(other: AnnotatedString): Boolean =
         this.annotations == other.annotations
+
+    /**
+     * Returns true if layout-affecting annotations between this [AnnotatedString] and [other] are
+     * the same.
+     *
+     * * Compares non-[DrawAnnotation] ranges—such as [SpanStyle], [ParagraphStyle], [Bullet],
+     *   [LinkAnnotation], [TtsAnnotation], and [StringAnnotation]—in place without allocating
+     *   intermediate lists.
+     * * Ignores [DrawAnnotation] entries because they only run during the draw phase and do not
+     *   change text measurement or layout.
+     * * Does not compare [text], matching [hasEqualAnnotations].
+     *
+     * @param other [AnnotatedString] whose layout-affecting annotations are compared with this
+     *   instance
+     * @return true if all non-[DrawAnnotation] ranges match in order, bounds, tag, and value
+     * @see hasSameDrawAffectingAnnotations
+     * @see hasEqualAnnotations
+     * @see TextStyle.hasSameLayoutAffectingAttributes
+     */
+    public fun hasSameLayoutAffectingAnnotations(other: AnnotatedString): Boolean {
+        if (this === other || this.annotations === other.annotations) return true
+        val a = this.annotations
+        val b = other.annotations
+        val aSize = a?.size ?: 0
+        val bSize = b?.size ?: 0
+        var i = 0
+        var j = 0
+        while (true) {
+            while (i < aSize && a!![i].item is DrawAnnotation) i++
+            while (j < bSize && b!![j].item is DrawAnnotation) j++
+            if (i >= aSize || j >= bSize) {
+                return i >= aSize && j >= bSize
+            }
+            if (a!![i] != b!![j]) return false
+            i++
+            j++
+        }
+    }
+
+    /**
+     * Returns true if draw-affecting [DrawAnnotation] ranges between this [AnnotatedString] and
+     * [other] are the same.
+     *
+     * * Compares [DrawAnnotation] ranges in order (including `[start, end)` bounds, `tag`, and item
+     *   equality) in place without allocating intermediate lists.
+     * * Ignores non-[DrawAnnotation] annotations and [text], matching [hasEqualAnnotations].
+     *
+     * @param other [AnnotatedString] whose [DrawAnnotation] ranges are compared with this instance
+     * @return true if all [DrawAnnotation] ranges match in order, bounds, tag, and value
+     * @see hasSameLayoutAffectingAnnotations
+     * @see hasEqualAnnotations
+     * @see TextStyle.hasSameDrawAffectingAttributes
+     */
+    public fun hasSameDrawAffectingAnnotations(other: AnnotatedString): Boolean {
+        if (this === other || this.annotations === other.annotations) return true
+        val a = this.annotations
+        val b = other.annotations
+        val aSize = a?.size ?: 0
+        val bSize = b?.size ?: 0
+        var i = 0
+        var j = 0
+        while (true) {
+            while (i < aSize && a!![i].item !is DrawAnnotation) i++
+            while (j < bSize && b!![j].item !is DrawAnnotation) j++
+            if (i >= aSize || j >= bSize) {
+                return i >= aSize && j >= bSize
+            }
+            if (a!![i] != b!![j]) return false
+            i++
+            j++
+        }
+    }
+
+    /**
+     * Computes a hash code over all annotations except draw-only [DrawAnnotation] entries, matching
+     * the equality contract of [hasSameLayoutAffectingAnnotations].
+     *
+     * Called by [CacheTextLayoutInput.hashCode] in `TextMeasurer.kt` so that layout cache lookups
+     * hash and compare [AnnotatedString] keys without invalidating on [DrawAnnotation]-only
+     * changes.
+     */
+    internal fun hashCodeLayoutAffectingAnnotations(): Int {
+        val list = annotations ?: return 0
+        var hash = 1
+        var hasAny = false
+        list.fastForEach { range ->
+            if (range.item !is DrawAnnotation) {
+                hash = 31 * hash + range.hashCode()
+                hasAny = true
+            }
+        }
+        return if (hasAny) hash else 0
+    }
 
     /**
      * Returns a new [AnnotatedString] where a list of annotations contains the results of applying
@@ -745,6 +865,23 @@ internal constructor(
         }
 
         /**
+         * Associates a [DrawAnnotation] with the character range from [start] to [end].
+         *
+         * @param drawAnnotation annotation to draw behind or over the text range
+         * @param start inclusive starting offset of the range
+         * @param end exclusive end offset of the range
+         * @see withDrawAnnotation
+         */
+        @Suppress("SetterReturnsThis")
+        public fun addDrawAnnotation(
+            drawAnnotation: DrawAnnotation,
+            start: Int,
+            end: Int,
+        ) {
+            annotations.add(MutableRange(item = drawAnnotation, start = start, end = end))
+        }
+
+        /**
          * Applies the given [SpanStyle] to any appended text until a corresponding [pop] is called.
          *
          * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderPushSample
@@ -1022,6 +1159,7 @@ internal constructor(
      *   aligning, text direction etc.
      * * [LinkAnnotation] to mark links in the text.
      * * [TtsAnnotation] provides information to assistive technologies such as screen readers.
+     * * [DrawAnnotation] attaches custom draw-phase rendering callbacks to a range of text.
      * * Custom annotations using the [StringAnnotation].
      */
     public sealed interface Annotation {
@@ -1037,9 +1175,12 @@ internal constructor(
              * - [LinkAnnotation.Url]
              * - [LinkAnnotation.Clickable]
              * - [StringAnnotation]
+             * - [DrawAnnotation] subclasses that satisfy
+             *   [androidx.compose.runtime.saveable.SaverScope.canBeSaved] (such as `Parcelable`
+             *   `data class`es on Android)
              *
-             * Note: Does not preserve [LinkInteractionListener] of [LinkAnnotation]s, and [Bullet]
-             * annotations are not preserved at the moment. Handle saving and restoring them
+             * Note: Does not preserve [LinkInteractionListener] of [LinkAnnotation]s, lambda-backed
+             * [DrawAnnotation] instances, or [Bullet] annotations. Handle saving and restoring them
              * manually if required.
              *
              * @sample androidx.compose.ui.text.samples.AnnotatedStringAnnotationSaverSample
@@ -1640,6 +1781,27 @@ public inline fun <R : Any> Builder.withLink(link: LinkAnnotation, block: Builde
         block(this)
     } finally {
         pop(index)
+    }
+}
+
+/**
+ * Associates [drawAnnotation] with the text appended while running [block].
+ *
+ * @sample androidx.compose.ui.text.samples.DrawAnnotationSample
+ * @param drawAnnotation annotation that draws behind or over the appended text range
+ * @param block function to run while [drawAnnotation] is active
+ * @return result of [block]
+ * @see AnnotatedString.Builder.addDrawAnnotation
+ */
+public inline fun <R : Any> Builder.withDrawAnnotation(
+    drawAnnotation: DrawAnnotation,
+    block: Builder.() -> R,
+): R {
+    val start = length
+    return try {
+        block(this)
+    } finally {
+        addDrawAnnotation(drawAnnotation, start, length)
     }
 }
 

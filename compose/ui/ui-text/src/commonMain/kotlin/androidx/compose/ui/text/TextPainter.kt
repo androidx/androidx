@@ -169,7 +169,9 @@ public fun DrawScope.drawText(
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
+        drawAnnotationsBehind(text, textLayoutResult)
         textLayoutResult.multiParagraph.paint(canvas = drawContext.canvas, blendMode = blendMode)
+        drawAnnotationsOver(text, textLayoutResult)
     }
 }
 
@@ -272,6 +274,7 @@ public fun DrawScope.drawText(
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
+        drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
         // if text layout was created using brush, and [color] is unspecified, we should treat this
         // like drawText(brush) call
         val brush = textLayoutResult.layoutInput.style.brush
@@ -295,6 +298,7 @@ public fun DrawScope.drawText(
                 blendMode,
             )
         }
+        drawAnnotationsOver(textLayoutResult.layoutInput.text, textLayoutResult)
     }
 }
 
@@ -332,6 +336,7 @@ public fun DrawScope.drawText(
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
+        drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
         textLayoutResult.multiParagraph.paint(
             drawContext.canvas,
             brush,
@@ -341,6 +346,7 @@ public fun DrawScope.drawText(
             newDrawStyle,
             blendMode,
         )
+        drawAnnotationsOver(textLayoutResult.layoutInput.text, textLayoutResult)
     }
 }
 

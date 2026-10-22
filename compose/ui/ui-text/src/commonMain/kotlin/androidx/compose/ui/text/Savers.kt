@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.util.fastFilteredMap
 import androidx.compose.ui.util.fastMap
 
 /**
@@ -115,7 +116,20 @@ internal val AnnotatedStringSaver =
 
 private val AnnotationRangeListSaver =
     Saver<List<AnnotatedString.Range<out Any>>, Any>(
-        save = { it.fastMap { range -> save(range, AnnotationRangeSaver, this) } },
+        save = { list ->
+            list
+                .fastFilteredMap({ range ->
+                    val item = range.item
+                    when (item) {
+                        is Bullet -> false
+                        is DrawAnnotation -> item !is CombinedDrawAnnotation && canBeSaved(item)
+                        else -> true
+                    }
+                }) { range ->
+                    save(range, AnnotationRangeSaver, this)
+                }
+                .ifEmpty { null }
+        },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             list.fastMap { item ->
@@ -133,6 +147,7 @@ private enum class AnnotationType {
     Link, // LinkAnnotation.Url
     Clickable,
     String,
+    Draw,
 }
 
 @OptIn(ExperimentalTextApi::class)
@@ -163,9 +178,12 @@ private val AnnotationRangeSaver =
  * - [LinkAnnotation.Url]
  * - [LinkAnnotation.Clickable]
  * - [StringAnnotation]
+ * - [DrawAnnotation] subclasses that satisfy [SaverScope.canBeSaved] (such as `Parcelable` `data
+ *   class`es on Android)
  *
- * Note: This [Saver] does not preserve the [LinkInteractionListener] of [LinkAnnotation]s. If you
- * need to restore listeners, you must handle saving and restoring them manually.
+ * Note: This [Saver] does not preserve the [LinkInteractionListener] of [LinkAnnotation]s,
+ * lambda-backed [DrawAnnotation] instances, or [Bullet] annotations. If you need to restore them,
+ * you must handle saving and restoring them manually.
  */
 @OptIn(ExperimentalTextApi::class)
 internal val AnnotationSaver: Saver<AnnotatedString.Annotation, Any> =
@@ -180,10 +198,16 @@ internal val AnnotationSaver: Saver<AnnotatedString.Annotation, Any> =
                     is LinkAnnotation.Url -> AnnotationType.Link
                     is LinkAnnotation.Clickable -> AnnotationType.Clickable
                     is StringAnnotation -> AnnotationType.String
+                    is DrawAnnotation ->
+                        if (annotation !is CombinedDrawAnnotation && canBeSaved(annotation)) {
+                            AnnotationType.Draw
+                        } else {
+                            throw UnsupportedOperationException()
+                        }
                     else -> throw UnsupportedOperationException()
                 }
 
-            val item =
+            val savedItem =
                 when (marker) {
                     AnnotationType.Paragraph ->
                         save(annotation as ParagraphStyle, ParagraphStyleSaver, this)
@@ -196,9 +220,10 @@ internal val AnnotationSaver: Saver<AnnotatedString.Annotation, Any> =
                     AnnotationType.Clickable ->
                         save(annotation as LinkAnnotation.Clickable, ClickableSaver, this)
                     AnnotationType.String -> save((annotation as StringAnnotation).value)
+                    AnnotationType.Draw -> save(annotation as DrawAnnotation)
                 }
 
-            arrayListOf(save(marker), item)
+            arrayListOf(save(marker), savedItem)
         },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
@@ -214,6 +239,7 @@ internal val AnnotationSaver: Saver<AnnotatedString.Annotation, Any> =
                     val item: String = restore(list[1])!!
                     StringAnnotation(item)
                 }
+                AnnotationType.Draw -> restore<DrawAnnotation>(list[1])!!
             }
         },
     )

@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -30,7 +31,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Bullet
+import androidx.compose.ui.text.DrawAnnotation
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -39,7 +43,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import kotlin.test.fail
 import org.junit.Rule
 import org.junit.Test
@@ -50,6 +56,156 @@ import org.junit.runner.RunWith
 class TextAnnotatedStringNodeTest {
     @get:Rule val rule = createComposeRule()
     val context: Context = InstrumentationRegistry.getInstrumentation().context
+
+    // TextAnnotatedStringNode.updateText ignores DrawAnnotation-only changes so animating or
+    // toggling draw annotations only invalidates draw without re-measuring text. Verify that
+    // filtering out DrawAnnotations when comparing annotations does not mask changes to other
+    // layout-affecting annotations (such as Bullet) present on the same AnnotatedString.
+    @Test
+    fun updateText_whenBulletAnnotationChangesWithDrawAnnotationPresent_invalidatesLayout() {
+        val noopDraw =
+            object : DrawAnnotation() {
+                override fun equals(other: Any?): Boolean = this === other
+
+                override fun hashCode(): Int = 0
+            }
+        val first = buildAnnotatedString {
+            append("Item")
+            addBullet(Bullet.Default.copy(width = 4.sp), 0, length)
+            addDrawAnnotation(noopDraw, 0, length)
+        }
+        val second = buildAnnotatedString {
+            append("Item")
+            addBullet(Bullet.Default.copy(width = 20.sp), 0, length)
+            addDrawAnnotation(noopDraw, 0, length)
+        }
+
+        val subject =
+            TextAnnotatedStringNode(
+                first,
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                TEST_LOCALE_LIST,
+            )
+
+        assertTrue(
+            subject.updateText(second),
+            "Filtering out DrawAnnotations in updateText must not ignore changes to layout-affecting Bullet annotations on the same AnnotatedString",
+        )
+    }
+
+    @Test
+    fun updateText_whenOnlyDrawAnnotationChanges_invalidatesDrawWithoutRemeasuring() {
+        val drawACount = AtomicInteger(0)
+        val drawBCount = AtomicInteger(0)
+        val outerDrawCount = AtomicInteger(0)
+        val textLayoutCount = AtomicInteger(0)
+        val layoutPassCount = AtomicInteger(0)
+
+        val drawA = DrawAnnotation(drawBehind = { drawACount.incrementAndGet() })
+        val drawB = DrawAnnotation(drawBehind = { drawBCount.incrementAndGet() })
+
+        val plain = AnnotatedString("Hello world")
+        val withDrawA = buildAnnotatedString {
+            append("Hello ")
+            addDrawAnnotation(drawA, 6, 11)
+            append("world")
+        }
+        val withDrawB = buildAnnotatedString {
+            append("Hello ")
+            addDrawAnnotation(drawB, 6, 11)
+            append("world")
+        }
+
+        val node =
+            TextAnnotatedStringNode(
+                plain,
+                TextStyle.Default,
+                createFontFamilyResolver(context),
+                TEST_LOCALE_LIST,
+            )
+        assertTrue(
+            node.updateDraw(null, TextStyle.Default, withDrawA),
+            "Adding a DrawAnnotation must report a draw-affecting change",
+        )
+        assertFalse(
+            node.updateText(withDrawA),
+            "Adding a DrawAnnotation as the sole annotation must not report a layout-affecting text change",
+        )
+        assertTrue(
+            node.updateDraw(null, TextStyle.Default, withDrawB),
+            "Replacing a DrawAnnotation must report a draw-affecting change",
+        )
+        assertFalse(
+            node.updateText(withDrawB),
+            "Replacing a DrawAnnotation must not report a layout-affecting text change",
+        )
+        assertFalse(
+            node.updateDraw(null, TextStyle.Default, withDrawB),
+            "Repeating the same DrawAnnotation must not report a draw-affecting change",
+        )
+        assertTrue(
+            node.updateDraw(null, TextStyle.Default, plain),
+            "Removing a DrawAnnotation must report a draw-affecting change",
+        )
+        assertFalse(
+            node.updateText(plain),
+            "Removing a DrawAnnotation must not report a layout-affecting text change",
+        )
+
+        var currentText by mutableStateOf(plain)
+        rule.setContent {
+            BasicText(
+                text = currentText,
+                onTextLayout = { textLayoutCount.incrementAndGet() },
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                            layoutPassCount.incrementAndGet()
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                        .drawBehind { outerDrawCount.incrementAndGet() },
+            )
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, textLayoutCount.get())
+            assertEquals(1, layoutPassCount.get())
+            assertEquals(0, drawACount.get())
+            assertEquals(0, drawBCount.get())
+            currentText = withDrawA
+        }
+
+        var drawAAfterFirst = 0
+        rule.runOnIdle {
+            assertEquals(1, textLayoutCount.get())
+            assertEquals(1, layoutPassCount.get())
+            drawAAfterFirst = drawACount.get()
+            Truth.assertThat(drawAAfterFirst).isGreaterThan(0)
+            assertEquals(0, drawBCount.get())
+            currentText = withDrawB
+        }
+
+        var drawBAfterSecond = 0
+        var outerDrawBeforeRemoval = 0
+        rule.runOnIdle {
+            assertEquals(1, textLayoutCount.get())
+            assertEquals(1, layoutPassCount.get())
+            assertEquals(drawAAfterFirst, drawACount.get())
+            drawBAfterSecond = drawBCount.get()
+            Truth.assertThat(drawBAfterSecond).isGreaterThan(0)
+            outerDrawBeforeRemoval = outerDrawCount.get()
+            currentText = plain
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, textLayoutCount.get())
+            assertEquals(1, layoutPassCount.get())
+            assertEquals(drawAAfterFirst, drawACount.get())
+            assertEquals(drawBAfterSecond, drawBCount.get())
+            Truth.assertThat(outerDrawCount.get()).isGreaterThan(outerDrawBeforeRemoval)
+        }
+    }
 
     @Test
     fun draw_whenNotAttached_doesNotCrash() {
