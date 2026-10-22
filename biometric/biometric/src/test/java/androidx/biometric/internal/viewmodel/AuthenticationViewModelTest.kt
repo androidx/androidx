@@ -17,6 +17,7 @@
 package androidx.biometric.internal.viewmodel
 
 import androidx.biometric.AuthenticationRequest
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
 import androidx.biometric.internal.data.FakePromptConfigRepository
@@ -167,5 +168,30 @@ class AuthenticationViewModelTest {
 
         viewModel.currentAuthenticationKey = 1
         assertThat(viewModel.currentAuthenticationKey).isEqualTo(1)
+    }
+
+    @Test
+    fun testFallbackOptionsWithDeviceCredentialAndSingleCustomOption() {
+        val deviceCredentialFallback = AuthenticationRequest.Biometric.Fallback.DeviceCredential
+        val customFallback =
+            AuthenticationRequest.Biometric.Fallback.CustomOption("Use account password")
+        val promptInfo =
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title")
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .addFallbackOption(deviceCredentialFallback)
+                .addFallbackOption(customFallback)
+                .build()
+
+        viewModel.setPromptInfo(promptInfo)
+
+        assertThat(viewModel.multipleFallbackOptionList)
+            .containsExactly(deviceCredentialFallback, customFallback)
+            .inOrder()
+        assertThat(viewModel.singleFallbackOption).isNull()
+        assertThat(viewModel.singleFallbackOptionText).isNull()
     }
 }

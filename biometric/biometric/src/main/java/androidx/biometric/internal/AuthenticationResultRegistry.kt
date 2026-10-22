@@ -226,12 +226,10 @@ private fun BiometricPrompt.authInternal(
                 }
 
             fallbacksToProcess.forEach { fallback ->
-                when (fallback) {
-                    is Biometric.Fallback.DeviceCredential -> {
-                        authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                    }
-                    else -> addFallbackOption(fallback)
+                if (fallback is Biometric.Fallback.DeviceCredential) {
+                    authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
                 }
+                addFallbackOption(fallback)
             }
         }
 

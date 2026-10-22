@@ -41,6 +41,10 @@ private fun RememberLauncherForAuthResult() {
                     biometricRequest(
                         title = "test",
                         AuthenticationRequest.Biometric.Fallback.DeviceCredential,
+                        AuthenticationRequest.Biometric.Fallback.CustomOption(
+                            text = "Use account password",
+                            iconType = AuthenticationRequest.Biometric.Fallback.ICON_TYPE_PASSWORD,
+                        ),
                     ) {
                         // Optionally set the other configurations. setSubtitle(), setContent(), etc
                     }

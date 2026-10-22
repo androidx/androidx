@@ -71,7 +71,14 @@ fun activitySample() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val authRequest =
-                biometricRequest(title = "Title", Biometric.Fallback.DeviceCredential) {
+                biometricRequest(
+                    title = "Title",
+                    Biometric.Fallback.DeviceCredential,
+                    Biometric.Fallback.CustomOption(
+                        text = "Use account password",
+                        iconType = Biometric.Fallback.ICON_TYPE_PASSWORD,
+                    ),
+                ) {
                     setSubtitle("Subtitle")
                     setContent(
                         AuthenticationRequest.BodyContent.VerticalList(
@@ -82,7 +89,7 @@ fun activitySample() {
                             ),
                         )
                     )
-                    setMinStrength(Biometric.Strength.Class3(/*optional: cryptoObject*/ ))
+                    setMinStrength(Biometric.Strength.Class2)
                     setIsConfirmationRequired(true)
                 }
 
@@ -93,7 +100,7 @@ fun activitySample() {
 
 @Sampled
 fun fragmentSample() {
-    class MyFragmentForCredentialOnlyAuth : Fragment() {
+    class MyFragmentForBiometricAuth : Fragment() {
         val requestAuthentication =
             registerForAuthenticationResult { result: AuthenticationResult ->
                 when (result) {
@@ -120,7 +127,14 @@ fun fragmentSample() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val authRequest =
-                biometricRequest(title = "Title", Biometric.Fallback.DeviceCredential) {
+                biometricRequest(
+                    title = "Title",
+                    Biometric.Fallback.DeviceCredential,
+                    Biometric.Fallback.CustomOption(
+                        text = "Use account password",
+                        iconType = Biometric.Fallback.ICON_TYPE_PASSWORD,
+                    ),
+                ) {
                     setSubtitle("Subtitle")
                     setContent(
                         AuthenticationRequest.BodyContent.VerticalList(
@@ -131,7 +145,7 @@ fun fragmentSample() {
                             ),
                         )
                     )
-                    setMinStrength(Biometric.Strength.Class3(/*optional: cryptoObject*/ ))
+                    setMinStrength(Biometric.Strength.Class2)
                     setIsConfirmationRequired(true)
                 }
 

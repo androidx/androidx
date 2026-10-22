@@ -44,20 +44,26 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                         @Override
                         public void onAuthResult(@NonNull AuthenticationResult result) {
                             if (result.isSuccess()) {
-                                Log.i(TAG, "onAuthenticationSucceeded with type"
-                                        + result.success().getAuthType());
-                            } else if (result.isError()) {
-                                // Handle authentication error, e.g. negative button click, user
-                                // cancellation, etc
                                 Log.i(
                                         TAG,
-                                        "onAuthenticationError " + result.error().getErrorCode()
+                                        "onAuthenticationSucceeded with type "
+                                                + result.success().getAuthType());
+                            } else if (result.isError()) {
+                                // Handle authentication error, e.g. user cancellation, lockout
+                                // errors, etc
+                                Log.i(
+                                        TAG,
+                                        "onAuthenticationError "
+                                                + result.error().getErrorCode()
                                                 + " "
-                                                + result.error().getErrString()
-                                );
+                                                + result.error().getErrString());
                             } else if (result.isCustomFallbackSelected()) {
-                                Log.i(TAG, "fallback is selected, text:"
-                                        + result.customFallbackSelected().getFallback().getText());
+                                Log.i(
+                                        TAG,
+                                        "fallback is selected, text: "
+                                                + result.customFallbackSelected()
+                                                        .getFallback()
+                                                        .getText());
                             }
                         }
 
@@ -67,8 +73,7 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                         public void onAuthAttemptFailed() {
                             Log.i(TAG, "onAuthenticationFailed, try again");
                         }
-                    }
-            );
+                    });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,18 +84,22 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                 new AuthenticationRequest.BodyContent.VerticalList(
                         "Vertical list description",
                         new ArrayList<>(
-                                Arrays.asList(new PromptContentItemBulletedText("test item1"),
-                                        new PromptContentItemBulletedText("test item2")))
+                                Arrays.asList(
+                                        new PromptContentItemBulletedText("test item1"),
+                                        new PromptContentItemBulletedText("test item2"))));
 
-                );
         Biometric.Strength minStrength = Biometric.Strength.Class2.INSTANCE;
 
         AuthenticationRequest authRequest =
-                new Biometric.Builder(title, new Biometric.Fallback.CustomOption("Cancel button"))
+                new Biometric.Builder(
+                                title,
+                                Biometric.Fallback.DeviceCredential.INSTANCE,
+                                new Biometric.Fallback.CustomOption(
+                                        "Use account password",
+                                        Biometric.Fallback.ICON_TYPE_PASSWORD))
                         .setMinStrength(minStrength)
                         .setSubtitle(subtitle)
                         .setContent(bodyContent)
-                        .setSubtitle(subtitle)
                         .setIsConfirmationRequired(true)
                         .build();
 
@@ -99,4 +108,3 @@ public class AuthenticationSampleActivity extends FragmentActivity {
         mAuthResultLauncher.launch(authRequest);
     }
 }
-
