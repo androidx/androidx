@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteOutline
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -142,6 +143,31 @@ class GraphicsLayerModifierTest {
 
         assertThat(attrs).doesNotContainKey(GraphicsLayerModifierOperation.SHAPE)
         assertThat(attrs).doesNotContainKey(GraphicsLayerModifierOperation.SHAPE_RADIUS)
+    }
+
+    @Test
+    fun remoteCompositingStrategy_encodesOffscreenAndModulateAlpha() {
+        val (offscreenOp, offscreenAttrs, _) =
+            recordAndEvaluate {
+                RemoteModifier.graphicsLayer(
+                    shape = RemoteRectangleShape,
+                    compositingStrategy = RemoteCompositingStrategy.Offscreen,
+                )
+            }
+        assertThat(offscreenAttrs[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY]).isEqualTo(1)
+        assertThat(offscreenOp.values[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY].intValue)
+            .isEqualTo(1)
+
+        val (modulateOp, modulateAttrs, _) =
+            recordAndEvaluate {
+                RemoteModifier.graphicsLayer(
+                    shape = RemoteRectangleShape,
+                    compositingStrategy = RemoteCompositingStrategy.ModulateAlpha,
+                )
+            }
+        assertThat(modulateAttrs[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY]).isEqualTo(2)
+        assertThat(modulateOp.values[GraphicsLayerModifierOperation.COMPOSITING_STRATEGY].intValue)
+            .isEqualTo(2)
     }
 
     @Test
