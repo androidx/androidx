@@ -28,7 +28,6 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -44,130 +43,151 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-/** Controller managing CameraX initialization and image capture for the Camera test. */
+private const val TAG = "CameraController"
+
+/**
+ * Controller managing CameraX initialization and image capture for the Camera test.
+ *
+ * The camera is only bound once both of these conditions are met:
+ * 1. The projected device is connected.
+ * 2. The CAMERA permission is already granted on the projected device. The Camera test does not
+ *    request it; grant it beforehand (e.g. through the Permissions test).
+ *
+ * Call flow:
+ * ```
+ * start()
+ *  └─ observe projected device connection
+ *      ├─ connected    -> onProjectedDeviceConnected()
+ *      │                   ├─ permission granted -> bindCamera()
+ *      │                   └─ permission missing -> show "permission required" status
+ *      └─ disconnected -> onProjectedDeviceDisconnected() -> unbindCamera()
+ * ```
+ *
+ * All methods must be called on the main thread. [scope] is expected to dispatch on the main thread
+ * (e.g. `lifecycleScope`), so connection updates are also handled on the main thread.
+ *
+ * @param context The host Activity context.
+ * @param lifecycleOwner The lifecycle the camera use cases are bound to.
+ * @param viewModel Holds the UI state for the Camera test.
+ * @param scope The scope used to observe the projected device connection.
+ */
 @OptIn(ExperimentalProjectedApi::class)
 class CameraController(
     private val context: Context,
+    private val lifecycleOwner: LifecycleOwner,
     private val viewModel: CameraViewModel,
     private val scope: CoroutineScope,
 ) : AutoCloseable {
 
-    private lateinit var imageCapture: ImageCapture
-    private var lastPictureName = ""
+    /** Context of the connected projected device, or null while disconnected. */
+    private var projectedContext: Context? = null
+    private var cameraProvider: ProcessCameraProvider? = null
+    private var imageCapture: ImageCapture? = null
+    private var connectionJob: Job? = null
     private var nextPictureName = ""
-    private var currentLifecycleOwner: LifecycleOwner? = null
     private val photoExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    init {
-        updateConnectedStateAndInitializeCamera()
-    }
-
-    fun updateConnectedStateAndInitializeCamera() {
-        val connectedFlow: Flow<Boolean> =
+    /** Starts observing the projected device connection. Subsequent calls are no-ops. */
+    fun start() {
+        if (connectionJob != null) return
+        connectionJob = scope.launch {
             ProjectedContext.isProjectedDeviceConnected(context, Dispatchers.Default)
-        scope.launch(Dispatchers.Default) {
-            connectedFlow.collect { connected ->
-                viewModel.setConnected(connected)
-                if (connected) {
-                    val projectedContext = createProjectedContext()
-                    projectedContext?.let {
-                        if (
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA,
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            viewModel.setStatusMessage("Camera permission is required.")
-                            return@collect
-                        }
-                        currentLifecycleOwner?.let { owner -> initCamera(it, owner) }
+                .distinctUntilChanged()
+                .collect { connected ->
+                    viewModel.setConnected(connected)
+                    if (connected) {
+                        onProjectedDeviceConnected()
+                    } else {
+                        onProjectedDeviceDisconnected()
                     }
-                    Log.i(TAG, "Projected device is connected")
-                } else {
-                    viewModel.setStatusMessage("Projected device is not connected.")
-                    Log.w(TAG, "Projected device is not connected")
-                    viewModel.setCameraInfo(0, false)
                 }
-            }
         }
     }
 
-    fun startCamera(lifecycleOwner: LifecycleOwner) {
-        currentLifecycleOwner = lifecycleOwner
+    private fun onProjectedDeviceConnected() {
+        Log.i(TAG, "Projected device is connected")
         val projectedContext = createProjectedContext() ?: return
-        if (
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) !=
-                PackageManager.PERMISSION_GRANTED
-        ) {
-            viewModel.setStatusMessage("Camera permission is required.")
-            return
-        }
-        initCamera(projectedContext, lifecycleOwner)
-    }
+        this.projectedContext = projectedContext
 
-    private fun createProjectedContext(): Context? {
-        try {
-            return ProjectedContext.createProjectedDeviceContext(context)
-        } catch (e: IllegalStateException) {
-            viewModel.setStatusMessage("Failed to create Projected Context.")
-            Log.w(TAG, "Error creating projected context: $e")
-            return null
-        }
-    }
-
-    private fun initCamera(projectedContext: Context, lifecycleOwner: LifecycleOwner) {
-        ProcessCameraProvider.getInstance(projectedContext).apply {
-            addListener(
-                {
-                    val cameraProvider = get()
-                    val availableCameras: List<CameraInfo> = cameraProvider.availableCameraInfos
-                    if (availableCameras.isEmpty()) {
-                        Log.w(TAG, "No Cameras are available on the projected context.")
-                        viewModel.setStatusMessage(
-                            "No Cameras are available on the projected context."
-                        )
-                        viewModel.setCameraInfo(0, false)
-                        return@addListener
-                    }
-                    Log.i(TAG, "Available Camera count : ${availableCameras.size}")
-
-                    val virtualCamera: CameraInfo = availableCameras[0]
-
-                    imageCapture =
-                        ImageCapture.Builder()
-                            .setResolutionSelector(
-                                ResolutionSelector.Builder()
-                                    .setResolutionStrategy(
-                                        ResolutionStrategy(
-                                            Size(PHOTO_RESOLUTION_WIDTH, PHOTO_RESOLUTION_HEIGHT),
-                                            ResolutionStrategy
-                                                .FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER,
-                                        )
-                                    )
-                                    .build()
-                            )
-                            .build()
-                    val cameraSelector = virtualCamera.cameraSelector
-
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner = lifecycleOwner,
-                        cameraSelector,
-                        imageCapture,
-                    )
-                    viewModel.setCameraInfo(availableCameras.size, true)
-                    viewModel.setStatusMessage("Camera ready (${availableCameras.size} available).")
-                },
-                ContextCompat.getMainExecutor(context),
+        if (hasCameraPermission(projectedContext)) {
+            bindCamera(projectedContext)
+        } else {
+            Log.w(TAG, "CAMERA permission is not granted on the projected device")
+            viewModel.setStatusMessage(
+                "Camera permission is not granted on the projected device. Grant it in the " +
+                    "Permissions test and relaunch the Camera test."
             )
         }
     }
 
+    private fun onProjectedDeviceDisconnected() {
+        Log.w(TAG, "Projected device is not connected")
+        unbindCamera()
+        projectedContext = null
+        viewModel.setStatusMessage("Projected device is not connected.")
+    }
+
+    private fun createProjectedContext(): Context? =
+        try {
+            ProjectedContext.createProjectedDeviceContext(context)
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "Error creating projected context: $e")
+            viewModel.setStatusMessage("Failed to create Projected Context.")
+            null
+        }
+
+    private fun bindCamera(projectedContext: Context) {
+        val providerFuture = ProcessCameraProvider.getInstance(projectedContext)
+        providerFuture.addListener(
+            {
+                if (this.projectedContext !== projectedContext) {
+                    Log.w(
+                        TAG,
+                        "Projected context changed or disconnected before CameraProvider was ready.",
+                    )
+                    return@addListener
+                }
+
+                val provider = providerFuture.get()
+                val availableCameras = provider.availableCameraInfos
+                if (availableCameras.isEmpty()) {
+                    Log.w(TAG, "No Cameras are available on the projected context.")
+                    viewModel.setStatusMessage("No Cameras are available on the projected context.")
+                    viewModel.setCameraInfo(0, false)
+                    return@addListener
+                }
+                Log.i(TAG, "Available Camera count : ${availableCameras.size}")
+
+                val capture = createImageCapture()
+                provider.unbindAll()
+                provider.bindToLifecycle(
+                    lifecycleOwner,
+                    availableCameras.first().cameraSelector,
+                    capture,
+                )
+                cameraProvider = provider
+                imageCapture = capture
+                viewModel.setCameraInfo(availableCameras.size, true)
+                viewModel.setStatusMessage("Camera ready (${availableCameras.size} available).")
+            },
+            ContextCompat.getMainExecutor(context),
+        )
+    }
+
+    private fun unbindCamera() {
+        cameraProvider?.unbindAll()
+        cameraProvider = null
+        imageCapture = null
+        viewModel.setCameraInfo(0, false)
+    }
+
     fun takePicture() {
-        if (!::imageCapture.isInitialized) {
+        val capture = imageCapture
+        if (capture == null) {
             viewModel.setStatusMessage("Camera is not initialized.")
             return
         }
@@ -188,7 +208,7 @@ class CameraController(
                 )
                 .build()
 
-        imageCapture.takePicture(
+        capture.takePicture(
             outputOptions,
             photoExecutor,
             object : ImageCapture.OnImageSavedCallback {
@@ -199,10 +219,10 @@ class CameraController(
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    Log.i(TAG, "Photo capture succeeded for: $lastPictureName")
-                    lastPictureName = nextPictureName
-                    viewModel.setLastPictureName(lastPictureName)
-                    viewModel.setStatusMessage("Photo capture succeeded for: $lastPictureName")
+                    val pictureName = nextPictureName
+                    Log.i(TAG, "Photo capture succeeded for: $pictureName")
+                    viewModel.setLastPictureName(pictureName)
+                    viewModel.setStatusMessage("Photo capture succeeded for: $pictureName")
                     viewModel.setTakingPicture(false)
 
                     val uri = output.savedUri
@@ -221,49 +241,74 @@ class CameraController(
         )
     }
 
-    private fun decodeAndOrientBitmap(context: Context, uri: Uri): Bitmap? {
-        val bitmap =
-            context.contentResolver.openInputStream(uri)?.use { stream ->
-                BitmapFactory.decodeStream(stream)
-            } ?: return null
-
-        val rotationDegrees =
-            try {
-                context.contentResolver.openInputStream(uri)?.use { stream ->
-                    val exif = ExifInterface(stream)
-                    when (
-                        exif.getAttributeInt(
-                            ExifInterface.TAG_ORIENTATION,
-                            ExifInterface.ORIENTATION_NORMAL,
-                        )
-                    ) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-                        else -> 0f
-                    }
-                } ?: 0f
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to read EXIF orientation", e)
-                0f
-            }
-
-        return if (rotationDegrees != 0f) {
-            val matrix = Matrix().apply { postRotate(rotationDegrees) }
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-        } else {
-            bitmap
-        }
-    }
-
     override fun close() {
+        connectionJob?.cancel()
+        connectionJob = null
+        unbindCamera()
+        projectedContext = null
         photoExecutor.shutdown()
     }
 
     companion object {
         const val PHOTO_RESOLUTION_WIDTH = 720
         const val PHOTO_RESOLUTION_HEIGHT = 1280
-        const val FILENAME_FORMAT = "YYYY-MM-dd,HH_mm_ss"
-        private const val TAG = "CameraController"
+        const val FILENAME_FORMAT = "yyyy-MM-dd_HH_mm_ss_SSS"
+    }
+}
+
+private fun hasCameraPermission(projectedContext: Context): Boolean =
+    ContextCompat.checkSelfPermission(projectedContext, Manifest.permission.CAMERA) ==
+        PackageManager.PERMISSION_GRANTED
+
+private fun createImageCapture(): ImageCapture =
+    ImageCapture.Builder()
+        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+        .setResolutionSelector(
+            ResolutionSelector.Builder()
+                .setResolutionStrategy(
+                    ResolutionStrategy(
+                        Size(
+                            CameraController.PHOTO_RESOLUTION_WIDTH,
+                            CameraController.PHOTO_RESOLUTION_HEIGHT,
+                        ),
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER,
+                    )
+                )
+                .build()
+        )
+        .build()
+
+private fun decodeAndOrientBitmap(context: Context, uri: Uri): Bitmap? {
+    val bitmap =
+        context.contentResolver.openInputStream(uri)?.use { stream ->
+            BitmapFactory.decodeStream(stream)
+        } ?: return null
+
+    val rotationDegrees =
+        try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val exif = ExifInterface(stream)
+                when (
+                    exif.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL,
+                    )
+                ) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                    ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                    ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                    else -> 0f
+                }
+            } ?: 0f
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to read EXIF orientation", e)
+            0f
+        }
+
+    return if (rotationDegrees != 0f) {
+        val matrix = Matrix().apply { postRotate(rotationDegrees) }
+        Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    } else {
+        bitmap
     }
 }
