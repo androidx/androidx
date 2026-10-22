@@ -154,6 +154,9 @@ val LazyListDemos =
         ComposableDemo("Nested lazy lists") { NestedLazyDemo() },
         ComposableDemo("Nested LazyColumn and LazyRows") { LazyColumnWithLazyRowsSample() },
         ComposableDemo("LazyGrid") { LazyGridDemo() },
+        ComposableDemo("LazyGrid Responsive (crossAxisCellCount)") {
+            LazyGridCrossAxisCellCountDemo()
+        },
         ComposableDemo("LazyGrid with Spacing") { LazyGridWithSpacingDemo() },
         ComposableDemo("Custom keys") { ReorderWithCustomKeys() },
         ComposableDemo("Fling Config") { LazyWithFlingConfig() },

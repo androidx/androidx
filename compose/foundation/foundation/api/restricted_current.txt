@@ -1423,6 +1423,8 @@ package androidx.compose.foundation.lazy.grid {
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker @androidx.compose.runtime.Stable public sealed nonexhaustive interface LazyGridItemScope {
     method public androidx.compose.ui.Modifier animateItem(androidx.compose.ui.Modifier, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeInSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>? placementSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? fadeOutSpec);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! animateItem$default(androidx.compose.foundation.lazy.grid.LazyGridItemScope!, androidx.compose.ui.Modifier!, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, androidx.compose.animation.core.FiniteAnimationSpec!, int, Object!);
+    method @InaccessibleFromKotlin public int getCrossAxisCellCount();
+    property public abstract int crossAxisCellCount;
   }
 
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker public sealed nonexhaustive interface LazyGridItemSpanScope {
