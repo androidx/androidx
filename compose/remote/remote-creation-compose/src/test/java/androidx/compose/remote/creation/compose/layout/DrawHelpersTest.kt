@@ -100,7 +100,7 @@ class DrawHelpersTest {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toRemoteBlendMode().value)
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.encode())
         assertEquals(TextLayout.OVERFLOW_ELLIPSIS, TextOverflow.Ellipsis.encode())
-        assertEquals(1, FontStyle.Italic.encode())
+        assertEquals(1, FontStyle.Italic.toRemoteFontStyle().value)
         assertEquals(2, LineBreak.Heading.encode())
         assertEquals(2, Hyphens.Auto.encode())
     }

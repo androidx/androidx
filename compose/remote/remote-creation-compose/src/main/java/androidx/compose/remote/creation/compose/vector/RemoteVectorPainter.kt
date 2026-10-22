@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("RemoteVectorPainterKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.vector
 
 import androidx.annotation.RestrictTo
@@ -26,28 +29,16 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
-import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.RootGroupName
-import androidx.compose.ui.graphics.vector.VectorGroup
-import androidx.compose.ui.graphics.vector.VectorPath
-import androidx.compose.ui.unit.isSpecified
 
-/**
- * A [RemotePainter] that support drawing either a Compose [ImageVector] or a [RemoteImageVector]
- * into the provided RemoteCanvas.
- */
+/** A [RemotePainter] that draws a [RemoteImageVector] into the provided [RemoteCanvas]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteVectorPainter : RemotePainter() {
 
@@ -115,24 +106,11 @@ public fun painterRemoteVector(
     return createVectorPainterFromRemoteImageVector(vector, tintColor, vector.remoteTintBlendMode)
 }
 
-/**
- * Creates a [RemoteVectorPainter] from an [ImageVector].
- *
- * @param image the [ImageVector] to create the painter for.
- * @param tintColor the tint color to apply to the image.
- */
-public fun painterRemoteVector(
-    image: ImageVector,
-    tintColor: RemoteColor = RemoteColor(image.tintColor),
-): RemotePainter {
-    return createVectorPainterFromImageVector(image, tintColor)
-}
-
 /** Helper method to configure the properties of a VectorPainter that maybe re-used */
 internal fun RemoteVectorPainter.configureRemoteVectorPainter(
     root: RemoteGroupComponent,
     viewportSize: RemoteSize,
-    name: String = RootGroupName,
+    name: String,
     intrinsicColorFilter: RemoteColorFilter?,
     autoMirror: Boolean = false,
     defaultSize: RemoteSize = RemoteSize(DefaultIconSize.rf, DefaultIconSize.rf),
@@ -145,7 +123,7 @@ internal fun RemoteVectorPainter.configureRemoteVectorPainter(
     this.defaultSize = defaultSize
 }
 
-private fun createColorFilter(
+internal fun createColorFilter(
     tintColor: RemoteColor,
     tintBlendMode: RemoteBlendMode,
 ): RemoteColorFilter? {
@@ -179,82 +157,6 @@ internal fun createVectorPainterFromRemoteImageVector(
             autoMirror = imageVector.autoMirror,
             defaultSize = defaultSize,
         )
-}
-
-/** Helper method to create a VectorPainter instance from an ImageVector */
-internal fun createVectorPainterFromImageVector(
-    imageVector: ImageVector,
-    tintColor: RemoteColor = RemoteColor(imageVector.tintColor),
-): RemoteVectorPainter {
-    val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
-
-    val defaultWidth =
-        if (imageVector.defaultWidth.isSpecified) imageVector.defaultWidth.asRdp().value
-        else DefaultIconSize.rf
-    val defaultHeight =
-        if (imageVector.defaultHeight.isSpecified) imageVector.defaultHeight.asRdp().value
-        else DefaultIconSize.rf
-    val defaultSize = RemoteSize(defaultWidth, defaultHeight)
-
-    val viewportWidth =
-        if (imageVector.viewportWidth.isNaN()) defaultSize.width else imageVector.viewportWidth.rf
-    val viewportHeight =
-        if (imageVector.viewportHeight.isNaN()) defaultSize.height
-        else imageVector.viewportHeight.rf
-    val viewport = RemoteSize(viewportWidth, viewportHeight)
-    return RemoteVectorPainter()
-        .configureRemoteVectorPainter(
-            root = root,
-            viewportSize = viewport,
-            name = imageVector.name,
-            intrinsicColorFilter = createColorFilter(tintColor, RemoteBlendMode.SrcIn),
-            autoMirror = imageVector.autoMirror,
-            defaultSize = defaultSize,
-        )
-}
-
-internal fun RemoteGroupComponent.createGroupComponent(
-    currentGroup: VectorGroup
-): RemoteGroupComponent {
-    for (index in 0 until currentGroup.size) {
-        val vectorNode = currentGroup[index]
-        if (vectorNode is VectorPath) {
-            val remotePathComponent =
-                RemotePathComponent().apply {
-                    pathData = vectorNode.pathData.toRemotePathNodes()
-                    name = vectorNode.name
-                    pathFillType = vectorNode.pathFillType.toRemotePathFillType()
-                    fill = vectorNode.fill
-                    fillAlpha = vectorNode.fillAlpha.rf
-                    stroke = vectorNode.stroke
-                    strokeAlpha = vectorNode.strokeAlpha.rf
-                    strokeLineWidth = vectorNode.strokeLineWidth.rf
-                    strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()
-                    strokeLineJoin = vectorNode.strokeLineJoin.toRemoteStrokeJoin()
-                    strokeLineMiter = vectorNode.strokeLineMiter.rf
-                    trimPathStart = vectorNode.trimPathStart.rf
-                    trimPathEnd = vectorNode.trimPathEnd.rf
-                    trimPathOffset = vectorNode.trimPathOffset.rf
-                }
-            insertAt(index, remotePathComponent)
-        } else if (vectorNode is VectorGroup) {
-            val remoteGroupComponent =
-                RemoteGroupComponent().apply {
-                    name = vectorNode.name
-                    rotation = vectorNode.rotation.rf
-                    scaleX = vectorNode.scaleX.rf
-                    scaleY = vectorNode.scaleY.rf
-                    translationX = vectorNode.translationX.rf
-                    translationY = vectorNode.translationY.rf
-                    pivotX = vectorNode.pivotX.rf
-                    pivotY = vectorNode.pivotY.rf
-                    clipPathData = vectorNode.clipPathData.toRemotePathNodes()
-                    createGroupComponent(vectorNode)
-                }
-            insertAt(index, remoteGroupComponent)
-        }
-    }
-    return this
 }
 
 internal fun RemoteGroupComponent.createGroupComponent(
