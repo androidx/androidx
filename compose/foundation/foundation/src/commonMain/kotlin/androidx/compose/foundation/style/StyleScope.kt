@@ -105,6 +105,11 @@ public fun StyleStateScope.state(key: StyleStateKey<Boolean>, block: () -> Unit)
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ContentPaddingScope {
     /**
      * Sets the padding for the start edge of the component's content. Content padding is the space
@@ -194,6 +199,12 @@ public interface ContentPaddingScope {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ContentPaddingScope.contentPaddingHorizontal(value: Dp) {
     contentPaddingStart(value)
     contentPaddingEnd(value)
@@ -214,6 +225,12 @@ public fun ContentPaddingScope.contentPaddingHorizontal(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ContentPaddingScope.contentPaddingVertical(value: Dp) {
     contentPaddingTop(value)
     contentPaddingBottom(value)
@@ -236,6 +253,12 @@ public fun ContentPaddingScope.contentPaddingVertical(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ContentPaddingScope.contentPadding(value: Dp) {
     contentPaddingStart(value)
     contentPaddingEnd(value)
@@ -261,6 +284,12 @@ public fun ContentPaddingScope.contentPadding(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ContentPaddingScope.contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
     contentPaddingStart(start)
     contentPaddingTop(top)
@@ -282,6 +311,12 @@ public fun ContentPaddingScope.contentPadding(start: Dp, top: Dp, end: Dp, botto
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ContentPaddingScope.contentPadding(horizontal: Dp, vertical: Dp) {
     contentPaddingHorizontal(horizontal)
     contentPaddingVertical(vertical)
@@ -299,6 +334,12 @@ public fun ContentPaddingScope.contentPadding(horizontal: Dp, vertical: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun <T> T.contentPadding(paddingValues: PaddingValues)
     where T : ContentPaddingScope, T : CompositionLocalAccessorScope {
     contentPadding(
@@ -316,6 +357,11 @@ public fun <T> T.contentPadding(paddingValues: PaddingValues)
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ExternalPaddingScope {
     /**
      * Sets the external padding for the start edge of the component. The external padding is the
@@ -405,6 +451,12 @@ public interface ExternalPaddingScope {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ExternalPaddingScope.externalPaddingHorizontal(value: Dp) {
     externalPaddingStart(value)
     externalPaddingEnd(value)
@@ -425,6 +477,12 @@ public fun ExternalPaddingScope.externalPaddingHorizontal(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ExternalPaddingScope.externalPaddingVertical(value: Dp) {
     externalPaddingTop(value)
     externalPaddingBottom(value)
@@ -447,6 +505,12 @@ public fun ExternalPaddingScope.externalPaddingVertical(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ExternalPaddingScope.externalPadding(value: Dp) {
     externalPaddingStart(value)
     externalPaddingEnd(value)
@@ -472,6 +536,12 @@ public fun ExternalPaddingScope.externalPadding(value: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ExternalPaddingScope.externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
     externalPaddingStart(start)
     externalPaddingTop(top)
@@ -493,6 +563,12 @@ public fun ExternalPaddingScope.externalPadding(start: Dp, top: Dp, end: Dp, bot
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ExternalPaddingScope.externalPadding(horizontal: Dp, vertical: Dp) {
     externalPaddingHorizontal(horizontal)
     externalPaddingVertical(vertical)
@@ -510,6 +586,12 @@ public fun ExternalPaddingScope.externalPadding(horizontal: Dp, vertical: Dp) {
  * @see androidx.compose.foundation.layout.padding
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun <T> T.externalPadding(paddingValues: PaddingValues)
     where T : ExternalPaddingScope, T : CompositionLocalAccessorScope {
     externalPadding(
@@ -526,6 +608,11 @@ public fun <T> T.externalPadding(paddingValues: PaddingValues)
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface BorderScope {
     /**
      * Sets the width of the border around the component. The border is drawn on top of the
@@ -585,6 +672,11 @@ public interface BorderScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface SizeScope {
     /**
      * Sets the preferred width of the component. The actual size will also depend on the parent's
@@ -658,6 +750,12 @@ public interface SizeScope {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.size(width: Dp, height: Dp) {
     width(width)
     height(height)
@@ -674,6 +772,12 @@ public fun SizeScope.size(width: Dp, height: Dp) {
  * @see androidx.compose.foundation.layout.fillMaxHeight
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.fillHeight() {
     height(1.0f)
 }
@@ -689,6 +793,12 @@ public fun SizeScope.fillHeight() {
  * @see androidx.compose.foundation.layout.fillMaxSize
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.fillSize() {
     width(1.0f)
     height(1.0f)
@@ -704,6 +814,12 @@ public fun SizeScope.fillSize() {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.size(value: Dp) {
     width(value)
     height(value)
@@ -720,6 +836,12 @@ public fun SizeScope.size(value: Dp) {
  * @see androidx.compose.foundation.layout.size
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.size(value: DpSize) {
     width(value.width)
     height(value.height)
@@ -736,6 +858,12 @@ public fun SizeScope.size(value: DpSize) {
  * @see androidx.compose.foundation.layout.fillMaxWidth
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun SizeScope.fillWidth() {
     width(1.0f)
 }
@@ -759,6 +887,12 @@ public fun SizeScope.fillWidth() {
  * @see androidx.compose.foundation.border
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun BorderScope.border(width: Dp, color: Color) {
     borderWidth(width)
     borderColor(color)
@@ -783,6 +917,12 @@ public fun BorderScope.border(width: Dp, color: Color) {
  * @see androidx.compose.foundation.border
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun BorderScope.border(width: Dp, brush: Brush) {
     borderWidth(width)
     borderBrush(brush)
@@ -794,6 +934,11 @@ public fun BorderScope.border(width: Dp, brush: Brush) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface PositionScope {
     /**
      * Offsets the component horizontally from its original calculated left position. Positive
@@ -858,6 +1003,11 @@ public interface PositionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface MinSizeScope {
     /**
      * Constrains the minimum width of the component. The component's width, including padding, will
@@ -900,6 +1050,12 @@ public interface MinSizeScope {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun MinSizeScope.minSize(size: DpSize) {
     minWidth(size.width)
     minHeight(size.height)
@@ -918,6 +1074,12 @@ public fun MinSizeScope.minSize(size: DpSize) {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun MinSizeScope.minSize(width: Dp, height: Dp) {
     minWidth(width)
     minHeight(height)
@@ -929,6 +1091,11 @@ public fun MinSizeScope.minSize(width: Dp, height: Dp) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface MaxSizeScope {
     /**
      * Constrains the maximum width of the component. The component's width, including padding, will
@@ -971,6 +1138,12 @@ public interface MaxSizeScope {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun MaxSizeScope.maxSize(size: DpSize) {
     maxWidth(size.width)
     maxHeight(size.height)
@@ -989,6 +1162,12 @@ public fun MaxSizeScope.maxSize(size: DpSize) {
  * @see androidx.compose.foundation.layout.sizeIn
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun MaxSizeScope.maxSize(width: Dp, height: Dp) {
     maxWidth(width)
     maxHeight(height)
@@ -1000,6 +1179,11 @@ public fun MaxSizeScope.maxSize(width: Dp, height: Dp) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface AlphaScope {
     /**
      * Sets the opacity of the component. A value of 1.0f means fully opaque, 0.0f means fully
@@ -1020,6 +1204,11 @@ public interface AlphaScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ScaleScope {
     /**
      * Scales the component horizontally around its center pivot point.
@@ -1067,6 +1256,12 @@ public interface ScaleScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ScaleScope.scale(@FloatRange(from = 0.0) value: Float) {
     scaleX(value)
     scaleY(value)
@@ -1088,6 +1283,12 @@ public fun ScaleScope.scale(@FloatRange(from = 0.0) value: Float) {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun ScaleScope.scale(@FloatRange(from = 0.0) x: Float, @FloatRange(from = 0.0) y: Float) {
     scaleX(x)
     scaleY(y)
@@ -1099,6 +1300,11 @@ public fun ScaleScope.scale(@FloatRange(from = 0.0) x: Float, @FloatRange(from =
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TranslationScope {
     /**
      * Translates (moves) the component horizontally. Positive values move it to the right, negative
@@ -1137,6 +1343,12 @@ public interface TranslationScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun TranslationScope.translation(
     @FloatRange(from = 0.0) x: Float,
     @FloatRange(from = 0.0) y: Float,
@@ -1156,6 +1368,12 @@ public fun TranslationScope.translation(
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun TranslationScope.translation(offset: Offset) {
     translationX(offset.x)
     translationY(offset.y)
@@ -1167,6 +1385,11 @@ public fun TranslationScope.translation(offset: Offset) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface RotationScope {
     /**
      * Rotates the component around the X-axis through its center.
@@ -1222,6 +1445,12 @@ public interface RotationScope {
  * @see androidx.compose.ui.graphics.graphicsLayer
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun RotationScope.rotation(x: Float, y: Float, z: Float) {
     rotationX(x)
     rotationY(y)
@@ -1234,6 +1463,11 @@ public fun RotationScope.rotation(x: Float, y: Float, z: Float) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ColorFilterScope {
     /**
      * Sets the [ColorFilter] to apply to the component.
@@ -1252,6 +1486,11 @@ public interface ColorFilterScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TransformOriginScope {
     /**
      * Offset percentage along the x-axis for which contents are rotated and scaled. The default
@@ -1283,6 +1522,12 @@ public interface TransformOriginScope {
  * @see [androidx.compose.ui.graphics.GraphicsLayerScope]
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleProperty,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun TransformOriginScope.transformOrigin(value: TransformOrigin) {
     transformOriginX(value.pivotFractionX)
     transformOriginY(value.pivotFractionY)
@@ -1294,6 +1539,11 @@ public fun TransformOriginScope.transformOrigin(value: TransformOrigin) {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ClipScope {
     /**
      * Clips the component to its bounds. If a [ShapeScope.shape] is also applied, it clips to the
@@ -1315,6 +1565,11 @@ public interface ClipScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ZIndexScope {
     /**
      * Sets the Z-index of the component. Higher Z-index components are drawn on top of lower
@@ -1334,6 +1589,11 @@ public interface ZIndexScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface BackgroundScope {
     /**
      * Sets the background color of the component. If a [ShapeScope.shape] is applied, the
@@ -1370,6 +1630,11 @@ public interface BackgroundScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ForegroundScope {
     /**
      * Sets the foreground color for the component. This can be used to overlay a color on top of
@@ -1406,6 +1671,11 @@ public interface ForegroundScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ShapeScope {
     /**
      * Sets the [Shape] for the component. This shape is used for clipping ([ClipScope.clip]),
@@ -1432,6 +1702,11 @@ public interface ShapeScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ShadowScope {
     /**
      * Applies a drop shadow effect directly to the component, often used for text or specific
@@ -1559,6 +1834,11 @@ public fun AnimateStyleScope.animate(spec: AnimationSpec<Float>, block: () -> Un
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextStyleScope {
     /**
      * Applies a complete [TextStyle] object to the component. This is a convenient way to set
@@ -1582,6 +1862,11 @@ public interface TextStyleScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface ContentColorScope {
     /**
      * Sets the preferred content color, primarily affecting text color. This property is inherited
@@ -1619,6 +1904,11 @@ public interface ContentColorScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextDecorationScope {
     /**
      * Sets the text decoration (e.g., underline, line-through). This property is inherited by child
@@ -1640,6 +1930,11 @@ public interface TextDecorationScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface FontFamilyScope {
     /**
      * Sets the font family for the text. This property is inherited by child text components if not
@@ -1660,6 +1955,11 @@ public interface FontFamilyScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextIndentScope {
     /**
      * Sets the text indent (e.g., for the first line or subsequent lines). This property is
@@ -1681,6 +1981,11 @@ public interface TextIndentScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface FontSizeScope {
     /**
      * Sets the font size for the text. This property is inherited by child text components if not
@@ -1701,6 +2006,11 @@ public interface FontSizeScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface LineHeightScope {
     /**
      * Sets the line height for the text. This property is inherited by child text components if not
@@ -1721,6 +2031,11 @@ public interface LineHeightScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface LetterSpacingScope {
     /**
      * Sets the letter spacing for the text. This property is inherited by child text components if
@@ -1741,6 +2056,11 @@ public interface LetterSpacingScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface BaselineShiftScope {
     /**
      * Sets the baseline shift for the text (e.g., for superscript or subscript). This property is
@@ -1762,6 +2082,11 @@ public interface BaselineShiftScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface FontWeightScope {
     /**
      * Sets the font weight for the text (e.g., bold, normal). This property is inherited by child
@@ -1783,6 +2108,11 @@ public interface FontWeightScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface FontStyleScope {
     /**
      * Sets the font style for the text (e.g., italic, normal). This property is inherited by child
@@ -1804,6 +2134,11 @@ public interface FontStyleScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextDirectionScope {
     /**
      * Sets the text direction (e.g., LTR, RTL, content-based). This property is inherited by child
@@ -1825,6 +2160,11 @@ public interface TextDirectionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextAlignScope {
     /**
      * Sets the text alignment (e.g., start, end, center). This property is inherited by child text
@@ -1845,6 +2185,11 @@ public interface TextAlignScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface LineBreakScope {
     /**
      * Sets the line breaking strategy for text. This property is inherited by child text components
@@ -1865,6 +2210,11 @@ public interface LineBreakScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface HyphensScope {
     /**
      * Sets the hyphenation strategy for text. This property is inherited by child text components
@@ -1885,6 +2235,11 @@ public interface HyphensScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface FontSynthesisScope {
     /**
      * Sets the font synthesis strategy, determining if and how bold/italic styles are synthesized
@@ -1903,6 +2258,11 @@ public interface FontSynthesisScope {
 
 /** An interface that introduces the [textMotion] property to a [Style] receiver scope. */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public interface TextMotionScope {
     /**
      * Sets the text motion strategy, which can be used to optimize for readability or for smooth
@@ -1923,6 +2283,12 @@ public interface TextMotionScope {
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public interface LayoutStyleScope :
     ContentPaddingScope, ExternalPaddingScope, SizeScope, PositionScope, MinSizeScope, MaxSizeScope
 
@@ -1932,6 +2298,12 @@ public interface LayoutStyleScope :
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public interface LayerStyleScope :
     AlphaScope,
     ScaleScope,
@@ -1948,6 +2320,12 @@ public interface LayerStyleScope :
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public interface DrawStyleScope :
     BorderScope, BackgroundScope, ForegroundScope, ShapeScope, ShadowScope
 
@@ -1957,6 +2335,12 @@ public interface DrawStyleScope :
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public interface TextStyleStyleScope :
     TextStyleScope,
     ContentColorScope,
@@ -1988,6 +2372,12 @@ public interface TextStyleStyleScope :
  * @see Style
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    DeprecatedStyleScope,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public interface StyleScope :
     CustomStyleScope,
     StyleStateScope,
@@ -2009,3 +2399,6 @@ public inline fun <ScopeT : CustomStyleScope, StyleT : CustomStyle<ScopeT>> Scop
 ) {
     with(style) { this@apply.applyStyle() }
 }
+
+private const val DeprecatedStyleScope = "This scope type is being removed.$StyleTransition"
+private const val DeprecatedStyleProperty = "This style property is being removed.$StyleTransition"

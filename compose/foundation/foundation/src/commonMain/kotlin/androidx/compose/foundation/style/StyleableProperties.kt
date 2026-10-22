@@ -47,7 +47,6 @@ import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import kotlin.jvm.JvmField
 
@@ -57,8 +56,6 @@ internal const val LayerFlag: Int = 1 shl 2
 internal const val OuterLayoutFlag: Int = 1 shl 3
 internal const val TextLayoutFlag: Int = 1 shl 4
 internal const val TextDrawFlag: Int = 1 shl 5
-
-internal const val InheritedFlags: Int = TextLayoutFlag or TextDrawFlag
 
 internal const val PhaseFlagMask =
     InnerLayoutFlag or DrawFlag or LayerFlag or OuterLayoutFlag or TextDrawFlag or TextLayoutFlag
@@ -452,10 +449,6 @@ internal class StyleableProperties {
         target.baselineShift = baselineShift
         target.lineBreak = lineBreak
         target.textEnums = textEnums
-    }
-
-    internal fun copyInto(target: StyleableProperties, flags: Int) {
-        copyInto(target, primitiveFlagsOf(flags), objectsSetForFlags(flags))
     }
 
     internal fun clearProperties(primitivesFilter: Long, objectsFilter: Int) {

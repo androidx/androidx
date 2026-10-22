@@ -78,6 +78,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@Suppress("DEPRECATION")
 internal data class StyleElement(val styleState: StyleState?, val style: Style) :
     ModifierNodeElement<StyleOuterNode>() {
     override fun create() = StyleOuterNode(styleState, style)
@@ -118,6 +119,7 @@ internal object StyleInnerElement : ModifierNodeElement<StyleInnerNode>() {
     override fun hashCode(): Int = identityHashCode(this)
 }
 
+@Suppress("DEPRECATION")
 internal class StyleOuterNode(
     styleState: StyleState?,
     style: Style,

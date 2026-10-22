@@ -15,7 +15,7 @@
  */
 
 @file:OptIn(ExperimentalFoundationStyleApi::class)
-@file:Suppress("UNUSED", "VariableInitializerIsRedundant")
+@file:Suppress("UNUSED", "VariableInitializerIsRedundant", "DEPRECATION")
 
 package androidx.compose.foundation.samples
 
