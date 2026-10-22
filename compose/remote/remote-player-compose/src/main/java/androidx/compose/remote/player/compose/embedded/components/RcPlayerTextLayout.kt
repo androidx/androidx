@@ -197,7 +197,12 @@ internal fun resolveCoreTextLineHeight(
 ): TextUnit =
     when {
         lineHeightMultiplier == 1f && lineHeightAdd == 0f -> TextUnit.Unspecified
-        autosize && lineHeightAdd == 0f -> lineHeightMultiplier.em
+        // Autosized text keeps Compose's TextAutoSize, which picks the font size at layout time, so
+        // the line height must scale with that size: a multiplier in em does. Compose can't express
+        // "autosized size * multiplier + px", so the additive px is dropped here; core and the View
+        // player add it to the selected size, so their line spacing is lineHeightAdd px larger.
+        autosize ->
+            if (lineHeightMultiplier == 1f) TextUnit.Unspecified else lineHeightMultiplier.em
         else -> with(density) { (fontSize * lineHeightMultiplier + lineHeightAdd).toSp() }
     }
 

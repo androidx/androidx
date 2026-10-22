@@ -17,6 +17,9 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Typeface
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
@@ -24,11 +27,15 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.player.compose.embedded.components.resolveEffectiveMaxLines
-import androidx.compose.remote.player.compose.embedded.components.resolveTextAlign
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -180,13 +187,30 @@ class RcPlayerTextPropertiesTest {
 
     @Test
     fun testTextAlignJustifyWithoutJustificationModeMapsToStart() {
-        val textAlignWithoutJustification =
-            resolveTextAlign(CoreText.TEXT_ALIGN_JUSTIFY, CoreText.JUSTIFICATION_MODE_NONE)
-        assertThat(textAlignWithoutJustification).isEqualTo(TextAlign.Start)
+        var currentDocument by
+            mutableStateOf(
+                coreTextDocument(
+                    text = "Justify Mode Test",
+                    textAlign = CoreText.TEXT_ALIGN_JUSTIFY,
+                    justificationMode = CoreText.JUSTIFICATION_MODE_NONE,
+                )
+            )
+        rule.setContent { Box(Modifier.size(200.dp)) { RcPlayer(document = currentDocument) } }
+        rule.waitForIdle()
 
-        val textAlignWithJustification =
-            resolveTextAlign(CoreText.TEXT_ALIGN_JUSTIFY, CoreText.JUSTIFICATION_MODE_INTER_WORD)
-        assertThat(textAlignWithJustification).isEqualTo(TextAlign.Justify)
+        assertThat(rule.textLayoutResultOf("Justify Mode Test").layoutInput.style.textAlign)
+            .isEqualTo(TextAlign.Start)
+
+        currentDocument =
+            coreTextDocument(
+                text = "Justify Mode Test",
+                textAlign = CoreText.TEXT_ALIGN_JUSTIFY,
+                justificationMode = CoreText.JUSTIFICATION_MODE_INTER_WORD,
+            )
+        rule.waitForIdle()
+
+        assertThat(rule.textLayoutResultOf("Justify Mode Test").layoutInput.style.textAlign)
+            .isEqualTo(TextAlign.Justify)
     }
 
     @Test
@@ -272,12 +296,74 @@ class RcPlayerTextPropertiesTest {
 
     @Test
     fun testResolveEffectiveMaxLinesMatchesAndroidPaintContext() {
-        assertThat(resolveEffectiveMaxLines(1, CoreText.OVERFLOW_CLIP)).isEqualTo(1)
-        assertThat(resolveEffectiveMaxLines(1, CoreText.OVERFLOW_VISIBLE)).isEqualTo(1)
-        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_CLIP)).isEqualTo(Int.MAX_VALUE)
-        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_VISIBLE)).isEqualTo(Int.MAX_VALUE)
-        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_ELLIPSIS)).isEqualTo(3)
-        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_START_ELLIPSIS)).isEqualTo(3)
-        assertThat(resolveEffectiveMaxLines(3, CoreText.OVERFLOW_MIDDLE_ELLIPSIS)).isEqualTo(3)
+        val cases =
+            listOf(
+                Triple(1, CoreText.OVERFLOW_CLIP, 1),
+                Triple(1, CoreText.OVERFLOW_VISIBLE, 1),
+                Triple(3, CoreText.OVERFLOW_CLIP, Int.MAX_VALUE),
+                Triple(3, CoreText.OVERFLOW_VISIBLE, Int.MAX_VALUE),
+                Triple(3, CoreText.OVERFLOW_ELLIPSIS, 3),
+                Triple(3, CoreText.OVERFLOW_START_ELLIPSIS, 3),
+                Triple(3, CoreText.OVERFLOW_MIDDLE_ELLIPSIS, 3),
+            )
+
+        var currentDocument by
+            mutableStateOf(
+                coreTextDocument(
+                    text = "MaxLines Test",
+                    maxLines = cases.first().first,
+                    overflow = cases.first().second,
+                )
+            )
+        rule.setContent { Box(Modifier.size(200.dp)) { RcPlayer(document = currentDocument) } }
+
+        for ((maxLines, overflow, expected) in cases) {
+            currentDocument =
+                coreTextDocument(text = "MaxLines Test", maxLines = maxLines, overflow = overflow)
+            rule.waitForIdle()
+            assertThat(rule.textLayoutResultOf("MaxLines Test").layoutInput.maxLines)
+                .isEqualTo(expected)
+        }
+    }
+
+    private fun coreTextDocument(
+        text: String,
+        textAlign: Int = CoreText.TEXT_ALIGN_START,
+        justificationMode: Int = CoreText.JUSTIFICATION_MODE_NONE,
+        maxLines: Int = 1,
+        overflow: Int = CoreText.OVERFLOW_CLIP,
+    ): CoreDocument = buildDocument {
+        val textId = addText(text)
+        root {
+            startTextComponent(
+                RecordingModifier().width(200f).height(100f),
+                textId,
+                -1,
+                0xFF000000.toInt(),
+                -1,
+                18f,
+                -1f,
+                -1f,
+                0,
+                400f,
+                null,
+                textAlign,
+                overflow,
+                maxLines,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                justificationMode,
+                false,
+                false,
+                null,
+                null,
+                false,
+                0,
+            )
+            endTextComponent()
+        }
     }
 }
