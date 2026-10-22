@@ -45,6 +45,7 @@ import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfSandboxHandle
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.R as PdfR
+import androidx.pdf.RenderParams
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.AnnotationsView
 import androidx.pdf.annotation.AnnotationsView.OnAnnotationEditListener
@@ -103,6 +104,11 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     public constructor() : super()
 
     protected constructor(pdfStylingOptions: PdfStylingOptions) : super(pdfStylingOptions)
+
+    protected constructor(
+        pdfStylingOptions: PdfStylingOptions?,
+        renderParams: RenderParams,
+    ) : super(pdfStylingOptions, renderParams)
 
     /**
      * If `true`, the fragment is in edit mode, allowing for annotating or editing. If `false`, the

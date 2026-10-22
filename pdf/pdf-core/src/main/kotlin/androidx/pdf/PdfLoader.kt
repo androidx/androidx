@@ -40,6 +40,27 @@ public interface PdfLoader {
     public suspend fun openDocument(uri: Uri, password: String? = null): PdfDocument
 
     /**
+     * Asynchronously opens a [PdfDocument] from the specified [Uri] using the provided
+     * [renderParams].
+     *
+     * @param uri The URI of the PDF document to open.
+     * @param password The password to unlock the document if it is encrypted, or `null` if the
+     *   document is not encrypted.
+     * @param renderParams Represents a set of parameters that will be used to render a page of the
+     *   document.
+     * @return The opened [PdfDocument].
+     * @throws PdfPasswordException If the provided password is incorrect.
+     * @throws IOException If an error occurs while opening the document.
+     */
+    @ExperimentalPdfApi
+    @Throws(IOException::class)
+    public suspend fun openDocument(
+        uri: Uri,
+        password: String?,
+        renderParams: RenderParams,
+    ): PdfDocument = openDocument(uri, password)
+
+    /**
      * Asynchronously opens a [PdfDocument] from the specified [fileDescriptor]. The file descriptor
      * will become owned by the [PdfDocument], and it should be closed using the document, unless an
      * exception is thrown.

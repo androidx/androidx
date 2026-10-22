@@ -37,6 +37,7 @@ import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPasswordException
 import androidx.pdf.PdfPoint
+import androidx.pdf.RenderParams
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.ocr.OcrContextRepository
@@ -46,6 +47,7 @@ import androidx.pdf.search.model.NoQuery
 import androidx.pdf.search.model.QueryResults
 import androidx.pdf.search.model.QueryResultsIndex
 import androidx.pdf.search.model.SearchResultState
+import androidx.pdf.viewer.fragment.PdfViewerFragment.Companion.KEY_RENDER_PARAMS
 import androidx.pdf.viewer.fragment.model.HighlightData
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
 import androidx.pdf.viewer.fragment.model.SearchViewUiState
@@ -155,6 +157,12 @@ public open class PdfDocumentViewModel(
     /** DocumentUri as set in [state] */
     internal val documentUriFromState: Uri?
         get() = state[DOCUMENT_URI_KEY]
+
+    /** RenderParams as set in [state], defaulting to [RenderParams.RENDER_MODE_FOR_DISPLAY]. */
+    internal val renderParamsFromState: RenderParams
+        get() =
+            state[KEY_RENDER_PARAMS]
+                ?: RenderParams(renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY)
 
     /** isTextSearchActive as set in [state] */
     internal val isTextSearchActiveFromState: Boolean
@@ -476,8 +484,9 @@ public open class PdfDocumentViewModel(
 
         try {
 
+            val renderParams = renderParamsFromState
             // Try opening pdf with provided params
-            var document = loader.openDocument(uri, password)
+            var document = loader.openDocument(uri, password, renderParams)
             if (document.pageCount <= 0) {
                 throw IllegalStateException("Invalid PDF: 0 pages in document $uri")
             }
@@ -486,7 +495,7 @@ public open class PdfDocumentViewModel(
             if (!formStateRestored) {
                 // If we are not able to restore the state completely, we open the pdf in the
                 // original state without any edits.
-                document = loader.openDocument(uri, password)
+                document = loader.openDocument(uri, password, renderParams)
                 resetFormEditsState()
             }
 
