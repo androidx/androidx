@@ -456,13 +456,13 @@ class TextFieldLongPressTest : FocusedWindowTest {
                 press()
                 moveTo(positionForOffset(4))
             }
-            assertThat(state.selection).isEqualTo(TextRange(4, 5))
+            assertThat(state.selection).isEqualTo(TextRange(5, 4))
 
             performKeyInput { pressKey(Key.Backspace) }
             assertThat(state.selection).isEqualTo(TextRange(4, 4))
 
             performMouseInput { moveTo(positionForOffset(3)) }
-            assertThat(state.selection).isEqualTo(TextRange(3, 4))
+            assertThat(state.selection).isEqualTo(TextRange(4, 3))
             performMouseInput { release() }
         }
     }

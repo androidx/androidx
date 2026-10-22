@@ -203,11 +203,11 @@ internal class CoreTextFieldSemanticsModifierNode(
                     ?: run {
                         val newText =
                             value.text.replaceRange(
-                                value.selection.start,
-                                value.selection.end,
+                                value.selection.min,
+                                value.selection.max,
                                 text,
                             )
-                        val newCursor = TextRange(value.selection.start + text.length)
+                        val newCursor = TextRange(value.selection.min + text.length)
                         state.onValueChange(TextFieldValue(newText, newCursor))
                     }
                 true

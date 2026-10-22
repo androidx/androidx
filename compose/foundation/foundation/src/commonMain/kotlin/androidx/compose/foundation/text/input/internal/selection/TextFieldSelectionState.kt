@@ -849,7 +849,7 @@ internal class TextFieldSelectionState(
                     coerceInVisibleBounds = false,
                 )
 
-            var newSelection =
+            val newSelection =
                 updateSelection(
                     textFieldCharSequence = textFieldState.visualText,
                     startOffset = startOffset,
@@ -867,15 +867,6 @@ internal class TextFieldSelectionState(
             // TextField starts scrolling.
             if (dragBeginOffsetInText == -1 && !newSelection.collapsed) {
                 dragBeginOffsetInText = newSelection.start
-            }
-
-            // Although we support reversed selection, reversing the selection after it's
-            // initiated via long press has a visual glitch that's hard to get rid of. When
-            // handles (start/end) switch places after the selection reverts, draw happens a
-            // bit late, making it obvious that selection handles switched places. We simply do
-            // not allow reversed selection during long press drag.
-            if (newSelection.reversed) {
-                newSelection = newSelection.reverse()
             }
 
             textFieldState.selectCharsIn(newSelection)

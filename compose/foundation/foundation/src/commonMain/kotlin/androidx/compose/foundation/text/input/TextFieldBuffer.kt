@@ -572,8 +572,8 @@ internal constructor(
         range: TextRange,
         expandPolicy: ExpandPolicy,
     ): TrackedRange<T> {
-        val start = range.start
-        val end = range.end
+        val start = range.min
+        val end = range.max
         // We treat it as replace the original text with newly styled text.
         changeTracker.trackChange(start, end, end - start, false)
 

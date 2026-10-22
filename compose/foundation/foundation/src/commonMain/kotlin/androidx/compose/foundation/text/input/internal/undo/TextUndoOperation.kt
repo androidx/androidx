@@ -71,7 +71,7 @@ internal class TextUndoOperation(
                 } else {
                     TextDeleteType.End
                 }
-            } else if (preSelection.start == postSelection.start && preSelection.start == index) {
+            } else if (preSelection.min == postSelection.start && preSelection.min == index) {
                 return TextDeleteType.Inner
             }
             return TextDeleteType.NotByUser

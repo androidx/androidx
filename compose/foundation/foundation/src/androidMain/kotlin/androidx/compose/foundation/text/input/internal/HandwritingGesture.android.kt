@@ -323,7 +323,7 @@ internal object HandwritingGestureApi34 {
         // We'll replace " EF " to "EF" instead of replacing "CD EF GH" to "CDEFGH".
         // By doing so, it'll place the cursor at the index of the last removed space.
         // In the example above, the cursor should be placed after character 'F'.
-        val finalRange = TextRange(range.start + firstMatchStart, range.start + lastMatchEnd)
+        val finalRange = TextRange(range.min + firstMatchStart, range.min + lastMatchEnd)
         // Remove the unchanged part from the newText as well. Characters before firstMatchStart
         // and characters after the lastMatchEnd are removed.
         val finalNewText =
@@ -664,8 +664,8 @@ internal object HandwritingGestureApi34 {
         // We only replace the part of the text that changes.
         // e.g. The text is "AB CD EF GH IJ" and the original gesture range is "CD EF GH"
         // We'll replace " EF " to "EF" instead of replacing "CD EF GH" to "CDEFGH",
-        val replacedRangeStart = range.start + firstMatchStart
-        val replacedRangeEnd = range.start + lastMatchEnd
+        val replacedRangeStart = range.min + firstMatchStart
+        val replacedRangeEnd = range.min + lastMatchEnd
         // Remove the unchanged part from the newText as well. Characters before firstMatchStart
         // and characters after the lastMatchEnd are removed.
         val finalNewText =
@@ -754,8 +754,8 @@ private const val NBSP_CODE_POINT = '\u00A0'.code
  * extra whitespace around the deleted text.
  */
 private fun TextRange.adjustHandwritingDeleteGestureRange(text: CharSequence): TextRange {
-    var start = this.start
-    var end = this.end
+    var start = this.min
+    var end = this.max
 
     // If the deleted text is at the start of the text, the behavior is the same as the case
     // where the deleted text follows a new line character.
@@ -1094,5 +1094,5 @@ private fun compoundEditCommand(vararg editCommands: EditCommand): EditCommand {
 
 /** Return the minimum [TextRange] that contains the both given [TextRange]s. */
 private fun enclosure(a: TextRange, b: TextRange): TextRange {
-    return TextRange(min(a.start, a.start), max(b.end, b.end))
+    return TextRange(min(a.min, b.min), max(a.max, b.max))
 }

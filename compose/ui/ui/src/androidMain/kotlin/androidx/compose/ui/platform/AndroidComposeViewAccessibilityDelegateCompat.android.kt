@@ -3017,8 +3017,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             if (becamePasswordNode || becameNotPasswordNode) {
                                 val textRange =
                                     newNode.unmergedConfig[SemanticsProperties.TextSelectionRange]
-                                event.fromIndex = textRange.start
-                                event.toIndex = textRange.end
+                                event.fromIndex = textRange.min
+                                event.toIndex = textRange.max
                                 sendEvent(event)
                             }
                         } else {
@@ -3037,8 +3037,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         val event =
                             createTextSelectionChangedEvent(
                                 semanticsNodeIdToAccessibilityVirtualNodeId(id),
-                                textRange.start,
-                                textRange.end,
+                                textRange.min,
+                                textRange.max,
                                 newText.length,
                                 trimToSize(newText, ParcelSafeTextLength),
                             )
@@ -3426,7 +3426,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             !node.unmergedConfig.contains(SemanticsProperties.ContentDescription) &&
                 node.unmergedConfig.contains(SemanticsProperties.TextSelectionRange)
         ) {
-            return node.unmergedConfig[SemanticsProperties.TextSelectionRange].start
+            return node.unmergedConfig[SemanticsProperties.TextSelectionRange].min
         }
         return accessibilityCursorPosition
     }
@@ -3437,7 +3437,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             !node.unmergedConfig.contains(SemanticsProperties.ContentDescription) &&
                 node.unmergedConfig.contains(SemanticsProperties.TextSelectionRange)
         ) {
-            return node.unmergedConfig[SemanticsProperties.TextSelectionRange].end
+            return node.unmergedConfig[SemanticsProperties.TextSelectionRange].max
         }
         return accessibilityCursorPosition
     }
