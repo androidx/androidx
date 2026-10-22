@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -291,6 +292,54 @@ class DialogTest {
         }
         rule.waitForIdle()
         Assert.assertEquals(false, innerShow)
+    }
+
+    @Test
+    fun compositingStrategy_atRest_usesAuto() {
+        Assert.assertEquals(
+            CompositingStrategy.Auto,
+            dialogContentCompositingStrategy(isTransitionRunning = false, swipeOffset = 0f),
+        )
+    }
+
+    @Test
+    fun compositingStrategy_uninitializedSwipeOffset_usesAuto() {
+        Assert.assertEquals(
+            CompositingStrategy.Auto,
+            dialogContentCompositingStrategy(isTransitionRunning = false, swipeOffset = Float.NaN),
+        )
+    }
+
+    @Test
+    fun compositingStrategy_transitionRunning_usesOffscreen() {
+        Assert.assertEquals(
+            CompositingStrategy.Offscreen,
+            dialogContentCompositingStrategy(isTransitionRunning = true, swipeOffset = 0f),
+        )
+        Assert.assertEquals(
+            CompositingStrategy.Offscreen,
+            dialogContentCompositingStrategy(isTransitionRunning = true, swipeOffset = Float.NaN),
+        )
+    }
+
+    @Test
+    fun compositingStrategy_swipeInProgress_usesOffscreen() {
+        Assert.assertEquals(
+            CompositingStrategy.Offscreen,
+            dialogContentCompositingStrategy(isTransitionRunning = false, swipeOffset = 0.5f),
+        )
+        Assert.assertEquals(
+            CompositingStrategy.Offscreen,
+            dialogContentCompositingStrategy(isTransitionRunning = false, swipeOffset = 200f),
+        )
+    }
+
+    @Test
+    fun compositingStrategy_swipeInProgressDuringTransition_usesOffscreen() {
+        Assert.assertEquals(
+            CompositingStrategy.Offscreen,
+            dialogContentCompositingStrategy(isTransitionRunning = true, swipeOffset = 200f),
+        )
     }
 }
 
