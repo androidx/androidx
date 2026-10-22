@@ -379,7 +379,7 @@ internal class FocusOwnerImpl(
 
             val activeFocusTarget = findFocusTargetNode()
             val focusedKeyInputNode =
-                activeFocusTarget?.lastLocalKeyInputNode()
+                activeFocusTarget?.lastLocalNode(Nodes.KeyInput)
                     ?: activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.KeyInput)?.node
                     ?: rootFocusNode.nearestAncestor(Nodes.KeyInput)?.node
 
@@ -452,9 +452,8 @@ internal class FocusOwnerImpl(
             return false
         }
 
-        val activeFocusTarget = activeFocusTargetNode
         val focusedIndirectPointerInputNode =
-            activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
+            activeFocusTargetNode?.focusedIndirectPointerInputNode()
 
         focusedIndirectPointerInputNode?.let { node ->
             val ancestors = node.ancestors(Nodes.IndirectPointerInput)
@@ -463,17 +462,23 @@ internal class FocusOwnerImpl(
             ancestors?.fastForEachReversed {
                 it.onIndirectPointerEvent(event, PointerEventPass.Initial)
             }
-            node.onIndirectPointerEvent(event, PointerEventPass.Initial)
+            node.dispatchForKind(Nodes.IndirectPointerInput) {
+                it.onIndirectPointerEvent(event, PointerEventPass.Initial)
+            }
 
             // Main pass (bubbling)
-            node.onIndirectPointerEvent(event, PointerEventPass.Main)
+            node.dispatchForKind(Nodes.IndirectPointerInput) {
+                it.onIndirectPointerEvent(event, PointerEventPass.Main)
+            }
             ancestors?.fastForEach { it.onIndirectPointerEvent(event, PointerEventPass.Main) }
 
             // Final pass (tunneling)
             ancestors?.fastForEachReversed {
                 it.onIndirectPointerEvent(event, PointerEventPass.Final)
             }
-            node.onIndirectPointerEvent(event, PointerEventPass.Final)
+            node.dispatchForKind(Nodes.IndirectPointerInput) {
+                it.onIndirectPointerEvent(event, PointerEventPass.Final)
+            }
         }
 
         val isConsumed = event.changes.fastAny { it.isConsumed }
@@ -482,13 +487,13 @@ internal class FocusOwnerImpl(
 
     override fun dispatchIndirectPointerCancel() {
         val focusedIndirectPointerInputNode =
-            activeFocusTargetNode?.nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)
+            activeFocusTargetNode?.focusedIndirectPointerInputNode()
 
         focusedIndirectPointerInputNode?.let { node ->
             val ancestors = node.ancestors(Nodes.IndirectPointerInput)
 
             // Triggers cancel from main focused node to highest ancestor (bubbling)
-            node.onCancelIndirectPointerInput()
+            node.dispatchForKind(Nodes.IndirectPointerInput) { it.onCancelIndirectPointerInput() }
             ancestors?.fastForEach { it.onCancelIndirectPointerInput() }
         }
     }
@@ -590,15 +595,9 @@ internal class FocusOwnerImpl(
             field = value
         }
 
-    private fun DelegatableNode.lastLocalKeyInputNode(): Modifier.Node? {
-        var focusedKeyInputNode: Modifier.Node? = null
-        visitLocalDescendants(Nodes.FocusTarget or Nodes.KeyInput) { modifierNode ->
-            if (modifierNode.isKind(Nodes.FocusTarget)) return focusedKeyInputNode
-
-            focusedKeyInputNode = modifierNode
-        }
-        return focusedKeyInputNode
-    }
+    private fun FocusTargetNode.focusedIndirectPointerInputNode(): Modifier.Node? =
+        lastLocalNode(Nodes.IndirectPointerInput)
+            ?: nearestAncestorIncludingSelf(Nodes.IndirectPointerInput)?.node
 
     // TODO(b/307580000) Factor this out into a class to manage key inputs.
     private fun validateKeyEvent(keyEvent: KeyEvent): Boolean {
@@ -635,3 +634,13 @@ internal fun FocusDirection.is1dFocusSearch(): Boolean =
         Previous -> true
         else -> false
     }
+
+internal fun DelegatableNode.lastLocalNode(type: NodeKind<*>): Modifier.Node? {
+    var focusedNode: Modifier.Node? = null
+    visitLocalDescendants(Nodes.FocusTarget or type) { modifierNode ->
+        if (modifierNode.isKind(Nodes.FocusTarget)) return focusedNode
+
+        focusedNode = modifierNode
+    }
+    return focusedNode
+}
