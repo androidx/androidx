@@ -17,6 +17,7 @@ android.animation
 android.annotation
 android.app
 android.app.admin
+android.app.admin.policy
 android.app.appfunctions
 android.app.appsearch
 android.app.appsearch.exceptions
@@ -25,6 +26,7 @@ android.app.appsearch.util
 android.app.assist
 android.app.backup
 android.app.blob
+android.app.contentsafety
 android.app.jank
 android.app.job
 android.app.people
@@ -34,6 +36,7 @@ android.app.role
 android.app.sdksandbox
 android.app.sdksandbox.sdkprovider
 android.app.slice
+android.app.time
 android.app.usage
 android.app.voiceinteraction
 android.app.wallpaper
@@ -129,6 +132,7 @@ android.os
 android.os.ext
 android.os.flagging
 android.os.health
+android.os.multisensory
 android.os.storage
 android.os.storage.operations
 android.os.storage.operations.sources
@@ -162,6 +166,7 @@ android.service.assist.classification
 android.service.autofill
 android.service.carrier
 android.service.chooser
+android.service.contentsafety
 android.service.controls
 android.service.controls.actions
 android.service.controls.templates
