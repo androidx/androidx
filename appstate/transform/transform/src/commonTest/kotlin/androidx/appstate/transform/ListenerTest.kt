@@ -21,12 +21,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class ListenerTest {
+
+    @BeforeTest
+    fun setUp() {
+        TransformScope.isGlobalSnapshotManagerEnabled = false
+    }
+
+    @AfterTest
+    fun tearDown() {
+        TransformScope.isGlobalSnapshotManagerEnabled = true
+    }
 
     @Test
     fun testListenerUpdated() = transformTest {

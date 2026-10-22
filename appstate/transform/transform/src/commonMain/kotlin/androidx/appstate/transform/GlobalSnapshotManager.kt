@@ -19,8 +19,9 @@ package androidx.appstate.transform
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -29,8 +30,9 @@ import kotlinx.coroutines.launch
  * Mechanism for transform sessions to start a monitor of global snapshot state writes in order to
  * schedule periodic dispatch of apply notifications. Sessions should call [ensureStarted] during
  * setup to initialize periodic global snapshot notifications (which are necessary in order for
- * recompositions to be scheduled in response to state changes). These will be sent on
- * Dispatchers.Default. This is based on `androidx.compose.ui.platform.GlobalSnapshotManager`.
+ * recompositions to be scheduled in response to state changes). These will be sent on the provided
+ * [CoroutineContext] (defaults to [Dispatchers.Default]). This is based on
+ * `androidx.compose.ui.platform.GlobalSnapshotManager`.
  *
  * TODO: Remove this once we get an implementation from compose runtime
  */
@@ -39,10 +41,10 @@ internal object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
     private val sent = AtomicBoolean(false)
 
-    internal fun ensureStarted(dispatcher: CoroutineDispatcher) {
+    internal fun ensureStarted(coroutineContext: CoroutineContext = Dispatchers.Default) {
         if (started.compareAndSet(false, true)) {
             val channel = Channel<Unit>(1)
-            CoroutineScope(dispatcher).launch {
+            CoroutineScope(coroutineContext).launch {
                 channel.consumeEach {
                     sent.store(false)
                     Snapshot.sendApplyNotifications()

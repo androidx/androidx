@@ -16,6 +16,7 @@
 
 package androidx.appstate.statestore
 
+import androidx.appstate.transform.TransformScope
 import androidx.appstate.transform.listener
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.kruth.assertThat
@@ -28,12 +29,25 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class StateStoreDeviceTest {
+
+    @Before
+    fun setUp() {
+        TransformScope.isGlobalSnapshotManagerEnabled = false
+    }
+
+    @After
+    fun tearDown() {
+        TransformScope.isGlobalSnapshotManagerEnabled = true
+    }
+
     @Serializable object StringKey : StateStoreKey<String>("default")
 
     @Serializable object AutoClearKey : StateStoreKey<Int>(0, autoClearKey = StringKey)
