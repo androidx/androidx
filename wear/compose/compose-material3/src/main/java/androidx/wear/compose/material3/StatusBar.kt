@@ -21,86 +21,420 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.WindowInsets
+import androidx.annotation.MainThread
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.findNearestAncestor
+import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.utils.WearApiVersionHelper
 import com.google.wear.settings.WearSettings
+import java.lang.ref.WeakReference
+import java.util.WeakHashMap
 
 /**
- * Suppresses the system status bar for all composables within [content].
+ * Suppresses the status bar and collapses top status bar inset padding to 0.dp.
  *
- * Use this overload to wrap a [ScreenScaffold] (or multiple screen destinations) to enforce status
- * bar suppression. Child [ScreenScaffold]s within [content] inherit the suppression, hiding the
- * status bar and automatically setting their top status bar inset padding to 0.dp.
+ * In cases where the system status bar overlay is not yet supported by the platform, the fallback
+ * [TimeText] will also be suppressed for consistency. Outside of a scaffold (such as in a
+ * standalone dialog or overlay window), hides the status bar directly on the current window and
+ * restores the initial visibility state when leaving composition or becoming inactive.
  *
- * **Placement:** Place this around a [ScreenScaffold] or around navigation destinations. For
- * suppressing the status bar from *within* an individual component or screen body, use the
- * zero-argument [StatusBarSuppression] overload instead.
+ * For design guidance and best practices on status bar suppression and immersive experiences on
+ * Wear OS, see the [Status Bar](https://developer.android.com/training/wearables/status-bar) guide.
  *
- * Inside an [AppScaffold], suppresses the system status bar and coordinates with underlying
- * screens. Outside an [AppScaffold], hides the status bar directly on the current window and
- * restores the initial visibility state when leaving composition.
+ * **Layout-Phase Usage:** When using [ScreenScaffold], pass `contentPadding` directly to containers
+ * like TransformingLazyColumn as content padding or to layout modifiers (such as
+ * `Modifier.padding(contentPadding)`) rather than inspecting `contentPadding.calculateTopPadding()`
+ * directly during the composition phase. Inspecting padding values during composition before the
+ * first layout pass can observe initial unsuppressed insets before suppression nodes are fully
+ * attached, whereas layout modifiers evaluate insets during measure/layout where suppression state
+ * is fully resolved:
+ * ```
+ * // Recommended (evaluated in layout phase after child nodes attach):
+ * ScreenScaffold { contentPadding ->
+ *     Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+ *         DatePicker() // Suppresses status bar internally
+ *     }
+ * }
  *
- * An example of wrapping a screen with [StatusBarSuppression]:
+ * // Avoid (eager composition read before child nodes attach):
+ * ScreenScaffold { contentPadding ->
+ *     val topPadding = contentPadding.calculateTopPadding()
+ *     DatePicker() // Suppresses status bar internally
+ * }
+ * ```
  *
- * @sample androidx.wear.compose.material3.samples.StatusBarSuppressionContentSample
+ * Example of status bar suppression for an individual component or overlay within a screen (such as
+ * a picker or media player):
+ *
+ * @sample androidx.wear.compose.material3.samples.ComponentSuppressStatusBarSample
+ *
+ * Example of status bar suppression if only a specific screen in your app should be full-screen /
+ * immersive:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScreenScaffoldSuppressStatusBarSample
+ *
+ * Example of status bar suppression if the entire application (or Activity) is an immersive
+ * full-screen experience across all screens - this is not recommended for most apps because users
+ * will lose access to the time and important status indicators on every screen:
+ *
+ * @sample androidx.wear.compose.material3.samples.AppScaffoldSuppressStatusBarSample
  */
-@Composable
-public fun StatusBarSuppression(content: @Composable () -> Unit) {
-    StatusBarSuppression()
-    CompositionLocalProvider(LocalInheritedShowStatusBar provides false, content = content)
+@Stable public fun Modifier.suppressStatusBar(): Modifier = this then StatusBarSuppressionElement
+
+private object StatusBarSuppressionElement : ModifierNodeElement<StatusBarSuppressionNode>() {
+    override fun create(): StatusBarSuppressionNode = StatusBarSuppressionNode()
+
+    override fun update(node: StatusBarSuppressionNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "suppressStatusBar"
+    }
+
+    override fun hashCode(): Int = System.identityHashCode(this)
+
+    override fun equals(other: Any?): Boolean = (other === this)
 }
 
 /**
- * Suppresses the system status bar within full-screen or overlay components.
+ * [Modifier.Node] backing [Modifier.suppressStatusBar].
  *
- * Call this within a component (such as [TimePicker] or a full-screen progress indicator) or inside
- * a [ScreenScaffold] content block to suppress the status bar while that component is active. When
- * leaving composition, the previous status bar visibility is automatically restored.
- *
- * **Placement:** Place this inside the [ScreenScaffold] of the screen that requires suppression, or
- * inside a component rendered on that screen. To wrap and suppress a [ScreenScaffold], use the
- * [StatusBarSuppression] overload that accepts a `content` lambda instead.
- *
- * Inside an [AppScaffold], suppresses the system status bar and coordinates with underlying
- * screens. Outside an [AppScaffold], hides the status bar directly on the current window and
- * restores the initial visibility state when leaving composition.
- *
- * An example of suppressing the status bar from within a component:
- *
- * @sample androidx.wear.compose.material3.samples.StatusBarSuppressionSample
+ * Coordinates status bar suppression depending on its hierarchy position:
+ * - Inside an [AppScaffold], [ScreenScaffold], or pager scaffold, discovers the nearest ancestor
+ *   [StatusBarCoordinatorModifierNode] via [TraversableNode] traversal, incrementing suppression
+ *   count on attach and decrementing on detach.
+ * - Outside of any scaffold (e.g. standalone dialog windows or tests), falls back to coordinating
+ *   the status bar directly on the host window [View] via [StandaloneStatusBarCoordinator], hiding
+ *   the status bar while [LocalScreenIsActive] is true and ref-counting across concurrent
+ *   standalone callers to preserve the window's initial status bar baseline.
  */
-@Composable
-public fun StatusBarSuppression() {
-    if (!LocalStatusBarEnabled.current) return
-    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState
+private class StatusBarSuppressionNode :
+    Modifier.Node(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
 
-    if (scaffoldState != null) {
-        StatusBarRegistration(showStatusBar = rememberUpdatedState(false))
-    } else {
-        val view = LocalView.current
-        val screenIsActive = LocalScreenIsActive.current
-        val orchestrator = remember(view) { StatusBarOrchestrator(view) }
-        DisposableEffect(screenIsActive, orchestrator) {
-            if (screenIsActive) {
-                orchestrator.hide()
-                onDispose { orchestrator.restoreInitialStatusBarState() }
-            } else {
-                onDispose {}
+    private var releaseSuppression: (() -> Unit)? = null
+
+    override fun onAttach() {
+        updateSuppression()
+    }
+
+    override fun onObservedReadsChanged() {
+        updateSuppression()
+    }
+
+    private fun updateSuppression() {
+        releaseSuppression?.invoke()
+        releaseSuppression = null
+
+        // Walk up the LayoutNode hierarchy looking for the nearest scaffold coordinator.
+        val coordinator =
+            findNearestAncestor(StatusBarCoordinatorTraverseKey)
+                as? StatusBarCoordinatorModifierNode
+        if (coordinator != null) {
+            // Inside a scaffold: coordinate suppression with the scaffold via ref-counting.
+            // The scaffold will hide the status bar, silence fallback time text, and
+            // collapse top padding.
+            releaseSuppression = coordinator.attach()
+        } else {
+            observeReads {
+                val isEnabled = currentValueOf(LocalStatusBarEnabled)
+                val isActive = currentValueOf(LocalScreenIsActive)
+                val view = currentValueOf(LocalView)
+                if (isEnabled && isActive) {
+                    val standalone = StandaloneStatusBarCoordinator.getOrCreate(view)
+                    standalone.acquireSuppression()
+                    releaseSuppression = standalone::releaseSuppression
+                }
             }
         }
+    }
+
+    override fun onReset() {
+        super.onReset()
+        releaseSuppression?.invoke()
+        releaseSuppression = null
+    }
+
+    override fun onDetach() {
+        releaseSuppression?.invoke()
+        releaseSuppression = null
+    }
+}
+
+private const val StatusBarCoordinatorTraverseKey =
+    "androidx.wear.compose.material3.StatusBarCoordinator"
+
+internal fun Modifier.statusBarCoordinator(suppressionCount: MutableIntState?): Modifier =
+    this then StatusBarCoordinatorElement(suppressionCount)
+
+internal data class StatusBarCoordinatorElement(val suppressionCount: MutableIntState?) :
+    ModifierNodeElement<StatusBarCoordinatorModifierNode>() {
+    override fun create(): StatusBarCoordinatorModifierNode =
+        StatusBarCoordinatorModifierNode(suppressionCount)
+
+    override fun update(node: StatusBarCoordinatorModifierNode) {
+        node.suppressionCount = suppressionCount
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "statusBarCoordinator"
+    }
+}
+
+/**
+ * Coordinator modifier node attached to scaffold containers ([AppScaffold], [ScreenScaffold], and
+ * [PagerScaffoldImpl]) to observe descendant [Modifier.suppressStatusBar] nodes via
+ * [TraversableNode] traversal without requiring composition local propagation.
+ */
+internal class StatusBarCoordinatorModifierNode(var suppressionCount: MutableIntState?) :
+    Modifier.Node(), TraversableNode {
+    override val traverseKey: Any = StatusBarCoordinatorTraverseKey
+
+    /**
+     * Increments the active suppression count and returns a detach lambda that decrements the count
+     * when the suppressing node is detached or reset.
+     */
+    fun attach(): () -> Unit {
+        val count = suppressionCount ?: return {}
+        count.intValue++
+        return { count.intValue = maxOf(0, count.intValue - 1) }
+    }
+}
+
+/** Encapsulates status bar suppression and status bar visibility state for scaffold components. */
+internal class ScaffoldStatusBarState(
+    timeText: State<(@Composable () -> Unit)?>,
+    unsuppressedStatusBarMode: State<StatusBarMode>,
+    isSupported: State<Boolean>,
+    parentStatusBarState: State<ScaffoldStatusBarState?>,
+) {
+    // Ref-counts active Modifier.suppressStatusBar() nodes (both on the scaffold itself and
+    // on descendant components like DatePicker, Stepper, etc.) attached during layout.
+    private val suppressionCount = mutableIntStateOf(0)
+
+    val isSuppressed: State<Boolean> = derivedStateOf {
+        suppressionCount.intValue > 0 || (parentStatusBarState.value?.isSuppressed?.value == true)
+    }
+
+    val showStatusBar: State<Boolean> = derivedStateOf {
+        isSupported.value &&
+            !isSuppressed.value &&
+            when (unsuppressedStatusBarMode.value) {
+                StatusBarMode.Enabled -> true
+                StatusBarMode.Disabled -> false
+                else -> parentStatusBarState.value?.showStatusBar?.value ?: false
+            }
+    }
+
+    // When the status bar is suppressed for this screen or an ancestor scaffold, provide an empty
+    // time text composable so that no time text is rendered while this screen is active.
+    val timeText: State<(@Composable () -> Unit)?> = derivedStateOf {
+        if (isSuppressed.value) EmptyTimeText else timeText.value
+    }
+
+    // The coordinator modifier attached to the scaffold's root container. Descendant
+    // `Modifier.suppressStatusBar()` nodes discover this via TraversableNode traversal.
+    val coordinatorModifier: Modifier = Modifier.statusBarCoordinator(suppressionCount)
+}
+
+/**
+ * Remembers a unified [ScaffoldStatusBarState] managing suppression count, effective status bar
+ * visibility, silenced or inherited time text, and the ancestor [statusBarCoordinator] modifier.
+ *
+ * @param timeText The screen-level time text composable, or null if inheriting default time text.
+ * @param unsuppressedStatusBarMode Resolves the [StatusBarMode] when suppression is not active.
+ *   Defaults to [StatusBarMode.Inherit].
+ */
+@Composable
+internal fun rememberScaffoldStatusBarState(
+    timeText: (@Composable () -> Unit)? = null,
+    unsuppressedStatusBarMode: StatusBarMode = StatusBarMode.Inherit,
+): ScaffoldStatusBarState {
+    val updatedTimeText = rememberUpdatedState(timeText)
+    val unsuppressedModeState = rememberUpdatedState(unsuppressedStatusBarMode)
+    val isSupportedState = rememberUpdatedState(LocalStatusBarEnabled.current)
+    val parentState = rememberUpdatedState(LocalScaffoldStatusBarState.current)
+    return remember {
+        ScaffoldStatusBarState(
+            timeText = updatedTimeText,
+            unsuppressedStatusBarMode = unsuppressedModeState,
+            isSupported = isSupportedState,
+            parentStatusBarState = parentState,
+        )
+    }
+}
+
+internal val EmptyTimeText: @Composable () -> Unit = {}
+
+/**
+ * View-scoped coordinator that ref-counts status bar suppression across standalone components
+ * sharing the same [View], preserving the window's original status bar visibility baseline.
+ */
+@MainThread
+internal class StandaloneStatusBarCoordinator
+private constructor(private val viewRef: WeakReference<View>) {
+    internal val view: View?
+        get() = viewRef.get()
+
+    // Underlying orchestrator directly driving WindowInsetsController for this View's window.
+    private var orchestrator: StatusBarOrchestrator =
+        view?.let { StatusBarOrchestrator(it) } ?: NoOpStatusBarOrchestrator
+
+    // Number of active standalone components currently requesting status bar suppression on this
+    // View.
+    internal var suppressionCount: Int = 0
+        private set
+
+    @MainThread
+    fun acquireSuppression() {
+        suppressionCount++
+        // On transition from 0 to 1, this is the first active suppressor on the window:
+        // capture initial system baseline visibility and hide the physical status bar.
+        if (suppressionCount == 1) {
+            orchestrator.hide()
+        }
+    }
+
+    @MainThread
+    fun releaseSuppression() {
+        if (suppressionCount > 0) {
+            suppressionCount--
+            // When all active suppressors have released their hold (count drops back to 0),
+            // restore the window's original system baseline visibility.
+            if (suppressionCount == 0) {
+                orchestrator.restoreInitialStatusBarState()
+            }
+        }
+    }
+
+    @MainThread
+    fun onAttachedToWindow() {
+        val v = view ?: return
+        // Dispose existing orchestrator and unregister its listeners before re-creating
+        // for the newly attached window hierarchy to capture fresh insets and
+        // WindowInsetsController handles.
+        orchestrator.dispose()
+        orchestrator = StatusBarOrchestrator(v)
+        if (suppressionCount > 0) {
+            orchestrator.hide()
+        }
+    }
+
+    @MainThread
+    fun onDetachedFromWindow() {
+        // Restore window baseline while detached so transient detachments don't leave
+        // the status bar permanently hidden, and unregister view listeners to prevent leaks.
+        if (suppressionCount > 0) {
+            orchestrator.restoreInitialStatusBarState()
+        }
+        orchestrator.dispose()
+    }
+
+    companion object {
+        // Registry of active coordinators keyed by View.
+        private val coordinators = WeakHashMap<View, StandaloneStatusBarCoordinator>()
+
+        @MainThread
+        fun getOrCreate(view: View): StandaloneStatusBarCoordinator =
+            synchronized(coordinators) {
+                coordinators.getOrPut(view) {
+                    val coordinator = StandaloneStatusBarCoordinator(WeakReference(view))
+                    // Listen for window attachment/detachment to restore status bar baselines
+                    // and re-apply suppression across view re-attachments (e.g. view recycling,
+                    // fragment transactions).
+                    view.addOnAttachStateChangeListener(
+                        object : View.OnAttachStateChangeListener {
+                            override fun onViewAttachedToWindow(v: View) {
+                                coordinator.onAttachedToWindow()
+                            }
+
+                            override fun onViewDetachedFromWindow(v: View) {
+                                coordinator.onDetachedFromWindow()
+                            }
+                        }
+                    )
+                    coordinator
+                }
+            }
+    }
+}
+
+/**
+ * Drives window status bar suppression for standalone containers (such as [ScreenScaffold] or
+ * [PagerScaffoldImpl] rendered without an enclosing [AppScaffold]).
+ */
+@Composable
+internal fun StandaloneStatusBarSuppression(isSuppressed: Boolean) {
+    if (LocalStatusBarEnabled.current) {
+        val screenIsActive = LocalScreenIsActive.current
+        val view = LocalView.current
+        // Retrieve or instantiate the shared view-scoped coordinator for this window.
+        val coordinator = remember(view) { StandaloneStatusBarCoordinator.getOrCreate(view) }
+
+        DisposableEffect(screenIsActive, isSuppressed, coordinator) {
+            val shouldSuppress = screenIsActive && isSuppressed
+            if (shouldSuppress) {
+                // Screen is active in the foreground and requests suppression: increment ref-count.
+                coordinator.acquireSuppression()
+            }
+            onDispose {
+                if (shouldSuppress) {
+                    // Screen left composition or became unsuppressed: decrement ref-count.
+                    // If no other standalone components are suppressing, this restores the window
+                    // status bar.
+                    coordinator.releaseSuppression()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Synchronizes status bar registration for scaffolds ([ScreenScaffold] and [PagerScaffoldImpl]).
+ *
+ * When enclosed within an [AppScaffold], delegates status bar visibility to the parent scaffold's
+ * screen content layer across screen transitions.
+ *
+ * When rendered standalone (no enclosing [AppScaffold]), the scaffold's
+ * [StatusBarCoordinatorModifierNode] intercepts descendant [Modifier.suppressStatusBar] nodes,
+ * which prevents them from falling back to standalone window orchestration. This helper coordinates
+ * the physical window status bar directly via [StandaloneStatusBarSuppression] so suppression
+ * properly hides the physical bar and coordinates across multiple standalone components on the same
+ * window.
+ */
+@Composable
+internal fun ScaffoldStatusBarRegistration(
+    scaffoldState: ScaffoldState?,
+    statusBarState: ScaffoldStatusBarState,
+) {
+    if (scaffoldState is AppScaffoldState) {
+        StatusBarRegistration(
+            showStatusBar = statusBarState.showStatusBar,
+            scaffoldState = scaffoldState,
+        )
+    } else {
+        StandaloneStatusBarSuppression(isSuppressed = statusBarState.isSuppressed.value)
     }
 }
 
@@ -138,34 +472,15 @@ internal value class StatusBarMode internal constructor(internal val value: Int)
 }
 
 /**
- * CompositionLocal to determine the inherited status bar overlay visibility for a screen.
+ * CompositionLocal providing the enclosing scaffold's [ScaffoldStatusBarState].
  *
- * Defaults to `false`. Inside [AppScaffold] and [ScreenScaffold], this is provided with the
- * resolved status bar visibility of the enclosing scaffold.
+ * Used by [ScreenScaffold] and pager scaffolds to inherit status bar suppression and status bar
+ * visibility from an enclosing [AppScaffold] or pager scaffold.
  */
-internal val LocalInheritedShowStatusBar: ProvidableCompositionLocal<Boolean> = compositionLocalOf {
-    false
-}
-
-/**
- * Resolves the effective status bar overlay visibility state for a scaffold component.
- *
- * @param statusBarMode The requested mode, specifying whether to enable, disable, or inherit status
- *   bar visibility from [LocalInheritedShowStatusBar].
- * @return A [State] handle tracking whether the status bar overlay is enabled.
- */
-@Composable
-internal fun rememberShowStatusBarState(statusBarMode: StatusBarMode): State<Boolean> {
-    val isSupported = LocalStatusBarEnabled.current
-    val isVisible =
-        isSupported &&
-            when (statusBarMode) {
-                StatusBarMode.Enabled -> true
-                StatusBarMode.Disabled -> false
-                else -> LocalInheritedShowStatusBar.current
-            }
-    return rememberUpdatedState(isVisible)
-}
+internal val LocalScaffoldStatusBarState: ProvidableCompositionLocal<ScaffoldStatusBarState?> =
+    compositionLocalOf {
+        null
+    }
 
 private const val TAG = "StatusBar"
 // TODO(b/548550572): Replace with WearApiVersionHelper.WEAR_CINNAMON_BUN_2 once wear-core
@@ -228,7 +543,11 @@ internal object NoOpStatusBarOrchestrator : StatusBarOrchestrator {
 }
 
 @androidx.annotation.RequiresApi(Build.VERSION_CODES.R)
-private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrchestrator {
+private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
+    private val viewRef: WeakReference<View> = WeakReference(view)
+    private val view: View?
+        get() = viewRef.get()
+
     /**
      * The original system status bar visibility state prior to any scaffold-driven modifications.
      *
@@ -296,7 +615,7 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      * dispatch will not drop visibility updates.
      */
     private val isStatusBarBaselineCapturedAndControllerReady: Boolean
-        get() = initialStatusBarVisibility != null && view.windowInsetsController != null
+        get() = initialStatusBarVisibility != null && view?.windowInsetsController != null
 
     init {
         // Attempt initial capture and application immediately in case the view is already attached
@@ -351,12 +670,13 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
     }
 
     private fun clearListeners() {
+        val v = view
         onAttachStateChangeListener?.let {
-            view.removeOnAttachStateChangeListener(it)
+            v?.removeOnAttachStateChangeListener(it)
             onAttachStateChangeListener = null
         }
         onLayoutChangeListener?.let {
-            view.removeOnLayoutChangeListener(it)
+            v?.removeOnLayoutChangeListener(it)
             onLayoutChangeListener = null
         }
     }
@@ -368,6 +688,7 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      */
     override fun dispose() {
         clearListeners()
+        viewRef.clear()
     }
 
     override fun show() {
@@ -404,6 +725,10 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
         // late execution after disposal.
         clearListeners()
 
+        // Clear requested visibility so late layout callbacks or view re-attachments do not
+        // re-hide or re-show the status bar unexpectedly.
+        desiredStatusBarVisibility = null
+
         // Step 2: Exit early if no window status bar mutation was actually performed by this
         // orchestrator.
         if (!hasMutatedStatusBar) return
@@ -411,13 +736,14 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
         // Step 3: Read initial system status bar visibility baseline. If baseline was never
         // captured, exit safely without mutation.
         val visible = initialStatusBarVisibility ?: return
+        val v = view ?: return
 
         // Step 4: Revert system status bar visibility back to its original baseline state.
         try {
             if (visible) {
-                view.windowInsetsController?.show(WindowInsets.Type.statusBars())
+                v.windowInsetsController?.show(WindowInsets.Type.statusBars())
             } else {
-                view.windowInsetsController?.hide(WindowInsets.Type.statusBars())
+                v.windowInsetsController?.hide(WindowInsets.Type.statusBars())
             }
             hasMutatedStatusBar = false
         } catch (e: Exception) {
@@ -433,10 +759,11 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      * if successful, applies the current desired visibility state requested by Compose.
      */
     private fun attemptCaptureAndApply() {
+        val v = view ?: return
         // Step 1: Secure initial system status bar visibility baseline state before performing any
         // window modifications.
         if (initialStatusBarVisibility == null) {
-            val insets = view.rootWindowInsets
+            val insets = v.rootWindowInsets
             if (insets != null) {
                 initialStatusBarVisibility = insets.isVisible(WindowInsets.Type.statusBars())
             }
@@ -450,7 +777,7 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
             }
 
             val targetVisibility = desiredStatusBarVisibility ?: return
-            val controller = view.windowInsetsController ?: return
+            val controller = v.windowInsetsController ?: return
 
             try {
                 if (targetVisibility) {
@@ -468,7 +795,7 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
         }
     }
 
-    override fun isForWindow(view: View): Boolean = this.view.isSameWindow(view)
+    override fun isForWindow(view: View): Boolean = this.view?.isSameWindow(view) ?: false
 }
 
 internal fun View.isSameWindow(other: View): Boolean {

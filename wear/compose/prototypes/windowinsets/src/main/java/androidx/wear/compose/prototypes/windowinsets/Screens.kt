@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -78,7 +79,6 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.ScreenScaffoldDefaults
-import androidx.wear.compose.material3.StatusBarSuppression
 import androidx.wear.compose.material3.Stepper
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.SwipeToDismissBox
@@ -89,6 +89,7 @@ import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.VerticalPagerScaffold
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.suppressStatusBar
 import androidx.wear.utils.WearApiVersionHelper
 import java.time.LocalDate
 import java.time.LocalTime
@@ -114,7 +115,8 @@ private val statusBarSuppressionScreens =
         Screen.DatePickerOutOfScaffold,
         Screen.DialogInScaffold,
         Screen.DialogOutOfScaffold,
-        Screen.SuppressStatusBarLambda,
+        Screen.SuppressStatusBarAppScaffold,
+        Screen.SuppressStatusBarScreenScaffold,
         Screen.SuppressStatusBarLeaf,
         Screen.CustomSuppressStatusBarOutOfScaffold,
         Screen.PagerWithSuppression,
@@ -238,25 +240,33 @@ fun BoxScope.StatusBarInsetOverlay(
     modifier: Modifier = Modifier,
     isStatusBarVisible: Boolean = true,
 ) {
-    val topPadding = contentPadding.calculateTopPadding()
-    if (topPadding > 0.dp) {
-        val overlayColor =
-            if (isStatusBarVisible) {
-                // Green when Status Bar is effectively shown
-                Color(0xFF2E7D32).copy(alpha = 0.40f)
-            } else {
-                // Red when Status Bar is effectively hidden / suppressed
-                Color(0xFFC62828).copy(alpha = 0.40f)
-            }
-        Box(
-            modifier =
-                modifier
-                    .fillMaxWidth()
-                    .height(topPadding)
-                    .align(Alignment.TopCenter)
-                    .background(overlayColor)
-        )
-    }
+    val overlayColor =
+        if (isStatusBarVisible) {
+            // Green when Status Bar is effectively shown
+            Color(0xFF2E7D32).copy(alpha = 0.40f)
+        } else {
+            // Red when Status Bar is effectively hidden / suppressed
+            Color(0xFFC62828).copy(alpha = 0.40f)
+        }
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .layout { measurable, constraints ->
+                    val topPaddingPx = contentPadding.calculateTopPadding().roundToPx()
+                    val placeable =
+                        measurable.measure(
+                            constraints.copy(minHeight = topPaddingPx, maxHeight = topPaddingPx)
+                        )
+                    layout(placeable.width, topPaddingPx) {
+                        if (topPaddingPx > 0) {
+                            placeable.place(0, 0)
+                        }
+                    }
+                }
+                .background(overlayColor)
+    )
 }
 
 /** Helper modifier to draw a debug border around screen/dialog boundaries. */
@@ -2201,42 +2211,44 @@ fun StepperInScaffoldScreen(onBack: () -> Unit) {
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFFEA00))) {
-                        Stepper(
-                            value = stepperValue,
-                            onValueChange = { stepperValue = it },
-                            steps = 9,
-                            valueRange = 1f..10f,
-                            increaseIcon = {
-                                Text("+", style = MaterialTheme.typography.titleMedium)
-                            },
-                            decreaseIcon = {
-                                Text("-", style = MaterialTheme.typography.titleMedium)
-                            },
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
+                            Stepper(
+                                value = stepperValue,
+                                onValueChange = { stepperValue = it },
+                                steps = 9,
+                                valueRange = 1f..10f,
+                                increaseIcon = {
+                                    Text("+", style = MaterialTheme.typography.titleMedium)
+                                },
+                                decreaseIcon = {
+                                    Text("-", style = MaterialTheme.typography.titleMedium)
+                                },
                             ) {
-                                Text(
-                                    "Stepper (In Scaffold)",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Text(
-                                    "${stepperValue.toInt()}",
-                                    style = MaterialTheme.typography.displaySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                                Text(
-                                    "GSB suppressed internally via Stepper's StatusBarSuppression()",
-                                    style = MaterialTheme.typography.bodyExtraSmall,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Button(onClick = onBack) {
-                                    Text("Back", style = MaterialTheme.typography.labelSmall)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                ) {
+                                    Text(
+                                        "Stepper (In Scaffold)",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Text(
+                                        "${stepperValue.toInt()}",
+                                        style = MaterialTheme.typography.displaySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                    Text(
+                                        "Status bar suppressed internally via Stepper's Modifier.suppressStatusBar()",
+                                        style = MaterialTheme.typography.bodyExtraSmall,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Button(onClick = onBack) {
+                                        Text("Back", style = MaterialTheme.typography.labelSmall)
+                                    }
                                 }
                             }
                         }
@@ -2305,41 +2317,46 @@ fun TimePickerInScaffoldScreen(onBack: () -> Unit) {
                         modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF9800)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        if (pickedTime != null) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            ) {
-                                Text(
-                                    "Time Selected",
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                                Text(
-                                    "$pickedTime",
-                                    style = MaterialTheme.typography.displaySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                                Text(
-                                    "Status bar restored after picker exited",
-                                    style = MaterialTheme.typography.bodyExtraSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(onClick = { pickedTime = null }) {
-                                    Text("Change Time")
+                        Box(
+                            modifier = Modifier.fillMaxSize().padding(contentPadding),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (pickedTime != null) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                ) {
+                                    Text(
+                                        "Time Selected",
+                                        style = MaterialTheme.typography.titleSmall,
+                                    )
+                                    Text(
+                                        "$pickedTime",
+                                        style = MaterialTheme.typography.displaySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                    Text(
+                                        "Status bar restored after picker exited",
+                                        style = MaterialTheme.typography.bodyExtraSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Button(onClick = { pickedTime = null }) {
+                                        Text("Change Time")
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Button(onClick = onBack) {
+                                        Text("Back")
+                                    }
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Button(onClick = onBack) {
-                                    Text("Back")
-                                }
+                            } else {
+                                TimePicker(
+                                    initialTime = remember { LocalTime.of(10, 10) },
+                                    onTimePicked = { pickedTime = it },
+                                )
                             }
-                        } else {
-                            TimePicker(
-                                initialTime = remember { LocalTime.of(10, 10) },
-                                onTimePicked = { pickedTime = it },
-                            )
                         }
                         StatusBarInsetOverlay(
                             contentPadding,
@@ -2408,41 +2425,46 @@ fun DatePickerInScaffoldScreen(onBack: () -> Unit) {
                         modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFF4CAF50)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        if (pickedDate != null) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            ) {
-                                Text(
-                                    "Date Selected",
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                                Text(
-                                    "$pickedDate",
-                                    style = MaterialTheme.typography.displaySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                                Text(
-                                    "Status bar restored after picker exited",
-                                    style = MaterialTheme.typography.bodyExtraSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(onClick = { pickedDate = null }) {
-                                    Text("Change Date")
+                        Box(
+                            modifier = Modifier.fillMaxSize().padding(contentPadding),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (pickedDate != null) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                ) {
+                                    Text(
+                                        "Date Selected",
+                                        style = MaterialTheme.typography.titleSmall,
+                                    )
+                                    Text(
+                                        "$pickedDate",
+                                        style = MaterialTheme.typography.displaySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                    Text(
+                                        "Status bar restored after picker exited",
+                                        style = MaterialTheme.typography.bodyExtraSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Button(onClick = { pickedDate = null }) {
+                                        Text("Change Date")
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Button(onClick = onBack) {
+                                        Text("Back")
+                                    }
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Button(onClick = onBack) {
-                                    Text("Back")
-                                }
+                            } else {
+                                DatePicker(
+                                    initialDate = remember { LocalDate.of(2026, 9, 4) },
+                                    onDatePicked = { pickedDate = it },
+                                )
                             }
-                        } else {
-                            DatePicker(
-                                initialDate = remember { LocalDate.of(2026, 9, 4) },
-                                onDatePicked = { pickedDate = it },
-                            )
                         }
                         StatusBarInsetOverlay(
                             contentPadding,
@@ -2529,7 +2551,7 @@ fun DialogInScaffoldScreen(onBack: () -> Unit) {
                         Text("Simple Dialog", style = MaterialTheme.typography.titleSmall)
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "GSB suppressed via Dialog StatusBarSuppression()",
+                            "Status bar suppressed by Dialog",
                             style = MaterialTheme.typography.bodyExtraSmall,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2690,7 +2712,7 @@ fun DialogOutOfScaffoldScreen(onBack: () -> Unit) {
                     }
                     item {
                         Text(
-                            "Rendered without AppScaffold.\nTests StatusBarSuppression() fallback to StatusBarOrchestrator.",
+                            "Rendered without AppScaffold.\nTests Modifier.suppressStatusBar() fallback to StatusBarOrchestrator.",
                             style = MaterialTheme.typography.bodyExtraSmall,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -2733,84 +2755,15 @@ fun DialogOutOfScaffoldScreen(onBack: () -> Unit) {
 }
 
 /**
- * Screen demonstrating status bar suppression using the wrapping content lambda overload:
- * StatusBarSuppression { ScreenScaffold { ... } }
+ * Screen demonstrating status bar suppression using [Modifier.suppressStatusBar] on AppScaffold:
+ * AppScaffold(modifier = Modifier.suppressStatusBar()) { ScreenScaffold { ... } }
  *
  * Demonstrates that top padding collapses to 0.dp (full bleed) while suppressing the status bar.
  */
 @Composable
-fun SuppressStatusBarLambdaScreen(onBack: () -> Unit) {
-    StatusBarSuppression {
-        AppScaffold {
-            ScreenScaffold { contentPadding ->
-                SwipeToDismissBox(onDismissed = onBack) { isBackground ->
-                    if (!isBackground) {
-                        Box(
-                            modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF5252)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator(
-                                progress = { 0.75f },
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                            ) {
-                                Text(
-                                    "SuppressStatusBar (Content Lambda)",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "SUPPRESSED",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Color(0xFFFF5252),
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Top Pad: ${contentPadding.calculateTopPadding()}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    "Uses StatusBarSuppression { ... }.\nTop clearance collapses to 0.dp.",
-                                    style = MaterialTheme.typography.bodyExtraSmall,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(modifier = Modifier.height(6.dp))
-                                Button(onClick = onBack) {
-                                    Text("Back", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            StatusBarInsetOverlay(
-                                contentPadding,
-                                isStatusBarVisible = false,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Screen demonstrating status bar suppression using the leaf component overload:
- * StatusBarSuppression() placed inside ScreenScaffold.
- *
- * Demonstrates that top padding remains preserved for other status bar elements while status bar is
- * suppressed.
- */
-@Composable
-fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
-    AppScaffold {
+fun SuppressStatusBarAppScaffoldScreen(onBack: () -> Unit) {
+    AppScaffold(modifier = Modifier.suppressStatusBar()) {
         ScreenScaffold { contentPadding ->
-            StatusBarSuppression()
             SwipeToDismissBox(onDismissed = onBack) { isBackground ->
                 if (!isBackground) {
                     Box(
@@ -2824,7 +2777,150 @@ fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                            modifier =
+                                Modifier.fillMaxSize()
+                                    .padding(contentPadding)
+                                    .padding(horizontal = 24.dp),
+                        ) {
+                            Text(
+                                "SuppressStatusBar (AppScaffold Modifier)",
+                                style = MaterialTheme.typography.titleSmall,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "SUPPRESSED",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color(0xFFFF5252),
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Top Pad: ${contentPadding.calculateTopPadding()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                "Uses AppScaffold(modifier = Modifier.suppressStatusBar()).\nTop clearance collapses to 0.dp.",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Button(onClick = onBack) {
+                                Text("Back", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        StatusBarInsetOverlay(
+                            contentPadding,
+                            isStatusBarVisible = false,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Screen demonstrating status bar suppression using [Modifier.suppressStatusBar] on ScreenScaffold:
+ * ScreenScaffold(modifier = Modifier.suppressStatusBar()) { ... }
+ *
+ * Demonstrates that top padding collapses to 0.dp (full bleed) while suppressing the status bar for
+ * this screen.
+ */
+@Composable
+fun SuppressStatusBarScreenScaffoldScreen(onBack: () -> Unit) {
+    AppScaffold {
+        ScreenScaffold(modifier = Modifier.suppressStatusBar()) { contentPadding ->
+            SwipeToDismissBox(onDismissed = onBack) { isBackground ->
+                if (!isBackground) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFFF5252)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            progress = { 0.75f },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier =
+                                Modifier.fillMaxSize()
+                                    .padding(contentPadding)
+                                    .padding(horizontal = 24.dp),
+                        ) {
+                            Text(
+                                "SuppressStatusBar (ScreenScaffold Modifier)",
+                                style = MaterialTheme.typography.titleSmall,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "SUPPRESSED",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color(0xFFFF5252),
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "Top Pad: ${contentPadding.calculateTopPadding()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                "Uses ScreenScaffold(modifier = Modifier.suppressStatusBar()).\nTop clearance collapses to 0.dp.",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Button(onClick = onBack) {
+                                Text("Back", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        StatusBarInsetOverlay(
+                            contentPadding,
+                            isStatusBarVisible = false,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Screen demonstrating status bar suppression using the leaf component modifier: Box(modifier =
+ * Modifier.suppressStatusBar()) placed inside ScreenScaffold.
+ *
+ * Demonstrates that top insets collapse to 0.dp while the status bar is suppressed.
+ */
+@Composable
+fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
+    AppScaffold {
+        ScreenScaffold { contentPadding ->
+            SwipeToDismissBox(onDismissed = onBack) { isBackground ->
+                if (!isBackground) {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .suppressStatusBar()
+                                .screenDebugBorder(Color(0xFFFF5252)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            progress = { 0.75f },
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier =
+                                Modifier.fillMaxSize()
+                                    .padding(contentPadding)
+                                    .padding(horizontal = 24.dp),
                         ) {
                             Text(
                                 "SuppressStatusBar (Component Leaf)",
@@ -2845,7 +2941,7 @@ fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                "Uses StatusBarSuppression().\nTop clearance remains preserved.",
+                                "Uses Modifier.suppressStatusBar() on leaf.\nTop clearance collapses to 0.dp.",
                                 style = MaterialTheme.typography.bodyExtraSmall,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2870,14 +2966,13 @@ fun SuppressStatusBarLeafScreen(onBack: () -> Unit) {
 fun CustomSuppressStatusBarOutOfScaffoldScreen(onBack: () -> Unit) {
     var isSuppressed by remember { mutableStateOf(true) }
 
-    if (isSuppressed) {
-        StatusBarSuppression()
-    }
-
     SwipeToDismissBox(onDismissed = onBack) { isBackground ->
         if (!isBackground) {
             Box(
-                modifier = Modifier.fillMaxSize().screenDebugBorder(Color(0xFFE91E63)),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .then(if (isSuppressed) Modifier.suppressStatusBar() else Modifier)
+                        .screenDebugBorder(Color(0xFFE91E63)),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(
@@ -2901,7 +2996,7 @@ fun CustomSuppressStatusBarOutOfScaffoldScreen(onBack: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Directly calls StatusBarSuppression() without AppScaffold; uses StatusBarOrchestrator fallback",
+                        "Directly applies Modifier.suppressStatusBar() without AppScaffold; uses StatusBarOrchestrator fallback",
                         style = MaterialTheme.typography.bodyExtraSmall,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -2927,8 +3022,12 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
             if (!isBackground) {
                 val pagerState = rememberPagerState(pageCount = { 3 })
                 var stepperValue by remember { mutableFloatStateOf(5f) }
+                var isPagerSuppressed by remember { mutableStateOf(false) }
 
-                HorizontalPagerScaffold(pagerState = pagerState) {
+                HorizontalPagerScaffold(
+                    pagerState = pagerState,
+                    modifier = if (isPagerSuppressed) Modifier.suppressStatusBar() else Modifier,
+                ) {
                     HorizontalPager(
                         state = pagerState,
                         flingBehavior =
@@ -2941,24 +3040,46 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
                                         Box(
                                             modifier =
                                                 Modifier.fillMaxSize()
-                                                    .screenDebugBorder(Color(0xFF4CAF50)),
+                                                    .screenDebugBorder(
+                                                        if (isPagerSuppressed) Color(0xFFFF5252)
+                                                        else Color(0xFF4CAF50)
+                                                    ),
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Column(
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                 verticalArrangement = Arrangement.Center,
-                                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                                modifier =
+                                                    Modifier.fillMaxSize()
+                                                        .padding(contentPadding)
+                                                        .padding(16.dp),
                                             ) {
                                                 Text(
                                                     "Page 1 (Normal)",
                                                     style = MaterialTheme.typography.titleSmall,
                                                 )
                                                 Text(
-                                                    "Status Bar: VISIBLE",
+                                                    text =
+                                                        if (isPagerSuppressed) "Pager: SUPPRESSED"
+                                                        else "Status Bar: VISIBLE",
                                                     style = MaterialTheme.typography.labelMedium,
-                                                    color = Color(0xFF4CAF50),
+                                                    color =
+                                                        if (isPagerSuppressed) Color(0xFFFF5252)
+                                                        else Color(0xFF4CAF50),
                                                 )
-                                                Spacer(modifier = Modifier.height(6.dp))
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Button(
+                                                    onClick = {
+                                                        isPagerSuppressed = !isPagerSuppressed
+                                                    }
+                                                ) {
+                                                    Text(
+                                                        if (isPagerSuppressed) "Unsuppress Pager"
+                                                        else "Suppress Pager",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(4.dp))
                                                 Text(
                                                     "Swipe right → to Page 2 (Stepper)",
                                                     style = MaterialTheme.typography.bodyExtraSmall,
@@ -2966,7 +3087,7 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
                                                     color =
                                                         MaterialTheme.colorScheme.onSurfaceVariant,
                                                 )
-                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Spacer(modifier = Modifier.height(4.dp))
                                                 Button(onClick = onBack) {
                                                     Text(
                                                         "Back",
@@ -2989,59 +3110,72 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
                                                     .screenDebugBorder(Color(0xFFFF9800)),
                                             contentAlignment = Alignment.Center,
                                         ) {
-                                            Stepper(
-                                                value = stepperValue,
-                                                onValueChange = { stepperValue = it },
-                                                steps = 9,
-                                                valueRange = 1f..10f,
-                                                increaseIcon = {
-                                                    Text(
-                                                        "+",
-                                                        style =
-                                                            MaterialTheme.typography.titleMedium,
-                                                    )
-                                                },
-                                                decreaseIcon = {
-                                                    Text(
-                                                        "-",
-                                                        style =
-                                                            MaterialTheme.typography.titleMedium,
-                                                    )
-                                                },
+                                            Box(
+                                                modifier =
+                                                    Modifier.fillMaxSize().padding(contentPadding),
+                                                contentAlignment = Alignment.Center,
                                             ) {
-                                                Column(
-                                                    horizontalAlignment =
-                                                        Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center,
-                                                    modifier =
-                                                        Modifier.fillMaxWidth()
-                                                            .padding(horizontal = 16.dp),
+                                                Stepper(
+                                                    value = stepperValue,
+                                                    onValueChange = { stepperValue = it },
+                                                    steps = 9,
+                                                    valueRange = 1f..10f,
+                                                    increaseIcon = {
+                                                        Text(
+                                                            "+",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .titleMedium,
+                                                        )
+                                                    },
+                                                    decreaseIcon = {
+                                                        Text(
+                                                            "-",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .titleMedium,
+                                                        )
+                                                    },
                                                 ) {
-                                                    Text(
-                                                        "Page 2 (Stepper)",
-                                                        style = MaterialTheme.typography.titleSmall,
-                                                    )
-                                                    Text(
-                                                        "Status Bar: SUPPRESSED",
-                                                        style =
-                                                            MaterialTheme.typography.labelMedium,
-                                                        color = Color(0xFFFF5252),
-                                                    )
-                                                    Text(
-                                                        "${stepperValue.toInt()}",
-                                                        style =
-                                                            MaterialTheme.typography.displaySmall,
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                    )
-                                                    Text(
-                                                        "Scoped via LocalScreenIsActive",
-                                                        style =
-                                                            MaterialTheme.typography.bodyExtraSmall,
-                                                        textAlign = TextAlign.Center,
-                                                        color =
-                                                            MaterialTheme.colorScheme
-                                                                .onSurfaceVariant,
-                                                    )
+                                                    Column(
+                                                        horizontalAlignment =
+                                                            Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center,
+                                                        modifier =
+                                                            Modifier.fillMaxWidth()
+                                                                .padding(horizontal = 16.dp),
+                                                    ) {
+                                                        Text(
+                                                            "Page 2 (Stepper)",
+                                                            style =
+                                                                MaterialTheme.typography.titleSmall,
+                                                        )
+                                                        Text(
+                                                            "Status Bar: SUPPRESSED",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .labelMedium,
+                                                            color = Color(0xFFFF5252),
+                                                        )
+                                                        Text(
+                                                            "${stepperValue.toInt()}",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .displaySmall,
+                                                            color =
+                                                                MaterialTheme.colorScheme.primary,
+                                                        )
+                                                        Text(
+                                                            "Scoped via LocalScreenIsActive",
+                                                            style =
+                                                                MaterialTheme.typography
+                                                                    .bodyExtraSmall,
+                                                            textAlign = TextAlign.Center,
+                                                            color =
+                                                                MaterialTheme.colorScheme
+                                                                    .onSurfaceVariant,
+                                                        )
+                                                    }
                                                 }
                                             }
                                             StatusBarInsetOverlay(
@@ -3062,7 +3196,10 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
                                             Column(
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                 verticalArrangement = Arrangement.Center,
-                                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                                modifier =
+                                                    Modifier.fillMaxSize()
+                                                        .padding(contentPadding)
+                                                        .padding(16.dp),
                                             ) {
                                                 Text(
                                                     "Page 3 (Normal)",

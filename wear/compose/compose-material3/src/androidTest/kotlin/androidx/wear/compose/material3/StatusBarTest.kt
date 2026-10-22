@@ -34,17 +34,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -52,6 +58,8 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.OptIn
@@ -170,6 +178,64 @@ class StatusBarTest {
         composeTestRule.onNodeWithText("10:10").assertIsDisplayed()
         val state = checkNotNull(scaffoldState)
         Assert.assertFalse(state.screenContent.shouldAppWindowShowStatusBar.value)
+    }
+
+    @Test
+    fun appScaffold_dynamicTimeTextMutation_updatesDisplayedTimeText() {
+        var timeTextContent by mutableStateOf<@Composable () -> Unit>({ Text("InitialTimeText") })
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
+                AppScaffold(timeText = timeTextContent) {
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("InitialTimeText").assertIsDisplayed()
+
+        composeTestRule.runOnUiThread { timeTextContent = { Text("UpdatedTimeText") } }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("UpdatedTimeText").assertIsDisplayed()
+        composeTestRule.onNodeWithText("InitialTimeText").assertDoesNotExist()
+    }
+
+    @Test
+    fun appScaffold_dynamicTimeTextMutation_withSuppressionToggling_updatesDisplayedTimeText() {
+        var timeTextContent by mutableStateOf<@Composable () -> Unit>({ Text("InitialTimeText") })
+        var suppress by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
+                AppScaffold(
+                    timeText = timeTextContent,
+                    modifier = if (suppress) Modifier.suppressStatusBar() else Modifier,
+                ) {
+                    ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("InitialTimeText").assertIsDisplayed()
+
+        // 1. Suppress time bar -> time text silenced
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("InitialTimeText").assertDoesNotExist()
+
+        // 2. Mutate timeText while suppressed -> remains silenced
+        composeTestRule.runOnUiThread { timeTextContent = { Text("UpdatedTimeText") } }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("InitialTimeText").assertDoesNotExist()
+        composeTestRule.onNodeWithText("UpdatedTimeText").assertDoesNotExist()
+
+        // 3. Unsuppress -> latest updated time text is displayed, not stale initial
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("UpdatedTimeText").assertIsDisplayed()
+        composeTestRule.onNodeWithText("InitialTimeText").assertDoesNotExist()
     }
 
     @Test
@@ -583,14 +649,24 @@ class StatusBarTest {
         val observedPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    ScreenScaffold(
-                        timeText = { TimeText() },
-                        contentPadding = PaddingValues(0.dp),
-                    ) { contentPadding ->
-                        observedPaddings.add(contentPadding.calculateTopPadding())
-                        Box(modifier = Modifier.fillMaxSize())
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        ScreenScaffold(
+                            timeText = { TimeText() },
+                            contentPadding = PaddingValues(0.dp),
+                        ) { contentPadding ->
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize().layout { measurable, constraints ->
+                                        observedPaddings.add(contentPadding.calculateTopPadding())
+                                        val placeable = measurable.measure(constraints)
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                            )
+                        }
                     }
                 }
             }
@@ -598,7 +674,7 @@ class StatusBarTest {
 
         composeTestRule.waitForIdle()
 
-        Assert.assertTrue("Observed at least one composition pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
         Assert.assertTrue(
             "Screen with StatusBarMode.Disabled should maintain stable 0.dp status bar padding across all frames without shifting, but observed: $observedPaddings",
             observedPaddings.all { it == 0.dp },
@@ -611,19 +687,31 @@ class StatusBarTest {
         var showDisabledScreen by mutableStateOf(false)
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    if (!showDisabledScreen) {
-                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) {
-                            Box(modifier = Modifier.fillMaxSize())
-                        }
-                    } else {
-                        ScreenScaffold(
-                            timeText = { TimeText() },
-                            contentPadding = PaddingValues(0.dp),
-                        ) { contentPadding ->
-                            observedDisabledPaddings.add(contentPadding.calculateTopPadding())
-                            Box(modifier = Modifier.fillMaxSize())
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        if (!showDisabledScreen) {
+                            ScreenScaffold(contentPadding = PaddingValues(0.dp)) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        } else {
+                            ScreenScaffold(
+                                timeText = { TimeText() },
+                                contentPadding = PaddingValues(0.dp),
+                            ) { contentPadding ->
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxSize().layout { measurable, constraints ->
+                                            observedDisabledPaddings.add(
+                                                contentPadding.calculateTopPadding()
+                                            )
+                                            val placeable = measurable.measure(constraints)
+                                            layout(placeable.width, placeable.height) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                )
+                            }
                         }
                     }
                 }
@@ -637,7 +725,7 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
 
         Assert.assertTrue(
-            "Observed at least one composition pass for new screen",
+            "Observed at least one measure pass for new screen",
             observedDisabledPaddings.isNotEmpty(),
         )
         Assert.assertTrue(
@@ -651,17 +739,29 @@ class StatusBarTest {
         val observedInnerPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    // Outer container (e.g. DialogBase) with StatusBarMode.Disabled
-                    ScreenScaffold(
-                        timeText = { TimeText() },
-                        contentPadding = PaddingValues(0.dp),
-                    ) {
-                        // Inner screen with StatusBarMode.Inherit
-                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
-                            observedInnerPaddings.add(contentPadding.calculateTopPadding())
-                            Box(modifier = Modifier.fillMaxSize())
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        // Outer container (e.g. DialogBase) with StatusBarMode.Disabled
+                        ScreenScaffold(
+                            timeText = { TimeText() },
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            // Inner screen with StatusBarMode.Inherit
+                            ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxSize().layout { measurable, constraints ->
+                                            observedInnerPaddings.add(
+                                                contentPadding.calculateTopPadding()
+                                            )
+                                            val placeable = measurable.measure(constraints)
+                                            layout(placeable.width, placeable.height) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                )
+                            }
                         }
                     }
                 }
@@ -671,7 +771,7 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
 
         Assert.assertTrue(
-            "Observed at least one composition pass for inner screen",
+            "Observed at least one measure pass for inner screen",
             observedInnerPaddings.isNotEmpty(),
         )
         Assert.assertTrue(
@@ -684,14 +784,23 @@ class StatusBarTest {
     fun dialog_whenOpen_suppressesStatusBar() {
         var scaffoldState: ScaffoldState? = null
         var showDialog by mutableStateOf(false)
+        var backgroundTopPadding: androidx.compose.ui.unit.Dp? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                            Box(modifier = Modifier.fillMaxSize())
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            backgroundTopPadding = padding.calculateTopPadding()
+                            Dialog(
+                                visible = showDialog,
+                                onDismissRequest = { showDialog = false },
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
                 }
@@ -699,6 +808,8 @@ class StatusBarTest {
         }
 
         composeTestRule.waitForIdle()
+        val initialPadding = checkNotNull(backgroundTopPadding)
+        Assert.assertTrue(initialPadding > 0.dp)
         // When dialog is closed, background screen is active with Enabled ->
         // shouldActiveWindowShowStatusBar
         // is true
@@ -718,6 +829,8 @@ class StatusBarTest {
             false,
             scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value,
         )
+        // Background screen content padding remains isolated and unchanged
+        Assert.assertEquals(initialPadding, backgroundTopPadding)
 
         composeTestRule.runOnUiThread { showDialog = false }
         composeTestRule.waitForIdle()
@@ -730,6 +843,7 @@ class StatusBarTest {
             true,
             scaffoldState?.screenContent?.shouldActiveWindowShowStatusBar?.value,
         )
+        Assert.assertEquals(initialPadding, backgroundTopPadding)
     }
 
     @Test
@@ -908,6 +1022,27 @@ class StatusBarTest {
             1,
             testView.testController.showCount,
         )
+    }
+
+    @Test
+    fun statusBarOrchestrator_restoreInitialStatusBarState_clearsDesiredVisibility() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+        testView.simulateAttach()
+
+        val orchestrator = StatusBarOrchestrator(testView)
+        orchestrator.hide()
+        Assert.assertEquals(1, testView.testController.hideCount)
+
+        orchestrator.restoreInitialStatusBarState()
+        Assert.assertEquals(1, testView.testController.showCount)
+
+        // Simulate subsequent layout pass or view event; orchestrator should not re-hide
+        testView.simulateLayout()
+        Assert.assertEquals(1, testView.testController.hideCount)
     }
 
     @Test
@@ -1895,7 +2030,7 @@ class StatusBarTest {
 
         Assert.assertSame(mockScrollInfo, screenContent.currentScrollInfoProvider.value)
 
-        // Adding a status bar layer (e.g. from StatusBarSuppression) should NOT affect
+        // Adding a status bar layer (e.g. from Modifier.suppressStatusBar) should NOT affect
         // screen content or scroll info provider.
         val statusBarKey = Any()
         screenContent.addStatusBar(
@@ -2000,24 +2135,30 @@ class StatusBarTest {
     fun stepper_whenDisplayedInScaffold_suppressesStatusBar() {
         var showStepper by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        if (showStepper) {
-                            Stepper(
-                                value = 2f,
-                                onValueChange = {},
-                                steps = 3,
-                                increaseIcon = { Text("+") },
-                                decreaseIcon = { Text("-") },
-                            ) {
-                                Text("StepperContent")
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            if (showStepper) {
+                                Stepper(
+                                    value = 2f,
+                                    onValueChange = {},
+                                    steps = 3,
+                                    increaseIcon = { Text("+") },
+                                    decreaseIcon = { Text("-") },
+                                ) {
+                                    Text("StepperContent")
+                                }
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize())
                             }
-                        } else {
-                            Box(modifier = Modifier.fillMaxSize())
                         }
                     }
                 }
@@ -2026,10 +2167,12 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
 
         composeTestRule.runOnUiThread { showStepper = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
         Assert.assertNotSame(
             "currentTimeText should not fall back to appTimeText when Stepper suppresses status bar",
             AppScaffoldDefaults.timeText,
@@ -2039,19 +2182,58 @@ class StatusBarTest {
         composeTestRule.runOnUiThread { showStepper = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
     }
 
     @Test
-    fun stepper_whenNavigatedTo_maintainsSuppressionAfterScreenBecomesActive() {
-        var screenIsActive by mutableStateOf(false)
+    fun stepper_whenDisplayedDirectlyInAppScaffold_suppressesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
         var scaffoldState: ScaffoldState? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
                 AppScaffold {
                     scaffoldState = LocalScaffoldState.current
-                    CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
-                        ScreenScaffold {
+                    Stepper(
+                        value = 2f,
+                        onValueChange = {},
+                        steps = 3,
+                        increaseIcon = { Text("+") },
+                        decreaseIcon = { Text("-") },
+                    ) {
+                        Text("StepperDirectInAppScaffold")
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+    }
+
+    @Test
+    fun stepper_whenInitiallyPresentInScaffold_suppressesStatusBar() {
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
                             Stepper(
                                 value = 2f,
                                 onValueChange = {},
@@ -2060,6 +2242,80 @@ class StatusBarTest {
                                 decreaseIcon = { Text("-") },
                             ) {
                                 Text("StepperContent")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
+    }
+
+    @Test
+    fun boxSuppressStatusBar_whenInitiallyPresentInScaffold_suppressesStatusBarAndCollapsesPadding() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides testView,
+                ) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            Box(modifier = Modifier.fillMaxSize().suppressStatusBar())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
+    }
+
+    @Test
+    fun stepper_whenNavigatedTo_maintainsSuppressionAfterScreenBecomesActive() {
+        var screenIsActive by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
+                            ScreenScaffold(
+                                contentPadding =
+                                    androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) { padding ->
+                                topPadding = padding.calculateTopPadding()
+                                Stepper(
+                                    value = 2f,
+                                    onValueChange = {},
+                                    steps = 3,
+                                    increaseIcon = { Text("+") },
+                                    decreaseIcon = { Text("-") },
+                                ) {
+                                    Text("StepperContent")
+                                }
                             }
                         }
                     }
@@ -2078,6 +2334,7 @@ class StatusBarTest {
             "Stepper inside ScreenScaffold should suppress status bar after screen activates",
             state.screenContent.shouldActiveWindowShowStatusBar.value,
         )
+        Assert.assertEquals(0.dp, topPadding)
     }
 
     @Test
@@ -2145,6 +2402,7 @@ class StatusBarTest {
     fun dialog_whenDisplayedInScaffold_suppressesStatusBarAndPreservesUnderlyingScreen() {
         var showDialog by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
+        var underlyingPadding: androidx.compose.ui.unit.Dp? = null
         val mockScrollInfo =
             object : ScrollInfoProvider {
                 override val anchorItemOffset: Float = 10f
@@ -2155,62 +2413,20 @@ class StatusBarTest {
             }
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold(scrollInfoProvider = mockScrollInfo) {
-                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                            Text("DialogContent")
-                        }
-                    }
-                }
-            }
-        }
-        composeTestRule.waitForIdle()
-        val state = checkNotNull(scaffoldState)
-        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
-        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
-
-        composeTestRule.runOnUiThread { showDialog = true }
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("DialogContent").assertIsDisplayed()
-
-        // Status bar is suppressed by dialog, but underlying screen's scrollInfoProvider is
-        // preserved
-        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
-        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
-
-        composeTestRule.runOnUiThread { showDialog = false }
-        composeTestRule.waitForIdle()
-
-        // Status bar restored, scrollInfoProvider still preserved
-        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
-        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
-    }
-
-    @Test
-    fun multipleSuppressionScreens_whenOverlapping_maintainsSuppressionUntilAllDismissed() {
-        var showDialog by mutableStateOf(false)
-        var showStepper by mutableStateOf(false)
-        var scaffoldState: ScaffoldState? = null
-
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        Dialog(visible = showDialog, onDismissRequest = { showDialog = false }) {
-                            Text("DialogContent")
-                        }
-                        if (showStepper) {
-                            Stepper(
-                                value = 1f,
-                                onValueChange = {},
-                                steps = 2,
-                                increaseIcon = { Text("+") },
-                                decreaseIcon = { Text("-") },
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            scrollInfoProvider = mockScrollInfo,
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            underlyingPadding = padding.calculateTopPadding()
+                            Dialog(
+                                visible = showDialog,
+                                onDismissRequest = { showDialog = false },
                             ) {
-                                Text("StepperContent")
+                                Text("DialogContent")
                             }
                         }
                     }
@@ -2220,26 +2436,128 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+        val initialUnderlyingPadding = checkNotNull(underlyingPadding)
+        Assert.assertTrue(initialUnderlyingPadding > 0.dp)
 
-        // Show Dialog -> suppressed
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("DialogContent").assertIsDisplayed()
+
+        // Status bar is suppressed by dialog, but underlying screen's scrollInfoProvider and
+        // contentPadding are preserved and isolated
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+        Assert.assertEquals(initialUnderlyingPadding, underlyingPadding)
+
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+
+        // Status bar restored, scrollInfoProvider and padding still preserved
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertSame(mockScrollInfo, state.screenContent.currentScrollInfoProvider.value)
+        Assert.assertEquals(initialUnderlyingPadding, underlyingPadding)
+    }
+
+    @Test
+    fun multipleSuppressionScreens_whenOverlapping_maintainsSuppressionUntilAllDismissed() {
+        var showDialog by mutableStateOf(false)
+        var showStepper by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        var screenPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            screenPadding = padding.calculateTopPadding()
+                            Dialog(
+                                visible = showDialog,
+                                onDismissRequest = { showDialog = false },
+                            ) {
+                                Text("DialogContent")
+                            }
+                            if (showStepper) {
+                                Stepper(
+                                    value = 1f,
+                                    onValueChange = {},
+                                    steps = 2,
+                                    increaseIcon = { Text("+") },
+                                    decreaseIcon = { Text("-") },
+                                ) {
+                                    Text("StepperContent")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(screenPadding) > 0.dp)
+
+        // Show Dialog -> window status bar suppressed, but screen padding is preserved
         composeTestRule.runOnUiThread { showDialog = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(screenPadding) > 0.dp)
 
-        // Show Stepper while Dialog is still open -> still suppressed
+        // Show Stepper while Dialog is still open -> still suppressed, and screen padding collapses
+        // to 0.dp
         composeTestRule.runOnUiThread { showStepper = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, screenPadding)
 
-        // Dismiss Stepper -> still suppressed by Dialog
+        // Dismiss Stepper -> still suppressed by Dialog, but screen padding restored
         composeTestRule.runOnUiThread { showStepper = false }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(screenPadding) > 0.dp)
 
         // Dismiss Dialog -> restored
         composeTestRule.runOnUiThread { showDialog = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(screenPadding) > 0.dp)
+    }
+
+    @Test
+    fun stepper_withCallerSuppressionModifier_doesNotDuplicateSuppression() {
+        var scaffoldState: AppScaffoldState? = null
+        var observedPadding: Dp? = null
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current as? AppScaffoldState
+                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) { padding ->
+                            observedPadding = padding.calculateTopPadding()
+                            Stepper(
+                                value = 1f,
+                                onValueChange = {},
+                                steps = 3,
+                                increaseIcon = { Text("+") },
+                                decreaseIcon = { Text("-") },
+                                modifier = Modifier.suppressStatusBar(),
+                            ) {
+                                Text("StepperWithSuppression")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, observedPadding)
     }
 
     @Test
@@ -2513,19 +2831,28 @@ class StatusBarTest {
     }
 
     @Test
-    fun statusBarSuppression_whenInScaffold_registersSuppressionScreen() {
+    fun suppressStatusBar_whenInScaffold_registersSuppressionScreen() {
         var suppress by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        if (suppress) {
-                            StatusBarSuppression()
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .then(
+                                            if (suppress) Modifier.suppressStatusBar() else Modifier
+                                        )
+                            )
                         }
-                        Box(modifier = Modifier.fillMaxSize())
                     }
                 }
             }
@@ -2533,18 +2860,48 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
 
         composeTestRule.runOnUiThread { suppress = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
 
         composeTestRule.runOnUiThread { suppress = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
     }
 
     @Test
-    fun statusBarSuppression_whenOutOfScaffold_hidesAndRestoresStatusBar() {
+    fun suppressStatusBar_onScreenScaffold_activelySuppresses() {
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            modifier = Modifier.suppressStatusBar(),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
+    }
+
+    @Test
+    fun suppressStatusBar_whenOutOfScaffold_hidesAndRestoresStatusBar() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val testView =
             TestView(targetContext).apply {
@@ -2559,9 +2916,7 @@ class StatusBarTest {
                 LocalStatusBarEnabledForTest provides true,
                 LocalView provides testView,
             ) {
-                if (suppress) {
-                    StatusBarSuppression()
-                }
+                Box(modifier = if (suppress) Modifier.suppressStatusBar() else Modifier)
             }
         }
         composeTestRule.waitForIdle()
@@ -2577,7 +2932,7 @@ class StatusBarTest {
     }
 
     @Test
-    fun statusBarSuppression_whenScreenNotActive_doesNotMutateOrRestoreStatusBar() {
+    fun suppressStatusBar_whenScreenNotActive_doesNotMutateOrRestoreStatusBar() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val testView =
             TestView(targetContext).apply {
@@ -2593,9 +2948,7 @@ class StatusBarTest {
                 LocalView provides testView,
                 LocalScreenIsActive provides false,
             ) {
-                if (suppress) {
-                    StatusBarSuppression()
-                }
+                Box(modifier = if (suppress) Modifier.suppressStatusBar() else Modifier)
             }
         }
         composeTestRule.waitForIdle()
@@ -2626,62 +2979,21 @@ class StatusBarTest {
     }
 
     @Test
-    fun statusBarSuppression_withContent_suppressesNestedScreenScaffold() {
+    fun suppressStatusBar_onScreenScaffold_suppressesStatusBar() {
         var suppress by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    if (suppress) {
-                        StatusBarSuppression {
-                            ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
-                        }
-                    } else {
-                        ScreenScaffold { Box(modifier = Modifier.fillMaxSize()) }
-                    }
-                }
-            }
-        }
-        composeTestRule.waitForIdle()
-        val state = checkNotNull(scaffoldState)
-        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
-
-        composeTestRule.runOnUiThread { suppress = true }
-        composeTestRule.waitForIdle()
-        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
-
-        composeTestRule.runOnUiThread { suppress = false }
-        composeTestRule.waitForIdle()
-        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
-    }
-
-    @Test
-    fun statusBarSuppression_withContent_providesLocalInheritedShowStatusBarFalse() {
-        var inheritedShow: Boolean? = null
-        composeTestRule.setContent {
-            StatusBarSuppression {
-                inheritedShow = LocalInheritedShowStatusBar.current
-            }
-        }
-        composeTestRule.waitForIdle()
-        Assert.assertEquals(false, inheritedShow)
-    }
-
-    @Test
-    fun timePicker_whenDisplayedInScaffold_suppressesStatusBar() {
-        var showTimePicker by mutableStateOf(false)
-        var scaffoldState: ScaffoldState? = null
-
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        if (showTimePicker) {
-                            TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
-                        } else {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            modifier = if (suppress) Modifier.suppressStatusBar() else Modifier,
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
                             Box(modifier = Modifier.fillMaxSize())
                         }
                     }
@@ -2691,14 +3003,285 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
+
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
+
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
+    }
+
+    @Test
+    fun suppressStatusBar_onScreenScaffold_collapsesTopPaddingAndProvidesFalse() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var scaffoldState: ScaffoldState? = null
+        var inheritedShow: Boolean? = null
+        val observedPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides testView,
+                ) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            modifier = Modifier.suppressStatusBar(),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { contentPadding ->
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize().layout { measurable, constraints ->
+                                        observedPaddings.add(contentPadding.calculateTopPadding())
+                                        val placeable = measurable.measure(constraints)
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                            )
+                            inheritedShow =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(false, inheritedShow)
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue(
+            "ScreenScaffold with Modifier.suppressStatusBar() must maintain stable 0.dp status bar padding across all frames, but observed: $observedPaddings",
+            observedPaddings.all { it == 0.dp },
+        )
+    }
+
+    @Test
+    fun suppressStatusBar_onAppScaffold_suppressesStatusBarAndInheritedState() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var scaffoldState: ScaffoldState? = null
+        var innerInheritedShow: Boolean? = null
+        val observedPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides testView,
+                ) {
+                    AppScaffold(modifier = Modifier.suppressStatusBar()) {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { contentPadding ->
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxSize().layout { measurable, constraints ->
+                                        observedPaddings.add(contentPadding.calculateTopPadding())
+                                        val placeable = measurable.measure(constraints)
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                            )
+                            innerInheritedShow =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(false, innerInheritedShow)
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue(
+            "Inner ScreenScaffold inside AppScaffold(modifier = Modifier.suppressStatusBar()) must maintain stable 0.dp status bar padding across all frames, but observed: $observedPaddings",
+            observedPaddings.all { it == 0.dp },
+        )
+    }
+
+    @Test
+    fun suppressStatusBar_onHorizontalPagerScaffold_suppressesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var scaffoldState: ScaffoldState? = null
+        var innerInheritedShow: Boolean? = null
+        val observedPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides testView,
+                ) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        val pagerState = rememberPagerState(pageCount = { 2 })
+                        HorizontalPagerScaffold(
+                            pagerState = pagerState,
+                            modifier = Modifier.suppressStatusBar(),
+                        ) {
+                            ScreenScaffold(
+                                contentPadding =
+                                    androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) { contentPadding ->
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxSize().layout { measurable, constraints ->
+                                            observedPaddings.add(
+                                                contentPadding.calculateTopPadding()
+                                            )
+                                            val placeable = measurable.measure(constraints)
+                                            layout(placeable.width, placeable.height) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                )
+                                innerInheritedShow =
+                                    LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(false, innerInheritedShow)
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue(
+            "Page inside HorizontalPagerScaffold(modifier = Modifier.suppressStatusBar()) must maintain stable 0.dp status bar padding across all frames, but observed: $observedPaddings",
+            observedPaddings.all { it == 0.dp },
+        )
+    }
+
+    @Test
+    fun suppressStatusBar_onVerticalPagerScaffold_suppressesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var scaffoldState: ScaffoldState? = null
+        var innerInheritedShow: Boolean? = null
+        val observedPaddings = mutableListOf<androidx.compose.ui.unit.Dp>()
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides testView,
+                ) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        val pagerState = rememberPagerState(pageCount = { 2 })
+                        VerticalPagerScaffold(
+                            pagerState = pagerState,
+                            modifier = Modifier.suppressStatusBar(),
+                        ) {
+                            ScreenScaffold(
+                                contentPadding =
+                                    androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) { contentPadding ->
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxSize().layout { measurable, constraints ->
+                                            observedPaddings.add(
+                                                contentPadding.calculateTopPadding()
+                                            )
+                                            val placeable = measurable.measure(constraints)
+                                            layout(placeable.width, placeable.height) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                )
+                                innerInheritedShow =
+                                    LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(false, innerInheritedShow)
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue(
+            "Page inside VerticalPagerScaffold(modifier = Modifier.suppressStatusBar()) must maintain stable 0.dp status bar padding across all frames, but observed: $observedPaddings",
+            observedPaddings.all { it == 0.dp },
+        )
+    }
+
+    @Test
+    fun timePicker_whenDisplayedInScaffold_suppressesStatusBar() {
+        var showTimePicker by mutableStateOf(false)
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            if (showTimePicker) {
+                                TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
 
         composeTestRule.runOnUiThread { showTimePicker = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
 
         composeTestRule.runOnUiThread { showTimePicker = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
     }
 
     @Test
@@ -2738,16 +3321,25 @@ class StatusBarTest {
     fun datePicker_whenDisplayedInScaffold_suppressesStatusBar() {
         var showDatePicker by mutableStateOf(false)
         var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
 
         composeTestRule.setContent {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    scaffoldState = LocalScaffoldState.current
-                    ScreenScaffold {
-                        if (showDatePicker) {
-                            DatePicker(initialDate = LocalDate.of(2026, 1, 1), onDatePicked = {})
-                        } else {
-                            Box(modifier = Modifier.fillMaxSize())
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            if (showDatePicker) {
+                                DatePicker(
+                                    initialDate = LocalDate.of(2026, 1, 1),
+                                    onDatePicked = {},
+                                )
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
                         }
                     }
                 }
@@ -2756,14 +3348,17 @@ class StatusBarTest {
         composeTestRule.waitForIdle()
         val state = checkNotNull(scaffoldState)
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
 
         composeTestRule.runOnUiThread { showDatePicker = true }
         composeTestRule.waitForIdle()
         Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
 
         composeTestRule.runOnUiThread { showDatePicker = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(topPadding) > 0.dp)
     }
 
     @Test
@@ -2797,6 +3392,547 @@ class StatusBarTest {
         composeTestRule.runOnUiThread { showDatePicker = false }
         composeTestRule.waitForIdle()
         Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun screenScaffold_standalone_whenSuppressed_hidesWindowStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var suppress by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                ScreenScaffold(
+                    modifier = if (suppress) Modifier.suppressStatusBar() else Modifier,
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    Box(modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun screenScaffold_standalone_withTimePicker_hidesWindowStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var showTimePicker by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                ScreenScaffold(contentPadding = PaddingValues(0.dp)) {
+                    if (showTimePicker) {
+                        TimePicker(initialTime = LocalTime.of(10, 30), onTimePicked = {})
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        composeTestRule.runOnUiThread { showTimePicker = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        composeTestRule.runOnUiThread { showTimePicker = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun screenScaffold_withCustomTimeTextAndSuppression_silencesTimeTextAndCollapsesPadding() {
+        var scaffoldState: ScaffoldState? = null
+        var topPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        ScreenScaffold(
+                            modifier = Modifier.suppressStatusBar(),
+                            timeText = { Text("CustomScreenTimeText") },
+                            contentPadding = PaddingValues(0.dp),
+                        ) { padding ->
+                            topPadding = padding.calculateTopPadding()
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, topPadding)
+        composeTestRule.onNodeWithText("CustomScreenTimeText").assertDoesNotExist()
+    }
+
+    @Test
+    fun screenScaffold_directSuppressStatusBar_compositionBeforeLayoutObservesInitialInset() {
+        var frame0ShowStatusBar: Boolean? = null
+        var finalTopPadding: androidx.compose.ui.unit.Dp? = null
+        var finalShowStatusBar: Boolean? = null
+        var compositionCount = 0
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        ScreenScaffold(
+                            modifier = Modifier.suppressStatusBar(),
+                            contentPadding = PaddingValues(0.dp),
+                        ) { padding ->
+                            compositionCount++
+                            if (frame0ShowStatusBar == null) {
+                                frame0ShowStatusBar =
+                                    LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            }
+                            finalTopPadding = padding.calculateTopPadding()
+                            finalShowStatusBar =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Before layout pass, composition observes initial unsuppressed insets
+        // because Modifier.Node attachment occurs during the layout phase.
+        Assert.assertEquals(
+            "Initial composition before layout pass observes unsuppressed showStatusBar = true",
+            true,
+            frame0ShowStatusBar,
+        )
+
+        // After layout pass attaches the suppression node, it recomposes and settles to suppressed.
+        Assert.assertEquals(
+            "Expected recomposition once suppression node attaches during layout",
+            2,
+            compositionCount,
+        )
+        Assert.assertEquals(
+            "Final settled showStatusBar is false",
+            false,
+            finalShowStatusBar,
+        )
+        Assert.assertEquals(
+            "Final settled top padding collapses to 0.dp",
+            0.dp,
+            finalTopPadding,
+        )
+    }
+
+    @Test
+    fun screenScaffold_dynamicRebindingOfLocalScaffoldStatusBarState_updatesDerivedState() {
+        val falseState =
+            ScaffoldStatusBarState(
+                timeText = mutableStateOf(null),
+                unsuppressedStatusBarMode = mutableStateOf(StatusBarMode.Disabled),
+                isSupported = mutableStateOf(true),
+                parentStatusBarState = mutableStateOf(null),
+            )
+        val trueState =
+            ScaffoldStatusBarState(
+                timeText = mutableStateOf(null),
+                unsuppressedStatusBarMode = mutableStateOf(StatusBarMode.Enabled),
+                isSupported = mutableStateOf(true),
+                parentStatusBarState = mutableStateOf(null),
+            )
+        var parentStateInstance by mutableStateOf<ScaffoldStatusBarState?>(falseState)
+        var observedShowStatusBar: Boolean? = null
+        var observedTopPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    CompositionLocalProvider(
+                        LocalScaffoldStatusBarState provides parentStateInstance
+                    ) {
+                        ScreenScaffold(
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        ) { padding ->
+                            observedShowStatusBar =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            observedTopPadding = padding.calculateTopPadding()
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(false, observedShowStatusBar)
+        Assert.assertEquals(0.dp, observedTopPadding)
+
+        // Rebind to trueState
+        parentStateInstance = trueState
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "ScreenScaffold should reflect the newly provided LocalScaffoldStatusBarState instance",
+            true,
+            observedShowStatusBar,
+        )
+        Assert.assertTrue(
+            "ScreenScaffold top padding should expand when status bar is enabled",
+            checkNotNull(observedTopPadding) > 0.dp,
+        )
+
+        // Rebind back to falseState
+        parentStateInstance = falseState
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(
+            "ScreenScaffold should react when rebound back to falseState",
+            false,
+            observedShowStatusBar,
+        )
+        Assert.assertEquals(0.dp, observedTopPadding)
+    }
+
+    @Test
+    fun screenScaffold_directSuppressStatusBar_toggleFromTrueToFalse_unsuppressesStatusBar() {
+        var enabled by mutableStateOf(true)
+        var observedTopPadding: androidx.compose.ui.unit.Dp? = null
+        var observedShowStatusBar: Boolean? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        ScreenScaffold(
+                            modifier = if (enabled) Modifier.suppressStatusBar() else Modifier,
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            observedTopPadding = padding.calculateTopPadding()
+                            observedShowStatusBar =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // 1. Initial state (enabled = true)
+        Assert.assertEquals(false, observedShowStatusBar)
+        Assert.assertEquals(0.dp, observedTopPadding)
+
+        // 2. Toggle to false -> unsuppresses
+        enabled = false
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(true, observedShowStatusBar)
+        Assert.assertTrue(
+            "Top padding must expand when unsuppressed",
+            checkNotNull(observedTopPadding) > 0.dp,
+        )
+
+        // 3. Toggle back to true -> re-suppresses
+        enabled = true
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(false, observedShowStatusBar)
+        Assert.assertEquals(0.dp, observedTopPadding)
+    }
+
+    @Test
+    fun standaloneStatusBarCoordinator_onAttachedToWindow_disposesPreviousOrchestrator() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+        testView.simulateAttach()
+
+        val coordinator = StandaloneStatusBarCoordinator.getOrCreate(testView)
+        coordinator.acquireSuppression()
+        Assert.assertEquals(1, testView.testController.hideCount)
+
+        // Re-attachment to window should safely dispose old orchestrator and create new one
+        testView.simulateAttach()
+        Assert.assertEquals(2, testView.testController.hideCount)
+
+        // Releasing suppression restores the window status bar through active orchestrator
+        coordinator.releaseSuppression()
+        Assert.assertEquals(1, testView.testController.showCount)
+    }
+
+    @Test
+    fun screenScaffold_contentPadding_implementsStructuralEqualityAndToString() {
+        var observedPaddingValues: androidx.compose.foundation.layout.PaddingValues? = null
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    ScreenScaffold(
+                        contentPadding =
+                            androidx.compose.foundation.layout.PaddingValues(
+                                start = 10.dp,
+                                top = 5.dp,
+                                end = 15.dp,
+                                bottom = 20.dp,
+                            )
+                    ) { padding ->
+                        observedPaddingValues = padding
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val padding = checkNotNull(observedPaddingValues)
+
+        // Verifies equality with itself
+        Assert.assertEquals(padding, padding)
+        Assert.assertEquals(padding.hashCode(), padding.hashCode())
+
+        // Verifies it is not equal to a standard PaddingValues instance
+        val standardPadding =
+            androidx.compose.foundation.layout.PaddingValues(
+                start = 10.dp,
+                top = padding.calculateTopPadding(),
+                end = 15.dp,
+                bottom = 20.dp,
+            )
+        Assert.assertNotEquals(padding, standardPadding)
+
+        Assert.assertEquals(
+            10.dp,
+            padding.calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+        )
+        Assert.assertEquals(
+            15.dp,
+            padding.calculateRightPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
+        )
+        Assert.assertEquals(
+            20.dp,
+            padding.calculateBottomPadding(),
+        )
+        val str = padding.toString()
+        Assert.assertTrue(
+            "toString should start with ScreenScaffoldPaddingValues",
+            str.startsWith("ScreenScaffoldPaddingValues("),
+        )
+        Assert.assertTrue("toString should contain contentPadding", str.contains("contentPadding="))
+        Assert.assertTrue("toString should contain safeInsets", str.contains("safeInsets="))
+        Assert.assertTrue("toString should contain density", str.contains("density="))
+        Assert.assertTrue(
+            "toString should contain showStatusBarState",
+            str.contains("showStatusBarState="),
+        )
+    }
+
+    @Test
+    fun horizontalPagerScaffold_standalone_whenSuppressed_hidesWindowStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var suppress by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                val pagerState = rememberPagerState(pageCount = { 2 })
+                HorizontalPagerScaffold(
+                    pagerState = pagerState,
+                    modifier = if (suppress) Modifier.suppressStatusBar() else Modifier,
+                ) {
+                    Box(modifier = Modifier.fillMaxSize())
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        // Prior to suppression, the physical status bar is unmutated.
+        Assert.assertEquals(0, testView.testController.hideCount)
+
+        // Standalone HorizontalPagerScaffold coordinates directly with
+        // StandaloneStatusBarCoordinator
+        // to hide the window status bar even when not enclosed in AppScaffold.
+        composeTestRule.runOnUiThread { suppress = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        // Unsuppressing restores the window's initial status bar visibility state.
+        composeTestRule.runOnUiThread { suppress = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun suppressStatusBar_multipleConcurrentStandaloneNodes_refCountsAndPreservesBaseline() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+        var suppressFirst by mutableStateOf(false)
+        var suppressSecond by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(modifier = if (suppressFirst) Modifier.suppressStatusBar() else Modifier)
+                    Box(modifier = if (suppressSecond) Modifier.suppressStatusBar() else Modifier)
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.hideCount)
+        Assert.assertEquals(0, testView.testController.showCount)
+
+        // 1. First standalone node requests suppression -> hides the window status bar.
+        composeTestRule.runOnUiThread { suppressFirst = true }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+
+        // 2. Second standalone node requests suppression concurrently ->
+        // StandaloneStatusBarCoordinator
+        // ref-counts the suppression request on the shared View, preventing baseline corruption.
+        composeTestRule.runOnUiThread { suppressSecond = true }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.showCount)
+
+        // 3. Dismiss the first node -> status bar must NOT be restored prematurely because the
+        // second node is still actively holding suppression.
+        composeTestRule.runOnUiThread { suppressFirst = false }
+        composeTestRule.waitForIdle()
+        Assert.assertEquals(0, testView.testController.showCount)
+
+        // 4. Dismiss the second node -> now all active callers on this View have released
+        // suppression, cleanly restoring the status bar to its true initial baseline.
+        composeTestRule.runOnUiThread { suppressSecond = false }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun standaloneStatusBarCoordinator_doesNotLeakViewReference() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val weakView = createWeakViewAndRegisterCoordinator(targetContext)
+
+        // Trigger garbage collection
+        var gcAttempts = 0
+        while (weakView.get() != null && gcAttempts < 10) {
+            Runtime.getRuntime().gc()
+            System.runFinalization()
+            android.os.SystemClock.sleep(50)
+            gcAttempts++
+        }
+
+        Assert.assertNull(
+            "View registered with StandaloneStatusBarCoordinator must be garbage collectable " +
+                "when external strong references are cleared (no cyclic value-to-key leak)",
+            weakView.get(),
+        )
+    }
+
+    private fun createWeakViewAndRegisterCoordinator(
+        context: Context
+    ): java.lang.ref.WeakReference<View> {
+        val testView = TestView(context)
+        StandaloneStatusBarCoordinator.getOrCreate(testView)
+        return java.lang.ref.WeakReference(testView)
+    }
+
+    @Test
+    fun standaloneStatusBarCoordinator_viewDetachedFromWindow_disposesOrchestratorAndClearsListeners() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+
+        val coordinator = StandaloneStatusBarCoordinator.getOrCreate(testView)
+        coordinator.acquireSuppression()
+        testView.simulateLayout()
+
+        // Prior to detachment, suppression is active and listeners are attached
+        Assert.assertTrue(testView.testController.hideCount > 0)
+        Assert.assertTrue(testView.layoutListenerCount > 0 || testView.attachListenerCount > 0)
+
+        // Simulate view detachment from window
+        testView.simulateDetach()
+
+        // Verify orchestrator.dispose() cleared all view listeners, suppression is released,
+        // and baseline is restored
+        Assert.assertEquals(0, testView.layoutListenerCount)
+        Assert.assertTrue(testView.testController.showCount > 0)
+    }
+
+    @Test
+    fun suppressStatusBar_viewDetachedAndReattached_reappliesSuppressionAutomatically() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView =
+            TestView(targetContext).apply {
+                mockIsAttachedToWindow = true
+                mockRootWindowInsets =
+                    WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                Box(modifier = Modifier.suppressStatusBar())
+            }
+        }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(testView.testController.hideCount > 0)
+        val initialHideCount = testView.testController.hideCount
+
+        // 1. Simulate view detachment -> window baseline is restored while detached
+        testView.simulateDetach()
+        Assert.assertTrue(testView.testController.showCount > 0)
+
+        // 2. Simulate view re-attachment to window -> suppression is automatically re-applied
+        // without requiring artificial Compose state mutations.
+        testView.simulateAttach()
+        testView.simulateLayout()
+
+        // Verify suppression was successfully re-applied on the re-attached window
+        Assert.assertTrue(testView.testController.hideCount > initialHideCount)
     }
 
     @Test
@@ -2859,6 +3995,203 @@ class StatusBarTest {
 
         // GSB is re-enabled for this screen
         Assert.assertTrue(state.screenContent.shouldAppWindowShowStatusBar.value)
+    }
+
+    @Test
+    fun pagerWithSuppression_swipingBetweenPages_maintainsSuppressionOnPage2() {
+        var scaffoldState: ScaffoldState? = null
+        var currentPage by mutableIntStateOf(0)
+        var page1Padding: androidx.compose.ui.unit.Dp? = null
+        var page2Padding: androidx.compose.ui.unit.Dp? = null
+        var page3Padding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        scaffoldState = LocalScaffoldState.current
+                        val pagerState = rememberPagerState(pageCount = { 3 })
+                        LaunchedEffect(currentPage) { pagerState.scrollToPage(currentPage) }
+                        HorizontalPagerScaffold(pagerState = pagerState) {
+                            HorizontalPager(state = pagerState) { page ->
+                                AnimatedPage(pageIndex = page, pagerState = pagerState) {
+                                    when (page) {
+                                        0 ->
+                                            ScreenScaffold(
+                                                contentPadding =
+                                                    androidx.compose.foundation.layout
+                                                        .PaddingValues(0.dp)
+                                            ) { padding ->
+                                                page1Padding = padding.calculateTopPadding()
+                                                Box(Modifier.fillMaxSize())
+                                            }
+                                        1 ->
+                                            ScreenScaffold(
+                                                contentPadding =
+                                                    androidx.compose.foundation.layout
+                                                        .PaddingValues(0.dp)
+                                            ) { padding ->
+                                                page2Padding = padding.calculateTopPadding()
+                                                Stepper(
+                                                    value = 2f,
+                                                    onValueChange = {},
+                                                    steps = 3,
+                                                    increaseIcon = { Text("+") },
+                                                    decreaseIcon = { Text("-") },
+                                                ) {
+                                                    Box(Modifier.fillMaxSize())
+                                                }
+                                            }
+                                        else ->
+                                            ScreenScaffold(
+                                                contentPadding =
+                                                    androidx.compose.foundation.layout
+                                                        .PaddingValues(0.dp)
+                                            ) { padding ->
+                                                page3Padding = padding.calculateTopPadding()
+                                                Box(Modifier.fillMaxSize())
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        val state = checkNotNull(scaffoldState)
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(page1Padding) > 0.dp)
+
+        // Swipe to Page 2
+        composeTestRule.runOnIdle { currentPage = 1 }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertEquals(0.dp, page2Padding)
+
+        // Swipe to Page 3
+        composeTestRule.runOnIdle { currentPage = 2 }
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(state.screenContent.shouldActiveWindowShowStatusBar.value)
+        Assert.assertTrue(checkNotNull(page3Padding) > 0.dp)
+
+        // Swipe back to Page 2
+        composeTestRule.runOnIdle { currentPage = 1 }
+        composeTestRule.waitForIdle()
+        Assert.assertFalse(
+            "Page 2 should suppress status bar after swiping back from Page 3",
+            state.screenContent.shouldActiveWindowShowStatusBar.value,
+        )
+        Assert.assertEquals(0.dp, page2Padding)
+    }
+
+    @Test
+    fun appScaffold_withSuppression_silencesInnerScreenScaffoldCustomTimeText() {
+        val testTag = "inner_screen_time_text"
+        var observedPadding: androidx.compose.ui.unit.Dp? = null
+        var isSuppressedObserved: Boolean? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold(modifier = Modifier.suppressStatusBar()) {
+                        ScreenScaffold(
+                            timeText = { TimeText(modifier = Modifier.testTag(testTag)) },
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            observedPadding = padding.calculateTopPadding()
+                            isSuppressedObserved =
+                                LocalScaffoldStatusBarState.current?.isSuppressed?.value
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Time text composable should be completely silenced
+        composeTestRule.onNodeWithTag(testTag).assertDoesNotExist()
+
+        // Inner screen inherits suppression: isSuppressed is true, and top padding collapses to
+        // 0.dp
+        Assert.assertEquals(true, isSuppressedObserved)
+        Assert.assertEquals(0.dp, observedPadding)
+    }
+
+    @Test
+    fun pagerScaffold_withSuppression_silencesInnerScreenScaffoldCustomTimeText() {
+        val testTag = "pager_page_time_text"
+        var observedPadding: androidx.compose.ui.unit.Dp? = null
+        var isSuppressedObserved: Boolean? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        val pagerState = rememberPagerState(pageCount = { 1 })
+                        HorizontalPagerScaffold(
+                            pagerState = pagerState,
+                            modifier = Modifier.suppressStatusBar(),
+                        ) {
+                            ScreenScaffold(
+                                timeText = { TimeText(modifier = Modifier.testTag(testTag)) },
+                                contentPadding =
+                                    androidx.compose.foundation.layout.PaddingValues(0.dp),
+                            ) { padding ->
+                                observedPadding = padding.calculateTopPadding()
+                                isSuppressedObserved =
+                                    LocalScaffoldStatusBarState.current?.isSuppressed?.value
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // Time text composable should be silenced by pager suppression
+        composeTestRule.onNodeWithTag(testTag).assertDoesNotExist()
+        Assert.assertEquals(true, isSuppressedObserved)
+        Assert.assertEquals(0.dp, observedPadding)
+    }
+
+    @Test
+    fun appScaffold_withSuppressionDynamicToggle_restoresInnerScreenScaffoldCustomTimeText() {
+        val testTag = "inner_screen_time_text"
+        var isSuppressed by mutableStateOf(true)
+        var observedPadding: androidx.compose.ui.unit.Dp? = null
+
+        composeTestRule.setContent {
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold(
+                        modifier = if (isSuppressed) Modifier.suppressStatusBar() else Modifier
+                    ) {
+                        ScreenScaffold(
+                            timeText = { TimeText(modifier = Modifier.testTag(testTag)) },
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+                        ) { padding ->
+                            observedPadding = padding.calculateTopPadding()
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        // 1. Initially suppressed: timeText does not exist and padding collapses to 0.dp
+        composeTestRule.onNodeWithTag(testTag).assertDoesNotExist()
+        Assert.assertEquals(0.dp, observedPadding)
+
+        // 2. Toggle suppression off: custom timeText is restored
+        isSuppressed = false
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag(testTag).assertIsDisplayed()
     }
 
     private class TestWindowInsetsController : WindowInsetsController {
@@ -2951,6 +4284,12 @@ class StatusBarTest {
         fun simulateAttach() {
             for (listener in attachListeners.toList()) {
                 listener.onViewAttachedToWindow(this)
+            }
+        }
+
+        fun simulateDetach() {
+            for (listener in attachListeners.toList()) {
+                listener.onViewDetachedFromWindow(this)
             }
         }
 

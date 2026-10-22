@@ -22,23 +22,25 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.StatusBarSuppression
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.suppressStatusBar
 
 @Sampled
 @Composable
-fun StatusBarSuppressionSample() {
+fun ComponentSuppressStatusBarSample() {
     // Suppress the status bar to avoid overlapping with the full-screen circular progress
     // indicator.
-    StatusBarSuppression()
-
     Box(
         modifier =
-            Modifier.background(MaterialTheme.colorScheme.background)
+            Modifier.suppressStatusBar()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                 .fillMaxSize()
     ) {
@@ -48,17 +50,37 @@ fun StatusBarSuppressionSample() {
 
 @Sampled
 @Composable
-fun StatusBarSuppressionContentSample() {
-    // Suppress the status bar for a screen and its children.
-    StatusBarSuppression {
-        ScreenScaffold {
+fun ScreenScaffoldSuppressStatusBarSample() {
+    // Suppress the status bar for a screen and collapse its insets to 0.dp.
+    ScreenScaffold(modifier = Modifier.suppressStatusBar()) { contentPadding ->
+        Box(
+            modifier =
+                Modifier.background(MaterialTheme.colorScheme.background)
+                    .fillMaxSize()
+                    .padding(contentPadding)
+                    .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
+        ) {
+            CircularProgressIndicator(progress = { 0.75f }, startAngle = 120f, endAngle = 60f)
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun AppScaffoldSuppressStatusBarSample() {
+    // Suppress the status bar for the entire application and collapse insets on all child screens.
+    // Note: App-level suppression is not recommended for most apps because users will lose access
+    // to the time and important status indicators on every screen.
+    AppScaffold(modifier = Modifier.suppressStatusBar()) {
+        ScreenScaffold { contentPadding ->
             Box(
                 modifier =
                     Modifier.background(MaterialTheme.colorScheme.background)
-                        .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                         .fillMaxSize()
+                        .padding(contentPadding),
+                contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator(progress = { 0.75f }, startAngle = 120f, endAngle = 60f)
+                Text("App-level suppression")
             }
         }
     }

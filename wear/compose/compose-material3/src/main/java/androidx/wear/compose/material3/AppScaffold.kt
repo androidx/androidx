@@ -113,17 +113,19 @@ public fun AppScaffold(
     // Run the animator coordinator if needed.
     AnimationCoordinator.Looper()
 
-    val doesAppScaffoldWantStatusBarState =
-        rememberShowStatusBarState(
-            if (timeText === AppScaffoldDefaults.timeText) StatusBarMode.Enabled
-            else StatusBarMode.Disabled
+    val statusBarState =
+        rememberScaffoldStatusBarState(
+            timeText = timeText,
+            unsuppressedStatusBarMode =
+                if (timeText === AppScaffoldDefaults.timeText) StatusBarMode.Enabled
+                else StatusBarMode.Disabled,
         )
-    val timeTextState = rememberUpdatedState(timeText)
+    val doesAppScaffoldWantStatusBarState = statusBarState.showStatusBar
     val appWindowViewState = rememberUpdatedState(LocalView.current)
 
     val scaffoldState = remember {
         AppScaffoldState(
-            appTimeText = timeTextState,
+            appTimeText = statusBarState.timeText,
             doesAppScaffoldWantStatusBar = doesAppScaffoldWantStatusBarState,
             appWindowView = appWindowViewState,
         )
@@ -168,20 +170,22 @@ public fun AppScaffold(
     CompositionLocalProvider(
         LocalScaffoldState provides scaffoldState,
         LocalContentColor provides contentColor,
-        LocalInheritedShowStatusBar provides doesAppScaffoldWantStatusBarState.value,
+        LocalScaffoldStatusBarState provides statusBarState,
     ) {
         Box(Modifier.fillMaxSize().background(containerColor)) {
             Box(
                 modifier =
-                    modifier.fillMaxSize().graphicsLayer {
+                    statusBarState.coordinatorModifier.then(modifier).fillMaxSize().graphicsLayer {
                         scaleX = scaffoldState.parentScale.floatValue
                         scaleY = scaffoldState.parentScale.floatValue
                     }
             ) {
                 content()
                 // Draw local time text when status bar is disabled or unsupported on the app
-                // window.
-                // When system status bar is enabled and supported, system overlay takes over.
+                // window. When system status bar is enabled and supported, system overlay takes
+                // over. Note: When time bar is suppressed, screenContent.timeText() automatically
+                // resolves to EmptyTimeText (via appTimeText's derivedStateOf), so reading
+                // isSuppressed directly here is unnecessary and avoids invalidating content().
                 if (!scaffoldState.screenContent.shouldAppWindowShowStatusBar.value) {
                     scaffoldState.screenContent.timeText()
                 }

@@ -1167,13 +1167,26 @@ class ScaffoldTest {
     fun screenScaffold_explicitStatusBarModes_resolveDirectly() {
         var enabledScreenShow: Boolean? = null
         var disabledScreenShow: Boolean? = null
+        var enabledTopPadding = 0.dp
+        var disabledTopPadding = 0.dp
 
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    ScreenScaffold { enabledScreenShow = LocalInheritedShowStatusBar.current }
-                    ScreenScaffold(timeText = { TimeText() }) {
-                        disabledScreenShow = LocalInheritedShowStatusBar.current
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                            enabledTopPadding = contentPadding.calculateTopPadding()
+                            enabledScreenShow =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                        }
+                        ScreenScaffold(
+                            timeText = { TimeText() },
+                            contentPadding = PaddingValues(0.dp),
+                        ) { contentPadding ->
+                            disabledTopPadding = contentPadding.calculateTopPadding()
+                            disabledScreenShow =
+                                LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                        }
                     }
                 }
             }
@@ -1181,7 +1194,9 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             assertThat(enabledScreenShow).isTrue()
+            assertThat(enabledTopPadding).isGreaterThan(0.dp)
             assertThat(disabledScreenShow).isFalse()
+            assertThat(disabledTopPadding).isEqualTo(0.dp)
         }
     }
 
@@ -1189,13 +1204,20 @@ class ScaffoldTest {
     fun screenScaffold_inheritStatusBarMode_inheritsFromParentScreen() {
         var outerShow: Boolean? = null
         var innerShow: Boolean? = null
+        var innerTopPadding = 0.dp
 
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold {
-                    ScreenScaffold(timeText = { TimeText() }) {
-                        outerShow = LocalInheritedShowStatusBar.current
-                        ScreenScaffold { innerShow = LocalInheritedShowStatusBar.current }
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold {
+                        ScreenScaffold(timeText = { TimeText() }) {
+                            outerShow = LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                                innerTopPadding = contentPadding.calculateTopPadding()
+                                innerShow =
+                                    LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            }
+                        }
                     }
                 }
             }
@@ -1204,6 +1226,7 @@ class ScaffoldTest {
         rule.runOnIdle {
             assertThat(outerShow).isFalse()
             assertThat(innerShow).isFalse()
+            assertThat(innerTopPadding).isEqualTo(0.dp)
         }
     }
 
@@ -1211,47 +1234,72 @@ class ScaffoldTest {
     fun screenScaffold_inheritStatusBarMode_whenNoParentScreen_inheritsFromAppScaffold() {
         var screenShow: Boolean? = null
         var doesAppScaffoldWantStatusBar by mutableStateOf(true)
+        var topPadding = 0.dp
 
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(
-                    timeText =
-                        if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
-                ) {
-                    ScreenScaffold { screenShow = LocalInheritedShowStatusBar.current }
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold(
+                        timeText =
+                            if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
+                    ) {
+                        ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                            topPadding = contentPadding.calculateTopPadding()
+                            screenShow = LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                        }
+                    }
                 }
             }
         }
 
-        rule.runOnIdle { assertThat(screenShow).isTrue() }
+        rule.runOnIdle {
+            assertThat(screenShow).isTrue()
+            assertThat(topPadding).isGreaterThan(0.dp)
+        }
 
         rule.runOnUiThread { doesAppScaffoldWantStatusBar = false }
-        rule.runOnIdle { assertThat(screenShow).isFalse() }
+        rule.runOnIdle {
+            assertThat(screenShow).isFalse()
+            assertThat(topPadding).isEqualTo(0.dp)
+        }
     }
 
     @Test
     fun pagerScaffold_inheritStatusBarMode_inheritsFromAppScaffold() {
         var pageScreenShow: Boolean? = null
         var doesAppScaffoldWantStatusBar by mutableStateOf(true)
+        var topPadding = 0.dp
 
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
-                AppScaffold(
-                    timeText =
-                        if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
-                ) {
-                    val pagerState = rememberPagerState { 1 }
-                    HorizontalPagerScaffold(pagerState = pagerState) {
-                        ScreenScaffold { pageScreenShow = LocalInheritedShowStatusBar.current }
+            WithMockStatusBarInsets {
+                CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                    AppScaffold(
+                        timeText =
+                            if (doesAppScaffoldWantStatusBar) AppScaffoldDefaults.timeText else ({})
+                    ) {
+                        val pagerState = rememberPagerState { 1 }
+                        HorizontalPagerScaffold(pagerState = pagerState) {
+                            ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                                topPadding = contentPadding.calculateTopPadding()
+                                pageScreenShow =
+                                    LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                            }
+                        }
                     }
                 }
             }
         }
 
-        rule.runOnIdle { assertThat(pageScreenShow).isTrue() }
+        rule.runOnIdle {
+            assertThat(pageScreenShow).isTrue()
+            assertThat(topPadding).isGreaterThan(0.dp)
+        }
 
         rule.runOnUiThread { doesAppScaffoldWantStatusBar = false }
-        rule.runOnIdle { assertThat(pageScreenShow).isFalse() }
+        rule.runOnIdle {
+            assertThat(pageScreenShow).isFalse()
+            assertThat(topPadding).isEqualTo(0.dp)
+        }
     }
 
     @Test
@@ -1381,12 +1429,12 @@ class ScaffoldTest {
     }
 
     @Test
-    fun localInheritedShowStatusBar_defaultIsFalse() {
-        var inheritedShow: Boolean? = null
+    fun localScaffoldStatusBarState_defaultIsNull() {
+        var observedState: ScaffoldStatusBarState? = null
 
-        rule.setContentWithTheme { inheritedShow = LocalInheritedShowStatusBar.current }
+        rule.setContentWithTheme { observedState = LocalScaffoldStatusBarState.current }
 
-        rule.runOnIdle { assertThat(inheritedShow).isFalse() }
+        rule.runOnIdle { assertThat(observedState).isNull() }
     }
 
     @Test
@@ -1398,9 +1446,13 @@ class ScaffoldTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
                 AppScaffold {
                     ScreenScaffold(timeText = { TimeText() }) {
-                        disabledScreenShow = LocalInheritedShowStatusBar.current
+                        disabledScreenShow =
+                            LocalScaffoldStatusBarState.current?.showStatusBar?.value
                     }
-                    ScreenScaffold { inheritScreenShow = LocalInheritedShowStatusBar.current }
+                    ScreenScaffold {
+                        inheritScreenShow =
+                            LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                    }
                 }
             }
         }
@@ -1538,7 +1590,7 @@ class ScaffoldTest {
     }
 
     @Test
-    fun screenStack_statusBarSuppression_doesNotAffectScrollInfoProvider() {
+    fun screenStack_suppressStatusBar_doesNotAffectScrollInfoProvider() {
         var scaffoldState: ScaffoldState? = null
         var stateProvider: ScrollInfoProvider? = null
 
@@ -1548,7 +1600,10 @@ class ScaffoldTest {
                 val state = rememberScalingLazyListState()
                 stateProvider = remember(state) { ScrollInfoProvider(state) }
 
-                ScreenScaffold(scrollInfoProvider = stateProvider) { StatusBarSuppression() }
+                ScreenScaffold(
+                    scrollInfoProvider = stateProvider,
+                    modifier = Modifier.suppressStatusBar(),
+                ) {}
             }
         }
 
