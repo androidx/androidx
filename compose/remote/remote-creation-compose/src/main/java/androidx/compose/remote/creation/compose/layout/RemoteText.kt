@@ -32,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.combineFontSettings
@@ -181,9 +182,11 @@ public fun RemoteText(
             set(letterSpacing) { this.letterSpacing = it }
             set(lineHeightAdd) { this.lineHeightAdd = it }
             set(lineHeightMultiply) { this.lineHeightMultiply = it }
-            set(textDecoration ?: TextDecoration.None) { this.textDecoration = it }
-            set(lineBreak) { this.lineBreakStrategy = lineBreak.encode() }
-            set(hyphens) { this.hyphenationFrequency = hyphens.encode() }
+            set(textDecoration?.toRemoteTextDecoration() ?: RemoteTextDecoration.None) {
+                this.textDecoration = it
+            }
+            set(lineBreak) { this.lineBreakStrategy = lineBreak.toRemoteLineBreak().value }
+            set(hyphens) { this.hyphenationFrequency = hyphens.toRemoteHyphens().value }
             set(fontVariationSettings) { this.fontVariationSettings = it }
             set(fontFeatureSettings) { this.fontFeatureSettings = it }
         },
@@ -206,7 +209,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var letterSpacing: RemoteFloat = 0f.rf
     var lineHeightAdd: Float? = null
     var lineHeightMultiply: RemoteFloat = 1f.rf
-    var textDecoration: TextDecoration = TextDecoration.None
+    var textDecoration: RemoteTextDecoration = RemoteTextDecoration.None
     var lineBreakStrategy: Int = 0
     var hyphenationFrequency: Int = 0
     var fontVariationSettings: FontVariation.Settings? = null
@@ -292,8 +295,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
             lineBreakStrategy,
             hyphenationFrequency,
             0, // justificationMode
-            textDecoration.contains(TextDecoration.Underline),
-            textDecoration.contains(TextDecoration.LineThrough),
+            textDecoration.contains(RemoteTextDecoration.Underline),
+            textDecoration.contains(RemoteTextDecoration.LineThrough),
             fontAxisNames,
             fontAxisValues,
             false, // autosize

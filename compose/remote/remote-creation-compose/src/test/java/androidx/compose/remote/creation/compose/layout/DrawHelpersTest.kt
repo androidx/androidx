@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
@@ -27,7 +28,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteHyphens
+import androidx.compose.remote.creation.compose.text.RemoteLineBreak
 import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
@@ -41,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -108,7 +113,22 @@ class DrawHelpersTest {
         )
         assertEquals(RemoteTextOverflow.Clip, TextOverflow.Clip.toRemoteTextOverflow())
         assertEquals(1, FontStyle.Italic.toRemoteFontStyle().value)
-        assertEquals(2, LineBreak.Heading.encode())
-        assertEquals(2, Hyphens.Auto.encode())
+        assertEquals(CoreText.BREAK_STRATEGY_BALANCED, LineBreak.Heading.toRemoteLineBreak().value)
+        assertEquals(RemoteLineBreak.Simple, LineBreak.Unspecified.toRemoteLineBreak())
+        assertEquals(CoreText.HYPHENATION_FREQUENCY_FULL, Hyphens.Auto.toRemoteHyphens().value)
+        assertEquals(RemoteHyphens.None, Hyphens.Unspecified.toRemoteHyphens())
+        assertEquals(RemoteTextDecoration.None, TextDecoration.None.toRemoteTextDecoration())
+        assertEquals(
+            RemoteTextDecoration.Underline,
+            TextDecoration.Underline.toRemoteTextDecoration(),
+        )
+        assertEquals(
+            RemoteTextDecoration.LineThrough,
+            TextDecoration.LineThrough.toRemoteTextDecoration(),
+        )
+        assertEquals(
+            RemoteTextDecoration.Underline + RemoteTextDecoration.LineThrough,
+            (TextDecoration.Underline + TextDecoration.LineThrough).toRemoteTextDecoration(),
+        )
     }
 }
