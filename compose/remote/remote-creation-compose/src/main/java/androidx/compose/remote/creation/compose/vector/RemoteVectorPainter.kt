@@ -267,14 +267,14 @@ internal fun RemoteGroupComponent.createGroupComponent(
                 RemotePathComponent().apply {
                     pathData = vectorNode.pathData
                     name = vectorNode.name
-                    pathFillType = vectorNode.pathFillType.toRemotePathFillType()
+                    pathFillType = vectorNode.pathFillType
                     fill = vectorNode.fill
                     fillAlpha = vectorNode.fillAlpha
                     stroke = vectorNode.stroke
                     strokeAlpha = vectorNode.strokeAlpha
                     strokeLineWidth = vectorNode.strokeLineWidth
-                    strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()
-                    strokeLineJoin = vectorNode.strokeLineJoin.toRemoteStrokeJoin()
+                    strokeLineCap = vectorNode.strokeLineCap
+                    strokeLineJoin = vectorNode.strokeLineJoin
                     strokeLineMiter = vectorNode.strokeLineMiter
                     trimPathStart = vectorNode.trimPathStart
                     trimPathEnd = vectorNode.trimPathEnd

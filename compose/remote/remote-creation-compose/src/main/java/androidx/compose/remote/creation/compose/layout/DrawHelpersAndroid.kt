@@ -284,12 +284,28 @@ internal fun StrokeCap.toRemoteStrokeCap(): RemoteStrokeCap =
         else -> RemoteStrokeCap.Butt
     }
 
+internal fun RemoteStrokeCap.toComposeStrokeCap(): StrokeCap =
+    when (this) {
+        RemoteStrokeCap.Butt -> StrokeCap.Butt
+        RemoteStrokeCap.Round -> StrokeCap.Round
+        RemoteStrokeCap.Square -> StrokeCap.Square
+        else -> StrokeCap.Butt
+    }
+
 internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
     when (this) {
         StrokeJoin.Miter -> RemoteStrokeJoin.Miter
         StrokeJoin.Round -> RemoteStrokeJoin.Round
         StrokeJoin.Bevel -> RemoteStrokeJoin.Bevel
         else -> RemoteStrokeJoin.Miter
+    }
+
+internal fun RemoteStrokeJoin.toComposeStrokeJoin(): StrokeJoin =
+    when (this) {
+        RemoteStrokeJoin.Miter -> StrokeJoin.Miter
+        RemoteStrokeJoin.Round -> StrokeJoin.Round
+        RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
+        else -> StrokeJoin.Miter
     }
 
 internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =

@@ -21,8 +21,6 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.toInt
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
-import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.ComposeRemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
@@ -127,13 +125,13 @@ internal class PaintTracker {
                 paintBundle.setStrokeWidth(it)
             }
 
-        val targetCap = newPaint.strokeCap.toRemoteStrokeCap().value
+        val targetCap = newPaint.remoteStrokeCap.value
         updateIfChanged(targetCap, strokeCap) {
             strokeCap = targetCap
             paintBundle.setStrokeCap(targetCap)
         }
 
-        val targetJoin = newPaint.strokeJoin.toRemoteStrokeJoin().value
+        val targetJoin = newPaint.remoteStrokeJoin.value
         updateIfChanged(targetJoin, strokeJoin) {
             strokeJoin = targetJoin
             paintBundle.setStrokeJoin(targetJoin)

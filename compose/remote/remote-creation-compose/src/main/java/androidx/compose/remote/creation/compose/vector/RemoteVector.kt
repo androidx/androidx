@@ -54,8 +54,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.vector.PathNode
@@ -215,18 +213,8 @@ internal class RemotePathComponent : RemoteVNode() {
                 this.colorFilter = colorFilter
                 this.remoteStyle = RemotePaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
-                this.strokeCap =
-                    when (strokeLineCap) {
-                        RemoteStrokeCap.Round -> StrokeCap.Round
-                        RemoteStrokeCap.Square -> StrokeCap.Square
-                        else -> StrokeCap.Butt
-                    }
-                this.strokeJoin =
-                    when (strokeLineJoin) {
-                        RemoteStrokeJoin.Round -> StrokeJoin.Round
-                        RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
-                        else -> StrokeJoin.Miter
-                    }
+                this.remoteStrokeCap = strokeLineCap
+                this.remoteStrokeJoin = strokeLineJoin
             }
             if (effectiveStrokeColor != null) {
                 val paintColor =
