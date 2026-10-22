@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.unit
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
@@ -42,31 +41,4 @@ public expect interface FontScaling {
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     @Stable public open fun TextUnit.toDp(): Dp
-}
-
-/**
- * Converts [TextUnit] to [Dp] and vice-versa, using a linear conversion.
- *
- * This will be the default for most platforms except Android.
- */
-@Immutable
-@JvmDefaultWithCompatibility
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface FontScalingLinear {
-    /** Current user preference for the scaling factor for fonts. */
-    @Stable public val fontScale: Float
-
-    /** Convert [Dp] to Sp. Sp is used for font size, etc. */
-    @Stable public fun Dp.toSp(): TextUnit = (value / fontScale).sp
-
-    /**
-     * Convert Sp to [Dp].
-     *
-     * @throws IllegalStateException if TextUnit other than SP unit is specified.
-     */
-    @Stable
-    public fun TextUnit.toDp(): Dp {
-        check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        return Dp(value * fontScale)
-    }
 }
