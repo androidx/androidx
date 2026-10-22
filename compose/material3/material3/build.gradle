@@ -56,7 +56,7 @@ androidXMultiplatform {
             api("androidx.compose.ui:ui:1.13.0-alpha03")
             api("androidx.compose.foundation:foundation:1.13.0-alpha03")
             api("androidx.compose.ui:ui-text:1.13.0-alpha03")
-            api("androidx.graphics:graphics-shapes:1.0.1")
+            api("androidx.graphics:graphics-shapes:1.1.0")
         }
 
         androidMain.dependencies {
