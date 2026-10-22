@@ -28,13 +28,4 @@
             file="src/main/java/androidx/compose/animation/core/samples/AnimatableSamples.kt"/>
     </issue>
 
-    <issue
-        id="UseOfNonLambdaOffsetOverload"
-        message="State backed values should use the lambda overload of Modifier.offset"
-        errorLine1="    Box(Modifier.offset(x = offsetX)) {"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/animation/core/samples/InfiniteTransitionSamples.kt"/>
-    </issue>
-
 </issues>
