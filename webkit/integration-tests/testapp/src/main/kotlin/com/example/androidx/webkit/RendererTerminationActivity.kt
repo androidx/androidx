@@ -227,7 +227,7 @@ class RendererTerminationActivity : AppCompatActivity() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val v =
                 LayoutInflater.from(activity).inflate(R.layout.fragment_renderer_terminated, null)
-            return AlertDialog.Builder(activity!!)
+            return AlertDialog.Builder(requireActivity())
                 .setTitle(RENDERER_TERMINATED_TITLE)
                 .setView(v)
                 .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
@@ -247,7 +247,7 @@ class RendererTerminationActivity : AppCompatActivity() {
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val v =
                 LayoutInflater.from(activity).inflate(R.layout.fragment_renderer_terminated, null)
-            return AlertDialog.Builder(activity!!)
+            return AlertDialog.Builder(requireActivity())
                 .setTitle(RENDERER_UNRESPONSIVE_TITLE)
                 .setView(v)
                 .setNegativeButton(android.R.string.ok) { _: DialogInterface, _: Int ->
