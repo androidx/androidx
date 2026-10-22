@@ -18,10 +18,20 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 
-internal object LazyGridItemScopeImpl : LazyGridItemScope {
+internal class LazyGridItemScopeImpl : LazyGridItemScope {
+    // Default to 1 before the first measure pass and coerce updates to at least 1.
+    private val crossAxisCellCountState = mutableIntStateOf(1)
+
+    override var crossAxisCellCount: Int
+        get() = crossAxisCellCountState.intValue
+        set(value) {
+            crossAxisCellCountState.intValue = maxOf(1, value)
+        }
+
     override fun Modifier.animateItem(
         fadeInSpec: FiniteAnimationSpec<Float>?,
         placementSpec: FiniteAnimationSpec<IntOffset>?,

@@ -29,6 +29,23 @@ import androidx.compose.ui.unit.IntOffset
 @LazyGridScopeMarker
 public sealed interface LazyGridItemScope {
     /**
+     * The number of cells on the cross axis resolved from [GridCells].
+     *
+     * This represents the number of columns in [LazyVerticalGrid] or rows in [LazyHorizontalGrid],
+     * and corresponds to [LazyGridItemSpanScope.maxLineSpan] and [LazyGridLayoutInfo.maxSpan].
+     *
+     * This value is always at least `1`. Reading this property in composition observes changes to
+     * the grid's resolved cross-axis cell count and triggers recomposition when the count changes
+     * (for example, when a grid using [GridCells.Adaptive] is resized).
+     *
+     * For example, if [LazyVerticalGrid] has 3 columns, this value is `3` for each item, regardless
+     * of the item's individual [GridItemSpan].
+     *
+     * @sample androidx.compose.foundation.samples.LazyGridCrossAxisCellCountSample
+     */
+    public val crossAxisCellCount: Int
+
+    /**
      * This modifier animates the item appearance (fade in), disappearance (fade out) and placement
      * changes (such as an item reordering).
      *

@@ -32,6 +32,7 @@ internal interface LazyGridItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     val spanLayoutProvider: LazyGridSpanLayoutProvider
     val headerIndexes: IntList
+    val itemScope: LazyGridItemScopeImpl
 }
 
 @Composable
@@ -40,6 +41,7 @@ internal fun rememberLazyGridItemProviderLambda(
     content: LazyGridScope.() -> Unit,
 ): () -> LazyGridItemProvider {
     val latestContent = rememberUpdatedState(content)
+    val itemScope = remember { LazyGridItemScopeImpl() }
     return remember(state) {
         val intervalContentState =
             derivedStateOf(referentialEqualityPolicy()) {
@@ -52,6 +54,7 @@ internal fun rememberLazyGridItemProviderLambda(
                 LazyGridItemProviderImpl(
                     state = state,
                     intervalContent = intervalContent,
+                    itemScope = itemScope,
                     keyIndexMap = map,
                 )
             }
@@ -62,6 +65,7 @@ internal fun rememberLazyGridItemProviderLambda(
 private class LazyGridItemProviderImpl(
     private val state: LazyGridState,
     private val intervalContent: LazyGridIntervalContent,
+    override val itemScope: LazyGridItemScopeImpl,
     override val keyIndexMap: LazyLayoutKeyIndexMap,
 ) : LazyGridItemProvider {
 
@@ -80,7 +84,7 @@ private class LazyGridItemProviderImpl(
     override fun Item(index: Int, key: Any) {
         LazyLayoutPinnableItem(key, index, state.pinnedItems) {
             intervalContent.withInterval(index) { localIndex, content ->
-                content.item(LazyGridItemScopeImpl, localIndex)
+                content.item(itemScope, localIndex)
             }
         }
     }
