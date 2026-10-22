@@ -36,7 +36,6 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import javax.inject.Inject
-import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -70,6 +69,8 @@ constructor(
 
     @GuardedBy("lock") private var updating = false
 
+    @GuardedBy("lock") private var closed = false
+
     @GuardedBy("lock") private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
 
     @GuardedBy("lock") private val currentInternalParameters = mutableMapOf<Metadata.Key<*>, Any>()
@@ -90,13 +91,16 @@ constructor(
     /**
      * Updates the camera state by applying the provided parameters to a repeating request and
      * returns a [Deferred] signal that is completed only when a capture request with equal or
-     * larger request number is completed or failed.
+     * larger request number is completed, when repeating is stopped because no streams remain, or
+     * when the [CameraGraph.Session] can no longer be acquired.
      *
-     * In case the corresponding capture request of a signal is aborted, it is not completed right
-     * then. This is because a quick succession of update requests may lead to the previous request
-     * being aborted while the request parameters should still be applied unless it was changed in
-     * the new request. If the new request has a value change for some parameter, it is the
-     * responsibility of the caller to keep track of that and take necessary action.
+     * In case the corresponding capture request of a signal is aborted or a single repeating frame
+     * fails, it is not completed right then. A quick succession of update requests may lead to the
+     * previous request being aborted, and a transient frame drop on a repeating request does not
+     * stop subsequent frames from streaming with the applied parameters. The signal is then
+     * completed when a newer request is completed or repeating is stopped, or cancelled if this
+     * [UseCaseCameraState] is closed. If a newer request has a value change for some parameter, it
+     * is the responsibility of the caller to keep track of that and take necessary action.
      *
      * @return A [Deferred] signal to represent if the update operation has been completed.
      */
@@ -111,6 +115,11 @@ constructor(
     ): Deferred<Unit> {
         val result: Deferred<Unit>
         synchronized(lock) {
+            if (closed) {
+                return CompletableDeferred<Unit>().apply {
+                    completeExceptionally(CancellationException("UseCaseCameraState closed"))
+                }
+            }
             // This block does several things while locked, and is paired with another
             // synchronized(lock) section in the submitLatest() method below that prevents these
             // two blocks from ever executing at the same time, even if invoked by multiple
@@ -207,18 +216,23 @@ constructor(
         // synchronously with the latest values. The startRepeating/stopRepeating call happens
         // outside of the synchronized block to avoid holding a lock while updating the camera
         // state.
-        var signalToComplete: CompletableDeferred<Unit>? = null
+        var signalsToComplete: List<CompletableDeferred<Unit>>? = null
 
         try {
             useCaseCameraContext.useGraphSession { session ->
                 val request: Request?
-                val result: CompletableDeferred<Unit>?
 
-                // Synchronize state reads and signal resets
+                // Synchronize state reads, signal enqueue/drain, and signal resets atomically
                 synchronized(lock) {
+                    // close() already drained and cancelled every signal; skip stale submits.
+                    if (closed) {
+                        return@useGraphSession
+                    }
                     if (currentStreams.isEmpty()) {
                         request = null
+                        signalsToComplete = takeAllSignalsLocked()
                     } else {
+                        val requestNo = submittedRequestCounter.incrementAndGet()
                         request =
                             Request(
                                 template = currentTemplate,
@@ -228,30 +242,25 @@ constructor(
                                         currentParameters.toMap(),
                                 extras =
                                     currentInternalParameters.toMutableMap().also { parameters ->
-                                        parameters[USE_CASE_CAMERA_STATE_CUSTOM_TAG] =
-                                            submittedRequestCounter.incrementAndGet()
+                                        parameters[USE_CASE_CAMERA_STATE_CUSTOM_TAG] = requestNo
                                     },
                                 listeners =
                                     currentListeners.toMutableList().also { listeners ->
                                         listeners.add(requestListener)
                                     },
                             )
+                        updateSignal?.let { res ->
+                            updateSignals.add(RequestSignal(requestNo, res))
+                            pendingSignalCount.incrementAndGet()
+                        }
                     }
-                    result = updateSignal
                     updating = false
                     updateSignal = null
                 }
 
                 if (request == null) {
                     session.stopRepeating()
-                    signalToComplete = result
                 } else {
-                    result?.let { res ->
-                        synchronized(lock) {
-                            updateSignals.add(RequestSignal(submittedRequestCounter.value, res))
-                            pendingSignalCount.incrementAndGet()
-                        }
-                    }
                     Camera2Logger.debug { "Update RepeatingRequest: $request" }
                     session.startRepeating(request)
                     session.update3A(request.parameters)
@@ -260,37 +269,38 @@ constructor(
         } catch (e: CancellationException) {
             Camera2Logger.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
             synchronized(lock) {
-                if (updating) {
-                    updating = false
-                    signalToComplete = updateSignal
-                    updateSignal = null
-                }
+                updating = false
+                signalsToComplete = (signalsToComplete ?: emptyList()) + takeAllSignalsLocked()
             }
         }
 
         // Complete the result after the session closes to allow other threads to
         // acquire a lock. This also avoids cases where complete() synchronously
         // invokes expensive calls.
-        signalToComplete?.complete(Unit)
+        signalsToComplete?.forEach { it.complete(Unit) }
     }
 
     public fun close() {
-        synchronized(lock) {
-            if (updating) {
+        val signalsToCancel =
+            synchronized(lock) {
+                closed = true
                 updating = false
-                updateSignal?.completeExceptionally(
-                    CancellationException("UseCaseCameraState closed")
-                )
-                updateSignal = null
+                takeAllSignalsLocked()
             }
+        signalsToCancel.forEach {
+            it.completeExceptionally(CancellationException("UseCaseCameraState closed"))
+        }
+    }
 
-            while (updateSignals.isNotEmpty()) {
-                updateSignals
-                    .removeFirst()
-                    .signal
-                    .completeExceptionally(CancellationException("UseCaseCameraState closed"))
-                pendingSignalCount.decrementAndGet()
-            }
+    @GuardedBy("lock")
+    private fun takeAllSignalsLocked(): List<CompletableDeferred<Unit>> =
+        drainUpdateSignalsLocked() + listOfNotNull(updateSignal).also { updateSignal = null }
+
+    @GuardedBy("lock")
+    private fun drainUpdateSignalsLocked(): List<CompletableDeferred<Unit>> = buildList {
+        while (updateSignals.isNotEmpty()) {
+            add(updateSignals.removeFirst().signal)
+            pendingSignalCount.decrementAndGet()
         }
     }
 
@@ -343,7 +353,8 @@ constructor(
                 return
             }
             requestMetadata[USE_CASE_CAMERA_STATE_CUSTOM_TAG]?.let { requestNo ->
-                synchronized(lock) { updateSignals.complete(requestNo) }
+                val completedSignals = synchronized(lock) { drainCompletedSignalsLocked(requestNo) }
+                completedSignals.forEach { it.complete(Unit) }
             }
         }
 
@@ -352,47 +363,24 @@ constructor(
             frameNumber: CameraFrameNumber,
             requestFailure: RequestFailure,
         ) {
-            if (pendingSignalCount.value == 0) {
-                return
+            // A failed frame on a repeating request is transient: the framework drops only this
+            // frame (CaptureFailure.REASON_ERROR / REASON_FLUSHED) and continues streaming the
+            // repeating request. Keep pending signals until a frame with an equal or larger
+            // request number completes in onTotalCaptureResult, or until close() cancels them.
+            Camera2Logger.debug {
+                "UseCaseCameraState: frame ${frameNumber.value} failed with " +
+                    "CaptureFailure.reason = ${requestFailure.reason}, " +
+                    "waiting for a subsequent frame"
             }
-            completeExceptionally(requestMetadata, requestFailure)
         }
 
-        private fun completeExceptionally(
-            requestMetadata: RequestMetadata,
-            requestFailure: RequestFailure? = null,
-        ) {
-            requestMetadata[USE_CASE_CAMERA_STATE_CUSTOM_TAG]?.let { requestNo ->
-                synchronized(lock) {
-                    updateSignals.completeExceptionally(
-                        requestNo,
-                        Throwable(
-                            "Failed in framework level" +
-                                (requestFailure?.reason?.let { " with CaptureFailure.reason = $it" }
-                                    ?: "")
-                        ),
-                    )
+        @GuardedBy("lock")
+        private fun drainCompletedSignalsLocked(requestNo: Int): List<CompletableDeferred<Unit>> =
+            buildList {
+                while (updateSignals.isNotEmpty() && updateSignals.first().requestNo <= requestNo) {
+                    add(updateSignals.removeFirst().signal)
+                    pendingSignalCount.decrementAndGet()
                 }
             }
-        }
-
-        private fun ArrayDeque<RequestSignal>.complete(requestNo: Int) {
-            while (isNotEmpty() && first().requestNo <= requestNo) {
-                first().signal.complete(Unit)
-                removeFirstKt()
-                pendingSignalCount.decrementAndGet()
-            }
-        }
-
-        private fun ArrayDeque<RequestSignal>.completeExceptionally(
-            requestNo: Int,
-            throwable: Throwable,
-        ) {
-            while (isNotEmpty() && first().requestNo <= requestNo) {
-                first().signal.completeExceptionally(throwable)
-                removeFirstKt()
-                pendingSignalCount.decrementAndGet()
-            }
-        }
     }
 }
