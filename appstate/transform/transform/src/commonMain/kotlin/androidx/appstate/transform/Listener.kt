@@ -19,6 +19,7 @@ package androidx.appstate.transform
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 
 /**
@@ -38,5 +39,6 @@ public suspend fun listener(
 ) {
     coroutineScope {
         transform(initialValue = Unit, scope = this, dispatcher = dispatcher) { onUpdate() }
+        awaitCancellation()
     }
 }
