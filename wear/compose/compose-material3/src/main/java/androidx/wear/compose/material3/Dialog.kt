@@ -29,6 +29,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -161,6 +162,16 @@ public fun Dialog(
 
             val contentAlpha by animateContentAlpha(transition)
             val scale by animateDialogScale(transition)
+            // Only changes when the strategy flips, so swipe frames don't re-run the layer block.
+            val contentCompositingStrategy by
+                remember(transition, swipeToDismissBoxState) {
+                    derivedStateOf {
+                        dialogContentCompositingStrategy(
+                            isTransitionRunning = transition.isRunning,
+                            swipeOffset = swipeToDismissBoxState.offset,
+                        )
+                    }
+                }
 
             CompositionLocalProvider(LocalInheritedShowStatusBar provides false) {
                 SwipeToDismissBox(
@@ -183,7 +194,7 @@ public fun Dialog(
                                 Modifier.matchParentSize()
                                     .background(MaterialTheme.colorScheme.background)
                                     .graphicsLayer {
-                                        compositingStrategy = CompositingStrategy.Offscreen
+                                        compositingStrategy = contentCompositingStrategy
                                     }
                         ) {
                             content()
@@ -248,6 +259,29 @@ private fun animateDialogScale(transition: Transition<DialogVisibility>): State<
         }
     }
 }
+
+/**
+ * Returns the [CompositingStrategy] for the full-screen layer around the [Dialog] content.
+ *
+ * Rendering the content into an offscreen buffer keeps text from jittering while the content is
+ * scaled by swipe-to-dismiss or by the show/hide animation (b/380901500). It is not needed while
+ * the dialog is at rest, where it would hold a full-screen GPU layer for as long as the dialog is
+ * shown.
+ *
+ * @param isTransitionRunning Whether the dialog show/hide transition is running.
+ * @param swipeOffset The current swipe-to-dismiss offset, or [Float.NaN] if it has not been
+ *   initialized yet. It is non-zero while the content is being swiped or is animating after a
+ *   swipe.
+ */
+internal fun dialogContentCompositingStrategy(
+    isTransitionRunning: Boolean,
+    swipeOffset: Float,
+): CompositingStrategy =
+    if (isTransitionRunning || (!swipeOffset.isNaN() && swipeOffset != 0f)) {
+        CompositingStrategy.Offscreen
+    } else {
+        CompositingStrategy.Auto
+    }
 
 private enum class DialogVisibility {
     Hide,
