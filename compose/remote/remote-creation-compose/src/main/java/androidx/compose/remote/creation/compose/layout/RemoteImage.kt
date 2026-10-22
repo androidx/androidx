@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("RemoteImageKt")
+@file:JvmMultifileClass
 @file:Suppress("RestrictedApiAndroidX")
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.DefaultAlpha
-import androidx.compose.ui.layout.ContentScale
 
 internal class RemoteImageNode : RemoteComposeNode() {
     var image: Any? = null
     var remoteBitmap: RemoteImageBitmap? = null
-    var contentScale: ContentScale = ContentScale.Fit
+    var contentScale: RemoteContentScale = RemoteContentScale.Fit
     var alpha: RemoteFloat = RemoteFloat(1f)
     var contentDescription: RemoteString? = null
 
@@ -44,34 +44,21 @@ internal class RemoteImageNode : RemoteComposeNode() {
         creationState.document.image(
             scope.toRecordingModifier(modifier),
             bitmapId,
-            contentScale.toImageScalingInt(),
+            contentScale.value,
             alpha.getFloatIdForCreationState(creationState),
         )
     }
 }
 
-/**
- * A composable that lays out and draws a given [RemoteImageBitmap]. This is the remote equivalent
- * of [androidx.compose.foundation.Image].
- *
- * @sample androidx.compose.remote.creation.compose.samples.RemoteImageSample
- * @sample androidx.compose.remote.creation.compose.samples.RemoteImageFitSample
- * @param remoteBitmap the [RemoteImageBitmap] to be drawn.
- * @param contentDescription the Text used by accessibility services to describe what this image
- *   represents.
- * @param modifier the [RemoteModifier] to be applied to this layout node.
- * @param contentScale the rule to apply to scale the image when its size does not match the layout
- *   size, Defaults to [ContentScale.Fit].
- * @param alpha the Optional opacity to be applied to the [remoteBitmap] when it is rendered.
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteImage(
     remoteBitmap: RemoteImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = DefaultAlpha.rf,
+    contentScale: RemoteContentScale,
+    alpha: RemoteFloat,
 ) {
     RemoteComposeNode(
         factory = ::RemoteImageNode,

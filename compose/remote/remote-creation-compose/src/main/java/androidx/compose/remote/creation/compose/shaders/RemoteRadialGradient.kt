@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("RemoteRadialGradientKt")
+@file:JvmMultifileClass
+
 package androidx.compose.remote.creation.compose.shaders
 
 import androidx.annotation.RestrictTo
@@ -20,14 +24,13 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.toTileModeInt
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toArgb
 
 /**
@@ -54,14 +57,15 @@ import androidx.compose.ui.graphics.toArgb
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
- *   bounds. Defaults to [ComposeTileMode.Clamp] to repeat the edge pixels
+ *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
-    tileMode: ComposeTileMode = ComposeTileMode.Clamp,
+    tileMode: RemoteTileMode,
 ): RemoteShaderBrush =
     RemoteRadialGradient(
         colors = List(colorStops.size) { i -> colorStops[i].second },
@@ -91,14 +95,15 @@ public fun RemoteBrush.Companion.radialGradient(
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
- *   bounds. Defaults to [ComposeTileMode.Clamp] to repeat the edge pixels
+ *   bounds. Defaults to [RemoteTileMode.Clamp] to repeat the edge pixels
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     colors: List<RemoteColor>,
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
-    tileMode: ComposeTileMode = ComposeTileMode.Clamp,
+    tileMode: RemoteTileMode,
 ): RemoteShaderBrush =
     RemoteRadialGradient(
         colors = colors,
@@ -115,7 +120,7 @@ public data class RemoteRadialGradient(
     private val stops: List<RemoteFloat>? = null,
     private val center: RemoteOffset?,
     private val radius: RemoteFloat?,
-    private val tileMode: ComposeTileMode = ComposeTileMode.Clamp,
+    private val tileMode: RemoteTileMode = RemoteTileMode.Clamp,
 ) : RemoteShaderBrush() {
 
     override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
@@ -144,7 +149,7 @@ public class RemoteRadialShader(
     public val radius: RemoteFloat,
     public val colors: List<RemoteColor>,
     public val positions: List<RemoteFloat>?,
-    public val tileMode: ComposeTileMode,
+    public val tileMode: RemoteTileMode,
 ) : RemoteShader() {
 
     override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
@@ -170,7 +175,7 @@ public class RemoteRadialShader(
             centerX.getFloatIdForCreationState(creationState),
             centerY.getFloatIdForCreationState(creationState),
             radius.getFloatIdForCreationState(creationState),
-            tileMode.toTileModeInt(),
+            tileMode.value,
         )
     }
 }

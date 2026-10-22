@@ -28,8 +28,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 /** Scope for the children of [RemoteCollapsibleRow]. */
 @LayoutScopeMarker
@@ -68,7 +66,6 @@ public class RemoteCollapsibleRowScope {
 internal class RemoteCollapsibleRowNode : RemoteComposeNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(creationState)
@@ -76,16 +73,15 @@ internal class RemoteCollapsibleRowNode : RemoteComposeNode() {
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
-        val remoteLayoutDirection = layoutDirection.toRemoteLayoutDirection()
         creationState.document.startCollapsibleRow(
             recordingModifier,
-            horizontalArrangement.toRemote(remoteLayoutDirection),
+            horizontalArrangement.toRemote(layoutDirection),
             verticalAlignment.toRemote(),
         )
         renderChildren(
             creationState,
             remoteCanvas,
-            reversed = shouldReverse(horizontalArrangement, remoteLayoutDirection),
+            reversed = shouldReverse(horizontalArrangement, layoutDirection),
         )
         creationState.document.endCollapsibleRow()
     }
@@ -118,7 +114,6 @@ public fun RemoteCollapsibleRow(
     content: @Composable RemoteCollapsibleRowScope.() -> Unit,
 ) {
     val scope = remember { RemoteCollapsibleRowScope() }
-    val layoutDirection = LocalLayoutDirection.current
     RemoteComposeNode(
         factory = ::RemoteCollapsibleRowNode,
         update = {
@@ -128,9 +123,6 @@ public fun RemoteCollapsibleRow(
             }
             set(verticalAlignment) { nodeVerticalAlignment ->
                 this.verticalAlignment = nodeVerticalAlignment
-            }
-            set(layoutDirection) { nodeLayoutDirection ->
-                this.layoutDirection = nodeLayoutDirection
             }
         },
         content = { scope.content() },

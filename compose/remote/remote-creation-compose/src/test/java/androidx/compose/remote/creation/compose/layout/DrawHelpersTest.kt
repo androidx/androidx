@@ -18,8 +18,9 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -27,12 +28,12 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
@@ -59,6 +60,8 @@ class DrawHelpersTest {
         assertEquals(0, RemoteStrokeJoin.Miter.value)
         assertEquals(1, RemoteStrokeJoin.Round.value)
         assertEquals(2, RemoteStrokeJoin.Bevel.value)
+        assertEquals(PaintBundle.STYLE_FILL, RemotePaintingStyle.Fill.value)
+        assertEquals(PaintBundle.STYLE_STROKE, RemotePaintingStyle.Stroke.value)
     }
 
     @Test
@@ -69,14 +72,24 @@ class DrawHelpersTest {
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
         assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
+        assertEquals(RemotePaintingStyle.Fill, PaintingStyle.Fill.toRemotePaintingStyle())
+        assertEquals(PaintingStyle.Stroke, RemotePaintingStyle.Stroke.toComposePaintingStyle())
         assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
         assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
         assertEquals(RemoteStrokeCap.Butt, StrokeCap.Butt.toRemoteStrokeCap())
+        assertEquals(StrokeCap.Butt, RemoteStrokeCap.Butt.toComposeStrokeCap())
         assertEquals(RemoteStrokeCap.Round, StrokeCap.Round.toRemoteStrokeCap())
+        assertEquals(StrokeCap.Round, RemoteStrokeCap.Round.toComposeStrokeCap())
         assertEquals(RemoteStrokeCap.Square, StrokeCap.Square.toRemoteStrokeCap())
+        assertEquals(StrokeCap.Square, RemoteStrokeCap.Square.toComposeStrokeCap())
         assertEquals(RemoteStrokeJoin.Miter, StrokeJoin.Miter.toRemoteStrokeJoin())
+        assertEquals(StrokeJoin.Miter, RemoteStrokeJoin.Miter.toComposeStrokeJoin())
         assertEquals(RemoteStrokeJoin.Round, StrokeJoin.Round.toRemoteStrokeJoin())
+        assertEquals(StrokeJoin.Round, RemoteStrokeJoin.Round.toComposeStrokeJoin())
         assertEquals(RemoteStrokeJoin.Bevel, StrokeJoin.Bevel.toRemoteStrokeJoin())
+        assertEquals(StrokeJoin.Bevel, RemoteStrokeJoin.Bevel.toComposeStrokeJoin())
+        assertEquals(RemoteFilterQuality.None, FilterQuality.None.toRemoteFilterQuality())
+        assertEquals(RemoteFilterQuality.High, FilterQuality.High.toRemoteFilterQuality())
 
         assertEquals(RemoteFontStyle.Italic, FontStyle.Italic.toRemoteFontStyle())
         assertEquals(RemoteFontWeight.Bold, FontWeight.Bold.toRemoteFontWeight())
@@ -84,14 +97,7 @@ class DrawHelpersTest {
 
     @Test
     fun composeGraphicsConversions_toInt() {
-        assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toInt())
-        assertEquals(PaintBundle.STYLE_FILL, PaintingStyle.Fill.toInt())
-        assertEquals(PaintBundle.STYLE_STROKE, PaintingStyle.Stroke.toInt())
-        assertEquals(0, TileMode.Clamp.toTileModeInt())
-        assertEquals(1, TileMode.Repeated.toTileModeInt())
-        assertEquals(2, TileMode.Mirror.toTileModeInt())
-        assertEquals(3, TileMode.Decal.toTileModeInt())
-        assertEquals(ImageScaling.SCALE_CROP, ContentScale.Crop.toImageScalingInt())
+        assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toRemoteBlendMode().value)
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.encode())
         assertEquals(TextLayout.OVERFLOW_ELLIPSIS, TextOverflow.Ellipsis.encode())
         assertEquals(1, FontStyle.Italic.encode())

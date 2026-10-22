@@ -28,16 +28,13 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.toDimension
+import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier as CreationGraphicsLayerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.layer.CompositingStrategy
-import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Auto
-import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.ModulateAlpha
-import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscreen
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GraphicsLayerModifier(
@@ -52,7 +49,7 @@ public class GraphicsLayerModifier(
     public val translationX: RemoteFloat,
     public val translationY: RemoteFloat,
     public val shape: RemoteShape = RemoteRectangleShape,
-    public val compositingStrategy: Int,
+    public val compositingStrategy: RemoteCompositingStrategy = RemoteCompositingStrategy.Auto,
     public val alpha: RemoteFloat,
     public val cameraDistance: RemoteFloat,
     public val renderEffect: RenderEffect?,
@@ -115,10 +112,10 @@ public class GraphicsLayerModifier(
                 cameraDistance.floatId,
             )
         }
-        if (compositingStrategy != 0) {
+        if (compositingStrategy.value != 0) {
             layer.setIntAttribute(
                 GraphicsLayerModifierOperation.COMPOSITING_STRATEGY,
-                compositingStrategy,
+                compositingStrategy.value,
             )
         }
         if (renderEffect is BlurEffect) {
@@ -132,10 +129,10 @@ public class GraphicsLayerModifier(
             )
             val tileMode =
                 when (renderEffect.edgeTreatment) {
-                    TileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
-                    TileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
-                    TileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
-                    TileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
+                    RemoteTileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
+                    RemoteTileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
+                    RemoteTileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
+                    RemoteTileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
                     else -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
                 }
             layer.setIntAttribute(GraphicsLayerModifierOperation.BLUR_TILE_MODE, tileMode)
@@ -213,35 +210,26 @@ public fun RemoteModifier.graphicsLayer(
     translationY: RemoteFloat = 0f.rf,
     alpha: RemoteFloat = 1f.rf,
     shape: RemoteShape,
-    compositingStrategy: CompositingStrategy = Auto,
+    compositingStrategy: RemoteCompositingStrategy = RemoteCompositingStrategy.Auto,
     cameraDistance: RemoteFloat = 8f.rf, // Default Value for Camera Distance
     renderEffect: RenderEffect? = null,
-): RemoteModifier {
-
-    val cS =
-        when (compositingStrategy) {
-            Auto -> 0
-            Offscreen -> 1
-            ModulateAlpha -> 2
-            else -> 0
-        }
-    return then(
+): RemoteModifier =
+    then(
         GraphicsLayerModifier(
-            scaleX,
-            scaleY,
-            rotationX,
-            rotationY,
-            rotationZ,
-            shadowElevation,
-            transformOriginX,
-            transformOriginY,
-            translationX,
-            translationY,
-            shape,
-            cS,
-            alpha,
-            cameraDistance,
-            renderEffect,
+            scaleX = scaleX,
+            scaleY = scaleY,
+            rotationX = rotationX,
+            rotationY = rotationY,
+            rotationZ = rotationZ,
+            shadowElevation = shadowElevation,
+            transformOriginX = transformOriginX,
+            transformOriginY = transformOriginY,
+            translationX = translationX,
+            translationY = translationY,
+            shape = shape,
+            compositingStrategy = compositingStrategy,
+            alpha = alpha,
+            cameraDistance = cameraDistance,
+            renderEffect = renderEffect,
         )
     )
-}

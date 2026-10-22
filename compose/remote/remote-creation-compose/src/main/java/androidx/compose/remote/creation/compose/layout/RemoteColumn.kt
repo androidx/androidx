@@ -25,8 +25,6 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 /** Receiver scope used by [RemoteColumn] for its content. */
 public class RemoteColumnScope {
@@ -46,7 +44,6 @@ public class RemoteColumnScope {
 internal class RemoteColumnNode : RemoteComposeNode() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(creationState)
@@ -56,7 +53,7 @@ internal class RemoteColumnNode : RemoteComposeNode() {
         }
         creationState.document.startColumn(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
+            horizontalAlignment.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
@@ -86,7 +83,6 @@ public fun RemoteColumn(
     content: @Composable RemoteColumnScope.() -> Unit,
 ) {
     val scope = remember { RemoteColumnScope() }
-    val layoutDirection = LocalLayoutDirection.current
     RemoteComposeNode(
         factory = ::RemoteColumnNode,
         update = {
@@ -96,9 +92,6 @@ public fun RemoteColumn(
             }
             set(horizontalAlignment) { nodeHorizontalAlignment ->
                 this.horizontalAlignment = nodeHorizontalAlignment
-            }
-            set(layoutDirection) { nodeLayoutDirection ->
-                this.layoutDirection = nodeLayoutDirection
             }
         },
         content = { scope.content() },

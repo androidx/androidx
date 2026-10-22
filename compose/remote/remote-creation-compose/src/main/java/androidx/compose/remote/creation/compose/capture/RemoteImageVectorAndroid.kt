@@ -20,18 +20,73 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.DrawableRes
+import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.vector.RemotePathData
+import androidx.compose.remote.creation.compose.vector.RemotePathNode
+import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.vector.DefaultFillType
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.isSpecified
+
+/**
+ * DSL extension for adding a [RemoteVectorPath] to [this].
+ *
+ * @param name the name for this path
+ * @param fill specifies the [Brush] used to fill the path
+ * @param fillAlpha the alpha to fill the path
+ * @param stroke specifies the [Brush] used to fill the stroke
+ * @param strokeAlpha the alpha to stroke the path
+ * @param strokeLineWidth the width of the line to stroke the path
+ * @param strokeLineCap specifies the linecap for a stroked path
+ * @param strokeLineJoin specifies the linejoin for a stroked path
+ * @param strokeLineMiter specifies the miter limit for a stroked path
+ * @param pathFillType specifies the winding rule that decides how the interior of a
+ *   [androidx.compose.remote.creation.RemotePath] is calculated.
+ * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
+ */
+public fun RemoteImageVector.Builder.path(
+    name: String = DefaultPathName,
+    fill: Brush? = null,
+    fillAlpha: RemoteFloat = 1.0f.rf,
+    stroke: Brush? = null,
+    strokeAlpha: RemoteFloat = 1.0f.rf,
+    strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
+    strokeLineCap: StrokeCap = StrokeCap.Butt,
+    strokeLineJoin: StrokeJoin = StrokeJoin.Miter,
+    strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
+    pathFillType: PathFillType = DefaultFillType,
+    pathBuilder: RemotePathScope.() -> Unit,
+): RemoteImageVector.Builder =
+    addPath(
+        RemotePathData(pathBuilder),
+        pathFillType.toRemotePathFillType(),
+        name,
+        fill,
+        fillAlpha,
+        stroke,
+        strokeAlpha,
+        strokeLineWidth,
+        strokeLineCap.toRemoteStrokeCap(),
+        strokeLineJoin.toRemoteStrokeJoin(),
+        strokeLineMiter,
+    )
 
 /**
  * Load a [RemoteImageVector] from an Android vector resource.
@@ -70,15 +125,15 @@ public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
             if (node is VectorPath) {
                 builder.addPath(
                     pathData = node.pathData.toRemotePathNodes(),
-                    pathFillType = node.pathFillType,
+                    pathFillType = node.pathFillType.toRemotePathFillType(),
                     name = node.name,
                     fill = node.fill,
                     fillAlpha = node.fillAlpha.rf,
                     stroke = node.stroke,
                     strokeAlpha = node.strokeAlpha.rf,
                     strokeLineWidth = node.strokeLineWidth.rf,
-                    strokeLineCap = node.strokeLineCap,
-                    strokeLineJoin = node.strokeLineJoin,
+                    strokeLineCap = node.strokeLineCap.toRemoteStrokeCap(),
+                    strokeLineJoin = node.strokeLineJoin.toRemoteStrokeJoin(),
                     strokeLineMiter = node.strokeLineMiter.rf,
                     trimPathStart = node.trimPathStart.rf,
                     trimPathEnd = node.trimPathEnd.rf,
