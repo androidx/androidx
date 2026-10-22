@@ -16,12 +16,8 @@
 
 package androidx.appstate.transform
 
-import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,8 +27,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Executes a Composable [transform] block in a headless Composition and returns its result as a
- * [State].
+ * This is a convenience function for [TransformScope.launchTransform] that runs the transform
+ * within the given [CoroutineScope].
  *
  * This function bridges reactive Compose state (or Flows collected as state) into a continuously
  * updated [State] object outside a traditional Compose UI hierarchy. The [transform] block is
@@ -52,31 +48,16 @@ public fun <R> transform(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable (R) -> R,
 ): State<R> {
-    GlobalSnapshotManager.ensureStarted(dispatcher)
-    val clock = HeadlessTransformClock()
-    val finalContext = dispatcher + clock
-
-    // TODO: Determine whether a single recomposer is the correct approach
-    val recomposer = Recomposer(finalContext)
-    val composition = Composition(UnitApplier, recomposer)
-    // The clock does nothing until it is "pumped", so we start it before anything can await a
-    // frame.
-    scope.launch(dispatcher, start = CoroutineStart.UNDISPATCHED) { clock.runClock() }
-    scope.launch(finalContext, start = CoroutineStart.UNDISPATCHED) {
+    val transformScope = TransformScope()
+    val transformation = transformScope.launchTransform(initialValue, onUpdate)
+    scope.launch(dispatcher, start = CoroutineStart.UNDISPATCHED) {
         try {
-            recomposer.runRecomposeAndApplyChanges()
+            transformScope.run()
         } finally {
-            composition.dispose()
-            // Tear down the clock
-            clock.cancel()
+            transformation.dispose()
         }
     }
-
-    val state = mutableStateOf(initialValue)
-
-    composition.setContent { state.value = onUpdate(state.value) }
-
-    return state
+    return transformation
 }
 
 /**
@@ -97,16 +78,4 @@ public fun <R> transform(
 ): State<R> {
     val scope = rememberCoroutineScope()
     return remember(scope) { transform(initialValue, scope, dispatcher, onUpdate) }
-}
-
-private object UnitApplier : AbstractApplier<Unit>(Unit) {
-    override fun insertBottomUp(index: Int, instance: Unit) {}
-
-    override fun insertTopDown(index: Int, instance: Unit) {}
-
-    override fun move(from: Int, to: Int, count: Int) {}
-
-    override fun remove(index: Int, count: Int) {}
-
-    override fun onClear() {}
 }

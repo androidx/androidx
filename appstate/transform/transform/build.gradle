@@ -56,6 +56,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.9.1")
                 api("androidx.compose.runtime:runtime:1.11.2")
             }
         }
@@ -66,6 +67,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":appstate:transform:transform-testing"))
                 implementation(project(":kruth:kruth"))
+                implementation(project(":lifecycle:lifecycle-viewmodel"))
             }
         }
 
