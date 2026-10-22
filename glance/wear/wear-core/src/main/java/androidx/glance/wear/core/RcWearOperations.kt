@@ -121,6 +121,9 @@ public object RcWearOperations {
     public const val MODIFIER_PADDING: Int = 58
     public const val MODIFIER_RIPPLE: Int = 229
     public const val MODIFIER_ROUNDED_CLIP_RECT: Int = 54
+    public const val MODIFIER_TOUCH_CANCEL: Int = 225
+    public const val MODIFIER_TOUCH_DOWN: Int = 219
+    public const val MODIFIER_TOUCH_UP: Int = 220
     public const val MODIFIER_VISIBILITY: Int = 211
     public const val MODIFIER_WIDTH: Int = 16
     public const val MODIFIER_WIDTH_IN: Int = 231
