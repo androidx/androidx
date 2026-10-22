@@ -20,8 +20,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.os.RemoteException
 import androidx.annotation.RestrictTo
 import androidx.xr.projected.platform.IProjectedService
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,9 +48,13 @@ public class ProjectedServiceConnection(
         }
     }
 
+    // Serializes connection state across the main thread (ServiceConnection callbacks), Binder
+    // threads (DeathRecipient.binderDied), and caller threads (connect / disconnect).
+    private val lock = Any()
     private var projectedServiceConnection: ServiceConnection? = null
     private var projectedServiceBinder: IBinder? = null
-    private val projectedServiceDeathRecipient = IBinder.DeathRecipient { disconnect() }
+    private var projectedServiceDeathRecipient: IBinder.DeathRecipient? = null
+    private var onProjectedServiceConnectedDeferred: CompletableDeferred<IProjectedService>? = null
     private val _isServiceConnected = MutableStateFlow(false)
 
     /**
@@ -65,59 +71,144 @@ public class ProjectedServiceConnection(
      *
      * @return An [IProjectedService] instance.
      * @throws IllegalStateException if the projected service is not found or binding is not
-     *   permitted, or if [connect] is called while a connection is already active.
+     *   permitted, if the service dies or disconnects before binding completes, or if [connect] is
+     *   called while a connection is already active.
      * @throws kotlinx.coroutines.TimeoutCancellationException if the connection times out.
      */
     public suspend fun connect(): IProjectedService {
-        if (projectedServiceConnection != null) {
-            throw IllegalStateException(
-                "Connect called while a service connection is already active."
-            )
-        }
-
         val serviceDeferred = CompletableDeferred<IProjectedService>()
-
-        projectedServiceConnection =
+        val connection =
             object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                    serviceDeferred.complete(IProjectedService.Stub.asInterface(service))
-                    projectedServiceBinder = service
-                    service?.linkToDeath(projectedServiceDeathRecipient, /* flags= */ 0)
-                    _isServiceConnected.tryEmit(true)
+                    synchronized(lock) {
+                        // Ignore late callbacks if this connection was already disconnected.
+                        if (projectedServiceConnection !== this) return@synchronized
+                        onProjectedServiceConnectedDeferred = null
+                        if (service == null) {
+                            serviceDeferred.completeExceptionally(
+                                IllegalStateException("Projected service binder is null.")
+                            )
+                            return@synchronized
+                        }
+                        // Scope the death recipient to both this connection and this
+                        // binder so a late binderDied() from an older session cannot
+                        // disconnect a newer connection or a restarted service binder.
+                        val deathRecipient = IBinder.DeathRecipient { disconnect(this, service) }
+                        try {
+                            // Register linkToDeath under lock before completing
+                            // serviceDeferred so a caller resuming from connect() on a
+                            // background dispatcher cannot invoke disconnect() and
+                            // unlinkToDeath() before linkToDeath() has registered.
+                            service.linkToDeath(deathRecipient, /* flags= */ 0)
+                            // If the service restarted after onServiceDisconnected on the
+                            // same ServiceConnection, unlink the previous binder.
+                            projectedServiceBinder?.let { previousBinder ->
+                                projectedServiceDeathRecipient?.let { previousRecipient ->
+                                    try {
+                                        previousBinder.unlinkToDeath(
+                                            previousRecipient,
+                                            /* flags= */ 0,
+                                        )
+                                    } catch (_: NoSuchElementException) {}
+                                }
+                            }
+                            projectedServiceBinder = service
+                            projectedServiceDeathRecipient = deathRecipient
+                            _isServiceConnected.tryEmit(true)
+                            serviceDeferred.complete(IProjectedService.Stub.asInterface(service))
+                        } catch (e: RemoteException) {
+                            serviceDeferred.completeExceptionally(
+                                IllegalStateException(
+                                    "Projected service died before binding completed.",
+                                    e,
+                                )
+                            )
+                        }
+                    }
                 }
 
                 override fun onServiceDisconnected(name: ComponentName?) {
-                    _isServiceConnected.tryEmit(false)
+                    synchronized(lock) {
+                        if (projectedServiceConnection === this) {
+                            _isServiceConnected.tryEmit(false)
+                        }
+                    }
                 }
             }
 
-        val isBindingPermitted =
-            ProjectedServiceBinding.bind(
-                context,
-                projectedIntentAction.intentActionString,
-                checkNotNull(projectedServiceConnection, { "Service connection is null" }),
-            )
-        if (!isBindingPermitted) {
-            serviceDeferred.completeExceptionally(
-                IllegalStateException("Projected service not found or binding was not permitted.")
-            )
+        synchronized(lock) {
+            check(projectedServiceConnection == null) {
+                "Connect called while a service connection is already active."
+            }
+            projectedServiceConnection = connection
+            onProjectedServiceConnectedDeferred = serviceDeferred
         }
 
-        return withTimeout(SERVICE_CONNECTION_TIMEOUT_MS) { serviceDeferred.await() }
+        try {
+            val isBindingPermitted =
+                ProjectedServiceBinding.bind(
+                    context,
+                    projectedIntentAction.intentActionString,
+                    connection,
+                )
+            check(isBindingPermitted) {
+                "Projected service not found or binding was not permitted."
+            }
+            return withTimeout(SERVICE_CONNECTION_TIMEOUT_MS) { serviceDeferred.await() }
+        } catch (e: Throwable) {
+            // Unbind and clear state for this connection if binding fails, times out, or is
+            // cancelled, without affecting any newer connection established after a disconnect().
+            disconnect(connection)
+            throw e
+        }
     }
 
     /** Disconnects from the [IProjectedService] by unbinding it. */
     public fun disconnect() {
-        val connection = projectedServiceConnection ?: return
-        _isServiceConnected.tryEmit(false)
+        disconnect(targetConnection = null)
+    }
+
+    private fun disconnect(
+        targetConnection: ServiceConnection?,
+        targetBinder: IBinder? = null,
+    ) {
+        val connection: ServiceConnection
+        val binder: IBinder?
+        val deathRecipient: IBinder.DeathRecipient?
+        val deferred: CompletableDeferred<IProjectedService>?
+        synchronized(lock) {
+            connection = projectedServiceConnection ?: return
+            val isTargetConnection = targetConnection == null || connection === targetConnection
+            val isTargetBinder = targetBinder == null || projectedServiceBinder === targetBinder
+            if (!isTargetConnection || !isTargetBinder) return
+            // Atomically claim and clear the active connection and binder references under lock so
+            // concurrent disconnect() and binderDied() calls unbind and unlink at most once.
+            binder = projectedServiceBinder
+            deathRecipient = projectedServiceDeathRecipient
+            deferred = onProjectedServiceConnectedDeferred
+            projectedServiceBinder = null
+            projectedServiceDeathRecipient = null
+            projectedServiceConnection = null
+            onProjectedServiceConnectedDeferred = null
+            _isServiceConnected.tryEmit(false)
+        }
+        // If disconnect() was called before onServiceConnected ran, cancel the pending deferred so
+        // connect() aborts immediately instead of waiting for SERVICE_CONNECTION_TIMEOUT_MS.
+        deferred?.cancel(
+            CancellationException("Projected service disconnected before binding completed.")
+        )
         try {
             context.unbindService(connection)
         } catch (_: IllegalArgumentException) {
             // Service may have already been unbound by the OS or disconnected during standby.
         }
-        projectedServiceBinder?.unlinkToDeath(projectedServiceDeathRecipient, /* flags= */ 0)
-        projectedServiceBinder = null
-        projectedServiceConnection = null
+        if (deathRecipient != null) {
+            try {
+                binder?.unlinkToDeath(deathRecipient, /* flags= */ 0)
+            } catch (_: NoSuchElementException) {
+                // Death link may have already been unlinked or cleaned up if the binder died.
+            }
+        }
     }
 
     private companion object {
