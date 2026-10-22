@@ -33,6 +33,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.9.0") // OptIn, RestrictTo, etc.
     implementation("androidx.core:core:1.13.1")
     implementation(libs.kotlinCoroutinesCore) // launch, async, etc.
+    implementation(libs.kotlinCoroutinesAndroid) // Dispatchers.Main
     implementation("androidx.lifecycle:lifecycle-service:2.8.1")
     // Test dependencies
     androidTestImplementation(project(":internal-testutils-common"))

@@ -36,9 +36,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,10 +100,42 @@ class ConcurrentCallingTest : BaseTelecomTest() {
     }
 
     /**
+     * Test an outgoing call followed by an incoming call using the backwards-compatibility
+     * ConnectionService layer, verifying both calls emit initial audio endpoints and transition
+     * states cleanly.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testStateTransition_outgoingThenIncoming_backwardsCompat() = runBlocking {
+        setUpBackwardsCompatTest()
+        assertCallStateTransition(outgoingThenIncomingScenario, verifyInitialEndpoints = true)
+    }
+
+    /**
+     * Test an incoming call followed by an outgoing call using the backwards-compatibility
+     * ConnectionService layer, verifying both calls emit initial audio endpoints and transition
+     * states cleanly.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testStateTransition_incomingThenOutgoing_backwardsCompat() = runBlocking {
+        setUpBackwardsCompatTest()
+        assertCallStateTransition(incomingThenOutgoingScenario, verifyInitialEndpoints = true)
+    }
+
+    /**
      * Helper function that contains the shared test logic for executing a single CallScenario. This
      * keeps the test code DRY.
+     *
+     * @param verifyInitialEndpoints when true, each call must emit initial audio endpoints before
+     *   it is set active. Only the backwards-compat (CallSessionLegacy) path guarantees this, via
+     *   its AudioManager fallback; the transactional path may not deliver an endpoint update to a
+     *   second call while another call holds audio focus.
      */
-    private suspend fun CoroutineScope.assertCallStateTransition(scenario: CallScenario) {
+    private suspend fun CoroutineScope.assertCallStateTransition(
+        scenario: CallScenario,
+        verifyInitialEndpoints: Boolean = false,
+    ) {
         try {
             // Make the first call with the attributes and expectation defined
             // in the scenario.
@@ -111,6 +145,7 @@ class ConcurrentCallingTest : BaseTelecomTest() {
                     activeResult = firstCallIsActive,
                     callAttributes = scenario.firstCallAttributes,
                     expectInactiveCallback = scenario.firstCallExpectInactive,
+                    verifyInitialEndpoints = verifyInitialEndpoints,
                 )
             }
 
@@ -123,6 +158,7 @@ class ConcurrentCallingTest : BaseTelecomTest() {
                 addCall(
                     callAttributes = scenario.secondCallAttributes,
                     expectInactiveCallback = scenario.secondCallExpectInactive,
+                    verifyInitialEndpoints = verifyInitialEndpoints,
                 )
             }
 
@@ -150,6 +186,7 @@ class ConcurrentCallingTest : BaseTelecomTest() {
             CompletableDeferred<CallControlResult>(),
         callAttributes: CallAttributesCompat,
         expectInactiveCallback: Boolean,
+        verifyInitialEndpoints: Boolean = false,
     ): CallControlResult {
         val inactiveCall = run {
             // TODO:: b/391963273 to fix onSetInactive issue on P- builds
@@ -174,6 +211,13 @@ class ConcurrentCallingTest : BaseTelecomTest() {
             ) {
                 launch {
                     try {
+                        if (verifyInitialEndpoints) {
+                            // Verify initial available endpoints are emitted even when another
+                            // call already holds audio focus (before this call becomes active).
+                            val initialAvailable = availableEndpoints.first { it.isNotEmpty() }
+                            assertTrue(initialAvailable.isNotEmpty())
+                        }
+
                         activeResult.complete(setActive())
                         Log.d(TAG, "setActive: id=[${getCallId()}]")
                         // Delay before disconnecting the call to give the other call time to go
