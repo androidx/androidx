@@ -23,22 +23,19 @@ import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @Stable public class RemoteBoxScope
 
 internal class RemoteBoxNode : RemoteComposeNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(creationState)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startBox(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
+            horizontalAlignment.toRemote(layoutDirection),
             verticalAlignment.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
@@ -66,7 +63,6 @@ public fun RemoteBox(
     content: @Composable () -> Unit,
 ) {
     val scope = remember { RemoteBoxScope() }
-    val layoutDirection = LocalLayoutDirection.current
     RemoteComposeNode(
         factory = ::RemoteBoxNode,
         update = {
@@ -76,9 +72,6 @@ public fun RemoteBox(
             }
             set(contentAlignment.vertical) { nodeVerticalAlignment ->
                 this.verticalAlignment = nodeVerticalAlignment
-            }
-            set(layoutDirection) { nodeLayoutDirection ->
-                this.layoutDirection = nodeLayoutDirection
             }
         },
         content = content,

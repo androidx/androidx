@@ -21,15 +21,12 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 internal class RemoteFlowRowNode : RemoteComposeNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
     var maxItemsInEachRow: Int = Int.MAX_VALUE
     var maxLines: Int = Int.MAX_VALUE
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(creationState)
@@ -37,10 +34,9 @@ internal class RemoteFlowRowNode : RemoteComposeNode() {
         (horizontalArrangement as? RemoteSpaced)?.let {
             recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
-        val remoteLayoutDirection = layoutDirection.toRemoteLayoutDirection()
         creationState.document.startFlow(
             recordingModifier,
-            horizontalArrangement.toRemote(remoteLayoutDirection),
+            horizontalArrangement.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
             maxItemsInEachRow,
             maxLines,
@@ -48,7 +44,7 @@ internal class RemoteFlowRowNode : RemoteComposeNode() {
         renderChildren(
             creationState,
             remoteCanvas,
-            reversed = shouldReverse(horizontalArrangement, remoteLayoutDirection),
+            reversed = shouldReverse(horizontalArrangement, layoutDirection),
         )
         creationState.document.endFlow()
     }
@@ -78,7 +74,6 @@ public fun RemoteFlowRow(
     maxLines: Int = Int.MAX_VALUE,
     content: @Composable () -> Unit,
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     RemoteComposeNode(
         factory = ::RemoteFlowRowNode,
         update = {
@@ -93,9 +88,6 @@ public fun RemoteFlowRow(
                 this.maxItemsInEachRow = nodeMaxItemsInEachRow
             }
             set(maxLines) { nodeMaxLines -> this.maxLines = nodeMaxLines }
-            set(layoutDirection) { nodeLayoutDirection ->
-                this.layoutDirection = nodeLayoutDirection
-            }
         },
         content = content,
     )
