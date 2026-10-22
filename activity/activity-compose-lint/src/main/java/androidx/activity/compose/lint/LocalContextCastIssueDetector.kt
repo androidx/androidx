@@ -56,8 +56,11 @@ class LocalContextCastIssueDetector : Detector(), SourceCodeScanner {
                                 (node.operand as? UQualifiedReferenceExpression)
                                     ?.receiver
                                     ?.tryResolveNamed() ?: return
+                            // The receiver might be the LocalContext property backing field or
+                            // accessor method, depending on the version of lint used.
                             if (
-                                resolvedReceiver.name == "LocalContext" &&
+                                (resolvedReceiver.name == "LocalContext" ||
+                                    resolvedReceiver.name == "getLocalContext") &&
                                     (resolvedReceiver.containingFile as? PsiClassOwner)
                                         ?.packageName == "androidx.compose.ui.platform"
                             ) {
