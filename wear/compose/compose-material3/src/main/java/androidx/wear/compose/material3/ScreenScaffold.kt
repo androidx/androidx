@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
@@ -42,6 +41,8 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -119,9 +120,15 @@ import kotlinx.coroutines.launch
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -191,9 +198,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -260,7 +273,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -315,7 +331,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -392,9 +411,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -469,9 +494,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -546,7 +577,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -609,7 +643,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -678,9 +715,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -747,9 +790,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -817,7 +866,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -873,7 +925,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -943,7 +998,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -1006,7 +1064,10 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -1076,9 +1137,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -1146,9 +1213,15 @@ public fun ScreenScaffold(
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
- *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
- *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
+ *
+ *   The bottom padding value is always ignored because we instead use [edgeButtonSpacing] to
+ *   specify the gap between edge button and content - and the [EdgeButton] hugs the bottom of the
+ *   screen.
+ *
  * @param timeText The time text and status bar configuration for this screen:
  *     - `null` (default): inherits status bar mode and time text from [AppScaffold] or underlying
  *       screens.
@@ -1337,7 +1410,10 @@ private enum class SlotsEnum {
  *   [ScrollIndicator].
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
  *   received by the [content] and should be consumed by using
- *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. To
+ *   guarantee frame-0 inset stability when using [Modifier.suppressStatusBar], pass this padding to
+ *   containers like TransformingLazyColumn or layout modifiers like `Modifier.padding`, rather than
+ *   inspecting its values directly during composition via functions like calculateTopPadding.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
  *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
  *   provided by default. No scroll indicator is displayed if null is passed.
@@ -1427,9 +1503,13 @@ public fun ScreenScaffold(
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
-    val statusBarMode = if (timeText == null) StatusBarMode.Inherit else StatusBarMode.Disabled
-    val showStatusBarState = rememberShowStatusBarState(statusBarMode)
-    val timeTextState = rememberUpdatedState(timeText)
+    val statusBarState =
+        rememberScaffoldStatusBarState(
+            timeText = timeText,
+            unsuppressedStatusBarMode =
+                if (timeText != null) StatusBarMode.Disabled else StatusBarMode.Inherit,
+        )
+    val showStatusBarState = statusBarState.showStatusBar
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
     val scaffoldState =
         LocalScaffoldState.current ?: remember { ScreenScaffoldState(scrollInfoProviderState) }
@@ -1437,47 +1517,39 @@ public fun ScreenScaffold(
     scaffoldState.UpdateIdlingDetectorIfNeeded()
 
     ScreenContentRegistration(
-        timeText = timeTextState,
+        timeText = statusBarState.timeText,
         scrollInfoProvider = scrollInfoProviderState,
     )
-    StatusBarRegistration(showStatusBar = showStatusBarState)
+    ScaffoldStatusBarRegistration(
+        scaffoldState = scaffoldState,
+        statusBarState = statusBarState,
+    )
 
     // Resolve the system status bar top inset boundaries.
-    // - When showStatusBar is true (and supported on hardware):
-    //   We use WindowInsets.statusBarsIgnoringVisibility to reserve space for the system overlay.
-    //   The content draws edge-to-edge behind the Status Bar.
-    // - When showStatusBar is false (or unsupported):
-    //   The system status bar overlay is hidden, so we set baseInsets to WindowInsets(0.dp) to
-    // allow
-    //   the screen's layout to fill the viewport (with local TimeText overlaying content if
-    // provided).
-    val baseInsets =
-        if (showStatusBarState.value) {
-            WindowInsets.statusBarsIgnoringVisibility
-        } else {
-            WindowInsets(0.dp)
-        }
-
+    // Keep baseInsets unconditional during composition so that showStatusBarState.value is not read
+    // eagerly during Step 1 (Composition). finalContentPadding.calculateTopPadding() evaluates
+    // showStatusBarState.value during Step 3 (Measure & Layout), by which time onAttach() has
+    // already executed and updated suppressionCount.
+    val baseInsets = WindowInsets.statusBarsIgnoringVisibility
     val safeInsets = remember(baseInsets) { MutableWindowInsets(baseInsets) }
     val localDensity = LocalDensity.current
 
     val finalContentPadding =
-        remember(contentPadding, safeInsets, localDensity) {
-            object : PaddingValues by contentPadding {
-                override fun calculateTopPadding(): Dp {
-                    val computedStatusBarTopPadding =
-                        safeInsets.asPaddingValues(localDensity).calculateTopPadding()
-                    return maxOf(computedStatusBarTopPadding, contentPadding.calculateTopPadding())
-                }
-            }
+        remember(contentPadding, safeInsets, localDensity, showStatusBarState) {
+            ScreenScaffoldPaddingValues(
+                contentPadding = contentPadding,
+                safeInsets = safeInsets,
+                density = localDensity,
+                showStatusBarState = showStatusBarState,
+            )
         }
 
     CompositionLocalProvider(
-        LocalInheritedShowStatusBar provides showStatusBarState.value,
+        LocalScaffoldStatusBarState provides statusBarState,
         LocalScaffoldState provides scaffoldState,
     ) {
         WrapWithOverscrollFactoryIfRequired(overscrollEffect) {
-            Box(modifier.fillMaxSize()) {
+            Box(statusBarState.coordinatorModifier.then(modifier).fillMaxSize()) {
                 Box(
                     modifier =
                         Modifier.overscroll(overscrollEffect).onConsumedWindowInsetsChanged {
@@ -1738,6 +1810,53 @@ private class OffsetOverscrollFactory(
         if (overscrollFactory != other.overscrollFactory) return false
         if (overscrollEffect != other.overscrollEffect) return false
         return true
+    }
+}
+
+@Stable
+private class ScreenScaffoldPaddingValues(
+    private val contentPadding: PaddingValues,
+    private val safeInsets: WindowInsets,
+    private val density: Density,
+    private val showStatusBarState: State<Boolean>,
+) : PaddingValues {
+    override fun calculateLeftPadding(layoutDirection: LayoutDirection): Dp =
+        contentPadding.calculateLeftPadding(layoutDirection)
+
+    override fun calculateTopPadding(): Dp {
+        val computedStatusBarTopPadding =
+            if (showStatusBarState.value) {
+                with(density) { safeInsets.getTop(this).toDp() }
+            } else {
+                0.dp
+            }
+        return maxOf(computedStatusBarTopPadding, contentPadding.calculateTopPadding())
+    }
+
+    override fun calculateRightPadding(layoutDirection: LayoutDirection): Dp =
+        contentPadding.calculateRightPadding(layoutDirection)
+
+    override fun calculateBottomPadding(): Dp = contentPadding.calculateBottomPadding()
+
+    override fun toString(): String =
+        "ScreenScaffoldPaddingValues(contentPadding=$contentPadding, safeInsets=$safeInsets, " +
+            "density=$density, showStatusBarState=$showStatusBarState)"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ScreenScaffoldPaddingValues) return false
+        return contentPadding == other.contentPadding &&
+            safeInsets == other.safeInsets &&
+            density == other.density &&
+            showStatusBarState == other.showStatusBarState
+    }
+
+    override fun hashCode(): Int {
+        var result = contentPadding.hashCode()
+        result = 31 * result + safeInsets.hashCode()
+        result = 31 * result + density.hashCode()
+        result = 31 * result + showStatusBarState.hashCode()
+        return result
     }
 }
 

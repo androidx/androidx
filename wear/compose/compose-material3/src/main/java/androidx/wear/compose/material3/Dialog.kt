@@ -158,7 +158,24 @@ public fun Dialog(
             dialogWindowProvider.window.setWindowAnimations(android.R.style.Animation)
             dialogWindowProvider.window.setDimAmount(0f)
 
-            StatusBarSuppression()
+            val statusBarState =
+                rememberScaffoldStatusBarState(unsuppressedStatusBarMode = StatusBarMode.Disabled)
+
+            // Dialog runs in a separate Android window (`DialogWindowProvider`), so its Compose
+            // hierarchy is separate and cannot cross window boundaries.
+            // statusBarState.coordinatorModifier acts as a terminal coordinator within the dialog,
+            // allowing descendant Modifier.suppressStatusBar() nodes to coordinate locally rather
+            // than falling back to creating redundant standalone StatusBarOrchestrator instances.
+            // When hosted within an AppScaffold, Dialog registers its window layer with
+            // AppScaffoldState.screenContent; otherwise it falls back to window orchestration.
+            if (scaffoldState is AppScaffoldState) {
+                StatusBarRegistration(
+                    showStatusBar = statusBarState.showStatusBar,
+                    scaffoldState = scaffoldState,
+                )
+            } else {
+                StandaloneStatusBarSuppression(isSuppressed = true)
+            }
 
             val contentAlpha by animateContentAlpha(transition)
             val scale by animateDialogScale(transition)
@@ -173,11 +190,11 @@ public fun Dialog(
                     }
                 }
 
-            CompositionLocalProvider(LocalInheritedShowStatusBar provides false) {
+            CompositionLocalProvider(LocalScaffoldStatusBarState provides statusBarState) {
                 SwipeToDismissBox(
                     state = swipeToDismissBoxState,
                     modifier =
-                        modifier.graphicsLayer {
+                        statusBarState.coordinatorModifier.then(modifier).graphicsLayer {
                             alpha = contentAlpha
                             scaleX = scale
                             scaleY = scale

@@ -66,7 +66,9 @@ sealed interface Screen : NavKey {
 
     @Serializable data object DialogOutOfScaffold : Screen
 
-    @Serializable data object SuppressStatusBarLambda : Screen
+    @Serializable data object SuppressStatusBarAppScaffold : Screen
+
+    @Serializable data object SuppressStatusBarScreenScaffold : Screen
 
     @Serializable data object SuppressStatusBarLeaf : Screen
 
@@ -94,7 +96,8 @@ val Screen.title: String
             Screen.DatePickerOutOfScaffold -> "DatePicker (Out of Scaffold)"
             Screen.DialogInScaffold -> "Dialog (In Scaffold)"
             Screen.DialogOutOfScaffold -> "Dialog (Out of Scaffold)"
-            Screen.SuppressStatusBarLambda -> "SuppressStatusBar (Content Lambda)"
+            Screen.SuppressStatusBarAppScaffold -> "SuppressStatusBar (AppScaffold Modifier)"
+            Screen.SuppressStatusBarScreenScaffold -> "SuppressStatusBar (ScreenScaffold Modifier)"
             Screen.SuppressStatusBarLeaf -> "SuppressStatusBar (Component Leaf)"
             Screen.CustomSuppressStatusBarOutOfScaffold -> "SuppressStatusBar (Out of Scaffold)"
             Screen.PagerWithSuppression -> "Pager With Suppression"
@@ -226,8 +229,14 @@ fun WindowInsetsApp() {
                     DialogOutOfScaffoldScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
                 }
 
-                entry<Screen.SuppressStatusBarLambda> {
-                    SuppressStatusBarLambdaScreen(
+                entry<Screen.SuppressStatusBarAppScaffold> {
+                    SuppressStatusBarAppScaffoldScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.SuppressStatusBarScreenScaffold> {
+                    SuppressStatusBarScreenScaffoldScreen(
                         onBack = { backStack.removeAt(backStack.lastIndex) }
                     )
                 }

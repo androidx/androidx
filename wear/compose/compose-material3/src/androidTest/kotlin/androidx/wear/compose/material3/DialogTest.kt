@@ -18,6 +18,9 @@ package androidx.wear.compose.material3
 
 import android.view.Window
 import android.view.WindowManager
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
@@ -26,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -35,6 +39,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.window.SecureFlagPolicy
@@ -269,29 +275,50 @@ class DialogTest {
     }
 
     @Test
-    fun plainDialog_withoutScaffold_providesLocalInheritedShowStatusBarFalse() {
-        var inheritedShow: Boolean? = null
+    fun plainDialog_withoutScaffold_providesLocalScaffoldStatusBarStateDisabled() {
+        var observedState: ScaffoldStatusBarState? = null
         rule.setContentWithTheme {
-            Dialog(visible = true, onDismissRequest = {}) {
-                inheritedShow = LocalInheritedShowStatusBar.current
+            WithMockStatusBarInsets {
+                Dialog(visible = true, onDismissRequest = {}) {
+                    observedState = LocalScaffoldStatusBarState.current
+                }
             }
         }
         rule.waitForIdle()
-        Assert.assertEquals(false, inheritedShow)
+        Assert.assertNotNull(observedState)
+        Assert.assertEquals(false, observedState?.showStatusBar?.value)
     }
 
     @Test
     fun plainDialog_withInnerScreenScaffoldInherit_inheritsDisabled() {
         var innerShow: Boolean? = null
+        val observedPaddings = mutableListOf<Dp>()
         rule.setContentWithTheme {
-            Dialog(visible = true, onDismissRequest = {}) {
-                ScreenScaffold {
-                    innerShow = LocalInheritedShowStatusBar.current
+            WithMockStatusBarInsets {
+                Dialog(visible = true, onDismissRequest = {}) {
+                    ScreenScaffold(contentPadding = PaddingValues(0.dp)) { contentPadding ->
+                        Box(
+                            modifier =
+                                Modifier.fillMaxSize().layout { measurable, constraints ->
+                                    observedPaddings.add(contentPadding.calculateTopPadding())
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                        )
+                        innerShow = LocalScaffoldStatusBarState.current?.showStatusBar?.value
+                    }
                 }
             }
         }
         rule.waitForIdle()
         Assert.assertEquals(false, innerShow)
+        Assert.assertTrue("Observed at least one measure pass", observedPaddings.isNotEmpty())
+        Assert.assertTrue(
+            "Inner ScreenScaffold inside Dialog must inherit disabled status bar and collapse padding to 0.dp across all frames, but observed: $observedPaddings",
+            observedPaddings.all { it == 0.dp },
+        )
     }
 
     @Test
