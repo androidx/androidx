@@ -673,8 +673,8 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         }
     }
 
-    this.initialSelStart = textFieldValue.selection.start
-    this.initialSelEnd = textFieldValue.selection.end
+    this.initialSelStart = textFieldValue.selection.min
+    this.initialSelEnd = textFieldValue.selection.max
 
     EditorInfoCompat.setInitialSurroundingText(this, textFieldValue.text)
 
