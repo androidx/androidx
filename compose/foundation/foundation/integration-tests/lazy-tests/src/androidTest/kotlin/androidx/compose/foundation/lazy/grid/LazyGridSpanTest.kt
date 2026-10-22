@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.derivedStateOf
@@ -523,7 +524,7 @@ class LazyGridSpanTest {
             // Adaptive grid where 220dp..250dp width -> 2 columns, 420dp width -> 4 columns
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(100.dp),
-                modifier = Modifier.width(width).height(200.dp),
+                modifier = Modifier.requiredWidth(width).height(200.dp),
                 content = gridContent,
             )
         }
