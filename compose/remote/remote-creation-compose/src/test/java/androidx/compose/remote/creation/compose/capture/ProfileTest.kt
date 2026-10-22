@@ -48,7 +48,8 @@ class ProfileTest {
                 op != Operations.COLOR_THEME &&
                     op != Operations.MODIFIER_TOUCH_DOWN &&
                     op != Operations.MODIFIER_TOUCH_UP &&
-                    op != Operations.MODIFIER_TOUCH_CANCEL
+                    op != Operations.MODIFIER_TOUCH_CANCEL &&
+                    op != Operations.CLIP_PATH
             ) {
                 add(op)
             }
@@ -140,6 +141,30 @@ class ProfileTest {
         }
 
         assertThat(touchModifiers).isFalse()
+    }
+
+    @Test
+    fun currentProfileSupportsPathClip_androidxProfile_returnsTrue() = runTest {
+        var pathClip: Boolean? = null
+
+        captureSingleRemoteDocument(context, profile = RcPlatformProfiles.ANDROIDX) {
+            pathClip = currentProfileSupportsPathClip()
+            RemoteBox()
+        }
+
+        assertThat(pathClip).isTrue()
+    }
+
+    @Test
+    fun currentProfileSupportsPathClip_minimalProfile_returnsFalse() = runTest {
+        var pathClip: Boolean? = null
+
+        captureSingleRemoteDocument(context, profile = minimalProfile) {
+            pathClip = currentProfileSupportsPathClip()
+            RemoteBox()
+        }
+
+        assertThat(pathClip).isFalse()
     }
 
     @Test

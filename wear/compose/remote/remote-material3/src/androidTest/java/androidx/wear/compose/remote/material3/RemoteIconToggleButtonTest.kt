@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
@@ -35,15 +36,18 @@ import androidx.wear.compose.remote.material3.previews.RemoteIconToggleButtonUnc
 import androidx.wear.compose.remote.material3.previews.RemoteIconToggleButtonVariantChecked
 import androidx.wear.compose.remote.material3.previews.RemoteIconToggleButtonVariantUnchecked
 import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.PathClip
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.withPathClip
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class RemoteIconToggleButtonTest {
     @get:Rule
     val remoteComposeTestRule =
@@ -57,6 +61,12 @@ class RemoteIconToggleButtonTest {
     private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
 
     @Test fun icon_toggle_button_checked() = screenshotTest { RemoteIconToggleButtonChecked() }
+
+    @Test
+    fun icon_toggle_button_checked_ab(@TestParameter pathClip: PathClip) =
+        screenshotTest(RcPlatformProfiles.ANDROIDX.withPathClip(pathClip)) {
+            RemoteIconToggleButtonChecked()
+        }
 
     @Test fun icon_toggle_button_unchecked() = screenshotTest { RemoteIconToggleButtonUnchecked() }
 
@@ -87,9 +97,12 @@ class RemoteIconToggleButtonTest {
     @Test
     fun icon_toggle_button_extra_large() = screenshotTest { RemoteIconToggleButtonExtraLarge() }
 
-    private fun screenshotTest(content: @Composable () -> Unit) {
+    private fun screenshotTest(
+        profile: Profile = RcPlatformProfiles.ANDROIDX,
+        content: @Composable () -> Unit,
+    ) {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.ANDROIDX,
+            profile = profile,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { content() }
