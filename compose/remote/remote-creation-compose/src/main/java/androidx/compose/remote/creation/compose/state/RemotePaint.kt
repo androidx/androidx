@@ -16,6 +16,8 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
+import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
@@ -42,6 +44,14 @@ public sealed interface RemotePaint {
 
     /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
     public var style: PaintingStyle
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteStyle: RemotePaintingStyle
+        get() = style.toRemotePaintingStyle()
+        set(value) {
+            style = value.toComposePaintingStyle()
+        }
 
     /** The width of the stroke when [style] is set to Stroke. */
     public var strokeWidth: RemoteFloat

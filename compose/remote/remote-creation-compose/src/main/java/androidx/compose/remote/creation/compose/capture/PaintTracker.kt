@@ -139,7 +139,7 @@ internal class PaintTracker {
             paintBundle.setStrokeJoin(targetJoin)
         }
 
-        val targetStyle = newPaint.style.toInt()
+        val targetStyle = newPaint.remoteStyle.value
         updateIfChanged(targetStyle, style) {
             style = targetStyle
             paintBundle.setStyle(targetStyle)

@@ -20,9 +20,9 @@ import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -301,13 +301,6 @@ internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =
         else -> RemoteFilterQuality.Low
     }
 
-internal fun PaintingStyle.toInt(): Int =
-    when (this) {
-        PaintingStyle.Fill -> PaintBundle.STYLE_FILL
-        PaintingStyle.Stroke -> PaintBundle.STYLE_STROKE
-        else -> PaintBundle.STYLE_FILL
-    }
-
 internal fun LineBreak.encode(): Int =
     when (this.strategy) {
         LineBreak.Strategy.Simple -> 0
@@ -347,4 +340,18 @@ internal fun PathFillType.toRemotePathFillType(): RemotePathFillType =
         PathFillType.NonZero -> RemotePathFillType.NonZero
         PathFillType.EvenOdd -> RemotePathFillType.EvenOdd
         else -> RemotePathFillType.NonZero
+    }
+
+internal fun PaintingStyle.toRemotePaintingStyle(): RemotePaintingStyle =
+    when (this) {
+        PaintingStyle.Fill -> RemotePaintingStyle.Fill
+        PaintingStyle.Stroke -> RemotePaintingStyle.Stroke
+        else -> RemotePaintingStyle.Fill
+    }
+
+internal fun RemotePaintingStyle.toComposePaintingStyle(): PaintingStyle =
+    when (this) {
+        RemotePaintingStyle.Fill -> PaintingStyle.Fill
+        RemotePaintingStyle.Stroke -> PaintingStyle.Stroke
+        else -> PaintingStyle.Fill
     }

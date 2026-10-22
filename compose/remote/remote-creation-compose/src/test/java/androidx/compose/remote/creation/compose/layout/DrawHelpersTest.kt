@@ -20,6 +20,7 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -59,6 +60,8 @@ class DrawHelpersTest {
         assertEquals(0, RemoteStrokeJoin.Miter.value)
         assertEquals(1, RemoteStrokeJoin.Round.value)
         assertEquals(2, RemoteStrokeJoin.Bevel.value)
+        assertEquals(PaintBundle.STYLE_FILL, RemotePaintingStyle.Fill.value)
+        assertEquals(PaintBundle.STYLE_STROKE, RemotePaintingStyle.Stroke.value)
     }
 
     @Test
@@ -69,6 +72,8 @@ class DrawHelpersTest {
         assertEquals(BlendMode.Clear, RemoteBlendMode.Clear.toComposeBlendMode())
 
         assertEquals(RemoteTileMode.Mirror, TileMode.Mirror.toRemoteTileMode())
+        assertEquals(RemotePaintingStyle.Fill, PaintingStyle.Fill.toRemotePaintingStyle())
+        assertEquals(PaintingStyle.Stroke, RemotePaintingStyle.Stroke.toComposePaintingStyle())
         assertEquals(RemotePathFillType.NonZero, PathFillType.NonZero.toRemotePathFillType())
         assertEquals(RemotePathFillType.EvenOdd, PathFillType.EvenOdd.toRemotePathFillType())
         assertEquals(RemoteStrokeCap.Butt, StrokeCap.Butt.toRemoteStrokeCap())
@@ -87,8 +92,6 @@ class DrawHelpersTest {
     @Test
     fun composeGraphicsConversions_toInt() {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toInt())
-        assertEquals(PaintBundle.STYLE_FILL, PaintingStyle.Fill.toInt())
-        assertEquals(PaintBundle.STYLE_STROKE, PaintingStyle.Stroke.toInt())
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.encode())
         assertEquals(TextLayout.OVERFLOW_ELLIPSIS, TextOverflow.Ellipsis.encode())
         assertEquals(1, FontStyle.Italic.encode())

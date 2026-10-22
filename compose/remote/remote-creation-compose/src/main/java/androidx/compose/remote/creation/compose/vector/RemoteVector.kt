@@ -41,6 +41,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -51,7 +52,6 @@ import androidx.compose.remote.creation.compose.util.fastForEach
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -185,7 +185,7 @@ internal class RemotePathComponent : RemoteVNode() {
         if (effectiveFillBrush != null || effectiveFillColor != null) {
             val fillPaint = RemotePaint {
                 this.colorFilter = colorFilter
-                this.style = PaintingStyle.Fill
+                this.remoteStyle = RemotePaintingStyle.Fill
             }
             if (effectiveFillColor != null) {
                 val paintColor =
@@ -213,7 +213,7 @@ internal class RemotePathComponent : RemoteVNode() {
         if (effectiveStrokeBrush != null || effectiveStrokeColor != null) {
             val strokePaint = RemotePaint {
                 this.colorFilter = colorFilter
-                this.style = PaintingStyle.Stroke
+                this.remoteStyle = RemotePaintingStyle.Stroke
                 this.strokeWidth = strokeLineWidth
                 this.strokeCap =
                     when (strokeLineCap) {
