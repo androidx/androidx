@@ -19,19 +19,19 @@ package androidx.build.pinneddependencies
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class UpdateTipOfTreeExemptionsTaskTest {
+class UpdateDependencyExemptionsTaskTest {
 
     @Test
     fun renderAndParseExemptionsTomlRoundTrips() {
         val exemptions =
             listOf(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":a2ui:a2ui-engine",
                     dependsOn = ":collection:collection",
                     validThroughLibraryVersion = "1.0.0-beta01",
                     reason = "b/12345 - needs new API",
                 ),
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":fragment:fragment",
                     dependsOn = ":tracing:tracing",
                     validThroughLibraryVersion = "1.9.0-rc01",
@@ -39,7 +39,7 @@ class UpdateTipOfTreeExemptionsTaskTest {
                 ),
             )
         val toml = renderExemptionsToml(exemptions)
-        val parsed = parseTipOfTreeExemptions(toml)
+        val parsed = parseDependencyExemptions(toml)
         assertThat(parsed).isEqualTo(exemptions)
     }
 
@@ -47,7 +47,7 @@ class UpdateTipOfTreeExemptionsTaskTest {
     fun renderAndParseExemptionsTomlEscapesSpecialCharacters() {
         val exemptions =
             listOf(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":sample:sample",
                     dependsOn = ":core:core",
                     validThroughLibraryVersion = "1.0.0",
@@ -59,7 +59,7 @@ class UpdateTipOfTreeExemptionsTaskTest {
             .contains(
                 "reason = \"b/12345 - reasons with \\\"quotes\\\" and \\\\backslashes\\\\ and \\ttabs\""
             )
-        val parsed = parseTipOfTreeExemptions(toml)
+        val parsed = parseDependencyExemptions(toml)
         assertThat(parsed).isEqualTo(exemptions)
     }
 
@@ -67,13 +67,13 @@ class UpdateTipOfTreeExemptionsTaskTest {
     fun reconcileExemptionsFullRepoPrunesStaleEntriesAndPreservesReasons() {
         val existing =
             listOf(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":activity:activity",
                     dependsOn = ":core:core",
                     validThroughLibraryVersion = "1.10.0-alpha01",
                     reason = "b/11111 - obsolete entry that was pinned",
                 ),
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":fragment:fragment",
                     dependsOn = ":tracing:tracing",
                     validThroughLibraryVersion = "1.9.0-rc01",
@@ -82,29 +82,30 @@ class UpdateTipOfTreeExemptionsTaskTest {
             )
         val reports =
             listOf(
-                // :activity:activity was evaluated and no longer has unpinned dependencies
-                UnpinnedDependenciesReport(
+                // :activity:activity was evaluated and no longer has dependencies needing exemption
+                DependencyExemptionsReport(
                     library = ":activity:activity",
                     libraryVersion = "1.10.0-alpha01",
-                    unpinnedDependencies = emptyList(),
+                    dependenciesNeedingExemption = emptyList(),
                 ),
                 // :fragment:fragment was evaluated and still has its exempted dependency
-                UnpinnedDependenciesReport(
+                DependencyExemptionsReport(
                     library = ":fragment:fragment",
                     libraryVersion = "1.9.0-alpha01",
-                    unpinnedDependencies = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
                 ),
-                // :wear:wear was evaluated and has a new unpinned dependency
-                UnpinnedDependenciesReport(
+                // :wear:wear was evaluated and has a new dependency needing exemption
+                DependencyExemptionsReport(
                     library = ":wear:wear",
                     libraryVersion = "1.0.0-alpha01",
-                    unpinnedDependencies = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
                 ),
             )
 
         val updated = reconcileExemptions(existing, reports)
 
-        // :activity:activity was pruned because it was evaluated with no unpinned dependencies
+        // :activity:activity was pruned because it was evaluated with no dependencies needing
+        // exemption
         assertThat(updated.map { it.library }).containsExactly(":fragment:fragment", ":wear:wear")
         // :fragment:fragment preserved its custom reason and version
         val fragmentExemption = updated.first { it.library == ":fragment:fragment" }
@@ -114,7 +115,7 @@ class UpdateTipOfTreeExemptionsTaskTest {
         val wearExemption = updated.first { it.library == ":wear:wear" }
         assertThat(wearExemption)
             .isEqualTo(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":wear:wear",
                     dependsOn = ":tracing:tracing",
                     validThroughLibraryVersion = "1.0.0-beta01",
@@ -127,13 +128,13 @@ class UpdateTipOfTreeExemptionsTaskTest {
     fun reconcileExemptionsScopedPreservesUnevaluatedLibraries() {
         val existing =
             listOf(
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":camera:camera-core",
                     dependsOn = ":core:core",
                     validThroughLibraryVersion = "1.5.0-alpha01",
                     reason = "b/33333 - camera reason",
                 ),
-                TipOfTreeExemption(
+                DependencyExemption(
                     library = ":wear:wear-compose",
                     dependsOn = ":compose:ui:ui",
                     validThroughLibraryVersion = "1.4.0-alpha01",
@@ -143,10 +144,11 @@ class UpdateTipOfTreeExemptionsTaskTest {
         // Scoped execution: ONLY :wear:wear-compose was evaluated
         val scopedReports =
             listOf(
-                UnpinnedDependenciesReport(
+                DependencyExemptionsReport(
                     library = ":wear:wear-compose",
                     libraryVersion = "1.4.0-alpha01",
-                    unpinnedDependencies = listOf(":compose:material:material", ":compose:ui:ui"),
+                    dependenciesNeedingExemption =
+                        listOf(":compose:material:material", ":compose:ui:ui"),
                 )
             )
 
@@ -173,10 +175,10 @@ class UpdateTipOfTreeExemptionsTaskTest {
     fun reconcileExemptionsSeedsFallbackVersionWhenLibraryVersionIsUnknown() {
         val reports =
             listOf(
-                UnpinnedDependenciesReport(
+                DependencyExemptionsReport(
                     library = ":wear:wear",
                     libraryVersion = null,
-                    unpinnedDependencies = listOf(":tracing:tracing"),
+                    dependenciesNeedingExemption = listOf(":tracing:tracing"),
                 )
             )
         val updated = reconcileExemptions(emptyList(), reports)
