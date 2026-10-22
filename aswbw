@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+cd "$(dirname $0)"
+source development/ide-common.sh
+
+init_ide "aswbw" "$@"
+
+clean_reinstall aswb/
+clean_settings "aswb-backup" ~/.AndroidStudioWithBlazeAndroidX/
+clear_ide_caches .idea/
+
+run_ide :aswb

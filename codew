@@ -3,14 +3,9 @@
 cd "$(dirname $0)"
 source development/ide-common.sh
 
-function usage() {
-  show_usage "codew"
-  echo "VS Code Specific Options:"
-  echo " --system"
-  echo "   Use the 'code' binary found in PATH instead of the managed version."
-  echo
-  exit 1
-}
+IDE_EXTRA_OPTIONS="VS Code Specific Options:
+ --system
+   Use the 'code' binary found in PATH instead of the managed version."
 
 # Parse VS Code specific args
 useSystemCode=false
@@ -23,26 +18,11 @@ for arg; do
   fi
 done
 
-if ! parse_ide_args "${gradleArgs[@]}"; then
-  usage
-fi
+init_ide "codew" "${gradleArgs[@]}"
 
-setup_env "codew"
-
-if [ "$reinstall" == "true" ]; then
-  # remove our managed VS Code itself so Gradle will re-download it
-  rm -rf vscode
-fi
-
-if [ "$cleanSettings" == "true" ]; then
-  # make backups of files that users might have customized
-  backup_and_remove .vscode "vscode-backup"
-  backup_and_remove ~/.VSCodeAndroidX "vscode-backup"
-fi
-
-if [ "$clearCaches" == "true" ]; then
-  git clean -fdX .vscode/
-fi
+clean_reinstall vscode
+clean_settings "vscode-backup" .vscode ~/.VSCodeAndroidX
+clear_ide_caches .vscode/
 
 if [ "$useSystemCode" == "true" ]; then
   if command -v code >/dev/null 2>&1; then
@@ -58,13 +38,5 @@ if [ "$useSystemCode" == "true" ]; then
   fi
 else
   echo "Launching managed VS Code..."
-  extraArgs=()
-  if [ "$acceptTos" == "true" ]; then
-    extraArgs+=("--acceptTos")
-  fi
-  if [ "$clearCaches" == "true" ]; then
-    ./cleanBuild.sh -y :vscode "${extraArgs[@]}"
-  else
-    ./gradlew :vscode "${extraArgs[@]}"
-  fi
+  run_ide :vscode
 fi
