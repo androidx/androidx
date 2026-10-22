@@ -20,8 +20,9 @@ import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
-import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
@@ -29,12 +30,12 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
@@ -176,9 +177,6 @@ public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
         else -> StrokeJoin.Miter
     }
 
-/** Converts [ContentScale] to [androidx.compose.remote.core.operations.utilities.ImageScaling]. */
-internal fun ContentScale.toImageScalingInt(): Int = toRemoteContentScale().value
-
 internal fun TextOverflow.encode(): Int =
     when (this) {
         TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
@@ -207,8 +205,6 @@ internal fun FontStyle.encode(): Int =
         FontStyle.Italic -> 1
         else -> -1
     }
-
-internal fun BlendMode.toInt(): Int = toRemoteBlendMode().value
 
 internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =
     when (this) {
@@ -286,6 +282,14 @@ internal fun StrokeCap.toRemoteStrokeCap(): RemoteStrokeCap =
         else -> RemoteStrokeCap.Butt
     }
 
+internal fun RemoteStrokeCap.toComposeStrokeCap(): StrokeCap =
+    when (this) {
+        RemoteStrokeCap.Butt -> StrokeCap.Butt
+        RemoteStrokeCap.Round -> StrokeCap.Round
+        RemoteStrokeCap.Square -> StrokeCap.Square
+        else -> StrokeCap.Butt
+    }
+
 internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
     when (this) {
         StrokeJoin.Miter -> RemoteStrokeJoin.Miter
@@ -294,11 +298,21 @@ internal fun StrokeJoin.toRemoteStrokeJoin(): RemoteStrokeJoin =
         else -> RemoteStrokeJoin.Miter
     }
 
-internal fun PaintingStyle.toInt(): Int =
+internal fun RemoteStrokeJoin.toComposeStrokeJoin(): StrokeJoin =
     when (this) {
-        PaintingStyle.Fill -> PaintBundle.STYLE_FILL
-        PaintingStyle.Stroke -> PaintBundle.STYLE_STROKE
-        else -> PaintBundle.STYLE_FILL
+        RemoteStrokeJoin.Miter -> StrokeJoin.Miter
+        RemoteStrokeJoin.Round -> StrokeJoin.Round
+        RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
+        else -> StrokeJoin.Miter
+    }
+
+internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =
+    when (this) {
+        FilterQuality.None -> RemoteFilterQuality.None
+        FilterQuality.Low -> RemoteFilterQuality.Low
+        FilterQuality.Medium -> RemoteFilterQuality.Medium
+        FilterQuality.High -> RemoteFilterQuality.High
+        else -> RemoteFilterQuality.Low
     }
 
 internal fun LineBreak.encode(): Int =
@@ -316,8 +330,6 @@ internal fun Hyphens.encode(): Int =
         Hyphens.Unspecified -> 0 // Layout.HYPHENATION_FREQUENCY_NONE
         else -> 0
     }
-
-internal fun TileMode.toTileModeInt(): Int = toRemoteTileMode().value
 
 internal fun TileMode.toRemoteTileMode(): RemoteTileMode =
     when (this) {
@@ -342,4 +354,18 @@ internal fun PathFillType.toRemotePathFillType(): RemotePathFillType =
         PathFillType.NonZero -> RemotePathFillType.NonZero
         PathFillType.EvenOdd -> RemotePathFillType.EvenOdd
         else -> RemotePathFillType.NonZero
+    }
+
+internal fun PaintingStyle.toRemotePaintingStyle(): RemotePaintingStyle =
+    when (this) {
+        PaintingStyle.Fill -> RemotePaintingStyle.Fill
+        PaintingStyle.Stroke -> RemotePaintingStyle.Stroke
+        else -> RemotePaintingStyle.Fill
+    }
+
+internal fun RemotePaintingStyle.toComposePaintingStyle(): PaintingStyle =
+    when (this) {
+        RemotePaintingStyle.Fill -> PaintingStyle.Fill
+        RemotePaintingStyle.Stroke -> PaintingStyle.Stroke
+        else -> PaintingStyle.Fill
     }

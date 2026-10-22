@@ -27,18 +27,17 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toAndroidBlendMode
 import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toPaintingStyle
+import androidx.compose.remote.creation.compose.layout.toRemoteFilterQuality
 import androidx.compose.remote.creation.compose.layout.toStrokeCap
 import androidx.compose.remote.creation.compose.layout.toStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toComposePathEffect
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -142,9 +141,8 @@ public fun Paint.asRemotePaint(): RemotePaint {
     remotePaint.strokeWidth = strokeWidth.rf
     remotePaint.strokeCap = strokeCap
     remotePaint.strokeJoin = strokeJoin
-    remotePaint.filterQuality = filterQuality
+    remotePaint.filterQuality = filterQuality.toRemoteFilterQuality()
     remotePaint.shader = shader.toRemoteShader()
-    remotePaint.pathEffect = pathEffect
     remotePaint.color = color.rc
     remotePaint.colorFilter = colorFilter?.let { ComposeRemoteColorFilter(it) }
     remotePaint.textSize = nativePaint.textSize.rf
@@ -166,9 +164,9 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     remotePaint.strokeWidth = strokeWidth.rf
     remotePaint.strokeCap = strokeCap.toStrokeCap()
     remotePaint.strokeJoin = strokeJoin.toStrokeJoin()
-    remotePaint.filterQuality = if (isFilterBitmap) FilterQuality.Low else FilterQuality.None
+    remotePaint.filterQuality =
+        if (isFilterBitmap) RemoteFilterQuality.Low else RemoteFilterQuality.None
     remotePaint.shader = compat?.remoteShader ?: shader.toRemoteShader()
-    remotePaint.pathEffect = pathEffect?.toComposePathEffect()
     remotePaint.color = compat?.remoteColor ?: RemoteColor(color)
     remotePaint.colorFilter =
         compat?.remoteColorFilter

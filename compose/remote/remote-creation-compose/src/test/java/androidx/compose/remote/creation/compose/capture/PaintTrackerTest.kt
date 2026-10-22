@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
@@ -42,7 +43,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -600,7 +600,7 @@ class PaintTrackerTest {
 
     @Test
     fun testFilterQuality_initialSync_none() {
-        val paint = RemotePaint { filterQuality = FilterQuality.None }
+        val paint = RemotePaint { filterQuality = RemoteFilterQuality.None }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, creationState)
 
@@ -615,7 +615,7 @@ class PaintTrackerTest {
 
     @Test
     fun testFilterQuality_initialSync_low() {
-        val paint = RemotePaint { filterQuality = FilterQuality.Low }
+        val paint = RemotePaint { filterQuality = RemoteFilterQuality.Low }
         val bundle = PaintBundle()
         tracker.updateWithPaint(paint, bundle, creationState)
 
@@ -631,12 +631,12 @@ class PaintTrackerTest {
     @Test
     fun testFilterQuality_deltaOptimization() {
         // Initial draw with Low (filtering on)
-        val paint1 = RemotePaint { filterQuality = FilterQuality.Low }
+        val paint1 = RemotePaint { filterQuality = RemoteFilterQuality.Low }
         tracker.updateWithPaint(paint1, PaintBundle(), creationState)
         tracker.reset(force = false)
 
         // Second draw with None (filtering off) -> should emit update
-        val paint2 = RemotePaint { filterQuality = FilterQuality.None }
+        val paint2 = RemotePaint { filterQuality = RemoteFilterQuality.None }
         val bundle2 = PaintBundle()
         tracker.updateWithPaint(paint2, bundle2, creationState)
 
@@ -648,7 +648,7 @@ class PaintTrackerTest {
 
         // Third draw with None -> delta optimization should NOT re-emit filterBitmap
         tracker.reset(force = false)
-        val paint3 = RemotePaint { filterQuality = FilterQuality.None }
+        val paint3 = RemotePaint { filterQuality = RemoteFilterQuality.None }
         val bundle3 = PaintBundle()
         tracker.updateWithPaint(paint3, bundle3, creationState)
         val changes3 = TestPaintChanges()

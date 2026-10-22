@@ -30,12 +30,12 @@ import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.painter.RemotePainter
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -112,7 +112,7 @@ public fun painterRemoteVector(
     vector: RemoteImageVector,
     tintColor: RemoteColor = vector.tintColor,
 ): RemotePainter {
-    return createVectorPainterFromRemoteImageVector(vector, tintColor, vector.tintBlendMode)
+    return createVectorPainterFromRemoteImageVector(vector, tintColor, vector.remoteTintBlendMode)
 }
 
 /**
@@ -147,7 +147,7 @@ internal fun RemoteVectorPainter.configureRemoteVectorPainter(
 
 private fun createColorFilter(
     tintColor: RemoteColor,
-    tintBlendMode: BlendMode,
+    tintBlendMode: RemoteBlendMode,
 ): RemoteColorFilter? {
     val constantColor = tintColor.constantValueOrNull
     return if (constantColor != null) {
@@ -165,7 +165,7 @@ private fun createColorFilter(
 internal fun createVectorPainterFromRemoteImageVector(
     imageVector: RemoteImageVector,
     tintColor: RemoteColor,
-    blendMode: BlendMode,
+    blendMode: RemoteBlendMode,
 ): RemoteVectorPainter {
     val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
     val viewport = RemoteSize(imageVector.viewportWidth, imageVector.viewportHeight)
@@ -207,7 +207,7 @@ internal fun createVectorPainterFromImageVector(
             root = root,
             viewportSize = viewport,
             name = imageVector.name,
-            intrinsicColorFilter = createColorFilter(tintColor, BlendMode.SrcIn),
+            intrinsicColorFilter = createColorFilter(tintColor, RemoteBlendMode.SrcIn),
             autoMirror = imageVector.autoMirror,
             defaultSize = defaultSize,
         )
@@ -267,14 +267,14 @@ internal fun RemoteGroupComponent.createGroupComponent(
                 RemotePathComponent().apply {
                     pathData = vectorNode.pathData
                     name = vectorNode.name
-                    pathFillType = vectorNode.pathFillType.toRemotePathFillType()
+                    pathFillType = vectorNode.pathFillType
                     fill = vectorNode.fill
                     fillAlpha = vectorNode.fillAlpha
                     stroke = vectorNode.stroke
                     strokeAlpha = vectorNode.strokeAlpha
                     strokeLineWidth = vectorNode.strokeLineWidth
-                    strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()
-                    strokeLineJoin = vectorNode.strokeLineJoin.toRemoteStrokeJoin()
+                    strokeLineCap = vectorNode.strokeLineCap
+                    strokeLineJoin = vectorNode.strokeLineJoin
                     strokeLineMiter = vectorNode.strokeLineMiter
                     trimPathStart = vectorNode.trimPathStart
                     trimPathEnd = vectorNode.trimPathEnd

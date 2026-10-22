@@ -89,12 +89,14 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
 import androidx.compose.remote.creation.compose.state.rb
@@ -117,11 +119,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -1491,7 +1491,7 @@ class RcPlayerPrimitivesTest {
                                     Color.Blue.rc,
                                 ),
                                 null,
-                                TileMode.Clamp,
+                                RemoteTileMode.Clamp,
                             )
                     }
                 drawRect(
@@ -1519,7 +1519,7 @@ class RcPlayerPrimitivesTest {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 val paint =
                     RemotePaint().apply {
-                        filterQuality = FilterQuality.High
+                        filterQuality = RemoteFilterQuality.High
                     }
                 drawRect(
                     paint,
@@ -1886,7 +1886,7 @@ class RcPlayerPrimitivesTest {
                                         Color.Blue.rc,
                                     ),
                                     null,
-                                    TileMode.Clamp,
+                                    RemoteTileMode.Clamp,
                                 )
                                 .apply {
                                     remoteMatrix3x3 = createRotate(45f.rf)

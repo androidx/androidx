@@ -20,20 +20,17 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 
 internal class RemoteFitBoxNode : RemoteComposeNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val scope = overriddenScope(creationState)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startFitBox(
             recordingModifier,
-            horizontalAlignment.toRemote(layoutDirection.toRemoteLayoutDirection()),
+            horizontalAlignment.toRemote(layoutDirection),
             verticalArrangement.toRemote(),
         )
         renderChildren(creationState, remoteCanvas)
@@ -66,7 +63,6 @@ public fun RemoteFitBox(
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Center,
     content: @RemoteComposable @Composable () -> Unit = {},
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     RemoteComposeNode(
         factory = ::RemoteFitBoxNode,
         update = {
@@ -76,9 +72,6 @@ public fun RemoteFitBox(
             }
             set(verticalArrangement) { nodeVerticalArrangement ->
                 this.verticalArrangement = nodeVerticalArrangement
-            }
-            set(layoutDirection) { nodeLayoutDirection ->
-                this.layoutDirection = nodeLayoutDirection
             }
         },
         content = content,
