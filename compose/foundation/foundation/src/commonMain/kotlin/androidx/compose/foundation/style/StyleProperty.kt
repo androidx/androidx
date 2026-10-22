@@ -243,11 +243,19 @@ public sealed class Breadth : Interpolatable {
                 else -> b
             }
 
-        return if (effectiveA is Distance && effectiveB is Distance) {
-            Distance(uiLerp(effectiveA.value.clamp().value, effectiveB.value.clamp().value, t).dp)
-        } else if (effectiveA is Fraction && effectiveB is Fraction) {
-            Fraction(uiLerp(effectiveA.value, effectiveB.value, t))
-        } else null
+        return when (effectiveA) {
+            is Distance if effectiveB is Distance -> {
+                Distance(
+                    uiLerp(effectiveA.value.clamp().value, effectiveB.value.clamp().value, t).dp
+                )
+            }
+
+            is Fraction if effectiveB is Fraction -> {
+                Fraction(uiLerp(effectiveA.value, effectiveB.value, t))
+            }
+
+            else -> null
+        }
     }
 
     /**
@@ -486,12 +494,7 @@ public sealed class Shadows : Interpolatable {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other == null || this::class != other::class) return false
-
-            other as Compound
-
-            if (!shadows.contentEquals(other.shadows)) return false
-
-            return true
+            return shadows.contentEquals((other as Compound).shadows)
         }
 
         override fun hashCode(): Int = shadows.contentHashCode()

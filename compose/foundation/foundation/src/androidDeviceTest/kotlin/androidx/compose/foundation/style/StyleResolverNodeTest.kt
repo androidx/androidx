@@ -85,6 +85,7 @@ class StyleResolverNodeTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun nodeReuse_styleableModifierUpdatesLayout() {
         val resolverA = StyleResolver(Style { size(50.dp) }.toCommonStyle())
         val resolverB = StyleResolver(Style { size(100.dp) }.toCommonStyle())
@@ -216,6 +217,7 @@ class StyleResolverNodeTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun nodeReuse_conditionalRememberedStyleSwap_resolvesNewStyle() {
         var resolvedInNewStyle = false
         var useLargeStyle by mutableStateOf(false)
@@ -274,6 +276,7 @@ class StyleResolverNodeTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun parentResolverSwap_childApplyingNestedStyle_updates() {
         val key = NestedStyleKey("child")
         var useLarge by mutableStateOf(false)

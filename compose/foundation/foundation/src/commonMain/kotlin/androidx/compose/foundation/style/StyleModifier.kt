@@ -34,6 +34,11 @@ import androidx.compose.ui.Modifier
  * This will be moved to be an example of how to use [appearance] to implement the style properties
  * similar to those provided in [Style].
  */
+@Deprecated(
+    message = ModifiersDeprecated,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
 public fun Modifier.styleable(styleResolver: StyleResolver): Modifier =
     styleResolver(styleResolver)
         .styleExternalPadding(styleResolver)
@@ -65,6 +70,12 @@ public fun Modifier.styleable(styleResolver: StyleResolver): Modifier =
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    message = UseStyleResolver,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun Modifier.styleable(styleState: StyleState? = null, style: Style): Modifier =
     if (style === Style) this else this then StyleElement(styleState, style) then StyleInnerElement
 
@@ -91,8 +102,14 @@ public fun Modifier.styleable(styleState: StyleState? = null, style: Style): Mod
  * @see StyleScope
  */
 @ExperimentalFoundationStyleApi
+@Deprecated(
+    message = UseStyleResolver,
+    replaceWith = ReplaceWith(""),
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 public fun Modifier.styleable(styleState: StyleState?, vararg styles: Style): Modifier =
-    styleable(styleState, Style(*styles))
+    this.styleable(styleState, Style(*styles))
 
 /**
  * Modifier that creates a region that is styled by the given [Style] object for the component this
@@ -118,7 +135,6 @@ public fun Modifier.styleable(styleState: StyleState?, vararg styles: Style): Mo
 @Deprecated(StyleableWithNoStyles, level = DeprecationLevel.ERROR)
 @ExperimentalFoundationStyleApi
 @Suppress(
-    "DeprecatedCallableAddReplaceWith",
     "UNUSED_PARAMETER",
     "UnusedReceiverParameter",
     "ModifierFactoryUnreferencedReceiver",
@@ -127,6 +143,26 @@ public fun Modifier.styleable(styleState: StyleState?): Modifier {
     error(StyleableWithNoStyles)
 }
 
+internal const val StyleTransition =
+    """
+
+The style API is moving to a model that allows the design system using it to define the properties
+used in its style parameter. The stylable modifier, along with the predefined set of properties,
+are being removed.
+
+Most of the functionality of the styleable modifier can be obtained by using the placeable and
+appearance modifiers in combination with custom style properties using the StyleResolver.
+
+Material is being updated to define a common set of material style properties that will include 
+many of the same properties as styleable but will be delivered with the material library.
+"""
+
 private const val StyleableWithNoStyles =
     "The styleable() modifier must provide one or more 'style' parameter values. Calling it " +
         "with no style parameter values has no effect."
+
+private const val ModifiersDeprecated =
+    "The modifiers this is based on are being deprecated.$StyleTransition"
+
+private const val UseStyleResolver =
+    "This modifier is being removed. Use the styleResolver based API instead.$StyleTransition"
