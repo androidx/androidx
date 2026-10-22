@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.layout
 import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
@@ -29,6 +28,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
@@ -177,26 +178,26 @@ public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
         else -> StrokeJoin.Miter
     }
 
-internal fun TextOverflow.encode(): Int =
+internal fun TextOverflow.toRemoteTextOverflow(): RemoteTextOverflow =
     when (this) {
-        TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
-        TextOverflow.Visible -> TextLayout.OVERFLOW_VISIBLE
-        TextOverflow.Ellipsis -> TextLayout.OVERFLOW_ELLIPSIS
-        TextOverflow.StartEllipsis -> TextLayout.OVERFLOW_START_ELLIPSIS
-        TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
-        else -> -1
+        TextOverflow.Clip -> RemoteTextOverflow.Clip
+        TextOverflow.Visible -> RemoteTextOverflow.Visible
+        TextOverflow.Ellipsis -> RemoteTextOverflow.Ellipsis
+        TextOverflow.StartEllipsis -> RemoteTextOverflow.StartEllipsis
+        TextOverflow.MiddleEllipsis -> RemoteTextOverflow.MiddleEllipsis
+        else -> RemoteTextOverflow.Clip
     }
 
-internal fun TextAlign.encode(): Int =
+internal fun TextAlign.toRemoteTextAlign(): RemoteTextAlign =
     when (this) {
-        TextAlign.Left -> TextLayout.TEXT_ALIGN_LEFT
-        TextAlign.Right -> TextLayout.TEXT_ALIGN_RIGHT
-        TextAlign.Center -> TextLayout.TEXT_ALIGN_CENTER
-        TextAlign.Justify -> TextLayout.TEXT_ALIGN_JUSTIFY
-        TextAlign.Start -> TextLayout.TEXT_ALIGN_START
-        TextAlign.End -> TextLayout.TEXT_ALIGN_END
-        TextAlign.Unspecified -> TextLayout.TEXT_ALIGN_LEFT
-        else -> -1
+        TextAlign.Left,
+        TextAlign.Unspecified -> RemoteTextAlign.Left
+        TextAlign.Right -> RemoteTextAlign.Right
+        TextAlign.Center -> RemoteTextAlign.Center
+        TextAlign.Justify -> RemoteTextAlign.Justify
+        TextAlign.Start -> RemoteTextAlign.Start
+        TextAlign.End -> RemoteTextAlign.End
+        else -> RemoteTextAlign.Left
     }
 
 internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =

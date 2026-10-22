@@ -31,6 +31,8 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteTextAlign
+import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.runtime.Composable
@@ -171,8 +173,8 @@ public fun RemoteText(
             set(fontStyle.toRemoteFontStyle()) { this.fontStyle = it }
             set(fontSize) { this.fontSize = it }
             set(fontFamily) { this.fontFamily = it }
-            set(textAlign) { this.textAlign = it }
-            set(overflow) { this.overflow = it }
+            set(textAlign.toRemoteTextAlign()) { this.textAlign = it }
+            set(overflow.toRemoteTextOverflow()) { this.overflow = it }
             set(maxLines) { this.maxLines = it }
             set(minFontSize) { this.minFontSize = it }
             set(maxFontSize) { this.maxFontSize = it }
@@ -196,8 +198,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var fontWeight: RemoteFloat = 400f.rf
     var fontStyle: RemoteFontStyle = RemoteFontStyle.Normal
     var fontFamily: String? = null
-    var textAlign: TextAlign = TextAlign.Start
-    var overflow: TextOverflow = TextOverflow.Clip
+    var textAlign: RemoteTextAlign = RemoteTextAlign.Start
+    var overflow: RemoteTextOverflow = RemoteTextOverflow.Clip
     var maxLines: Int = Int.MAX_VALUE
     var minFontSize: Float? = null
     var maxFontSize: Float? = null
@@ -242,14 +244,18 @@ internal class RemoteTextNode : RemoteComposeNode() {
 
         val resolvedTextAlign =
             when (textAlign) {
-                TextAlign.Start ->
-                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl)
-                        TextAlign.End
-                    else TextAlign.Start
-                TextAlign.End ->
-                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl)
-                        TextAlign.Start
-                    else TextAlign.End
+                RemoteTextAlign.Start ->
+                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                        RemoteTextAlign.End
+                    } else {
+                        RemoteTextAlign.Start
+                    }
+                RemoteTextAlign.End ->
+                    if (creationState.remoteLayoutDirection == RemoteLayoutDirection.Rtl) {
+                        RemoteTextAlign.Start
+                    } else {
+                        RemoteTextAlign.End
+                    }
                 else -> textAlign
             }
 
@@ -277,8 +283,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
             fontStyle.value,
             adjustedFontWeight,
             fontFamily,
-            resolvedTextAlign.encode(),
-            overflow.encode(),
+            resolvedTextAlign.value,
+            overflow.value,
             maxLines,
             letterSpacingId,
             lineHeightAdd ?: 0f,
