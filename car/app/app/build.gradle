@@ -328,7 +328,7 @@ class ProtocolLocation {
         int versionStart = file.name.indexOf("_")
         int versionEnd = file.name.indexOf(".txt")
         String parsedCurrentVersion = file.name.substring(versionStart + 1, versionEnd)
-        return new Version(parsedCurrentVersion)
+        return Version.@Companion.parse(parsedCurrentVersion)
     }
 
     def getProtocolApiFile(int carApiLevel) {
