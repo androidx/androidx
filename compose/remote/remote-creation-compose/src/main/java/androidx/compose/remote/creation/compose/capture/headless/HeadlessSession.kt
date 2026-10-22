@@ -21,7 +21,6 @@ import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -160,7 +159,7 @@ internal class HeadlessSession(
      * @param maxFrames how many frames content may request before settling gives up with
      *   [QuiescenceResult.ContinuousFrames].
      * @throws IllegalStateException if the session is not started, or already closed.
-     * @throws CancellationException if the session is closed while settling.
+     * @throws kotlinx.coroutines.CancellationException if the session is closed while settling.
      */
     suspend fun awaitQuiescence(
         maxIterations: Int = MAX_IDLE_ITERATIONS,

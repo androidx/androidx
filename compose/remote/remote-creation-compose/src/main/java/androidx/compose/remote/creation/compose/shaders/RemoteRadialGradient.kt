@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toArgb
 
@@ -49,8 +48,9 @@ import androidx.compose.ui.graphics.toArgb
  * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
  *   radial gradient
  * @param center Center position of the radial gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the radial
- *   gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or [Offset.y] to indicate
+ *   [androidx.compose.ui.geometry.Offset.Unspecified] then the center of the drawing area is used
+ *   as the center for the radial gradient. [Float.POSITIVE_INFINITY] can be used for either
+ *   [androidx.compose.ui.geometry.Offset.x] or [androidx.compose.ui.geometry.Offset.y] to indicate
  *   the far right or far bottom of the drawing area respectively.
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
@@ -86,8 +86,9 @@ public fun RemoteBrush.Companion.radialGradient(
  *
  * @param colors Colors to be rendered as part of the gradient
  * @param center Center position of the radial gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the radial
- *   gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or [Offset.y] to indicate
+ *   [androidx.compose.ui.geometry.Offset.Unspecified] then the center of the drawing area is used
+ *   as the center for the radial gradient. [Float.POSITIVE_INFINITY] can be used for either
+ *   [androidx.compose.ui.geometry.Offset.x] or [androidx.compose.ui.geometry.Offset.y] to indicate
  *   the far right or far bottom of the drawing area respectively.
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
