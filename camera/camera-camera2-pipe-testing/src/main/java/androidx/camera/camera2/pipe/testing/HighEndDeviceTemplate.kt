@@ -24,9 +24,15 @@ import android.hardware.camera2.CameraCharacteristics.*
 import android.hardware.camera2.CameraMetadata.*
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.BlackLevelPattern
+import android.hardware.camera2.params.ColorSpaceTransform
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.media.ImageReader
+import android.os.Build
 import android.util.Range
+import android.util.Rational
 import android.util.Size
+import android.util.SizeF
 import android.view.SurfaceHolder
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
@@ -35,12 +41,14 @@ import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 
 /**
- * Sanitized implementation of [DeviceTemplate] simulating a high-end device.
+ * A [DeviceTemplate] that simulates a modern, high-end smartphone.
  *
- * Use this template when testing features that require advanced camera capabilities, such as manual
- * sensor control, RAW capture, or physical flash availability. It provides a baseline of "FULL"
- * hardware level and advanced capabilities. Uses only standard Android keys and safe values
- * extracted from a device dump.
+ * Use this template for tests that require advanced features like manual sensor control, RAW
+ * capture, or physical flash availability. It provides a baseline of "FULL" hardware level and
+ * advanced capabilities.
+ *
+ * Sensor geometry, optics, controls, and tuning values are aligned with a Pixel 10 Pro hardware
+ * profile. Treat these values as a realistic, stable test baseline, not as a hardware reference.
  */
 public object HighEndDeviceTemplate : DeviceTemplate {
 
@@ -58,49 +66,12 @@ public object HighEndDeviceTemplate : DeviceTemplate {
 
     private val highEndDefaults =
         mapOf(
-            REQUEST_AVAILABLE_CAPABILITIES to
-                intArrayOf(
-                    REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
-                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
-                    REQUEST_AVAILABLE_CAPABILITIES_RAW,
-                ),
-            CONTROL_AE_AVAILABLE_MODES to
-                intArrayOf(CONTROL_AE_MODE_ON, CONTROL_AE_MODE_ON_ALWAYS_FLASH),
-            CONTROL_AF_AVAILABLE_MODES to
-                intArrayOf(CONTROL_AF_MODE_AUTO, CONTROL_AF_MODE_CONTINUOUS_PICTURE),
-            SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
-            SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
-            SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
-            SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB,
-            SENSOR_INFO_WHITE_LEVEL to 1023,
-            SENSOR_MAX_ANALOG_SENSITIVITY to 800,
-            SENSOR_INFO_TIMESTAMP_SOURCE to SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME,
-            SENSOR_INFO_SENSITIVITY_RANGE to Range(50, 10000),
-            SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(100000L, 30000000000L),
-            SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
-            SCALER_CROPPING_TYPE to SCALER_CROPPING_TYPE_CENTER_ONLY,
+            COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES to
+                intArrayOf(COLOR_CORRECTION_ABERRATION_MODE_OFF),
+            CONTROL_AE_AVAILABLE_ANTIBANDING_MODES to intArrayOf(CONTROL_AE_ANTIBANDING_MODE_AUTO),
+            CONTROL_AE_COMPENSATION_RANGE to Range(-24, 24),
+            CONTROL_AE_COMPENSATION_STEP to Rational(1, 6),
             CONTROL_AE_LOCK_AVAILABLE to true,
-            CONTROL_AWB_LOCK_AVAILABLE to true,
-            CONTROL_AWB_AVAILABLE_MODES to
-                intArrayOf(
-                    CONTROL_AWB_MODE_AUTO,
-                    CONTROL_AWB_MODE_INCANDESCENT,
-                    CONTROL_AWB_MODE_FLUORESCENT,
-                    CONTROL_AWB_MODE_WARM_FLUORESCENT,
-                    CONTROL_AWB_MODE_DAYLIGHT,
-                    CONTROL_AWB_MODE_CLOUDY_DAYLIGHT,
-                    CONTROL_AWB_MODE_TWILIGHT,
-                    CONTROL_AWB_MODE_SHADE,
-                ),
-            TONEMAP_MAX_CURVE_POINTS to 64,
-        )
-
-    private val frontFacingOverrides =
-        mapOf(
-            LENS_FACING to LENS_FACING_FRONT,
-            SENSOR_ORIENTATION to 270,
-            FLASH_INFO_AVAILABLE to false,
-            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 5.0f,
             CONTROL_AF_AVAILABLE_MODES to
                 intArrayOf(
                     CONTROL_AF_MODE_OFF,
@@ -110,22 +81,158 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                     CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                     CONTROL_AF_MODE_EDOF,
                 ),
+            CONTROL_AVAILABLE_EFFECTS to intArrayOf(CONTROL_EFFECT_MODE_OFF),
+            CONTROL_AVAILABLE_MODES to
+                intArrayOf(CONTROL_MODE_OFF, CONTROL_MODE_AUTO, CONTROL_MODE_USE_SCENE_MODE),
+            CONTROL_AVAILABLE_SCENE_MODES to
+                intArrayOf(
+                    CONTROL_SCENE_MODE_DISABLED,
+                    CONTROL_SCENE_MODE_FACE_PRIORITY,
+                    CONTROL_SCENE_MODE_NIGHT,
+                    CONTROL_SCENE_MODE_PORTRAIT,
+                    100,
+                    101,
+                    102,
+                    103,
+                    104,
+                    105,
+                ),
+            CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                intArrayOf(
+                    CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                    CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                    CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION,
+                ),
+            CONTROL_AWB_AVAILABLE_MODES to
+                intArrayOf(
+                    CONTROL_AWB_MODE_OFF,
+                    CONTROL_AWB_MODE_AUTO,
+                    CONTROL_AWB_MODE_INCANDESCENT,
+                    CONTROL_AWB_MODE_FLUORESCENT,
+                    CONTROL_AWB_MODE_WARM_FLUORESCENT,
+                    CONTROL_AWB_MODE_DAYLIGHT,
+                    CONTROL_AWB_MODE_CLOUDY_DAYLIGHT,
+                    CONTROL_AWB_MODE_TWILIGHT,
+                    CONTROL_AWB_MODE_SHADE,
+                ),
+            CONTROL_AWB_LOCK_AVAILABLE to true,
+            CONTROL_MAX_REGIONS_AE to 1,
+            CONTROL_MAX_REGIONS_AF to 1,
+            CONTROL_MAX_REGIONS_AWB to 0,
+            CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE to Range(100, 1599),
+            EDGE_AVAILABLE_EDGE_MODES to
+                intArrayOf(EDGE_MODE_OFF, EDGE_MODE_FAST, EDGE_MODE_HIGH_QUALITY),
+            HOT_PIXEL_AVAILABLE_HOT_PIXEL_MODES to
+                intArrayOf(HOT_PIXEL_MODE_OFF, HOT_PIXEL_MODE_FAST, HOT_PIXEL_MODE_HIGH_QUALITY),
+            JPEG_AVAILABLE_THUMBNAIL_SIZES to
+                arrayOf(
+                    Size(0, 0),
+                    Size(176, 144),
+                    Size(240, 144),
+                    Size(256, 144),
+                    Size(240, 160),
+                    Size(256, 154),
+                    Size(246, 184),
+                    Size(240, 240),
+                    Size(320, 216),
+                    Size(320, 228),
+                    Size(320, 232),
+                    Size(320, 240),
+                    Size(408, 308),
+                ),
+            LENS_INFO_AVAILABLE_FILTER_DENSITIES to floatArrayOf(0.0f),
+            LENS_INFO_FOCUS_DISTANCE_CALIBRATION to
+                LENS_INFO_FOCUS_DISTANCE_CALIBRATION_APPROXIMATE,
+            LENS_POSE_TRANSLATION to floatArrayOf(0.0f, 0.0f, 0.0f),
+            NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES to
+                intArrayOf(
+                    NOISE_REDUCTION_MODE_OFF,
+                    NOISE_REDUCTION_MODE_FAST,
+                    NOISE_REDUCTION_MODE_HIGH_QUALITY,
+                ),
+            REPROCESS_MAX_CAPTURE_STALL to 0,
+            REQUEST_MAX_NUM_INPUT_STREAMS to 0,
+            REQUEST_MAX_NUM_OUTPUT_PROC to 3,
+            REQUEST_MAX_NUM_OUTPUT_PROC_STALLING to 2,
+            REQUEST_MAX_NUM_OUTPUT_RAW to 1,
+            REQUEST_PARTIAL_RESULT_COUNT to 2,
+            SCALER_CROPPING_TYPE to SCALER_CROPPING_TYPE_CENTER_ONLY,
+            SENSOR_AVAILABLE_TEST_PATTERN_MODES to intArrayOf(SENSOR_TEST_PATTERN_MODE_OFF, 5),
+            SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB,
+            SENSOR_INFO_LENS_SHADING_APPLIED to false,
+            SENSOR_INFO_TIMESTAMP_SOURCE to SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME,
+            SENSOR_REFERENCE_ILLUMINANT1 to SENSOR_REFERENCE_ILLUMINANT1_STANDARD_A,
+            SENSOR_REFERENCE_ILLUMINANT2 to SENSOR_REFERENCE_ILLUMINANT1_D65.toByte(),
+            SHADING_AVAILABLE_MODES to
+                intArrayOf(SHADING_MODE_OFF, SHADING_MODE_FAST, SHADING_MODE_HIGH_QUALITY),
             STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES to
                 intArrayOf(
                     STATISTICS_FACE_DETECT_MODE_OFF,
                     STATISTICS_FACE_DETECT_MODE_SIMPLE,
                     STATISTICS_FACE_DETECT_MODE_FULL,
                 ),
+            STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to booleanArrayOf(false),
+            STATISTICS_INFO_AVAILABLE_LENS_SHADING_MAP_MODES to
+                intArrayOf(
+                    STATISTICS_LENS_SHADING_MAP_MODE_OFF,
+                    STATISTICS_LENS_SHADING_MAP_MODE_ON,
+                ),
             STATISTICS_INFO_MAX_FACE_COUNT to 10,
-        )
-
-    private val backFacingOverrides =
-        mapOf(
-            LENS_FACING to LENS_FACING_BACK,
-            SENSOR_ORIENTATION to 90,
-            FLASH_INFO_AVAILABLE to true,
-            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 10.0f,
-        )
+            SYNC_MAX_LATENCY to SYNC_MAX_LATENCY_PER_FRAME_CONTROL,
+            TONEMAP_AVAILABLE_TONE_MAP_MODES to
+                intArrayOf(
+                    TONEMAP_MODE_CONTRAST_CURVE,
+                    TONEMAP_MODE_FAST,
+                    TONEMAP_MODE_HIGH_QUALITY,
+                ),
+            TONEMAP_MAX_CURVE_POINTS to 81,
+        ) +
+            (if (Build.VERSION.SDK_INT >= 28) {
+                mapOf(
+                    DISTORTION_CORRECTION_AVAILABLE_MODES to
+                        intArrayOf(
+                            DISTORTION_CORRECTION_MODE_OFF,
+                            DISTORTION_CORRECTION_MODE_FAST,
+                        ),
+                    LENS_POSE_REFERENCE to LENS_POSE_REFERENCE_PRIMARY_CAMERA,
+                    LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to
+                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE_APPROXIMATE,
+                    STATISTICS_INFO_AVAILABLE_OIS_DATA_MODES to
+                        intArrayOf(STATISTICS_OIS_DATA_MODE_OFF),
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 33) {
+                mapOf(
+                    REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE to DynamicRangeProfiles.HLG10
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 34) {
+                mapOf(SENSOR_READOUT_TIMESTAMP to SENSOR_READOUT_TIMESTAMP_NOT_SUPPORTED)
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 35) {
+                mapOf(CONTROL_LOW_LIGHT_BOOST_INFO_LUMINANCE_RANGE to Range(0.1f, 15.0f))
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 36) {
+                mapOf(
+                    COLOR_CORRECTION_AVAILABLE_MODES to
+                        intArrayOf(
+                            COLOR_CORRECTION_MODE_TRANSFORM_MATRIX,
+                            COLOR_CORRECTION_MODE_FAST,
+                            COLOR_CORRECTION_MODE_HIGH_QUALITY,
+                        ),
+                    CONTROL_AE_AVAILABLE_PRIORITY_MODES to intArrayOf(CONTROL_AE_PRIORITY_MODE_OFF),
+                )
+            } else {
+                emptyMap()
+            })
 
     private fun createDefaultCameraStreamConfigurationMap(): CameraStreamConfigurationMap =
         FakeCameraStreamConfigurationMap(
@@ -1518,6 +1625,424 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 ),
         )
 
+    private val frontFacingOverrides =
+        mapOf(
+            CONTROL_AE_AVAILABLE_MODES to
+                intArrayOf(
+                    CONTROL_AE_MODE_OFF,
+                    CONTROL_AE_MODE_ON,
+                    CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY,
+                ),
+            CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
+                arrayOf(
+                    Range(15, 15),
+                    Range(15, 24),
+                    Range(24, 24),
+                    Range(15, 30),
+                    Range(24, 30),
+                    Range(30, 30),
+                    Range(15, 60),
+                    Range(60, 60),
+                ),
+            FLASH_INFO_AVAILABLE to false,
+            LENS_FACING to LENS_FACING_FRONT,
+            LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(2.2f),
+            LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(2.713f),
+            LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION to
+                intArrayOf(LENS_OPTICAL_STABILIZATION_MODE_OFF),
+            LENS_INFO_HYPERFOCAL_DISTANCE to 0.83691454f,
+            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 5.0f,
+            LENS_INTRINSIC_CALIBRATION to
+                floatArrayOf(1937.8573f, 1937.8573f, 1720.0f, 1224.0f, 0.0f),
+            LENS_POSE_ROTATION to floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f),
+            REQUEST_AVAILABLE_CAPABILITIES to
+                intArrayOf(
+                    REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                    REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                    REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                    REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                    REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                    REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA,
+                    REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                ),
+            SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 10.0f,
+            SENSOR_CALIBRATION_TRANSFORM1 to
+                ColorSpaceTransform(
+                    intArrayOf(1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1)
+                ),
+            SENSOR_CALIBRATION_TRANSFORM2 to
+                ColorSpaceTransform(
+                    intArrayOf(1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1)
+                ),
+            SENSOR_COLOR_TRANSFORM1 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        13027,
+                        10000,
+                        -6529,
+                        10000,
+                        436,
+                        10000,
+                        -6157,
+                        10000,
+                        16761,
+                        10000,
+                        7,
+                        10000,
+                        -449,
+                        10000,
+                        2245,
+                        10000,
+                        7009,
+                        10000,
+                    )
+                ),
+            SENSOR_COLOR_TRANSFORM2 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        8074,
+                        10000,
+                        -2164,
+                        10000,
+                        -807,
+                        10000,
+                        -5767,
+                        10000,
+                        14627,
+                        10000,
+                        784,
+                        10000,
+                        -1561,
+                        10000,
+                        3647,
+                        10000,
+                        4497,
+                        10000,
+                    )
+                ),
+            SENSOR_FORWARD_MATRIX1 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        6217,
+                        10000,
+                        2079,
+                        10000,
+                        1347,
+                        10000,
+                        2134,
+                        10000,
+                        7425,
+                        10000,
+                        442,
+                        10000,
+                        -817,
+                        10000,
+                        -5493,
+                        10000,
+                        14561,
+                        10000,
+                    )
+                ),
+            SENSOR_FORWARD_MATRIX2 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        6788,
+                        10000,
+                        2035,
+                        10000,
+                        819,
+                        10000,
+                        2689,
+                        10000,
+                        7804,
+                        10000,
+                        -493,
+                        10000,
+                        117,
+                        10000,
+                        -4223,
+                        10000,
+                        12357,
+                        10000,
+                    )
+                ),
+            SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 3440, 2448),
+            SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(68360L, 1000000628L),
+            SENSOR_INFO_MAX_FRAME_DURATION to 1000000628L,
+            SENSOR_INFO_PHYSICAL_SIZE to SizeF(4.816f, 3.4272f),
+            SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(3440, 2448),
+            SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to Rect(0, 0, 3440, 2448),
+            SENSOR_INFO_SENSITIVITY_RANGE to Range(56, 20000),
+            SENSOR_INFO_WHITE_LEVEL to 1023,
+            SENSOR_MAX_ANALOG_SENSITIVITY to 1250,
+            SENSOR_ORIENTATION to 270,
+        ) +
+            (if (Build.VERSION.SDK_INT >= 28) {
+                mapOf(LENS_DISTORTION to floatArrayOf(0.0f, 0.0f, 0.0f, 0.0f, 0.0f))
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 30) {
+                mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(0.8958334f, 10.0f))
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 33) {
+                mapOf(
+                    SCALER_AVAILABLE_STREAM_USE_CASES to
+                        longArrayOf(
+                            SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL.toLong(),
+                            65537L,
+                        )
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 34) {
+                mapOf(SENSOR_BLACK_LEVEL_PATTERN to BlackLevelPattern(intArrayOf(64, 64, 64, 64)))
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 35) {
+                mapOf(
+                    FLASH_SINGLE_STRENGTH_DEFAULT_LEVEL to 1,
+                    FLASH_SINGLE_STRENGTH_MAX_LEVEL to 1,
+                    FLASH_TORCH_STRENGTH_DEFAULT_LEVEL to 1,
+                    FLASH_TORCH_STRENGTH_MAX_LEVEL to 1,
+                )
+            } else {
+                emptyMap()
+            })
+
+    private val backFacingOverrides =
+        mapOf(
+            CONTROL_AE_AVAILABLE_MODES to
+                intArrayOf(
+                    CONTROL_AE_MODE_OFF,
+                    CONTROL_AE_MODE_ON,
+                    CONTROL_AE_MODE_ON_AUTO_FLASH,
+                    CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                    CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY,
+                ),
+            CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
+                arrayOf(
+                    Range(15, 15),
+                    Range(24, 24),
+                    Range(15, 30),
+                    Range(24, 30),
+                    Range(30, 30),
+                    Range(15, 60),
+                    Range(60, 60),
+                ),
+            FLASH_INFO_AVAILABLE to true,
+            LENS_FACING to LENS_FACING_BACK,
+            LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(1.68f),
+            LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(6.9f),
+            LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION to
+                intArrayOf(LENS_OPTICAL_STABILIZATION_MODE_OFF, LENS_OPTICAL_STABILIZATION_MODE_ON),
+            LENS_INFO_HYPERFOCAL_DISTANCE to 0.16937616f,
+            LENS_INFO_MINIMUM_FOCUS_DISTANCE to 9.523809f,
+            LENS_INTRINSIC_CALIBRATION to
+                floatArrayOf(2853.4824f, 2853.4824f, 2034.2717f, 1542.0305f, 0.0f),
+            LENS_POSE_ROTATION to floatArrayOf(-0.70710677f, 0.70710677f, 0.0f, 0.0f),
+            REQUEST_AVAILABLE_CAPABILITIES to
+                intArrayOf(
+                    REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                    REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                    REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                    REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                    REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                    REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                    REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO,
+                    REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA,
+                    REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                ),
+            SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 30.0f,
+            SENSOR_CALIBRATION_TRANSFORM1 to
+                ColorSpaceTransform(
+                    intArrayOf(6846, 6826, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 3623, 3535)
+                ),
+            SENSOR_CALIBRATION_TRANSFORM2 to
+                ColorSpaceTransform(
+                    intArrayOf(5000, 4971, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 6553, 6377)
+                ),
+            SENSOR_COLOR_TRANSFORM1 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        11190,
+                        10000,
+                        -4931,
+                        10000,
+                        -630,
+                        10000,
+                        -3865,
+                        10000,
+                        14026,
+                        10000,
+                        617,
+                        10000,
+                        -325,
+                        10000,
+                        2082,
+                        10000,
+                        7151,
+                        10000,
+                    )
+                ),
+            SENSOR_COLOR_TRANSFORM2 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        7002,
+                        10000,
+                        -849,
+                        10000,
+                        -1246,
+                        10000,
+                        -5989,
+                        10000,
+                        15710,
+                        10000,
+                        -16,
+                        10000,
+                        -2134,
+                        10000,
+                        4452,
+                        10000,
+                        4157,
+                        10000,
+                    )
+                ),
+            SENSOR_FORWARD_MATRIX1 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        6116,
+                        10000,
+                        1737,
+                        10000,
+                        1790,
+                        10000,
+                        1363,
+                        10000,
+                        8365,
+                        10000,
+                        272,
+                        10000,
+                        -417,
+                        10000,
+                        -5848,
+                        10000,
+                        14516,
+                        10000,
+                    )
+                ),
+            SENSOR_FORWARD_MATRIX2 to
+                ColorSpaceTransform(
+                    intArrayOf(
+                        7144,
+                        10000,
+                        -9,
+                        10000,
+                        2507,
+                        10000,
+                        2755,
+                        10000,
+                        6223,
+                        10000,
+                        1022,
+                        10000,
+                        513,
+                        10000,
+                        -5060,
+                        10000,
+                        12799,
+                        10000,
+                    )
+                ),
+            SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4080, 3072),
+            SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_GBRG,
+            SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(26345L, 16000001084L),
+            SENSOR_INFO_MAX_FRAME_DURATION to 16000001084L,
+            SENSOR_INFO_PHYSICAL_SIZE to SizeF(9.792f, 7.3728f),
+            SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4080, 3072),
+            SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4080, 3072),
+            SENSOR_INFO_SENSITIVITY_RANGE to Range(21, 5333),
+            SENSOR_INFO_WHITE_LEVEL to 4095,
+            SENSOR_MAX_ANALOG_SENSITIVITY to 333,
+            SENSOR_ORIENTATION to 90,
+        ) +
+            (if (Build.VERSION.SDK_INT >= 28) {
+                mapOf(
+                    LENS_DISTORTION to
+                        floatArrayOf(0.090790525f, -0.14565963f, 0.09545045f, 0.0f, 0.0f)
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 30) {
+                mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(0.50783783f, 30.0f))
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 31) {
+                mapOf(
+                    LENS_DISTORTION_MAXIMUM_RESOLUTION to
+                        floatArrayOf(0.090790525f, -0.14565963f, 0.09545045f, 0.0f, 0.0f),
+                    LENS_INTRINSIC_CALIBRATION_MAXIMUM_RESOLUTION to
+                        floatArrayOf(5706.965f, 5706.965f, 4068.5435f, 3084.061f, 0.0f),
+                    SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to Rect(0, 0, 8160, 6144),
+                    SENSOR_INFO_BINNING_FACTOR to Size(2, 2),
+                    SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION to Size(8160, 6144),
+                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                        Rect(0, 0, 8160, 6144),
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 33) {
+                mapOf(
+                    FLASH_INFO_STRENGTH_DEFAULT_LEVEL to 21,
+                    FLASH_INFO_STRENGTH_MAXIMUM_LEVEL to 21,
+                    SCALER_AVAILABLE_STREAM_USE_CASES to
+                        longArrayOf(
+                            SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL.toLong(),
+                            SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL.toLong(),
+                            65536L,
+                            65537L,
+                        ),
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 34) {
+                mapOf(
+                    SENSOR_BLACK_LEVEL_PATTERN to BlackLevelPattern(intArrayOf(256, 256, 256, 256))
+                )
+            } else {
+                emptyMap()
+            }) +
+            (if (Build.VERSION.SDK_INT >= 35) {
+                mapOf(
+                    FLASH_SINGLE_STRENGTH_DEFAULT_LEVEL to 51,
+                    FLASH_SINGLE_STRENGTH_MAX_LEVEL to 51,
+                    FLASH_TORCH_STRENGTH_DEFAULT_LEVEL to 23,
+                    FLASH_TORCH_STRENGTH_MAX_LEVEL to 23,
+                )
+            } else {
+                emptyMap()
+            })
+
     override fun createCameraMetadata(
         cameraId: CameraId,
         lensFacing: Int?,
@@ -1528,8 +2053,10 @@ public object HighEndDeviceTemplate : DeviceTemplate {
         extensionMetadata: Map<Int, FakeCameraExtensionMetadata>,
         physicalMetadata: Map<CameraId, FakeCameraMetadata>,
     ): FakeCameraMetadata {
+        val resolvedLensFacing =
+            (characteristicsOverrides[LENS_FACING] as? Int) ?: lensFacing ?: LENS_FACING_BACK
         val lensFacingOverrides =
-            if ((lensFacing ?: LENS_FACING_BACK) == LENS_FACING_FRONT) {
+            if (resolvedLensFacing == LENS_FACING_FRONT) {
                 frontFacingOverrides
             } else {
                 backFacingOverrides
@@ -1537,13 +2064,14 @@ public object HighEndDeviceTemplate : DeviceTemplate {
 
         // Combine them in order of priority: Required < Default < FacingOverrides < Overrides
         val allCharacteristics =
-            requiredCharacteristics +
-                highEndDefaults +
-                lensFacingOverrides +
-                characteristicsOverrides
+            (requiredCharacteristics +
+                    highEndDefaults +
+                    lensFacingOverrides +
+                    characteristicsOverrides)
+                .filterValues { it != null }
 
         val defaultStreamConfigurationMap =
-            if ((lensFacing ?: LENS_FACING_BACK) == LENS_FACING_FRONT) {
+            if (resolvedLensFacing == LENS_FACING_FRONT) {
                 frontStreamConfigurationMap
             } else {
                 this.defaultStreamConfigurationMap
@@ -1557,13 +2085,13 @@ public object HighEndDeviceTemplate : DeviceTemplate {
             cameraId = cameraId,
             metadata = allMetadata,
             requestKeys =
-                setOf(
+                setOfNotNull(
                     CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AF_MODE,
                     CaptureRequest.FLASH_MODE,
                 ) + requestKeysOverrides,
             resultKeys =
-                setOf(CaptureResult.CONTROL_AE_STATE, CaptureResult.CONTROL_AF_STATE) +
+                setOfNotNull(CaptureResult.CONTROL_AE_STATE, CaptureResult.CONTROL_AF_STATE) +
                     resultKeysOverrides,
             extensionMetadata = extensionMetadata,
             physicalMetadata = physicalMetadata,

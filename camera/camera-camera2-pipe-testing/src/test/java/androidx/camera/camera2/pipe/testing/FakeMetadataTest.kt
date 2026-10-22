@@ -20,6 +20,7 @@ import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.MetadataTransform
@@ -83,7 +84,7 @@ class CameraMetadataTest {
         assertThat(metadata[FakeMetadata.TEST_KEY_ABSENT]).isNull()
 
         assertThat(metadata[CameraCharacteristics.LENS_FACING]).isNotNull()
-        assertThat(metadata[CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES]).isNull()
+        assertThat(metadata[CameraCharacteristics.DEPTH_DEPTH_IS_EXCLUSIVE]).isNull()
     }
 
     @Test
@@ -148,6 +149,46 @@ class CameraMetadataTest {
                 StreamFormat.YCBCR_P010,
                 StreamFormat.JPEG_R,
             )
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_providesAdvancedControlRanges() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+            )
+
+        assertThat(metadata[CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE]).isNotNull()
+        assertThat(metadata[CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP]).isNotNull()
+        if (Build.VERSION.SDK_INT >= 30) {
+            assertThat(metadata[CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE]).isNotNull()
+        }
+        assertThat(metadata[CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM])
+            .isGreaterThan(1.0f)
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_resolvesLensFacingAndNullCharacteristicsOverrides() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("1"),
+                characteristicsOverrides =
+                    mapOf(
+                        CameraCharacteristics.LENS_FACING to
+                            CameraCharacteristics.LENS_FACING_FRONT,
+                        CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE to null,
+                    ),
+            )
+
+        assertThat(metadata[CameraCharacteristics.LENS_FACING])
+            .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
+        assertThat(metadata[CameraCharacteristics.SENSOR_ORIENTATION]).isEqualTo(270)
+        assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+        assertThat(metadata[CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE]).isNull()
+        assertThat(metadata.keys)
+            .doesNotContain(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
     }
 
     @Test
