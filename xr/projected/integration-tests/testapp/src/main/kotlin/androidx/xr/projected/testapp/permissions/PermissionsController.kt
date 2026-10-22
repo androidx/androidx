@@ -50,10 +50,18 @@ class PermissionsController(
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
             )
+        val projectedContext =
+            try {
+                ProjectedContext.createProjectedDeviceContext(context)
+            } catch (e: IllegalStateException) {
+                // TODO(b/576415927): Show an error in the UI instead of falling back to the host.
+                Log.w(TAG, "Error creating projected context: $e")
+                context
+            }
         val statusMap = permissions.associate { perm ->
             val simpleName = perm.substringAfterLast('.')
             val isGranted =
-                ContextCompat.checkSelfPermission(context, perm) ==
+                ContextCompat.checkSelfPermission(projectedContext, perm) ==
                     PackageManager.PERMISSION_GRANTED
             simpleName to isGranted
         }
