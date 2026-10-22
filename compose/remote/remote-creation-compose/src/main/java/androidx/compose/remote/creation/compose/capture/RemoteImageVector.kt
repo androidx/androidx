@@ -261,7 +261,7 @@ internal constructor(
         internal fun addPath(
             pathData: List<RemotePathNode>,
             pathFillType: RemotePathFillType = DefaultFillType,
-            name: String = DefaultPathName,
+            name: String,
             fill: Brush? = null,
             fillAlpha: RemoteFloat = 1.0f.rf,
             stroke: Brush? = null,
@@ -456,7 +456,7 @@ internal constructor(
 internal class RemoteVectorPath
 internal constructor(
     /** Name of the corresponding path */
-    val name: String = DefaultPathName,
+    val name: String,
 
     /** Path information to render the shape of the path */
     val pathData: List<RemotePathNode>,
@@ -606,7 +606,6 @@ internal val DefaultTranslationY = 0.0f.rf
 
 internal val EmptyPath = emptyList<RemotePathNode>()
 
-internal const val DefaultPathName = ""
 internal val DefaultStrokeLineWidth = 0.0f.rf
 internal val DefaultStrokeLineMiter = 4.0f.rf
 internal val DefaultTrimPathStart = 0.0f.rf

@@ -20,7 +20,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.DefaultGroupName
-import androidx.compose.remote.creation.compose.capture.DefaultPathName
 import androidx.compose.remote.creation.compose.capture.DefaultPivotX
 import androidx.compose.remote.creation.compose.capture.DefaultPivotY
 import androidx.compose.remote.creation.compose.capture.DefaultRotation
@@ -46,17 +45,14 @@ import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.creationState
-import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastForEach
-import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.graphics.vector.PathNode
 
 /** DSL for building a vector with [RemotePathScope]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -102,7 +98,7 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
 }
 
 internal class RemotePathComponent : RemoteVNode() {
-    var name = DefaultPathName
+    var name = DefaultGroupName
     var fill: Brush? = null
     var fillAlpha = 1.0f.rf
     var pathFillType: RemotePathFillType = RemotePathFillType.NonZero
@@ -412,74 +408,3 @@ internal class RemoteGroupComponent : RemoteVNode() {
  */
 internal fun Color.rgbEqual(other: Color) =
     this.red == other.red && this.green == other.green && this.blue == other.blue
-
-internal fun List<PathNode>.toRemotePathNodes(): List<RemotePathNode> {
-    return this.fastMap { it.toRemotePathNode() }
-}
-
-private fun PathNode.toRemotePathNode(): RemotePathNode {
-    return when (this) {
-        is PathNode.MoveTo -> RemotePathNode.MoveTo(this.x.rf, this.y.rf)
-        is PathNode.LineTo -> RemotePathNode.LineTo(this.x.rf, this.y.rf)
-        is PathNode.CurveTo ->
-            RemotePathNode.CurveTo(
-                this.x1.rf,
-                this.y1.rf,
-                this.x2.rf,
-                this.y2.rf,
-                this.x3.rf,
-                this.y3.rf,
-            )
-        is PathNode.RelativeMoveTo -> RemotePathNode.RelativeMoveTo(this.dx.rf, this.dy.rf)
-        is PathNode.QuadTo -> RemotePathNode.QuadTo(this.x1.rf, this.y1.rf, this.x2.rf, this.y2.rf)
-        is PathNode.ArcTo ->
-            RemotePathNode.ArcTo(
-                this.horizontalEllipseRadius.rf,
-                this.verticalEllipseRadius.rf,
-                this.theta.rf,
-                this.isMoreThanHalf.rb,
-                this.isPositiveArc.rb,
-                this.arcStartX.rf,
-                this.arcStartY.rf,
-            )
-        is PathNode.HorizontalTo -> RemotePathNode.HorizontalTo(this.x.rf)
-        is PathNode.VerticalTo -> RemotePathNode.VerticalTo(this.y.rf)
-        is PathNode.Close -> RemotePathNode.Close
-        is PathNode.RelativeHorizontalTo -> RemotePathNode.RelativeHorizontalTo(this.dx.rf)
-        is PathNode.RelativeVerticalTo -> RemotePathNode.RelativeVerticalTo(this.dy.rf)
-        is PathNode.ReflectiveQuadTo -> RemotePathNode.ReflectiveQuadTo(this.x.rf, this.y.rf)
-        is PathNode.ReflectiveCurveTo ->
-            RemotePathNode.ReflectiveCurveTo(this.x1.rf, this.y1.rf, this.x2.rf, this.y2.rf)
-        is PathNode.RelativeArcTo ->
-            RemotePathNode.RelativeArcTo(
-                this.horizontalEllipseRadius.rf,
-                this.verticalEllipseRadius.rf,
-                this.theta.rf,
-                this.isMoreThanHalf.rb,
-                this.isPositiveArc.rb,
-                this.arcStartDx.rf,
-                this.arcStartDy.rf,
-            )
-        is PathNode.RelativeCurveTo ->
-            RemotePathNode.RelativeCurveTo(
-                this.dx1.rf,
-                this.dy1.rf,
-                this.dx2.rf,
-                this.dy2.rf,
-                this.dx3.rf,
-                this.dy3.rf,
-            )
-        is PathNode.RelativeLineTo -> RemotePathNode.RelativeLineTo(this.dx.rf, this.dy.rf)
-        is PathNode.RelativeQuadTo ->
-            RemotePathNode.RelativeQuadTo(this.dx1.rf, this.dy1.rf, this.dx2.rf, this.dy2.rf)
-        is PathNode.RelativeReflectiveCurveTo ->
-            RemotePathNode.RelativeReflectiveCurveTo(
-                this.dx1.rf,
-                this.dy1.rf,
-                this.dx2.rf,
-                this.dy2.rf,
-            )
-        is PathNode.RelativeReflectiveQuadTo ->
-            RemotePathNode.RelativeReflectiveQuadTo(this.dx.rf, this.dy.rf)
-    }
-}
