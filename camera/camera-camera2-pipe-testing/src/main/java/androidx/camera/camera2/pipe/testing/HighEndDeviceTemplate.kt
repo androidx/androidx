@@ -2043,6 +2043,2205 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 emptyMap()
             })
 
+    private val physicalExtraJpegOutputs =
+        listOf(
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1600, 1200),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1920, 960),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1792, 1008),
+                minDuration = 16666666L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1440, 1080),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1344, 1008),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1280, 960),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1080, 1080),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1280, 720),
+                minDuration = 16666666L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1024, 768),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(1024, 576),
+                minDuration = 16666666L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(800, 600),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(720, 480),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(640, 480),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(640, 360),
+                minDuration = 16666666L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(352, 288),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(320, 240),
+                minDuration = 33333333L,
+            ),
+            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                StreamFormat.JPEG,
+                Size(176, 144),
+                minDuration = 33333333L,
+            ),
+        )
+
+    private val physical3StreamConfigurationMap by lazy {
+        createPhysicalStreamConfigurationMap(
+            baseMap = defaultStreamConfigurationMap,
+            overrides =
+                physicalExtraJpegOutputs +
+                    listOf(
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW_SENSOR,
+                            Size(4032, 3024),
+                            minDuration = 33333333L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW_SENSOR,
+                            Size(4032, 2272),
+                            minDuration = 16666666L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW_SENSOR,
+                            Size(2016, 1512),
+                            minDuration = 16666666L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW_SENSOR,
+                            Size(1920, 1080),
+                            minDuration = 16666666L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW10,
+                            Size(4032, 3024),
+                            minDuration = 33333333L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW10,
+                            Size(4032, 2272),
+                            minDuration = 16666666L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW10,
+                            Size(2016, 1512),
+                            minDuration = 16666666L,
+                        ),
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            StreamFormat.RAW10,
+                            Size(1920, 1080),
+                            minDuration = 16666666L,
+                        ),
+                    ),
+            excludedSizesByFormat =
+                mapOf(
+                    StreamFormat.RAW_SENSOR to setOf(Size(4080, 3072)),
+                    StreamFormat.JPEG to setOf(Size(4080, 3072)),
+                    StreamFormat.PRIVATE to setOf(Size(4080, 3072)),
+                    StreamFormat.YUV_420_888 to setOf(Size(4080, 3072)),
+                    StreamFormat.RAW10 to
+                        setOf(
+                            Size(4080, 3072),
+                            Size(4080, 2288),
+                            Size(2032, 1536),
+                            Size(2016, 1136),
+                        ),
+                    StreamFormat.RAW12 to setOf(Size(4080, 3072)),
+                    StreamFormat.YCBCR_P010 to setOf(Size(4080, 3072)),
+                    StreamFormat.JPEG_R to setOf(Size(4080, 3072)),
+                ),
+        )
+    }
+
+    private val physical5StreamConfigurationMap by lazy {
+        createPhysicalStreamConfigurationMap(
+            baseMap = defaultStreamConfigurationMap,
+            overrides =
+                listOf(
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(4032, 2268),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(3840, 2160),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1920, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1600, 1200),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1920, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1792, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1440, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1344, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1280, 960),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1080, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1280, 720),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1024, 768),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(1024, 576),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(800, 600),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(720, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(640, 480),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(640, 360),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(352, 288),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(320, 240),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.JPEG,
+                        Size(176, 144),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(4032, 2268),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(3840, 2160),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1920, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1792, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1280, 720),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(1024, 576),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.PRIVATE,
+                        Size(640, 360),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(4032, 2268),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(3840, 2160),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1920, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1792, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1280, 720),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(1024, 576),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YUV_420_888,
+                        Size(640, 360),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(4032, 2268),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(3840, 2160),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(3264, 1836),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(2688, 1512),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1920, 1080),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1792, 1008),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1280, 720),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(1024, 576),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.YCBCR_P010,
+                        Size(640, 360),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW_DEPTH10,
+                        Size(2032, 384),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW_DEPTH10,
+                        Size(4080, 768),
+                        minDuration = 33333333L,
+                    ),
+                ),
+            excludedSizesByFormat =
+                mapOf(
+                    StreamFormat.RAW10 to
+                        setOf(Size(4080, 2288), Size(2032, 1536), Size(2016, 1136)),
+                    StreamFormat.RAW12 to setOf(Size(4080, 3072)),
+                ),
+        )
+    }
+
+    private val physical9StreamConfigurationMap by lazy {
+        createPhysicalStreamConfigurationMap(
+            baseMap = physical5StreamConfigurationMap,
+            overrides =
+                listOf(
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW_SENSOR,
+                        Size(4032, 3024),
+                        minDuration = 33333333L,
+                    ),
+                    FakeCameraStreamConfigurationMap.OutputTableEntry(
+                        StreamFormat.RAW10,
+                        Size(4032, 3024),
+                        minDuration = 33333333L,
+                    ),
+                ),
+            excludedSizesByFormat =
+                mapOf(
+                    StreamFormat.RAW_SENSOR to setOf(Size(4080, 3072)),
+                    StreamFormat.JPEG to setOf(Size(4080, 3072)),
+                    StreamFormat.PRIVATE to setOf(Size(4080, 3072)),
+                    StreamFormat.YUV_420_888 to setOf(Size(4080, 3072)),
+                    StreamFormat.RAW10 to setOf(Size(4080, 3072)),
+                    StreamFormat.YCBCR_P010 to setOf(Size(4080, 3072)),
+                    StreamFormat.RAW_DEPTH10 to setOf(Size(2032, 384), Size(4080, 768)),
+                    StreamFormat.JPEG_R to setOf(Size(4080, 3072)),
+                ),
+        )
+    }
+
+    private val frontPhysicalMetadata by lazy {
+        mapOf(
+            CameraId("7") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("7"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                frontFacingOverrides +
+                                mapOf(
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    LENS_INTRINSIC_CALIBRATION to
+                                        floatArrayOf(
+                                            1937.8573f,
+                                            1937.8573f,
+                                            1920.0f,
+                                            1368.0f,
+                                            0.0f,
+                                        ),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7734,
+                                                7520,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                3682,
+                                                3721,
+                                            )
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                5283,
+                                                5107,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                6709,
+                                                6729,
+                                            )
+                                        ),
+                                    SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 3840, 2736),
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(68360L, 1000000813L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 1000000813L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(5.376f, 3.8304f),
+                                    SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(3840, 2736),
+                                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to
+                                        Rect(0, 0, 3840, 2736),
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(
+                                        LENS_DISTORTION to
+                                            floatArrayOf(
+                                                0.03838266f,
+                                                0.00781571f,
+                                                -0.0326626f,
+                                                0.0f,
+                                                0.0f,
+                                            ),
+                                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 10.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 31) {
+                                    mapOf(SCALER_DEFAULT_SECURE_IMAGE_SIZE to Size(1600, 1200))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                createPhysicalStreamConfigurationMap(
+                                    baseMap = frontStreamConfigurationMap,
+                                    overrides =
+                                        physicalExtraJpegOutputs +
+                                            listOf(
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW_SENSOR,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW_SENSOR,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW_SENSOR,
+                                                    Size(1920, 1368),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW_SENSOR,
+                                                    Size(1920, 1080),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG,
+                                                    Size(3264, 1836),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG,
+                                                    Size(2688, 1512),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.PRIVATE,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.PRIVATE,
+                                                    Size(3264, 1836),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.PRIVATE,
+                                                    Size(2688, 1512),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.PRIVATE,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YUV_420_888,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YUV_420_888,
+                                                    Size(3264, 1836),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YUV_420_888,
+                                                    Size(2688, 1512),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YUV_420_888,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW10,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW10,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW10,
+                                                    Size(1920, 1368),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW10,
+                                                    Size(1920, 1080),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YCBCR_P010,
+                                                    Size(3840, 2160),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YCBCR_P010,
+                                                    Size(3264, 1836),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YCBCR_P010,
+                                                    Size(2688, 1512),
+                                                    minDuration = 16666666L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.YCBCR_P010,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.RAW_DEPTH10,
+                                                    Size(3840, 684),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG_R,
+                                                    Size(3840, 2160),
+                                                    minDuration = 33333333L,
+                                                ),
+                                                FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                    StreamFormat.JPEG_R,
+                                                    Size(3840, 2736),
+                                                    minDuration = 33333333L,
+                                                ),
+                                            ),
+                                    excludedSizesByFormat =
+                                        mapOf(
+                                            StreamFormat.RAW_SENSOR to setOf(Size(3440, 2448)),
+                                            StreamFormat.JPEG to setOf(Size(3440, 2448)),
+                                            StreamFormat.PRIVATE to setOf(Size(3440, 2448)),
+                                            StreamFormat.YUV_420_888 to setOf(Size(3440, 2448)),
+                                            StreamFormat.RAW10 to setOf(Size(3440, 2448)),
+                                            StreamFormat.YCBCR_P010 to setOf(Size(3440, 2448)),
+                                            StreamFormat.JPEG_R to setOf(Size(3440, 2448)),
+                                        ),
+                                )
+                        ),
+                ),
+            CameraId("8") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("8"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                frontFacingOverrides +
+                                mapOf(
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_AVAILABLE_TEST_PATTERN_MODES to
+                                        intArrayOf(
+                                            SENSOR_TEST_PATTERN_MODE_OFF,
+                                            SENSOR_TEST_PATTERN_MODE_SOLID_COLOR,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS_FADE_TO_GRAY,
+                                        ),
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null)
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                createPhysicalStreamConfigurationMap(
+                                    baseMap = frontStreamConfigurationMap,
+                                    overrides =
+                                        physicalExtraJpegOutputs +
+                                            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                StreamFormat.RAW_DEPTH10,
+                                                Size(3840, 684),
+                                                minDuration = 33333333L,
+                                            ),
+                                )
+                        ),
+                ),
+        )
+    }
+
+    private val backPhysicalMetadata by lazy {
+        mapOf(
+            CameraId("2") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("2"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE to Range(100, 3199),
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_AVAILABLE_TEST_PATTERN_MODES to
+                                        intArrayOf(
+                                            SENSOR_TEST_PATTERN_MODE_OFF,
+                                            SENSOR_TEST_PATTERN_MODE_SOLID_COLOR,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS_FADE_TO_GRAY,
+                                            SENSOR_TEST_PATTERN_MODE_PN9,
+                                        ),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null)
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65536L,
+                                                65537L,
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                createPhysicalStreamConfigurationMap(
+                                    baseMap = defaultStreamConfigurationMap,
+                                    overrides =
+                                        physicalExtraJpegOutputs +
+                                            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                StreamFormat.RAW_DEPTH10,
+                                                Size(4080, 768),
+                                                minDuration = 33333333L,
+                                            ),
+                                )
+                        ),
+                ),
+            CameraId("3") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("3"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(1.7f),
+                                    LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(2.02f),
+                                    LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION to
+                                        intArrayOf(LENS_OPTICAL_STABILIZATION_MODE_OFF),
+                                    LENS_INFO_HYPERFOCAL_DISTANCE to 1.1665524f,
+                                    LENS_INFO_MINIMUM_FOCUS_DISTANCE to 50.0f,
+                                    LENS_INTRINSIC_CALIBRATION to
+                                        floatArrayOf(
+                                            1410.9261f,
+                                            1410.9261f,
+                                            2029.2601f,
+                                            1513.0553f,
+                                            0.0f,
+                                        ),
+                                    LENS_POSE_ROTATION to
+                                        floatArrayOf(
+                                            -0.7065638f,
+                                            0.70764244f,
+                                            -0.00020584058f,
+                                            -0.0031233004f,
+                                        ),
+                                    LENS_POSE_TRANSLATION to
+                                        floatArrayOf(-0.015000385f, 0.00056129985f, 0.00025831343f),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_CALIBRATION_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7236,
+                                                7188,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                3711,
+                                                3721,
+                                            )
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                4883,
+                                                4834,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                6572,
+                                                6484,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                10015,
+                                                10000,
+                                                -4012,
+                                                10000,
+                                                1277,
+                                                10000,
+                                                -5797,
+                                                10000,
+                                                15203,
+                                                10000,
+                                                3272,
+                                                10000,
+                                                -785,
+                                                10000,
+                                                2282,
+                                                10000,
+                                                7962,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7081,
+                                                10000,
+                                                -1492,
+                                                10000,
+                                                -813,
+                                                10000,
+                                                -6046,
+                                                10000,
+                                                14550,
+                                                10000,
+                                                1099,
+                                                10000,
+                                                -2062,
+                                                10000,
+                                                3978,
+                                                10000,
+                                                4568,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7391,
+                                                10000,
+                                                1889,
+                                                10000,
+                                                363,
+                                                10000,
+                                                2698,
+                                                10000,
+                                                8598,
+                                                10000,
+                                                -1295,
+                                                10000,
+                                                -82,
+                                                10000,
+                                                -5439,
+                                                10000,
+                                                13772,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7165,
+                                                10000,
+                                                1439,
+                                                10000,
+                                                1039,
+                                                10000,
+                                                2943,
+                                                10000,
+                                                7786,
+                                                10000,
+                                                -729,
+                                                10000,
+                                                470,
+                                                10000,
+                                                -4644,
+                                                10000,
+                                                12426,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to
+                                        SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB,
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(68360L, 16000000852L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 16000000852L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(5.6448f, 4.2336f),
+                                    SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
+                                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to
+                                        Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_SENSITIVITY_RANGE to Range(52, 2310),
+                                    SENSOR_INFO_WHITE_LEVEL to 1023,
+                                    SENSOR_MAX_ANALOG_SENSITIVITY to 1155,
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(
+                                        LENS_DISTORTION to
+                                            floatArrayOf(
+                                                0.0012464672f,
+                                                -0.0012614542f,
+                                                0.00045113004f,
+                                                -0.00041404009f,
+                                                -0.00037766283f,
+                                            ),
+                                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 31) {
+                                    mapOf(
+                                        LENS_DISTORTION_MAXIMUM_RESOLUTION to null,
+                                        LENS_INTRINSIC_CALIBRATION_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_BINNING_FACTOR to null,
+                                        SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65537L,
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_CROPPED_RAW
+                                                    .toLong(),
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 34) {
+                                    mapOf(
+                                        SENSOR_BLACK_LEVEL_PATTERN to
+                                            BlackLevelPattern(intArrayOf(64, 64, 64, 64))
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                physical3StreamConfigurationMap
+                        ),
+                ),
+            CameraId("4") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("4"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(2.8f),
+                                    LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(17.906f),
+                                    LENS_INFO_HYPERFOCAL_DISTANCE to 0.024452256f,
+                                    LENS_INFO_MINIMUM_FOCUS_DISTANCE to 3.3333333f,
+                                    LENS_INTRINSIC_CALIBRATION to
+                                        floatArrayOf(
+                                            12539.53f,
+                                            12539.53f,
+                                            2033.3752f,
+                                            1508.5767f,
+                                            0.0f,
+                                        ),
+                                    LENS_POSE_ROTATION to
+                                        floatArrayOf(
+                                            -0.68077904f,
+                                            0.73109436f,
+                                            -0.0021147707f,
+                                            -0.045127213f,
+                                        ),
+                                    LENS_POSE_TRANSLATION to
+                                        floatArrayOf(-0.028417222f, -7.121015e-05f, 0.011595403f),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_CALIBRATION_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                8125,
+                                                8154,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                3457,
+                                                3477,
+                                            )
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                5684,
+                                                5674,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                5947,
+                                                5977,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                10819,
+                                                10000,
+                                                -4334,
+                                                10000,
+                                                1380,
+                                                10000,
+                                                -5797,
+                                                10000,
+                                                15203,
+                                                10000,
+                                                3272,
+                                                10000,
+                                                -766,
+                                                10000,
+                                                2228,
+                                                10000,
+                                                7774,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7639,
+                                                10000,
+                                                -1609,
+                                                10000,
+                                                -877,
+                                                10000,
+                                                -6046,
+                                                10000,
+                                                14550,
+                                                10000,
+                                                1099,
+                                                10000,
+                                                -1987,
+                                                10000,
+                                                3834,
+                                                10000,
+                                                4402,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7391,
+                                                10000,
+                                                1889,
+                                                10000,
+                                                363,
+                                                10000,
+                                                2698,
+                                                10000,
+                                                8598,
+                                                10000,
+                                                -1295,
+                                                10000,
+                                                -83,
+                                                10000,
+                                                -5439,
+                                                10000,
+                                                13773,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7166,
+                                                10000,
+                                                1438,
+                                                10000,
+                                                1039,
+                                                10000,
+                                                2943,
+                                                10000,
+                                                7786,
+                                                10000,
+                                                -730,
+                                                10000,
+                                                469,
+                                                10000,
+                                                -4645,
+                                                10000,
+                                                12427,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(68360L, 16000000852L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 16000000852L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(5.6448f, 4.2336f),
+                                    SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
+                                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to
+                                        Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_SENSITIVITY_RANGE to Range(47, 16897),
+                                    SENSOR_INFO_WHITE_LEVEL to 1023,
+                                    SENSOR_MAX_ANALOG_SENSITIVITY to 1056,
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(
+                                        LENS_DISTORTION to
+                                            floatArrayOf(
+                                                0.49675465f,
+                                                -3.2955956f,
+                                                26.93868f,
+                                                0.0f,
+                                                0.0f,
+                                            ),
+                                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 31) {
+                                    mapOf(
+                                        LENS_DISTORTION_MAXIMUM_RESOLUTION to null,
+                                        LENS_INTRINSIC_CALIBRATION_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_BINNING_FACTOR to null,
+                                        SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION to null,
+                                        SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65537L,
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 34) {
+                                    mapOf(
+                                        SENSOR_BLACK_LEVEL_PATTERN to
+                                            BlackLevelPattern(intArrayOf(64, 64, 64, 64))
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                createPhysicalStreamConfigurationMap(
+                                    baseMap = physical3StreamConfigurationMap,
+                                    overrides =
+                                        listOf(
+                                            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                StreamFormat.RAW_DEPTH10,
+                                                Size(4032, 756),
+                                                minDuration = 33333333L,
+                                            )
+                                        ),
+                                )
+                        ),
+                ),
+            CameraId("5") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("5"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE to Range(100, 3199),
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    LENS_INFO_HYPERFOCAL_DISTANCE to 0.08468808f,
+                                    LENS_POSE_ROTATION to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_AVAILABLE_TEST_PATTERN_MODES to
+                                        intArrayOf(
+                                            SENSOR_TEST_PATTERN_MODE_OFF,
+                                            SENSOR_TEST_PATTERN_MODE_SOLID_COLOR,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS,
+                                            SENSOR_TEST_PATTERN_MODE_COLOR_BARS_FADE_TO_GRAY,
+                                            SENSOR_TEST_PATTERN_MODE_PN9,
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                11130,
+                                                10000,
+                                                -4904,
+                                                10000,
+                                                -627,
+                                                10000,
+                                                -3865,
+                                                10000,
+                                                14026,
+                                                10000,
+                                                617,
+                                                10000,
+                                                -324,
+                                                10000,
+                                                2078,
+                                                10000,
+                                                7137,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                6993,
+                                                10000,
+                                                -848,
+                                                10000,
+                                                -1244,
+                                                10000,
+                                                -5989,
+                                                10000,
+                                                15710,
+                                                10000,
+                                                -16,
+                                                10000,
+                                                -2117,
+                                                10000,
+                                                4416,
+                                                10000,
+                                                4123,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                6116,
+                                                10000,
+                                                1736,
+                                                10000,
+                                                1791,
+                                                10000,
+                                                1363,
+                                                10000,
+                                                8365,
+                                                10000,
+                                                272,
+                                                10000,
+                                                -418,
+                                                10000,
+                                                -5849,
+                                                10000,
+                                                14518,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7145,
+                                                10000,
+                                                -8,
+                                                10000,
+                                                2506,
+                                                10000,
+                                                2755,
+                                                10000,
+                                                6223,
+                                                10000,
+                                                1021,
+                                                10000,
+                                                513,
+                                                10000,
+                                                -5061,
+                                                10000,
+                                                12799,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(27253L, 16000001816L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 16000001816L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(4.896f, 3.6864f),
+                                    SENSOR_INFO_SENSITIVITY_RANGE to Range(21, 10666),
+                                    SENSOR_INFO_WHITE_LEVEL to 1023,
+                                    SENSOR_MAX_ANALOG_SENSITIVITY to 666,
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null)
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65537L,
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 34) {
+                                    mapOf(
+                                        SENSOR_BLACK_LEVEL_PATTERN to
+                                            BlackLevelPattern(intArrayOf(64, 64, 64, 64))
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                physical5StreamConfigurationMap
+                        ),
+                ),
+            CameraId("6") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("6"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    DEPTH_DEPTH_IS_EXCLUSIVE to false,
+                                    LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(2.8f),
+                                    LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(17.906f),
+                                    LENS_INFO_HYPERFOCAL_DISTANCE to 0.012226128f,
+                                    LENS_INFO_MINIMUM_FOCUS_DISTANCE to 3.3333333f,
+                                    LENS_INTRINSIC_CALIBRATION to
+                                        floatArrayOf(
+                                            12539.53f,
+                                            12539.53f,
+                                            2033.3752f,
+                                            1508.5767f,
+                                            0.0f,
+                                        ),
+                                    LENS_POSE_ROTATION to floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 10.0f,
+                                    SENSOR_CALIBRATION_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                8125,
+                                                8154,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                3457,
+                                                3477,
+                                            )
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                5684,
+                                                5674,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                5947,
+                                                5977,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                10800,
+                                                10000,
+                                                -4326,
+                                                10000,
+                                                1378,
+                                                10000,
+                                                -5797,
+                                                10000,
+                                                15203,
+                                                10000,
+                                                3272,
+                                                10000,
+                                                -766,
+                                                10000,
+                                                2229,
+                                                10000,
+                                                7777,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7610,
+                                                10000,
+                                                -1603,
+                                                10000,
+                                                -873,
+                                                10000,
+                                                -6046,
+                                                10000,
+                                                14550,
+                                                10000,
+                                                1099,
+                                                10000,
+                                                -1981,
+                                                10000,
+                                                3821,
+                                                10000,
+                                                4388,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7391,
+                                                10000,
+                                                1889,
+                                                10000,
+                                                363,
+                                                10000,
+                                                2698,
+                                                10000,
+                                                8598,
+                                                10000,
+                                                -1296,
+                                                10000,
+                                                -84,
+                                                10000,
+                                                -5440,
+                                                10000,
+                                                13775,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7167,
+                                                10000,
+                                                1439,
+                                                10000,
+                                                1037,
+                                                10000,
+                                                2944,
+                                                10000,
+                                                7786,
+                                                10000,
+                                                -730,
+                                                10000,
+                                                470,
+                                                10000,
+                                                -4644,
+                                                10000,
+                                                12425,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(122559L, 16000005957L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 16000005957L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(2.8224f, 2.1168f),
+                                    SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
+                                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to
+                                        Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_SENSITIVITY_RANGE to Range(33, 4224),
+                                    SENSOR_INFO_WHITE_LEVEL to 1023,
+                                    SENSOR_MAX_ANALOG_SENSITIVITY to 264,
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(
+                                        LENS_DISTORTION to
+                                            floatArrayOf(
+                                                0.49675465f,
+                                                -3.2955956f,
+                                                26.93868f,
+                                                0.0f,
+                                                0.0f,
+                                            ),
+                                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null,
+                                        STATISTICS_INFO_AVAILABLE_OIS_DATA_MODES to
+                                            intArrayOf(
+                                                STATISTICS_OIS_DATA_MODE_OFF,
+                                                STATISTICS_OIS_DATA_MODE_ON,
+                                            ),
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 10.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 31) {
+                                    mapOf(
+                                        LENS_DISTORTION_MAXIMUM_RESOLUTION to
+                                            floatArrayOf(
+                                                0.49675465f,
+                                                -3.2955956f,
+                                                26.93868f,
+                                                0.0f,
+                                                0.0f,
+                                            ),
+                                        LENS_INTRINSIC_CALIBRATION_MAXIMUM_RESOLUTION to
+                                            floatArrayOf(
+                                                25079.06f,
+                                                25079.06f,
+                                                4066.7505f,
+                                                3017.1533f,
+                                                0.0f,
+                                            ),
+                                        SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Rect(0, 0, 8064, 6048),
+                                        SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Size(8064, 6048),
+                                        SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Rect(0, 0, 8064, 6048),
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65537L,
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 34) {
+                                    mapOf(
+                                        SENSOR_BLACK_LEVEL_PATTERN to
+                                            BlackLevelPattern(intArrayOf(64, 64, 64, 64))
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                createPhysicalStreamConfigurationMap(
+                                    baseMap = physical9StreamConfigurationMap,
+                                    overrides =
+                                        listOf(
+                                            FakeCameraStreamConfigurationMap.OutputTableEntry(
+                                                StreamFormat.RAW_DEPTH10,
+                                                Size(2016, 1512),
+                                                minDuration = 33333333L,
+                                            )
+                                        ),
+                                )
+                        ),
+                ),
+            CameraId("9") to
+                FakeCameraMetadata(
+                    cameraId = CameraId("9"),
+                    characteristics =
+                        (requiredCharacteristics +
+                                highEndDefaults +
+                                backFacingOverrides +
+                                mapOf(
+                                    LENS_INFO_AVAILABLE_APERTURES to floatArrayOf(1.7f),
+                                    LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(2.02f),
+                                    LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION to
+                                        intArrayOf(LENS_OPTICAL_STABILIZATION_MODE_OFF),
+                                    LENS_INFO_HYPERFOCAL_DISTANCE to 0.5832762f,
+                                    LENS_INFO_MINIMUM_FOCUS_DISTANCE to 50.0f,
+                                    LENS_INTRINSIC_CALIBRATION to
+                                        floatArrayOf(
+                                            1410.9261f,
+                                            1410.9261f,
+                                            2029.2601f,
+                                            1513.0553f,
+                                            0.0f,
+                                        ),
+                                    LENS_POSE_ROTATION to
+                                        floatArrayOf(
+                                            -0.7065638f,
+                                            0.70764244f,
+                                            -0.00020584058f,
+                                            -0.0031233004f,
+                                        ),
+                                    LENS_POSE_TRANSLATION to
+                                        floatArrayOf(-0.015000385f, 0.00056129985f, 0.00025831343f),
+                                    REQUEST_AVAILABLE_CAPABILITIES to
+                                        intArrayOf(
+                                            REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR,
+                                            REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS,
+                                            REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING,
+                                            REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_STREAM_USE_CASE,
+                                            REQUEST_AVAILABLE_CAPABILITIES_RAW,
+                                            REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO,
+                                            REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT,
+                                        ),
+                                    SCALER_AVAILABLE_MAX_DIGITAL_ZOOM to 8.0f,
+                                    SENSOR_CALIBRATION_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7236,
+                                                7188,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                3711,
+                                                3721,
+                                            )
+                                        ),
+                                    SENSOR_CALIBRATION_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                4883,
+                                                4834,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                1,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                0,
+                                                1,
+                                                6572,
+                                                6484,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                10015,
+                                                10000,
+                                                -4012,
+                                                10000,
+                                                1277,
+                                                10000,
+                                                -5797,
+                                                10000,
+                                                15203,
+                                                10000,
+                                                3272,
+                                                10000,
+                                                -785,
+                                                10000,
+                                                2282,
+                                                10000,
+                                                7962,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_COLOR_TRANSFORM2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7081,
+                                                10000,
+                                                -1492,
+                                                10000,
+                                                -813,
+                                                10000,
+                                                -6046,
+                                                10000,
+                                                14550,
+                                                10000,
+                                                1099,
+                                                10000,
+                                                -2062,
+                                                10000,
+                                                3978,
+                                                10000,
+                                                4568,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX1 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7391,
+                                                10000,
+                                                1889,
+                                                10000,
+                                                363,
+                                                10000,
+                                                2698,
+                                                10000,
+                                                8598,
+                                                10000,
+                                                -1295,
+                                                10000,
+                                                -82,
+                                                10000,
+                                                -5439,
+                                                10000,
+                                                13772,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_FORWARD_MATRIX2 to
+                                        ColorSpaceTransform(
+                                            intArrayOf(
+                                                7165,
+                                                10000,
+                                                1439,
+                                                10000,
+                                                1039,
+                                                10000,
+                                                2943,
+                                                10000,
+                                                7786,
+                                                10000,
+                                                -729,
+                                                10000,
+                                                470,
+                                                10000,
+                                                -4644,
+                                                10000,
+                                                12426,
+                                                10000,
+                                            )
+                                        ),
+                                    SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_COLOR_FILTER_ARRANGEMENT to
+                                        SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB,
+                                    SENSOR_INFO_EXPOSURE_TIME_RANGE to Range(122559L, 16000005957L),
+                                    SENSOR_INFO_MAX_FRAME_DURATION to 16000005957L,
+                                    SENSOR_INFO_PHYSICAL_SIZE to SizeF(2.8224f, 2.1168f),
+                                    SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4032, 3024),
+                                    SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE to
+                                        Rect(0, 0, 4032, 3024),
+                                    SENSOR_INFO_SENSITIVITY_RANGE to Range(36, 4620),
+                                    SENSOR_INFO_WHITE_LEVEL to 1023,
+                                    SENSOR_MAX_ANALOG_SENSITIVITY to 288,
+                                    STATISTICS_INFO_AVAILABLE_HOT_PIXEL_MAP_MODES to
+                                        booleanArrayOf(false, true),
+                                ) +
+                                (if (Build.VERSION.SDK_INT >= 28) {
+                                    mapOf(
+                                        LENS_DISTORTION to
+                                            floatArrayOf(
+                                                0.0012464672f,
+                                                -0.0012614542f,
+                                                0.00045113004f,
+                                                -0.00041404009f,
+                                                -0.00037766283f,
+                                            ),
+                                        LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE to null,
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 30) {
+                                    mapOf(CONTROL_ZOOM_RATIO_RANGE to Range(1.0f, 8.0f))
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 31) {
+                                    mapOf(
+                                        LENS_DISTORTION_MAXIMUM_RESOLUTION to
+                                            floatArrayOf(
+                                                0.0012464672f,
+                                                -0.0012614542f,
+                                                0.00045113004f,
+                                                -0.00041404009f,
+                                                -0.00037766283f,
+                                            ),
+                                        LENS_INTRINSIC_CALIBRATION_MAXIMUM_RESOLUTION to
+                                            floatArrayOf(
+                                                2821.8523f,
+                                                2821.8523f,
+                                                4058.5203f,
+                                                3026.1106f,
+                                                0.0f,
+                                            ),
+                                        SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Rect(0, 0, 8064, 6048),
+                                        SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Size(8064, 6048),
+                                        SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION to
+                                            Rect(0, 0, 8064, 6048),
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 33) {
+                                    mapOf(
+                                        SCALER_AVAILABLE_STREAM_USE_CASES to
+                                            longArrayOf(
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
+                                                    .toLong(),
+                                                SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL
+                                                    .toLong(),
+                                                65537L,
+                                            )
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 34) {
+                                    mapOf(
+                                        SENSOR_BLACK_LEVEL_PATTERN to
+                                            BlackLevelPattern(intArrayOf(64, 64, 64, 64))
+                                    )
+                                } else {
+                                    emptyMap()
+                                }) +
+                                (if (Build.VERSION.SDK_INT >= 36) {
+                                    mapOf(CONTROL_AE_AVAILABLE_PRIORITY_MODES to null)
+                                } else {
+                                    emptyMap()
+                                }))
+                            .filterValues { it != null },
+                    metadata =
+                        mapOf(
+                            CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to
+                                physical9StreamConfigurationMap
+                        ),
+                ),
+        )
+    }
+
+    private val defaultPhysicalRequestKeys =
+        setOfNotNull(
+            CaptureRequest.COLOR_CORRECTION_GAINS,
+            CaptureRequest.COLOR_CORRECTION_TRANSFORM,
+            CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
+            if (Build.VERSION.SDK_INT >= 30) CaptureRequest.CONTROL_ZOOM_RATIO else null,
+            CaptureRequest.LENS_FOCUS_DISTANCE,
+            CaptureRequest.SENSOR_EXPOSURE_TIME,
+            CaptureRequest.SENSOR_SENSITIVITY,
+        )
+
     override fun createCameraMetadata(
         cameraId: CameraId,
         lensFacing: Int?,
@@ -2079,6 +4278,10 @@ public object HighEndDeviceTemplate : DeviceTemplate {
         val defaultMetadata =
             mapOf(CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to defaultStreamConfigurationMap)
         val allMetadata = (defaultMetadata + metadataOverrides).filterValues { it != null }
+        val isLogicalMultiCamera =
+            (allCharacteristics[REQUEST_AVAILABLE_CAPABILITIES] as? IntArray)?.contains(
+                REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+            ) == true
 
         return FakeCameraMetadata(
             characteristics = allCharacteristics,
@@ -2094,7 +4297,59 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 setOfNotNull(CaptureResult.CONTROL_AE_STATE, CaptureResult.CONTROL_AF_STATE) +
                     resultKeysOverrides,
             extensionMetadata = extensionMetadata,
-            physicalMetadata = physicalMetadata,
+            physicalMetadata =
+                physicalMetadata.ifEmpty {
+                    if (!isLogicalMultiCamera) {
+                        emptyMap()
+                    } else if (resolvedLensFacing == LENS_FACING_FRONT) {
+                        frontPhysicalMetadata
+                    } else {
+                        backPhysicalMetadata
+                    }
+                },
+            physicalRequestKeys =
+                if (!isLogicalMultiCamera) {
+                    emptySet()
+                } else {
+                    defaultPhysicalRequestKeys
+                },
+        )
+    }
+
+    private fun createPhysicalStreamConfigurationMap(
+        baseMap: CameraStreamConfigurationMap,
+        overrides: List<FakeCameraStreamConfigurationMap.OutputTableEntry> = emptyList(),
+        excludedSizesByFormat: Map<StreamFormat, Set<Size>> = emptyMap(),
+    ): CameraStreamConfigurationMap {
+        val baseEntries =
+            baseMap.getOutputFormats().flatMap { format ->
+                val excludedSizes = excludedSizesByFormat[format].orEmpty()
+                baseMap
+                    .getOutputSizes(format)
+                    .filterNot { it in excludedSizes }
+                    .map { size ->
+                        FakeCameraStreamConfigurationMap.OutputTableEntry(
+                            format = format,
+                            size = size,
+                            minDuration = baseMap.getOutputMinFrameDuration(format, size),
+                            stallDuration = baseMap.getOutputStallDuration(format, size),
+                        )
+                    }
+            }
+        val overrideByFormatAndSize = overrides.associateBy { it.format to it.size }
+        val mergedEntries =
+            baseEntries.map { overrideByFormatAndSize[it.format to it.size] ?: it } +
+                overrides.filterNot { override ->
+                    baseEntries.any { it.format == override.format && it.size == override.size }
+                }
+        return FakeCameraStreamConfigurationMap(
+            outputTable = mergedEntries,
+            outputClassTypes =
+                setOf(
+                    SurfaceHolder::class.java,
+                    SurfaceTexture::class.java,
+                    ImageReader::class.java,
+                ),
         )
     }
 }

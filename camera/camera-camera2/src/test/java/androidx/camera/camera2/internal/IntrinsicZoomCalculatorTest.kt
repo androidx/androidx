@@ -16,15 +16,13 @@
 
 package androidx.camera.camera2.internal
 
-import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Size
-import android.util.SizeF
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
+import androidx.camera.common.CameraId
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,25 +35,10 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class IntrinsicZoomCalculatorTest {
 
     private val defaultCameraId = "0"
-    private val otherCameraId = "1"
-
-    private val baseCameraCharacteristics: Map<CameraCharacteristics.Key<*>, Any?> =
-        mapOf(
-            CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-            CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(5.0f),
-            CameraCharacteristics.SENSOR_ORIENTATION to 0,
-            CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(4000, 3000),
-            CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 4000, 3000),
-            CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to SizeF(6.4f, 4.8f),
-        )
 
     @Test
     fun calculateIntrinsicZoomRatio_returnsOneForDefaultCamera() {
-        val defaultMetadata =
-            FakeCameraMetadata.fromTemplate(
-                template = HighEndDeviceTemplate,
-                characteristicsOverrides = baseCameraCharacteristics,
-            )
+        val defaultMetadata = FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate)
         val fakeCameraDevices =
             FakeCameraDevices(
                 defaultCameraBackendId = CameraBackendId(defaultCameraId),
@@ -72,52 +55,27 @@ class IntrinsicZoomCalculatorTest {
 
     @Test
     fun calculateIntrinsicZoomRatio_roundsToTwoDecimalPlaces() {
-        // Default camera: focal length 5.0mm, sensor width 6.4mm
-        // atan(6.4 / (2 * 5.0)) = atan(0.64) ≈ 32.619° -> 2 * 32.619° = 65.238° -> 65° (toInt)
-        val defaultMetadata =
-            FakeCameraMetadata.fromTemplate(
-                template = HighEndDeviceTemplate,
-                characteristicsOverrides =
-                    baseCameraCharacteristics.toMutableMap().apply {
-                        put(
-                            CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS,
-                            floatArrayOf(5.0f),
-                        )
-                        put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(6.4f, 4.8f))
-                    },
-            )
+        // Default camera (HighEndDeviceTemplate): focal length 6.9mm, sensor 9.792x7.3728mm
+        // (rotated 90 deg -> horizontal 7.3728mm): 2 * atan(7.3728 / (2 * 6.9)) ≈ 56.20° -> 56°
+        val defaultMetadata = FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate)
 
-        // Other camera: focal length 2.0mm, sensor width 6.4mm
-        // atan(6.4 / (2 * 2.0)) = atan(1.6) ≈ 57.9946° -> 2 * 57.9946° = 115.989° -> 115° (toInt)
-        // Ratio = 65 / 115 ≈ 0.565217... -> rounded to 2 decimal places = 0.57f
-        val otherMetadata =
-            FakeCameraMetadata.fromTemplate(
-                template = HighEndDeviceTemplate,
-                characteristicsOverrides =
-                    baseCameraCharacteristics.toMutableMap().apply {
-                        put(
-                            CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS,
-                            floatArrayOf(2.0f),
-                        )
-                        put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(6.4f, 4.8f))
-                    },
-            )
+        // Ultra-wide physical camera "3": focal length 2.02mm, sensor 5.6448x4.2336mm
+        // (rotated 90 deg -> horizontal 4.2336mm): 2 * atan(4.2336 / (2 * 2.02)) ≈ 92.68° -> 92°
+        // Ratio = 56 / 92 ≈ 0.6086956... -> rounded to 2 decimal places = 0.61f
+        val otherMetadata = defaultMetadata.awaitPhysicalMetadata(CameraId("3"))
 
         val fakeCameraDevices =
             FakeCameraDevices(
                 defaultCameraBackendId = CameraBackendId(defaultCameraId),
                 concurrentCameraBackendIds = emptySet(),
                 cameraMetadataMap =
-                    mapOf(
-                        CameraBackendId(defaultCameraId) to listOf(defaultMetadata),
-                        CameraBackendId(otherCameraId) to listOf(otherMetadata),
-                    ),
+                    mapOf(CameraBackendId(defaultCameraId) to listOf(defaultMetadata)),
             )
         val calculator = IntrinsicZoomCalculatorImpl(fakeCameraDevices)
 
         val ratio = calculator.calculateIntrinsicZoomRatio(otherMetadata)
 
-        assertThat(ratio).isEqualTo(0.57f)
+        assertThat(ratio).isEqualTo(0.61f)
     }
 
     @Test
@@ -125,10 +83,7 @@ class IntrinsicZoomCalculatorTest {
         val incompleteMetadata =
             FakeCameraMetadata.fromTemplate(
                 template = HighEndDeviceTemplate,
-                characteristicsOverrides =
-                    baseCameraCharacteristics.toMutableMap().apply {
-                        put(CameraCharacteristics.LENS_FACING, null)
-                    },
+                characteristicsOverrides = mapOf(CameraCharacteristics.LENS_FACING to null),
             )
         val fakeCameraDevices =
             FakeCameraDevices(

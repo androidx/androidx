@@ -57,8 +57,6 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 object FakeCameraInfoAdapterCreator {
     private val CAMERA_ID_0 = CameraId("0")
-    private val PHYSICAL_CAMERA_ID_5 = CameraId("5")
-    private val PHYSICAL_CAMERA_ID_6 = CameraId("6")
 
     val useCaseThreads by lazy {
         val executor = MoreExecutors.directExecutor()
@@ -95,19 +93,6 @@ object FakeCameraInfoAdapterCreator {
                 FakeCameraMetadata.fromTemplate(
                     template = HighEndDeviceTemplate,
                     cameraId = cameraId,
-                    physicalMetadata =
-                        mapOf(
-                            PHYSICAL_CAMERA_ID_5 to
-                                FakeCameraMetadata.fromTemplate(
-                                    template = HighEndDeviceTemplate,
-                                    cameraId = PHYSICAL_CAMERA_ID_5,
-                                ),
-                            PHYSICAL_CAMERA_ID_6 to
-                                FakeCameraMetadata.fromTemplate(
-                                    template = HighEndDeviceTemplate,
-                                    cameraId = PHYSICAL_CAMERA_ID_6,
-                                ),
-                        ),
                 ),
                 cameraId,
             ),
