@@ -37,10 +37,9 @@ dependencies {
     api("androidx.annotation:annotation:1.9.1")
     api("androidx.lifecycle:lifecycle-service:2.9.2")
     api(project(":compose:remote:remote-creation-compose"))
+    api(project(":compose:remote:remote-creation-core"))
     api("androidx.compose.runtime:runtime:$composeVersion")
     api(project(":glance:wear:wear-core"))
-
-    implementation(project(":compose:remote:remote-creation"))
 
     implementation("androidx.compose.ui:ui-graphics:$composeVersion")
     implementation("androidx.core:core-ktx:1.17.0")
@@ -57,6 +56,7 @@ dependencies {
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(project(":compose:remote:remote-creation"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testRunner)

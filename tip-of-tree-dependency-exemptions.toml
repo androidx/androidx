@@ -161,7 +161,7 @@ reason = "b/TODO - <reason>"
 
 [[exemption]]
 library = ":glance:wear:wear"
-dependsOn = ":compose:remote:remote-creation"
+dependsOn = ":compose:remote:remote-creation-core"
 validThroughLibraryVersion = "1.0.0"
 reason = "b/567567898 - released together by the same team with Remote Compose as libraries are intentionally using unreleased APIs."
 
