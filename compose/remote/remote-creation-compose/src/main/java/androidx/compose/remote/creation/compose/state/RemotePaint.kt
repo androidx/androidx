@@ -16,9 +16,11 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toComposeStrokeCap
 import androidx.compose.remote.creation.compose.layout.toComposeStrokeJoin
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
 import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
@@ -45,6 +47,14 @@ public sealed interface RemotePaint {
 
     /** The [BlendMode] to use when drawing with this paint. */
     public var blendMode: BlendMode
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteBlendMode: RemoteBlendMode
+        get() = blendMode.toRemoteBlendMode()
+        set(value) {
+            blendMode = value.toComposeBlendMode()
+        }
 
     /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
     public var style: PaintingStyle

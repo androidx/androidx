@@ -20,15 +20,14 @@ package androidx.compose.remote.creation.compose.capture
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
-import androidx.compose.remote.creation.compose.layout.toInt
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.combineFontSettings
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
@@ -48,7 +47,7 @@ internal class PaintTracker {
     var typefaceWeight: Int = -1
     var typefaceIsItalic: Boolean = false
     var colorFilter: RemoteColorFilter? = null
-    var blendMode: BlendMode? = null
+    var blendMode: RemoteBlendMode? = null
     var filterQuality: RemoteFilterQuality? = null
     var shader: RemoteShader? = null
     var usingShaderMatrix: Boolean = false
@@ -209,10 +208,10 @@ internal class PaintTracker {
             }
         }
 
-        val composeBlendMode = newPaint.blendMode
-        updateIfChanged(composeBlendMode, blendMode) {
-            blendMode = composeBlendMode
-            paintBundle.setBlendMode(composeBlendMode.toInt())
+        val targetBlendMode = newPaint.remoteBlendMode
+        updateIfChanged(targetBlendMode, blendMode) {
+            blendMode = targetBlendMode
+            paintBundle.setBlendMode(targetBlendMode.value)
         }
 
         val targetFilterQuality = newPaint.filterQuality

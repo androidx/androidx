@@ -206,8 +206,6 @@ internal fun FontStyle.encode(): Int =
         else -> -1
     }
 
-internal fun BlendMode.toInt(): Int = toRemoteBlendMode().value
-
 internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =
     when (this) {
         BlendMode.Clear -> RemoteBlendMode.Clear
