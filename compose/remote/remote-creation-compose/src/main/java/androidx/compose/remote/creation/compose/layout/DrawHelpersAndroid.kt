@@ -199,13 +199,6 @@ internal fun TextAlign.encode(): Int =
         else -> -1
     }
 
-internal fun FontStyle.encode(): Int =
-    when (this) {
-        FontStyle.Normal -> 0
-        FontStyle.Italic -> 1
-        else -> -1
-    }
-
 internal fun BlendMode.toRemoteBlendMode(): RemoteBlendMode =
     when (this) {
         BlendMode.Clear -> RemoteBlendMode.Clear
