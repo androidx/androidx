@@ -16,9 +16,6 @@
 
 package androidx.compose.remote.creation.compose.text
 
-import android.graphics.Typeface
-import android.os.Build
-
 /**
  * A sealed interface that represent the concept of a Typeface in Remote Compose.
  *
@@ -29,42 +26,29 @@ public sealed interface RemoteTypeface {
     /** The name used to identify the font in the document and player */
     public val name: String
 
-    /** Converts this [RemoteTypeface] to an Android framework [Typeface]. */
-    public fun toAndroidTypeface(): Typeface
-
     /** Represents the default system font. */
     public object Default : RemoteTypeface {
         override val name: String = "default"
-
-        override fun toAndroidTypeface(): Typeface = Typeface.DEFAULT
     }
 
     /** Represents the default bold system font. */
     public object DefaultBold : RemoteTypeface {
         override val name: String = "default-bold"
-
-        override fun toAndroidTypeface(): Typeface = Typeface.DEFAULT_BOLD
     }
 
     /** Represents the sans-serif system font. */
     public object SansSerif : RemoteTypeface {
         override val name: String = "sans-serif"
-
-        override fun toAndroidTypeface(): Typeface = Typeface.SANS_SERIF
     }
 
     /** Represents the serif system font. */
     public object Serif : RemoteTypeface {
         override val name: String = "serif"
-
-        override fun toAndroidTypeface(): Typeface = Typeface.SERIF
     }
 
     /** Represents the monospace system font. */
     public object Monospace : RemoteTypeface {
         override val name: String = "monospace"
-
-        override fun toAndroidTypeface(): Typeface = Typeface.MONOSPACE
     }
 
     /**
@@ -80,11 +64,6 @@ public sealed interface RemoteTypeface {
         public val isItalic: Boolean = false,
     ) : RemoteTypeface {
         override val name: String = fontName
-
-        override fun toAndroidTypeface(): Typeface {
-            val base = Typeface.create(fontName, Typeface.NORMAL)
-            return Typeface.create(base, weight, isItalic)
-        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -122,36 +101,6 @@ public sealed interface RemoteTypeface {
             val weight = if (style == Style.Bold || style == Style.BoldItalic) 700 else 400
             val isItalic = style == Style.Italic || style == Style.BoldItalic
             return Named(fontName ?: "default", weight, isItalic)
-        }
-
-        /**
-         * Maps an Android framework [Typeface] to a [RemoteTypeface].
-         *
-         * @param typeface The Android [Typeface] to convert, or `null` for [Default].
-         */
-        public fun fromAndroidTypeface(typeface: Typeface?): RemoteTypeface {
-            return when (typeface) {
-                null -> Default
-                Typeface.DEFAULT -> Default
-                Typeface.DEFAULT_BOLD -> DefaultBold
-                Typeface.SANS_SERIF -> SansSerif
-                Typeface.SERIF -> Serif
-                Typeface.MONOSPACE -> Monospace
-                else -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        val name = typeface.systemFontFamilyName
-                        val weight = typeface.weight
-                        val italic = typeface.isItalic
-                        if (name != null) {
-                            Named(name, weight, italic)
-                        } else {
-                            Default
-                        }
-                    } else {
-                        Default
-                    }
-                }
-            }
         }
     }
 }
