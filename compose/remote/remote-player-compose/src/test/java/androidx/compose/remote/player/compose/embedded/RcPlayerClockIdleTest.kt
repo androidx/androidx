@@ -18,9 +18,11 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.graphics.Color as AndroidColor
 import android.os.Looper
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.creation.compose.action.valueChange
@@ -147,6 +149,30 @@ class RcPlayerClockIdleTest {
                 topLeft = RemoteOffset(0f.rf, 0f.rf),
                 size = RemoteSize(width, 20f.rf),
             )
+        }
+    }
+
+    /** Plays [document] in a 100dp box with the Compose clock under manual control. */
+    private fun playDocument(document: CoreDocument): RcPlayerState {
+        val state = RcPlayerState(document)
+        rule.mainClock.autoAdvance = false
+        rule.setContent { Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) } }
+        frame()
+        return state
+    }
+
+    /**
+     * A raw document that draws a red square only inside the window of an impulse that lasts
+     * [duration] seconds and starts at [start] (seconds of animation time).
+     */
+    private fun impulseDocument(duration: Float, start: Float): CoreDocument = buildDocument {
+        writer.impulse(duration, start) {
+            painter.setColor(AndroidColor.RED).commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+            writer.impulseProcess {
+                painter.setColor(AndroidColor.RED).commit()
+                writer.drawRect(0f, 0f, 100f, 100f)
+            }
         }
     }
 
@@ -316,6 +342,58 @@ class RcPlayerClockIdleTest {
         framesWithStateChanges(10)
 
         assertThat(framesWithStateChanges(30)).isAtLeast(28)
+    }
+
+    @Test
+    fun impulseWhoseWindowHasClosed_doesNotTick() {
+        playDocument(impulseDocument(duration = 0.2f, start = -10f))
+        framesWithStateChanges(10)
+
+        assertThat(framesWithStateChanges(60)).isEqualTo(0)
+    }
+
+    @Test
+    fun impulse_ticksOnlyUntilItsWindowCloses() {
+        // Active from 1s to 1.4s of animation time.
+        playDocument(impulseDocument(duration = 0.4f, start = 1f))
+
+        // Before the window opens the loop ticks every frame, so it opens on time.
+        assertThat(framesWithStateChanges(30)).isAtLeast(28)
+        assertNotRed(rule.captureRootBitmap(), 5, 5)
+
+        // About 1.2s: inside the window.
+        framesWithStateChanges(45)
+        assertRed(rule.captureRootBitmap(), 5, 5)
+
+        // Well after the window closed, nothing reads time any more.
+        framesWithStateChanges(60)
+        assertThat(framesWithStateChanges(30)).isEqualTo(0)
+        assertNotRed(rule.captureRootBitmap(), 5, 5)
+    }
+
+    @Test
+    fun impulseWithClosedWindow_wakesTheClockWhenRestarted() {
+        val document = buildDocument {
+            val start = writer.addNamedFloat("start", -2000f)
+            writer.impulse(1000f, start) {
+                painter.setColor(AndroidColor.RED).commit()
+                writer.drawRect(0f, 0f, 100f, 100f)
+                writer.impulseProcess {
+                    painter.setColor(AndroidColor.RED).commit()
+                    writer.drawRect(0f, 0f, 100f, 100f)
+                }
+            }
+        }
+        val state = playDocument(document)
+        framesWithStateChanges(10)
+        assertThat(framesWithStateChanges(30)).isEqualTo(0)
+
+        // Reopen the window around the current time: [0s, 1000s].
+        var start by state.floatState("start")
+        rule.runOnUiThread { start = 0f }
+
+        assertThat(framesWithStateChanges(10)).isAtLeast(8)
+        assertRed(rule.captureRootBitmap(), 5, 5)
     }
 }
 

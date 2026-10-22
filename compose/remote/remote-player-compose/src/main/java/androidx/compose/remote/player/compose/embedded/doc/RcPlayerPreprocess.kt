@@ -68,6 +68,7 @@ import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
@@ -287,6 +288,20 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
 
             if (op is WakeIn) {
                 hasWakeIn = true
+            }
+
+            if (op is ImpulseOperation) {
+                // Core's ImpulseOperation.paint schedules a wakeIn until its window opens, and its
+                // process runs every frame inside the window, so the document needs the frame
+                // loop. The impulse draw reads the animation time only before and inside its
+                // window, so unlike WakeIn it lets the loop idle once the window has closed.
+                hasContinuousTime = true
+                // registerListening may already have moved the trailing ImpulseProcess out of the
+                // impulse's list; visit it here so its contents are still scanned.
+                val process = op.process
+                if (process != null && !op.list.contains(process)) {
+                    visitOp(process)
+                }
             }
 
             if (op is TouchExpression) {

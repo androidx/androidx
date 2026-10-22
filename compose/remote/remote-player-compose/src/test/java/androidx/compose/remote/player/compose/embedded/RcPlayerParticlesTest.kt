@@ -31,8 +31,6 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
 import com.google.common.truth.Truth.assertThat
@@ -93,7 +91,7 @@ class RcPlayerParticlesTest {
         rule.mainClock.advanceTimeBy(32)
         rule.onRoot().captureToImage() // force a draw pass: seeds + first simulation step
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
+        val create = requireNotNull(findParticlesCreate(document.operations))
         val afterFirstDraw = create.particles.map { it.clone() }
         // Seeded from the initial equations (10, 20) and stepped at least once by +1/+2 per draw:
         // x > 10, y > 20 for every particle, and y - 20 == 2 * (x - 10).
@@ -143,7 +141,7 @@ class RcPlayerParticlesTest {
         }
 
         // First rendered frame only.
-        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
+        val bitmap = rule.captureRootBitmap()
         val onParticle = bitmap.getPixel(30, 40)
         val background = bitmap.getPixel(80, 80)
         assertThat(AndroidColor.red(onParticle)).isGreaterThan(200)
@@ -185,11 +183,11 @@ class RcPlayerParticlesTest {
             }
         }
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
+        val create = requireNotNull(findParticlesCreate(document.operations))
         rule.onRoot().captureToImage() // first frame: seed + first step
         val x1 = create.particles[0][0]
         rule.mainClock.advanceTimeBy(32)
-        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap() // next frame: stepped again
+        val bitmap = rule.captureRootBitmap() // next frame: stepped again
         val x2 = create.particles[0][0]
         assertThat(x2).isGreaterThan(x1)
         // The freshly drawn frame shows the particle at its *current* position, not a stale one.
@@ -239,7 +237,7 @@ class RcPlayerParticlesTest {
             }
         rule.onRoot().captureToImage() // one frame: seed + loop + compare
 
-        val create = requireNotNull(findParticlesCreate(document.getOperationsList()))
+        val create = requireNotNull(findParticlesCreate(document.operations))
         assertThat(create.particles[0][0]).isEqualTo(100f)
         assertThat(create.particles[0][1]).isEqualTo(20f)
     }

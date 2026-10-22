@@ -21,16 +21,14 @@ package androidx.compose.remote.player.compose.embedded
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.player.compose.embedded.components.LocalRcHapticEngineFactory
-import androidx.compose.remote.player.compose.embedded.components.RcHapticEngineFactory
-import androidx.compose.remote.player.compose.embedded.components.hapticFeedbackConstant
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.captureToImage
@@ -42,21 +40,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 
-/** Haptic feedback in the embedded player, using a fake engine in place of the host view. */
+/** Haptic feedback in the embedded player, verified on the host [View]. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RcPlayerHapticTest {
 
     @get:Rule val rule = RcPlayerTestRule()
-
-    private val performed = mutableListOf<Int>()
-    private var engineView: View? = null
-    private val factory = RcHapticEngineFactory { view ->
-        engineView = view
-        CoreDocument.HapticEngine { type -> performed += type }
-    }
 
     @Test
     fun hapticInAnImpulseIsPerformedOnce() {
@@ -67,23 +59,65 @@ class RcPlayerHapticTest {
                 document.impulse(10f, 0f) { document.performHaptic(3) }
             }
         }
+        val view = requireNotNull(hostView)
+        val shadowView = Shadows.shadowOf(view)
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.KEYBOARD_TAP)
+
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.CLOCK_TICK)
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.CLOCK_TICK)
         repeat(3) {
             rule.mainClock.advanceTimeBy(32)
             rule.onRoot().captureToImage()
         }
 
-        assertThat(performed).containsExactly(3)
-        assertThat(engineView).isSameInstanceAs(hostView)
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.CLOCK_TICK)
     }
 
     @Test
     fun documentTypesMapToPlatformFeedbackConstants() {
-        assertThat(hapticFeedbackConstant(0)).isEqualTo(HapticFeedbackConstantsCompat.NO_HAPTICS)
-        assertThat(hapticFeedbackConstant(1)).isEqualTo(HapticFeedbackConstantsCompat.LONG_PRESS)
-        assertThat(hapticFeedbackConstant(12)).isEqualTo(HapticFeedbackConstantsCompat.CONFIRM)
+        var hostView: View? = null
+        var currentDocument by mutableStateOf(hapticDocument(0))
+        rule.setContent {
+            val view = LocalView.current
+            view.isHapticFeedbackEnabled = true
+            hostView = view
+            Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = currentDocument) }
+        }
+        val view = requireNotNull(hostView)
+        val shadowView = Shadows.shadowOf(view)
+
+        // Type 0 maps to NO_HAPTICS, which ViewCompat skips without performing feedback.
+        view.performHapticFeedback(HapticFeedbackConstantsCompat.CLOCK_TICK)
+        rule.onRoot().captureToImage()
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.CLOCK_TICK)
+
+        currentDocument = hapticDocument(1)
+        rule.waitForIdle()
+        rule.onRoot().captureToImage()
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.LONG_PRESS)
+
+        currentDocument = hapticDocument(12)
+        rule.waitForIdle()
+        rule.onRoot().captureToImage()
+        assertThat(shadowView.lastHapticFeedbackPerformed())
+            .isEqualTo(HapticFeedbackConstantsCompat.CONFIRM)
+
         // Out-of-range types wrap rather than throw.
-        assertThat(hapticFeedbackConstant(-1))
+        currentDocument = hapticDocument(-1)
+        rule.waitForIdle()
+        rule.onRoot().captureToImage()
+        assertThat(shadowView.lastHapticFeedbackPerformed())
             .isEqualTo(HapticFeedbackConstantsCompat.SEGMENT_FREQUENT_TICK)
+    }
+
+    private fun hapticDocument(type: Int) = buildDocument {
+        performHaptic(type)
+        drawCircle(1f, 1f, 1f)
     }
 
     private fun play(
@@ -92,10 +126,10 @@ class RcPlayerHapticTest {
     ) {
         rule.setRemoteContent(
             playComposableWrapper = { composable ->
-                onView(LocalView.current)
-                CompositionLocalProvider(LocalRcHapticEngineFactory provides factory) {
-                    Box(modifier = Modifier.size(100.dp)) { composable() }
-                }
+                val view = LocalView.current
+                view.isHapticFeedbackEnabled = true
+                onView(view)
+                Box(modifier = Modifier.size(100.dp)) { composable() }
             },
             content = content,
         )

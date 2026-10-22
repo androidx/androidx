@@ -27,6 +27,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.tracing.trace
 import kotlinx.coroutines.channels.Channel
 
@@ -166,6 +167,14 @@ internal class GraphTimeState(
             if (mask and (1 shl i) != 0) probeStates[i].intValue++
         }
         lastChangedDiscreteMask = lastChangedDiscreteMask or mask
+    }
+
+    /**
+     * The animation time in seconds, read without recording a snapshot read or a time read. Lets a
+     * draw check whether it needs time at all before making a tracked read of it.
+     */
+    internal fun peekAnimationTime(): Float = Snapshot.withoutReadObservation {
+        animationTimeState.floatValue
     }
 
     internal fun timeFloatState(id: Int): State<Float> =

@@ -22,6 +22,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
+import androidx.collection.MutableLongObjectMap
 import androidx.collection.emptyIntSet
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
@@ -150,6 +151,37 @@ internal class GraphContext(
 
     @Suppress("BanConcurrentHashMap")
     internal val particlesInitialized: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+
+    /**
+     * Fire state of each impulse whose window is open, keyed by the operation (identity: operations
+     * don't override equals) and then by the canvas loop iteration path it runs under (0 outside
+     * any loop). An entry exists only while that window is open and records that its initial pass
+     * already ran: the embedded equivalent of core `ImpulseOperation.mInitialPass` being false.
+     * Entries are dropped when the window closes or is pending, so the map stays bounded by the
+     * impulses currently in their window.
+     */
+    @Suppress("BanConcurrentHashMap")
+    internal val impulseWindows: MutableMap<Any, MutableLongObjectMap<ImpulseWindowState>> =
+        ConcurrentHashMap()
+
+    /** Removes the fire state of [op] under [loopScope], if any, without allocating. */
+    internal fun clearImpulseWindow(op: Any, loopScope: Long) {
+        val states = impulseWindows[op] ?: return
+        states.remove(loopScope)
+        if (states.isEmpty()) impulseWindows.remove(op)
+    }
+
+    /** Returns the fire state of [op] under [loopScope], or null if its window was not open. */
+    internal fun impulseWindow(op: Any, loopScope: Long): ImpulseWindowState? =
+        impulseWindows[op]?.get(loopScope)
+
+    /** Records that the initial pass of [op] under [loopScope] ran for [startAt] at time [now]. */
+    internal fun openImpulseWindow(op: Any, loopScope: Long, startAt: Float, now: Float) {
+        impulseWindows
+            .getOrPut(op) { MutableLongObjectMap() }
+            .getOrPut(loopScope) { ImpulseWindowState() }
+            .restart(startAt, now)
+    }
 
     internal var imageLoader: RcImageLoader? = null
 
@@ -324,3 +356,32 @@ internal class GraphContext(
  */
 internal val RemoteContext.writeContext: RemoteContext
     get() = (this as? GraphContext)?.store ?: this
+
+/**
+ * Fire state of one open impulse window (see [GraphContext.impulseWindows]): the start time its
+ * initial pass ran for, and the first and latest animation times that start was seen at.
+ */
+internal class ImpulseWindowState {
+    var startAt: Float = Float.NaN
+        private set
+
+    private var firstSeen = 0f
+    private var lastSeen = 0f
+
+    /**
+     * True once [startAt] has been seen at two different animation times, i.e. it held across a
+     * frame rather than following the clock.
+     */
+    val isStartStable: Boolean
+        get() = lastSeen > firstSeen
+
+    fun restart(startAt: Float, now: Float) {
+        this.startAt = startAt
+        firstSeen = now
+        lastSeen = now
+    }
+
+    fun seen(now: Float) {
+        if (now > lastSeen) lastSeen = now
+    }
+}

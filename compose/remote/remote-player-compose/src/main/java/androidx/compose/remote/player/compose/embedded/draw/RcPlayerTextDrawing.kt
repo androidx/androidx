@@ -18,6 +18,7 @@
 
 package androidx.compose.remote.player.compose.embedded.draw
 
+import android.graphics.Bitmap
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.DrawBitmapFontText
@@ -226,6 +227,31 @@ internal fun DrawScope.drawTextOnCircleOp(
 }
 
 /**
+ * Blits one bitmap-font glyph, scaling the whole bitmap into the [dstOffset]/[dstSize] rect with
+ * the full paint state (alpha, color filter, blend mode and filter quality), as [drawBitmapOp] and
+ * core's `PaintContext.drawBitmap` do. Shared by every bitmap-font text op so they treat the paint
+ * the same way.
+ */
+private fun DrawScope.drawGlyph(
+    glyphBitmap: Bitmap,
+    dstOffset: IntOffset,
+    dstSize: IntSize,
+    paintState: ComposeLocalPaint,
+) {
+    drawImage(
+        image = glyphBitmap.asImageBitmap(),
+        srcOffset = IntOffset.Zero,
+        srcSize = IntSize(glyphBitmap.width, glyphBitmap.height),
+        dstOffset = dstOffset,
+        dstSize = dstSize,
+        alpha = paintState.effectiveAlpha(),
+        colorFilter = paintState.colorFilter,
+        blendMode = paintState.blendMode,
+        filterQuality = paintState.filterQuality,
+    )
+}
+
+/**
  * Bitmap-font text (`DRAW_BITMAP_FONT_TEXT`): walk the string glyph-by-glyph via
  * [BitmapFontData.lookupGlyph] and blit each glyph's bitmap into its laid-out dst rect (with
  * margins, kerning, and glyph spacing). Mirrors `DrawBitmapFontText.paint`.
@@ -276,17 +302,11 @@ internal fun DrawScope.drawBitmapFontTextOp(
             kerning?.get(prevGlyph + glyph.mChars)?.let { xPos += it }
             val glyphBitmap = resolveBitmap(remoteContext, glyph.mBitmapId)
             if (glyphBitmap != null && glyph.mBitmapWidth > 0 && glyph.mBitmapHeight > 0) {
-                drawImage(
-                    image = glyphBitmap.asImageBitmap(),
-                    srcOffset = IntOffset.Zero,
-                    srcSize = IntSize(glyphBitmap.width, glyphBitmap.height),
+                drawGlyph(
+                    glyphBitmap = glyphBitmap,
                     dstOffset = IntOffset(xPos.toInt(), (y + glyph.mMarginTop).toInt()),
-                    dstSize =
-                        IntSize(
-                            glyph.mBitmapWidth.toInt(),
-                            glyph.mBitmapHeight.toInt(),
-                        ),
-                    blendMode = paintState.blendMode,
+                    dstSize = IntSize(glyph.mBitmapWidth.toInt(), glyph.mBitmapHeight.toInt()),
+                    paintState = paintState,
                 )
             }
             xPos += glyph.mBitmapWidth + glyph.mMarginRight + glyphSpacing
@@ -371,17 +391,11 @@ internal fun DrawScope.drawBitmapTextAnchoredOp(
             kerning?.get(prevGlyph + glyph.mChars)?.let { xPos += it }
             val glyphBitmap = resolveBitmap(remoteContext, glyph.mBitmapId)
             if (glyphBitmap != null && glyph.mBitmapWidth > 0 && glyph.mBitmapHeight > 0) {
-                drawImage(
-                    image = glyphBitmap.asImageBitmap(),
-                    srcOffset = IntOffset.Zero,
-                    srcSize = IntSize(glyphBitmap.width, glyphBitmap.height),
+                drawGlyph(
+                    glyphBitmap = glyphBitmap,
                     dstOffset = IntOffset(xPos.toInt(), (yPos + glyph.mMarginTop).toInt()),
-                    dstSize =
-                        IntSize(
-                            glyph.mBitmapWidth.toInt(),
-                            glyph.mBitmapHeight.toInt(),
-                        ),
-                    blendMode = paintState.blendMode,
+                    dstSize = IntSize(glyph.mBitmapWidth.toInt(), glyph.mBitmapHeight.toInt()),
+                    paintState = paintState,
                 )
             }
             xPos += glyph.mBitmapWidth + glyph.mMarginRight + glyphSpacing
@@ -486,13 +500,13 @@ internal fun DrawScope.drawBitmapFontTextOnPathOp(
                     withTransform({
                         transform(composeMatrix)
                         translate(-halfGlyphWidth, yAdj + glyph.mMarginTop)
-                        val scaleX = glyph.mBitmapWidth / glyphBitmap.width.toFloat()
-                        val scaleY = glyph.mBitmapHeight / glyphBitmap.height.toFloat()
-                        scale(scaleX, scaleY, pivot = Offset.Zero)
                     }) {
-                        drawImage(
-                            image = glyphBitmap.asImageBitmap(),
-                            alpha = paintState.effectiveAlpha(),
+                        drawGlyph(
+                            glyphBitmap = glyphBitmap,
+                            dstOffset = IntOffset.Zero,
+                            dstSize =
+                                IntSize(glyph.mBitmapWidth.toInt(), glyph.mBitmapHeight.toInt()),
+                            paintState = paintState,
                         )
                     }
                 }

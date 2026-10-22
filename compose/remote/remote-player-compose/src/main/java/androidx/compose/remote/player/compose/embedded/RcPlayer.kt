@@ -161,7 +161,9 @@ public fun RcPlayer(
 
     // Time is driven on demand:
     // - Documents with continuous time variables (ID_CONTINUOUS_SEC, ID_ANIMATION_TIME), particles,
-    //   or WakeIn run the per-frame loop via withInfiniteAnimationFrameMillis.
+    //   WakeIn or impulses run the per-frame loop via withInfiniteAnimationFrameMillis. Impulses
+    //   count as continuous time: their draw reads the animation time only until their window
+    //   closes, so the loop can idle afterwards.
     // - Documents with only discrete wall-clock/calendar variables (ID_TIME_IN_SEC, ID_TIME_IN_MIN,
     //   ID_CALENDAR_MONTH, etc.) sleep between whole second boundaries via delay().
     // - Static documents and documents whose animations are driven by Compose's own animation

@@ -73,6 +73,7 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.PlaySound
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
@@ -80,7 +81,6 @@ import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
@@ -111,6 +111,12 @@ internal fun derefId(rawId: Int, context: RemoteContext): Int =
 
 /** Backstop on [LoopOperation] iterations so a malformed bound can't hang the draw thread. */
 private const val MAX_LOOP_ITERATIONS = 100_000
+
+/**
+ * Encodes the iteration ordinals of the enclosing [LoopOperation]s into one `loopScope` key, so an
+ * impulse keeps separate fire state per iteration. Unique for up to three nested loops.
+ */
+private const val LOOP_SCOPE_RADIX = MAX_LOOP_ITERATIONS + 1L
 
 internal fun resolveFloat(value: Float, fallback: Float, context: RemoteContext): Float {
     // A NaN-encoded value is a variable reference. [context] is the draw read context — normally
@@ -159,6 +165,7 @@ private fun DrawScope.executeOperationsInPass(
     offscreenState: OffscreenDrawState,
     contentLayer: GraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
+    loopScope: Long = 0L,
 ) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
     // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
@@ -187,7 +194,10 @@ private fun DrawScope.executeOperationsInPass(
             op is VariableSupport &&
                 op !is TouchExpression &&
                 op !is LoopOperation &&
-                op !is ConditionalOperations
+                op !is ConditionalOperations &&
+                // Impulses resolve their own window below; their children update only when run.
+                op !is ImpulseOperation &&
+                op !is ImpulseProcess
         ) {
             op.updateVariables(read)
         }
@@ -266,24 +276,86 @@ private fun DrawScope.executeOperationsInPass(
                 // ParticlesLoop.
                 if (graph != null) drawParticlesCompare(op, remoteContext, paintState, graph)
             }
-            is ImpulseProcess,
             is ImpulseOperation -> {
-                // Impulse containers wrap their children (commonly the particle loop). The trigger
-                // / duration gating isn't modelled here — the children always run — so
-                // impulse-driven content (e.g. particles) renders continuously rather than on
-                // event.
-                executeOperationsInPass(
-                    (op as Container).list,
-                    remoteContext,
-                    textMeasurer,
-                    paintState,
-                    onDrawContent,
-                    graph,
-                    offscreenState,
-                    contentLayer,
-                    contentOrigin,
-                )
+                // Impulse: the body only runs inside the [startAt, startAt + duration] window
+                // (seconds of animation time). The first pass in a window runs the setup list once
+                // (e.g. a haptic, sound or particle reset); later passes in the window run the
+                // trailing ImpulseProcess. Mirrors ImpulseOperation.paint. Reading the animation
+                // time through the graph re-runs this draw on each frame tick and keeps the frame
+                // loop ticking. Once the window has closed the time is only peeked, so the loop can
+                // idle; a change of startAt or duration still re-runs this draw, and a window that
+                // reopens reads the time again, which wakes the loop.
+                val startAt = resolveFloat(op.startAt, op.startAt, read)
+                val duration = resolveFloat(op.duration, op.duration, read)
+                val peeked = graph?.timeState?.peekAnimationTime()
+                val now =
+                    if (peeked != null && peeked > startAt + duration) {
+                        peeked
+                    } else {
+                        read.getFloat(RemoteContext.ID_ANIMATION_TIME)
+                    }
+                // registerListening moves a trailing ImpulseProcess out of the list; until it has
+                // run, the process is still the last child.
+                val process = op.process ?: (op.list.lastOrNull() as? ImpulseProcess)
+                if (now >= startAt && now <= startAt + duration) {
+                    // Fire state is per loop iteration, so every iteration of an impulse inside a
+                    // canvas loop runs its own initial pass. Unlike core, moving startAt while the
+                    // window is open (a re-trigger, or a start rescheduled ahead) re-runs the
+                    // initial pass, as long as the previous start held across a frame; a start that
+                    // follows the clock keeps core's "initial pass once, then process" behaviour
+                    // instead of re-running the setup on every frame.
+                    val state = graph?.impulseWindow(op, loopScope)
+                    val initialPass =
+                        when {
+                            graph == null || state == null -> true
+                            startAt != state.startAt ->
+                                state.isStartStable.also { if (!it) state.restart(startAt, now) }
+                            else -> {
+                                state.seen(now)
+                                false
+                            }
+                        }
+                    if (initialPass) {
+                        graph?.openImpulseWindow(op, loopScope, startAt, now)
+                        executeOperationsInPass(
+                            if (process != null && op.list.lastOrNull() === process) {
+                                op.list.subList(0, op.list.size - 1)
+                            } else {
+                                op.list
+                            },
+                            remoteContext,
+                            textMeasurer,
+                            paintState,
+                            onDrawContent,
+                            graph,
+                            offscreenState,
+                            contentLayer,
+                            contentOrigin,
+                            loopScope = loopScope,
+                        )
+                    } else if (process != null) {
+                        executeOperationsInPass(
+                            process.list,
+                            remoteContext,
+                            textMeasurer,
+                            paintState,
+                            onDrawContent,
+                            graph,
+                            offscreenState,
+                            contentLayer,
+                            contentOrigin,
+                            loopScope = loopScope,
+                        )
+                    }
+                } else {
+                    // Window closed or not yet open: the next window starts with a fresh initial
+                    // pass. Core only resets once the window has closed, so a start rescheduled
+                    // ahead while its window was open would skip the setup when it reopens.
+                    graph?.clearImpulseWindow(op, loopScope)
+                }
             }
+            // Only runs through its enclosing ImpulseOperation.
+            is ImpulseProcess -> {}
             is ConditionalOperations -> {
                 // Conditional draw: resolve the two operands, compare per type, and draw the child
                 // ops only when the condition holds. Mirrors ConditionalOperations.paint.
@@ -309,6 +381,7 @@ private fun DrawScope.executeOperationsInPass(
                         offscreenState,
                         contentLayer,
                         contentOrigin,
+                        loopScope = loopScope,
                     )
             }
             is LoopOperation -> {
@@ -335,6 +408,8 @@ private fun DrawScope.executeOperationsInPass(
                             offscreenState,
                             contentLayer,
                             contentOrigin,
+                            // Iteration path for per-iteration impulse fire state.
+                            loopScope = loopScope * LOOP_SCOPE_RADIX + guard + 1,
                         )
                         i += step
                         guard++
@@ -364,6 +439,7 @@ private fun DrawScope.executeOperationsInPass(
                         offscreenState,
                         contentLayer,
                         contentOrigin,
+                        loopScope = loopScope,
                     )
                 }
             }
@@ -445,6 +521,10 @@ private fun DrawScope.executeOperationsInPass(
             // RcPlayerHapticEffect). It fires each time the stream runs it, so documents gate it
             // with an impulse or conditional.
             is HapticFeedback -> op.apply(remoteContext)
+            // Played through the document's sound engine, if the host installed one. Like haptics,
+            // it plays each time the stream runs it, so documents gate it with an impulse.
+            // SoundExpression / SoundData are registered once at setup, not per draw.
+            is PlaySound -> op.apply(remoteContext)
         }
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore
