@@ -33,6 +33,7 @@ import androidx.compose.ui.UiMediaScope.KeyboardKind
 import androidx.compose.ui.UiMediaScope.PointerPrecision
 import androidx.compose.ui.UiMediaScope.ViewingDistance
 import androidx.compose.ui.UiMediaScope.WindowPosture
+import androidx.compose.ui.computedMediaQuery
 import androidx.compose.ui.derivedMediaQuery
 import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.platform.LocalView
@@ -78,6 +79,7 @@ class MediaQueryTest {
         ComposeUiFlags.isMediaQueryIntegrationEnabled = false
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_returnsTrue_whenConditionMet() {
         scope.windowWidth = 100.dp
@@ -93,6 +95,7 @@ class MediaQueryTest {
         assertThat(result).isTrue()
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_returnsFalse_whenConditionNotMet() {
         scope.windowWidth = 100.dp
@@ -108,6 +111,7 @@ class MediaQueryTest {
         assertThat(result).isFalse()
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_updates_whenScopeChanges() {
         scope.windowWidth = 100.dp
@@ -128,6 +132,7 @@ class MediaQueryTest {
         assertThat(result).isTrue()
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_updates_whenCapturedValueChanges() {
         scope.windowWidth = 100.dp
@@ -152,6 +157,7 @@ class MediaQueryTest {
         assertThat(queryResult).isFalse()
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_recomposesOnlyWhenResultChanges() {
         scope.windowWidth = 100.dp
@@ -185,6 +191,196 @@ class MediaQueryTest {
 
         // Should have recomposed
         assertThat(recompositionCount).isEqualTo(2)
+    }
+
+    @Suppress("Deprecation")
+    @Test
+    fun derivedMediaQuery_cachesCalculationResult() {
+        scope.windowWidth = 100.dp
+        var recompositionCount = 0
+        var calculationCount = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val result by derivedMediaQuery {
+                    calculationCount++
+                    windowWidth > 50.dp
+                }
+
+                SideEffect { recompositionCount++ }
+
+                use(result)
+                use(result)
+            }
+        }
+
+        rule.runOnIdle { assertThat(recompositionCount).isEqualTo(1) }
+        rule.runOnIdle { assertThat(calculationCount).isEqualTo(1) }
+
+        // Change property, but query result remains true (100 -> 150, 150 > 50 is true)
+        scope.windowWidth = 150.dp
+        rule.waitForIdle()
+
+        // Should not have recomposed
+        assertThat(recompositionCount).isEqualTo(1)
+        assertThat(calculationCount).isEqualTo(2)
+
+        // Change property so query result changes (150 -> 40, 40 > 50 is false)
+        scope.windowWidth = 40.dp
+        rule.waitForIdle()
+
+        // Should have recomposed
+        assertThat(recompositionCount).isEqualTo(2)
+        assertThat(calculationCount).isEqualTo(4)
+    }
+
+    @Test
+    fun computedMediaQuery_returnsTrue_whenConditionMet() {
+        scope.windowWidth = 100.dp
+        var result = true
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val state by computedMediaQuery { windowWidth > 50.dp }
+                result = state
+            }
+        }
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun computedMediaQuery_returnsFalse_whenConditionNotMet() {
+        scope.windowWidth = 100.dp
+        var result = true
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val state by computedMediaQuery { windowWidth > 200.dp }
+                result = state
+            }
+        }
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun computedMediaQuery_updates_whenScopeChanges() {
+        scope.windowWidth = 100.dp
+
+        var result = false
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val state by computedMediaQuery { windowWidth > 150.dp }
+                result = state
+            }
+        }
+
+        assertThat(result).isFalse()
+
+        scope.windowWidth = 200.dp
+        rule.waitForIdle()
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun computedMediaQuery_updates_whenCapturedValueChanges() {
+        scope.windowWidth = 100.dp
+        var threshold by mutableStateOf(50.dp)
+        var queryResult = false
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                // We delegate to a composable to ensure the lambda captures
+                // a value parameter, not a state object.
+                ComputedTestComponent(threshold = threshold, onResult = { queryResult = it })
+            }
+        }
+
+        // 100.dp > 50.dp -> Should be true
+        rule.runOnIdle { assertThat(queryResult).isTrue() }
+
+        threshold = 150.dp
+        rule.waitForIdle()
+
+        // 100.dp > 150.dp -> Should be false
+        assertThat(queryResult).isFalse()
+    }
+
+    @Test
+    fun computedMediaQuery_recomposesOnlyWhenResultChanges() {
+        scope.windowWidth = 100.dp
+        var recompositionCount = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val result by computedMediaQuery { windowWidth > 50.dp }
+
+                SideEffect { recompositionCount++ }
+
+                // Ensure we read result
+                if (result) {
+                    // no-op
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(recompositionCount).isEqualTo(1) }
+
+        // Change property, but query result remains true (100 -> 150, 150 > 50 is true)
+        scope.windowWidth = 150.dp
+        rule.waitForIdle()
+
+        // Should not have recomposed
+        assertThat(recompositionCount).isEqualTo(1)
+
+        // Change property so query result changes (150 -> 40, 40 > 50 is false)
+        scope.windowWidth = 40.dp
+        rule.waitForIdle()
+
+        // Should have recomposed
+        assertThat(recompositionCount).isEqualTo(2)
+    }
+
+    @Test
+    fun computedMediaQuery_executesCalculationOnEachRead() {
+        scope.windowWidth = 100.dp
+        var recompositionCount = 0
+        var calculationCount = 0
+
+        rule.setContent {
+            CompositionLocalProvider(LocalUiMediaScope provides scope) {
+                val result by computedMediaQuery {
+                    calculationCount++
+                    windowWidth > 50.dp
+                }
+
+                SideEffect { recompositionCount++ }
+
+                use(result)
+                use(result)
+            }
+        }
+
+        rule.runOnIdle { assertThat(recompositionCount).isEqualTo(1) }
+        rule.runOnIdle { assertThat(calculationCount).isEqualTo(2) }
+
+        // Change property, but query result remains true (100 -> 150, 150 > 50 is true)
+        scope.windowWidth = 150.dp
+        rule.waitForIdle()
+
+        // Should not have recomposed
+        assertThat(recompositionCount).isEqualTo(1)
+        assertThat(calculationCount).isEqualTo(4)
+
+        // Change property so query result changes (150 -> 40, 40 > 50 is false)
+        scope.windowWidth = 40.dp
+        rule.waitForIdle()
+
+        // Should have recomposed
+        assertThat(recompositionCount).isEqualTo(2)
+        assertThat(calculationCount).isEqualTo(9)
     }
 
     @Test
@@ -234,6 +430,7 @@ class MediaQueryTest {
         assertThat(recompositionCount).isEqualTo(2)
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_stateUpdates_withConfigurationChanges() {
         var result = false
@@ -250,6 +447,7 @@ class MediaQueryTest {
         rule.runOnIdle { assertThat(result).isTrue() }
     }
 
+    @Suppress("Deprecation")
     @Test
     fun derivedMediaQuery_returnsGenericType() {
         scope.windowWidth = 100.dp
@@ -369,9 +567,17 @@ class MediaQueryTest {
         rule.runOnIdle { assertThat(capturedWindowWidth).isEqualTo((newSize.width / density).dp) }
     }
 
+    @Suppress("Deprecation")
     @Composable
     private fun TestComponent(threshold: Dp, onResult: (Boolean) -> Unit) {
         val value by derivedMediaQuery { windowWidth > threshold }
+
+        SideEffect { onResult(value) }
+    }
+
+    @Composable
+    private fun ComputedTestComponent(threshold: Dp, onResult: (Boolean) -> Unit) {
+        val value by computedMediaQuery { windowWidth > threshold }
 
         SideEffect { onResult(value) }
     }
@@ -385,5 +591,9 @@ class MediaQueryTest {
         override var hasMicrophone: Boolean by mutableStateOf(false)
         override var hasCamera: Boolean by mutableStateOf(false)
         override var viewingDistance: ViewingDistance by mutableStateOf(ViewingDistance.Near)
+    }
+
+    private fun <T> use(@Suppress("unused") value: T) {
+        // No op.
     }
 }

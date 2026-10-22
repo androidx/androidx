@@ -121,6 +121,9 @@ fun ComponentDetailScreen(
     var currentComponents by remember { mutableStateOf<List<A2uiComponentPayload>>(emptyList()) }
     var currentDataModel by remember { mutableStateOf<Map<String, Any?>>(emptyMap()) }
 
+    // TODO: Migrate to computedMediaQuery after upgrading Foundation to a pinned dependency with
+    //  the new API.
+    @Suppress("Deprecation")
     val showSideBySide by derivedMediaQuery {
         windowWidth >= 600.dp || (windowWidth > windowHeight && windowWidth >= 480.dp)
     }
