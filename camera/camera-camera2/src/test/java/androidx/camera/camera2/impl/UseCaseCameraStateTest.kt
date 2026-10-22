@@ -47,7 +47,7 @@ import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.ExecutionException
+import java.util.concurrent.CancellationException
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -138,15 +138,139 @@ class UseCaseCameraStateTest {
     }
 
     @Test
-    fun updateAsyncFails_whenStartRepeatingRequestFails(): Unit = runBlocking {
+    fun updateAsyncIncomplete_whenStartRepeatingRequestFrameFails(): Unit = runTest {
         // startRepeating is called when there is at least one stream after updateAsync call
         val result =
             useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
 
-        // simulate startRepeating request failing in camera framework level
+        // A single repeating frame failing in camera framework level (e.g. REASON_ERROR) must not
+        // fail the repeating request update signal.
         fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
 
-        assertFutureFails(result)
+        advanceUntilIdle()
+        assertFutureStillWaiting(result)
+    }
+
+    @Test
+    fun updateAsyncCompletes_whenSameRepeatingRequestNextFrameSucceedsAfterFailure(): Unit =
+        runTest {
+            val result =
+                useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+            // Frame 0 of the repeating request fails (e.g. CaptureFailure.REASON_ERROR).
+            fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
+            advanceUntilIdle()
+            assertFutureStillWaiting(result)
+
+            // Frame 1 of the same repeating request succeeds with onTotalCaptureResult.
+            val request = fakeCameraGraphSession.repeatingRequests.last()
+            val requestMetadata = FakeRequestMetadata(request = request)
+            request.listeners.forEach { listener ->
+                listener.onTotalCaptureResult(
+                    requestMetadata,
+                    CameraFrameNumber(1),
+                    FakeFrameInfo(),
+                )
+            }
+
+            assertFutureCompletes(result)
+        }
+
+    @Test
+    fun previousUpdateAsyncCompletes_whenNewStartRepeatingRequestCompletesAfterFailure(): Unit =
+        runTest {
+            val result =
+                useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+            // simulate startRepeating request frame failing in camera framework level
+            fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
+            advanceUntilIdle()
+
+            // simulate a subsequent repeating request completing normally
+            fakeCameraGraphSession.startRepeatingSignal = CompletableDeferred()
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0)))
+            fakeCameraGraphSession.startRepeatingSignal.complete(TOTAL_CAPTURE_DONE)
+
+            assertFutureCompletes(result)
+        }
+
+    @Test
+    fun previousUpdateAsyncCompletes_whenStopRepeatingCalledAfterFailure(): Unit = runTest {
+        val firstResult =
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+        // simulate startRepeating request frame failing in camera framework level
+        fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
+        advanceUntilIdle()
+        assertFutureStillWaiting(firstResult)
+
+        // When repeating is subsequently stopped (streams = emptySet()), no more repeating frames
+        // will be produced, so any pending updateSignals from prior requests must complete too.
+        val stopResult = useCaseCameraState.updateAsync(streams = emptySet()).asListenableFuture()
+
+        assertFutureCompletes(firstResult)
+        assertFutureCompletes(stopResult)
+    }
+
+    @Test
+    fun previousUpdateAsyncCompletes_whenStopRepeatingCalledAfterAbort(): Unit = runTest {
+        val firstResult =
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+        // simulate startRepeating request being aborted by camera framework level
+        fakeCameraGraphSession.startRepeatingSignal.complete(ABORTED)
+        advanceUntilIdle()
+        assertFutureStillWaiting(firstResult)
+
+        // When repeating is subsequently stopped (streams = emptySet()), pending updateSignals
+        // from prior aborted requests must also complete.
+        val stopResult = useCaseCameraState.updateAsync(streams = emptySet()).asListenableFuture()
+
+        assertFutureCompletes(firstResult)
+        assertFutureCompletes(stopResult)
+    }
+
+    @Test
+    fun updateAsyncCancelled_whenClosedAfterStartRepeatingRequestFrameFailure(): Unit = runTest {
+        val result =
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+        // simulate startRepeating request frame failing in camera framework level
+        fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
+        advanceUntilIdle()
+
+        useCaseCameraState.close()
+
+        assertFutureCancelled(result)
+    }
+
+    @Test
+    fun updateAsyncCancelled_whenCalledAfterClose(): Unit = runTest {
+        useCaseCameraState.close()
+
+        val result =
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+        assertFutureCancelled(result)
+    }
+
+    @Test
+    fun previousUpdateAsyncCompletes_whenSessionCannotBeAcquiredAfterFailure(): Unit = runTest {
+        val firstResult =
+            useCaseCameraState.updateAsync(streams = setOf(StreamId(0))).asListenableFuture()
+
+        // simulate startRepeating request frame failing in camera framework level
+        fakeCameraGraphSession.startRepeatingSignal.complete(FAILED)
+        advanceUntilIdle()
+        assertFutureStillWaiting(firstResult)
+
+        // When the CameraGraph is closed before UseCaseCameraState.close() runs, a subsequent
+        // tryStartRepeating() / updateAsync() catches CancellationException from acquireSession()
+        // and drains any pending updateSignals.
+        fakeCameraGraph.close()
+        useCaseCameraState.tryStartRepeating()
+
+        assertFutureCompletes(firstResult)
     }
 
     @Test
@@ -341,8 +465,8 @@ class UseCaseCameraStateTest {
         future[3, TimeUnit.SECONDS]
     }
 
-    private fun <T> assertFutureFails(future: ListenableFuture<T>) {
-        assertThrows(ExecutionException::class.java) { future[3, TimeUnit.SECONDS] }
+    private fun <T> assertFutureCancelled(future: ListenableFuture<T>) {
+        assertThrows(CancellationException::class.java) { future[3, TimeUnit.SECONDS] }
     }
 
     private fun <T> assertFutureStillWaiting(future: ListenableFuture<T>) {
