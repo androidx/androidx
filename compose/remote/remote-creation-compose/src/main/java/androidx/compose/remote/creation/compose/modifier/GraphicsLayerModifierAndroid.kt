@@ -24,12 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.RemoteCompositingStrategy
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Auto
+import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.ModulateAlpha
+import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscreen
 
 /**
  * Applies a graphics layer modifier to the [RemoteModifier].
@@ -86,7 +89,7 @@ public fun RemoteModifier.graphicsLayer(
         translationY = translationY,
         alpha = alpha,
         shape = shape.toRemoteShape(),
-        compositingStrategy = compositingStrategy,
+        compositingStrategy = compositingStrategy.toRemoteCompositingStrategy(),
         cameraDistance = cameraDistance,
         renderEffect = renderEffect,
     )
@@ -188,7 +191,7 @@ public fun RemoteModifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): R
         translationY = scope.translationY,
         alpha = scope.alpha,
         shape = scope.shape.toRemoteShape(),
-        compositingStrategy = scope.compositingStrategy,
+        compositingStrategy = scope.compositingStrategy.toRemoteCompositingStrategy(),
         cameraDistance = scope.cameraDistance,
         renderEffect = scope.renderEffect,
     )
@@ -202,4 +205,12 @@ internal fun Shape.toRemoteShape(): RemoteShape =
             Log.w("GraphicsLayerModifier", "Unsupported Shape in graphicsLayer: $this")
             RemoteRectangleShape
         }
+    }
+
+private fun CompositingStrategy.toRemoteCompositingStrategy(): RemoteCompositingStrategy =
+    when (this) {
+        Auto -> RemoteCompositingStrategy.Auto
+        Offscreen -> RemoteCompositingStrategy.Offscreen
+        ModulateAlpha -> RemoteCompositingStrategy.ModulateAlpha
+        else -> RemoteCompositingStrategy.Auto
     }

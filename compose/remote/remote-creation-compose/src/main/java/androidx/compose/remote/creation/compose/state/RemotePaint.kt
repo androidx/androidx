@@ -16,13 +16,19 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
+import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
+import androidx.compose.remote.creation.compose.layout.toComposeStrokeCap
+import androidx.compose.remote.creation.compose.layout.toComposeStrokeJoin
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
+import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.text.font.FontVariation
@@ -42,8 +48,24 @@ public sealed interface RemotePaint {
     /** The [BlendMode] to use when drawing with this paint. */
     public var blendMode: BlendMode
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteBlendMode: RemoteBlendMode
+        get() = blendMode.toRemoteBlendMode()
+        set(value) {
+            blendMode = value.toComposeBlendMode()
+        }
+
     /** The [PaintingStyle] to use (e.g., Fill, Stroke). */
     public var style: PaintingStyle
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteStyle: RemotePaintingStyle
+        get() = style.toRemotePaintingStyle()
+        set(value) {
+            style = value.toComposePaintingStyle()
+        }
 
     /** The width of the stroke when [style] is set to Stroke. */
     public var strokeWidth: RemoteFloat
@@ -51,8 +73,24 @@ public sealed interface RemotePaint {
     /** The [StrokeCap] to use for the ends of lines and paths. */
     public var strokeCap: StrokeCap
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteStrokeCap: RemoteStrokeCap
+        get() = strokeCap.toRemoteStrokeCap()
+        set(value) {
+            strokeCap = value.toComposeStrokeCap()
+        }
+
     /** The [StrokeJoin] to use for the joints of lines and paths. */
     public var strokeJoin: StrokeJoin
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var remoteStrokeJoin: RemoteStrokeJoin
+        get() = strokeJoin.toRemoteStrokeJoin()
+        set(value) {
+            strokeJoin = value.toComposeStrokeJoin()
+        }
 
     /** The color to use for drawing. */
     public var color: RemoteColor
@@ -65,20 +103,15 @@ public sealed interface RemotePaint {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var isAntiAlias: Boolean
 
-    /** The [FilterQuality] to use when scaling bitmaps. */
+    /** The [RemoteFilterQuality] to use when scaling bitmaps. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var filterQuality: FilterQuality
+    public var filterQuality: RemoteFilterQuality
 
     /** The [RemoteShader] to use for drawing gradients or other patterns. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var shader: RemoteShader?
-
-    /** The [PathEffect] to apply to the stroke. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var pathEffect: PathEffect?
 
     /** The color filter to apply to the drawn content. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -115,9 +148,8 @@ public class StandardRemotePaint() : RemotePaint {
     public override var strokeWidth: RemoteFloat = 0.0f.rf
     public override var strokeCap: StrokeCap = StrokeCap.Butt
     public override var strokeJoin: StrokeJoin = StrokeJoin.Miter
-    public override var filterQuality: FilterQuality = FilterQuality.Low
+    public override var filterQuality: RemoteFilterQuality = RemoteFilterQuality.Low
     public override var shader: RemoteShader? = null
-    public override var pathEffect: PathEffect? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
     public override var color: RemoteColor = Color.Black.rc
@@ -139,7 +171,6 @@ public class StandardRemotePaint() : RemotePaint {
         this.strokeJoin = other.strokeJoin
         this.filterQuality = other.filterQuality
         this.shader = other.shader
-        this.pathEffect = other.pathEffect
         this.colorFilter = other.colorFilter
         this.textSize = other.textSize
         this.typeface = other.typeface
@@ -151,7 +182,7 @@ public class StandardRemotePaint() : RemotePaint {
     override fun toString(): String =
         "RemotePaint(isAntiAlias=$isAntiAlias, blendMode=$blendMode, style=$style, " +
             "strokeWidth=$strokeWidth, strokeCap=$strokeCap, strokeJoin=$strokeJoin, " +
-            "filterQuality=$filterQuality, shader=$shader, pathEffect=$pathEffect, " +
+            "filterQuality=$filterQuality, shader=$shader, " +
             "textSize=$textSize, typeface=$typeface, remoteColor=$color, " +
             "colorFilter=$colorFilter, fontFeatureSettings=$fontFeatureSettings, " +
             "fontVariationSettings=$fontVariationSettings)"

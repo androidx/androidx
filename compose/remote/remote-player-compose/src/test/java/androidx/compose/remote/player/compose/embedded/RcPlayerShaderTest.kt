@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -37,7 +38,6 @@ import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundl
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -130,7 +130,7 @@ class RcPlayerShaderTest {
                                 0f.rf,
                                 listOf(Color.Red.rc, Color.Blue.rc),
                                 null,
-                                TileMode.Clamp,
+                                RemoteTileMode.Clamp,
                             )
                     }
                 drawRect(

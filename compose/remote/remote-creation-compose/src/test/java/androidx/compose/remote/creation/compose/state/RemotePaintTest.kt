@@ -20,11 +20,8 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -231,8 +228,7 @@ class RemotePaintTest {
         assertThat(remotePaint.isAntiAlias).isFalse()
         assertThat(remotePaint.style).isEqualTo(PaintingStyle.Stroke)
         assertThat(remotePaint.blendMode).isEqualTo(BlendMode.Clear)
-        assertThat(remotePaint.filterQuality)
-            .isEqualTo(androidx.compose.ui.graphics.FilterQuality.None)
+        assertThat(remotePaint.filterQuality).isEqualTo(RemoteFilterQuality.None)
     }
 
     @Test
@@ -291,18 +287,12 @@ class RemotePaintTest {
                 y1 = 10f.rf,
                 colors = listOf(Color.Red.rc, Color.Blue.rc),
                 positions = null,
-                tileMode = TileMode.Clamp,
+                tileMode = RemoteTileMode.Clamp,
             )
-        val pathEffect = PathEffect.cornerPathEffect(5f)
-        val compatPaint =
-            CompatAndroidRemotePaint().apply {
-                this.remoteShader = shader
-                this.pathEffect = pathEffect.asAndroidPathEffect()
-            }
+        val compatPaint = CompatAndroidRemotePaint().apply { this.remoteShader = shader }
         val remotePaint = compatPaint.asRemotePaint()
 
         assertThat(remotePaint.shader).isEqualTo(shader)
-        assertThat(remotePaint.pathEffect).isNotNull()
     }
 
     @Test

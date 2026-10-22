@@ -17,9 +17,19 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.ui.graphics.toArgb
 
 /** Represents a color filter that can be used with remote paint. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface RemoteColorFilter
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public sealed interface RemoteColorFilter {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun applyToPaintBundle(
+        paintBundle: PaintBundle,
+        creationState: RemoteComposeCreationState,
+    )
+}
 
 /**
  * A remote-compatible color filter that applies a blend mode with a specified color.
@@ -32,6 +42,19 @@ public class RemoteBlendModeColorFilter(
     public val color: RemoteColor,
     public val blendMode: RemoteBlendMode,
 ) : RemoteColorFilter {
+    override fun applyToPaintBundle(
+        paintBundle: PaintBundle,
+        creationState: RemoteComposeCreationState,
+    ) {
+        val constantColor = color.constantValueOrNull
+        if (constantColor != null) {
+            paintBundle.setColorFilter(constantColor.toArgb(), blendMode.value)
+        } else {
+            val colorId = color.getIdForCreationState(creationState)
+            paintBundle.setColorFilterId(colorId, blendMode.value)
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteBlendModeColorFilter) return false

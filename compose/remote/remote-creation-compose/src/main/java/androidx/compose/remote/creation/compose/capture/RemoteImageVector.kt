@@ -20,21 +20,20 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
-import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.vector.DefaultFillType
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
@@ -86,6 +85,9 @@ internal constructor(
     )
 
     internal lateinit var root: RemoteVectorGroup
+
+    internal val remoteTintBlendMode: RemoteBlendMode
+        get() = tintBlendMode.toRemoteBlendMode()
 
     /**
      * Indicates whether this [RemoteImageVector] contains any clip paths.
@@ -258,15 +260,15 @@ internal constructor(
         @Suppress("MissingGetterMatchingBuilder")
         internal fun addPath(
             pathData: List<RemotePathNode>,
-            pathFillType: PathFillType = DefaultFillType,
+            pathFillType: RemotePathFillType = DefaultFillType,
             name: String = DefaultPathName,
             fill: Brush? = null,
             fillAlpha: RemoteFloat = 1.0f.rf,
             stroke: Brush? = null,
             strokeAlpha: RemoteFloat = 1.0f.rf,
             strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
-            strokeLineCap: StrokeCap = DefaultStrokeLineCap,
-            strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+            strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
+            strokeLineJoin: RemoteStrokeJoin = DefaultStrokeLineJoin,
             strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
             trimPathStart: RemoteFloat = DefaultTrimPathStart,
             trimPathEnd: RemoteFloat = DefaultTrimPathEnd,
@@ -460,7 +462,7 @@ internal constructor(
     val pathData: List<RemotePathNode>,
 
     /** Rule to determine how the interior of the path is to be calculated */
-    val pathFillType: PathFillType,
+    val pathFillType: RemotePathFillType,
 
     /** Specifies the color or gradient used to fill the path */
     val fill: Brush? = null,
@@ -480,12 +482,12 @@ internal constructor(
     /**
      * Specifies the linecap for a stroked path, either butt, round, or square. The default is butt.
      */
-    val strokeLineCap: StrokeCap = DefaultStrokeLineCap,
+    val strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
 
     /**
      * Specifies the linejoin for a stroked path, either miter, round or bevel. The default is miter
      */
-    val strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+    val strokeLineJoin: RemoteStrokeJoin = DefaultStrokeLineJoin,
 
     /** Specifies the miter limit for a stroked path, the default is 4 */
     val strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
@@ -553,49 +555,6 @@ internal constructor(
 }
 
 /**
- * DSL extension for adding a [RemoteVectorPath] to [this].
- *
- * @param name the name for this path
- * @param fill specifies the [Brush] used to fill the path
- * @param fillAlpha the alpha to fill the path
- * @param stroke specifies the [Brush] used to fill the stroke
- * @param strokeAlpha the alpha to stroke the path
- * @param strokeLineWidth the width of the line to stroke the path
- * @param strokeLineCap specifies the linecap for a stroked path
- * @param strokeLineJoin specifies the linejoin for a stroked path
- * @param strokeLineMiter specifies the miter limit for a stroked path
- * @param pathFillType specifies the winding rule that decides how the interior of a
- *   [androidx.compose.remote.creation.RemotePath] is calculated.
- * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
- */
-public fun RemoteImageVector.Builder.path(
-    name: String = DefaultPathName,
-    fill: Brush? = null,
-    fillAlpha: RemoteFloat = 1.0f.rf,
-    stroke: Brush? = null,
-    strokeAlpha: RemoteFloat = 1.0f.rf,
-    strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
-    strokeLineCap: StrokeCap = DefaultStrokeLineCap,
-    strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
-    strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
-    pathFillType: PathFillType = DefaultFillType,
-    pathBuilder: RemotePathScope.() -> Unit,
-): RemoteImageVector.Builder =
-    addPath(
-        RemotePathData(pathBuilder),
-        pathFillType,
-        name,
-        fill,
-        fillAlpha,
-        stroke,
-        strokeAlpha,
-        strokeLineWidth,
-        strokeLineCap,
-        strokeLineJoin,
-        strokeLineMiter,
-    )
-
-/**
  * DSL extension for adding a [RemoteVectorGroup] to [this].
  *
  * @param name the name of the group
@@ -654,8 +613,6 @@ internal val DefaultTrimPathStart = 0.0f.rf
 internal val DefaultTrimPathEnd = 1.0f.rf
 internal val DefaultTrimPathOffset = 0.0f.rf
 
-internal val DefaultStrokeLineCap = StrokeCap.Butt
-internal val DefaultStrokeLineJoin = StrokeJoin.Miter
-internal val DefaultTintBlendMode = BlendMode.SrcIn
-internal val DefaultTintColor = Color.Transparent
-internal val DefaultFillType = PathFillType.NonZero
+internal val DefaultStrokeLineCap = RemoteStrokeCap.Butt
+internal val DefaultStrokeLineJoin = RemoteStrokeJoin.Miter
+internal val DefaultFillType = RemotePathFillType.NonZero
