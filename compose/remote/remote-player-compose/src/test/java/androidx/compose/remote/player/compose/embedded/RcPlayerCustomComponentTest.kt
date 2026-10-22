@@ -27,14 +27,11 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.layout.Container
-import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteCustomComponent
@@ -42,20 +39,24 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.combinedClickable
+import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
+import androidx.compose.remote.creation.compose.modifier.semantics
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextData
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextPlugin
 import androidx.compose.remote.player.compose.embedded.demos.embedded.SupportSpannableStringPlugin
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,16 +69,20 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -190,29 +195,30 @@ class RcPlayerCustomComponentTest {
                 }
             }
 
-        val document =
-            setCustomContent(customPlugins = CustomPluginRegistry(returnPlugin)) {
-                val floatState = remember { MutableRemoteFloat(0f) }
-                val textState = remember { MutableRemoteString("") }
-                RemoteColumn {
-                    RemoteCustomComponent(name = "test:return") {
-                        bindReturn(1, floatState)
-                        bindReturn(2, textState)
-                    }
+        setCustomContent(customPlugins = CustomPluginRegistry(returnPlugin)) {
+            val floatState = remember { MutableRemoteFloat(0f) }
+            val textState = remember { MutableRemoteString("") }
+            RemoteColumn {
+                RemoteCustomComponent(name = "test:return") {
+                    bindReturn(1, floatState)
+                    bindReturn(2, textState)
                 }
+                RemoteText(textState)
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(floatState.asRemoteDp(), 20.rdp).semantics {
+                            contentDescription = textState
+                        }
+                )
             }
+        }
         rule.onNodeWithText("returned").assertExists()
 
-        // The write-back landed in the document store, at the ids the Custom op declared.
-        val custom = requireNotNull(findCustom(document.getOperationsList()))
-        val props = custom.properties
-        val floatId =
-            Utils.idFromNan(
-                props.first { it.mDataType == Custom.CustomProperty.FLOAT_RETURN }.mFloatValue
-            )
-        val textId = props.first { it.mDataType == Custom.CustomProperty.TEXT_RETURN }.mIntValue
-        assertThat(document.remoteComposeState.getFloat(floatId)).isEqualTo(77f)
-        assertThat(document.remoteComposeState.getFromId(textId)).isEqualTo("from-host")
+        // The write-back landed in the bound document variables and rendered on the same
+        // recomposition.
+        rule.onNodeWithText("from-host").assertExists()
+        assertThat(rule.onNodeWithContentDescription("from-host").getUnclippedBoundsInRoot().width)
+            .isEqualTo(77.dp)
     }
 
     @Test
@@ -753,17 +759,6 @@ class RcPlayerCustomComponentTest {
         rule.onNodeWithText("card").assertExists()
         rule.onNodeWithText("slotted").assertExists()
         rule.onNodeWithText("plain").assertExists()
-    }
-
-    private fun findCustom(operations: Collection<Operation>): Custom? {
-        for (op in operations) {
-            if (op is Custom) return op
-            if (op is Container)
-                findCustom(op.list)?.let {
-                    return it
-                }
-        }
-        return null
     }
 
     private data class BadgeDataSchema(val label: String = "default-label") {

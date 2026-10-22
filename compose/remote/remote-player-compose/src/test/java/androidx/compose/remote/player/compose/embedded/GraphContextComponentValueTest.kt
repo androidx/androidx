@@ -14,95 +14,178 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.operations.FloatExpression
+import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.player.compose.embedded.doc.GraphContext
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@Config(sdk = [35], qualifiers = "mdpi")
 class GraphContextComponentValueTest {
+
+    @get:Rule val rule = RcPlayerTestRule()
+
+    private fun buildDocument(block: RemoteComposeWriter.() -> Unit): CoreDocument =
+        buildWriterDocument(
+            width = 300,
+            height = 100,
+            name = "ComponentValueTest",
+            apiLevel = 6,
+            profiles = RcProfiles.PROFILE_ANDROIDX,
+            block = block,
+        )
 
     @Test
     fun graphContextResolvesComponentValueDirectlyAndReactively() {
-        val state = SnapshotRemoteComposeState()
-        val componentValueState = mutableFloatStateOf(100f)
-        val componentValueId = 50
+        val document = buildDocument {
+            root {
+                startBox(
+                    RecordingModifier().fillMaxSize(),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                val compWidth = addComponentWidthValue()
+                NamedVariable.apply(
+                    buffer.buffer,
+                    Utils.idFromNan(compWidth),
+                    NamedVariable.FLOAT_TYPE,
+                    "USER:compWidth",
+                )
+                val descId = addText("MirrorChild")
+                startBox(
+                    RecordingModifier().width(compWidth).height(40f).then { w ->
+                        CoreSemantics()
+                            .apply { mContentDescriptionId = descId }
+                            .write(w.buffer.buffer)
+                    },
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                endBox()
+                endBox()
+            }
+        }
+        val state = RcPlayerState(document)
+        var hostWidth by mutableStateOf(100.dp)
+        rule.setContent { RcPlayer(state = state, modifier = Modifier.size(hostWidth, 100.dp)) }
+        rule.waitForIdle()
 
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = mutableIntObjectMapOf(),
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-                componentValues = mapOf(componentValueId to componentValueState),
+        assertThat(state.floatState("compWidth").value).isEqualTo(100f)
+        assertThat(
+                rule.onNodeWithContentDescription("MirrorChild").getUnclippedBoundsInRoot().width
             )
+            .isEqualTo(100.dp)
 
-        assertThat(graphContext.getFloat(componentValueId)).isEqualTo(100f)
+        // Mutate component size by resizing the host player
+        hostWidth = 250.dp
+        rule.waitForIdle()
 
-        // Mutate component size
-        componentValueState.floatValue = 250f
-        assertThat(graphContext.getFloat(componentValueId)).isEqualTo(250f)
+        assertThat(state.floatState("compWidth").value).isEqualTo(250f)
+        assertThat(
+                rule.onNodeWithContentDescription("MirrorChild").getUnclippedBoundsInRoot().width
+            )
+            .isEqualTo(250.dp)
     }
 
     @Test
     fun expressionOverComponentValueEvaluatesAndUpdatesReactively() {
-        val state = SnapshotRemoteComposeState()
-        val componentValueState = mutableFloatStateOf(100f)
-        val componentValueId = 50
-        val expressionId = 60
+        val document = buildDocument {
+            root {
+                startBox(
+                    RecordingModifier().fillMaxSize(),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                val compWidth = addComponentWidthValue()
+                val halfWidth = floatExpression(compWidth, 2f, AnimatedFloatExpression.DIV)
+                NamedVariable.apply(
+                    buffer.buffer,
+                    Utils.idFromNan(halfWidth),
+                    NamedVariable.FLOAT_TYPE,
+                    "USER:halfWidth",
+                )
+                val descId = addText("HalfChild")
+                startBox(
+                    RecordingModifier().width(halfWidth).height(40f).then { w ->
+                        CoreSemantics()
+                            .apply { mContentDescriptionId = descId }
+                            .write(w.buffer.buffer)
+                    },
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                endBox()
+                endBox()
+            }
+        }
+        val state = RcPlayerState(document)
+        var hostWidth by mutableStateOf(100.dp)
+        rule.setContent { RcPlayer(state = state, modifier = Modifier.size(hostWidth, 100.dp)) }
+        rule.waitForIdle()
 
-        // Expression: componentValueId / 2
-        // RPN: [id_as_nan, 2f, DIV]
-        val rpn = floatArrayOf(Utils.asNan(componentValueId), 2f, AnimatedFloatExpression.DIV)
-        val exprOp = FloatExpression(expressionId, rpn, null)
-        val computedOps = mutableIntObjectMapOf<Operation>().apply { put(expressionId, exprOp) }
-
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = computedOps,
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-                componentValues = mapOf(componentValueId to componentValueState),
-            )
-
-        assertThat(graphContext.getFloat(expressionId)).isEqualTo(50f)
+        assertThat(state.floatState("halfWidth").value).isEqualTo(50f)
+        assertThat(rule.onNodeWithContentDescription("HalfChild").getUnclippedBoundsInRoot().width)
+            .isEqualTo(50.dp)
 
         // Mutate component size
-        componentValueState.floatValue = 200f
-        assertThat(graphContext.getFloat(expressionId)).isEqualTo(100f)
+        hostWidth = 200.dp
+        rule.waitForIdle()
+
+        assertThat(state.floatState("halfWidth").value).isEqualTo(100f)
+        assertThat(rule.onNodeWithContentDescription("HalfChild").getUnclippedBoundsInRoot().width)
+            .isEqualTo(100.dp)
     }
 
     @Test
     fun componentValueTakesPrecedenceOverStoreFloatOverride() {
-        val state = SnapshotRemoteComposeState()
-        val componentValueId = 50
-        state.overrideFloat(componentValueId, 999f)
+        val document = buildDocument {
+            root {
+                startBox(
+                    RecordingModifier().fillMaxSize(),
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                val compWidth = addComponentWidthValue()
+                NamedVariable.apply(
+                    buffer.buffer,
+                    Utils.idFromNan(compWidth),
+                    NamedVariable.FLOAT_TYPE,
+                    "USER:compWidth",
+                )
+                endBox()
+            }
+        }
+        val state = RcPlayerState(document)
+        state.floatState("compWidth").value = 999f
 
-        val componentValueState = mutableFloatStateOf(100f)
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = mutableIntObjectMapOf(),
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-                componentValues = mapOf(componentValueId to componentValueState),
-            )
+        rule.setContent { RcPlayer(state = state, modifier = Modifier.size(100.dp, 100.dp)) }
+        rule.waitForIdle()
 
         // Measured component value must take precedence over the store override
-        assertThat(graphContext.getFloat(componentValueId)).isEqualTo(100f)
+        assertThat(state.floatState("compWidth").value).isEqualTo(100f)
     }
 }

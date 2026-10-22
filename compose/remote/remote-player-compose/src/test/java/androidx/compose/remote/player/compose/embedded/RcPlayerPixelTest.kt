@@ -22,11 +22,8 @@ import android.graphics.Matrix as AndroidMatrix
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.operations.NamedVariable
-import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
@@ -60,7 +57,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -364,12 +360,8 @@ class RcPlayerPixelTest {
     @Test
     fun roundedClipRectActuallyClipsAndUpdatesReactively() {
         val d = rule.density.density
-        val document =
-            rule.setRemoteContent(
-                playComposableWrapper = {
-                    Box(modifier = Modifier.size(100.dp).testTag("player")) { it() }
-                }
-            ) {
+        val document = runBlocking {
+            captureRule.captureDocument(context = ApplicationProvider.getApplicationContext()) {
                 val radius = remember { createNamedRemoteFloatExpression("radius") { 0f.rf } }
                 RemoteBox(
                     modifier =
@@ -378,6 +370,13 @@ class RcPlayerPixelTest {
                             .background(Color.Red.rc)
                 )
             }
+        }
+        val playerState = RcPlayerState(document)
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(state = playerState)
+            }
+        }
         rule.waitForIdle()
 
         // 1. Initially radius is 0f, so the corner (3, 3) must be RED (not clipped).
@@ -389,8 +388,7 @@ class RcPlayerPixelTest {
         assert(isRed(3, 3)) { "Initially, corner (3,3) should be red" }
 
         // 2. Update the variable to 40f.
-        val radiusId = document.getVariableIdByName("USER:radius")
-        document.remoteComposeState.overrideFloat(radiusId, 40f)
+        playerState.floatState("radius").value = 40f
         rule.waitForIdle()
 
         // 3. Now the corner (3, 3) must be empty (clipped).
@@ -489,25 +487,6 @@ class RcPlayerPixelTest {
             "Bar 3 at y=20 should no longer be blue after update to height 40"
         }
         assert(isColorAt(80, 70, ::isBlue)) { "Bar 3 at y=70 should be blue after update" }
-    }
-
-    private fun findVariableId(ops: List<Operation>, name: String): Int? {
-        for (op in ops) {
-            if (op is NamedVariable && op.mVarName == name) {
-                return op.mVarId
-            }
-            if (op is Container) {
-                findVariableId(op.list, name)?.let {
-                    return it
-                }
-            }
-        }
-        return null
-    }
-
-    private fun CoreDocument.getVariableIdByName(name: String): Int {
-        return findVariableId(getOperations(), name)
-            ?: throw IllegalArgumentException("Named variable not found: $name")
     }
 
     /**
