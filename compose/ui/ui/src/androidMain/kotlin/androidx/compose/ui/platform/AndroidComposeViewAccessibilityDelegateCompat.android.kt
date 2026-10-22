@@ -571,7 +571,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 checkPreconditionNotNull(semanticsNode.parent?.id) {
                     "semanticsNode $virtualViewId has null parent"
                 }
-            if (parentId == view.semanticsOwner.unmergedRootSemanticsNode.id) {
+            if (parentId == view.semanticsOwner.rootInfo.semanticsId) {
                 parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
             }
             info.setParent(view, parentId)
@@ -778,19 +778,17 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // ancestor)
         val testTag = semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.TestTag)
         if (testTag != null) {
-            var testTagsAsResourceId = false
-            var current: SemanticsNode? = semanticsNode
-            while (current != null) {
-                if (
-                    current.unmergedConfig.contains(SemanticsPropertiesAndroid.TestTagsAsResourceId)
-                ) {
-                    testTagsAsResourceId =
-                        current.unmergedConfig[SemanticsPropertiesAndroid.TestTagsAsResourceId]
-                    break
+            val key = SemanticsPropertiesAndroid.TestTagsAsResourceId
+            val testTagsAsResourceId =
+                if (semanticsNode.unmergedConfig.contains(key)) {
+                    semanticsNode.unmergedConfig[key]
                 } else {
-                    current = current.parent
+                    val ancestor =
+                        semanticsNode.layoutNode.findClosestParentNode {
+                            it.semanticsConfiguration?.contains(key) == true
+                        }
+                    ancestor?.semanticsConfiguration?.getOrNull(key) ?: false
                 }
-            }
 
             if (testTagsAsResourceId) {
                 info.viewIdResourceName = testTag
@@ -3296,7 +3294,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun semanticsNodeIdToAccessibilityVirtualNodeId(id: Int): Int {
-        if (id == view.semanticsOwner.unmergedRootSemanticsNode.id) {
+        if (id == view.semanticsOwner.rootInfo.semanticsId) {
             return AccessibilityNodeProviderCompat.HOST_VIEW_ID
         }
         return id
