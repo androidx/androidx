@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteOutline
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.unit.LayoutDirection
@@ -141,5 +142,23 @@ class GraphicsLayerModifierTest {
 
         assertThat(attrs).doesNotContainKey(GraphicsLayerModifierOperation.SHAPE)
         assertThat(attrs).doesNotContainKey(GraphicsLayerModifierOperation.SHAPE_RADIUS)
+    }
+
+    @Test
+    fun blurEffect_remoteTileModeMirror_encodesBlurRadiusAndTileMode() {
+        val (op, attrs, _) =
+            recordAndEvaluate {
+                RemoteModifier.graphicsLayer(
+                    shape = RemoteRectangleShape,
+                    renderEffect = BlurEffect(8f, 12f, RemoteTileMode.Mirror),
+                )
+            }
+
+        assertThat(attrs[GraphicsLayerModifierOperation.BLUR_TILE_MODE])
+            .isEqualTo(GraphicsLayerModifierOperation.TILE_MODE_MIRROR)
+        assertThat(op.values[GraphicsLayerModifierOperation.BLUR_RADIUS_X].value).isEqualTo(8f)
+        assertThat(op.values[GraphicsLayerModifierOperation.BLUR_RADIUS_Y].value).isEqualTo(12f)
+        assertThat(op.values[GraphicsLayerModifierOperation.BLUR_TILE_MODE].intValue)
+            .isEqualTo(GraphicsLayerModifierOperation.TILE_MODE_MIRROR)
     }
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.filters.SdkSuppress
@@ -291,7 +290,7 @@ class RemotePaintTest {
                 y1 = 10f.rf,
                 colors = listOf(Color.Red.rc, Color.Blue.rc),
                 positions = null,
-                tileMode = TileMode.Clamp,
+                tileMode = RemoteTileMode.Clamp,
             )
         val pathEffect = PathEffect.cornerPathEffect(5f)
         val compatPaint =

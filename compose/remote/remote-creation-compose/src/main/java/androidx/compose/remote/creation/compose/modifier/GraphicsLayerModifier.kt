@@ -30,10 +30,10 @@ import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.shapes.toDimension
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier as CreationGraphicsLayerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Auto
 import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.ModulateAlpha
@@ -132,10 +132,10 @@ public class GraphicsLayerModifier(
             )
             val tileMode =
                 when (renderEffect.edgeTreatment) {
-                    TileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
-                    TileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
-                    TileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
-                    TileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
+                    RemoteTileMode.Clamp -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
+                    RemoteTileMode.Repeated -> GraphicsLayerModifierOperation.TILE_MODE_REPEATED
+                    RemoteTileMode.Mirror -> GraphicsLayerModifierOperation.TILE_MODE_MIRROR
+                    RemoteTileMode.Decal -> GraphicsLayerModifierOperation.TILE_MODE_DECAL
                     else -> GraphicsLayerModifierOperation.TILE_MODE_CLAMP
                 }
             layer.setIntAttribute(GraphicsLayerModifierOperation.BLUR_TILE_MODE, tileMode)

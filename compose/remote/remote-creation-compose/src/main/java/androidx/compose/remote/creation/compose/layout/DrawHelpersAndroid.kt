@@ -317,8 +317,6 @@ internal fun Hyphens.encode(): Int =
         else -> 0
     }
 
-internal fun TileMode.toTileModeInt(): Int = toRemoteTileMode().value
-
 internal fun TileMode.toRemoteTileMode(): RemoteTileMode =
     when (this) {
         TileMode.Clamp -> RemoteTileMode.Clamp

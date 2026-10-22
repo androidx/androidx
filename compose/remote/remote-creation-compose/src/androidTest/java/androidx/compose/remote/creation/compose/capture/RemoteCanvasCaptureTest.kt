@@ -58,6 +58,7 @@ import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companio
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.remote.creation.compose.state.asRemotePaint
@@ -72,7 +73,6 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode.Companion.Multiply
 import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
@@ -657,7 +657,7 @@ class RemoteCanvasCaptureTest {
                     200f.rf,
                     listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
                     null,
-                    TileMode.Repeated,
+                    RemoteTileMode.Repeated,
                 )
         }
         val paintWithShader3 = RemotePaint {
@@ -669,7 +669,7 @@ class RemoteCanvasCaptureTest {
                     200f.rf,
                     listOf(ComposeColor.Red.rc, ComposeColor.Blue.rc),
                     null,
-                    TileMode.Repeated,
+                    RemoteTileMode.Repeated,
                 )
         }
         remoteCanvas.usePaint(paintWithShader)

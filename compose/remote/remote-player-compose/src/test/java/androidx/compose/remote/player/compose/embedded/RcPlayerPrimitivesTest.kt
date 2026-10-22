@@ -95,6 +95,7 @@ import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.creat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
 import androidx.compose.remote.creation.compose.state.rb
@@ -121,7 +122,6 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
@@ -1491,7 +1491,7 @@ class RcPlayerPrimitivesTest {
                                     Color.Blue.rc,
                                 ),
                                 null,
-                                TileMode.Clamp,
+                                RemoteTileMode.Clamp,
                             )
                     }
                 drawRect(
@@ -1886,7 +1886,7 @@ class RcPlayerPrimitivesTest {
                                         Color.Blue.rc,
                                     ),
                                     null,
-                                    TileMode.Clamp,
+                                    RemoteTileMode.Clamp,
                                 )
                                 .apply {
                                     remoteMatrix3x3 = createRotate(45f.rf)
