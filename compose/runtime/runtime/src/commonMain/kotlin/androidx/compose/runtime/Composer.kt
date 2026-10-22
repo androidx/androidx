@@ -887,16 +887,16 @@ public sealed interface Composer {
      * [action] will execute at the completion of the next frame's composition. If a new frame is
      * scheduled and there is no other work to execute, [action] will still execute.
      *
-     * [action] will always execute on the applier thread.
-     *
      * Note that [action] runs at the end of a frame scheduled by the recomposer. If a callback is
      * scheduled via this method during the initial composition, it will not execute until the
-     * _next_ frame.
+     * _next_ frame. [action] will always execute on the applier thread.
      *
      * @return A [CancellationHandle] that can be used to unregister the [action]. The returned
      *   handle is thread-safe and may be cancelled from any thread. Cancelling the handle only
      *   removes the callback from the queue. If [action] is currently executing, it will not be
      *   cancelled by this handle.
+     * @throws kotlin.coroutines.cancellation.CancellationException if the [Recomposer] that owns
+     *   the associated composition is shutting down or has shut down.
      */
     public fun scheduleFrameEndCallback(action: () -> Unit): CancellationHandle
 
