@@ -33,7 +33,6 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
@@ -83,15 +82,7 @@ class LowLightBoostControlTest {
         }
     }
 
-    private val metadata =
-        FakeCameraMetadata.fromTemplate(
-            template = HighEndDeviceTemplate,
-            characteristicsOverrides =
-                mapOf(
-                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
-                        intArrayOf(CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY)
-                ),
-        )
+    private val metadata = FakeCameraMetadata.fromTemplate()
 
     private val fakeCameraProperties =
         CameraPipeCameraProperties(CameraConfig(CameraId(DEFAULT_CAMERA_ID)), metadata)
@@ -133,7 +124,7 @@ class LowLightBoostControlTest {
     fun enableLowLightBoost_whenIsNotSupported(): Unit = runBlocking {
         assertThrows<IllegalStateException> {
             // Creates camera properties without low-light boost support
-            val fakeCameraProperties = FakeCameraProperties()
+            val fakeCameraProperties = createCameraPropertiesWithoutLowLightBoost()
 
             LowLightBoostControl(
                     fakeCameraProperties.metadata,
@@ -155,7 +146,7 @@ class LowLightBoostControlTest {
     @Test
     fun getLowLightBoostState_whenIsNotSupported() {
         // Creates camera properties without low-light boost support
-        val fakeCameraProperties = FakeCameraProperties()
+        val fakeCameraProperties = createCameraPropertiesWithoutLowLightBoost()
 
         val lowLightBoostState =
             LowLightBoostControl(
@@ -595,4 +586,12 @@ class LowLightBoostControlTest {
                 comboRequestListener,
             )
     }
+
+    private fun createCameraPropertiesWithoutLowLightBoost() =
+        FakeCameraProperties(
+            FakeCameraMetadata.fromTemplate(
+                characteristicsOverrides =
+                    mapOf(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to null)
+            )
+        )
 }

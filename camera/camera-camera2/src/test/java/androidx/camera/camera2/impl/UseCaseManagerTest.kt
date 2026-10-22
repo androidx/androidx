@@ -1068,6 +1068,7 @@ class UseCaseManagerTest {
         useCaseList.remove(useCase!!)
         @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
+        testScheduler.advanceUntilIdle()
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()
 
@@ -1091,6 +1092,7 @@ class UseCaseManagerTest {
         useCaseList.remove(useCase!!)
         @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
+        testScheduler.advanceUntilIdle()
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()
 
@@ -1118,6 +1120,7 @@ class UseCaseManagerTest {
         useCaseList.remove(useCase!!)
         @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
+        testScheduler.advanceUntilIdle()
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()
 
