@@ -27,6 +27,7 @@ import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
 import androidx.build.ide.writeAndroidSdkPath
 import java.io.File
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 fun Project.configureASWBTask(task: ManagedIdeTask) {
@@ -94,7 +95,30 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
         it.writeAndroidSdkPath(configBaseDirFile, relativeSdkPath)
         it.installIntellijPlugins(configBaseDirFile, listOf(ktfmtPlugin))
         BuildEnvironment.setupSymlinksIfNeeded(relativeSdkPath)
+        it.checkIntellijExtInstalled()
     }
+}
+
+/** Verifies that `intellij-ext`, a system-level dependency of ASwB, is installed. */
+private fun ManagedIdeTask.checkIntellijExtInstalled() {
+    val isLinux = osName == "linux"
+    val binary =
+        if (isLinux) File("/opt/intellij-ext/intellij-ext")
+        else File("/Library/Application Support/ASwB/intellij-ext")
+    if (binary.exists()) return
+
+    val installInstructions =
+        if (isLinux) "Install it with: sudo apt install intellij-ext"
+        else "Install it with: sudo mule install intellij-ext"
+    val message =
+        """
+        |intellij-ext is not installed (expected at ${binary.absolutePath}).
+        |ASwB depends on it, but this task only installs the IDE itself, not its package dependencies.
+        |$installInstructions
+        """
+            .trimMargin()
+
+    throw GradleException("$message\nWithout it, ASwB may hang on the splash screen.")
 }
 
 fun Project.registerASWBTask() {
