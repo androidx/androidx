@@ -16,10 +16,12 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.internal.HorizontalSemanticsBoundsPadding
 import androidx.compose.material3.tokens.SliderTokens
 import androidx.compose.runtime.Composable
@@ -833,6 +836,45 @@ class SliderTest {
         rule.runOnIdle {
             Truth.assertThat(state.startValue).isEqualTo(0f)
             Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
+        }
+    }
+
+    // Regression test for b/415838608
+    @Test
+    fun rangeSlider_insideHorizontalScroll_dragMovesThumbNotScroll() {
+        val state = RangeSliderState(0f, 1f)
+        lateinit var scrollState: ScrollState
+        var slop = 0f
+
+        rule.setMaterialContent(lightColorScheme()) {
+            slop = LocalViewConfiguration.current.touchSlop
+            scrollState = rememberScrollState()
+            // A scrollable parent that competes for horizontal drags.
+            Row(Modifier.requiredWidth(200.dp).horizontalScroll(scrollState)) {
+                RangeSlider(
+                    state = state,
+                    onValueChange = {
+                        state.startValue = it.start
+                        state.endValue = it.endInclusive
+                    },
+                    modifier = Modifier.testTag(tag).requiredWidth(200.dp),
+                )
+                Spacer(Modifier.requiredWidth(400.dp))
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            // Drag the end thumb to the left, crossing the slop in a single event like a fast
+            // swipe does. Without consuming that change, the parent horizontalScroll sees it,
+            // crosses its own slop and scrolls by the overshoot before the slider's drag starts.
+            down(Offset(right - 1f, centerY))
+            moveBy(Offset(-(slop + 100f), 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(state.endValue).isLessThan(1f)
+            Truth.assertThat(scrollState.value).isEqualTo(0)
         }
     }
 
