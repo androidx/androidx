@@ -90,6 +90,7 @@ import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.applyTrackingPathChange
 import androidx.compose.remote.player.compose.embedded.doc.withOpCountReset
+import androidx.compose.remote.player.compose.embedded.resources.resolveImageAttributeDimensions
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -220,7 +221,10 @@ private fun DrawScope.executeOperationsInPass(
                 remoteContext.loadColor(op.mColorId, read.getColor(op.mColorId))
                 op.paint(evalPaintContext())
             }
-            is ImageAttribute -> op.paint(evalPaintContext())
+            is ImageAttribute -> {
+                resolveImageAttributeDimensions(graph, remoteContext, derefId(op.imageId, read))
+                op.paint(evalPaintContext())
+            }
             is TextMeasure -> {
                 graph?.textMeasurer = textMeasurer
                 graph?.setTextMeasurePaint(op.mId, paintState.copy())

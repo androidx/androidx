@@ -24,6 +24,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.player.compose.embedded.RcImageLoader
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.writeContext
@@ -62,6 +63,55 @@ internal class EmbeddedRcImageLoader(private val context: RemoteContext) : RcIma
 private object FailedBitmapDecode
 
 /**
+ * Returns true if this [BitmapData] uses placeholder dimensions (`0x0`, or `1x1` on
+ * [BitmapData.ENCODING_URL]/[BitmapData.ENCODING_FILE]) that should be populated from the loaded
+ * image.
+ */
+internal fun BitmapData.hasIntrinsicDimensions(): Boolean =
+    isIntrinsicPlaceholder(width, height, encoding)
+
+/**
+ * Returns true if [width]x[height] are placeholder dimensions for a bitmap with [encoding] (`0x0`,
+ * or `1x1` on [BitmapData.ENCODING_URL]/[BitmapData.ENCODING_FILE]), meaning the real size comes
+ * from the loaded image.
+ */
+internal fun isIntrinsicPlaceholder(width: Int, height: Int, encoding: Short): Boolean =
+    (width == 0 && height == 0) ||
+        (width == 1 &&
+            height == 1 &&
+            (encoding == BitmapData.ENCODING_URL || encoding == BitmapData.ENCODING_FILE))
+
+/** Sets this [BitmapData]'s dimensions to those of [bitmap], e.g. when a host overrides it. */
+internal fun BitmapData.setDimensions(bitmap: Bitmap) {
+    width = bitmap.width
+    height = bitmap.height
+}
+
+/**
+ * Populates this [BitmapData]'s dimensions with [width]x[height] if it still has placeholder
+ * dimensions (see [hasIntrinsicDimensions]) and the new size is non-empty.
+ */
+internal fun BitmapData.fillIntrinsicDimensions(width: Int, height: Int) {
+    if (width > 0 && height > 0 && hasIntrinsicDimensions()) {
+        this.width = width
+        this.height = height
+    }
+}
+
+/**
+ * Populates this [BitmapData]'s placeholder dimensions from [drawable], preferring the backing
+ * [Bitmap] of a [BitmapDrawable] over the drawable's intrinsic size.
+ */
+internal fun BitmapData.fillIntrinsicDimensions(drawable: Drawable) {
+    val bitmap = (drawable as? BitmapDrawable)?.bitmap
+    if (bitmap != null) {
+        fillIntrinsicDimensions(bitmap.width, bitmap.height)
+    } else {
+        fillIntrinsicDimensions(drawable.intrinsicWidth, drawable.intrinsicHeight)
+    }
+}
+
+/**
  * Returns the decoded [Bitmap] for [id], decoding it on first use (lazy bitmap loading).
  *
  * The embedded player registers each [BitmapData]'s metadata at setup (via `putObject`, so declared
@@ -75,11 +125,24 @@ private object FailedBitmapDecode
  */
 internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
     val cached = remoteContext.mRemoteComposeState.getFromId(id)
-    if (cached is Bitmap) return cached
+    if (cached is Bitmap) {
+        (remoteContext.mRemoteComposeState.getObject(id) as? BitmapData)?.fillIntrinsicDimensions(
+            cached.width,
+            cached.height,
+        )
+        return cached
+    }
     if (cached === FailedBitmapDecode) return null
     // Not decoded yet: find the registered BitmapData and decode it now (apply = putObject +
     // loadBitmap, which caches the decoded Bitmap under the id).
     val data = remoteContext.mRemoteComposeState.getObject(id) as? BitmapData ?: return null
+    val useIntrinsic = data.hasIntrinsicDimensions()
+    val prevWidth = data.width
+    val prevHeight = data.height
+    if (useIntrinsic) {
+        data.width = 0
+        data.height = 0
+    }
     val decoded =
         try {
             data.apply(remoteContext.writeContext)
@@ -88,7 +151,13 @@ internal fun resolveBitmap(remoteContext: RemoteContext, id: Int): Bitmap? {
             null
         }
     if (decoded == null) {
+        if (useIntrinsic) {
+            data.width = prevWidth
+            data.height = prevHeight
+        }
         remoteContext.mRemoteComposeState.cacheData(id, FailedBitmapDecode)
+    } else {
+        data.fillIntrinsicDimensions(decoded.width, decoded.height)
     }
     return decoded
 }
@@ -109,6 +178,43 @@ internal fun resolveCanvasBitmap(
     id: Int,
 ): Bitmap? {
     val loaded = graph?.imageLoader?.loadImage(id)?.value
-    if (loaded is BitmapDrawable) return loaded.bitmap
-    return resolveBitmap(remoteContext, id)
+    val bitmap =
+        if (loaded is BitmapDrawable) {
+            loaded.bitmap
+        } else {
+            resolveBitmap(remoteContext, id)
+        }
+    val data = remoteContext.mRemoteComposeState.getObject(id) as? BitmapData
+    if (bitmap != null) {
+        data?.fillIntrinsicDimensions(bitmap.width, bitmap.height)
+    } else if (loaded != null) {
+        data?.fillIntrinsicDimensions(loaded)
+    }
+    return bitmap
+}
+
+/**
+ * Ensures [BitmapData] dimensions for [imageId] reflect any loaded or overridden image before
+ * [ImageAttribute] reads them. When [BitmapData] has intrinsic placeholder dimensions (`0x0` or
+ * `1x1` on URL/file bitmaps), triggers image resolution so the loaded image's dimensions populate
+ * [BitmapData].
+ */
+internal fun resolveImageAttributeDimensions(
+    graph: GraphContext?,
+    remoteContext: RemoteContext,
+    imageId: Int,
+) {
+    val bitmapData = remoteContext.mRemoteComposeState.getObject(imageId) as? BitmapData ?: return
+    val loaded = graph?.imageLoader?.loadImage(imageId)?.value
+    val bitmap =
+        (loaded as? BitmapDrawable)?.bitmap
+            ?: (remoteContext.mRemoteComposeState.getFromId(imageId) as? Bitmap)
+    if (bitmap != null) {
+        bitmapData.setDimensions(bitmap)
+    } else if (loaded != null && loaded.intrinsicWidth > 0 && loaded.intrinsicHeight > 0) {
+        bitmapData.width = loaded.intrinsicWidth
+        bitmapData.height = loaded.intrinsicHeight
+    } else if (bitmapData.hasIntrinsicDimensions()) {
+        resolveCanvasBitmap(graph, remoteContext, imageId)
+    }
 }
