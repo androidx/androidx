@@ -166,8 +166,14 @@ public object ProjectedContext {
                         "CoroutineContext must contain a CoroutineDispatcher."
                     )
 
+            // The lock keeps a slow callback from sending a stale value after a newer one.
+            val lock = Any()
             fun checkAndSend() {
-                trySend(isProjectedDisplayAvailable(hostContext))
+                synchronized(lock) {
+                    // TODO: b/568039612 - Investigate handling the ChannelResult returned by
+                    // trySend().
+                    trySend(isProjectedDisplayAvailable(hostContext))
+                }
             }
 
             val virtualDeviceListener =
@@ -196,12 +202,11 @@ public object ProjectedContext {
                     }
                 }
 
-            checkAndSend()
-
+            val executor = coroutineDispatcher.asExecutor()
             val virtualDeviceManager =
                 hostContext.getSystemService(VirtualDeviceManager::class.java)
             virtualDeviceManager.registerVirtualDeviceListener(
-                coroutineDispatcher.asExecutor(),
+                executor,
                 virtualDeviceListener,
             )
 
@@ -209,12 +214,19 @@ public object ProjectedContext {
             val eventFilter =
                 EVENT_TYPE_DISPLAY_ADDED or EVENT_TYPE_DISPLAY_CHANGED or EVENT_TYPE_DISPLAY_REMOVED
             displayManager.registerDisplayListener(
-                coroutineDispatcher.asExecutor(),
+                executor,
                 eventFilter,
                 displayListener,
             )
 
-            awaitClose {
+            try {
+                // Send the initial state so that the flow listener is guaranteed to know the
+                // current state. Evaluate whether the projected device is connected only after
+                // both listeners have been registered, to avoid a time-of-check to time-of-use
+                // race condition.
+                checkAndSend()
+                awaitClose()
+            } finally {
                 virtualDeviceManager.unregisterVirtualDeviceListener(virtualDeviceListener)
                 displayManager.unregisterDisplayListener(displayListener)
             }
