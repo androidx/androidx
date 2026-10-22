@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
@@ -32,7 +31,6 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
@@ -87,7 +85,6 @@ class DrawHelpersTest {
         assertEquals(PaintBundle.BLEND_MODE_SRC_OVER, BlendMode.SrcOver.toInt())
         assertEquals(PaintBundle.STYLE_FILL, PaintingStyle.Fill.toInt())
         assertEquals(PaintBundle.STYLE_STROKE, PaintingStyle.Stroke.toInt())
-        assertEquals(ImageScaling.SCALE_CROP, ContentScale.Crop.toImageScalingInt())
         assertEquals(TextLayout.TEXT_ALIGN_CENTER, TextAlign.Center.encode())
         assertEquals(TextLayout.OVERFLOW_ELLIPSIS, TextOverflow.Ellipsis.encode())
         assertEquals(1, FontStyle.Italic.encode())

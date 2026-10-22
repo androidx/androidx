@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
@@ -175,9 +174,6 @@ public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
         AndroidPaint.Join.BEVEL -> StrokeJoin.Bevel
         else -> StrokeJoin.Miter
     }
-
-/** Converts [ContentScale] to [androidx.compose.remote.core.operations.utilities.ImageScaling]. */
-internal fun ContentScale.toImageScalingInt(): Int = toRemoteContentScale().value
 
 internal fun TextOverflow.encode(): Int =
     when (this) {
