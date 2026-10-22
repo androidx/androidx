@@ -55,6 +55,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextData
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextPlugin
 import androidx.compose.remote.player.compose.embedded.demos.embedded.SupportSpannableStringPlugin
+import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

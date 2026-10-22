@@ -29,9 +29,9 @@ import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateM
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
-import androidx.compose.remote.player.compose.embedded.findVariableId
-import androidx.compose.remote.player.compose.embedded.isTimeVariable
-import androidx.compose.remote.player.compose.embedded.resolveBitmap
+import androidx.compose.remote.player.compose.embedded.doc.findVariableId
+import androidx.compose.remote.player.compose.embedded.doc.isTimeVariable
+import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState

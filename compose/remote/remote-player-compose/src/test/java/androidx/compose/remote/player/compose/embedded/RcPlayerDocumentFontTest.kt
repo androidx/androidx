@@ -23,6 +23,9 @@ import android.graphics.Typeface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.resources.documentFontTypeface
+import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.font.FontFamily

@@ -16,7 +16,7 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.doc
 
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext

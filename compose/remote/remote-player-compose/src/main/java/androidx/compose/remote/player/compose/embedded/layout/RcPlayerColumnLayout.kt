@@ -23,7 +23,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
-import androidx.compose.remote.player.compose.embedded.RcPlayerChildren
+import androidx.compose.remote.player.compose.embedded.components.RcPlayerChildren
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

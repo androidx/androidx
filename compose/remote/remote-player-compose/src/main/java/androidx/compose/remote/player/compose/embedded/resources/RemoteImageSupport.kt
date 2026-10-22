@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.resources
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.Limits

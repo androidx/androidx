@@ -16,13 +16,14 @@
 
 @file:Suppress("RestrictedApiAndroidX")
 
-package androidx.compose.remote.player.compose.embedded
+package androidx.compose.remote.player.compose.embedded.resources
 
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
 import android.graphics.fonts.FontStyle
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import java.nio.ByteBuffer
 
 /**

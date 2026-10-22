@@ -22,6 +22,8 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.runtime.mutableFloatStateOf
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

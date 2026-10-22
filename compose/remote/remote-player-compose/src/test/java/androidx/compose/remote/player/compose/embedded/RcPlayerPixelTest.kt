@@ -51,6 +51,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

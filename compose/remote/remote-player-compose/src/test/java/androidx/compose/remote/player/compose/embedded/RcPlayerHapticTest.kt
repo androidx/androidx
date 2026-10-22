@@ -26,6 +26,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.player.compose.embedded.components.LocalRcHapticEngineFactory
+import androidx.compose.remote.player.compose.embedded.components.RcHapticEngineFactory
+import androidx.compose.remote.player.compose.embedded.components.hapticFeedbackConstant
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
