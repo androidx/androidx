@@ -59,7 +59,7 @@ public interface RcScope {
     /** Adds a platform-specific Custom layout manager node to host native views. */
     public fun Custom(
         config: String,
-        properties: List<CustomProperty> = emptyList(),
+        properties: List<RcCustomProperty> = emptyList(),
         modifier: Modifier = Modifier,
         content: RcScope.() -> Unit = {},
     )
@@ -803,7 +803,7 @@ public interface RcScope {
     /** Redirects subsequent drawing operations to the specified bitmap resource. */
     public fun drawOnBitmap(
         image: RcImage,
-        mode: DrawOnBitmapMode = DrawOnBitmapMode.CLEAR,
+        mode: RcDrawOnBitmapMode = RcDrawOnBitmapMode.Clear,
         color: RcColorValue = 0.rcColor(),
         block: RcCanvasScope.() -> Unit,
     )
@@ -901,7 +901,7 @@ public interface RcScope {
     /** Measure bitmap font text dimensions. */
     public fun RcBitmapFont.measure(
         text: RcText,
-        type: BitmapTextMeasure,
+        type: RcBitmapTextMeasure,
         glyphSpacing: Float,
     ): RcFloat
 

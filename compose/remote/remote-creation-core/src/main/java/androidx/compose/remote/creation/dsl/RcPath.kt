@@ -28,7 +28,7 @@ public value class RcDynamicPath internal constructor(internal val id: Int)
 
 /** Path types for polar and other generated paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPathType(public val value: Int) {
+public enum class RcPathType(internal val value: Int) {
     Spline(Rc.PathExpression.SPLINE_PATH),
     Loop(Rc.PathExpression.LOOP_PATH),
     Monotonic(Rc.PathExpression.MONOTONIC_PATH),
@@ -38,7 +38,7 @@ public enum class RcPathType(public val value: Int) {
 
 /** Path operations for combining paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPathCombineOp(public val value: Byte) {
+public enum class RcPathCombineOp(internal val value: Byte) {
     Difference(RemoteComposeWriter.COMBINE_DIFFERENCE),
     Intersect(RemoteComposeWriter.COMBINE_INTERSECT),
     ReverseDifference(RemoteComposeWriter.COMBINE_REVERSE_DIFFERENCE),
@@ -52,7 +52,7 @@ public value class RcPath internal constructor(internal val id: Int)
 
 /** Path fill types for complex paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class RcPathFillType(public val value: Int) {
+public enum class RcPathFillType(internal val value: Int) {
     Winding(0),
     EvenOdd(1),
 }

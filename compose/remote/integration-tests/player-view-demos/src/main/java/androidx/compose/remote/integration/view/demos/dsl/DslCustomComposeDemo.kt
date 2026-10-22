@@ -17,9 +17,9 @@
 package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Color
-import androidx.compose.remote.creation.dsl.CustomProperty
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
+import androidx.compose.remote.creation.dsl.RcCustomProperty
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextAlign
@@ -114,17 +114,13 @@ public fun dslCustomComposeDemo(): ByteArray {
                     config = "Text",
                     properties =
                         listOf(
-                            CustomProperty.text(SupportText.PROP_TEXT, timeCount),
-                            CustomProperty.color(
+                            RcCustomProperty.text(SupportText.PROP_TEXT, timeCount),
+                            RcCustomProperty.color(
                                 SupportText.PROP_TEXT_COLOR,
                                 Color.rgb(56, 189, 248).rcColor(),
                             ),
-                            CustomProperty(
-                                SupportText.PROP_TEXT_SIZE,
-                                CustomProperty.FLOAT_PROP,
-                                120f / 3,
-                            ),
-                            CustomProperty.color(
+                            RcCustomProperty.float(SupportText.PROP_TEXT_SIZE, 120f / 3),
+                            RcCustomProperty.color(
                                 SupportText.PROP_BACKGROUND_COLOR,
                                 Color.rgb(15, 23, 42).rcColor(),
                             ),
@@ -136,15 +132,15 @@ public fun dslCustomComposeDemo(): ByteArray {
                 )
             }
 
-            val prop = CustomProperty.returnFloat(SupportSlider.RET_PROGRESS, this)
+            val prop = RcCustomProperty.returnFloat(SupportSlider.RET_PROGRESS, this)
             val slider = prop.getFloatValue()
             // Composable hosted Custom Component Slider!
             val progressProps =
                 listOf(
-                    CustomProperty(SupportSlider.PROP_PROGRESS, CustomProperty.FLOAT_PROP, slider),
-                    CustomProperty(SupportSlider.PROP_MAX_PROGRESS, CustomProperty.INT_PROP, 100),
-                    CustomProperty(SupportSlider.PROP_INDETERMINATE, CustomProperty.INT_PROP, 0),
-                    CustomProperty.color(
+                    RcCustomProperty.float(SupportSlider.PROP_PROGRESS, slider),
+                    RcCustomProperty.int(SupportSlider.PROP_MAX_PROGRESS, 100),
+                    RcCustomProperty.int(SupportSlider.PROP_INDETERMINATE, 0),
+                    RcCustomProperty.color(
                         SupportSlider.PROP_PROGRESS_COLOR,
                         Color.rgb(168, 85, 247).rcColor(),
                     ),

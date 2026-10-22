@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowHorizontalPositioning
-import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
@@ -129,8 +128,7 @@ class DslComparisonTest {
         val legacyContext = RemoteComposeContext(width, height, "", testProfile)
         legacyContext.mRemoteWriter.root {
             val countId = legacyContext.mRemoteWriter.addNamedFloat("count", 0f)
-            val textVarId =
-                RcText(legacyContext.mRemoteWriter.addNamedString("message", "Click me!"))
+            val textVarId = legacyContext.mRemoteWriter.addNamedString("message", "Click me!")
 
             legacyContext.column(
                 RecordingModifier().background(0xFF111111.toInt()).width(500f).height(800f),
@@ -195,7 +193,7 @@ class DslComparisonTest {
                         .background(0xFFFF0000.toInt())
                         .onClick(
                             ValueFloatChange(Utils.idFromNan(countId), 1f),
-                            ValueStringChange(textVarId.id, "Button Clicked!"),
+                            ValueStringChange(textVarId, "Button Clicked!"),
                         ),
                     2 /* CENTER */,
                     2, /* CENTER */
