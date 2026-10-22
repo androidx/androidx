@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.text.font.FontVariation
@@ -75,11 +74,6 @@ public sealed interface RemotePaint {
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var shader: RemoteShader?
 
-    /** The [PathEffect] to apply to the stroke. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var pathEffect: PathEffect?
-
     /** The color filter to apply to the drawn content. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -117,7 +111,6 @@ public class StandardRemotePaint() : RemotePaint {
     public override var strokeJoin: StrokeJoin = StrokeJoin.Miter
     public override var filterQuality: FilterQuality = FilterQuality.Low
     public override var shader: RemoteShader? = null
-    public override var pathEffect: PathEffect? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
     public override var color: RemoteColor = Color.Black.rc
@@ -139,7 +132,6 @@ public class StandardRemotePaint() : RemotePaint {
         this.strokeJoin = other.strokeJoin
         this.filterQuality = other.filterQuality
         this.shader = other.shader
-        this.pathEffect = other.pathEffect
         this.colorFilter = other.colorFilter
         this.textSize = other.textSize
         this.typeface = other.typeface
@@ -151,7 +143,7 @@ public class StandardRemotePaint() : RemotePaint {
     override fun toString(): String =
         "RemotePaint(isAntiAlias=$isAntiAlias, blendMode=$blendMode, style=$style, " +
             "strokeWidth=$strokeWidth, strokeCap=$strokeCap, strokeJoin=$strokeJoin, " +
-            "filterQuality=$filterQuality, shader=$shader, pathEffect=$pathEffect, " +
+            "filterQuality=$filterQuality, shader=$shader, " +
             "textSize=$textSize, typeface=$typeface, remoteColor=$color, " +
             "colorFilter=$colorFilter, fontFeatureSettings=$fontFeatureSettings, " +
             "fontVariationSettings=$fontVariationSettings)"

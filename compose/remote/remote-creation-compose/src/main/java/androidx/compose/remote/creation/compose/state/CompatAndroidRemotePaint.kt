@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toComposePathEffect
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -144,7 +143,6 @@ public fun Paint.asRemotePaint(): RemotePaint {
     remotePaint.strokeJoin = strokeJoin
     remotePaint.filterQuality = filterQuality
     remotePaint.shader = shader.toRemoteShader()
-    remotePaint.pathEffect = pathEffect
     remotePaint.color = color.rc
     remotePaint.colorFilter = colorFilter?.let { ComposeRemoteColorFilter(it) }
     remotePaint.textSize = nativePaint.textSize.rf
@@ -168,7 +166,6 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     remotePaint.strokeJoin = strokeJoin.toStrokeJoin()
     remotePaint.filterQuality = if (isFilterBitmap) FilterQuality.Low else FilterQuality.None
     remotePaint.shader = compat?.remoteShader ?: shader.toRemoteShader()
-    remotePaint.pathEffect = pathEffect?.toComposePathEffect()
     remotePaint.color = compat?.remoteColor ?: RemoteColor(color)
     remotePaint.colorFilter =
         compat?.remoteColorFilter
