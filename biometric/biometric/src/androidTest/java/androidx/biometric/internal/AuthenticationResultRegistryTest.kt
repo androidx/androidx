@@ -17,6 +17,7 @@
 package androidx.biometric.internal
 
 import android.R
+import android.os.Build
 import androidx.biometric.AuthenticationRequest
 import androidx.biometric.AuthenticationResult
 import androidx.biometric.AuthenticationResultLauncher
@@ -28,6 +29,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -219,6 +221,45 @@ class AuthenticationResultRegistryTest {
                 }
             } else {
                 assertThat(viewModel.singleFallbackOption).isEqualTo(fallback1)
+            }
+        }
+    }
+
+    @Test
+    // On API 28 the framework prompt requires negative button text unconditionally; the library
+    // only substitutes "Use password" for a DeviceCredential fallback when the device is secured,
+    // which test devices typically are not. From API 29 the framework accepts a prompt without
+    // negative text when device credential is allowed, and from API 36.1 it is optional outright.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun launcherLaunch_withDeviceCredentialAndSingleCustomOptionFallback() {
+        activityRule.scenario.moveToState(Lifecycle.State.STARTED)
+
+        val fallback1 = AuthenticationRequest.Biometric.Fallback.DeviceCredential
+        val fallback2 =
+            AuthenticationRequest.Biometric.Fallback.CustomOption("Use account password")
+        val fallbackList = arrayOf(fallback1, fallback2)
+
+        activityRule.scenario.onActivity { activity ->
+            val request =
+                AuthenticationRequest.biometricRequest(
+                    title = "Title",
+                    authFallbacks = fallbackList,
+                ) {}
+
+            launcher.launch(request)
+
+            val viewModel = ViewModelProvider(activity)[AuthenticationViewModel::class.java]
+
+            if (fallbackList.toList().multipleFallbackOptionsValid()) {
+                assertThat(viewModel.multipleFallbackOptionList)
+                    .containsExactly(fallback1, fallback2)
+                    .inOrder()
+                assertThat(viewModel.singleFallbackOption).isNull()
+                assertThat(viewModel.singleFallbackOptionText).isNull()
+            } else {
+                assertThat(viewModel.multipleFallbackOptionList).isNull()
+                assertThat(viewModel.singleFallbackOption).isEqualTo(fallback1)
+                assertThat(viewModel.singleFallbackOptionText).isNull()
             }
         }
     }
