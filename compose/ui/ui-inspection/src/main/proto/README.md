@@ -2,6 +2,20 @@
 
 ## Change Descriptions
 
+### Report the semantics node ids of each Composable
+
+#### Added:
+- `semantics_ids` to `ComposableNode`
+
+#### version: compose.ui:ui:1.14.0-alpha01
+
+#### Backwards compatibility:
+An older client will ignore `semantics_ids`.
+
+#### Forwards compatibility:
+An older inspector will never send `semantics_ids`,
+so a client expecting this functionality will simply get an empty list.
+
 ### Provide a quick return from GetComposablesCommand if no changes.
 
 #### Added:

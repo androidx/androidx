@@ -109,6 +109,12 @@ message ComposableNode {
 
     // The unique id of an anchor. This used to be its hashcode. See InspectorNode.anchorId.
     sint32 anchor_hash = 13;
+
+    // The SemanticsNode.ids of the unmerged semantics nodes attributed to this Composable, in
+    // composition pre-order, including those of descendants that are not reported or are system
+    // created. An AccessibilityNodeInfo created by Compose for one of these nodes has the same id
+    // in its "androidx.compose.ui.semantics.id" extra data. Only valid for this snapshot.
+    repeated int32 semantics_ids = 14;
 }
 
 // In Android, a resource id is a simple integer. This class holds the namespace, type, and name

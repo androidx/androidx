@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.inspection.inspector
 
+import androidx.collection.IntList
+import androidx.collection.emptyIntList
+import androidx.collection.mutableIntListOf
+import androidx.compose.ui.inspection.util.copy
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.unit.IntRect
 
@@ -95,6 +99,12 @@ internal constructor(
     /** The un-merged semantics information of this Composable. */
     val unmergedSemantics: List<RawParameter>,
 
+    /**
+     * The [androidx.compose.ui.semantics.SemanticsNode.id]s of the unmerged semantics nodes
+     * attributed to this Composable (see [unmergedSemantics]), in composition pre-order.
+     */
+    val semanticsIds: IntList,
+
     /** The children nodes of this Composable. */
     val children: List<InspectorNode>,
 ) {
@@ -156,6 +166,7 @@ internal class MutableInspectorNode {
     val layoutNodes = mutableListOf<LayoutInfo>()
     val mergedSemantics = mutableListOf<RawParameter>()
     val unmergedSemantics = mutableListOf<RawParameter>()
+    val semanticsIds = mutableIntListOf()
     var name = ""
     var fileName = ""
     var packageHash = -1
@@ -208,6 +219,7 @@ internal class MutableInspectorNode {
         layoutNodes.clear()
         mergedSemantics.clear()
         unmergedSemantics.clear()
+        semanticsIds.clear()
         box = emptyBox
         bounds = null
         flags = FLAGS_NONE
@@ -230,6 +242,7 @@ internal class MutableInspectorNode {
         anchorId = node.anchorId
         mergedSemantics.addAll(node.mergedSemantics)
         unmergedSemantics.addAll(node.unmergedSemantics)
+        semanticsIds.addAll(node.semanticsIds)
         name = node.name
         fileName = node.fileName
         packageHash = node.packageHash
@@ -249,6 +262,7 @@ internal class MutableInspectorNode {
         anchorId = node.anchorId
         mergedSemantics.addAll(node.mergedSemantics)
         unmergedSemantics.addAll(node.unmergedSemantics)
+        semanticsIds.addAll(node.semanticsIds)
         name = node.name
         fileName = node.fileName
         packageHash = node.packageHash
@@ -300,6 +314,7 @@ internal class MutableInspectorNode {
             viewId,
             if (withSemantics) mergedSemantics.toList() else emptyList(),
             if (withSemantics) unmergedSemantics.toList() else emptyList(),
+            if (withSemantics) semanticsIds.copy() else emptyIntList(),
             children.toList(),
         )
 }

@@ -20,10 +20,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inspector.WindowInspector
 import android.widget.TextView
+import androidx.collection.IntList
+import androidx.collection.emptyIntList
+import androidx.collection.intListOf
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.AlertDialog
@@ -503,14 +508,19 @@ class LayoutInspectorTreeTest {
         show {
             Inspectable(slotTableRecord) {
                 Column {
-                    Text(text = "Studio")
-                    Row(modifier = Modifier.semantics(true) {}) {
-                        Text(text = "Hello")
-                        Text(text = "World")
+                    Text(text = "Studio", modifier = Modifier.testTag("studio"))
+                    Row(modifier = Modifier.testTag("merging").semantics(true) {}) {
+                        Text(text = "Hello", modifier = Modifier.testTag("hello1"))
+                        Text(text = "World", modifier = Modifier.testTag("world1"))
                     }
-                    Row(modifier = Modifier.clearAndSetSemantics { text = AnnotatedString("to") }) {
-                        Text(text = "Hello")
-                        Text(text = "World")
+                    Row(
+                        modifier =
+                            Modifier.testTag("clearing").clearAndSetSemantics {
+                                text = AnnotatedString("to")
+                            }
+                    ) {
+                        Text(text = "Hello", modifier = Modifier.testTag("hello2"))
+                        Text(text = "World", modifier = Modifier.testTag("world2"))
                     }
                 }
             }
@@ -521,30 +531,110 @@ class LayoutInspectorTreeTest {
         val builder = createLayoutInspectorTree()
         val nodes = builder.convert(androidComposeView)
         validate(nodes, builder, checkSemantics = true) {
-            node("Column", children = listOf("Text", "Row", "Row"), inlined = true)
+            node(
+                name = "Column",
+                children = listOf("Text", "Row", "Row"),
+                inlined = true,
+                semanticsIds = emptyIntList(),
+            )
             node(
                 name = "Text",
                 isRenderNode = false,
                 mergedSemantics = "[Studio]",
                 unmergedSemantics = "[Studio]",
+                semanticsIds = intListOf(semanticsId("studio")),
             )
             node(
                 name = "Row",
                 children = listOf("Text", "Text"),
                 mergedSemantics = "[Hello, World]",
                 inlined = true,
+                semanticsIds = intListOf(semanticsId("merging")),
             )
-            node("Text", isRenderNode = false, unmergedSemantics = "[Hello]")
-            node("Text", isRenderNode = false, unmergedSemantics = "[World]")
+            node(
+                name = "Text",
+                isRenderNode = false,
+                unmergedSemantics = "[Hello]",
+                semanticsIds = intListOf(semanticsId("hello1")),
+            )
+            node(
+                name = "Text",
+                isRenderNode = false,
+                unmergedSemantics = "[World]",
+                semanticsIds = intListOf(semanticsId("world1")),
+            )
             node(
                 name = "Row",
                 children = listOf("Text", "Text"),
                 mergedSemantics = "[to]",
                 unmergedSemantics = "[to]",
                 inlined = true,
+                semanticsIds = intListOf(semanticsId("clearing")),
             )
-            node("Text", isRenderNode = false, unmergedSemantics = "[Hello]")
-            node("Text", isRenderNode = false, unmergedSemantics = "[World]")
+            node(
+                name = "Text",
+                isRenderNode = false,
+                unmergedSemantics = "[Hello]",
+                semanticsIds = intListOf(semanticsId("hello2")),
+            )
+            node(
+                name = "Text",
+                isRenderNode = false,
+                unmergedSemantics = "[World]",
+                semanticsIds = intListOf(semanticsId("world2")),
+            )
+        }
+    }
+
+    @Test
+    fun testSemanticsIdsOfSystemAndFilteredOutDescendants() {
+        val slotTableRecord = CompositionDataRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Column(modifier = Modifier.testTag("column")) {
+                    // Composables without a size are filtered out of the tree.
+                    Box(modifier = Modifier.size(0.dp).testTag("first"))
+                    Text(text = "Studio", modifier = Modifier.testTag("studio"))
+                    Box(modifier = Modifier.size(0.dp).testTag("second"))
+                }
+            }
+        }
+
+        val androidComposeView = findAndroidComposeView()
+        androidComposeView.setTag(R.id.inspection_slot_table_set, slotTableRecord.store)
+        for (hideSystemNodes in listOf(true, false)) {
+            val builder = createLayoutInspectorTree()
+            builder.hideSystemNodes = hideSystemNodes
+            val roots = builder.convert(androidComposeView)
+            dumpNodes(roots, androidComposeView, builder)
+            val nodes = roots.flatMap { flatten(it) }
+            val message = "hideSystemNodes: $hideSystemNodes"
+            if (!hideSystemNodes) {
+                assertWithMessage(message)
+                    .that(nodes.filter { it.packageHash in systemPackages })
+                    .isNotEmpty()
+            }
+
+            // The ids of the LayoutNodes emitted through system Composables (Layout, BasicText)
+            // and of the filtered out Boxes are attributed to the nearest reported user Composable,
+            // in composition pre-order. System Composables never report ids.
+            val nodesWithSemanticsIds = nodes.filter { it.semanticsIds.isNotEmpty() }
+            assertWithMessage(message)
+                .that(nodesWithSemanticsIds.map { it.name })
+                .containsExactly("Column", "Text")
+                .inOrder()
+            assertWithMessage(message)
+                .that(nodesWithSemanticsIds.filter { it.packageHash in systemPackages })
+                .isEmpty()
+            assertWithMessage(message)
+                .that(nodesWithSemanticsIds[0].semanticsIds)
+                .isEqualTo(
+                    intListOf(semanticsId("column"), semanticsId("first"), semanticsId("second"))
+                )
+            assertWithMessage(message)
+                .that(nodesWithSemanticsIds[1].semanticsIds)
+                .isEqualTo(intListOf(semanticsId("studio")))
         }
     }
 
@@ -1045,6 +1135,8 @@ class LayoutInspectorTreeTest {
             hasTransformations: Boolean = false,
             mergedSemantics: String = "",
             unmergedSemantics: String = "",
+            // The expected InspectorNode.semanticsIds, or null to skip the check.
+            semanticsIds: IntList? = null,
             left: Dp = Dp.Unspecified,
             top: Dp = Dp.Unspecified,
             width: Dp = Dp.Unspecified,
@@ -1112,6 +1204,9 @@ class LayoutInspectorTreeTest {
                 assertWithMessage(message)
                     .that(unmerged?.toString() ?: "")
                     .isEqualTo(unmergedSemantics)
+                if (semanticsIds != null) {
+                    assertWithMessage(message).that(node.semanticsIds).isEqualTo(semanticsIds)
+                }
             }
 
             if (checkLineNumbers) {
@@ -1153,6 +1248,10 @@ class LayoutInspectorTreeTest {
         listOf(node).plus(node.children.flatMap { flatten(it) })
 
     private fun viewParent(view: View): View? = view.parent as? View
+
+    /** Returns the id of the unmerged SemanticsNode with the given test [tag]. */
+    private fun semanticsId(tag: String): Int =
+        composeTestRule.onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode().id
 
     private fun show(composable: @Composable () -> Unit) = composeTestRule.setContent(composable)
 

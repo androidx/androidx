@@ -243,6 +243,7 @@ class ParametersTest {
 
         val texts = composables.filter("Text")
         val textOne = texts.first()
+        assertThat(textOne.semanticsIdsCount).isEqualTo(1)
         val params =
             rule.inspectorTester
                 .sendCommand(
