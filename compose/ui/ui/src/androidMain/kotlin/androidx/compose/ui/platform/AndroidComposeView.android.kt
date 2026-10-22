@@ -134,6 +134,7 @@ import androidx.compose.ui.focus.calculateFocusRectRelativeTo
 import androidx.compose.ui.focus.focusRect
 import androidx.compose.ui.focus.is1dFocusSearch
 import androidx.compose.ui.focus.isBetterCandidate
+import androidx.compose.ui.focus.lastLocalNode
 import androidx.compose.ui.focus.requestInteropFocus
 import androidx.compose.ui.focus.toAndroidFocusDirection
 import androidx.compose.ui.focus.toFocusDirection
@@ -1643,11 +1644,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         previous: FocusTargetModifierNode?,
         current: FocusTargetModifierNode?,
     ) {
+        val previousNode = previous?.lastLocalNode(Nodes.IndirectPointerInput) ?: previous
         val previousIndirectPointerEventModifiers =
-            previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
+            previousNode?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
 
+        val currentNode = current?.lastLocalNode(Nodes.IndirectPointerInput) ?: current
         val currentIndirectPointerEventModifiers =
-            current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
+            currentNode?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
 
         previousIndirectPointerEventModifiers.fastForEach {
             val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false

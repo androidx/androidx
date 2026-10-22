@@ -7295,12 +7295,8 @@ class AndroidPointerInputTest {
         rule.runOnUiThread { assertThat(eventLog).hasSize(2) }
     }
 
-    /* Meant as a contrast to [IndirectPointerEventTest]'s test
-     * (delegated_multiple_androidTouchNavigationEvent_triggersIndirectPointerEvent()). This shows
-     * what happens when using a Pointer Input Modifier (vs. Indirect) with two Delegating Nodes.
-     * Pointer Input will pass the event to BOTH delegates whereas Indirect (because it uses a
-     * focused item vs. hit testing) will only choose the first matching delegate to receive the
-     * event.
+    /* Tests how delegates associated with a node will behave with pointer input events.
+     * Both delegates of the node will receive the event for pointer input events.
      */
     @Test
     fun delegated_multiple_androidPointerInputEvents_triggersTouchEvent() {
