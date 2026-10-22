@@ -336,8 +336,7 @@ private fun PagerScaffoldImpl(
     pageIndicatorAlignment: Alignment,
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
-    val showStatusBarState = rememberShowStatusBarState(StatusBarMode.Inherit)
-    val timeTextState = rememberUpdatedState<(@Composable () -> Unit)?>(null)
+    val statusBarState = rememberScaffoldStatusBarState()
     val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
     val scaffoldState =
         LocalScaffoldState.current ?: remember { ScreenScaffoldState(scrollInfoProviderState) }
@@ -345,13 +344,16 @@ private fun PagerScaffoldImpl(
     scaffoldState.UpdateIdlingDetectorIfNeeded()
 
     ScreenContentRegistration(
-        timeText = timeTextState,
+        timeText = statusBarState.timeText,
         scrollInfoProvider = scrollInfoProviderState,
     )
-    StatusBarRegistration(showStatusBar = showStatusBarState)
+    ScaffoldStatusBarRegistration(
+        scaffoldState = scaffoldState,
+        statusBarState = statusBarState,
+    )
 
-    CompositionLocalProvider(LocalInheritedShowStatusBar provides showStatusBarState.value) {
-        Box(modifier) {
+    CompositionLocalProvider(LocalScaffoldStatusBarState provides statusBarState) {
+        Box(statusBarState.coordinatorModifier.then(modifier)) {
             pager()
 
             AnimatedIndicator(

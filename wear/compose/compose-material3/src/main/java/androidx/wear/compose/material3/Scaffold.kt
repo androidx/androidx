@@ -88,7 +88,7 @@ internal sealed class ScaffoldState {
  * @param appWindowView The [View] associated with the root [AppScaffold] window.
  */
 internal class AppScaffoldState(
-    appTimeText: State<@Composable () -> Unit> = mutableStateOf({}),
+    appTimeText: State<(@Composable () -> Unit)?> = mutableStateOf(null),
     doesAppScaffoldWantStatusBar: State<Boolean> = mutableStateOf(true),
     appWindowView: State<View>,
 ) : ScaffoldState() {
@@ -149,7 +149,7 @@ internal class ScreenScaffoldState(private val scrollInfoProvider: State<ScrollI
  */
 internal class ScreenContent(
     private val doesAppScaffoldWantStatusBar: State<Boolean>,
-    private val appTimeText: State<@Composable () -> Unit>,
+    private val appTimeText: State<(@Composable () -> Unit)?>,
     private val appWindowView: State<View>,
 ) {
     /** Active [StatusBarOrchestrator] instances for windows managed by this scaffold. */
@@ -221,7 +221,7 @@ internal class ScreenContent(
             ?: if (doesAppScaffoldWantStatusBar.value) {
                 {}
             } else {
-                appTimeText.value
+                appTimeText.value ?: {}
             }
     }
 
@@ -491,29 +491,32 @@ internal fun ScreenContentRegistration(
 
 /**
  * Registers an active status bar layer with [AppScaffoldState.screenContent]. Typically used by
- * [ScreenScaffold], [HorizontalPagerScaffold], [VerticalPagerScaffold], and [StatusBarSuppression]
- * to sync their status bar state with the enclosing [AppScaffoldState].
+ * [ScreenScaffold], [HorizontalPagerScaffold], and [VerticalPagerScaffold] to sync their status bar
+ * state with the enclosing [AppScaffoldState].
  *
  * Coordinates status bar lifecycle with the scaffold, attaching [showStatusBar] state handle while
  * active and removing the status bar registration when leaving composition or becoming inactive.
  */
 @Composable
-internal fun StatusBarRegistration(showStatusBar: State<Boolean>) {
-    val scaffoldState = LocalScaffoldState.current as? AppScaffoldState ?: return
+internal fun StatusBarRegistration(
+    showStatusBar: State<Boolean>,
+    scaffoldState: ScaffoldState? = LocalScaffoldState.current,
+) {
+    val actualScaffoldState = scaffoldState as? AppScaffoldState ?: return
     val screenIsActive = LocalScreenIsActive.current
 
     val key = remember { Any() }
     val viewState = rememberUpdatedState(LocalView.current)
 
-    DisposableEffect(screenIsActive, scaffoldState) {
+    DisposableEffect(screenIsActive, actualScaffoldState) {
         if (screenIsActive) {
-            scaffoldState.screenContent.addStatusBar(
+            actualScaffoldState.screenContent.addStatusBar(
                 key = key,
                 view = viewState,
                 showStatusBar = showStatusBar,
             )
         }
-        onDispose { scaffoldState.screenContent.removeStatusBar(key) }
+        onDispose { actualScaffoldState.screenContent.removeStatusBar(key) }
     }
 }
 

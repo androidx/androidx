@@ -156,8 +156,6 @@ public fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.timePickerColors(),
     initialSelection: TimePickerSelection = TimePickerDefaults.timePickerSelection(timePickerType),
 ) {
-    StatusBarSuppression()
-
     val inspectionMode = LocalInspectionMode.current
     val fullyDrawn = remember { Animatable(if (inspectionMode) 1f else 0f) }
 
@@ -278,7 +276,7 @@ public fun TimePicker(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize().alpha(fullyDrawn.value)) {
+    Box(modifier = modifier.suppressStatusBar().fillMaxSize().alpha(fullyDrawn.value)) {
 
         // Allow more room for the initial instruction heading under TalkBack
         val maxTextLines = if (selectedElement == TimePickerSelection.None) 2 else 1
