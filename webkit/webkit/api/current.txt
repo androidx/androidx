@@ -81,6 +81,7 @@ package androidx.webkit {
     method @Deprecated public default void onNavigationCompleted(androidx.webkit.Navigation);
     method public default void onNavigationCompleted(androidx.webkit.NavigationState);
     method @Deprecated public default void onNavigationRedirected(androidx.webkit.Navigation);
+    method public default void onNavigationRedirected(androidx.webkit.NavigationState, androidx.webkit.NavigationRedirectParameters);
     method @Deprecated public default void onNavigationStarted(androidx.webkit.Navigation);
     method public default void onNavigationStarted(androidx.webkit.NavigationState);
     method @Deprecated public default void onPageDeleted(androidx.webkit.Page);
