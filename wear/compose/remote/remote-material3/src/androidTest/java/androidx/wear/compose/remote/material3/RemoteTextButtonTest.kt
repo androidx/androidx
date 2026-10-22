@@ -37,16 +37,19 @@ import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutlineDi
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
 import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonalDisabled
 import androidx.wear.compose.remote.material3.util.ComponentContainer
+import androidx.wear.compose.remote.material3.util.PathClip
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
+import androidx.wear.compose.remote.material3.util.withPathClip
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class RemoteTextButtonTest {
     @get:Rule
     val remoteComposeTestRule =
@@ -61,6 +64,16 @@ class RemoteTextButtonTest {
     @Test
     fun remote_text_button_enabled() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteTextButtonEnabled() }
+        }
+    }
+
+    @Test
+    fun remote_text_button_enabled_ab(@TestParameter pathClip: PathClip) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgets.withPathClip(pathClip),
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ComponentContainer { RemoteTextButtonEnabled() }
         }
     }

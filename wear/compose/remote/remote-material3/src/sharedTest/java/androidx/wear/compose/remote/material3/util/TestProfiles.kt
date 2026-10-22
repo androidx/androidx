@@ -204,3 +204,26 @@ object TestProfiles {
             RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
         }
 }
+
+/** Whether a test [Profile] supports [Operations.CLIP_PATH], for A/B testing both code paths. */
+enum class PathClip {
+    Unsupported,
+    Supported,
+}
+
+/** Returns a copy of this [Profile] with [Operations.CLIP_PATH] added or removed. */
+fun Profile.withPathClip(pathClip: PathClip): Profile {
+    val base = this
+    return Profile(
+        base.apiLevel,
+        base.operationsProfiles,
+        base.platform,
+        {
+            when (pathClip) {
+                PathClip.Supported -> base.supportedOperations + Operations.CLIP_PATH
+                PathClip.Unsupported -> base.supportedOperations - Operations.CLIP_PATH
+            }
+        },
+        base.profileFactory,
+    )
+}

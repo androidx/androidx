@@ -17,9 +17,11 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
@@ -50,20 +52,29 @@ internal fun RemoteRoundButton(
     role: Role = Role.Button,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
+    val clipBackgroundToShape = currentProfileSupportsPathClip()
+
     RemoteBox(
         contentAlignment = RemoteAlignment.Center,
         modifier =
             modifier
                 .drawWithContent {
-                    drawShapedBackground(
-                        shape = shape,
-                        color = backgroundColor,
-                        enabled = enabled,
-                        containerPainter = null,
-                        disabledContainerPainter = null,
-                        borderColor = borderColor,
-                        borderStrokeWidth = border,
-                    )
+                    val drawBackground: RemoteDrawScope.() -> Unit = {
+                        drawShapedBackground(
+                            shape = shape,
+                            color = backgroundColor,
+                            enabled = enabled,
+                            containerPainter = null,
+                            disabledContainerPainter = null,
+                            borderColor = borderColor,
+                            borderStrokeWidth = border,
+                        )
+                    }
+                    if (clipBackgroundToShape) {
+                        clipToShape(shape, drawBackground)
+                    } else {
+                        drawBackground()
+                    }
                     drawContent()
                 }
                 .clip(shape = shape)
