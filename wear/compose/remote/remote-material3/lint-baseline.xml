@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                    enabled = enabled.constantValueOrNull ?: false &amp;&amp; onClick != Action.Empty,"
+        errorLine2="                                                                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                onClick = Action.Empty,"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                onClick = Action.Empty,"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                enabled = enabled.constantValueOrNull ?: false &amp;&amp; onClick != Action.Empty,"
+        errorLine2="                                                                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val extraSmallHeight = RemoteEdgeButtonSize.ExtraSmall.maximumHeight.value"
+        errorLine2="                                                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val bottomPadding = RemoteEdgeButtonDefaults.VerticalPadding.value"
+        errorLine2="                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val extraSmallEllipseHeight = ExtraSmallEllipseHeight.value"
+        errorLine2="                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val targetSidePadding = TargetSidePadding.value"
+        errorLine2="                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val h = buttonHeight.value"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDp.getValue can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    val w = actualButtonWidth.value"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteEdgeButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                enabled = (enabled.constantValueOrNull ?: false) &amp;&amp; onClick != Action.Empty,"
+        errorLine2="                                                                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSelectionButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    decreaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSlider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    increaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSlider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    decreaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSlider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    increaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSlider.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onContainerClick != Action.Empty,"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitCheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onCheckedChange != Action.Empty,"
+        errorLine2="                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitCheckboxButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onContainerClick != Action.Empty,"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitRadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onSelectionClick != Action.Empty,"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitRadioButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onContainerClick != Action.Empty,"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitSwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="                                onCheckedChange != Action.Empty,"
+        errorLine2="                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteSplitSwitchButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    decreaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteStepper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    increaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteStepper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    decreaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteStepper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.getEmpty can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    increaseAction: Action = Action.Empty,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteStepper.kt"/>
+    </issue>
+
+</issues>
