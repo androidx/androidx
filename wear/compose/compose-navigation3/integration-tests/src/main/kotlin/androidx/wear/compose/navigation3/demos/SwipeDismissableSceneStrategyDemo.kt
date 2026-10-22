@@ -48,8 +48,8 @@ import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.HorizontalPagerScaffold
 import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.StatusBarSuppression
 import androidx.wear.compose.material3.SwitchButton
+import androidx.wear.compose.material3.suppressStatusBar
 import androidx.wear.compose.navigation3.rememberSwipeDismissableSceneStrategy
 import kotlinx.serialization.Serializable
 
@@ -191,8 +191,7 @@ fun SwipeDismissableSceneStrategyDemo(hasBackstack: Boolean, onCheckedChange: ()
                         }
                     }
                     entry<Screen4> {
-                        ScreenScaffold {
-                            StatusBarSuppression()
+                        ScreenScaffold(modifier = Modifier.suppressStatusBar()) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
