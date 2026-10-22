@@ -81,8 +81,7 @@ internal fun <T> StateLayout(
  * on the [currentState].
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutEnumSample
- * @param currentState The state machine governing the available states and the current active
- *   state.
+ * @param currentState The [RemoteEnum] governing the available states and the current active state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
  * @param content A composable lambda that defines the UI for each state [T].
  */
@@ -106,8 +105,7 @@ public fun <T : Enum<T>> RemoteStateLayout(
  * rendering system handles the visibility and transitions between them based on the [currentState].
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutBooleanSample
- * @param currentState The state machine governing the available states and the current active
- *   state.
+ * @param currentState The [RemoteBoolean] governing the current active state.
  * @param modifier The [RemoteModifier] to be applied to this layout.
  * @param content A composable lambda that defines the UI for each state [Boolean].
  */
@@ -127,11 +125,10 @@ public fun RemoteStateLayout(
  *
  * This component ensures that all possible states defined in [states] are composed, while the
  * underlying remote rendering system handles the visibility and transitions between them based on
- * the [RemoteStateMachine.currentState].
+ * the [currentState].
  *
  * @sample androidx.compose.remote.creation.compose.samples.RemoteStateLayoutIntSample
- * @param currentState The state machine governing the available states and the current active
- *   state.
+ * @param currentState The [RemoteInt] governing the current active state.
  * @param states The list of integer states that this layout can display.
  * @param modifier The [RemoteModifier] to be applied to this layout.
  * @param content A composable lambda that defines the UI for each state [Int].

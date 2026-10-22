@@ -57,8 +57,8 @@ internal class RemoteFlowRowNode : RemoteComposeNode() {
 /**
  * A layout composable that places its children in a horizontal flow.
  *
- * `RemoteFlow` allows you to wrap multiple children and position them using [horizontalArrangement]
- * and [verticalArrangement].
+ * `RemoteFlowRow` allows you to wrap multiple children and position them using
+ * [horizontalArrangement] and [verticalArrangement].
  *
  * @param modifier The modifier to be applied to this flow.
  * @param horizontalArrangement The horizontal arrangement of the children.

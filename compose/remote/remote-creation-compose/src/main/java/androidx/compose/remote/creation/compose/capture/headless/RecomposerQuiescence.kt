@@ -29,7 +29,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -142,7 +141,8 @@ internal enum class QuiescenceResult {
  * are explicitly allowed (see [withRenderSnapshot]).
  *
  * Note that [Recomposer.currentState] is only ever sampled by value here, never used to detect a
- * transition, so conflation of the underlying [StateFlow] cannot cause a missed wake-up.
+ * transition, so conflation of the underlying [kotlinx.coroutines.flow.StateFlow] cannot cause a
+ * missed wake-up.
  *
  * Content that never stops requesting frames (e.g. an infinite animation) can never be quiescent,
  * and the Recomposer may never even be observed [Recomposer.State.Idle] while [frameClock] keeps

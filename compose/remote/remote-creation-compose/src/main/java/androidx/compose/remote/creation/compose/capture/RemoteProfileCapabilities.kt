@@ -23,13 +23,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.onTouchCancel
 import androidx.compose.remote.creation.compose.modifier.onTouchDown
 import androidx.compose.remote.creation.compose.modifier.onTouchUp
-import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
-import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 
 /**
- * Whether the current creation [Profile] supports themed (Android system) colors created with
- * [createThemedRemoteColor].
+ * Whether the current creation [androidx.compose.remote.creation.profile.Profile] supports themed
+ * (Android system) colors created with
+ * [androidx.compose.remote.creation.compose.state.createThemedRemoteColor].
  *
  * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include the
  * color theme operation. Design systems and components can check this before emitting themed colors
@@ -41,8 +40,9 @@ public fun currentProfileSupportsThemedColors(): Boolean =
     currentProfileSupports(Operations.COLOR_THEME)
 
 /**
- * Whether the current creation [Profile] supports the touch down, up and cancel modifiers
- * ([onTouchDown], [onTouchUp], [onTouchCancel]), for example to drive a press animation.
+ * Whether the current creation [androidx.compose.remote.creation.profile.Profile] supports the
+ * touch down, up and cancel modifiers ([onTouchDown], [onTouchUp], [onTouchCancel]), for example to
+ * drive a press animation.
  *
  * Some profiles, such as `androidx.glance.wear.GlanceWearProfiles.wearWidgets`, do not include
  * those touch operations.
@@ -57,7 +57,8 @@ public fun currentProfileSupportsTouchModifiers(): Boolean =
     )
 
 /**
- * Whether the current creation [Profile] supports all of the given [operations].
+ * Whether the current creation [androidx.compose.remote.creation.profile.Profile] supports all of
+ * the given [operations].
  *
  * Prefer specific capability helpers such as [currentProfileSupportsThemedColors] or
  * [currentProfileSupportsTouchModifiers] when available. Operation IDs are not public API so must

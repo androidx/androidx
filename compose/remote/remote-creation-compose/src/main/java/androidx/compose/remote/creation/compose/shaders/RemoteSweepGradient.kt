@@ -35,11 +35,11 @@ import androidx.compose.ui.graphics.toArgb
  *
  * Ex:
  * ```
- *  Brush.sweepGradient(
- *      0.0.rf to Color.Red.rc,
- *      0.3.rf to Color.Green.rc,
- *      1.0.rf to Color.Blue.rc,
- *      center = Offset(0.rf, 100.rf)
+ *  RemoteBrush.sweepGradient(
+ *      0.0f.rf to Color.Red.rc,
+ *      0.3f.rf to Color.Green.rc,
+ *      1.0f.rf to Color.Blue.rc,
+ *      center = RemoteOffset(0.rf, 100.rf)
  * )
  * ```
  *
@@ -66,9 +66,9 @@ public fun RemoteBrush.Companion.sweepGradient(
  *
  * Ex:
  * ```
- *  Brush.sweepGradient(
+ *  RemoteBrush.sweepGradient(
  *      listOf(Color.Red.rc, Color.Blue.rc),
- *      center = Offset(10.rf, 20.rf)
+ *      center = RemoteOffset(10.rf, 20.rf)
  * )
  * ```
  *

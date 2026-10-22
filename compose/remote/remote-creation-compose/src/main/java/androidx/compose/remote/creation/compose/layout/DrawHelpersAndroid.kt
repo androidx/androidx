@@ -21,7 +21,6 @@ import android.graphics.Paint as AndroidPaint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
@@ -177,7 +176,7 @@ public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
         else -> StrokeJoin.Miter
     }
 
-/** Converts [ContentScale] to [ImageScaling]. */
+/** Converts [ContentScale] to [androidx.compose.remote.core.operations.utilities.ImageScaling]. */
 internal fun ContentScale.toImageScalingInt(): Int = toRemoteContentScale().value
 
 internal fun TextOverflow.encode(): Int =

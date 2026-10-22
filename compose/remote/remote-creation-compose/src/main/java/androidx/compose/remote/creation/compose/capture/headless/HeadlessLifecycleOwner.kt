@@ -26,18 +26,17 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlinx.coroutines.Dispatchers
 
 /**
  * Lightweight, thread-safe [LifecycleOwner] for headless document capture.
  *
  * `androidx.lifecycle.LifecycleRegistry` enforces main-thread access (`enforceMainThreadIfNeeded`),
  * which throws [IllegalStateException] when a capture runs on a background thread (e.g. a Binder
- * thread or [Dispatchers.Default]). See also `androidx.lifecycle.LifecycleRegistry.createUnsafe` as
- * prior art for bypassing main-thread enforcement in off-main-thread / headless hosts. This
- * implementation avoids main-thread enforcement and uses per-registration tokens with
- * reference-identity matching so observers can safely remove themselves during event dispatch from
- * any thread.
+ * thread or [kotlinx.coroutines.Dispatchers.Default]). See also
+ * `androidx.lifecycle.LifecycleRegistry.createUnsafe` as prior art for bypassing main-thread
+ * enforcement in off-main-thread / headless hosts. This implementation avoids main-thread
+ * enforcement and uses per-registration tokens with reference-identity matching so observers can
+ * safely remove themselves during event dispatch from any thread.
  *
  * Callbacks are dispatched while holding the owner's lock. This deliberately serializes all
  * lifecycle callbacks, matching the single-threaded delivery guarantee observers get from

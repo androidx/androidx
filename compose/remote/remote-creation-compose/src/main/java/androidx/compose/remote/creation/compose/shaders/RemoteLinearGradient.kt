@@ -38,7 +38,7 @@ import kotlin.collections.toFloatArray
  * colors are dispersed at the provided offset defined in the colorstop pair.
  *
  * ```
- *  Brush.linearGradient(
+ *  RemoteBrush.linearGradient(
  *      0.0f.rf to Color.Red.rc,
  *      0.3f.rf to Color.Green.rc,
  *      1.0f.rf to Color.Blue.rc,
@@ -75,10 +75,10 @@ public fun RemoteBrush.Companion.linearGradient(
  * Creates a linear gradient with the provided colors along the given start and end coordinates.
  *
  * ```
- *  Brush.linearGradient(
+ *  RemoteBrush.linearGradient(
  *      listOf(Color.Red.rc, Color.Blue.rc),
- *      start = Offset(0.rf, 50.rf)
- *      end = Offset(0.rf, 100.rf)
+ *      start = RemoteOffset(0.rf, 50.rf)
+ *      end = RemoteOffset(0.rf, 100.rf)
  * )
  * ```
  *
@@ -110,7 +110,7 @@ public fun RemoteBrush.Companion.linearGradient(
  *
  * Ex:
  * ```
- *  Brush.horizontalGradient(
+ *  RemoteBrush.horizontalGradient(
  *      listOf(Color.Red.rc, Color.Green.rc, Color.Blue.rc),
  *      startX = 10.rf,
  *      endX = 20.rf
@@ -147,9 +147,9 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *
  * Ex:
  * ```
- *  Brush.horizontalGradient(
+ *  RemoteBrush.horizontalGradient(
  *      0.rf to Color.Red.rc,
- *      0.3.rf to Color.Green.rc,
+ *      0.3f.rf to Color.Green.rc,
  *      1.rf to Color.Blue.rc,
  *      startX = 0.rf,
  *      endX = 100.rf
@@ -185,7 +185,7 @@ public fun RemoteBrush.Companion.horizontalGradient(
 /**
  * Creates a vertical gradient with the given colors evenly dispersed within the gradient Ex:
  * ```
- *  Brush.verticalGradient(
+ *  RemoteBrush.verticalGradient(
  *      listOf(Color.Red.rc, Color.Green.rc, Color.Blue.rc),
  *      startY = 0.rf,
  *      endY = 100.rf
@@ -219,16 +219,16 @@ public fun RemoteBrush.Companion.verticalGradient(
 
 /**
  * Creates a vertical gradient with the given colors at the provided offset defined in the
- * [Pair<Float, Color>]
+ * [Pair<RemoteFloat, RemoteColor>]
  *
  * Ex:
  * ```
- *  Brush.verticalGradient(
- *      0.1f to Color.Red,
- *      0.3f to Color.Green,
- *      0.5f to Color.Blue,
- *      startY = 0.0f,
- *      endY = 100.0f
+ *  RemoteBrush.verticalGradient(
+ *      0.1f.rf to Color.Red.rc,
+ *      0.3f.rf to Color.Green.rc,
+ *      0.5f.rf to Color.Blue.rc,
+ *      startY = 0.0f.rf,
+ *      endY = 100.0f.rf
  * )
  * ```
  *

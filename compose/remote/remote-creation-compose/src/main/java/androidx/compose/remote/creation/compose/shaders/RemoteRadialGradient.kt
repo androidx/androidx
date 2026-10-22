@@ -27,7 +27,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toArgb
 
@@ -36,11 +35,11 @@ import androidx.compose.ui.graphics.toArgb
  * pair.
  *
  * ```
- * Brush.radialGradient(
- *      0.0f to Color.Red.rc,
- *      0.3f to Color.Green.rc,
- *      1.0f to Color.Blue.rc,
- *      center = Offset(side1 / 2.0f, side2 / 2.0f),
+ * RemoteBrush.radialGradient(
+ *      0.0f.rf to Color.Red.rc,
+ *      0.3f.rf to Color.Green.rc,
+ *      1.0f.rf to Color.Blue.rc,
+ *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
  *      tileMode = TileMode.Repeated
  * )
@@ -48,10 +47,10 @@ import androidx.compose.ui.graphics.toArgb
  *
  * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
  *   radial gradient
- * @param center Center position of the radial gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the radial
- *   gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or [Offset.y] to indicate
- *   the far right or far bottom of the drawing area respectively.
+ * @param center Center position of the radial gradient circle. If this is set to `null` then the
+ *   center of the drawing area is used as the center for the radial gradient.
+ *   [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or [RemoteOffset.y] to
+ *   indicate the far right or far bottom of the drawing area respectively.
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
@@ -76,19 +75,19 @@ public fun RemoteBrush.Companion.radialGradient(
  * Creates a radial gradient with the given colors evenly dispersed within the gradient
  *
  * ```
- * Brush.radialGradient(
+ * RemoteBrush.radialGradient(
  *      listOf(Color.Red.rc, Color.Blue.rc),
- *      center = Offset(side1 / 2.0f, side2 / 2.0f),
+ *      center = RemoteOffset(side1 / 2.0f, side2 / 2.0f),
  *      radius = side1 / 2.0f,
  *      tileMode = TileMode.Repeated
  * )
  * ```
  *
  * @param colors Colors to be rendered as part of the gradient
- * @param center Center position of the radial gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the radial
- *   gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or [Offset.y] to indicate
- *   the far right or far bottom of the drawing area respectively.
+ * @param center Center position of the radial gradient circle. If this is set to `null` then the
+ *   center of the drawing area is used as the center for the radial gradient.
+ *   [Float.POSITIVE_INFINITY] can be used for either [RemoteOffset.x] or [RemoteOffset.y] to
+ *   indicate the far right or far bottom of the drawing area respectively.
  * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate the
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its

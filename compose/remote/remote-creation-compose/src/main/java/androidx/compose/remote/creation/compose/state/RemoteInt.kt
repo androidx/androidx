@@ -205,7 +205,7 @@ internal constructor(
      * converted to a float. Otherwise, a [RemoteFloatExpression] is created that references the
      * remote float ID of this integer.
      *
-     * @return A [RemoteFloatExpression] representing this integer as a float.
+     * @return A [RemoteFloat] representing this integer as a float.
      */
     public fun toRemoteFloat(): RemoteFloat {
         constantValueOrNull?.let {
@@ -504,7 +504,7 @@ internal constructor(
          * Creates a named [RemoteInt] with an initial value. Named remote ints can be set via
          * AndroidRemoteContext.setNamedInt.
          *
-         * @param name The unique name for this remote long.
+         * @param name The unique name for this remote int.
          * @param defaultValue The initial [Int] value for the named remote int.
          * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]).
          * @return A [RemoteInt] representing the named int.
@@ -1232,7 +1232,7 @@ public fun selectIfGe(
  * An implementation of [RemoteInt] that represents an integer expression.
  *
  * @param arrayProvider A lambda that provides the [LongArray] representing the expression.
- * @property hasConstantValue Indicates if this expression will always yield the same value.
+ * @property constantValueOrNull The constant [Int] value, or `null` if this expression is dynamic.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteIntExpression

@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.capture.headless
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
@@ -36,8 +35,8 @@ import kotlinx.coroutines.launch
  *
  * Compose Runtime's [Snapshot.registerGlobalWriteObserver] is process-wide (written state objects
  * carry no per-session identity), and a single [Snapshot.sendApplyNotifications] call advances the
- * global snapshot and notifies every active [Recomposer], each of which filters the changed set
- * against its own recorded read set.
+ * global snapshot and notifies every active [androidx.compose.runtime.Recomposer], each of which
+ * filters the changed set against its own recorded read set.
  *
  * Therefore, multiple concurrent sessions across threads share a single observer registration and a
  * single coalescing channel loop:
