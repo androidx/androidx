@@ -31,9 +31,10 @@ import androidx.core.provider.FontsContractCompat
 /**
  * Request parameters for resolving a [Typeface] in the embedded player via [RcTypefaceResolver].
  *
- * Carries all font attributes needed upfront — including [variationSettings] — so downloadable font
- * resolvers (such as [GmsFontTypefaceResolver]) can pass `variationSettings` directly to the
- * 5-argument [FontRequest] constructor when requesting variable fonts.
+ * Carries all font attributes needed upfront, including [variationSettings]. The player applies
+ * [variationSettings] to the resolved [Typeface] itself, so resolvers may return the base typeface
+ * and cache it independently of the axes (as [GmsFontTypefaceResolver] does) rather than loading a
+ * new font for every animated axis value.
  *
  * @property fontFamily The font family name (e.g., `"google:Roboto Flex"`, `"device:roboto-flex"`,
  *   `"sans-serif"`), or `null` when resolved by built-in [fontType].

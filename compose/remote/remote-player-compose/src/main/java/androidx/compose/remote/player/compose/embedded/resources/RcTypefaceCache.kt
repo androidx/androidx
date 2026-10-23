@@ -120,6 +120,8 @@ internal fun isVariationAxisTag(tag: String): Boolean =
  * Returns whether [tag] should be applied as an OpenType layout feature. `ital` and uppercase
  * (private) tags are valid both as axes and as features, so they are reported here as well as by
  * [isVariationAxisTag]; applying a tag the font does not support has no effect.
+ * [buildFontFeatureSettings] only applies those dual-use tags as features for constant whole-number
+ * values.
  */
 internal fun isFontFeatureTag(tag: String): Boolean =
     isValidOpenTypeTag(tag) && tag !in AXIS_ONLY_TAGS
@@ -164,6 +166,8 @@ internal class RcTypefaceCache(var resolver: RcTypefaceResolver? = null) {
     private val listeners = HashMap<RcTypefaceRequest, MutableList<Runnable>>()
     private val defaultTypefaces = LruCache<RcTypefaceRequest, Typeface>()
     private val deviceFontFamilies = LruCache<DeviceFontFamilyKey, FontFamily>()
+    // Weakly keyed so that typefaces built from a replaced document's fonts can be collected.
+    private val documentFonts = WeakHashMap<RemoteContext.FontInfo, DocumentFontCache>()
     private var attachedCount = 0
     private var lastResolver: RcTypefaceResolver? = null
 
@@ -209,6 +213,10 @@ internal class RcTypefaceCache(var resolver: RcTypefaceResolver? = null) {
                 )
             )
         }
+
+    /** Returns the cache of typefaces built from the document font [info]. */
+    fun documentFontCache(info: RemoteContext.FontInfo): DocumentFontCache =
+        documentFonts.getOrPut(info) { DocumentFontCache(info.mFontData) }
 
     fun resolveFontFamily(
         request: RcTypefaceRequest,

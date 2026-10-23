@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX", "BanConcurrentHashMap")
+@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.compose.remote.player.compose.embedded
 
@@ -24,13 +24,16 @@ import android.os.Build
 import androidx.annotation.ArrayRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.player.compose.embedded.resources.applyVariationSettings
+import androidx.compose.remote.player.compose.embedded.resources.LruCache
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.core.provider.FontRequest
 import androidx.core.provider.FontsContractCompat
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 internal fun interface GmsFontLoader {
@@ -83,9 +86,12 @@ private object DefaultGmsFontLoader : GmsFontLoader {
 
 /**
  * An [RcTypefaceResolver] that handles `"google:"` fonts via GMS [FontRequest] using the specified
- * [fontCertsResId] and [RcTypefaceRequest.variationSettings]. Delegates to [delegate] (defaults to
- * [EmbeddedPlayerTypefaceResolver]) for other font resolution or if the downloadable font request
- * fails.
+ * [fontCertsResId]. Delegates to [delegate] (defaults to [EmbeddedPlayerTypefaceResolver]) for
+ * other font resolution or if the downloadable font request fails.
+ *
+ * Each family, weight and style is downloaded once, without [RcTypefaceRequest.variationSettings],
+ * and the player applies the variation axes to the returned base typeface, so animating an axis
+ * does not start a new download per frame. Loaded and failed families are kept in a bounded cache.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GmsFontTypefaceResolver
@@ -118,43 +124,92 @@ internal constructor(
         fontLoader = DefaultGmsFontLoader,
     )
 
-    private val cache = ConcurrentHashMap<RcTypefaceRequest, Typeface>()
-    private val failedRequests: MutableSet<RcTypefaceRequest> = ConcurrentHashMap.newKeySet()
+    private val lock = Any()
+
+    /**
+     * Base (axis-free) typefaces keyed by [RcTypefaceRequest] with `variationSettings == null`.
+     * Failed loads are cached as a `null` [LoadedTypeface.typeface]. Bounded because a long-lived
+     * resolver can see an unbounded number of families, weights and styles.
+     */
+    private val loaded = LruCache<RcTypefaceRequest, LoadedTypeface>()
+
+    /** Loads in progress, so concurrent requests for the same base family share one load. */
+    private val inFlight = HashMap<RcTypefaceRequest, CompletableDeferred<Typeface?>>()
+
+    private class LoadedTypeface(val typeface: Typeface?)
 
     internal fun createFontRequest(realFontName: String, request: RcTypefaceRequest): FontRequest {
         val query =
             "name=$realFontName&weight=${request.weight}&italic=${if (request.italic) 1 else 0}&besteffort=true"
-        return FontRequest(
-            GMS_PROVIDER_AUTHORITY,
-            GMS_PROVIDER_PACKAGE,
-            query,
-            fontCertsResId,
-            request.variationSettings,
-        )
+        // Variation axes are applied by the player to the loaded base typeface, so the provider is
+        // only asked for the base family, once, however the axes animate.
+        return FontRequest(GMS_PROVIDER_AUTHORITY, GMS_PROVIDER_PACKAGE, query, fontCertsResId)
     }
 
     override suspend fun resolve(request: RcTypefaceRequest): Typeface? {
         val fontName = request.fontFamily
-        if (fontName != null && fontName.startsWith("google:") && fontCertsResId != 0) {
-            cache[request]?.let {
+        val androidContext = context
+        if (
+            fontName != null &&
+                fontName.startsWith("google:") &&
+                fontCertsResId != 0 &&
+                androidContext != null
+        ) {
+            val realFontName = fontName.substring("google:".length)
+            loadBase(androidContext, realFontName, request.copy(variationSettings = null))?.let {
+                // The player applies request.variationSettings to the returned typeface.
                 return it
-            }
-
-            val androidContext = context
-            if (androidContext != null && request !in failedRequests) {
-                val realFontName = fontName.substring("google:".length)
-                val fontRequest = createFontRequest(realFontName, request)
-                val loaded = fontLoader.loadFont(androidContext, fontRequest)
-                if (loaded != null) {
-                    val varied = applyVariationSettings(loaded, request.variationSettings)
-                    cache[request] = varied
-                    return varied
-                }
-                failedRequests.add(request)
             }
         }
 
         return delegate.resolve(request)
+    }
+
+    private suspend fun loadBase(
+        androidContext: Context,
+        realFontName: String,
+        base: RcTypefaceRequest,
+    ): Typeface? {
+        while (true) {
+            var pending: CompletableDeferred<Typeface?>? = null
+            var owned: CompletableDeferred<Typeface?>? = null
+            synchronized(lock) {
+                loaded[base]?.let {
+                    return it.typeface
+                }
+                pending = inFlight[base]
+                if (pending == null) {
+                    owned = CompletableDeferred<Typeface?>().also { inFlight[base] = it }
+                }
+            }
+            val waitFor = pending
+            if (waitFor != null) {
+                try {
+                    return waitFor.await()
+                } catch (e: CancellationException) {
+                    // The caller that owned the load was cancelled; retry unless this caller was
+                    // cancelled too.
+                    currentCoroutineContext().ensureActive()
+                    continue
+                }
+            }
+            val deferred = owned!!
+            try {
+                val typeface =
+                    fontLoader.loadFont(androidContext, createFontRequest(realFontName, base))
+                synchronized(lock) {
+                    loaded[base] = LoadedTypeface(typeface)
+                    inFlight.remove(base)
+                }
+                deferred.complete(typeface)
+                return typeface
+            } catch (e: Throwable) {
+                // Cancelled or failed loads are not cached, so a later request tries again.
+                synchronized(lock) { inFlight.remove(base) }
+                deferred.completeExceptionally(e)
+                throw e
+            }
+        }
     }
 
     private companion object {
