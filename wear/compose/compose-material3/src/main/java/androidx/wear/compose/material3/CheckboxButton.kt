@@ -44,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.internal.Strings
 import androidx.wear.compose.material3.internal.getString
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitCheckboxButtonTokens
 import androidx.wear.compose.materialcore.SelectionStage
 import androidx.wear.compose.materialcore.animateSelectionColor
@@ -150,13 +150,6 @@ public fun CheckboxButton(
         }
     val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
 
-    val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
-    val actualInteractionSource =
-        if (hasInsetFocusRing) {
-            interactionSource ?: remember { MutableInteractionSource() }
-        } else {
-            interactionSource
-        }
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         androidx.wear.compose.materialcore.ToggleButton(
             checked = checked,
@@ -216,15 +209,14 @@ public fun CheckboxButton(
                 val backgroundColor =
                     colors.containerColor(enabled = isEnabled, checked = isChecked).value
 
-                Modifier.insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
-                    .surface(
-                        transformation = transformation,
-                        painter = ColorPainter(backgroundColor),
-                        shape = shape,
-                    )
+                Modifier.surface(
+                    transformation = transformation,
+                    painter = ColorPainter(backgroundColor),
+                    shape = shape,
+                )
             },
             enabled = enabled,
-            interactionSource = actualInteractionSource,
+            interactionSource = interactionSource,
             contentPadding = contentPadding,
             shape = shape,
             toggleControlWidth = CHECKBOX_WIDTH,
@@ -232,7 +224,7 @@ public fun CheckboxButton(
             labelSpacerSize = CheckboxButtonDefaults.LabelSpacerSize,
             toggleControlSpacing = TOGGLE_CONTROL_SPACING,
             iconSpacing = ICON_SPACING,
-            ripple = ripple(enableFocusIndication = !hasInsetFocusRing),
+            ripple = ripple(),
         )
     }
 }
@@ -341,20 +333,18 @@ public fun SplitCheckboxButton(
                         with(transformation) { applyContainerTransformation() }
                     },
         ) {
-            val startSectionShape = shape.startSection()
             Row(
                 modifier =
                     Modifier.clickable(
                             enabled = enabled,
                             onClick = onContainerClick,
-                            indication =
-                                ripple(focusRingShape = rememberDelegatingShape(startSectionShape)),
+                            indication = ripple(),
                             interactionSource = containerInteractionSource,
                             onClickLabel = containerClickLabel,
                         )
                         .semantics { role = Role.Button }
                         .fillMaxHeight()
-                        .clip(startSectionShape)
+                        .clip(SPLIT_SECTIONS_SHAPE)
                         .drawBehind { drawRect(containerColorState.value) }
                         .padding(contentPadding)
                         .weight(1.0f),
@@ -394,7 +384,6 @@ public fun SplitCheckboxButton(
 
             val splitBackgroundOverlayState = colors.splitContainerColor(enabled, checked)
             val hapticFeedback = LocalHapticFeedback.current
-            val endSectionShape = shape.endSection()
             Box(
                 contentAlignment = Alignment.Center,
                 modifier =
@@ -408,12 +397,11 @@ public fun SplitCheckboxButton(
                                 )
                                 onCheckedChange(it)
                             },
-                            indication =
-                                ripple(focusRingShape = rememberDelegatingShape(endSectionShape)),
+                            indication = ripple(),
                             interactionSource = toggleInteractionSource,
                         )
                         .fillMaxHeight()
-                        .clip(endSectionShape)
+                        .clip(SPLIT_SECTIONS_SHAPE)
                         .drawBehind {
                             drawRect(
                                 splitBackgroundOverlayState.value.compositeOver(
@@ -1633,6 +1621,7 @@ private val BOX_RADIUS = 2.dp
 private val BOX_SIZE = 18.dp
 
 private val SPLIT_MIN_WIDTH = 48.dp
+private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color>
     @Composable get() = MaterialTheme.motionScheme.slowEffectsSpec()

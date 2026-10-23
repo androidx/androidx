@@ -1888,14 +1888,6 @@ class ButtonTest {
         assertEquals(expectedColor, actualColor)
         assertEquals(expectedStyle, actualStyle)
     }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun draws_focus_ring_when_focused() {
-        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
-            Button(onClick = {}, modifier = modifier, interactionSource = interactionSource) {}
-        }
-    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
