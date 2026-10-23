@@ -377,16 +377,46 @@ class VerticalTextKexVerifiedTest {
     // Target 3: VerticalText and VerticalTextImpl
     // =========================================================================
 
-    // Branch: minColumns > maxColumns -> check(minColumns <= maxColumns) throws
-    // IllegalStateException.
+    // Branch: minColumns > maxColumns -> require(minColumns <= maxColumns) throws
+    // IllegalArgumentException.
     @Test
-    fun kex_verticalText_whenMinColumnsExceedsMaxColumns_throwsIllegalStateException() {
+    fun kex_verticalText_whenMinColumnsExceedsMaxColumns_throwsIllegalArgumentException() {
         val exception =
-            assertThrows(IllegalStateException::class.java) {
+            assertThrows(IllegalArgumentException::class.java) {
                 rule.setContent { VerticalText(text = "Hello", maxColumns = 1, minColumns = 2) }
             }
 
-        assertThat(exception).hasMessageThat().contains("maxColumn must be bigger than minColumns!")
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("minColumns (2) must be less than or equal to maxColumns (1)")
+    }
+
+    // Branch: minColumns < 0 -> require(minColumns >= 0 && maxColumns >= 0) throws
+    // IllegalArgumentException.
+    @Test
+    fun kex_verticalText_whenMinColumnsIsNegative_throwsIllegalArgumentException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                rule.setContent { VerticalText(text = "Hello", maxColumns = 1, minColumns = -1) }
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("minColumns (-1) and maxColumns (1) must be non-negative")
+    }
+
+    // Branch: maxColumns < 0 -> require(minColumns >= 0 && maxColumns >= 0) throws
+    // IllegalArgumentException before the ordering check runs.
+    @Test
+    fun kex_verticalText_whenMaxColumnsIsNegative_throwsIllegalArgumentException() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                rule.setContent { VerticalText(text = "Hello", maxColumns = -1, minColumns = 0) }
+            }
+
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("minColumns (0) and maxColumns (-1) must be non-negative")
     }
 
     // Branch: overflow == TextOverflow.Visible (takes the else Modifier branch instead of
