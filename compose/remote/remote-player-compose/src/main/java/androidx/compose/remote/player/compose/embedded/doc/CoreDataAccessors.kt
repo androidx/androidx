@@ -84,7 +84,7 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             if (op is FloatFunctionDefine) {
                 op.registerListening(context)
             }
-            registerNestedBitmapMetadata(context, (op as Container).list)
+            registerNestedResources(context, (op as Container).list)
             continue
         }
         if (op is ImpulseOperation) {
@@ -129,16 +129,36 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
     }
 }
 
-private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Operation>) {
+/**
+ * Registers the static resources nested in a function or loop body without running the body: bitmap
+ * metadata (decoded lazily) and text, font, bitmap font and sound data. The draw pass reads these
+ * from the store but never applies them itself, so a resource defined in a body would otherwise
+ * never be found. Each is applied once per document, however many times the loop would iterate;
+ * computed operations (expressions, text formatted from the loop index, sound expressions) are left
+ * to the draw pass.
+ */
+private fun registerNestedResources(context: RemoteContext, list: List<Operation>) {
     for (i in list.indices) {
         val op = list[i]
-        if (op is BitmapData) {
-            context.putObject(op.mImageId, op)
-        } else if (op is Container) {
-            registerNestedBitmapMetadata(context, op.list)
-            if (op is LayoutComponent) {
-                op.drawContentOperations?.list?.let { canvasOps ->
-                    registerNestedBitmapMetadata(context, canvasOps)
+        when (op) {
+            is BitmapData -> context.putObject(op.mImageId, op)
+            is TextData,
+            is FontData,
+            is BitmapFontData,
+            is SoundData -> op.apply(context)
+            is ImpulseOperation -> {
+                registerNestedResources(context, op.list)
+                val process = op.process
+                if (process != null && !op.list.contains(process)) {
+                    registerNestedResources(context, process.list)
+                }
+            }
+            is Container -> {
+                registerNestedResources(context, op.list)
+                if (op is LayoutComponent) {
+                    op.drawContentOperations?.list?.let { canvasOps ->
+                        registerNestedResources(context, canvasOps)
+                    }
                 }
             }
         }
@@ -166,7 +186,7 @@ private fun registerCanvasResources(context: RemoteContext, list: List<Operation
             // Function and loop bodies only run when invoked or iterated; see
             // applyOperationsWithoutBitmaps.
             is FloatFunctionDefine,
-            is LoopOperation -> registerNestedBitmapMetadata(context, (op as Container).list)
+            is LoopOperation -> registerNestedResources(context, (op as Container).list)
             is ImpulseOperation -> registerImpulseResources(context, op)
             is Container -> registerCanvasResources(context, op.list)
         }

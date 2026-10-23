@@ -388,14 +388,26 @@ private fun DrawScope.executeOperationsInPass(
                 // Loop: resolve from/until/step (NaN-id bounds → variables), then run the child
                 // list once per iteration, loading the index variable each pass. Mirrors
                 // LoopOperation.paint, with a hard iteration cap as an infinite-loop backstop.
+                // LoopOperation.read accepts a negative step counting down from `from` to an
+                // exclusive `until` below it, so a countdown runs while the index is above `until`.
+                // NaN or zero steps and bounds that run away from `until` draw nothing.
                 val from = resolveFloat(op.from, op.from, read)
                 val until = resolveFloat(op.until, op.until, read)
                 val step = resolveFloat(op.step, op.step, read)
                 val indexId = op.indexVariableId
-                if (step != 0f && (step > 0f) == (from < until)) {
+                val ascending = step > 0f
+                if (
+                    !from.isNaN() &&
+                        !until.isNaN() &&
+                        !step.isNaN() &&
+                        step != 0f &&
+                        (if (ascending) from < until else from > until)
+                ) {
                     var i = from
                     var guard = 0
-                    while (i < until && guard < MAX_LOOP_ITERATIONS) {
+                    while (
+                        (if (ascending) i < until else i > until) && guard < MAX_LOOP_ITERATIONS
+                    ) {
                         remoteContext.incrementOpCount()
                         if (indexId != 0) remoteContext.loadFloat(indexId, i)
                         executeOperationsInPass(
