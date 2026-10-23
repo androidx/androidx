@@ -14,9 +14,11 @@ sealed interface androidx.appstate.transform.testing/TransformTestScope : kotlin
     abstract val testDispatcher // androidx.appstate.transform.testing/TransformTestScope.testDispatcher|{}testDispatcher[0]
         abstract fun <get-testDispatcher>(): kotlinx.coroutines.test/TestDispatcher // androidx.appstate.transform.testing/TransformTestScope.testDispatcher.<get-testDispatcher>|<get-testDispatcher>(){}[0]
 
+    abstract fun TransformScope(): androidx.appstate.transform/TransformScope // androidx.appstate.transform.testing/TransformTestScope.TransformScope|TransformScope(){}[0]
     abstract fun advance() // androidx.appstate.transform.testing/TransformTestScope.advance|advance(){}[0]
     abstract fun advanceTimeBy(kotlin.time/Duration) // androidx.appstate.transform.testing/TransformTestScope.advanceTimeBy|advanceTimeBy(kotlin.time.Duration){}[0]
     abstract fun advanceUntilIdle() // androidx.appstate.transform.testing/TransformTestScope.advanceUntilIdle|advanceUntilIdle(){}[0]
+    abstract suspend fun (androidx.appstate.transform/TransformScope).run() // androidx.appstate.transform.testing/TransformTestScope.run|run@androidx.appstate.transform.TransformScope(){}[0]
 }
 
 final fun androidx.appstate.transform.testing/transformTest(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/SuspendFunction1<androidx.appstate.transform.testing/TransformTestScope, kotlin/Unit>) // androidx.appstate.transform.testing/transformTest|transformTest(kotlin.coroutines.CoroutineContext;kotlin.coroutines.SuspendFunction1<androidx.appstate.transform.testing.TransformTestScope,kotlin.Unit>){}[0]

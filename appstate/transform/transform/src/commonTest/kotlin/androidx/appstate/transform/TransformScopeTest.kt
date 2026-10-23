@@ -23,26 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
-@IgnoreAndroidHostTest // Runs on all targets EXCEPT AndroidHost; still runs on AndroidDevice.
 @OptIn(ExperimentalCoroutinesApi::class)
 class TransformScopeTest {
-
-    @BeforeTest
-    fun setUp() {
-        TransformScope.isGlobalSnapshotManagerEnabled = false
-    }
-
-    @AfterTest
-    fun tearDown() {
-        TransformScope.isGlobalSnapshotManagerEnabled = true
-    }
 
     @Test
     fun testTransformScopeWithCoroutineContext() = transformTest {

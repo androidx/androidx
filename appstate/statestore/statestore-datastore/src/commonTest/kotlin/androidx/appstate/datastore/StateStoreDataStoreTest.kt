@@ -18,7 +18,6 @@ package androidx.appstate.datastore
 
 import androidx.appstate.statestore.StateStore
 import androidx.appstate.statestore.StateStoreKey
-import androidx.appstate.transform.TransformScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot.Companion.sendApplyNotifications
 import androidx.datastore.core.DataStoreFactory
@@ -26,7 +25,6 @@ import androidx.datastore.core.okio.OkioStorage
 import androidx.kruth.assertThat
 import kotlin.random.Random
 import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,15 +44,9 @@ class StateStoreDataStoreTest {
     private val testFile =
         FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "test_datastore_${Random.nextInt()}.json"
 
-    @BeforeTest
-    fun setUp() {
-        TransformScope.isGlobalSnapshotManagerEnabled = false
-    }
-
     @AfterTest
     fun tearDown() {
         Dispatchers.resetMain()
-        TransformScope.isGlobalSnapshotManagerEnabled = true
     }
 
     val defaultValue = "default"
@@ -106,7 +98,6 @@ class StateStoreDataStoreTest {
         stateStore.setState(StringKey, updatedValue)
 
         // Ensure compose snapshot effects are propagated
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 
@@ -145,7 +136,6 @@ class StateStoreDataStoreTest {
         stateStore.updateState(IntKey) { it + 5 }
 
         // Ensure compose snapshot effects are propagated
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 
@@ -177,7 +167,6 @@ class StateStoreDataStoreTest {
         stateStore.setState(NonPersistedStringKey, updatedValue)
 
         // Ensure compose snapshot effects are propagated
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 
@@ -219,7 +208,6 @@ class StateStoreDataStoreTest {
         // Register the listener, which should trigger a datastore read and update stateStore
         val job = launch { stateStore.syncToDataStore(dataStore) }
 
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 
@@ -257,7 +245,6 @@ class StateStoreDataStoreTest {
         // Update StateStore key value
         stateStore.setState(StringKey, firstValue)
 
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 
@@ -271,7 +258,6 @@ class StateStoreDataStoreTest {
         // Update StateStore key value again
         stateStore.setState(StringKey, secondValue)
 
-        advanceUntilIdle()
         sendApplyNotifications()
         advanceUntilIdle()
 

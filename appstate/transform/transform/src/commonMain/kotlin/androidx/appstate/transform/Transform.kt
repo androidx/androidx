@@ -48,7 +48,7 @@ public fun <R> transform(
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable (R) -> R,
 ): State<R> {
-    val transformScope = TransformScope()
+    val transformScope = TransformScope() as TransformScopeImpl
     val transformation = transformScope.launchTransform(initialValue, onUpdate)
     scope.launch(dispatcher, start = CoroutineStart.UNDISPATCHED) {
         try {

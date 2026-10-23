@@ -11,17 +11,9 @@ abstract interface <#A: kotlin/Any?> androidx.appstate.transform/DisposableState
 }
 
 abstract interface androidx.appstate.transform/TransformScope { // androidx.appstate.transform/TransformScope|null[0]
-    abstract fun <#A1: kotlin/Any?> createTransform(#A1, kotlin/Function3<#A1, androidx.compose.runtime/Composer, kotlin/Int, #A1>): androidx.appstate.transform/DisposableState<#A1> // androidx.appstate.transform/TransformScope.createTransform|createTransform(0:0;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
-    abstract suspend fun run() // androidx.appstate.transform/TransformScope.run|run(){}[0]
-
-    final object Companion { // androidx.appstate.transform/TransformScope.Companion|null[0]
-        final var isGlobalSnapshotManagerEnabled // androidx.appstate.transform/TransformScope.Companion.isGlobalSnapshotManagerEnabled|{}isGlobalSnapshotManagerEnabled[0]
-            final fun <get-isGlobalSnapshotManagerEnabled>(): kotlin/Boolean // androidx.appstate.transform/TransformScope.Companion.isGlobalSnapshotManagerEnabled.<get-isGlobalSnapshotManagerEnabled>|<get-isGlobalSnapshotManagerEnabled>(){}[0]
-            final fun <set-isGlobalSnapshotManagerEnabled>(kotlin/Boolean) // androidx.appstate.transform/TransformScope.Companion.isGlobalSnapshotManagerEnabled.<set-isGlobalSnapshotManagerEnabled>|<set-isGlobalSnapshotManagerEnabled>(kotlin.Boolean){}[0]
-    }
+    abstract fun <#A1: kotlin/Any?> launchTransform(#A1, kotlin/Function3<#A1, androidx.compose.runtime/Composer, kotlin/Int, #A1>): androidx.appstate.transform/DisposableState<#A1> // androidx.appstate.transform/TransformScope.launchTransform|launchTransform(0:0;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
 }
 
-final fun <#A: kotlin/Any?> (androidx.appstate.transform/TransformScope).androidx.appstate.transform/launchTransform(#A, kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, #A>): androidx.appstate.transform/DisposableState<#A> // androidx.appstate.transform/launchTransform|launchTransform@androidx.appstate.transform.TransformScope(0:0;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.appstate.transform/transform(#A, kotlinx.coroutines/CoroutineDispatcher?, kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, #A>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#A> // androidx.appstate.transform/transform|transform(0:0;kotlinx.coroutines.CoroutineDispatcher?;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.appstate.transform/transform(#A, kotlinx.coroutines/CoroutineScope, kotlinx.coroutines/CoroutineDispatcher = ..., kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, #A>): androidx.compose.runtime/State<#A> // androidx.appstate.transform/transform|transform(0:0;kotlinx.coroutines.CoroutineScope;kotlinx.coroutines.CoroutineDispatcher;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
 final fun androidx.appstate.transform/TransformScope(): androidx.appstate.transform/TransformScope // androidx.appstate.transform/TransformScope|TransformScope(){}[0]
