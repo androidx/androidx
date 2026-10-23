@@ -17,11 +17,9 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
@@ -40,7 +38,6 @@ import androidx.car.app.versioning.CarAppApiLevels
 import androidx.core.graphics.drawable.IconCompat
 
 /** Creates a screen that demonstrates custom styling and colors for [TabTemplate] and [Tab]s. */
-@OptIn(ExperimentalCarApi::class)
 class TabTemplateStyleDemoScreen(carContext: CarContext) : Screen(carContext) {
     private var mActiveContentId: String = "0"
 

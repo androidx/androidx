@@ -18,9 +18,7 @@ package androidx.car.app.model;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -38,7 +36,6 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(6)
 @KeepFields
-@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Tab implements Content {
     /** Content ID for an empty Tab object. */
     private static final String EMPTY_TAB_CONTENT_ID = "EMPTY_TAB_CONTENT_ID";
@@ -81,7 +78,6 @@ public final class Tab implements Content {
      *
      * @see Tab.Builder#setStyle(TabStyle)
      **/
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable TabStyle getStyle() {
         return mStyle;
@@ -146,7 +142,6 @@ public final class Tab implements Content {
     }
 
     /** A builder of {@link Tab}. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         @Nullable CarText mTitle;
 
@@ -217,7 +212,6 @@ public final class Tab implements Content {
          * <p>If a style is not set or is cleared, the tab style will fall back to host
          * defaults.
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public Tab.@NonNull Builder setStyle(@Nullable TabStyle style) {
             mStyle = style;
