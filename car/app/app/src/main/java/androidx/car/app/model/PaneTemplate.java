@@ -24,7 +24,6 @@ import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CON
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
@@ -81,13 +80,6 @@ public final class PaneTemplate implements Template {
      */
     @RequiresCarApi(7)
     private final @Nullable Header mHeader;
-
-    /**
-     * Represents a Banner object to set in the template.
-     */
-    @ExperimentalCarApi
-    @RequiresCarApi(9)
-    private final @Nullable Banner mBanner;
 
 
     /**
@@ -166,29 +158,16 @@ public final class PaneTemplate implements Template {
         return headerBuilder.build();
     }
 
-    /**
-     * Returns the {@link Banner} to display in this template.
-     *
-     * @see PaneTemplate.Builder#setBanner(Banner)
-     */
-    @ExperimentalCarApi
-    @RequiresCarApi(9)
-    public @Nullable Banner getBanner() {
-        return mBanner;
-    }
-
     @Override
     public @NonNull String toString() {
         return "PaneTemplate";
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mPane, mHeaderAction, mActionStrip, mHeader, mBanner);
+        return Objects.hash(mTitle, mPane, mHeaderAction, mActionStrip, mHeader);
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -203,29 +182,24 @@ public final class PaneTemplate implements Template {
                 && Objects.equals(mPane, otherTemplate.mPane)
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mHeader, otherTemplate.mHeader)
-                && Objects.equals(mBanner, otherTemplate.mBanner);
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     PaneTemplate(Builder builder) {
         mTitle = builder.mTitle;
         mPane = builder.mPane;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
         mHeader = builder.mHeader;
-        mBanner = builder.mBanner;
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     private PaneTemplate() {
         mTitle = null;
         mPane = null;
         mHeaderAction = null;
         mActionStrip = null;
         mHeader = null;
-        mBanner = null;
     }
 
     /** A builder of {@link PaneTemplate}. */
@@ -235,20 +209,6 @@ public final class PaneTemplate implements Template {
         @Nullable Action mHeaderAction;
         @Nullable ActionStrip mActionStrip;
         @Nullable Header mHeader;
-        @ExperimentalCarApi
-        @Nullable Banner mBanner;
-
-        /**
-         * Sets the {@link Banner} for this template.
-         *
-         * @throws NullPointerException if {@code banner} is {@code null}
-         */
-        @ExperimentalCarApi
-        @RequiresCarApi(9)
-        public @NonNull Builder setBanner(@NonNull Banner banner) {
-            mBanner = requireNonNull(banner);
-            return this;
-        }
 
         /**
          * Sets the title of the template.

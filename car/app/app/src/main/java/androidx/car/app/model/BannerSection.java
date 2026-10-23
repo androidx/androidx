@@ -17,7 +17,6 @@
 package androidx.car.app.model;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -33,7 +32,6 @@ import java.util.Objects;
  * optional actions.
  */
 @CarProtocol
-@ExperimentalCarApi
 @KeepFields
 @RequiresCarApi(9)
 public final class BannerSection extends Section<Banner> {
