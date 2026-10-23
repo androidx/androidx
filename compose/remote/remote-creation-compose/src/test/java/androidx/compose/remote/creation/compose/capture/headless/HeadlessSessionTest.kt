@@ -31,6 +31,8 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.EmptyCoroutineContext
@@ -506,4 +508,94 @@ class HeadlessSessionTest {
             delayingObserver.dispose()
         }
     }
+
+    @Test
+    fun pollUntil_withFastDispatcher_waitsForCrossThreadCompletionBeforeTimeout() = runTest {
+        val done = AtomicBoolean(false)
+        val started = CountDownLatch(1)
+        val parked = CountDownLatch(1)
+        val polls = AtomicInteger(0)
+        val worker =
+            Thread(
+                    {
+                        started.countDown()
+                        parked.await(5, TimeUnit.SECONDS)
+                        done.set(true)
+                    },
+                    "HeadlessSessionTest-PollUntilWorker",
+                )
+                .also { it.start() }
+        try {
+            assertThat(started.await(5, TimeUnit.SECONDS)).isTrue()
+            val completed =
+                withContext(Dispatchers.Unconfined) {
+                    pollUntil(canYield = true, timeout = 500.milliseconds) {
+                        if (polls.incrementAndGet() >= APPLY_NOTIFICATION_SPIN_POLLS + 5) {
+                            parked.countDown()
+                        }
+                        done.get()
+                    }
+                }
+            assertThat(completed).isTrue()
+        } finally {
+            parked.countDown()
+            worker.join(5_000)
+        }
+    }
+
+    @Test
+    fun pollUntil_whenConditionStaysFalse_returnsFalseAtTimeout() = runTest {
+        val completed = pollUntil(canYield = true, timeout = 5.milliseconds) { false }
+        assertThat(completed).isFalse()
+    }
+
+    @Test
+    fun awaitQuiescence_inFlightSendApplyNotificationsOnAnotherThread_waitsWithinTimeout() =
+        runTest {
+            val text = mutableStateOf("init")
+            val notificationInFlight = CountDownLatch(1)
+            val awaitingNotifications = CountDownLatch(1)
+            val notifyingThreadName = "HeadlessSessionTest-Notifier"
+            var notifier: Thread? = null
+            val delayingObserver = Snapshot.registerApplyObserver { changed, _ ->
+                if (text in changed && Thread.currentThread().name == notifyingThreadName) {
+                    notificationInFlight.countDown()
+                    awaitingNotifications.await(5, TimeUnit.SECONDS)
+                }
+            }
+            onAwaitingApplyObserverNotifications = {
+                if (notificationInFlight.count == 0L) awaitingNotifications.countDown()
+            }
+            val session = newSession()
+            try {
+                coroutineScope {
+                    session.start(this)
+                    session.awaitRunning()
+                    var seen = ""
+                    val composition = session.setContent {
+                        seen = text.value
+                        LaunchedEffect(Unit) {
+                            text.value = "delivered"
+                            notifier =
+                                Thread({ Snapshot.sendApplyNotifications() }, notifyingThreadName)
+                                    .also { it.start() }
+                            assertThat(notificationInFlight.await(5, TimeUnit.SECONDS)).isTrue()
+                        }
+                    }
+
+                    val result = session.awaitQuiescence()
+
+                    assertThat(result).isEqualTo(QuiescenceResult.Quiescent)
+                    assertThat(seen).isEqualTo("delivered")
+                    session.close()
+                    composition.dispose()
+                }
+            } finally {
+                onAwaitingApplyObserverNotifications = null
+                awaitingNotifications.countDown()
+                session.close()
+                notifier?.join(5_000)
+                delayingObserver.dispose()
+            }
+        }
 }

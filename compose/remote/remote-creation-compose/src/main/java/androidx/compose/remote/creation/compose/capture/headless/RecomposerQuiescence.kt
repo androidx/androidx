@@ -16,8 +16,10 @@
 
 package androidx.compose.remote.creation.compose.capture.headless
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import java.util.concurrent.locks.LockSupport
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -71,14 +73,22 @@ internal fun Recomposer.refreshStateIfIdle(recomposerDispatcher: CoroutineContex
  * [awaitApplyObserverNotifications]). Such notifications normally complete in microseconds; the
  * bound only matters if the notifying thread is descheduled or an observer is slow.
  */
-private val APPLY_NOTIFICATION_WAIT: Duration = 50.milliseconds
+internal val APPLY_NOTIFICATION_WAIT: Duration = 50.milliseconds
 
 /**
  * Upper bound on polls in a single [awaitApplyObserverNotifications] call. This is a second bound
  * that does not depend on the time source, so the wait terminates even if the monotonic clock does
  * not advance as expected on some host.
  */
-private const val APPLY_NOTIFICATION_MAX_POLLS = 10_000
+internal const val APPLY_NOTIFICATION_MAX_POLLS = 10_000
+
+/** Number of initial spin-yields in [pollUntil] before parking briefly between polls. */
+internal const val APPLY_NOTIFICATION_SPIN_POLLS = 64
+
+/**
+ * Park duration (50 microseconds) between [pollUntil] checks after [APPLY_NOTIFICATION_SPIN_POLLS].
+ */
+internal const val APPLY_NOTIFICATION_PARK_NANOS = 50_000L
 
 /**
  * Upper bound on frames sent within one [awaitRecomposerQuiescence] call.
@@ -350,6 +360,9 @@ private suspend fun drainUnconfinedEventLoop(
     } while (changed && ++polls < APPLY_NOTIFICATION_MAX_POLLS)
 }
 
+/** Test hook, called when [awaitApplyObserverNotifications] starts waiting for a notification. */
+@VisibleForTesting @Volatile internal var onAwaitingApplyObserverNotifications: (() -> Unit)? = null
+
 /**
  * Waits for at most [APPLY_NOTIFICATION_WAIT] (or [APPLY_NOTIFICATION_MAX_POLLS] polls) until no
  * thread is notifying apply observers of global snapshot changes
@@ -365,27 +378,43 @@ private suspend fun drainUnconfinedEventLoop(
  *   `false` (immediate dispatchers), the thread is yielded with [Thread.yield] instead.
  * @return `true` if no notification is pending, `false` if the wait timed out.
  */
-private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean =
-    pollUntil(canYield) { !Snapshot.isApplyObserverNotificationPending }
+private suspend fun awaitApplyObserverNotifications(canYield: Boolean): Boolean {
+    if (!Snapshot.isApplyObserverNotificationPending) return true
+    onAwaitingApplyObserverNotifications?.invoke()
+    return pollUntil(canYield) { !Snapshot.isApplyObserverNotificationPending }
+}
 
 /**
- * Polls [isDone] for at most [APPLY_NOTIFICATION_WAIT] (or [APPLY_NOTIFICATION_MAX_POLLS] polls),
- * yielding between polls as described for [awaitApplyObserverNotifications].
+ * Polls [isDone] for at most [timeout] (or [APPLY_NOTIFICATION_MAX_POLLS] polls), yielding between
+ * polls as described for [awaitApplyObserverNotifications].
+ *
+ * After [APPLY_NOTIFICATION_SPIN_POLLS] quick yields, parks briefly between polls so that a fast
+ * dispatcher (such as a `TestDispatcher` with an empty queue) yields the CPU to the notifying
+ * thread and does not exhaust [APPLY_NOTIFICATION_MAX_POLLS] before [timeout] elapses.
  *
  * @return `true` if [isDone] returned `true`, `false` if the wait timed out.
  */
-internal suspend inline fun pollUntil(canYield: Boolean, isDone: () -> Boolean): Boolean {
+internal suspend inline fun pollUntil(
+    canYield: Boolean,
+    timeout: Duration = APPLY_NOTIFICATION_WAIT,
+    isDone: () -> Boolean,
+): Boolean {
     if (isDone()) return true
-    val deadline = TimeSource.Monotonic.markNow() + APPLY_NOTIFICATION_WAIT
+    val deadline = TimeSource.Monotonic.markNow() + timeout
     var polls = 0
-    while (!isDone()) {
+    while (true) {
         if (deadline.hasPassedNow() || ++polls > APPLY_NOTIFICATION_MAX_POLLS) return false
         if (canYield) {
             yield()
+            if (isDone()) return true
         } else {
             currentCoroutineContext().ensureActive()
-            Thread.yield()
         }
+        if (polls <= APPLY_NOTIFICATION_SPIN_POLLS) {
+            Thread.yield()
+        } else {
+            LockSupport.parkNanos(APPLY_NOTIFICATION_PARK_NANOS)
+        }
+        if (isDone()) return true
     }
-    return true
 }

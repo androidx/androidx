@@ -21,7 +21,10 @@ package androidx.compose.remote.creation.compose.capture.headless
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -132,6 +135,46 @@ class SnapshotWriteMonitorTest {
             applyObserver.dispose()
         }
 
+        assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(0)
+        assertThat(SnapshotWriteMonitor.isRunning).isFalse()
+    }
+
+    @Test
+    fun acquireForSession_coalescesDefaultAndEmptyContexts_andUsesCustomInterceptor() = runTest {
+        val defaultHandle = SnapshotWriteMonitor.acquireForSession(Dispatchers.Default + Job())
+        val emptyHandle = SnapshotWriteMonitor.acquireForSession(EmptyCoroutineContext)
+        try {
+            assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(2)
+            assertThat(SnapshotWriteMonitor.isRunning).isTrue()
+
+            defaultHandle.close()
+            assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(1)
+            assertThat(SnapshotWriteMonitor.isRunning).isTrue()
+        } finally {
+            defaultHandle.close()
+            emptyHandle.close()
+        }
+        assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(0)
+        assertThat(SnapshotWriteMonitor.isRunning).isFalse()
+
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val state = mutableStateOf(0)
+        var delivered = 0
+        val applyObserver = Snapshot.registerApplyObserver { changed, _ ->
+            if (state in changed) delivered++
+        }
+        val sessionA = SnapshotWriteMonitor.acquireForSession(testDispatcher + Job())
+        val sessionB = SnapshotWriteMonitor.acquireForSession(testDispatcher + Job())
+        try {
+            assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(2)
+            state.value = 1
+            runCurrent()
+            assertThat(delivered).isEqualTo(1)
+        } finally {
+            sessionA.close()
+            sessionB.close()
+            applyObserver.dispose()
+        }
         assertThat(SnapshotWriteMonitor.activeSessionCount).isEqualTo(0)
         assertThat(SnapshotWriteMonitor.isRunning).isFalse()
     }
