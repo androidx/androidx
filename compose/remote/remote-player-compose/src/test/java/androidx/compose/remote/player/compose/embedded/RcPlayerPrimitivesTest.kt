@@ -22,6 +22,7 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
@@ -141,7 +142,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -159,6 +159,23 @@ class RcPlayerPrimitivesTest {
             CoreDocument.DOCUMENT_API_LEVEL,
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
+
+    private val circularTextProfile =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROID_NATIVE,
+            AndroidxRcPlatformServices(),
+            {
+                Operations.getOperations(
+                        CoreDocument.DOCUMENT_API_LEVEL,
+                        RcProfiles.PROFILE_ANDROIDX,
+                    )
+                    ?.keySet()
+                    .orEmpty() + setOf(Operations.DRAW_TEXT_ON_CIRCLE)
+            },
         ) { creationDisplayInfo, profile, callback ->
             RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
         }
@@ -466,12 +483,14 @@ class RcPlayerPrimitivesTest {
         rule.onNodeWithTag("canvasParent").assertExists()
     }
 
-    @Ignore("DRAW_TEXT_ON_CIRCLE is commented out in Operations.java")
     @Test
     fun testDrawTextOnCircle() {
         val remoteString = RemoteString("Hello Circle")
 
-        rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
+        rule.setRemoteContent(
+            profile = circularTextProfile,
+            modifier = Modifier.size(100.dp).testTag("canvasParent"),
+        ) {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 drawTextOnCircle(
                     text = remoteString,

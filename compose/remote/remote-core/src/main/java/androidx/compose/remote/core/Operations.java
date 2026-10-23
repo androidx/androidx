@@ -58,6 +58,7 @@ import androidx.compose.remote.core.operations.DrawRoundRect;
 import androidx.compose.remote.core.operations.DrawSector;
 import androidx.compose.remote.core.operations.DrawText;
 import androidx.compose.remote.core.operations.DrawTextAnchored;
+import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.DrawTextOnPath;
 import androidx.compose.remote.core.operations.DrawToBitmap;
 import androidx.compose.remote.core.operations.DrawTweenPath;
@@ -489,6 +490,7 @@ public class Operations {
                 sAllOperationsV7.put(
                         DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH, DrawBitmapFontTextOnPath::read);
                 sAllOperationsV7.put(DRAW_BITMAP_TEXT_ANCHORED, DrawBitmapTextAnchored::read);
+                sAllOperationsV7.put(DRAW_TEXT_ON_CIRCLE, DrawTextOnCircle::read);
                 sAllOperationsV7.put(DATA_SHADER, ShaderData::read);
                 sAllOperationsV7.put(DATA_FONT, FontData::read);
                 sAllOperationsV7.put(DRAW_TO_BITMAP, DrawToBitmap::read);
