@@ -26,30 +26,41 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.DeadObjectException
 import android.os.ResultReceiver
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.platform.IProjectedInputEventListener
 import androidx.xr.projected.platform.IProjectedPermissionRequestCallback
 import androidx.xr.projected.platform.IProjectedService
+import androidx.xr.projected.platform.ProjectedInputEvent as AidlProjectedInputEvent
 import androidx.xr.projected.platform.ProjectedPermissionRequestState
 import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.never
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
@@ -66,6 +77,8 @@ class ProjectedActivityCompatTest {
 
     @get:Rule() val projectedTestRule = ProjectedTestRule()
     private val context: Application = ApplicationProvider.getApplicationContext()
+    private val mockProjectedService: IProjectedService
+        get() = ReflectionHelpers.getField(projectedTestRule, "mockProjectedService")
 
     @Test
     fun create_withContext_returnsProjectedActivityCompatInstance() = runBlocking {
@@ -142,6 +155,269 @@ class ProjectedActivityCompatTest {
             job.join()
 
             assertThat(isFlowClosed).isTrue()
+        }
+
+    @Test
+    fun addProjectedInputEventListener_invokesListenerOnCoroutineContextDispatcher() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            val dispatcher = StandardTestDispatcher()
+            runBlocking {
+                ProjectedActivityCompat.create(activity, dispatcher).use { projectedActivityCompat
+                    ->
+                    var receivedInputEvent: ProjectedInputEvent? = null
+
+                    projectedActivityCompat.addProjectedInputEventListener { inputEvent ->
+                        receivedInputEvent = inputEvent
+                    }
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+                    check(receivedInputEvent == null)
+                    dispatcher.scheduler.advanceUntilIdle()
+
+                    assertThat(receivedInputEvent)
+                        .isEqualTo(ProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA))
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_noDispatcher_invokesListenerDirectly() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    var receivedInputEvent: ProjectedInputEvent? = null
+
+                    projectedActivityCompat.addProjectedInputEventListener { inputEvent ->
+                        receivedInputEvent = inputEvent
+                    }
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    assertThat(receivedInputEvent)
+                        .isEqualTo(ProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA))
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_contextJobCancelled_stillInvokesListener() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                val cancelledJob = Job().apply { cancel() }
+                ProjectedActivityCompat.create(activity, cancelledJob).use { projectedActivityCompat
+                    ->
+                    var receivedInputEvent: ProjectedInputEvent? = null
+
+                    projectedActivityCompat.addProjectedInputEventListener { inputEvent ->
+                        receivedInputEvent = inputEvent
+                    }
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    assertThat(receivedInputEvent)
+                        .isEqualTo(ProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA))
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_listenerThrows_stillReceivesEvents() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                val exceptions = mutableListOf<Throwable>()
+                val exceptionHandler = CoroutineExceptionHandler { _, e -> exceptions.add(e) }
+                ProjectedActivityCompat.create(activity, exceptionHandler).use {
+                    projectedActivityCompat ->
+                    var callCount = 0
+                    projectedActivityCompat.addProjectedInputEventListener {
+                        callCount++
+                        throw IllegalStateException("Listener failed")
+                    }
+
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    assertThat(callCount).isEqualTo(2)
+                    assertThat(exceptions).hasSize(2)
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_sameListenerAddedTwice_receivesProjectedInputEventOnce() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    var callCount = 0
+                    val listener: (ProjectedInputEvent) -> Unit = { callCount++ }
+
+                    projectedActivityCompat.addProjectedInputEventListener(listener)
+                    projectedActivityCompat.addProjectedInputEventListener(listener)
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    assertThat(callCount).isEqualTo(1)
+                    verify(mockProjectedService, times(1))
+                        .registerProjectedInputEventListener(any())
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_serviceNotRunning_throwsIllegalStateException() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    val listener: (ProjectedInputEvent) -> Unit = {}
+                    doThrow(DeadObjectException())
+                        .whenever(mockProjectedService)
+                        .registerProjectedInputEventListener(any())
+
+                    assertFailsWith<IllegalStateException> {
+                        projectedActivityCompat.addProjectedInputEventListener(listener)
+                    }
+
+                    // The listener wasn't added, so removing it doesn't unregister anything.
+                    projectedActivityCompat.removeProjectedInputEventListener(listener)
+                    verify(mockProjectedService, never())
+                        .unregisterProjectedInputEventListener(any())
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_registrationThrows_canBeAddedAgain() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    val listener: (ProjectedInputEvent) -> Unit = {}
+                    doThrow(SecurityException())
+                        .doNothing()
+                        .whenever(mockProjectedService)
+                        .registerProjectedInputEventListener(any())
+                    assertFailsWith<SecurityException> {
+                        projectedActivityCompat.addProjectedInputEventListener(listener)
+                    }
+
+                    projectedActivityCompat.addProjectedInputEventListener(listener)
+
+                    verify(mockProjectedService, times(2))
+                        .registerProjectedInputEventListener(any())
+                }
+            }
+        }
+
+    @Test
+    fun removeProjectedInputEventListener_stopsReceivingProjectedInputEvents() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    var callCount1 = 0
+                    var callCount2 = 0
+                    val listener1: (ProjectedInputEvent) -> Unit = { callCount1++ }
+                    val listener2: (ProjectedInputEvent) -> Unit = { callCount2++ }
+                    projectedActivityCompat.addProjectedInputEventListener(listener1)
+                    projectedActivityCompat.addProjectedInputEventListener(listener2)
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+                    check(callCount1 == 1 && callCount2 == 1)
+
+                    projectedActivityCompat.removeProjectedInputEventListener(listener2)
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    assertThat(callCount1).isEqualTo(2)
+                    assertThat(callCount2).isEqualTo(1)
+                }
+            }
+        }
+
+    @Test
+    fun removeProjectedInputEventListener_eventAlreadyQueued_doesNotInvokeListener() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            val dispatcher = StandardTestDispatcher()
+            runBlocking {
+                ProjectedActivityCompat.create(activity, dispatcher).use { projectedActivityCompat
+                    ->
+                    var callCount = 0
+                    val listener: (ProjectedInputEvent) -> Unit = { callCount++ }
+                    projectedActivityCompat.addProjectedInputEventListener(listener)
+                    projectedTestRule.sendProjectedInputEvent(
+                        ProjectedInputAction.TOGGLE_APP_CAMERA
+                    )
+
+                    projectedActivityCompat.removeProjectedInputEventListener(listener)
+                    dispatcher.scheduler.advanceUntilIdle()
+
+                    assertThat(callCount).isEqualTo(0)
+                }
+            }
+        }
+
+    @Test
+    fun addProjectedInputEventListener_listenerRemovesItselfDuringRegistration_staysRemoved() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                ProjectedActivityCompat.create(activity).use { projectedActivityCompat ->
+                    // Send an event while the listener is being registered.
+                    val registeredListeners = mutableListOf<IProjectedInputEventListener>()
+                    val inputEvent =
+                        AidlProjectedInputEvent().apply {
+                            action = ProjectedInputAction.TOGGLE_APP_CAMERA.code
+                        }
+                    doAnswer { invocation ->
+                            val aidlListener =
+                                invocation.getArgument<IProjectedInputEventListener>(0)
+                            registeredListeners.add(aidlListener)
+                            aidlListener.onProjectedInputEvent(inputEvent)
+                            null
+                        }
+                        .whenever(mockProjectedService)
+                        .registerProjectedInputEventListener(any())
+                    var callCount = 0
+                    lateinit var listener: (ProjectedInputEvent) -> Unit
+                    listener = {
+                        callCount++
+                        projectedActivityCompat.removeProjectedInputEventListener(listener)
+                    }
+
+                    projectedActivityCompat.addProjectedInputEventListener(listener)
+                    // A later event from the service doesn't reach the removed listener.
+                    registeredListeners.single().onProjectedInputEvent(inputEvent)
+
+                    assertThat(callCount).isEqualTo(1)
+                    verify(mockProjectedService, atLeastOnce())
+                        .unregisterProjectedInputEventListener(registeredListeners.single())
+                }
+            }
+        }
+
+    @Test
+    fun close_removesProjectedInputEventListeners() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                val projectedActivityCompat = ProjectedActivityCompat.create(activity)
+                var callCount = 0
+                projectedActivityCompat.addProjectedInputEventListener { callCount++ }
+                projectedTestRule.sendProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA)
+                check(callCount == 1)
+
+                projectedActivityCompat.close()
+                projectedTestRule.sendProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA)
+
+                assertThat(callCount).isEqualTo(1)
+                verify(mockProjectedService).unregisterProjectedInputEventListener(any())
+            }
         }
 
     @Test

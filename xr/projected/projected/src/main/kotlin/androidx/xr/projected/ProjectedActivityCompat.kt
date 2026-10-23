@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// ConcurrentHashMap is safe for our minSdk 24. The lint check guards against a Lollipop bug.
+@file:Suppress("BanConcurrentHashMap")
+
 package androidx.xr.projected
 
 import android.annotation.SuppressLint
@@ -28,22 +31,32 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.RemoteException
 import android.os.ResultReceiver
 import android.view.Display.DEFAULT_DISPLAY
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.xr.projected.ProjectedActivityCompat.Companion.create
+import androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
 import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.platform.IProjectedInputEventListener
 import androidx.xr.projected.platform.IProjectedPermissionRequestCallback
 import androidx.xr.projected.platform.IProjectedService
-import androidx.xr.projected.platform.ProjectedInputEvent
+import androidx.xr.projected.platform.ProjectedInputEvent as AidlProjectedInputEvent
 import androidx.xr.projected.platform.ProjectedPermissionRequestData
 import androidx.xr.projected.platform.ProjectedPermissionRequestState
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -61,14 +74,33 @@ public class ProjectedActivityCompat
 private constructor(
     private val connection: ProjectedServiceConnection,
     private val projectedService: IProjectedService,
+    private val coroutineContext: CoroutineContext,
 ) : AutoCloseable {
 
+    /**
+     * Map to convert the listener provided via [addProjectedInputEventListener] to the one
+     * registered with the [IProjectedService].
+     */
+    private val projectedInputEventListeners =
+        ConcurrentHashMap<(ProjectedInputEvent) -> Unit, IProjectedInputEventListener>()
+
+    // Runs listeners in the context passed to create. Its SupervisorJob replaces any Job passed
+    // in, so listeners stop only when they're removed or close() is called.
+    private val coroutineScope = CoroutineScope(coroutineContext + SupervisorJob())
+
+    // Without a dispatcher, listeners run directly on the thread that delivers each event.
+    private val listenerStart =
+        if (coroutineContext[ContinuationInterceptor] == null) CoroutineStart.UNDISPATCHED
+        else CoroutineStart.DEFAULT
+
+    // TODO(b/576802772): Remove once all clients have been migrated.
     /** Flow providing a stream of Projected input events. */
+    @Deprecated("Use addProjectedInputEventListener and removeProjectedInputEventListener instead.")
     public val projectedInputEvents: Flow<androidx.xr.projected.ProjectedInputEvent> =
         callbackFlow {
             val projectedActionsListener: IProjectedInputEventListener =
                 object : IProjectedInputEventListener.Stub() {
-                    override fun onProjectedInputEvent(inputEvent: ProjectedInputEvent) {
+                    override fun onProjectedInputEvent(inputEvent: AidlProjectedInputEvent) {
                         try {
                             val projectedInputAction =
                                 androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
@@ -95,6 +127,72 @@ private constructor(
                 job.cancel()
             }
         }
+
+    /**
+     * Adds a listener for [ProjectedInputEvent]s dispatched from the Projected device.
+     *
+     * The [listener] is invoked whenever a Projected input event occurs while the [Activity] has
+     * input focus. It runs on the dispatcher of the `coroutineContext` passed to [create], or on
+     * the thread that delivers the event if that context has no dispatcher. Adding a listener that
+     * is already registered has no effect.
+     *
+     * The [listener] stops receiving events when it's removed with
+     * [removeProjectedInputEventListener], when [close] is called, or when the connection to the
+     * Projected service is lost.
+     *
+     * @param listener listener that receives [ProjectedInputEvent]s
+     * @throws IllegalStateException if the Projected service is not running
+     */
+    public fun addProjectedInputEventListener(listener: (ProjectedInputEvent) -> Unit) {
+        val aidlListener =
+            object : IProjectedInputEventListener.Stub() {
+                override fun onProjectedInputEvent(inputEvent: AidlProjectedInputEvent) {
+                    val projectedInputEvent =
+                        try {
+                            ProjectedInputEvent(ProjectedInputAction.fromCode(inputEvent.action))
+                        } catch (_: IllegalArgumentException) {
+                            // Ignore actions that this library version doesn't support.
+                            return
+                        }
+                    val stub = this
+                    coroutineScope.launch(start = listenerStart) {
+                        // Skip events that were still queued when the listener was removed.
+                        if (projectedInputEventListeners[listener] === stub) {
+                            listener(projectedInputEvent)
+                        }
+                    }
+                }
+
+                override fun getInterfaceVersion(): Int = VERSION
+            }
+
+        // Add the listener before registering, so it can be removed by an event that arrives
+        // during registration.
+        if (projectedInputEventListeners.putIfAbsent(listener, aidlListener) != null) return
+        try {
+            projectedService.registerProjectedInputEventListener(aidlListener)
+        } catch (e: RemoteException) {
+            projectedInputEventListeners.remove(listener, aidlListener)
+            throw IllegalStateException("Projected service is not running.", e)
+        } catch (e: Throwable) {
+            projectedInputEventListeners.remove(listener, aidlListener)
+            throw e
+        }
+        // If the listener was removed during registration, make sure the service drops it too.
+        if (projectedInputEventListeners[listener] !== aidlListener) unregister(aidlListener)
+    }
+
+    /**
+     * Removes a listener previously added with [addProjectedInputEventListener]. If the listener
+     * has already been removed or was never added, then this is a no-op.
+     *
+     * @param listener listener previously passed to [addProjectedInputEventListener]
+     */
+    public fun removeProjectedInputEventListener(listener: (ProjectedInputEvent) -> Unit) {
+        projectedInputEventListeners.remove(listener)?.let { aidlListener ->
+            unregister(aidlListener)
+        }
+    }
 
     /**
      * Registers a [PendingIntent] to indicate which [Activity] should receive inputs when the
@@ -145,7 +243,17 @@ private constructor(
     }
 
     override fun close() {
+        projectedInputEventListeners.keys.forEach { removeProjectedInputEventListener(it) }
+        coroutineScope.cancel()
         connection.disconnect()
+    }
+
+    private fun unregister(aidlListener: IProjectedInputEventListener) {
+        try {
+            projectedService.unregisterProjectedInputEventListener(aidlListener)
+        } catch (_: RemoteException) {
+            // Ignore errors during unregistration
+        }
     }
 
     public companion object {
@@ -172,6 +280,7 @@ private constructor(
             return ProjectedActivityCompat(
                 serviceConnection,
                 projectedService = serviceConnection.connect(),
+                EmptyCoroutineContext,
             )
         }
 
@@ -180,6 +289,10 @@ private constructor(
          * ProjectedActivityCompat when the connection is established.
          *
          * @param activity The [Activity] running on a Projected device
+         * @param coroutineContext context whose dispatcher runs the listeners of the returned
+         *   instance (any [kotlinx.coroutines.Job] in this context is ignored and does not
+         *   unregister listeners); without a dispatcher, listeners run on the thread that delivers
+         *   each event
          * @return A [ProjectedActivityCompat] instance
          * @throws IllegalStateException if the projected service is not found or binding is not
          *   permitted
@@ -187,8 +300,12 @@ private constructor(
          *   device
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @JvmOverloads
         @JvmStatic
-        public suspend fun create(activity: Activity): ProjectedActivityCompat {
+        public suspend fun create(
+            activity: Activity,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        ): ProjectedActivityCompat {
             require(
                 ProjectedContext.isProjectedDeviceContext(activity),
                 { "Provided Activity is not running on a Projected device." },
@@ -197,6 +314,7 @@ private constructor(
             return ProjectedActivityCompat(
                 serviceConnection,
                 projectedService = serviceConnection.connect(),
+                coroutineContext,
             )
         }
 

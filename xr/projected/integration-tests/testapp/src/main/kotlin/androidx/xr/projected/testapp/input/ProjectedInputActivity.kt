@@ -64,9 +64,10 @@ class ProjectedInputActivity : ComponentActivity() {
 
         LaunchedEffect(Unit) {
             try {
-                val controller = ProjectedActivityCompat.create(this@ProjectedInputActivity)
+                val controller =
+                    ProjectedActivityCompat.create(this@ProjectedInputActivity, coroutineContext)
                 projectedActivityCompat = controller
-                controller.projectedInputEvents.collect { inputEvent ->
+                controller.addProjectedInputEventListener { inputEvent ->
                     if (
                         inputEvent.inputAction ==
                             ProjectedInputEvent.ProjectedInputAction.TOGGLE_APP_CAMERA
