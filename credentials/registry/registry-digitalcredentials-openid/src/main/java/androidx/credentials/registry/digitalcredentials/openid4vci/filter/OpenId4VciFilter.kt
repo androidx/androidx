@@ -65,14 +65,23 @@ public sealed class OpenId4VciFilter {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PassFilter() : OpenId4VciFilter() {
     internal override fun asJson(): JSONObject = JSONObject().apply { put("Pass", JSONObject()) }
+
+    override fun equals(other: Any?): Boolean = this === other || other is PassFilter
+
+    override fun hashCode(): Int = PassFilter::class.hashCode()
 }
 
 /**
  * Passes only if all child filters pass.
  *
  * @property filters list of filters that must all pass
+ * @throws IllegalArgumentException if [filters] is empty
  */
 public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
+    init {
+        require(filters.isNotEmpty()) { "filters must not be empty." }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
@@ -89,14 +98,27 @@ public class AllOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
                 },
             )
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllOf) return false
+        return this.filters == other.filters
+    }
+
+    override fun hashCode(): Int = filters.hashCode()
 }
 
 /**
  * Passes if at least one child filter passes.
  *
  * @property filters list of filters where at least one must pass
+ * @throws IllegalArgumentException if [filters] is empty
  */
 public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilter() {
+    init {
+        require(filters.isNotEmpty()) { "filters must not be empty." }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
@@ -113,6 +135,14 @@ public class AnyOf(public val filters: List<OpenId4VciFilter>) : OpenId4VciFilte
                 },
             )
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AnyOf) return false
+        return this.filters == other.filters
+    }
+
+    override fun hashCode(): Int = filters.hashCode()
 }
 
 /**
@@ -125,6 +155,14 @@ public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
         JSONObject().apply { put("Not", JSONObject().apply { put("filter", filter.asJson()) }) }
 
     override fun not(): OpenId4VciFilter = filter
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Not) return false
+        return this.filter == other.filter
+    }
+
+    override fun hashCode(): Int = filter.hashCode()
 }
 
 /**
@@ -135,12 +173,26 @@ public class Not(public val filter: OpenId4VciFilter) : OpenId4VciFilter() {
  * in the OpenID4VCI specification.
  *
  * @property issuers set of allowed credential issuers (e.g., "https://issuer.example.com")
+ * @throws IllegalArgumentException if [issuers] is empty or contains blank strings
  */
 public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter() {
+    init {
+        require(issuers.isNotEmpty()) { "issuers must not be empty." }
+        require(issuers.all { it.isNotBlank() }) { "issuers must not contain blank elements." }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedIssuers", JSONObject().apply { put("issuers", JSONArray(issuers)) })
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllowedIssuers) return false
+        return this.issuers == other.issuers
+    }
+
+    override fun hashCode(): Int = issuers.hashCode()
 }
 
 /**
@@ -151,9 +203,17 @@ public class AllowedIssuers(public val issuers: Set<String>) : OpenId4VciFilter(
  * in the OpenID4VCI specification.
  *
  * @property configurationIds set of allowed credential configuration identifiers
+ * @throws IllegalArgumentException if [configurationIds] is empty or contains blank strings
  */
 public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
     OpenId4VciFilter() {
+    init {
+        require(configurationIds.isNotEmpty()) { "configurationIds must not be empty." }
+        require(configurationIds.all { it.isNotBlank() }) {
+            "configurationIds must not contain blank elements."
+        }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put(
@@ -161,28 +221,64 @@ public class AllowedConfigurationIds(public val configurationIds: Set<String>) :
                 JSONObject().apply { put("configuration_ids", JSONArray(configurationIds)) },
             )
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllowedConfigurationIds) return false
+        return this.configurationIds == other.configurationIds
+    }
+
+    override fun hashCode(): Int = configurationIds.hashCode()
 }
 
 /**
  * Filters issuance requests by allowed ISO mdoc document types.
  *
  * @property doctypes set of allowed document types (e.g., "org.iso.18013.5.1.mDL")
+ * @throws IllegalArgumentException if [doctypes] is empty or contains blank strings
  */
 public class AllowedMdocDoctypes(public val doctypes: Set<String>) : OpenId4VciFilter() {
+    init {
+        require(doctypes.isNotEmpty()) { "doctypes must not be empty." }
+        require(doctypes.all { it.isNotBlank() }) { "doctypes must not contain blank elements." }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedMdocDoctypes", JSONObject().apply { put("doctypes", JSONArray(doctypes)) })
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllowedMdocDoctypes) return false
+        return this.doctypes == other.doctypes
+    }
+
+    override fun hashCode(): Int = doctypes.hashCode()
 }
 
 /**
  * Filters issuance requests by allowed SD-JWT Verifiable Credential Types.
  *
  * @property vcts set of allowed verifiable credential types
+ * @throws IllegalArgumentException if [vcts] is empty or contains blank strings
  */
 public class AllowedSdJwtVcts(public val vcts: Set<String>) : OpenId4VciFilter() {
+    init {
+        require(vcts.isNotEmpty()) { "vcts must not be empty." }
+        require(vcts.all { it.isNotBlank() }) { "vcts must not contain blank elements." }
+    }
+
     internal override fun asJson(): JSONObject =
         JSONObject().apply {
             put("AllowedSdJwtVcts", JSONObject().apply { put("vcts", JSONArray(vcts)) })
         }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AllowedSdJwtVcts) return false
+        return this.vcts == other.vcts
+    }
+
+    override fun hashCode(): Int = vcts.hashCode()
 }
