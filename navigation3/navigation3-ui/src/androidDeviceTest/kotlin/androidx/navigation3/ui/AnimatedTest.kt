@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -50,6 +51,7 @@ import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.IntSize
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.lifecycle.Lifecycle
@@ -63,6 +65,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.metadata
 import androidx.navigation3.scene.DialogSceneStrategy
+import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.second
 import androidx.navigation3.third
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
@@ -1424,5 +1427,60 @@ class AnimatedTest {
         assertWithMessage("Interrupted consecutive pop SHOULD be classified as pop transition")
             .that(popTransitionCount)
             .isAtLeast(2)
+    }
+
+    @Test
+    fun testSharedEntryInSceneInterruptedPopByPush() {
+        lateinit var backStack: MutableList<Any>
+        val testDuration = DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong()
+        var firstSize = IntSize.Zero
+
+        val twoPaneStrategy = SceneStrategy { entries ->
+            if (entries.size < 2) null
+            else
+                TestTwoPaneScene(
+                    key = Pair(entries[0].contentKey, entries[1].contentKey),
+                    entries = entries.takeLast(2),
+                    previousEntries = entries.dropLast(1),
+                )
+        }
+
+        composeTestRule.setContent {
+            backStack = remember { mutableStateListOf(first, second) }
+            SharedTransitionLayout {
+                NavDisplay(
+                    backStack = backStack,
+                    sharedTransitionScope = this,
+                    sceneStrategies = listOf(twoPaneStrategy),
+                ) { key ->
+                    when (key) {
+                        first ->
+                            NavEntry(first) {
+                                Box(Modifier.fillMaxSize().onSizeChanged { firstSize = it }) {
+                                    Text(first)
+                                }
+                            }
+                        else -> NavEntry(key) { Box(Modifier.fillMaxSize()) { Text("$key") } }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        val initialTwoPaneSize = firstSize
+        composeTestRule.mainClock.autoAdvance = false
+
+        // Pop to single-pane [first], then interrupt halfway by pushing a detail entry [second].
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+        composeTestRule.mainClock.advanceTimeBy(testDuration / 2)
+        composeTestRule.runOnIdle { backStack.add(second) }
+
+        composeTestRule.mainClock.advanceTimeBy(testDuration / 2)
+        composeTestRule.waitForIdle()
+        assertThat(firstSize.width).isAtLeast(initialTwoPaneSize.width)
+        assertThat(firstSize.height).isEqualTo(initialTwoPaneSize.height)
+
+        composeTestRule.mainClock.advanceTimeBy(testDuration)
+        composeTestRule.waitForIdle()
     }
 }

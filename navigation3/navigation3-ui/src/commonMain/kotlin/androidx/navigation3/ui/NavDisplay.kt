@@ -669,12 +669,10 @@ public fun <T : Any> NavDisplay(
             // if the target is mid-transition and if it is, re-use the previously calculated
             // zIndex. This ensures that `zIndices` is tracking the correct zIndex and that
             // it matches the actual zIndex running in AnimatedContent.
-            !inPredictiveBackGesturePhase &&
-                transition.targetState != scene &&
-                zIndices.contains(targetKey) -> zIndices[targetKey]
-            initialKey == targetKey -> initialZIndex
-            isPop || inPredictiveBackGesturePhase -> initialZIndex - 1f
-            else -> initialZIndex + 1f
+            zIndices.contains(targetKey) -> zIndices[targetKey]
+            isPop || inPredictiveBackGesturePhase ->
+                (sceneMap.keys.minOfOrNull { zIndices[it] } ?: initialZIndex) - 1f
+            else -> (sceneMap.keys.maxOfOrNull { zIndices[it] } ?: initialZIndex) + 1f
         }
 
     sceneMap[targetKey] = targetScene
@@ -703,7 +701,12 @@ public fun <T : Any> NavDisplay(
     // using the z-index of each screen to always show the entry on the topmost screen
     // The map is AnimatedSceneKey to a Set of NavEntry.key values
     val sceneToExcludedEntryMap =
-        remember(sceneMap.entries.toList(), currentOverlayScenes.toList(), zIndices.toString()) {
+        remember(
+            sceneMap.entries.toList(),
+            currentOverlayScenes.toList(),
+            zIndices.toString(),
+            transition.targetState,
+        ) {
             buildMap {
                 val scenes = mutableListOf<Scene<T>>()
                 // First sort the non-overlay scenes by z-order in descending order.
