@@ -17,13 +17,14 @@
 package androidx.build
 
 import androidx.build.pinneddependencies.DependencyExemption
-import androidx.build.pinneddependencies.ProjectCoordinates
+import androidx.build.pinneddependencies.LibraryCoordinates
 import androidx.build.pinneddependencies.findVerificationErrors
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -36,8 +37,8 @@ import org.gradle.api.tasks.TaskProvider
 
 /**
  * Task for verifying the androidx dependency-stability-suffix rule (A library is only as stable as
- * its least stable dependency), and that tip-of-tree project dependencies on libraries that release
- * separately are either pinned to a released version or listed in
+ * its least stable dependency), and that dependencies on libraries that release separately are
+ * pinned to a non-alpha released version or listed in
  * [androidx.build.pinneddependencies.EXEMPTIONS_FILE_NAME].
  */
 @CacheableTask
@@ -47,14 +48,15 @@ internal abstract class VerifyDependencyVersionsTask : DefaultTask() {
         group = "Verification"
         description =
             "Task for verifying the androidx dependency-stability-suffix rule and that " +
-                "tip-of-tree dependencies on separately released libraries are pinned or exempted"
+                "dependencies on separately released libraries are pinned to a non-alpha " +
+                "version or exempted"
     }
 
-    @get:Input abstract val library: Property<ProjectCoordinates>
+    @get:Input abstract val library: Property<LibraryCoordinates>
 
     @get:Input abstract val androidXDependencySet: SetProperty<AndroidXDependency>
 
-    @get:Input abstract val exemptionCandidates: SetProperty<ProjectCoordinates>
+    @get:Input abstract val exemptionCandidates: SetProperty<LibraryCoordinates>
 
     @get:Input abstract val exemptions: ListProperty<DependencyExemption>
 
@@ -143,11 +145,11 @@ internal fun Project.createVerifyDependencyVersionsTask(
     libraryVersionsService: Provider<LibraryVersionsService>
 ): TaskProvider<VerifyDependencyVersionsTask> {
     val usingMaxDepsVersions = project.usingMaxDepVersions()
-    val projectPath = project.path
     val taskProvider =
         tasks.register("verifyDependencyVersions", VerifyDependencyVersionsTask::class.java) { task
             ->
-            task.library.set(getLibraryProjectCoordinates(libraryVersionsService))
+            val library = getLibraryCoordinates(libraryVersionsService)
+            task.library.set(library)
             task.androidXDependencySet.set(
                 project.provider {
                     project.configurations
@@ -167,7 +169,9 @@ internal fun Project.createVerifyDependencyVersionsTask(
             )
             task.exemptionCandidates.set(getExemptionCandidates(libraryVersionsService))
             task.exemptions.set(
-                libraryVersionsService.map { service -> service.exemptionsFor(projectPath) }
+                library.zip(libraryVersionsService) { lib, service ->
+                    service.exemptionsFor(lib.coordinate)
+                }
             )
 
             task.onlyIf {
@@ -200,16 +204,16 @@ private fun shouldVerifyDependency(dependency: Dependency): Boolean {
     return true
 }
 
-internal fun Project.getLibraryProjectCoordinates(
+internal fun Project.getLibraryCoordinates(
     libraryVersionsService: Provider<LibraryVersionsService>
-): Provider<ProjectCoordinates> {
+): Provider<LibraryCoordinates> {
     val projectPath = path
     val projectVersion = Version.parse(version.toString())
     val projectGroup = group.toString()
     val projectArtifact = name
     val mavenVersionGroup = parse().mavenVersionGroup
     return libraryVersionsService.map { service ->
-        ProjectCoordinates(
+        LibraryCoordinates(
             projectPath = projectPath,
             groupId = projectGroup,
             artifactId = projectArtifact,
@@ -221,38 +225,43 @@ internal fun Project.getLibraryProjectCoordinates(
 
 internal fun Project.getExemptionCandidates(
     libraryVersionService: Provider<LibraryVersionsService>
-): Provider<Set<ProjectCoordinates>> {
+): Provider<Set<LibraryCoordinates>> {
     val declaredDependencies =
         project.configurations
             .matching { it.isCanBeConsumed }
-            .flatMap { configuration ->
-                configuration.allDependencies
-                    .filter(::shouldVerifyDependency)
-                    .filterIsInstance<ProjectDependency>()
-                    .distinctBy { it.path }
-                    .map { dependency ->
-                        ProjectCoordinates(
+            .flatMap { configuration -> configuration.allDependencies }
+            .filter(::shouldVerifyDependency)
+            .mapNotNull { dependency ->
+                when (dependency) {
+                    is ProjectDependency ->
+                        LibraryCoordinates(
                             projectPath = dependency.path,
                             groupId = dependency.group!!,
                             artifactId = dependency.name,
-                            version = dependency.version?.let { Version.parseOrNull(it) },
                             versionGroup =
                                 parseBuildFile(project(dependency.path).buildFile)
                                     .mavenVersionGroup,
                         )
-                    }
+                    is ExternalModuleDependency ->
+                        LibraryCoordinates(
+                            projectPath = null,
+                            groupId = dependency.group,
+                            artifactId = dependency.name,
+                            version = dependency.version?.let { Version.parseOrNull(it) },
+                        )
+                    else -> null
+                }
             }
+            .toSet()
 
     return libraryVersionService.map { service ->
         declaredDependencies
             .map { dependency ->
                 dependency.copy(
                     versionGroup =
-                        service.versionGroupFor(
-                            dependency.projectPath,
-                            dependency.groupId,
-                            dependency.versionGroup,
-                        )
+                        dependency.projectPath?.let {
+                            service.versionGroupFor(it, dependency.groupId, dependency.versionGroup)
+                        }
                 )
             }
             .toSet()
