@@ -34,6 +34,8 @@ plugins {
 dependencies {
     def compose_version = "1.10.0"
 
+    // Tip-of-tree dependency, exempted in tip-of-tree-or-alpha-dependency-exemptions.toml until
+    // androidx.web becomes a same-version group again (see the androidx block below).
     api(project(":web:web"))
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:$compose_version")
@@ -71,6 +73,10 @@ android {
 androidx {
     name = "web:web-compose"
     type = SoftwareType.PUBLISHED_LIBRARY
+    // androidx.web is temporarily not a same-version group so that androidx.web:web can release
+    // 1.0.0-alpha01 before the WebSurface API is ready. Make the group atomic again (and drop
+    // this version) once web-compose is ready to release.
+    mavenVersion = LibraryVersions.WEB_COMPOSE
 
     inceptionYear = "2026"
     description = "This package provides a composable that displays web pages."

@@ -74,6 +74,7 @@ androidComponents {
 androidx {
     name = "web:web"
     type = SoftwareType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.WEB
 
     inceptionYear = "2026"
     description = "Web is a collection of modern APIs that can be used with android.webkit and androidx.webkit."
