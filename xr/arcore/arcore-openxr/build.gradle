@@ -61,9 +61,17 @@ android {
 
 androidComponents {
     def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
-    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/android").absolutePath
-    def testArCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/arcore-openxr/androidTest").absolutePath
-    def testRuntimeNativePath = new File(prebuiltsRoot, "androidx/xr/native/runtime-openxr/androidTest").absolutePath
+    def activeBranchFile = new File(prebuiltsRoot, "androidx/xr/native/ACTIVE_BRANCH")
+    def defaultBranch = activeBranchFile.exists()
+        ? activeBranchFile.text.trim().replace("XR_NATIVE_BRANCH=", "")
+        : "main"
+    def requestedBranch = providers.gradleProperty("xrNativeBranch")
+        .orElse(providers.environmentVariable("XR_NATIVE_BRANCH"))
+        .getOrElse(defaultBranch)
+    def nativeBranch = requestedBranch.trim() == "release" ? "release" : "main"
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/arcore-openxr/android").absolutePath
+    def testArCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/arcore-openxr/androidTest").absolutePath
+    def testRuntimeNativePath = new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/runtime-openxr/androidTest").absolutePath
 
     onVariants(selector().all()) { variant ->
         variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
