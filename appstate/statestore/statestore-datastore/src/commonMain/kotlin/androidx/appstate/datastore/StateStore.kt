@@ -27,13 +27,10 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import kotlin.coroutines.ContinuationInterceptor
 import kotlin.reflect.KType
 import kotlin.reflect.full.allSupertypes
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
@@ -72,10 +69,7 @@ public suspend fun StateStore.syncToDataStore(path: String, coroutineScope: Coro
  */
 @Suppress("PairedRegistration")
 public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePreferences>) {
-    val dispatcher =
-        (currentCoroutineContext()[ContinuationInterceptor] as? CoroutineDispatcher)
-            ?: Dispatchers.Default
-    listener(dispatcher) {
+    listener {
         val activeKeys = keys
         for (key in activeKeys) {
             if (key is PersistToDataStore) {

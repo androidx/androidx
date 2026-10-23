@@ -21,15 +21,12 @@ package androidx.appstate.transform {
   }
 
   public interface TransformScope {
-    method public <T> androidx.appstate.transform.DisposableState<T> createTransform(T initialState, kotlin.jvm.functions.Function1<? super T,? extends T> onUpdate);
-    method @BytecodeOnly public <T> androidx.appstate.transform.DisposableState<T> createTransform(T, kotlin.jvm.functions.Function3<? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>);
-    method public suspend Object? run(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public <T> androidx.appstate.transform.DisposableState<T> launchTransform(T initialState, kotlin.jvm.functions.Function1<? super T,? extends T> onUpdate);
+    method @BytecodeOnly public <T> androidx.appstate.transform.DisposableState<T> launchTransform(T, kotlin.jvm.functions.Function3<? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>);
   }
 
   public final class TransformScopeKt {
     method public static androidx.appstate.transform.TransformScope TransformScope();
-    method public static <T> androidx.appstate.transform.DisposableState<T> launchTransform(androidx.appstate.transform.TransformScope, T initialState, kotlin.jvm.functions.Function1<? super T,? extends T> onUpdate);
-    method @BytecodeOnly public static <T> androidx.appstate.transform.DisposableState<T> launchTransform(androidx.appstate.transform.TransformScope, T, kotlin.jvm.functions.Function3<? super T,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T>);
   }
 
 }

@@ -16,8 +16,6 @@
 
 package androidx.appstate.transform
 
-import androidx.annotation.RestrictTo
-import androidx.appstate.transform.TransformScope.Companion.isGlobalSnapshotManagerEnabled
 import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -31,30 +29,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * Launches a Composable [onUpdate] transformation in this [TransformScope] and returns its result
- * as a [DisposableState].
- *
- * This function bridges reactive Compose state (or Flows collected as state) into a continuously
- * updated [State] object outside a traditional Compose UI hierarchy. The [transform] block is
- * automatically recomposed whenever any Compose state it reads is updated, and the newly returned
- * value is pushed into the resulting [State].
- *
- * Calling [DisposableState.dispose] removes this transformation from the [TransformScope] so that
- * it is no longer recomposed in the shared [Composition].
- *
- * @param initialState The initial value to populate the returned [DisposableState] before the first
- *   composition completes.
- * @param onUpdate The [Composable] block that computes the updated value of type [T].
- * @return A [DisposableState] containing the latest result of the [onUpdate] block.
- */
-public fun <T> TransformScope.launchTransform(
-    initialState: T,
-    onUpdate: @Composable (T) -> T,
-): DisposableState<T> {
-    return createTransform(initialState, onUpdate)
-}
-
 /** Creates a [TransformScope]. */
 public fun TransformScope(): TransformScope = TransformScopeImpl()
 
@@ -63,37 +37,35 @@ public fun TransformScope(): TransformScope = TransformScopeImpl()
  * transformations created via [launchTransform].
  */
 public interface TransformScope {
-    /**
-     * Starts the [TransformScope] and begins the process of updating the present state
-     * transformations.
-     */
-    public suspend fun run()
 
     /**
-     * Creates a transform that is attached to this [TransformScope].
+     * Launches a Composable [onUpdate] transformation in this [TransformScope] and returns its
+     * result as a [DisposableState].
+     *
+     * This function bridges reactive Compose state (or Flows collected as state) into a
+     * continuously updated [State] object outside a traditional Compose UI hierarchy. The
+     * [transform] block is automatically recomposed whenever any Compose state it reads is updated,
+     * and the newly returned value is pushed into the resulting [State].
+     *
+     * Calling [DisposableState.dispose] removes this transformation from the [TransformScope] so
+     * that it is no longer recomposed in the shared [Composition].
      *
      * @param initialState The initial value to populate the returned [DisposableState] before the
      *   first composition completes.
      * @param onUpdate The [Composable] block that computes the updated value of type [T].
+     * @return A [DisposableState] containing the latest result of the [onUpdate] block.
      */
-    public fun <T> createTransform(
+    public fun <T> launchTransform(
         initialState: T,
         onUpdate: @Composable (T) -> T,
     ): DisposableState<T>
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public companion object {
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        public var isGlobalSnapshotManagerEnabled: Boolean = true
-    }
 }
 
 internal class TransformScopeImpl : TransformScope {
 
     private val transformations = mutableStateListOf<Transformation<*>>()
 
-    override fun <T> createTransform(
+    override fun <T> launchTransform(
         initialState: T,
         onUpdate: @Composable (T) -> T,
     ): DisposableState<T> {
@@ -107,12 +79,14 @@ internal class TransformScopeImpl : TransformScope {
         transformations.remove(transformation)
     }
 
-    override suspend fun run() {
+    /**
+     * Starts the [TransformScope] and begins the process of updating the present state
+     * transformations.
+     */
+    internal suspend fun run() {
         val context = currentCoroutineContext()
         val clock = context[MonotonicFrameClock] ?: HeadlessTransformClock()
-        if (isGlobalSnapshotManagerEnabled) {
-            GlobalSnapshotManager.ensureStarted(context.minusKey(Job))
-        }
+        GlobalSnapshotManager.ensureStarted(context.minusKey(Job))
         val recomposer = Recomposer(context)
         val composition = Composition(UnitApplier, recomposer)
         try {

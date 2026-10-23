@@ -16,6 +16,7 @@
 
 package androidx.appstate.transform.testing
 
+import androidx.appstate.transform.TransformScope
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -50,6 +51,15 @@ public sealed interface TransformTestScope : CoroutineScope {
      * when the test completes, which disposes the transforms running in it.
      */
     public val backgroundScope: CoroutineScope
+
+    /** Creates a [TransformScope] for use in this [TransformTestScope]. */
+    public fun TransformScope(): TransformScope
+
+    /**
+     * Starts this [TransformScope] in the test environment and begins the process of updating its
+     * state transformations.
+     */
+    public suspend fun TransformScope.run()
 
     /** Advance the state which executes any pending transforms, if any. */
     public fun advance()
