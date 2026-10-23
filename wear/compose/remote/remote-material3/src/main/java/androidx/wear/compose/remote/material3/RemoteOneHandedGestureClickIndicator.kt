@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.graphicsLayer
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteEasing
@@ -32,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.clamp
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
@@ -141,6 +143,8 @@ public fun rememberRemoteOneHandedGestureClickIndicatorState():
  * @param modifier The [RemoteModifier] to be applied to the container layout.
  * @param gestureIndicatorSize The size constraints for the gesture indicator icon.
  * @param gestureIndicatorTint The color used to tint the gesture animation.
+ * @param mirrored Whether to mirror the gesture indicator horizontally, for example when the watch
+ *   is worn on the right wrist. Defaults to `false`.
  * @param content The original component content (e.g. Text or Icon) to be displayed when no
  *   indicator is active.
  */
@@ -152,6 +156,7 @@ public fun RemoteOneHandedGestureClickIndicator(
     modifier: RemoteModifier = RemoteModifier,
     gestureIndicatorSize: RemoteDp = RemoteOneHandedGestureDefaults.IndicatorSize,
     gestureIndicatorTint: RemoteColor = RemoteOneHandedGestureDefaults.indicatorTint,
+    mirrored: RemoteBoolean = false.rb,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteOneHandedGestureClickIndicator(
@@ -159,6 +164,7 @@ public fun RemoteOneHandedGestureClickIndicator(
         hintProgress = state.hintProgress,
         gestureIndicatorSize = gestureIndicatorSize,
         gestureIndicatorTint = gestureIndicatorTint,
+        mirrored = mirrored,
         content = content,
     )
 }
@@ -181,6 +187,8 @@ public fun RemoteOneHandedGestureClickIndicator(
  *   `0f..1f`. Defaults to `0f` (at rest).
  * @param gestureIndicatorSize The size constraints for the gesture indicator icon.
  * @param gestureIndicatorTint The color used to tint the gesture animation.
+ * @param mirrored Whether to mirror the gesture indicator horizontally, for example when the watch
+ *   is worn on the right wrist. Defaults to `false`.
  * @param content The original component content (e.g. Text or Icon) to be displayed when no
  *   indicator is active.
  */
@@ -193,6 +201,7 @@ public fun RemoteOneHandedGestureClickIndicator(
     hintProgress: RemoteFloat = 0f.rf,
     gestureIndicatorSize: RemoteDp = RemoteOneHandedGestureDefaults.IndicatorSize,
     gestureIndicatorTint: RemoteColor = RemoteOneHandedGestureDefaults.indicatorTint,
+    mirrored: RemoteBoolean = false.rb,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     // Hoisted via createReference() so the player evaluates `t` and `indicatorScale` once per
@@ -226,7 +235,11 @@ public fun RemoteOneHandedGestureClickIndicator(
             progress = gestureProgress,
             modifier =
                 RemoteModifier.size(gestureIndicatorSize)
-                    .graphicsLayer(scaleX = indicatorScale, scaleY = indicatorScale),
+                    .graphicsLayer(
+                        // Mirror horizontally by flipping the sign of the scale.
+                        scaleX = mirrored.select(-indicatorScale, indicatorScale),
+                        scaleY = indicatorScale,
+                    ),
             tint = gestureIndicatorTint,
         )
     }
