@@ -16,9 +16,7 @@
 
 package androidx.car.app.testing.navigation;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.HostDispatcher;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.navigation.NavigationManagerCallback;
@@ -51,7 +49,6 @@ import java.util.concurrent.Executor;
  *   <li>Count of times that the navigation was ended via {@link NavigationManager#navigationEnded}.
  * </ul>
  */
-@OptIn(markerClass = ExperimentalCarApi.class)
 public class TestNavigationManager extends NavigationManager {
     private final List<Trip> mTripsSent = new ArrayList<>();
     private final List<NavigationVoiceAssistantCapabilities> mCapabilitiesSent = new ArrayList<>();
@@ -89,7 +86,6 @@ public class TestNavigationManager extends NavigationManager {
      *
      * <p>The capabilities will be stored until {@link #reset} is called.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @NonNull List<NavigationVoiceAssistantCapabilities> getVoiceAssistantCapabilitiesSent() {
         return CollectionUtils.unmodifiableCopy(mCapabilitiesSent);
@@ -128,7 +124,6 @@ public class TestNavigationManager extends NavigationManager {
     }
 
     @Override
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public void setVoiceAssistantCapabilities(
             @NonNull NavigationVoiceAssistantCapabilities capabilities) {

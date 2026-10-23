@@ -30,12 +30,10 @@ import static org.mockito.Mockito.when;
 import android.content.pm.PackageManager;
 import android.os.RemoteException;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.HandshakeInfo;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.ICarHost;
 import androidx.car.app.IOnDoneCallback;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Distance;
 import androidx.car.app.navigation.model.Destination;
 import androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities;
@@ -50,7 +48,6 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -68,7 +65,6 @@ import java.util.concurrent.TimeUnit;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Config.TARGET_SDK})
 @DoNotInstrument
-@OptIn(markerClass = ExperimentalCarApi.class)
 public class NavigationManagerTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();

@@ -19,11 +19,9 @@ package androidx.car.app.navigation.model;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.KeepFields;
-import androidx.car.app.utils.CollectionUtils;
-import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.Retention;
@@ -45,7 +43,6 @@ import org.jspecify.annotations.Nullable;
  */
 @CarProtocol
 @KeepFields
-@ExperimentalCarApi
 @RequiresCarApi(9)
 public final class NavigationVoiceAssistantCapabilities {
 
@@ -326,6 +323,7 @@ public final class NavigationVoiceAssistantCapabilities {
     }
 
     /** A builder of {@link NavigationVoiceAssistantCapabilities}. */
+    @RequiresCarApi(9)
     public static final class Builder {
         boolean mIsVoiceAssistantConsentGranted;
         final Set<Integer> mSupportedActions = new HashSet<>();

@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.HandshakeInfo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DateTimeWithZone;
 import androidx.car.app.model.Distance;
@@ -234,7 +232,6 @@ public class TestNavigationManagerTest {
     }
 
     @Test
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public void getVoiceAssistantCapabilitiesSent_returnsCapabilities() {
         TestNavigationManager mTestNavigationManager = mCarContext.getCarService(
                 TestNavigationManager.class);

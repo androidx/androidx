@@ -2451,13 +2451,13 @@ package androidx.car.app.model.signin {
 package androidx.car.app.navigation {
 
   public class NavigationManager implements androidx.car.app.managers.Manager {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public boolean canSetVoiceAssistantCapabilities();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public boolean canSetVoiceAssistantCapabilities();
     method @MainThread public void clearNavigationManagerCallback();
     method @MainThread public void navigationEnded();
     method @MainThread public void navigationStarted();
     method @MainThread public void setNavigationManagerCallback(androidx.car.app.navigation.NavigationManagerCallback);
     method @MainThread public void setNavigationManagerCallback(java.util.concurrent.Executor, androidx.car.app.navigation.NavigationManagerCallback);
-    method @SuppressCompatibility @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public void setVoiceAssistantCapabilities(androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities);
+    method @MainThread @androidx.car.app.annotations.RequiresCarApi(9) public void setVoiceAssistantCapabilities(androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities);
     method @MainThread public void updateTrip(androidx.car.app.navigation.model.Trip);
   }
 
@@ -2658,7 +2658,7 @@ package androidx.car.app.navigation.model {
   public static interface NavigationTemplate.NavigationInfo {
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class NavigationVoiceAssistantCapabilities {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class NavigationVoiceAssistantCapabilities {
     method public java.util.Set<java.lang.Integer!> getSupportedActions();
     method public java.util.Set<java.lang.Integer!> getSupportedDisruptions();
     method public boolean isVoiceAssistantConsentGranted();
@@ -2689,7 +2689,7 @@ package androidx.car.app.navigation.model {
     field public static final int DISRUPTION_REPORT_VEHICLE = 11; // 0xb
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class NavigationVoiceAssistantCapabilities.Builder {
+  @androidx.car.app.annotations.RequiresCarApi(9) public static final class NavigationVoiceAssistantCapabilities.Builder {
     ctor public NavigationVoiceAssistantCapabilities.Builder();
     method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities.Builder addSupportedAction(int);
     method public androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities.Builder addSupportedDisruption(int);

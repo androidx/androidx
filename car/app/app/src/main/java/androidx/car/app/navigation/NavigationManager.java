@@ -33,9 +33,8 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
-import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.IOnDoneCallback;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.navigation.model.NavigationVoiceAssistantCapabilities;
 import androidx.car.app.navigation.model.TravelEstimate;
@@ -142,7 +141,6 @@ public class NavigationManager implements Manager {
      * @return {@code true} if the current host supports voice assistant capabilities,
      *         {@code false} otherwise.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public boolean canSetVoiceAssistantCapabilities() {
         if (mCarContext.getCarAppApiLevel() < 9) {
@@ -167,7 +165,6 @@ public class NavigationManager implements Manager {
      *                                  a navigation app in the manifest
      */
     @MainThread
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public void setVoiceAssistantCapabilities(
             @NonNull NavigationVoiceAssistantCapabilities capabilities) {
