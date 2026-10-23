@@ -338,9 +338,16 @@ internal class SlotTableReader(val table: SlotTable) {
 
     fun reposition(handle: GroupHandle) {
         runtimeCheck(!inEmpty) { "Cannot reposition while in an empty region" }
-        current = handle.group
-        previousSibling = handle.context
-        parent = groups.groupParent(current)
+        val group = handle.group
+        val context = handle.context
+        current = group
+        if (group == NULL_ADDRESS) {
+            previousSibling = NULL_ADDRESS
+            parent = context
+        } else {
+            previousSibling = context
+            parent = groups.groupParent(group)
+        }
     }
 
     /**
