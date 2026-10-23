@@ -3143,9 +3143,11 @@ package androidx.compose.ui.layout {
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public java.util.List<androidx.compose.ui.layout.ModifierInfo> getModifierInfo();
     method @InaccessibleFromKotlin public androidx.compose.ui.layout.LayoutInfo? getParentInfo();
+    method @InaccessibleFromKotlin @SuppressCompatibility @IntRange(from=0L) @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public default int getPlaceOrder();
     method @InaccessibleFromKotlin public int getSemanticsId();
     method @InaccessibleFromKotlin public androidx.compose.ui.platform.ViewConfiguration getViewConfiguration();
     method @InaccessibleFromKotlin public int getWidth();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public default float getZIndex();
     method @InaccessibleFromKotlin public boolean isAttached();
     method @InaccessibleFromKotlin public default boolean isDeactivated();
     method @InaccessibleFromKotlin public boolean isPlaced();
@@ -3159,9 +3161,24 @@ package androidx.compose.ui.layout {
     property public default boolean isVirtual;
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract androidx.compose.ui.layout.LayoutInfo? parentInfo;
+    property @SuppressCompatibility @IntRange(from=0L) @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public default int placeOrder;
     property public abstract int semanticsId;
     property public abstract androidx.compose.ui.platform.ViewConfiguration viewConfiguration;
     property public abstract int width;
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public default float zIndex;
+    field @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static final androidx.compose.ui.layout.LayoutInfo.Companion Companion;
+    field @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static final int NotPlacedPlaceOrder = 2147483647; // 0x7fffffff
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static final class LayoutInfo.Companion {
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static int NotPlacedPlaceOrder;
+    field public static final int NotPlacedPlaceOrder = 2147483647; // 0x7fffffff
+  }
+
+  @SuppressCompatibility public final class LayoutInfoKt {
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static void calculateOuterBoundsInRoot(androidx.compose.ui.layout.LayoutInfo, androidx.compose.ui.geometry.MutableRect rect);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean isTransparent(androidx.compose.ui.layout.LayoutInfo);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean androidx.compose.ui.layout.LayoutInfo.isTransparent;
   }
 
   public final class LayoutInfo_androidKt {
@@ -4257,7 +4274,7 @@ package androidx.compose.ui.platform {
     method public void onNodeDeactivated(androidx.compose.ui.layout.LayoutInfo node);
     method public void onNodeDetached(androidx.compose.ui.layout.LayoutInfo node);
     method public void onNodeReused(androidx.compose.ui.layout.LayoutInfo node, int previousSemanticsId);
-    method public void onSemanticsChanged(androidx.compose.ui.layout.LayoutInfo node, androidx.compose.ui.semantics.SemanticsConfiguration? previousConfig);
+    method public void onSemanticsChanged(androidx.compose.ui.layout.LayoutInfo node, androidx.compose.ui.semantics.SemanticsPropertyProvider? previousConfig);
     method public void removeAndroidView(android.view.View view, int semanticsId);
     method @KotlinOnly public boolean requestHostFocus(androidx.compose.ui.focus.FocusDirection focusDirection, androidx.compose.ui.geometry.Rect? previouslyFocusedRect);
     method @BytecodeOnly public boolean requestHostFocus-aToIllA(int, androidx.compose.ui.geometry.Rect?);
@@ -4912,11 +4929,14 @@ package androidx.compose.ui.semantics {
     field public static final androidx.compose.ui.semantics.SemanticsActions INSTANCE;
   }
 
-  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.compose.ui.semantics.SemanticsPropertyReceiver {
+  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,? extends java.lang.Object?>> kotlin.jvm.internal.markers.KMappedMarker androidx.compose.ui.semantics.SemanticsPropertyProvider androidx.compose.ui.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean anyProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,java.lang.Boolean> predicate);
     method public operator <T> boolean contains(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
     method public androidx.compose.ui.semantics.SemanticsConfiguration copy();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public void forEachProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,kotlin.Unit> action);
     method public operator <T> T get(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public java.util.Set<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>> getAccessibilityExtraKeys();
     method public <T> T getOrElse(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public <T> T? getOrElseNullable(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T?> defaultValue);
     method @InaccessibleFromKotlin public boolean isClearingSemantics();
@@ -4925,12 +4945,15 @@ package androidx.compose.ui.semantics {
     method public <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
     method @InaccessibleFromKotlin public void setClearingSemantics(boolean);
     method @InaccessibleFromKotlin public void setMergingSemanticsOfDescendants(boolean);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public java.util.Set<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>> accessibilityExtraKeys;
     property public boolean isClearingSemantics;
     property public boolean isMergingSemanticsOfDescendants;
   }
 
   public final class SemanticsConfigurationKt {
     method public static <T> T? getOrNull(androidx.compose.ui.semantics.SemanticsConfiguration, androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static <T> T? getOrNull(androidx.compose.ui.semantics.SemanticsPropertyProvider, androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean hasKeysMissingFrom(androidx.compose.ui.semantics.SemanticsPropertyProvider, androidx.compose.ui.semantics.SemanticsPropertyProvider other);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface SemanticsModifier extends androidx.compose.ui.Modifier.Element {
@@ -4947,7 +4970,14 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsNode {
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean anyMergedProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,java.lang.Boolean> predicate);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public void calculateBoundsInParent(androidx.compose.ui.geometry.MutableRect rect);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean calculateShapeBoundsInRoot(androidx.compose.ui.geometry.MutableRect rect);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public void collectAccessibilityChildren(java.util.List<androidx.compose.ui.semantics.SemanticsNode> outChildren);
     method public float computeEffectiveAlpha();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public void forEachAccessibilityChild(kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsNode,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public void forEachMergedProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,kotlin.Unit> action);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.layout.LayoutInfo? forEachSemanticsAncestor(kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LayoutInfo,? super androidx.compose.ui.semantics.SemanticsPropertyProvider,java.lang.Boolean> block);
     method public int getAlignmentLinePosition(androidx.compose.ui.layout.AlignmentLine alignmentLine);
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getBoundsInRoot();
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getBoundsInWindow();
@@ -4955,6 +4985,8 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsConfiguration getConfig();
     method @InaccessibleFromKotlin public int getId();
     method @InaccessibleFromKotlin public androidx.compose.ui.layout.LayoutInfo getLayoutInfo();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.semantics.SemanticsPropertyProvider getMergedConfig();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public <T> T? getMergedOrNull(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
     method @InaccessibleFromKotlin public boolean getMergingEnabled();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsNode? getParent();
     method @BytecodeOnly public long getPositionInRoot-F1C5BW0();
@@ -4963,14 +4995,19 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public androidx.compose.ui.node.RootForTest? getRoot();
     method @BytecodeOnly public long getSize-YbymL2g();
     method @InaccessibleFromKotlin public androidx.compose.ui.geometry.Rect getTouchBoundsInRoot();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.semantics.SemanticsPropertyProvider getUnmergedConfig();
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean hasAccessibilityChild();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean isMergingSemanticsOfDescendants();
     method @InaccessibleFromKotlin public boolean isRoot();
     property public androidx.compose.ui.geometry.Rect boundsInRoot;
     property public androidx.compose.ui.geometry.Rect boundsInWindow;
     property public java.util.List<androidx.compose.ui.semantics.SemanticsNode> children;
     property public androidx.compose.ui.semantics.SemanticsConfiguration config;
     property public int id;
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public boolean isMergingSemanticsOfDescendants;
     property public boolean isRoot;
     property public androidx.compose.ui.layout.LayoutInfo layoutInfo;
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.semantics.SemanticsPropertyProvider mergedConfig;
     property public boolean mergingEnabled;
     property public androidx.compose.ui.semantics.SemanticsNode? parent;
     property public androidx.compose.ui.geometry.Offset positionInRoot;
@@ -4979,19 +5016,34 @@ package androidx.compose.ui.semantics {
     property public androidx.compose.ui.node.RootForTest? root;
     property public androidx.compose.ui.unit.IntSize size;
     property public androidx.compose.ui.geometry.Rect touchBoundsInRoot;
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.semantics.SemanticsPropertyProvider unmergedConfig;
+  }
+
+  @SuppressCompatibility public final class SemanticsNodeKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static androidx.compose.ui.semantics.SemanticsPropertyProvider? getSemanticsConfiguration(androidx.compose.ui.layout.LayoutInfo);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static androidx.compose.ui.semantics.SemanticsPropertyProvider? androidx.compose.ui.layout.LayoutInfo.semanticsConfiguration;
   }
 
   public final class SemanticsOwner {
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public operator androidx.compose.ui.semantics.SemanticsNode? get(int semanticsId);
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.layout.LayoutInfo? getLayoutInfo(int semanticsId);
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsNode getRootSemanticsNode();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsNode getUnmergedRootSemanticsNode();
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.layout.LayoutInfo? hitTest(androidx.compose.ui.geometry.Offset position, kotlin.jvm.functions.Function1<androidx.compose.ui.layout.LayoutInfo,java.lang.Boolean> onHit);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public androidx.compose.ui.layout.LayoutInfo? hitTest-3MmeM6k(long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutInfo!,java.lang.Boolean!>);
     property public androidx.compose.ui.semantics.SemanticsNode rootSemanticsNode;
     property public androidx.compose.ui.semantics.SemanticsNode unmergedRootSemanticsNode;
   }
 
   public final class SemanticsOwnerKt {
+    method @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static void forEachUncoveredSemanticsNode(androidx.compose.ui.semantics.SemanticsOwner, androidx.compose.ui.semantics.UncoveredSemanticsNodeVisitor visitor);
     method @BytecodeOnly @Deprecated public static java.util.List! getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner!, boolean);
     method public static java.util.List<androidx.compose.ui.semantics.SemanticsNode> getAllSemanticsNodes(androidx.compose.ui.semantics.SemanticsOwner, boolean mergingEnabled, optional boolean skipDeactivatedNodes);
     method @BytecodeOnly public static java.util.List! getAllSemanticsNodes$default(androidx.compose.ui.semantics.SemanticsOwner!, boolean, boolean, int, Object!);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean isHidden(androidx.compose.ui.semantics.SemanticsNode);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean isImportantForAccessibility(androidx.compose.ui.semantics.SemanticsNode);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean androidx.compose.ui.semantics.SemanticsNode.isHidden;
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public static boolean androidx.compose.ui.semantics.SemanticsNode.isImportantForAccessibility;
   }
 
   public final class SemanticsProperties {
@@ -5303,15 +5355,34 @@ package androidx.compose.ui.semantics {
   public final class SemanticsPropertyKey<T> {
     ctor @BytecodeOnly public SemanticsPropertyKey(String!, kotlin.jvm.functions.Function2!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T?,? super T,? extends T?> mergePolicy);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public String? getAccessibilityExtraKey();
     method @InaccessibleFromKotlin public String getName();
     method public operator T getValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method public T? merge(T? parentValue, T childValue);
     method public operator void setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
+    property @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public String? accessibilityExtraKey;
     property public String name;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public interface SemanticsPropertyProvider {
+    method public boolean anyProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,java.lang.Boolean> predicate);
+    method public operator <T> boolean contains(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method public void forEachProperty(kotlin.jvm.functions.Function2<? super androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>,java.lang.Object?,kotlin.Unit> action);
+    method public operator <T> T get(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>> getAccessibilityExtraKeys();
+    method public <T> T getOrElse(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public <T> T? getOrElseNullable(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T?> defaultValue);
+    method @InaccessibleFromKotlin public boolean isMergingSemanticsOfDescendants();
+    property public abstract java.util.Set<androidx.compose.ui.semantics.SemanticsPropertyKey<? extends java.lang.Object?>> accessibilityExtraKeys;
+    property public abstract boolean isMergingSemanticsOfDescendants;
   }
 
   public interface SemanticsPropertyReceiver {
     method public operator <T> void set(androidx.compose.ui.semantics.SemanticsPropertyKey<T> key, T value);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.platform.ExperimentalComposeUiHostApi public fun interface UncoveredSemanticsNodeVisitor {
+    method public void visit(androidx.compose.ui.semantics.SemanticsNode node, int left, int top, int right, int bottom, boolean isInMergingHiddenSubtree);
   }
 
 }

@@ -21,7 +21,7 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
@@ -56,6 +56,7 @@ internal fun SemanticsNode.subtreeSortedByGeometryGrouping(
     return sortByGeometryGroupings(geometryList, isFocusableContainer, containerMapToChildren)
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun SemanticsNode.geometryDepthFirstSearch(
     geometryList: ArrayList<SemanticsNode>,
     isVisible: (SemanticsNode) -> Boolean,
@@ -64,7 +65,7 @@ private fun SemanticsNode.geometryDepthFirstSearch(
 ) {
     // We only want to add children that are either traversalGroups or are
     // screen reader focusable. The child must also be in the current pruned semantics tree.
-    val isTraversalGroup = unmergedConfig.getOrElse(SemanticsProperties.IsTraversalGroup) { false }
+    val isTraversalGroup = unmergedConfig.getOrNull(SemanticsProperties.IsTraversalGroup) ?: false
 
     if ((isTraversalGroup || isFocusableContainer(this)) && isVisible(this)) {
         geometryList.add(this)
@@ -86,6 +87,8 @@ private fun SemanticsNode.geometryDepthFirstSearch(
     }
 }
 
+private val DefaultIsFocusableContainer: (SemanticsNode) -> Boolean = { false }
+
 /**
  * Returns the results of geometry groupings, which is determined from 1) grouping nodes into
  * distinct, non-overlapping rows based on their top/bottom coordinates, then 2) sorting nodes
@@ -99,7 +102,7 @@ private fun SemanticsNode.geometryDepthFirstSearch(
  */
 internal fun SemanticsNode.sortByGeometryGroupings(
     parentListToSort: List<SemanticsNode>,
-    isFocusableContainer: (SemanticsNode) -> Boolean = { false },
+    isFocusableContainer: (SemanticsNode) -> Boolean = DefaultIsFocusableContainer,
     containerChildrenMapping: IntObjectMap<List<SemanticsNode>> = intObjectMapOf(),
 ): List<SemanticsNode> {
     val layoutIsRtl = layoutInfo.layoutDirection == LayoutDirection.Rtl
@@ -194,6 +197,18 @@ private fun placedEntryRowOverlaps(
     return false
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
+private object ZAndPlaceOrderComparator : Comparator<SemanticsNode> {
+    override fun compare(a: SemanticsNode, b: SemanticsNode): Int {
+        // compare by layoutInfo's zIndex and placement order, then by semanticsId
+        val zCmp = a.layoutInfo.zIndex.compareTo(b.layoutInfo.zIndex)
+        if (zCmp != 0) return zCmp
+        val placeCmp = a.layoutInfo.placeOrder.compareTo(b.layoutInfo.placeOrder)
+        if (placeCmp != 0) return placeCmp
+        return a.id.compareTo(b.id)
+    }
+}
+
 private val semanticComparators: Array<Comparator<SemanticsNode>> =
     Array(2) { index ->
         val comparator =
@@ -201,11 +216,7 @@ private val semanticComparators: Array<Comparator<SemanticsNode>> =
                 0 -> RtlBoundsComparator
                 else -> LtrBoundsComparator
             }
-        comparator
-            // then compare by layoutNode's zIndex and placement order
-            .thenBy(LayoutNode.ZComparator) { it.layoutNode }
-            // then compare by semanticsId to break the tie somehow
-            .thenBy { it.id }
+        comparator.then(ZAndPlaceOrderComparator)
     }
 
 private object LtrBoundsComparator : Comparator<SemanticsNode> {
@@ -262,8 +273,10 @@ private object TopBottomBoundsComparator : Comparator<Pair<Rect, MutableList<Sem
 
 // Kotlin `sortWith` should just pull out the highest traversal indices, but keep everything
 // else in place. If the element does not have a `traversalIndex` then `0f` will be used.
-internal val UnmergedConfigComparator: (SemanticsNode, SemanticsNode) -> Int = { a, b ->
-    a.unmergedConfig
-        .getOrElse(SemanticsProperties.TraversalIndex) { 0f }
-        .compareTo(b.unmergedConfig.getOrElse(SemanticsProperties.TraversalIndex) { 0f })
+@OptIn(ExperimentalComposeUiHostApi::class)
+internal object UnmergedConfigComparator : Comparator<SemanticsNode> {
+    override fun compare(a: SemanticsNode, b: SemanticsNode): Int =
+        (a.unmergedConfig.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f).compareTo(
+            b.unmergedConfig.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
+        )
 }

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.layout.LayoutInfo
 import androidx.compose.ui.node.ObservationTarget
-import androidx.compose.ui.semantics.SemanticsConfiguration
+import androidx.compose.ui.semantics.SemanticsPropertyProvider
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -268,7 +268,7 @@ public interface ComposeUiHost {
      * @param previousConfig the semantics of [node] before the change, or `null` if [node] had no
      *   semantics
      */
-    public fun onSemanticsChanged(node: LayoutInfo, previousConfig: SemanticsConfiguration?)
+    public fun onSemanticsChanged(node: LayoutInfo, previousConfig: SemanticsPropertyProvider?)
 
     /**
      * Called when Compose focus moved from [previous] to [current].
