@@ -344,13 +344,13 @@ class LibraryVersionsServiceTest {
     @Test
     fun exemptionsFor_absentFileIsEmpty() {
         val service = createLibraryVersionsService("[versions]\n[groups]\n", exemptions = null)
-        assertThat(service.exemptionsFor(":fragment:fragment")).isEmpty()
+        assertThat(service.exemptionsFor("androidx.fragment:fragment")).isEmpty()
     }
 
     @Test
     fun exemptionsFor_emptyListIsEmpty() {
         val service = createLibraryVersionsService("[versions]\n[groups]\n")
-        assertThat(service.exemptionsFor(":fragment:fragment")).isEmpty()
+        assertThat(service.exemptionsFor("androidx.fragment:fragment")).isEmpty()
     }
 
     @Test
@@ -361,8 +361,8 @@ class LibraryVersionsServiceTest {
                 exemptions =
                     """
                     [[exemption]]
-                    library = ":fragment:fragment"
-                    dependsOn = ":tracing:tracing"
+                    library = "androidx.fragment:fragment"
+                    dependsOn = "androidx.tracing:tracing"
                     validThroughLibraryVersion = "1.9.0-rc01"
                     reason = "b/12345 - needs an unreleased API"
                     """
@@ -370,13 +370,13 @@ class LibraryVersionsServiceTest {
             )
         val expected =
             DependencyExemption(
-                library = ":fragment:fragment",
-                dependsOn = ":tracing:tracing",
+                library = "androidx.fragment:fragment",
+                dependsOn = "androidx.tracing:tracing",
                 validThroughLibraryVersion = "1.9.0-rc01",
                 reason = "b/12345 - needs an unreleased API",
             )
-        assertThat(service.exemptionsFor(":fragment:fragment")).containsExactly(expected)
-        assertThat(service.exemptionsFor(":other:module")).isEmpty()
+        assertThat(service.exemptionsFor("androidx.fragment:fragment")).containsExactly(expected)
+        assertThat(service.exemptionsFor("androidx.other:module")).isEmpty()
     }
 
     @Test
