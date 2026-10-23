@@ -62,6 +62,8 @@ import androidx.xr.compose.testapp.videoplayer.VideoPlayerActivity
 import androidx.xr.testutils.TestAppSmokeTest
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -85,6 +87,16 @@ class ComposeTestAppSmokeTest(activityClass: Class<out Activity>) :
                 "android.permission.POST_NOTIFICATIONS",
             )
         )
+
+    @Before
+    fun skipKnownFailures() {
+        // TODO(b/562997152, b/567785342): Remove once RotateToLookAtUserActivity SplitEngine
+        // teardown crash is fixed.
+        assumeFalse(
+            "Known failure (b/562997152, b/567785342): RotateToLookAtUserActivity native SplitEngine crash on teardown",
+            activityClass == RotateToLookAtUserActivity::class.java,
+        )
+    }
 
     companion object {
         @JvmStatic
