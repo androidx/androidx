@@ -163,7 +163,7 @@ public suspend fun captureSingleRemoteDocument(
                     savedState.saveSaveableState(saveableStateRegistry.performSave())
                 }
                 lifecycleOwner.performSave()
-                lifecycleOwner.destroy()
+                lifecycleOwner.close()
             },
             content =
                 withAndroidLocals(
@@ -292,7 +292,7 @@ public fun captureRemoteDocument(
                     savedState.saveSaveableState(saveableStateRegistry.performSave())
                 }
                 lifecycleOwner.performSave()
-                lifecycleOwner.destroy()
+                lifecycleOwner.close()
             },
             content =
                 withAndroidLocals(

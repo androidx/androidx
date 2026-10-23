@@ -257,14 +257,20 @@ private class RenderScopeImpl(
     /** Whether a signal from [HeadlessSession.invalidations] was consumed during this iteration. */
     @Volatile var changeSeen = false
 
+    /** Whether [renderIfChanged] has evaluated [tracker] during this iteration. */
+    @Volatile private var rendered = false
+
     /**
-     * Whether a change composed since the last render would make the next [renderIfChanged] render
-     * again: the tree changed, a state the render read did, or a change landed mid-render.
+     * Whether [renderIfChanged] has already run in this iteration and a change composed since then
+     * would make the next [renderIfChanged] render again: the tree changed, a state the render read
+     * did, or a change landed mid-render. Before [renderIfChanged] runs, changes are composed in
+     * place without cancelling the body, as it has not read the settled state yet.
      */
-    fun isSuperseded(): Boolean = tracker.needsRender(changeCount())
+    fun isSuperseded(): Boolean = rendered && tracker.needsRender(changeCount())
 
     override suspend fun <T : Any> renderIfChanged(applyWrites: Boolean, block: () -> T): T? =
         withContext(session.recomposerDispatcher) {
+            rendered = true
             if (!tracker.beginRender(changeCount())) return@withContext null
             try {
                 withRenderSnapshot(applyWrites) {

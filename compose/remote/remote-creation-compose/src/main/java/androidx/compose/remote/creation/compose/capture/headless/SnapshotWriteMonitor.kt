@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,15 +39,19 @@ import kotlinx.coroutines.launch
  * global snapshot and notifies every active [androidx.compose.runtime.Recomposer], each of which
  * filters the changed set against its own recorded read set.
  *
- * Therefore, multiple concurrent sessions across threads share a single observer registration and a
- * single coalescing channel loop:
- * - When active session count transitions `0 -> 1`, one global write observer and consumer loop are
- *   started.
- * - While K >= 1 sessions are active across threads, all K sessions share that single observer and
- *   single coalesced notification dispatch.
- * - When active session count drops `1 -> 0` (in `finally`), the [ObserverHandle] is disposed and
- *   the consumer coroutine is cancelled so zero global observers or background coroutines remain
- *   when idle.
+ * Therefore, concurrent sessions share one observer registration and one coalescing loop per
+ * [CoroutineContext] the loop is asked to run on:
+ * - When the session count for a context transitions `0 -> 1`, one global write observer and
+ *   consumer loop are started on that context.
+ * - While K >= 1 sessions share a context, they share that single observer and single coalesced
+ *   notification dispatch.
+ * - When the count drops `1 -> 0` (in `finally`), the [ObserverHandle] is disposed and the consumer
+ *   coroutine is cancelled so zero global observers or background coroutines remain when idle.
+ *
+ * Production sessions use the default context, a single-threaded slice of [Dispatchers.Default].
+ * Tests that drive a composition with a virtual-time dispatcher can pass that dispatcher so that
+ * apply notifications are delivered deterministically under it; several loops on different contexts
+ * are harmless, as a [Snapshot.sendApplyNotifications] with nothing pending is a no-op.
  *
  * See prior art in other Compose composition hosts across AndroidX:
  * - `androidx.glance.session.globalSnapshotMonitor` and
@@ -59,74 +64,84 @@ import kotlinx.coroutines.launch
  */
 internal object SnapshotWriteMonitor {
     private val lock = Any()
-    private var refCount = 0
-    private var observerHandle: ObserverHandle? = null
-    private var monitorScope: CoroutineScope? = null
+    private val monitors = HashMap<CoroutineContext, Monitor>()
+
+    /** The context sessions coalesce on unless they ask for another. */
+    private val DefaultContext: CoroutineContext =
+        Dispatchers.Default.limitedParallelism(
+            parallelism = 1,
+            name = "RemoteComposeSnapshotWriteMonitor",
+        )
+
+    private class Monitor(val observerHandle: ObserverHandle, val scope: CoroutineScope) {
+        var refCount = 0
+    }
 
     @get:VisibleForTesting
     internal val activeSessionCount: Int
-        get() = synchronized(lock) { refCount }
+        get() = synchronized(lock) { monitors.values.sumOf { it.refCount } }
 
     @get:VisibleForTesting
     internal val isRunning: Boolean
-        get() = synchronized(lock) { observerHandle != null }
+        get() = synchronized(lock) { monitors.isNotEmpty() }
 
     /**
-     * Starts the monitor if no other session holds it. Close the returned handle (once) when the
-     * session ends; the monitor stops when the last handle is closed.
+     * Starts a monitor on [context] if no other session holds one there. Close the returned handle
+     * (once) when the session ends; the monitor stops when the last handle for its context is
+     * closed.
+     *
+     * @param context where [Snapshot.sendApplyNotifications] is called from. Defaults to a
+     *   single-threaded slice of [Dispatchers.Default].
      */
-    fun acquire(): AutoCloseable {
+    fun acquire(context: CoroutineContext = DefaultContext): AutoCloseable {
         synchronized(lock) {
-            if (refCount++ == 0) {
-                val channel = Channel<Unit>(1)
-                val sent = AtomicBoolean(false)
-                val scope =
-                    CoroutineScope(
-                        Dispatchers.Default.limitedParallelism(
-                            parallelism = 1,
-                            name = "RemoteComposeSnapshotWriteMonitor",
-                        ) + SupervisorJob()
-                    )
-                // consumeEach cancels the channel when the consumer completes or is cancelled, so
-                // cancelling the scope in release() also tears down the channel.
-                scope.launch {
-                    channel.consumeEach {
-                        sent.set(false)
-                        Snapshot.sendApplyNotifications()
-                    }
-                }
-                monitorScope = scope
-                observerHandle = Snapshot.registerGlobalWriteObserver {
-                    if (sent.compareAndSet(false, true)) {
-                        if (channel.trySend(Unit).isFailure) {
-                            sent.set(false)
-                        }
-                    }
+            val monitor = monitors.getOrPut(context) { startMonitor(context) }
+            monitor.refCount++
+        }
+        return Handle(context)
+    }
+
+    private fun startMonitor(context: CoroutineContext): Monitor {
+        val channel = Channel<Unit>(1)
+        val sent = AtomicBoolean(false)
+        val scope = CoroutineScope(context + SupervisorJob())
+        // consumeEach cancels the channel when the consumer completes or is cancelled, so
+        // cancelling the scope in release() also tears down the channel.
+        scope.launch {
+            channel.consumeEach {
+                sent.set(false)
+                Snapshot.sendApplyNotifications()
+            }
+        }
+        val observerHandle = Snapshot.registerGlobalWriteObserver {
+            if (sent.compareAndSet(false, true)) {
+                if (channel.trySend(Unit).isFailure) {
+                    sent.set(false)
                 }
             }
         }
-        return Handle()
+        return Monitor(observerHandle, scope)
     }
 
-    private fun release() {
+    private fun release(context: CoroutineContext) {
         synchronized(lock) {
-            check(refCount > 0) {
-                "SnapshotWriteMonitor.release() called without matching acquire()"
-            }
-            if (--refCount == 0) {
-                observerHandle?.dispose()
-                observerHandle = null
-                monitorScope?.cancel()
-                monitorScope = null
+            val monitor =
+                checkNotNull(monitors[context]) {
+                    "SnapshotWriteMonitor.release() called without matching acquire()"
+                }
+            if (--monitor.refCount == 0) {
+                monitors.remove(context)
+                monitor.observerHandle.dispose()
+                monitor.scope.cancel()
             }
         }
     }
 
-    private class Handle : AutoCloseable {
+    private class Handle(private val context: CoroutineContext) : AutoCloseable {
         private val isClosed = AtomicBoolean(false)
 
         override fun close() {
-            if (isClosed.compareAndSet(false, true)) release()
+            if (isClosed.compareAndSet(false, true)) release(context)
         }
     }
 }
