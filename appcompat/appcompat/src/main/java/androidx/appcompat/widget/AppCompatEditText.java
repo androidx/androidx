@@ -16,7 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleDragEventViaPerformReceiveContent;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleMenuActionViaPerformReceiveContent;
 import static androidx.appcompat.widget.AppCompatTextHelper.FontVariationSettingsManager;
@@ -41,7 +40,6 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
@@ -205,7 +203,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -218,7 +215,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
@@ -230,7 +226,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -243,7 +238,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
@@ -456,7 +450,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
@@ -478,7 +471,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tintList) {
         mTextHelper.setCompoundDrawableTintList(tintList);
         mTextHelper.applyCompoundDrawablesTints();
@@ -496,7 +488,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
@@ -515,7 +506,6 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();

@@ -16,8 +16,6 @@
 
 package androidx.appcompat.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -28,7 +26,6 @@ import android.view.ViewGroup;
 import androidx.activity.ComponentDialog;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
-import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.view.KeyEventDispatcher;
@@ -167,7 +164,6 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
     /**
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void invalidateOptionsMenu() {
         getDelegate().invalidateOptionsMenu();
     }

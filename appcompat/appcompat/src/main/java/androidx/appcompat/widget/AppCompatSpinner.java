@@ -16,8 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,7 +44,6 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
@@ -493,7 +490,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * ColorStateList)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -506,7 +502,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
@@ -519,7 +514,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * PorterDuff.Mode)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -532,7 +526,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
