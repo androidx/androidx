@@ -197,7 +197,7 @@ class AppWidgetTemplateRegistryTest {
         assertThat(secondCalls).isEqualTo(1)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = IllegalStateException::class)
     fun render_unregistered_throwsException() {
         AppWidgetTemplateRegistry.render(
             DummyTemplate("Unregistered"),
