@@ -424,6 +424,16 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isBasicTextFieldOutputTransformationOnlyEnabled: Boolean = true
+
+    /**
+     * Whether to use Modifier.Node implementations for internal modifiers used by
+     * [androidx.compose.foundation.text.BasicTextField], text selection handles, and text selection
+     * magnifiers. If false, the legacy Modifier.composed implementations will be used instead.
+     */
+    // TODO: b/573996017
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNewTextFieldModifierImplementationEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
