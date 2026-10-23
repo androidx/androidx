@@ -1844,6 +1844,7 @@ package androidx.compose.ui.text.platform {
   }
 
   @BytecodeOnly @kotlin.PublishedApi internal final class SynchronizedObject {
+    ctor public SynchronizedObject();
   }
 
 }
