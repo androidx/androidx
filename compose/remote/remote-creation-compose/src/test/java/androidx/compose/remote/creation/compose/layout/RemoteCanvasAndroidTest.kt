@@ -24,7 +24,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
@@ -123,10 +122,10 @@ class RemoteCanvasAndroidTest {
 
     @Test
     fun testDrawBitmap_RemoteFloat_DoesNotDoubleBuffer() {
-        val bitmap = RemoteImageBitmap.createForId(42)
+        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
         val left = createNamedRemoteFloat("left", 10f)
         val top = createNamedRemoteFloat("top", 20f)
-        remoteCanvas.drawBitmap(bitmap, left, top, Paint())
+        remoteCanvas.drawBitmap(bitmap, left, top, 30f.rf, 40f.rf, Paint())
 
         assertThat(fakeBuffer.calls).isEmpty()
 
@@ -231,23 +230,13 @@ class RemoteCanvasAndroidTest {
     }
 
     @Test
-    fun testDrawPathAndDrawRPath() {
+    fun testDrawPath() {
         val path =
             Path().apply {
                 moveTo(0f, 0f)
                 lineTo(10f, 10f)
             }
         remoteCanvas.drawPath(path, Paint())
-        remoteCanvas.flush()
-        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
-
-        fakeBuffer.calls.clear()
-        val rPath =
-            RemotePath().apply {
-                moveTo(0f, 0f)
-                lineTo(10f, 10f)
-            }
-        remoteCanvas.drawRPath(rPath, Paint())
         remoteCanvas.flush()
         assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
     }
@@ -267,27 +256,6 @@ class RemoteCanvasAndroidTest {
                 fakeBuffer.calls.any { it.startsWith("pathTween") || it.startsWith("addDrawPath") }
             )
             .isTrue()
-    }
-
-    @Test
-    fun testDrawScaledBitmap() {
-        val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
-        remoteCanvas.drawScaledBitmap(
-            bitmap,
-            0f.rf,
-            0f.rf,
-            10f.rf,
-            10f.rf,
-            0f.rf,
-            0f.rf,
-            100f.rf,
-            100f.rf,
-            0,
-            1f.rf,
-            null,
-        )
-        remoteCanvas.flush()
-        assertThat(fakeBuffer.calls.any { it.startsWith("drawScaledBitmap") }).isTrue()
     }
 
     @Test

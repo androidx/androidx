@@ -73,7 +73,6 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode.Companion.Multiply
 import androidx.compose.ui.graphics.Color as ComposeColor
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.circle
@@ -160,9 +159,7 @@ class RemoteCanvasCaptureTest {
     fun remotePaint() {
         val paint = Paint()
         paint.colorFilter = BlendModeColorFilter(0xffffee70.toInt(), BlendMode.MULTIPLY)
-        val bitmap =
-            BitmapFactory.decodeResource(context.resources, R.drawable.android_image)
-                .asImageBitmap()
+        val bitmap = BitmapFactory.decodeResource(context.resources, R.drawable.android_image)
         remoteCanvas.drawBitmap(bitmap, 0f, 0f, paint)
         val document = constructDocument()
         assertScreenshot(document, "remotePaint")

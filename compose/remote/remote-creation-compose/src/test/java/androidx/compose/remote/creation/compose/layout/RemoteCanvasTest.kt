@@ -41,7 +41,6 @@ import androidx.compose.remote.creation.compose.capture.CanvasOperationBuffer
 import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPaintChanges
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.asComposePath
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -65,6 +64,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
+import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -1390,7 +1390,7 @@ class RemoteCanvasTest {
             canvas.restore()
             canvas.restore()
             canvas.restore()
-            canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, paint)
+            canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, paint.asRemotePaint())
 
             // 4. Reinstate parent transforms and draw
             canvas.save()
@@ -1448,7 +1448,7 @@ class RemoteCanvasTest {
             canvas.drawToOffscreenBitmap(remoteBitmap42, android.graphics.Color.TRANSPARENT) {
                 canvas.save()
                 canvas.translate((-12f).rf, (-11f).rf)
-                canvas.drawBitmap(sourceBitmap, 0f.rf, 0f.rf, Paint())
+                canvas.drawBitmap(sourceBitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
                 canvas.restore()
 
                 canvas.drawToOffscreenBitmap(remoteBitmap43, android.graphics.Color.TRANSPARENT) {
@@ -3257,7 +3257,7 @@ class RemoteCanvasTest {
         val condition = createNamedRemoteBoolean("cond", true)
         val bitmap = RemoteImageBitmap.createForId(42)
         remoteCanvas.drawConditionally(condition) {
-            remoteCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint())
+            remoteCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
         }
         assertThat(remoteCanvas.saveCount).isEqualTo(0)
 
@@ -3307,7 +3307,9 @@ class RemoteCanvasTest {
             // 3. Call drawConditionally(condition) { drawBitmap(...) } where condition is dynamic.
             val condition = createNamedRemoteBoolean("cond", true)
             val bitmap = RemoteImageBitmap.createForId(42)
-            canvas.drawConditionally(condition) { canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint()) }
+            canvas.drawConditionally(condition) {
+                canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
+            }
             assertThat(canvas.saveCount).isEqualTo(0)
 
             // 4. Reinstate transforms after the conditional draw: call save() and translate(-87f,
@@ -3971,30 +3973,6 @@ class RemoteCanvasTest {
     }
 
     @Test
-    fun testDrawTweenPath_PathOverload_DoesNotDoubleBuffer() {
-        val path1 = RemotePath().asComposePath()
-        val path2 = RemotePath().asComposePath()
-        val tween = createNamedRemoteFloat("tween", 0.5f)
-        val start = RemoteFloat(0f)
-        val stop = RemoteFloat(1f)
-        remoteCanvas.drawTweenPath(
-            path1,
-            path2,
-            tween,
-            start,
-            stop,
-            androidx.compose.ui.graphics.Paint(),
-        )
-
-        assertThat(fakeBuffer.calls).isEmpty()
-
-        remoteCanvas.flush()
-
-        assertThat(fakeBuffer.calls).contains("addPaint")
-        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawTweenPath") }).isTrue()
-    }
-
-    @Test
     fun testDrawTweenPath_RemotePathOverload_DoesNotDoubleBuffer() {
         val path1 = RemotePath()
         val path2 = RemotePath()
@@ -4007,7 +3985,7 @@ class RemoteCanvasTest {
             tween,
             start,
             stop,
-            androidx.compose.ui.graphics.Paint(),
+            RemotePaint(),
         )
 
         assertThat(fakeBuffer.calls).isEmpty()
