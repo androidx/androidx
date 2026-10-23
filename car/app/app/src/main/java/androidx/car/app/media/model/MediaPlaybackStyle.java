@@ -19,7 +19,6 @@ package androidx.car.app.media.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.StrokeCap;
@@ -38,7 +37,6 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)
-@ExperimentalCarApi
 public final class MediaPlaybackStyle {
     @StrokeCap.StrokeCapType
     private final int mProgressBarStrokeCap;

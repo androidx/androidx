@@ -968,11 +968,11 @@ package androidx.car.app.media {
 
 package androidx.car.app.media.model {
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class MediaPlaybackStyle {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class MediaPlaybackStyle {
     method public int getProgressBarStrokeCap();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class MediaPlaybackStyle.Builder {
+  public static final class MediaPlaybackStyle.Builder {
     ctor public MediaPlaybackStyle.Builder();
     ctor public MediaPlaybackStyle.Builder(androidx.car.app.media.model.MediaPlaybackStyle);
     method public androidx.car.app.media.model.MediaPlaybackStyle build();
@@ -980,9 +980,8 @@ package androidx.car.app.media.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackStyle? getStyle();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackStyle? getStyle();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(10) public boolean isAutoHideControlsEnabled();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(10) public boolean isVideoEnabled();
   }
@@ -992,9 +991,8 @@ package androidx.car.app.media.model {
     ctor public MediaPlaybackTemplate.Builder(androidx.car.app.media.model.MediaPlaybackTemplate);
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(10) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setAutoHideControlsEnabled(boolean);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setStyle(androidx.car.app.media.model.MediaPlaybackStyle?);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setStyle(androidx.car.app.media.model.MediaPlaybackStyle?);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(10) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setVideoEnabled(boolean);
   }
 

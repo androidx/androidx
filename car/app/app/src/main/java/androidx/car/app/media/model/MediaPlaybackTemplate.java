@@ -22,7 +22,6 @@ import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
-import androidx.car.app.model.Banner;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Template;
 
@@ -51,10 +50,6 @@ import java.util.Objects;
 @KeepFields
 public class MediaPlaybackTemplate implements Template {
     private final @Nullable Header mHeader;
-    @ExperimentalCarApi
-    @RequiresCarApi(9)
-    private final @Nullable Banner mBanner;
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     private final @Nullable MediaPlaybackStyle mStyle;
     @ExperimentalCarApi
@@ -73,19 +68,8 @@ public class MediaPlaybackTemplate implements Template {
     }
 
     /**
-     * Returns the {@link Banner} to display in this template or not to display one if it is {@code
-     * null}.
-     */
-    @ExperimentalCarApi
-    @RequiresCarApi(9)
-    public @Nullable Banner getBanner() {
-        return mBanner;
-    }
-
-    /**
      * Returns the {@link MediaPlaybackStyle} for this template or {@code null} if none was set.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable MediaPlaybackStyle getStyle() {
         return mStyle;
@@ -126,7 +110,6 @@ public class MediaPlaybackTemplate implements Template {
     public int hashCode() {
         return Objects.hash(
                 mHeader,
-                mBanner,
                 mStyle,
                 mIsVideoEnabled,
                 mIsAutoHideControlsEnabled);
@@ -144,7 +127,6 @@ public class MediaPlaybackTemplate implements Template {
         MediaPlaybackTemplate otherTemplate = (MediaPlaybackTemplate) other;
 
         return Objects.equals(mHeader, otherTemplate.mHeader)
-                && Objects.equals(mBanner, otherTemplate.mBanner)
                 && Objects.equals(mStyle, otherTemplate.mStyle)
                 && mIsVideoEnabled == otherTemplate.mIsVideoEnabled
                 && mIsAutoHideControlsEnabled == otherTemplate.mIsAutoHideControlsEnabled;
@@ -154,7 +136,6 @@ public class MediaPlaybackTemplate implements Template {
     @OptIn(markerClass = ExperimentalCarApi.class)
     private MediaPlaybackTemplate() {
         mHeader = null;
-        mBanner = null;
         mStyle = null;
         mIsVideoEnabled = false;
         mIsAutoHideControlsEnabled = false;
@@ -163,7 +144,6 @@ public class MediaPlaybackTemplate implements Template {
     @OptIn(markerClass = ExperimentalCarApi.class)
     MediaPlaybackTemplate(Builder builder) {
         mHeader = builder.mHeader;
-        mBanner = builder.mBanner;
         mStyle = builder.mStyle;
         mIsVideoEnabled = builder.mIsVideoEnabled;
         mIsAutoHideControlsEnabled = builder.mIsAutoHideControlsEnabled;
@@ -173,9 +153,6 @@ public class MediaPlaybackTemplate implements Template {
     @RequiresCarApi(8)
     public static final class Builder {
         @Nullable Header mHeader;
-        @ExperimentalCarApi
-        @Nullable Banner mBanner;
-        @ExperimentalCarApi
         @Nullable MediaPlaybackStyle mStyle;
         @ExperimentalCarApi
         private boolean mIsVideoEnabled = false;
@@ -194,25 +171,11 @@ public class MediaPlaybackTemplate implements Template {
         }
 
         /**
-         * Sets the {@link Banner} for this template or {code null} to not display a {@link
-         * Banner}.
-         *
-         * <p>Defaults to {@code null}, which means banner is not displayed.
-         */
-        @ExperimentalCarApi
-        @RequiresCarApi(9)
-        public MediaPlaybackTemplate.@NonNull Builder setBanner(@Nullable Banner banner) {
-            this.mBanner = banner;
-            return this;
-        }
-
-        /**
          * Sets the {@link MediaPlaybackStyle} for this template or {@code null} to use default
          * host styling.
          *
          * <p>Defaults to {@code null}, which means default host styling is used.
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public MediaPlaybackTemplate.@NonNull Builder setStyle(
                 @Nullable MediaPlaybackStyle style) {
@@ -275,7 +238,6 @@ public class MediaPlaybackTemplate implements Template {
         @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder(@NonNull MediaPlaybackTemplate template) {
             mHeader = template.getHeader();
-            mBanner = template.getBanner();
             mStyle = template.getStyle();
             mIsVideoEnabled = template.isVideoEnabled();
             mIsAutoHideControlsEnabled = template.isAutoHideControlsEnabled();
