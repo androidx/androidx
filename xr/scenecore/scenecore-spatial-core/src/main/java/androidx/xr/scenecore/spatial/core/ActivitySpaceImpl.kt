@@ -47,6 +47,77 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
+ * Immutable snapshot of the scale and orientation compensation applied to an [ActivitySpaceImpl].
+ *
+ * Captures one transform observation so coordinate conversions do not see intermediate updates that
+ * happen during an origin change.
+ *
+ * @property sceneParentScale positive uniform scale factor of the scene parent node.
+ * @property rotation gravity-aligned orientation applied to the activity space root node.
+ */
+internal class OriginCompensation(val sceneParentScale: Float, val rotation: Quaternion) {
+    /** Converts [sceneParentSpacePosition] from scene parent space into activity space. */
+    fun toActivitySpace(sceneParentSpacePosition: Vector3): Vector3 =
+        (rotation.inverse * sceneParentSpacePosition) * sceneParentScale
+
+    /**
+     * Converts a direction vector [sceneParentSpaceDirection] from scene parent space into a
+     * unit-length activity space direction vector.
+     */
+    fun toActivitySpaceDirection(sceneParentSpaceDirection: Vector3): Vector3 =
+        (rotation.inverse * sceneParentSpaceDirection).toNormalized()
+
+    /**
+     * Converts a surface normal [sceneParentSpaceNormal] from scene parent space into a unit-length
+     * activity space normal vector.
+     */
+    fun toActivitySpaceNormal(sceneParentSpaceNormal: Vector3): Vector3 =
+        (rotation.inverse * sceneParentSpaceNormal).toNormalized()
+
+    /** Converts [activitySpacePosition] from activity space into scene parent space. */
+    fun toSceneParentSpace(activitySpacePosition: Vector3): Vector3 =
+        (rotation * activitySpacePosition) / sceneParentScale
+
+    /**
+     * Converts a direction vector [activitySpaceDirection] from activity space into a unit-length
+     * scene parent direction vector.
+     */
+    fun toSceneParentSpaceDirection(activitySpaceDirection: Vector3): Vector3 =
+        (rotation * activitySpaceDirection).toNormalized()
+
+    companion object {
+        val IDENTITY = OriginCompensation(1.0f, Quaternion.Identity)
+    }
+}
+
+private const val MIN_SCENE_PARENT_SCALE = 1e-4f
+private const val MAX_SCENE_PARENT_SCALE_RELATIVE_ERROR = 1e-3f
+
+/**
+ * Checks whether [matrix] can drive activity space compensation.
+ *
+ * Accepts finite TRS transforms whose scale is positive, above [MIN_SCENE_PARENT_SCALE], and
+ * uniform within [MAX_SCENE_PARENT_SCALE_RELATIVE_ERROR].
+ */
+internal fun isValidSceneParentTransform(matrix: Matrix4): Boolean {
+    val data = matrix.data
+    for (i in 0 until 16) {
+        if (!data[i].isFinite()) return false
+    }
+    if (!matrix.isTrs) return false
+
+    val scale = matrix.scale
+    val minScale = minOf(scale.x, scale.y, scale.z)
+    val maxScale = maxOf(scale.x, scale.y, scale.z)
+
+    if (minScale < MIN_SCENE_PARENT_SCALE) {
+        return false
+    }
+    val relativeError = (maxScale - minScale) / maxScale
+    return relativeError <= MAX_SCENE_PARENT_SCALE_RELATIVE_ERROR
+}
+
+/**
  * Implementation of SceneCore's ActivitySpace.
  *
  * <p>This Entity represents the origin of the Scene, and is positioned by the system.
@@ -172,9 +243,14 @@ public class ActivitySpaceImpl(
         super.dispose()
     }
 
-    internal var sceneParentScaleAbs: Vector3 = Vector3.One
-
+    internal val originCompensation = AtomicReference(OriginCompensation.IDENTITY)
     private val lastSceneParentTransform = AtomicReference<Matrix4?>(null)
+
+    internal val sceneParentScaleAbs: Vector3
+        get() {
+            val scale = originCompensation.get().sceneParentScale
+            return Vector3(scale, scale, scale)
+        }
 
     /**
      * Handles the updates to scene core root transform.
@@ -185,7 +261,8 @@ public class ActivitySpaceImpl(
      * └── Scene Root Node (ActivitySpace Node)
      *
      * Transform Flow:
-     * 1. The system updates the transform of the 'Scene Parent Node' when in HOME_SPACE mode.
+     * 1. The system updates the transform of the 'Scene Parent Node' when in HOME_SPACE mode or
+     * during a recenter operation.
      * 2. The 'Scene Root Node' becomes a child of 'Scene Parent Node' and inherits its transform
      * when activity enters FULL_SPACE_MANAGED mode.
      * </pre>
@@ -202,26 +279,30 @@ public class ActivitySpaceImpl(
      *   Unbounded in XROS).
      */
     public fun handleOriginUpdate(newTransform: Matrix4) {
-        if (lastSceneParentTransform.getAndSet(newTransform) == newTransform) {
+        if (!isValidSceneParentTransform(newTransform)) {
+            return
+        }
+        if (lastSceneParentTransform.get() == newTransform) {
             return
         }
         var activitySpaceRotation = Quaternion.Identity
+        var sceneParentScale = Vector3.One
         if (unscaledGravityAlignedActivitySpace) {
-            // Get the absolute scale of the scene parent
-            sceneParentScaleAbs = Vector3.abs(newTransform.scale)
-            val sceneParentScaleInv = sceneParentScaleAbs.inverse()
-            // Get the unscaled rotation of the activity space.
-            activitySpaceRotation = newTransform.unscaled().rotation
+            sceneParentScale = newTransform.scale
+            val scaleFactor = sceneParentScale.x
+            val scaleFactorInv = 1.0f / scaleFactor
+            activitySpaceRotation = newTransform.rotation
             val yaw = activitySpaceRotation.eulerAngles.y
             val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
             val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
+            val newOriginCompensation = OriginCompensation(scaleFactor, gravityAlignedRotation)
             extensions.createNodeTransaction().use { transaction ->
                 transaction
                     .setScale(
                         getNode(),
-                        sceneParentScaleInv.x,
-                        sceneParentScaleInv.y,
-                        sceneParentScaleInv.z,
+                        scaleFactorInv,
+                        scaleFactorInv,
+                        scaleFactorInv,
                     )
                     .setOrientation(
                         getNode(),
@@ -232,17 +313,19 @@ public class ActivitySpaceImpl(
                     )
                     .apply()
             }
+            originCompensation.set(newOriginCompensation)
             // Update the rotation to be sent out in onSpatialModeChanged.
             // It needs to provide identity yaw rotation since we already preserved that part of
             // original rotation for the activity space origin.
             activitySpaceRotation = yawRotation.inverse * activitySpaceRotation
         }
+        lastSceneParentTransform.set(newTransform)
         // The translation is zero - since the activity space origin has been already translated by
         // system. SceneCore is relaying the same rotation and scale that activity space would have
         // inherited if it was in HOME_SPACE mode for continuity in FULL_SPACE_MANAGED mode.
         spatialModeChangeListener?.onSpatialModeChanged(
             Pose(Vector3.Zero, activitySpaceRotation),
-            sceneParentScaleAbs,
+            sceneParentScale,
         )
     }
 
@@ -285,18 +368,22 @@ public class ActivitySpaceImpl(
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
     ): HitTestResult = suspendCancellableCoroutine { continuation ->
+        val compensation = originCompensation.get()
+        val originInSceneParent = compensation.toSceneParentSpace(origin)
+        val directionInSceneParent = compensation.toSceneParentSpaceDirection(direction)
+
         val consumer =
             Consumer<com.android.extensions.xr.space.HitTestResult> { result ->
                 if (continuation.isActive) {
-                    continuation.resume(RuntimeUtils.getHitTestResult(result))
+                    continuation.resume(RuntimeUtils.getHitTestResult(result, compensation))
                 }
             }
 
         try {
             extensions.hitTest(
                 activity,
-                Vec3(origin.x, origin.y, origin.z),
-                Vec3(direction.x, direction.y, direction.z),
+                Vec3(originInSceneParent.x, originInSceneParent.y, originInSceneParent.z),
+                Vec3(directionInSceneParent.x, directionInSceneParent.y, directionInSceneParent.z),
                 RuntimeUtils.getHitTestFilter(hitTestFilter),
                 scheduledExecutor,
                 consumer,
