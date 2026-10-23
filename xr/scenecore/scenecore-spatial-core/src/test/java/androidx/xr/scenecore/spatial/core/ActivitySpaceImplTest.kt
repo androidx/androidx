@@ -734,4 +734,82 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         val expectedNormalZ = kotlin.math.sqrt(0.5).toFloat()
         assertVector3(hitTestResult.surfaceNormal!!, Vector3(0f, expectedNormalY, expectedNormalZ))
     }
+
+    @Test
+    fun gravityAlignedYawRotation_cardinalYawAngles_returnsExactYaw() {
+        val testAngles = listOf(0f, 45f, 90f, -90f, 180f)
+        for (expectedYaw in testAngles) {
+            val input = Quaternion.fromEulerAngles(0f, expectedYaw, 0f)
+            val result = gravityAlignedYawRotation(input)
+
+            // Verifying forward facing direction matches the expected yaw rotation precisely
+            val expectedForward = input * Vector3(0f, 0f, -1f)
+            val actualForward = result * Vector3(0f, 0f, -1f)
+            assertVector3(actualForward, expectedForward)
+        }
+    }
+
+    @Test
+    fun gravityAlignedYawRotation_withPitchAndRoll_preservesFacingYaw() {
+        val expectedYaw = 45.0f
+        // Apply +30 deg pitch and -20 deg roll alongside +45 deg yaw
+        val input = Quaternion.fromEulerAngles(30f, expectedYaw, -20f)
+        val result = gravityAlignedYawRotation(input)
+
+        // The extracted gravity-aligned yaw must remain purely around Y without tilt distortion
+        val resultEuler = result.eulerAngles
+        assertThat(resultEuler.x).isWithin(1e-3f).of(0f)
+        assertThat(resultEuler.z).isWithin(1e-3f).of(0f)
+        assertThat(resultEuler.y).isWithin(0.1f).of(expectedYaw)
+    }
+
+    @Test
+    fun gravityAlignedYawRotation_atExactVerticalPoles_returnsValidRotation() {
+        val yawDeg = 60.0f
+        val northPole = Quaternion.fromEulerAngles(90f, yawDeg, 0f)
+        val southPole = Quaternion.fromEulerAngles(-90f, yawDeg, 0f)
+
+        val resultNorth = gravityAlignedYawRotation(northPole)
+        val resultSouth = gravityAlignedYawRotation(southPole)
+
+        // Verify neither extreme vertical orientation produces NaN values in the quaternion
+        assertThat(
+                resultNorth.x.isFinite() &&
+                    resultNorth.y.isFinite() &&
+                    resultNorth.z.isFinite() &&
+                    resultNorth.w.isFinite()
+            )
+            .isTrue()
+        assertThat(
+                resultSouth.x.isFinite() &&
+                    resultSouth.y.isFinite() &&
+                    resultSouth.z.isFinite() &&
+                    resultSouth.w.isFinite()
+            )
+            .isTrue()
+        // Proves Up-vector fallback accurately extracts exact facing yaw at vertical poles
+        assertThat(resultNorth.eulerAngles.y).isWithin(0.1f).of(yawDeg)
+        assertThat(resultSouth.eulerAngles.y).isWithin(0.1f).of(yawDeg)
+        // Verify that zero tilt (0 pitch and 0 roll) is cleanly preserved in the output
+        assertThat(resultNorth.eulerAngles.x).isWithin(1e-3f).of(0f)
+        assertThat(resultSouth.eulerAngles.x).isWithin(1e-3f).of(0f)
+    }
+
+    @Test
+    fun gravityAlignedYawRotation_nearPoleTransition_blendsSmoothlyWithoutDiscontinuity() {
+        val yawDeg = 45.0f
+        val rollDeg = 20.0f
+        var previousForward =
+            gravityAlignedYawRotation(Quaternion.fromEulerAngles(80f, yawDeg, rollDeg)) *
+                Vector3.Forward
+
+        for (step in 1..20) {
+            val pitch = 80f + step * 0.5f // 80.5 to 90.0 degrees
+            val currentRotation =
+                gravityAlignedYawRotation(Quaternion.fromEulerAngles(pitch, yawDeg, rollDeg))
+            val currentForward = currentRotation * Vector3.Forward
+            assertThat(currentForward.dot(previousForward)).isGreaterThan(0.99f)
+            previousForward = currentForward
+        }
+    }
 }
