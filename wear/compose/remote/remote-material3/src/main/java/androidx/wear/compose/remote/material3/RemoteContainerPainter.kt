@@ -26,6 +26,8 @@ import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
 
 internal fun remoteContainerPainter(
@@ -36,19 +38,31 @@ internal fun remoteContainerPainter(
     scrim: RemoteBrush? = null,
 ): RemotePainter =
     DefaultRemoteContainerPainter(
-        ShapedBitmapPainter(shape, image, contentScale),
+        ShapedBitmapPainter(shape, image, contentScale, alpha),
         scrim,
         alpha,
         shape,
     )
 
 private class DefaultRemoteContainerPainter(
-    private val painter: RemotePainter,
+    private val painter: ShapedBitmapPainter,
     private val scrim: RemoteBrush?,
     private val alpha: RemoteFloat,
     private val shape: RemoteShape,
     override val intrinsicSize: RemoteSize? = painter.intrinsicSize,
 ) : RemotePainter() {
+    fun withAlphaMultiplier(multiplier: RemoteFloat): DefaultRemoteContainerPainter {
+        val combinedAlpha = alpha * multiplier
+        return DefaultRemoteContainerPainter(
+            painter =
+                ShapedBitmapPainter(shape, painter.image, painter.contentScale, combinedAlpha),
+            scrim = scrim,
+            alpha = combinedAlpha,
+            shape = shape,
+            intrinsicSize = intrinsicSize,
+        )
+    }
+
     override fun RemoteDrawScope.onDraw() {
         // Draw Shaped image
         with(painter) { onDraw() }
@@ -57,10 +71,7 @@ private class DefaultRemoteContainerPainter(
         scrim?.let {
             val paint = RemotePaint {
                 with(it) { applyTo(this@RemotePaint, size) }
-                val painterAlpha = this@DefaultRemoteContainerPainter.alpha
-                if (painterAlpha.constantValueOrNull != 1.0f) {
-                    color = color.copy(alpha = color.alpha * painterAlpha)
-                }
+                color = color.copy(alpha = color.alpha * this@DefaultRemoteContainerPainter.alpha)
             }
             val outline = shape.createOutline(size, remoteDensity, layoutDirection)
             drawOutline(outline, paint)
@@ -73,12 +84,14 @@ internal class ShapedBitmapPainter(
     val shape: RemoteShape,
     val image: RemoteImageBitmap,
     val contentScale: ContentScale,
+    val alpha: RemoteFloat = DefaultAlpha.rf,
 ) : RemotePainter() {
     override fun RemoteDrawScope.onDraw() {
         val paint = RemotePaint {
             with(RemoteBrush.image(image, contentScale = contentScale)) {
                 applyTo(this@RemotePaint, size)
             }
+            color = color.copy(alpha = color.alpha * this@ShapedBitmapPainter.alpha)
         }
 
         val outline = shape.createOutline(size, remoteDensity, layoutDirection)
@@ -92,7 +105,18 @@ internal class ShapedBitmapPainter(
 internal fun disabledRemoteContainerPainter(
     painter: RemotePainter,
     alpha: RemoteFloat,
-): RemotePainter = DefaultDisabledRemoteContainerPainter(painter, alpha)
+): RemotePainter =
+    when (painter) {
+        is DefaultRemoteContainerPainter -> painter.withAlphaMultiplier(alpha)
+        is ShapedBitmapPainter ->
+            ShapedBitmapPainter(
+                shape = painter.shape,
+                image = painter.image,
+                contentScale = painter.contentScale,
+                alpha = painter.alpha * alpha,
+            )
+        else -> DefaultDisabledRemoteContainerPainter(painter, alpha)
+    }
 
 private class DefaultDisabledRemoteContainerPainter(
     private val painter: RemotePainter,

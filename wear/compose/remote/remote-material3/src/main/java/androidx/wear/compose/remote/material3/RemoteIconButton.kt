@@ -333,7 +333,7 @@ public object RemoteIconButtonDefaults {
         get() =
             RemoteIconButtonColors(
                 containerColor = surfaceContainer,
-                contentColor = onSurface,
+                contentColor = primary,
                 disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
@@ -343,7 +343,7 @@ public object RemoteIconButtonDefaults {
         get() =
             RemoteIconButtonColors(
                 containerColor = RemoteColor(Color.Transparent),
-                contentColor = onSurface,
+                contentColor = primary,
                 disabledContainerColor = RemoteColor(Color.Transparent),
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
@@ -353,7 +353,7 @@ public object RemoteIconButtonDefaults {
         get() =
             RemoteIconButtonColors(
                 containerColor = RemoteColor(Color.Transparent),
-                contentColor = onSurface,
+                contentColor = primary,
                 disabledContainerColor = RemoteColor(Color.Transparent),
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
             )
