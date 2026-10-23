@@ -19,6 +19,7 @@ package androidx.wear.compose.material3
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
@@ -134,6 +135,7 @@ public fun IconButton(
             interactionSource = interactionSource,
             shapes = shapes,
             border = { border },
+            ripple = ripple(),
             content = content,
         )
     }
@@ -212,6 +214,7 @@ public fun FilledIconButton(
             interactionSource = interactionSource,
             shapes = shapes,
             border = { border },
+            ripple = ripple(),
             content = content,
         )
     }
@@ -290,6 +293,7 @@ public fun FilledTonalIconButton(
             interactionSource = interactionSource,
             shapes = shapes,
             border = { border },
+            ripple = ripple(),
             content = content,
         )
     }
@@ -372,6 +376,7 @@ public fun OutlinedIconButton(
             interactionSource = interactionSource,
             shapes = shapes,
             border = { border },
+            ripple = ripple(),
             content = content,
         )
     }
@@ -388,6 +393,7 @@ internal fun IconButtonImpl(
     interactionSource: MutableInteractionSource?,
     shapes: IconButtonShapes,
     border: @Composable (enabled: Boolean) -> BorderStroke?,
+    ripple: Indication,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val (finalShape, finalInteractionSource) =
@@ -409,7 +415,7 @@ internal fun IconButtonImpl(
         finalInteractionSource,
         finalShape,
         border,
-        ripple(focusRingShape = rememberDelegatingShape(finalShape)),
+        ripple,
         content,
     )
 }

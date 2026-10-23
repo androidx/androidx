@@ -17,12 +17,7 @@
 package androidx.wear.compose.material3.test
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.FocusInteraction
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -31,10 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -49,10 +42,8 @@ import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.IconButtonShapes
-import androidx.wear.compose.material3.LocalRippleThemeConfiguration
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedIconButton
-import androidx.wear.compose.material3.RippleDefaults
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.rememberAnimatedCornerBasedShape
@@ -199,123 +190,6 @@ class IconButtonScreenshotTest {
     @Test
     fun button_with_morph_animation_100pct() = verifyScreenshot {
         sampleOutlinedIconButton(shapes = IconButtonDefaults.shapes(morphShapesAtPct(1.0f)))
-    }
-
-    @Test
-    fun icon_button_inset_focus_ring() {
-        val filledInteractionSource = MutableInteractionSource()
-        val filledTonalInteractionSource = MutableInteractionSource()
-        val outlinedInteractionSource = MutableInteractionSource()
-        val defaultInteractionSource = MutableInteractionSource()
-        rule.setContentWithTheme {
-            CompositionLocalProvider(
-                LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingThemeConfiguration
-            ) {
-                Box(
-                    modifier =
-                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-                ) {
-                    Row(
-                        modifier = Modifier.testTag(TEST_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        FilledIconButton(
-                            onClick = {},
-                            interactionSource = filledInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        FilledTonalIconButton(
-                            onClick = {},
-                            interactionSource = filledTonalInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        OutlinedIconButton(
-                            onClick = {},
-                            interactionSource = outlinedInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        IconButton(onClick = {}, interactionSource = defaultInteractionSource) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                    }
-                }
-            }
-        }
-        rule.runOnIdle {
-            filledInteractionSource.tryEmit(FocusInteraction.Focus())
-            filledTonalInteractionSource.tryEmit(FocusInteraction.Focus())
-            outlinedInteractionSource.tryEmit(FocusInteraction.Focus())
-            defaultInteractionSource.tryEmit(FocusInteraction.Focus())
-        }
-        rule.verifyScreenshot(testName, screenshotRule)
-    }
-
-    @Test
-    fun icon_button_animated_shapes_inset_focus_ring() {
-        val filledInteractionSource = MutableInteractionSource()
-        val filledTonalInteractionSource = MutableInteractionSource()
-        val outlinedInteractionSource = MutableInteractionSource()
-        val defaultInteractionSource = MutableInteractionSource()
-        rule.setContentWithTheme {
-            CompositionLocalProvider(
-                LocalRippleThemeConfiguration provides
-                    RippleDefaults.InsetFocusRingThemeConfiguration
-            ) {
-                Box(
-                    modifier =
-                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-                ) {
-                    Row(
-                        modifier = Modifier.testTag(TEST_TAG),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        FilledIconButton(
-                            onClick = {},
-                            shapes = IconButtonDefaults.animatedShapes(),
-                            interactionSource = filledInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        FilledTonalIconButton(
-                            onClick = {},
-                            shapes = IconButtonDefaults.animatedShapes(),
-                            interactionSource = filledTonalInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        OutlinedIconButton(
-                            onClick = {},
-                            shapes = IconButtonDefaults.animatedShapes(),
-                            interactionSource = outlinedInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                        IconButton(
-                            onClick = {},
-                            shapes = IconButtonDefaults.animatedShapes(),
-                            interactionSource = defaultInteractionSource,
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Home, contentDescription = "Home")
-                        }
-                    }
-                }
-            }
-        }
-        rule.runOnIdle {
-            filledInteractionSource.tryEmit(FocusInteraction.Focus())
-            filledInteractionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-            filledTonalInteractionSource.tryEmit(FocusInteraction.Focus())
-            filledTonalInteractionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-            outlinedInteractionSource.tryEmit(FocusInteraction.Focus())
-            outlinedInteractionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-            defaultInteractionSource.tryEmit(FocusInteraction.Focus())
-            defaultInteractionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-        }
-        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Composable
