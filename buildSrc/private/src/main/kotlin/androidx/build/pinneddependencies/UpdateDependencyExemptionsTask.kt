@@ -38,8 +38,8 @@ internal abstract class UpdateDependencyExemptionsTask : DefaultTask() {
 
     init {
         description =
-            "Rewrites $EXEMPTIONS_FILE_NAME to match the tip-of-tree dependencies that currently " +
-                "need an exemption"
+            "Rewrites $EXEMPTIONS_FILE_NAME to match the tip-of-tree and alpha-pinned " +
+                "dependencies that currently need an exemption"
     }
 
     @get:InputFiles
@@ -129,8 +129,9 @@ internal fun renderExemptionsToml(exemptions: List<DependencyExemption>): String
         # See the License for the specific language governing permissions and
         # limitations under the License.
 
-        # Tip-of-tree project dependencies that are temporarily exempted from being pinned
-        # to released artifact versions.
+        # Dependencies on separately released libraries that are temporarily exempted from
+        # being pinned to a non-alpha released version: tip-of-tree project dependencies and
+        # dependencies pinned to an alpha release.
         """
             .trimIndent()
     )

@@ -18,7 +18,7 @@ package androidx.build.pinneddependencies
 
 import androidx.build.LibraryVersionsService
 import androidx.build.getExemptionCandidates
-import androidx.build.getLibraryProjectCoordinates
+import androidx.build.getLibraryCoordinates
 import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -39,9 +39,9 @@ import org.gradle.api.tasks.TaskAction
 @CacheableTask
 internal abstract class GenerateDependencyExemptionsReportTask : DefaultTask() {
 
-    @get:Input abstract val library: Property<ProjectCoordinates>
+    @get:Input abstract val library: Property<LibraryCoordinates>
 
-    @get:Input abstract val exemptionCandidates: SetProperty<ProjectCoordinates>
+    @get:Input abstract val exemptionCandidates: SetProperty<LibraryCoordinates>
 
     @get:OutputFile abstract val reportFile: RegularFileProperty
 
@@ -50,11 +50,11 @@ internal abstract class GenerateDependencyExemptionsReportTask : DefaultTask() {
         val lib = library.get()
         val report =
             DependencyExemptionsReport(
-                library = lib.projectPath,
+                library = lib.coordinate,
                 libraryVersion = lib.version?.toString(),
                 dependenciesNeedingExemption =
                     findDependenciesNeedingExemption(lib, exemptionCandidates.get())
-                        .map { it.projectPath }
+                        .map { it.coordinate }
                         .sorted(),
             )
         val file = reportFile.get().asFile
@@ -82,7 +82,7 @@ internal fun Project.configureDependencyExemptionsReport(
             GenerateDependencyExemptionsReportTask.TASK_NAME,
             GenerateDependencyExemptionsReportTask::class.java,
         ) { task ->
-            task.library.set(getLibraryProjectCoordinates(versionService))
+            task.library.set(getLibraryCoordinates(versionService))
             task.exemptionCandidates.set(getExemptionCandidates(versionService))
             task.reportFile.set(
                 layout.buildDirectory.file("intermediates/dependencyExemptions/report.json")
