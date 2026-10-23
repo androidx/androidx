@@ -27,8 +27,8 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 public fun dslStopwatchDemo(): ByteArray {
     return createRawRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
-        RemoteComposeWriter.hTag(Header.FEATURE_MEASURE_VERSION, 2),
         experimental = true,
+        RemoteComposeWriter.hTag(Header.FEATURE_MEASURE_VERSION, 2),
     ) {
         val len = 5f
         val lapTimes = remoteDynamicFloatArray(len)

@@ -61,7 +61,7 @@ public fun dslLayoutComputeDemo(): ByteArray {
             ) {
                 Text(
                     text = "DYNAMIC HUD",
-                    weight = RcWeight.Bold,
+                    fontWeight = RcFontWeight.Bold,
                     fontSize = 28.rsp,
                     color = 0xFF38BDF8.toInt(), // Sky Blue
                 )
@@ -70,7 +70,7 @@ public fun dslLayoutComputeDemo(): ByteArray {
 
                 Text(
                     text = "Centered & Sized via compute modifiers on player",
-                    weight = RcWeight.Medium,
+                    fontWeight = RcFontWeight.Medium,
                     fontSize = 18.rsp,
                     textAlign = RcTextAlign.Center,
                     color = 0xFF94A3B8.toInt(), // Muted text

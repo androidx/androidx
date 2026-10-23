@@ -431,28 +431,40 @@ public fun RcPaint.setStyle(v: RcPaintStyle): RcPaint {
     return setStyle(v.value)
 }
 
-/** Common font weight values. */
+/** Type-safe font-weight value; the underlying [value] is the standard CSS weight (100..900). */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object RcFontWeight {
-    public const val W100: Float = 100f
-    public const val W200: Float = 200f
-    public const val W300: Float = 300f
-    public const val W400: Float = 400f
-    public const val W500: Float = 500f
-    public const val W600: Float = 600f
-    public const val W700: Float = 700f
-    public const val W800: Float = 800f
-    public const val W900: Float = 900f
+@JvmInline
+public value class RcFontWeight(public val value: Float) {
+    /** Construct a dynamic font weight from a remote [RcFloat] variable or expression. */
+    public constructor(value: RcFloat) : this(value.toFloat())
 
-    public const val Thin: Float = W100
-    public const val ExtraLight: Float = W200
-    public const val Light: Float = W300
-    public const val Normal: Float = W400
-    public const val Medium: Float = W500
-    public const val SemiBold: Float = W600
-    public const val Bold: Float = W700
-    public const val ExtraBold: Float = W800
-    public const val Black: Float = W900
+    public companion object {
+        public val W100: RcFontWeight = RcFontWeight(100f)
+        public val W200: RcFontWeight = RcFontWeight(200f)
+        public val W300: RcFontWeight = RcFontWeight(300f)
+        public val W400: RcFontWeight = RcFontWeight(400f)
+        public val W500: RcFontWeight = RcFontWeight(500f)
+        public val W600: RcFontWeight = RcFontWeight(600f)
+        public val W700: RcFontWeight = RcFontWeight(700f)
+        public val W800: RcFontWeight = RcFontWeight(800f)
+        public val W900: RcFontWeight = RcFontWeight(900f)
+
+        public val Thin: RcFontWeight = W100
+        public val ExtraLight: RcFontWeight = W200
+        public val Light: RcFontWeight = W300
+        public val Normal: RcFontWeight = W400
+        public val Medium: RcFontWeight = W500
+        public val SemiBold: RcFontWeight = W600
+        public val Bold: RcFontWeight = W700
+        public val ExtraBold: RcFontWeight = W800
+        public val Black: RcFontWeight = W900
+
+        /** Construct a weight from the raw CSS weight (100..900). */
+        public fun of(value: Float): RcFontWeight = RcFontWeight(value)
+
+        /** Construct a dynamic weight from a remote [RcFloat] variable or expression. */
+        public fun of(value: RcFloat): RcFontWeight = RcFontWeight(value.toFloat())
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1127,32 +1139,6 @@ public value class RcDataMap internal constructor(internal val id: Int)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 public value class RcFont internal constructor(internal val id: Int)
-
-/**
- * Type-safe font-weight value (added alongside the existing [RcFontWeight] object of `Float`
- * constants — that object is preserved for backward compatibility).
- *
- * Use [RcWeight.Normal], [RcWeight.Bold], etc. to construct a weight; the underlying [value] is the
- * standard CSS weight (100..900).
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RcWeight internal constructor(internal val value: Float) {
-    public companion object {
-        public val Thin: RcWeight = RcWeight(100f)
-        public val ExtraLight: RcWeight = RcWeight(200f)
-        public val Light: RcWeight = RcWeight(300f)
-        public val Normal: RcWeight = RcWeight(400f)
-        public val Medium: RcWeight = RcWeight(500f)
-        public val SemiBold: RcWeight = RcWeight(600f)
-        public val Bold: RcWeight = RcWeight(700f)
-        public val ExtraBold: RcWeight = RcWeight(800f)
-        public val Black: RcWeight = RcWeight(900f)
-
-        /** Construct a weight from the raw CSS weight (100..900). */
-        public fun of(value: Float): RcWeight = RcWeight(value)
-    }
-}
 
 /**
  * 2D point holding [RcFloat] coordinates. Carrying [RcFloat] (not raw `Float`) means the same point

@@ -46,10 +46,10 @@ import androidx.compose.ui.tooling.preview.Preview
 public fun dslAnimatedRadius(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Animated Radius"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()

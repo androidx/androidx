@@ -73,10 +73,10 @@ private fun RcScope.waveAt(y: Float) =
 public fun dslMesh2DSplineBrush(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D spline width path strip"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()
@@ -149,10 +149,10 @@ public fun dslMesh2DSplineBrush(): ByteArray {
 public fun dslMesh2DSplineBreathingRibbon(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D animated spline widths"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()
@@ -234,10 +234,10 @@ private fun RcScope.rowLabel(text: String, y: Float) {
 public fun dslMesh2DRoundStrip(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D round capped path strip"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()
@@ -304,10 +304,10 @@ public fun dslMesh2DRoundStrip(): ByteArray {
 public fun dslMesh2DRoundStripBreathing(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D animated round caps"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFFFFFFFF.toInt())) {
             val w = componentWidth()

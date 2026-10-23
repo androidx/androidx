@@ -65,10 +65,10 @@ import androidx.compose.ui.tooling.preview.Preview
 public fun dslFlappyDroid(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 1000),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 1000),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Flappy Droid"),
-        experimental = true,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Canvas(modifier = Modifier.fillMaxSize().onClick {}) {

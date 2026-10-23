@@ -47,10 +47,10 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 public fun dslRcTextDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 600),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 600),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Demo"),
-        experimental = true,
     ) {
         Box(modifier = Modifier.fillMaxSize().background(0xFFFFFF00.toInt())) {
             Row(

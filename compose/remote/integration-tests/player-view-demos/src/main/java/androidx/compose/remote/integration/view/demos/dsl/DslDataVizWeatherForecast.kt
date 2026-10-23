@@ -20,10 +20,10 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -49,10 +49,10 @@ public fun dslDemoWeatherForecast(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Weather Forecast Bars"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0A1628.toInt())) {
             val w = componentWidth()
@@ -81,7 +81,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
                 color(0xFFFFFFFF.toInt())
                 style(RcPaintStyle.Fill)
                 textSize((density * 16f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             drawTextAnchored(remoteText("Hourly Forecast"), w / 2f, density * 18f, 0f.rf, 0f.rf, 0)
 
@@ -107,7 +107,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
                 paint {
                     color(0xFFFFFFFF.toInt())
                     textSize((density * 10f).toFloat())
-                    typeface(RcFontType.Default, RcWeight.SemiBold, italic = false)
+                    typeface(RcFontType.Default, RcFontWeight.SemiBold, italic = false)
                 }
                 val tempLabel =
                     createTextFromFloat(
@@ -137,7 +137,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
             paint {
                 color(0x99FFFFFF.toInt())
                 textSize((density * 9f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
             }
             for (i in hours.indices) {
                 val x = marginL + i.rf * barSpacing + barSpacing / 2f

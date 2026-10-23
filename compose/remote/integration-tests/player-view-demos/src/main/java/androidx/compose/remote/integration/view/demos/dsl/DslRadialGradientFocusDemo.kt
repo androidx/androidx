@@ -20,10 +20,10 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTileMode
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.cos
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -66,10 +66,10 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Radial Gradient Focus"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0B0B10.toInt())) {
             val w = componentWidth()
@@ -174,7 +174,7 @@ public fun dslRadialGradientFocusDemo(): ByteArray {
                     color(0xFFE8E8F0.toInt())
                     style(RcPaintStyle.Fill)
                     textSize(labelSize)
-                    typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+                    typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
                 }
                 drawTextAnchored(
                     remoteText(LABELS[index]),

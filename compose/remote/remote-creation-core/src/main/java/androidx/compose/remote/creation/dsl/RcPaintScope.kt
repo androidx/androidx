@@ -118,7 +118,7 @@ public interface RcPaintScope {
     /** Sets the paint typeface family + weight + italic flag. */
     public fun typeface(
         fontType: RcFontType,
-        weight: RcWeight = RcWeight.Normal,
+        weight: RcFontWeight = RcFontWeight.Normal,
         italic: Boolean = false,
     )
 
@@ -319,7 +319,7 @@ internal class RcPaintScopeImpl(override val raw: RcPaint) : RcPaintScope {
         raw.setTextSize(value)
     }
 
-    override fun typeface(fontType: RcFontType, weight: RcWeight, italic: Boolean) {
+    override fun typeface(fontType: RcFontType, weight: RcFontWeight, italic: Boolean) {
         raw.setTypeface(fontType.value, weight.value.toInt(), italic)
     }
 

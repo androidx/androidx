@@ -20,10 +20,10 @@ import android.annotation.SuppressLint
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
 import androidx.compose.remote.creation.dsl.RcTouchStopMode
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.clamp
 import androidx.compose.remote.creation.dsl.round
 import androidx.compose.remote.creation.dsl.touchPosX
@@ -104,7 +104,7 @@ internal fun RcCanvasScope.touchCrosshair(
         color(theme.titleColor)
         style(RcPaintStyle.Fill)
         textSize(theme.labelSize + 1f)
-        typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+        typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
     }
     drawTextAnchored(textLookup(catList, idx), px, py, -1f, 0f, 0)
     val sw = theme.labelSize * 0.7f
@@ -122,7 +122,7 @@ internal fun RcCanvasScope.touchCrosshair(
             color(theme.labelColor)
             style(RcPaintStyle.Fill)
             textSize(theme.labelSize)
-            typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+            typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
         }
         drawTextAnchored(text, px + sw + theme.labelGap, py, -1f, 0f, 0)
     }

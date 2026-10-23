@@ -92,13 +92,13 @@ public fun dslMesh2DPerlinTerrain(): ByteArray {
     val terrain = TerrainData(TERRAIN_GRID, TERRAIN_SEED)
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(
             Header.DOC_CONTENT_DESCRIPTION,
             "Perlin terrain with rolling balls",
         ),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF05070C.toInt())) {
             val w = componentWidth()
