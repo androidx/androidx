@@ -18,6 +18,7 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.objectListOf
 import androidx.compose.runtime.composer.gapbuffer.expectError
 import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.Contact
@@ -5177,6 +5178,40 @@ class CompositionTests {
         expectChanges()
         validate {}
         assertEquals(0, composer.stacksSize())
+    }
+
+    @Test // b/574639982
+    fun testMoveAndInsertKeyedGroups() = compositionTest {
+        var list by mutableStateOf(objectListOf("A", "B"))
+        compose {
+            list.forEach { item ->
+                key(item) {
+                    Text("Item $item")
+                }
+            }
+        }
+
+        validate {
+            list.forEach { item ->
+                Text("Item $item")
+            }
+        }
+
+        list = objectListOf("B", "NEW", "A")
+        expectChanges()
+        revalidate()
+
+        list = objectListOf("B", "A")
+        expectChanges()
+        revalidate()
+
+        list = objectListOf("A", "B", "NEW")
+        expectChanges()
+        revalidate()
+
+        list = objectListOf("A", "B")
+        expectChanges()
+        revalidate()
     }
 }
 

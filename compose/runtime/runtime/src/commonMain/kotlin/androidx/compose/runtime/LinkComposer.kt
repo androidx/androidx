@@ -196,7 +196,14 @@ private class LinkPending(val keyInfos: MutableList<KeyInfo>, val startIndex: In
      * necessary to track, as the handle returned by this will be an "anchor" which moved groups
      * must be positioned before.
      */
-    fun groupHandleOfNextUnmovedGroup() = keyInfos[placedGroups.nextClear(0)].handle
+    fun groupHandleOfNextUnmovedGroup(parent: GroupAddress): GroupHandle {
+        val nextIndex = placedGroups.nextClear(0)
+        return if (nextIndex < keyInfos.size) {
+            keyInfos[nextIndex].handle
+        } else {
+            makeGroupHandle(parent, NULL_ADDRESS, NULL_ADDRESS)
+        }
+    }
 
     /**
      * Mark the [index]-th child (based on the original ordering of the children before
@@ -2567,7 +2574,7 @@ internal class LinkComposer(
                 val currentRelativePosition = relativePosition - pending.groupIndex
                 pending.registerMoveSlot(relativePosition, pending.groupIndex)
                 if (currentRelativePosition > 0) {
-                    reader.reposition(pending.groupHandleOfNextUnmovedGroup())
+                    reader.reposition(pending.groupHandleOfNextUnmovedGroup(reader.parentGroup))
                     // The slot group must be moved, record the move to be performed during apply.
                     changeListWriter.moveGroup(currentRelativePosition)
                 }
@@ -2575,9 +2582,10 @@ internal class LinkComposer(
                 reader.reposition(location)
                 startReaderGroup(isNode, data)
             } else {
-                // The group is new, go into insert mode. All child groups will written to the
+                // The group is new, go into insert mode. All child groups will be written to the
                 // insertTable until the group is complete which will schedule the groups to be
                 // inserted into in the table.
+                reader.reposition(pending.groupHandleOfNextUnmovedGroup(reader.parentGroup))
                 reader.beginEmpty()
                 inserting = true
                 providerCache = null
