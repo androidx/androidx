@@ -144,17 +144,27 @@ public object OneHandedGestureDefaults {
 
         val layoutInfo = scrollState.layoutInfo
         val anchorIndex = scrollState.anchorItemIndex
+        // If the anchor item sits below the viewport center, re-center it before moving on. This
+        // doesn't apply at the top of the list, where the anchor item naturally sits below the
+        // center, so we move straight to the next item instead.
         val targetIndex =
-            if (scrollState.anchorItemScrollOffset < 0) anchorIndex else anchorIndex + 1
+            if (scrollState.canScrollBackward && scrollState.anchorItemScrollOffset < 0) {
+                anchorIndex
+            } else {
+                anchorIndex + 1
+            }
 
         val targetItem = layoutInfo.visibleItems.fastFirstOrNull { it.index == targetIndex }
 
         if (targetItem != null && targetItem.measuredHeight < layoutInfo.viewportSize.height) {
+            // Center the target item in the viewport.
             scrollState.animateScrollBy(
                 targetItem.offset + targetItem.measuredHeight / 2f -
                     layoutInfo.viewportSize.height.toFloat() / 2f
             )
         } else {
+            // The target item is either not visible or taller than the viewport, so scroll
+            // through it by half the viewport.
             scrollState.animateScrollBy(layoutInfo.viewportSize.height * 0.5f)
         }
     }

@@ -30,8 +30,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -1090,18 +1092,18 @@ class OneHandedGestureTest {
                 }
             }
         }
-        // On screen load, TLC items are not automatically aligned.
-        // Trigger a primary gesture to snap the center item into place.
-        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        // On screen load, item 4 is the anchor item. At the top of the list, the gesture always
+        // moves to the next item, even if the anchor item is not aligned with the viewport center.
+        val initialAnchorIndex = 4
 
-        var expectedIndex = 4
+        var expectedIndex = initialAnchorIndex
         repeat(numberOfItems * 2) {
             rule.waitForIdle()
             assertEquals(expectedIndex, listState.anchorItemIndex)
             sdkGestureInputManager.performGesture(sdkActionPrimary)
             if (expectedIndex == numberOfItems - 5 /* last 4 items can't be scrolled */) {
                 if (wrap) {
-                    expectedIndex = 4
+                    expectedIndex = initialAnchorIndex
 
                     // TLC has 4 items remaining below the viewport center that cannot be scrolled
                     // into focus
@@ -1114,15 +1116,58 @@ class OneHandedGestureTest {
                     // Step 2: Scroll back up to the first (0th) item.
                     sdkGestureInputManager.performGesture(sdkActionPrimary)
                     rule.waitForIdle()
-
-                    // Step 3: Trigger snapping behavior on the center item.
-                    sdkGestureInputManager.performGesture(sdkActionPrimary)
-                    rule.waitForIdle()
                 }
             } else {
                 expectedIndex++
             }
         }
+    }
+
+    @Test
+    fun test_tlc_scroll_next_item_at_top_with_anchor_below_center_scrolls_to_next_item() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        val listState = TransformingLazyColumnState()
+        val gestureConfig =
+            OneHandedGestureConfiguration(
+                action = OneHandedGestureAction.Primary,
+                gestureId = "GestureId",
+            )
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    TransformingLazyColumn(
+                        state = listState,
+                        // Large top padding places the first item below the viewport center.
+                        contentPadding = PaddingValues(top = 120.dp),
+                        modifier =
+                            Modifier.background(Color.Black)
+                                .fillMaxSize()
+                                .oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = "scroll",
+                                    onGesture = {
+                                        OneHandedGestureDefaults.scrollDownToNextItem(listState)
+                                    },
+                                ),
+                    ) {
+                        items(10) {
+                            Box(Modifier.fillMaxWidth().height(40.dp)) { Text("Item $it") }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(listState.canScrollBackward).isFalse()
+            assertEquals(0, listState.anchorItemIndex)
+            assertThat(listState.anchorItemScrollOffset).isLessThan(0)
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+
+        rule.runOnIdle { assertEquals(1, listState.anchorItemIndex) }
     }
 
     @Test
