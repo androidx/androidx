@@ -19,13 +19,4 @@
             file="src/main/kotlin/androidx/xr/projected/EngagementModeClient.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 24"
-        errorLine1="    @RequiresApi(Build.VERSION_CODES.N)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/xr/projected/ProjectedDisplayController.kt"/>
-    </issue>
-
 </issues>
