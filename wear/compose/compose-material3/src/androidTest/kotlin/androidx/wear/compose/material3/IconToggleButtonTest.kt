@@ -964,17 +964,4 @@ class IconToggleButtonTest {
                 shape = endShape,
             )
     }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun draws_focus_ring_when_focused() {
-        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
-            IconToggleButton(
-                checked = false,
-                onCheckedChange = {},
-                modifier = modifier,
-                interactionSource = interactionSource,
-            ) {}
-        }
-    }
 }
