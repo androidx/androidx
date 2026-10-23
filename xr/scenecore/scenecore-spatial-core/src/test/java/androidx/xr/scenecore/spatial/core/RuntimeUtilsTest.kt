@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core
 import android.app.Activity
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.InputEvent as RuntimeInputEvent
@@ -597,7 +598,7 @@ class RuntimeUtilsTest {
         Truth.assertThat(hitTestResult.hitPosition).isNotNull()
         assertVector3(hitTestResult.hitPosition!!, Vector3(1f, 2f, 3f))
         Truth.assertThat(hitTestResult.surfaceNormal).isNotNull()
-        assertVector3(hitTestResult.surfaceNormal!!, Vector3(4f, 5f, 6f))
+        assertVector3(hitTestResult.surfaceNormal!!, Vector3(4f, 5f, 6f).toNormalized())
         Truth.assertThat(hitTestResult.surfaceType)
             .isEqualTo(
                 androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType
@@ -749,7 +750,7 @@ class RuntimeUtilsTest {
         val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
         val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
         val scaleFactor = 2.0f
-        activitySpace.sceneParentScaleAbs = Vector3(scaleFactor, scaleFactor, scaleFactor)
+        activitySpace.originCompensation.set(OriginCompensation(scaleFactor, Quaternion.Identity))
 
         val xrInputEvent =
             ShadowInputEvent.create(
@@ -774,7 +775,7 @@ class RuntimeUtilsTest {
         val sceneRuntime = createSceneRuntime(sceneNodeRegistry)
         val activitySpace = sceneRuntime.activitySpace as ActivitySpaceImpl
         val scaleFactor = 3.0f
-        activitySpace.sceneParentScaleAbs = Vector3(scaleFactor, scaleFactor, scaleFactor)
+        activitySpace.originCompensation.set(OriginCompensation(scaleFactor, Quaternion.Identity))
 
         val testEntity = sceneRuntime.createEntity(Pose(), "testEntity", activitySpace)
         val testNode = (testEntity as AndroidXrEntity).getNode()
@@ -786,5 +787,35 @@ class RuntimeUtilsTest {
 
         Truth.assertThat(hitInfo).isNotNull()
         assertVector3(hitInfo!!.hitPosition!!, Vector3(scaleFactor, scaleFactor, scaleFactor))
+    }
+
+    @Test
+    fun getHitTestResult_withNonIdentityCompensation_transformsPositionNormalAndDistance() {
+        val rawDistance = 2.5f
+        val rawHitPosition = Vec3(2f, 0f, 0f)
+        val rawNormal = Vec3(1f, 0f, 0f)
+
+        val extensionsResult =
+            HitTestResult.Builder(rawDistance, rawHitPosition, true, HitTestResult.SURFACE_PANEL)
+                .setSurfaceNormal(rawNormal)
+                .build()
+
+        // 90 deg yaw rotation + 2x uniform scale
+        val compensation = OriginCompensation(2f, Quaternion.fromEulerAngles(0f, 90f, 0f))
+
+        val result = RuntimeUtils.getHitTestResult(extensionsResult, compensation)
+
+        // Distance should be scaled by scale: 2.5 * 2.0 = 5.0
+        Truth.assertThat(result.distance).isEqualTo(5.0f)
+
+        // Position transformed into activity space:
+        // Inverse rotation (-90 deg yaw) on (2, 0, 0) -> (0, 0, 2), then scaled by 2 -> (0, 0, 4)
+        Truth.assertThat(result.hitPosition).isNotNull()
+        assertVector3(result.hitPosition!!, Vector3(0f, 0f, 4f))
+
+        // Normal should be inverse rotated (-90 deg yaw) and normalized without scaling -> (0, 0,
+        // 1)
+        Truth.assertThat(result.surfaceNormal).isNotNull()
+        assertVector3(result.surfaceNormal!!, Vector3(0f, 0f, 1f))
     }
 }
