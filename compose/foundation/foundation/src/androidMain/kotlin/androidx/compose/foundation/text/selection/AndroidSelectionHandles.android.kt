@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +34,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -45,6 +48,11 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.ResolvedTextDirection
@@ -124,27 +132,99 @@ internal fun SelectionHandleIcon(modifier: Modifier, iconVisible: () -> Boolean,
     Spacer(modifier.size(HandleWidth, HandleHeight).drawSelectionHandle(iconVisible, isLeft))
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.drawSelectionHandle(iconVisible: () -> Boolean, isLeft: Boolean): Modifier =
-    composed {
-        val handleColor = LocalTextSelectionColors.current.handleColor
-        this.drawWithCache {
-            val radius = size.width / 2f
-            val handleImage = createHandleImage(radius)
-            val colorFilter = ColorFilter.tint(handleColor)
-            onDrawWithContent {
-                drawContent()
-                if (!iconVisible()) return@onDrawWithContent
-                if (isLeft) {
-                    // Flip the selection handle horizontally.
-                    scale(scaleX = -1f, scaleY = 1f) {
+    if (ComposeFoundationFlags.isNewTextFieldModifierImplementationEnabled) {
+        this then DrawSelectionHandleElement(iconVisible, isLeft)
+    } else {
+        composed {
+            val handleColor = LocalTextSelectionColors.current.handleColor
+            this.drawWithCache {
+                val radius = size.width / 2f
+                val handleImage = createHandleImage(radius)
+                val colorFilter = ColorFilter.tint(handleColor)
+                onDrawWithContent {
+                    drawContent()
+                    if (!iconVisible()) return@onDrawWithContent
+                    if (isLeft) {
+                        // Flip the selection handle horizontally.
+                        scale(scaleX = -1f, scaleY = 1f) {
+                            drawImage(image = handleImage, colorFilter = colorFilter)
+                        }
+                    } else {
                         drawImage(image = handleImage, colorFilter = colorFilter)
                     }
-                } else {
-                    drawImage(image = handleImage, colorFilter = colorFilter)
                 }
             }
         }
     }
+
+private class DrawSelectionHandleElement(
+    private val iconVisible: () -> Boolean,
+    private val isLeft: Boolean,
+) : ModifierNodeElement<DrawSelectionHandleNode>() {
+    override fun create(): DrawSelectionHandleNode = DrawSelectionHandleNode(iconVisible, isLeft)
+
+    override fun update(node: DrawSelectionHandleNode) {
+        node.update(iconVisible, isLeft)
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "drawSelectionHandle"
+        properties["iconVisible"] = iconVisible
+        properties["isLeft"] = isLeft
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DrawSelectionHandleElement) return false
+        if (iconVisible !== other.iconVisible) return false
+        if (isLeft != other.isLeft) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = iconVisible.hashCode()
+        result = 31 * result + isLeft.hashCode()
+        return result
+    }
+}
+
+private class DrawSelectionHandleNode(
+    private var iconVisible: () -> Boolean,
+    private var isLeft: Boolean,
+) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+    private val cacheDrawNode =
+        delegate(
+            CacheDrawModifierNode {
+                val handleColor = currentValueOf(LocalTextSelectionColors).handleColor
+                val radius = size.width / 2f
+                val handleImage = createHandleImage(radius)
+                val colorFilter = ColorFilter.tint(handleColor)
+                onDrawWithContent {
+                    drawContent()
+                    if (!iconVisible()) return@onDrawWithContent
+                    if (isLeft) {
+                        // Flip the selection handle horizontally.
+                        scale(scaleX = -1f, scaleY = 1f) {
+                            drawImage(image = handleImage, colorFilter = colorFilter)
+                        }
+                    } else {
+                        drawImage(image = handleImage, colorFilter = colorFilter)
+                    }
+                }
+            }
+        )
+
+    fun update(iconVisible: () -> Boolean, isLeft: Boolean) {
+        val isLeftChanged = this.isLeft != isLeft
+        this.iconVisible = iconVisible
+        this.isLeft = isLeft
+        if (isLeftChanged) {
+            cacheDrawNode.invalidateDrawCache()
+        }
+    }
+}
 
 /**
  * The cache for the image mask created to draw selection/cursor handle, so that we don't need to
