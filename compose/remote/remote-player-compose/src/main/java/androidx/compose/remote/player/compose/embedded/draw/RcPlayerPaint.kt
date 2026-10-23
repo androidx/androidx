@@ -78,8 +78,8 @@ public class ComposeLocalPaint {
     internal var fontAxis: IntArray? = null
     internal var fontAxisValues: FloatArray? = null
     public var brush: Brush? = null
-    // The framework shader backing [brush] (SHADER/TEXTURE), kept so SHADER_MATRIX can set a local
-    // matrix on it.
+    // The framework shader backing [brush] (SHADER/TEXTURE/GRADIENT), kept so SHADER_MATRIX can set
+    // a local matrix on it.
     public var nativeShader: Shader? = null
     public var colorFilter: ColorFilter? = null
     public var blendMode: BlendMode = BlendMode.SrcOver
@@ -299,6 +299,7 @@ internal fun mapTileMode(mode: Int): TileMode =
     when (mode) {
         1 -> TileMode.Repeated
         2 -> TileMode.Mirror
+        3 -> TileMode.Decal
         else -> TileMode.Clamp
     }
 

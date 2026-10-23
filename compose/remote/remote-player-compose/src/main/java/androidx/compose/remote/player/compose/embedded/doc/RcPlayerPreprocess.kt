@@ -76,6 +76,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifie
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
+import androidx.compose.remote.core.operations.matrix.MatrixExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.Easing as RemoteEasing
@@ -118,7 +119,12 @@ internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectM
                     touchIds.add(id)
                     map.remove(id)
                 }
-            } else if (op is VariableSupport && op is VariableProvider) {
+            } else if (
+                op is VariableSupport &&
+                    op is VariableProvider &&
+                    op !is MatrixExpression &&
+                    op !is MatrixConstant
+            ) {
                 val id = op.id
                 if (id > 0 && !touchIds.contains(id) && !map.containsKey(id)) {
                     map[id] = op
@@ -299,7 +305,9 @@ internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResul
                     op !is PathCreate &&
                     op !is PathCombine &&
                     op !is PathTween &&
-                    op !is PathExpression
+                    op !is PathExpression &&
+                    op !is MatrixExpression &&
+                    op !is MatrixConstant
             ) {
                 val id = op.id
                 if (

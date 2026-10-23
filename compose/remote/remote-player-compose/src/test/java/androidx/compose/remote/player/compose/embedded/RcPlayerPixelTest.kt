@@ -18,6 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
+import android.graphics.Matrix as AndroidMatrix
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
@@ -44,6 +45,7 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
+import androidx.compose.remote.creation.compose.shaders.image
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -66,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -721,5 +724,94 @@ class RcPlayerPixelTest {
         assertThat(rightCenter.red).isWithin(0.05f).of(0.25f)
         assertThat(rightCenter.green).isLessThan(0.05f)
         assertThat(rightCenter.blue).isLessThan(0.05f)
+    }
+
+    @Test
+    fun imageBrushWithContentScale_appliesMatrixExpressionAndPaintColorAlpha() {
+        // 200x100 bitmap: left/right 50px bands are BLUE, middle 100px band is WHITE.
+        // Cropped into a 100x100 square with ContentScale.Crop, the outer BLUE bands are cropped
+        // away and the center WHITE band fills the square at alpha = 0.25f.
+        val splitBitmap =
+            Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888)
+                .apply {
+                    for (y in 0 until 100) {
+                        for (x in 0 until 200) {
+                            setPixel(
+                                x,
+                                y,
+                                if (x in 50 until 150) AndroidColor.WHITE else AndroidColor.BLUE,
+                            )
+                        }
+                    }
+                }
+                .asImageBitmap()
+
+        val bmp = renderPlayerToBitmap {
+            val remoteImage = remember {
+                createNamedRemoteImageBitmap("split_shader_img") { splitBitmap }
+            }
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp).background(Color.Black.rc).drawWithContent {
+                        val imgPaint = RemotePaint {
+                            with(RemoteBrush.image(remoteImage, contentScale = ContentScale.Crop)) {
+                                applyTo(this@RemotePaint, size)
+                            }
+                            color = color.copy(alpha = 0.25f.rf)
+                        }
+                        drawRect(paint = imgPaint, topLeft = RemoteOffset.Zero, size = size)
+                        drawContent()
+                    }
+            ) {}
+        }
+
+        // Near the left edge (x=10), ContentScale.Crop shifts x=50..150 into 0..100 -> dimmed WHITE
+        // (without MatrixExpression, x=10 would sample unshifted x=10 -> BLUE!)
+        val leftEdge = Color(bmp.getPixel(10, 50))
+        assertThat(leftEdge.red).isWithin(0.05f).of(0.25f)
+        assertThat(leftEdge.green).isWithin(0.05f).of(0.25f)
+        assertThat(leftEdge.blue).isWithin(0.05f).of(0.25f)
+    }
+
+    @Test
+    fun matrixConstant_appliesShaderMatrix() {
+        val splitAndroidBitmap =
+            Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888).apply {
+                for (y in 0 until 100) {
+                    for (x in 0 until 200) {
+                        setPixel(x, y, if (x >= 100) AndroidColor.GREEN else AndroidColor.BLUE)
+                    }
+                }
+            }
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        val bitmapId = writer.addBitmap(splitAndroidBitmap)
+        val matrixId = writer.addMatrixConst(AndroidMatrix().apply { setTranslate(-100f, 0f) })
+        writer.root {
+            writer
+                .getRcPaint()
+                .setTextureShader(bitmapId, 0, 0, 0, 0)
+                .setShaderMatrix(matrixId)
+                .commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+        }
+        val bytes = writer.buffer()
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.green).isGreaterThan(0.8f)
+        assertThat(center.blue).isLessThan(0.2f)
     }
 }
