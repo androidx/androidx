@@ -118,6 +118,7 @@ private fun InspectorNode.toFlatNode(context: ConversionContext): ComposableNode
         }
 
         anchorHash = inspectorNode.anchorId
+        inspectorNode.semanticsIds.forEach { addSemanticsIds(it) }
     }
 }
 
