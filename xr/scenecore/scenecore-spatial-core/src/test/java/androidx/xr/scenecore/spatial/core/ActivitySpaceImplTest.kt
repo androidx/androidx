@@ -255,7 +255,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
 
         assertThat(hitTestResult.distance).isEqualTo(distance)
         assertVector3(hitTestResult.hitPosition!!, Vector3(1f, 2f, 3f))
-        assertVector3(hitTestResult.surfaceNormal!!, Vector3(4f, 5f, 6f))
+        assertVector3(hitTestResult.surfaceNormal!!, Vector3(4f, 5f, 6f).toNormalized())
         assertThat(hitTestResult.surfaceType)
             .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE)
     }
@@ -593,5 +593,145 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         // Applying the same transform via handleOriginUpdate should be debounced.
         activitySpace.handleOriginUpdate(newTransform)
         assertThat(handler.updateCount).isEqualTo(1)
+    }
+
+    @Test
+    fun isValidSceneParentTransform_acceptsPositiveUniformScale() {
+        val valid = Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(2f, 2f, 2f))
+        assertThat(isValidSceneParentTransform(valid)).isTrue()
+    }
+
+    @Test
+    fun isValidSceneParentTransform_rejectsInvalidTransforms() {
+        assertThat(isValidSceneParentTransform(Matrix4.Zero)).isFalse()
+
+        val negativeScale =
+            Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(-2f, -2f, -2f))
+        assertThat(isValidSceneParentTransform(negativeScale)).isFalse()
+
+        val subEpsilonScale =
+            Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(1e-5f, 1e-5f, 1e-5f))
+        assertThat(isValidSceneParentTransform(subEpsilonScale)).isFalse()
+
+        val nonUniformScale =
+            Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(1f, 1.05f, 1f))
+        assertThat(isValidSceneParentTransform(nonUniformScale)).isFalse()
+
+        val nanData = FloatArray(16) { Float.NaN }
+        val nanMatrix = Matrix4(nanData)
+        assertThat(isValidSceneParentTransform(nanMatrix)).isFalse()
+
+        val partialNanData = Matrix4.Identity.data.clone()
+        partialNanData[12] = Float.NaN
+        val partialNanMatrix = Matrix4(partialNanData)
+        assertThat(isValidSceneParentTransform(partialNanMatrix)).isFalse()
+    }
+
+    @Test
+    fun originCompensation_convertsVectorsDirectionsAndNormals() {
+        val compensation = OriginCompensation(2f, Quaternion.fromEulerAngles(0f, 90f, 0f))
+
+        val position = Vector3(2f, 0f, 0f)
+        val convertedPos = compensation.toActivitySpace(position)
+        assertVector3(convertedPos, Vector3(0f, 0f, 4f))
+
+        val sceneParentPos = compensation.toSceneParentSpace(convertedPos)
+        assertVector3(sceneParentPos, position)
+
+        val direction = Vector3(2f, 0f, 0f)
+        val convertedDirection = compensation.toActivitySpaceDirection(direction)
+        assertVector3(convertedDirection, Vector3(0f, 0f, 1f))
+
+        val sceneParentDirection = compensation.toSceneParentSpaceDirection(convertedDirection)
+        assertVector3(sceneParentDirection, Vector3(1f, 0f, 0f))
+
+        val normal = Vector3(1f, 0f, 0f)
+        val convertedNormal = compensation.toActivitySpaceNormal(normal)
+        assertVector3(convertedNormal, Vector3(0f, 0f, 1f))
+    }
+
+    @Test
+    fun hitTest_withOriginCompensation_compensatesRayAndResult() = runBlocking {
+        val sceneParentScale = Vector3(2f, 2f, 2f)
+        val sceneParentRotation = Quaternion.fromEulerAngles(0f, 90f, 0f)
+        activitySpace.handleOriginUpdate(
+            Matrix4.fromTrs(Vector3.Zero, sceneParentRotation, sceneParentScale)
+        )
+
+        val rawDistance = 2.5f
+        val rawHitPosition = Vec3(2f, 0f, 0f)
+        val rawNormal = Vec3(1f, 0f, 0f)
+        val extensionsHitTestResult =
+            com.android.extensions.xr.space.HitTestResult.Builder(
+                    rawDistance,
+                    rawHitPosition,
+                    true,
+                    com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL,
+                )
+                .setSurfaceNormal(rawNormal)
+                .build()
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
+
+        val deferredHitTestResult =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                activitySpace.hitTest(
+                    Vector3(2f, 4f, 6f),
+                    Vector3(0f, 0f, -1f),
+                    ScenePose.HitTestFilter.SELF_SCENE,
+                )
+            }
+        fakeExecutor.runAll()
+        val hitTestResult = deferredHitTestResult.await()
+
+        assertThat(hitTestResult.distance).isWithin(1e-5f).of(5.0f)
+        assertThat(hitTestResult.hitPosition).isNotNull()
+        assertVector3(hitTestResult.hitPosition!!, Vector3(4f, 0f, 0f))
+        assertThat(hitTestResult.surfaceNormal).isNotNull()
+        assertVector3(hitTestResult.surfaceNormal!!, Vector3(1f, 0f, 0f))
+    }
+
+    @Test
+    fun hitTest_withPitchAndScale_compensatesRayAndResult() = runBlocking {
+        // 45 degree pitch + 2x uniform scale: gravityAlignedRotation is -45 degree pitch.
+        val sceneParentScale = Vector3(2f, 2f, 2f)
+        val sceneParentRotation = Quaternion.fromEulerAngles(45f, 0f, 0f)
+        activitySpace.handleOriginUpdate(
+            Matrix4.fromTrs(Vector3.Zero, sceneParentRotation, sceneParentScale)
+        )
+
+        val rawDistance = 2.0f
+        val rawHitPosition = Vec3(0f, 2f, 0f)
+        val rawNormal = Vec3(0f, 1f, 0f)
+        val extensionsHitTestResult =
+            com.android.extensions.xr.space.HitTestResult.Builder(
+                    rawDistance,
+                    rawHitPosition,
+                    true,
+                    com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL,
+                )
+                .setSurfaceNormal(rawNormal)
+                .build()
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
+
+        val deferredResult =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                activitySpace.hitTest(
+                    Vector3(1f, 0f, 0f),
+                    Vector3(0f, 0f, 1f),
+                    ScenePose.HitTestFilter.SELF_SCENE,
+                )
+            }
+        fakeExecutor.runAll()
+        val hitTestResult = deferredResult.await()
+
+        assertThat(hitTestResult.distance).isWithin(1e-5f).of(4.0f)
+        assertThat(hitTestResult.hitPosition).isNotNull()
+        val expectedY = 2f * kotlin.math.sqrt(2.0).toFloat()
+        val expectedZ = 2f * kotlin.math.sqrt(2.0).toFloat()
+        assertVector3(hitTestResult.hitPosition!!, Vector3(0f, expectedY, expectedZ))
+        assertThat(hitTestResult.surfaceNormal).isNotNull()
+        val expectedNormalY = kotlin.math.sqrt(0.5).toFloat()
+        val expectedNormalZ = kotlin.math.sqrt(0.5).toFloat()
+        assertVector3(hitTestResult.surfaceNormal!!, Vector3(0f, expectedNormalY, expectedNormalZ))
     }
 }
