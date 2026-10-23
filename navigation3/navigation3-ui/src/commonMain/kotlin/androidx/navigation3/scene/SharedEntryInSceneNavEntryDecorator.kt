@@ -53,6 +53,7 @@ internal class SharedEntryInSceneNavEntryDecorator<T : Any>(
                             rememberSharedContentState(
                                 key = entry.contentKey,
                                 config =
+                                    @Suppress("DEPRECATION")
                                     SharedContentConfig(
                                         permitTransformDuringDeferredTransition = false
                                     ),

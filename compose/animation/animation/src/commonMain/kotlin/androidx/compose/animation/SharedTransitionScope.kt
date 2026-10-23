@@ -93,6 +93,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.round
+import kotlin.jvm.JvmInline
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -933,6 +934,48 @@ public interface SharedTransitionScope : LookaheadScope {
     }
 
     /**
+     * Defines how a shared element behaves during the deferred phase of a [DeferredTransition].
+     *
+     * @see SharedContentConfig.deferredTransitionBehavior
+     */
+    @Immutable
+    @JvmInline
+    public value class DeferredTransitionBehavior internal constructor(private val value: Int) {
+        public companion object {
+            /**
+             * The shared element visually transforms (`scale`, `offset`) with its parent container
+             * during the deferred phase of a [DeferredTransition], appearing attached to its parent
+             * container until the transition switches to the automatic phase.
+             */
+            public val FollowContainer: DeferredTransitionBehavior = DeferredTransitionBehavior(0)
+
+            /**
+             * The shared element detaches from its parent container's manual transformations and
+             * remains static at its initial bounds during the deferred phase of a
+             * [DeferredTransition].
+             */
+            public val Static: DeferredTransitionBehavior = DeferredTransitionBehavior(1)
+
+            /**
+             * The shared element detaches from its parent container's manual transformations and
+             * interpolates between its initial and target bounds according to
+             * [MutableContentTransform.sharedElementProgress] during the deferred phase of a
+             * [DeferredTransition]. If [MutableContentTransform.sharedElementProgress] is not
+             * configured, the element remains at its initial bounds.
+             */
+            public val SeekToTarget: DeferredTransitionBehavior = DeferredTransitionBehavior(2)
+        }
+
+        override fun toString(): String =
+            when (this) {
+                FollowContainer -> "FollowContainer"
+                Static -> "Static"
+                SeekToTarget -> "SeekToTarget"
+                else -> "Invalid"
+            }
+    }
+
+    /**
      * [SharedContentConfig] allows a shared element to be disabled or enabled dynamically through
      * [isEnabled] property. By default, [shouldKeepEnabledForOngoingAnimation] is true. This means
      * if the shared element transition is already running for the layout that this
@@ -973,6 +1016,11 @@ public interface SharedTransitionScope : LookaheadScope {
             get() = true
 
         /**
+         * **Deprecated:** Override [deferredTransitionBehavior] instead:
+         * ```kotlin
+         * override val deferredTransitionBehavior = DeferredTransitionBehavior.Static
+         * ```
+         *
          * [permitTransformDuringDeferredTransition] defines whether the shared element should take
          * part in the manual transformations applied to its container during the deferred phase of
          * a [DeferredTransition]. If true, the element visually transforms with its container until
@@ -982,9 +1030,39 @@ public interface SharedTransitionScope : LookaheadScope {
          *
          * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
          */
+        @Deprecated(
+            message =
+                "Override deferredTransitionBehavior instead: return " +
+                    "DeferredTransitionBehavior.Static for false, or " +
+                    "DeferredTransitionBehavior.FollowContainer for true."
+        )
         @get:Suppress("GetterSetterNames")
         public val permitTransformDuringDeferredTransition: Boolean
             get() = true
+
+        /**
+         * Defines how the shared element behaves during the deferred phase of a
+         * [DeferredTransition].
+         *
+         * By default, this returns [DeferredTransitionBehavior.FollowContainer], meaning the
+         * element visually transforms (`scale`, `offset`) with its parent container until the
+         * transition switches to the automatic phase.
+         *
+         * Use [DeferredTransitionBehavior.Static] to detach the element from its container's manual
+         * transformations and keep it at its initial bounds, or
+         * [DeferredTransitionBehavior.SeekToTarget] to interpolate between its initial and target
+         * bounds when [MutableContentTransform.sharedElementProgress] is configured.
+         *
+         * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
+         */
+        @Suppress("DEPRECATION")
+        public val deferredTransitionBehavior: DeferredTransitionBehavior
+            get() =
+                if (permitTransformDuringDeferredTransition) {
+                    DeferredTransitionBehavior.FollowContainer
+                } else {
+                    DeferredTransitionBehavior.Static
+                }
 
         /**
          * [alternativeTargetBoundsInTransitionScopeAfterRemoval] returns an alternative target
@@ -1026,6 +1104,25 @@ public interface SharedTransitionScope : LookaheadScope {
     }
 
     /**
+     * [SharedContentConfig] is a factory method that returns a [SharedContentConfig] object with
+     * default implementations for all the functions and properties defined in the
+     * [SharedContentConfig] interface, configured with the given [deferredTransitionBehavior].
+     *
+     * @param deferredTransitionBehavior how the shared element behaves during the deferred phase of
+     *   a [DeferredTransition].
+     * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
+     * @see SharedContentConfig
+     */
+    public fun SharedContentConfig(
+        deferredTransitionBehavior: DeferredTransitionBehavior
+    ): SharedContentConfig =
+        when (deferredTransitionBehavior) {
+            DeferredTransitionBehavior.Static -> CachedStaticSharedContentConfig
+            DeferredTransitionBehavior.SeekToTarget -> CachedSeekToTargetSharedContentConfig
+            else -> CachedSharedContentConfig
+        }
+
+    /**
      * [SharedContentConfig] is a factory method that returns an [SharedContentConfig] object with
      * default implementations for all the functions and properties defined in the
      * [SharedContentConfig] interface. More specifically, the returned
@@ -1035,6 +1132,9 @@ public interface SharedTransitionScope : LookaheadScope {
      * the shared element transition is canceled immediately if the incoming shared element is
      * removed during the animation.
      *
+     * Use [SharedContentConfig] with [DeferredTransitionBehavior.Static] for `false`, or
+     * [DeferredTransitionBehavior.FollowContainer] for `true`.
+     *
      * @param permitTransformDuringDeferredTransition defines whether the shared element should take
      *   part in the manual transformations applied to its container during the deferred phase of a
      *   [DeferredTransition]. This makes it look like it remains visually attached to its parent
@@ -1042,16 +1142,21 @@ public interface SharedTransitionScope : LookaheadScope {
      * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
      * @see SharedContentConfig
      */
+    @Deprecated(
+        message =
+            "Use SharedContentConfig(DeferredTransitionBehavior.Static) for false, or " +
+                "SharedContentConfig(DeferredTransitionBehavior.FollowContainer) for true."
+    )
     public fun SharedContentConfig(
         permitTransformDuringDeferredTransition: Boolean
     ): SharedContentConfig {
-        if (permitTransformDuringDeferredTransition) {
-            return CachedSharedContentConfig
-        }
-        return object : SharedContentConfig {
-            override val permitTransformDuringDeferredTransition: Boolean
-                get() = permitTransformDuringDeferredTransition
-        }
+        return SharedContentConfig(
+            if (permitTransformDuringDeferredTransition) {
+                DeferredTransitionBehavior.FollowContainer
+            } else {
+                DeferredTransitionBehavior.Static
+            }
+        )
     }
 }
 
@@ -1642,7 +1747,24 @@ private val cachedScaleToBoundsImplMap =
 internal class ScaleToBoundsImpl(val contentScale: ContentScale, val alignment: Alignment) :
     ResizeMode
 
-private object CachedSharedContentConfig : SharedTransitionScope.SharedContentConfig
+private class ImmutableSharedContentConfig(
+    override val deferredTransitionBehavior: SharedTransitionScope.DeferredTransitionBehavior
+) : SharedTransitionScope.SharedContentConfig {
+    @Suppress("OVERRIDE_DEPRECATION")
+    override val permitTransformDuringDeferredTransition: Boolean
+        get() =
+            deferredTransitionBehavior ==
+                SharedTransitionScope.DeferredTransitionBehavior.FollowContainer
+}
+
+private val CachedSharedContentConfig =
+    ImmutableSharedContentConfig(SharedTransitionScope.DeferredTransitionBehavior.FollowContainer)
+
+private val CachedStaticSharedContentConfig =
+    ImmutableSharedContentConfig(SharedTransitionScope.DeferredTransitionBehavior.Static)
+
+private val CachedSeekToTargetSharedContentConfig =
+    ImmutableSharedContentConfig(SharedTransitionScope.DeferredTransitionBehavior.SeekToTarget)
 
 private object RemeasureImpl : ResizeMode
 

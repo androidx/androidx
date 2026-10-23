@@ -71,19 +71,41 @@ internal class SharedElementEntry(
     private var deferredTransformState: SharedMutableTransformState? = null
 
     /**
+     * Whether the parent container's deferred scale/offset transformations should be applied to
+     * this shared element during the deferred phase.
+     */
+    internal val shouldApplyContainerTransform: Boolean
+        get() =
+            userState.config.deferredTransitionBehavior ==
+                SharedTransitionScope.DeferredTransitionBehavior.FollowContainer ||
+                !renderInOverlayDuringTransition
+
+    /**
+     * Whether this shared element should seek between its initial and target bounds according to
+     * [MutableContentTransform.sharedElementProgress] during the deferred phase.
+     */
+    internal val shouldSeekDuringDeferredTransition: Boolean
+        get() =
+            userState.config.deferredTransitionBehavior ==
+                SharedTransitionScope.DeferredTransitionBehavior.SeekToTarget &&
+                renderInOverlayDuringTransition
+
+    /**
      * Resolves the active [SharedMutableTransformState] that is currently driving the deferred
      * transformations.
      *
      * If the shared element does not participate in deferred transformations, this returns null.
      *
-     * During a deferred phase, we apply the outgoing content's transformations to both shared
+     * During a deferred phase, we resolve the outgoing content's transformations for both shared
      * elements (the incoming and the outgoing). Therefore, if this entry represents the incoming
      * element, we must resolve the state from the corresponding exiting element to ensure they
-     * transform perfectly in sync.
+     * transform or seek perfectly in sync.
      */
     internal val activeMutableTransformState: SharedMutableTransformState?
         get() {
-            if (!userState.config.permitTransformDuringDeferredTransition) return null
+            if (!shouldApplyContainerTransform && !shouldSeekDuringDeferredTransition) {
+                return null
+            }
 
             var currentTransition: Transition<*>? = boundsAnimation.transition
             var isDeferred = false
@@ -180,7 +202,8 @@ internal class SharedElementEntry(
                 val parentCoords = mutableTransformState?.parentLayoutCoordinates
                 val rootCoords = sharedElement.scope.root
                 if (
-                    mutableTransformState?.isMutating == true &&
+                    shouldApplyContainerTransform &&
+                        mutableTransformState?.isMutating == true &&
                         parentCoords != null &&
                         parentCoords.isAttached &&
                         rootCoords.isAttached

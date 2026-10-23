@@ -76,6 +76,7 @@ public class MutableTransform(
     internal var offsetVelocityProvider: (() -> Offset)? = null,
     internal var block: (TransformScope.(fullSize: IntSize) -> Unit)? = null,
 ) {
+    internal var sharedElementProgressProvider: (() -> Float)? = null
 
     /**
      * Define the manual transformation to apply during the deferred phase.
@@ -87,10 +88,15 @@ public class MutableTransform(
         this.block = block
     }
 
+    internal fun sharedElementProgress(progress: () -> Float) {
+        this.sharedElementProgressProvider = progress
+    }
+
     internal fun clear() {
         block = null
         veilMatchParentSize = false
         offsetVelocityProvider = null
+        sharedElementProgressProvider = null
     }
 }
 
@@ -292,6 +298,11 @@ internal class SharedMutableTransformState {
         get() =
             if (transformScope.isTransformOriginMutated) transformScope.transformOrigin
             else TransformOrigin.Center
+
+    internal fun resolveSharedElementProgress(): Float {
+        val provider = mutableData?.sharedElementProgressProvider ?: return 0f
+        return provider().coerceIn(0f, 1f)
+    }
 
     private val timeSource = TimeSource.Monotonic
     private val startTime = timeSource.markNow()
