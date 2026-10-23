@@ -43,4 +43,24 @@ public class RemoteComponent(private val scope: RemoteDrawScope) {
     /** The y-coordinate of the component center as a [RemoteFloat]. */
     public val centerY: RemoteFloat
         get() = context.componentCenterY()
+
+    /** The x-coordinate of the component relative to its parent as a [RemoteFloat]. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val x: RemoteFloat
+        get() = context.componentX()
+
+    /** The y-coordinate of the component relative to its parent as a [RemoteFloat]. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val y: RemoteFloat
+        get() = context.componentY()
+
+    /** The x-coordinate of the component relative to the root as a [RemoteFloat]. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rootX: RemoteFloat
+        get() = context.componentRootX()
+
+    /** The y-coordinate of the component relative to the root as a [RemoteFloat]. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val rootY: RemoteFloat
+        get() = context.componentRootY()
 }
