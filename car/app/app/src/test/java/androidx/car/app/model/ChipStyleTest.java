@@ -18,6 +18,8 @@ package androidx.car.app.model;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -31,12 +33,17 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ChipStyleTest {
 
     @Test
-    public void create_defaultValues() {
-        ChipStyle style = new ChipStyle.Builder().build();
+    public void create_onlyShapeSet_otherValuesNull() {
+        ChipStyle style = new ChipStyle.Builder().setShape(Shape.CORNER_FULL).build();
         assertThat(style.getBackgroundColor()).isNull();
         assertThat(style.getContentColor()).isNull();
         assertThat(style.getOutlineColor()).isNull();
-        assertThat(style.getShape()).isNull();
+        assertThat(style.getShape()).isEqualTo(Shape.CORNER_FULL);
+    }
+
+    @Test
+    public void build_noValuesSet_throws() {
+        assertThrows(IllegalStateException.class, () -> new ChipStyle.Builder().build());
     }
 
     @Test
