@@ -62,6 +62,8 @@ import androidx.xr.compose.testapp.videoplayer.VideoPlayerActivity
 import androidx.xr.testutils.TestAppActivityLeakTest
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -88,6 +90,23 @@ class ComposeTestAppActivityLeakTest(activityClass: Class<out Activity>) :
 
     @get:Rule
     val uncaughtExceptionsRule: CatchUncaughtExceptionsRule = CatchUncaughtExceptionsRule()
+
+    @Before
+    fun skipKnownFailures() {
+        // TODO(b/562997152, b/567785342): Remove once RotateToLookAtUserActivity SplitEngine
+        // teardown crash is fixed.
+        assumeFalse(
+            "Known failure (b/562997152, b/567785342): RotateToLookAtUserActivity native SplitEngine crash on teardown",
+            activityClass == RotateToLookAtUserActivity::class.java,
+        )
+        // TODO(b/562639564): Remove once Activity leak in MovableActivity and ResizablePanel is
+        // fixed.
+        assumeFalse(
+            "Known failure (b/562639564): Activity leak on destroy",
+            activityClass == MovableActivity::class.java ||
+                activityClass == ResizablePanel::class.java,
+        )
+    }
 
     companion object {
         @JvmStatic
