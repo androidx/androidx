@@ -18,7 +18,8 @@
 
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.compose.foundation.Canvas
+import android.content.Context
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Limits
@@ -28,7 +29,7 @@ import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.Header
-import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -37,22 +38,18 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.doc.applyOperationsWithoutBitmaps
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
-import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
-import androidx.compose.remote.player.compose.embedded.draw.executeOperations
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -95,6 +92,9 @@ class RcPlayerOpCountTest {
         }
     }
 
+    private fun RcPlayerState.remoteContext(): AndroidRemoteContext =
+        inspectableElements.first { it.name == "remoteContext" }.value as AndroidRemoteContext
+
     @Test
     fun applyOperationsWithoutBitmaps_doesNotRecurseIntoFunctionDefineOrLoopOperation() {
         val fnId = 10
@@ -118,15 +118,13 @@ class RcPlayerOpCountTest {
             addLoopEnd()
         }
 
-        val ctx = AndroidRemoteContext(RemoteClock.SYSTEM)
-        ctx.clearLastOpCount()
-        applyOperationsWithoutBitmaps(ctx, document.getOperationsList())
-        val setupOpCount = ctx.getLastOpCount()
-
         // Only top-level operations (Header/Root, FloatConstant, FloatFunctionDefine,
-        // LoopOperation)
-        // are counted; the 50 loop iterations and function body operations were not traversed.
-        assertThat(setupOpCount).isLessThan(10)
+        // LoopOperation) are counted during setup; if the 50 loop iterations or function body
+        // operations were traversed, Limits.MAX_OP_COUNT = 10 would throw.
+        Limits.MAX_OP_COUNT = 10
+        val playerState = RcPlayerState(document)
+        val ctx = playerState.remoteContext()
+
         // FloatFunctionDefine registered the function definition object on the context.
         assertThat(ctx.getObject(fnId)).isInstanceOf(FloatFunctionDefine::class.java)
         // Nested BitmapData metadata is still registered for lazy decoding.
@@ -164,10 +162,10 @@ class RcPlayerOpCountTest {
             addContainerEnd()
         }
 
-        val preprocessed = preprocessDocument(document)
-        val ctx = initializePlayerRemoteContext(document, RemoteClock.SYSTEM, preprocessed)
+        val playerState = RcPlayerState(document)
+        val ctx = playerState.remoteContext()
 
-        // After initializePlayerRemoteContext finishes, mOpCount must be reset to 0.
+        // After player context initialization finishes, mOpCount must be reset to 0.
         assertThat(ctx.getLastOpCount()).isEqualTo(0)
     }
 
@@ -179,39 +177,38 @@ class RcPlayerOpCountTest {
         // but across 10 frames totals ~1,650 operations (> 4x the limit if not reset per frame).
         Limits.MAX_OP_COUNT = 400
 
-        val document = rule.setRemoteContent {
-            val trigger = remember { createNamedRemoteFloatExpression("trigger") { 1f.rf } }
-            RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
-                RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                    val paint = RemotePaint()
-                    loop(0f.rf, 1f.rf, 40f.rf) { index ->
-                        val x = (index * 2f) + 1f
-                        drawCircle(
-                            paint = paint,
-                            center = RemoteOffset(x, trigger),
-                            radius = 5f.rf,
-                        )
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val captured = runBlocking {
+            captureSingleRemoteDocument(context = context) {
+                val trigger = remember { createNamedRemoteFloatExpression("trigger") { 1f.rf } }
+                RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        val paint = RemotePaint()
+                        loop(0f.rf, 1f.rf, 40f.rf) { index ->
+                            val x = (index * 2f) + 1f
+                            drawCircle(
+                                paint = paint,
+                                center = RemoteOffset(x, trigger),
+                                radius = 5f.rf,
+                            )
+                        }
                     }
                 }
             }
         }
 
-        val state = document.remoteComposeState as SnapshotRemoteComposeState
-        val triggerId =
-            preprocessDocument(document)
-                .constantOps
-                .filterIsInstance<NamedVariable>()
-                .first()
-                .mVarId
+        val playerState = RcPlayerState(captured)
+        val ctx = playerState.remoteContext()
+        rule.setContent { RcPlayer(state = playerState, modifier = Modifier.size(200.dp)) }
 
         rule.onRoot().captureToImage()
-        assertThat(state.opCountDepth).isEqualTo(0)
+        assertThat(ctx.getLastOpCount()).isEqualTo(0)
 
         // Drive 10 consecutive frame redraws by updating the reactive state variable and capturing.
         for (frame in 1..10) {
-            state.overrideFloat(triggerId, frame.toFloat() * 2f)
+            playerState.floatState("trigger").value = frame.toFloat() * 2f
             rule.onRoot().captureToImage()
-            assertThat(state.opCountDepth).isEqualTo(0)
+            assertThat(ctx.getLastOpCount()).isEqualTo(0)
         }
     }
 
@@ -227,19 +224,18 @@ class RcPlayerOpCountTest {
             addLoopEnd()
         }
 
-        val preprocessed = preprocessDocument(document)
-        val remoteContext =
-            initializePlayerRemoteContext(document, RemoteClock.SYSTEM, preprocessed)
-        val operations = document.getOperationsList()
+        val playerState = RcPlayerState(document)
+        val ctx = playerState.remoteContext()
 
         var caughtError: RuntimeException? = null
         rule.setContent {
-            val textMeasurer = rememberTextMeasurer()
-            Canvas(modifier = Modifier.size(100.dp)) {
-                caughtError =
-                    assertFailsWith<RuntimeException> {
-                        executeOperations(operations, remoteContext, textMeasurer)
+            Box(
+                modifier =
+                    Modifier.size(100.dp).drawWithContent {
+                        caughtError = assertFailsWith<RuntimeException> { drawContent() }
                     }
+            ) {
+                RcPlayer(state = playerState, modifier = Modifier.size(100.dp))
             }
         }
         rule.onRoot().captureToImage()
@@ -248,6 +244,6 @@ class RcPlayerOpCountTest {
         assertThat(caughtError!!.message).contains("Too many operations executed")
         // Even when a frame aborts due to exceeding MAX_OP_COUNT, the finally block must reset
         // mOpCount to 0 so the context is not left poisoned.
-        assertThat(remoteContext.getLastOpCount()).isEqualTo(0)
+        assertThat(ctx.getLastOpCount()).isEqualTo(0)
     }
 }

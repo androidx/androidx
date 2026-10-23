@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.doc.applyDataOperationsWithoutBitmaps
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -42,7 +41,6 @@ class RcPlayerBitmapFailureTest {
     @Test
     fun nestedRelativeUriIsSkippedDuringSetupTraversal() {
         val document = CoreDocument(RemoteClock.SYSTEM)
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
 
         val bitmapId = 42
         val bitmapData =
@@ -57,10 +55,12 @@ class RcPlayerBitmapFailureTest {
 
         val boxLayout = BoxLayout(null, 1, 0, 0f, 0f, 100f, 100f, BoxLayout.START, BoxLayout.TOP)
         boxLayout.getList().add(bitmapData)
-        document.getOperationsList().add(boxLayout)
+        document.operations.add(boxLayout)
 
-        document.initializeContext(context, null)
-        document.applyDataOperationsWithoutBitmaps(context)
+        val playerState = RcPlayerState(document)
+        val context =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
 
         // The image slot in RemoteComposeState should NOT contain a decoded bitmap yet (lazy
         // decode)
@@ -90,15 +90,18 @@ class RcPlayerBitmapFailureTest {
                 }
             }
 
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        context.mRemoteComposeState = SnapshotRemoteComposeState()
-        context.putObject(bitmapId, corruptBitmapData)
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(corruptBitmapData)
+                operations.add(NamedVariable(bitmapId, NamedVariable.IMAGE_TYPE, "USER:badImage"))
+            }
 
-        assertThat(resolveBitmap(context, bitmapId)).isNull()
+        val playerState = RcPlayerState(document)
+        assertThat(playerState.bitmapState("badImage").value).isNull()
         assertThat(applyCount).isEqualTo(1)
 
         // Subsequent lookups must not re-run apply() for a known-bad bitmap
-        assertThat(resolveBitmap(context, bitmapId)).isNull()
+        assertThat(playerState.bitmapState("badImage").value).isNull()
         assertThat(applyCount).isEqualTo(1)
     }
 }

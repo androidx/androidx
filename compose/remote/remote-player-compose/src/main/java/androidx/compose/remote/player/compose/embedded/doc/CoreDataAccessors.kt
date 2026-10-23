@@ -24,9 +24,12 @@ import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
+import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ComponentData
 import androidx.compose.remote.core.operations.FloatFunctionDefine
+import androidx.compose.remote.core.operations.FontData
 import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -98,8 +101,14 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             }
             applyOperationsWithoutBitmaps(context, (op as Container).list)
             if (op is LayoutComponent) {
+                // A component's draw stream runs in order on every draw pass, after layout, and
+                // computed values it defines are resolved on demand through the GraphContext.
+                // Evaluating it here, before measurement, would run expressions that read the
+                // component's own width/height while they are still zero, fire draw-stream side
+                // effects and inflate the op count. Only register the layout-independent
+                // resources the draw pass reads from the store but never defines itself.
                 op.drawContentOperations?.list?.let { canvasOps ->
-                    applyOperationsWithoutBitmaps(context, canvasOps)
+                    registerCanvasResources(context, canvasOps)
                 }
             }
         } else {
@@ -120,6 +129,29 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
                     registerNestedBitmapMetadata(context, canvasOps)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Registers the resources of a component's canvas draw stream during document setup without
+ * evaluating the stream: bitmap metadata (decoded lazily) and text/font data, which the draw pass
+ * reads from the store but does not apply itself. Expressions, paint, touch, haptic and particle
+ * operations are left for the draw pass, which runs after layout.
+ */
+private fun registerCanvasResources(context: RemoteContext, list: List<Operation>) {
+    for (i in list.indices) {
+        val op = list[i]
+        when (op) {
+            is BitmapData -> context.putObject(op.id, op)
+            is TextData,
+            is FontData,
+            is BitmapFontData -> op.apply(context)
+            // Function and loop bodies only run when invoked or iterated; see
+            // applyOperationsWithoutBitmaps.
+            is FloatFunctionDefine,
+            is LoopOperation -> registerNestedBitmapMetadata(context, (op as Container).list)
+            is Container -> registerCanvasResources(context, op.list)
         }
     }
 }
