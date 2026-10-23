@@ -8,6 +8,7 @@ package androidx.appstate.transform.testing {
   }
 
   public sealed nonexhaustive interface TransformTestScope extends kotlinx.coroutines.CoroutineScope {
+    method public androidx.appstate.transform.TransformScope TransformScope();
     method public void advance();
     method @KotlinOnly public void advanceTimeBy(kotlin.time.Duration duration);
     method @BytecodeOnly public void advanceTimeBy-LRDsOJo(long);
@@ -15,6 +16,7 @@ package androidx.appstate.transform.testing {
     method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineScope getBackgroundScope();
     method @InaccessibleFromKotlin public kotlinx.coroutines.test.TestCoroutineScheduler getTestCoroutineScheduler();
     method @InaccessibleFromKotlin public kotlinx.coroutines.test.TestDispatcher getTestDispatcher();
+    method public suspend Object? run(androidx.appstate.transform.TransformScope, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract kotlinx.coroutines.CoroutineScope backgroundScope;
     property public abstract kotlinx.coroutines.test.TestCoroutineScheduler testCoroutineScheduler;
     property public abstract kotlinx.coroutines.test.TestDispatcher testDispatcher;
