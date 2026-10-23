@@ -70,9 +70,6 @@ class WearWidgetsProfileTest {
                 LAYOUT_COLLAPSIBLE_ROW,
                 MODIFIER_COLLAPSIBLE_PRIORITY,
                 MODIFIER_SCROLL,
-                MODIFIER_TOUCH_CANCEL,
-                MODIFIER_TOUCH_DOWN,
-                MODIFIER_TOUCH_UP,
                 PARTICLE_COMPARE,
                 PARTICLE_DEFINE,
                 PARTICLE_LOOP,
@@ -96,6 +93,23 @@ class WearWidgetsProfileTest {
         // Fail if things are added to AndroidX Baseline without consideration here
         assertThat(operations)
             .containsAtLeastElementsIn(RcPlatformProfiles.ANDROIDX.supportedOperations - exclusions)
+    }
+
+    @Test
+    fun testTouchOperations() {
+        val touchOperations = listOf(MODIFIER_TOUCH_DOWN, MODIFIER_TOUCH_UP, MODIFIER_TOUCH_CANCEL)
+
+        assertThat(GlanceWearProfiles.createWearWidgetsProfile().supportedOperations)
+            .containsAtLeastElementsIn(touchOperations)
+        // Hosts that don't support them, e.g. the safe fallback renderer, don't get them.
+        assertThat(
+                GlanceWearProfiles.createWearWidgetsProfile(
+                        RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
+                    )
+                    .supportedOperations
+                    .intersect(touchOperations.toSet())
+            )
+            .isEmpty()
     }
 
     @Test
