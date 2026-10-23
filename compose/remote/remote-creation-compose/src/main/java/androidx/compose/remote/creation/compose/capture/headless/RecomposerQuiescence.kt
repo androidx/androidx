@@ -249,7 +249,6 @@ private suspend fun awaitIdle(
         if (frameClock.hasAwaiters) {
             if (pacedFrames) frameClock.awaitFrame() else frameClock.sendFrame()
             currentCoroutineContext().ensureActive()
-            drained = false
         } else if ((!canYield && drained) || ++polls > APPLY_NOTIFICATION_MAX_POLLS) {
             // Nothing to deliver and nothing left to drain (or yielding is not making progress):
             // wait for the state to change instead.

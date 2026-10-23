@@ -21,10 +21,11 @@ import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.TimeSource
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
@@ -38,14 +39,15 @@ import kotlinx.coroutines.launch
  * @param parentContext the context the session runs in; its `Job` is used as the recomposer's
  *   parent, its dispatcher (if any) is narrowed to one thread.
  * @param name names the single-threaded dispatcher slice, for debugging.
- * @param nanoTime the time stamped on frames, see [HeadlessFrameClock].
+ * @param nanoTime the time stamped on frames, see [HeadlessFrameClock]; defaults to nanoseconds
+ *   elapsed on [timeSource] since the session was created.
  * @param timeSource measures the time between paced frames, see [HeadlessFrameClock].
  */
 internal class HeadlessSession(
     parentContext: CoroutineContext,
     name: String,
-    nanoTime: () -> Long,
-    timeSource: TimeSource,
+    nanoTime: (() -> Long)? = null,
+    timeSource: TimeSource = TimeSource.Monotonic,
 ) : AutoCloseable {
     private enum class State {
         Created,
@@ -55,6 +57,7 @@ internal class HeadlessSession(
 
     private val lock = Any()
     private var state = State.Created
+    private val started = CompletableDeferred<Unit>()
 
     /** Single-threaded context that recomposition, frames and effects run on. */
     val recomposerDispatcher: CoroutineContext =
@@ -68,7 +71,14 @@ internal class HeadlessSession(
 
     /** The frame clock the recomposer and its effects await frames on once [start]ed. */
     val frameClock =
-        HeadlessFrameClock(nanoTime = nanoTime, timeSource = timeSource) {
+        HeadlessFrameClock(
+            nanoTime =
+                nanoTime
+                    ?: timeSource.markNow().let { start ->
+                        { start.elapsedNow().inWholeNanoseconds }
+                    },
+            timeSource = timeSource,
+        ) {
             recomposer.refreshStateIfIdle(recomposerDispatcher)
         }
 
@@ -112,41 +122,60 @@ internal class HeadlessSession(
     fun start(scope: CoroutineScope) {
         transition(from = State.Created, to = State.Started) { "start" }
         scope.launch(recomposerDispatcher) { frameClock.runClock() }
-        scope.launch(recomposerDispatcher + frameClock) {
-            // Queued before the runner's first slice can request a frame, so it runs after the
-            // Recomposer registers its apply observer but before any effect resumes from
-            // withFrameNanos.
-            launch {
-                val observer = Snapshot.registerApplyObserver { _, _ ->
-                    onApplied?.invoke()
-                    invalidationChannel.trySend(Unit)
-                }
-                val closed =
-                    synchronized(lock) {
-                        (state == State.Closed).also { if (!it) applyObserver = observer }
+        val runner =
+            scope.launch(recomposerDispatcher + frameClock) {
+                // Queued before the runner's first slice can request a frame, so it runs after the
+                // Recomposer registers its apply observer but before any effect resumes from
+                // withFrameNanos.
+                launch {
+                    val observer = Snapshot.registerApplyObserver { _, _ ->
+                        onApplied?.invoke()
+                        invalidationChannel.trySend(Unit)
                     }
-                if (closed) observer.dispose()
-                writeTracker.start()
+                    val closed =
+                        synchronized(lock) {
+                            (state == State.Closed).also { if (!it) applyObserver = observer }
+                        }
+                    if (closed) {
+                        observer.dispose()
+                        started.cancel(CancellationException("HeadlessSession was closed"))
+                    } else {
+                        writeTracker.start()
+                        started.complete(Unit)
+                    }
+                }
+                recomposer.runRecomposeAndApplyChanges()
             }
-            recomposer.runRecomposeAndApplyChanges()
+        runner.invokeOnCompletion { cause ->
+            if (!started.isCompleted) {
+                started.cancel(
+                    cause as? CancellationException
+                        ?: CancellationException("HeadlessSession stopped before running", cause)
+                )
+            }
         }
     }
 
     /**
      * Suspends until the recomposer launched by [start] is running, i.e. [Recomposer.currentState]
-     * is at least [Recomposer.State.Idle]. Set content after this: a `Recomposer` invalidates every
-     * composition it knows about when it starts, so content set earlier is composed twice. Needed
-     * because [start] only launches the recomposer; whether it has run by the time the caller
-     * continues depends on the dispatcher (on a non-immediate main dispatcher, for example, a
+     * is at least [Recomposer.State.Idle] and the session's invalidation and write observers are
+     * registered. Set content after this: a `Recomposer` invalidates every composition it knows
+     * about when it starts, so content set earlier is composed twice. Needed because [start] only
+     * launches the recomposer; whether it has run by the time the caller continues depends on the
+     * dispatcher (on a non-immediate main dispatcher, for example, a
      * `withContext(recomposerDispatcher)` from the main thread does not dispatch).
      *
      * @throws IllegalStateException if the session is not started, or already closed.
+     * @throws CancellationException if the session is closed while waiting.
      */
     suspend fun awaitRunning() {
         synchronized(lock) {
             check(state == State.Started) { "Cannot await a running recomposer: session is $state" }
         }
-        recomposer.currentState.first { it >= Recomposer.State.Idle }
+        started.await()
+        if (isClosed || recomposer.currentState.value <= Recomposer.State.ShuttingDown) {
+            throw CancellationException("HeadlessSession was closed")
+        }
     }
 
     /**
@@ -159,7 +188,7 @@ internal class HeadlessSession(
      * @param maxFrames how many frames content may request before settling gives up with
      *   [QuiescenceResult.ContinuousFrames].
      * @throws IllegalStateException if the session is not started, or already closed.
-     * @throws kotlinx.coroutines.CancellationException if the session is closed while settling.
+     * @throws CancellationException if the session is closed while settling.
      */
     suspend fun awaitQuiescence(
         maxIterations: Int = MAX_IDLE_ITERATIONS,
@@ -196,6 +225,7 @@ internal class HeadlessSession(
             observer = applyObserver
             applyObserver = null
         }
+        started.cancel(CancellationException("HeadlessSession was closed"))
         observer?.dispose()
         invalidationChannel.close()
         writeTracker.stop()
