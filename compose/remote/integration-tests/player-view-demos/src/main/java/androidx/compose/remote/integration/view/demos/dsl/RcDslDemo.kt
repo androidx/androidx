@@ -52,8 +52,8 @@ fun RcDslDemoPreview() {
 fun dslDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
-        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
         experimental = true,
+        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
     ) {
         val count = remoteNamedFloat("count", 0f)
         val textVar = remoteNamedText("message", "Click me!")

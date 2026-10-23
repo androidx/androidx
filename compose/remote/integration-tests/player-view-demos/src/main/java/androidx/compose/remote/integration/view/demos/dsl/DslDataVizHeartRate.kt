@@ -20,11 +20,11 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.arraySpline
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -71,10 +71,10 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Heart Rate Timeline"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF1A1A2E.toInt())) {
             val w = componentWidth()
@@ -148,7 +148,7 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
             paint {
                 color(0xFFFF3B30.toInt())
                 textSize(bpmSize.toFloat())
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             val bpmText =
                 createTextFromFloat(
@@ -160,7 +160,7 @@ public fun dslDemoHeartRateTimeline(): ByteArray {
             drawTextAnchored(bpmText, w * 0.75f, h * 0.12f, 0f.rf, 0f.rf, 0)
             paint {
                 textSize((density * 14f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
                 color(0xAAFFFFFF.toInt())
             }
             drawTextAnchored(remoteText("BPM"), w * 0.75f, h * 0.12f, 0f.rf, 3f.rf, 0)

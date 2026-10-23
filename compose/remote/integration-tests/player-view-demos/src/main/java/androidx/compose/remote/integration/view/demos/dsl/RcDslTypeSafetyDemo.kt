@@ -46,7 +46,7 @@ public fun typeSafetyDemo(): ByteArray {
             // Header — typed font weight.
             Text(
                 text = "Type Safety Showcase",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 48.rsp,
                 textAlign = RcTextAlign.Center,
@@ -123,7 +123,7 @@ public fun typeSafetyDemo(): ByteArray {
                 ifTrue(seconds() lt 30f.rf) {
                     Text(
                         text = "Visible while seconds < 30",
-                        weight = RcWeight.SemiBold,
+                        fontWeight = RcFontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = RcTextAlign.Center,
                         fontSize = 28.rsp,
@@ -152,7 +152,7 @@ public fun typeSafetyDemo(): ByteArray {
             Box(modifier = Modifier.size(560.rdp, 70.rdp).background(0xFFFFFFFF.toInt())) {
                 Text(
                     text = grouped,
-                    weight = RcWeight.Medium,
+                    fontWeight = RcFontWeight.Medium,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = RcTextAlign.Center,
                     fontSize = 32.rsp,
@@ -171,7 +171,7 @@ public fun typeSafetyDemo(): ByteArray {
             Box(modifier = Modifier.size(560.rdp, 80.rdp).background(0xFFC8E6C9.toInt())) {
                 Text(
                     text = "Haptic 'SegmentTick' fires at doc load",
-                    weight = RcWeight.SemiBold,
+                    fontWeight = RcFontWeight.SemiBold,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = RcTextAlign.Center,
                     fontSize = 28.rsp,
@@ -204,7 +204,7 @@ public fun typeSafetyDemo(): ByteArray {
                     // but compiles and serializes cleanly — proves the typed API wires up.
                     Text(
                         text = "Future-only badge",
-                        weight = RcWeight.Bold,
+                        fontWeight = RcFontWeight.Bold,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = RcTextAlign.Center,
                         fontSize = 24.rsp,
@@ -212,7 +212,7 @@ public fun typeSafetyDemo(): ByteArray {
                 }
                 Text(
                     text = "Always-visible body",
-                    weight = RcWeight.Normal,
+                    fontWeight = RcFontWeight.Normal,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = RcTextAlign.Center,
                     fontSize = 24.rsp,
@@ -230,7 +230,7 @@ public fun typeSafetyDemo(): ByteArray {
 private fun androidx.compose.remote.creation.dsl.RcScope.sectionLabel(text: String) {
     Text(
         text = text,
-        weight = RcWeight.SemiBold,
+        fontWeight = RcFontWeight.SemiBold,
         modifier = Modifier.fillMaxWidth().padding(top = 8f, bottom = 4f),
         fontSize = 22.rsp,
         textAlign = RcTextAlign.Start,
@@ -252,7 +252,7 @@ public fun typeSafetyBeforeAfter(): ByteArray {
         ) {
             Text(
                 text = "Before / After",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = RcTextAlign.Center,
                 fontSize = 48.rsp,
@@ -297,7 +297,7 @@ private fun androidx.compose.remote.creation.dsl.RcScope.row(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = caption,
-            weight = RcWeight.Medium,
+            fontWeight = RcFontWeight.Medium,
             modifier = Modifier.fillMaxWidth().padding(bottom = 4f),
             textAlign = RcTextAlign.Start,
             fontSize = 22.rsp,

@@ -322,7 +322,7 @@ public fun Modifier.zIndex(value: Float): Modifier = then(ZIndexModifier(value))
 /** Builder scope for [Modifier.graphicsLayer]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public class GraphicsLayerScope {
+public class RcGraphicsLayerScope {
     internal val attributes: HashMap<Int, Any> = HashMap()
 
     public var scaleX: Float
@@ -395,12 +395,12 @@ public class GraphicsLayerScope {
 }
 
 /** graphicsLayer modifier. */
-public fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
+internal fun Modifier.graphicsLayer(attributes: Map<Int, Any>): Modifier =
     then(GraphicsLayerModifier(attributes))
 
 /** graphicsLayer modifier with type-safe builder lambda. */
-public fun Modifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): Modifier =
-    graphicsLayer(GraphicsLayerScope().apply(block).attributes)
+public fun Modifier.graphicsLayer(block: RcGraphicsLayerScope.() -> Unit): Modifier =
+    graphicsLayer(RcGraphicsLayerScope().apply(block).attributes)
 
 /** Ripple modifier for standard material design touch feedback. */
 public fun Modifier.ripple(): Modifier = then(RippleModifierElement)
@@ -454,7 +454,7 @@ public fun Modifier.border(
     width: Float,
     roundedCorner: Float,
     color: RcColorValue,
-    shape: RcBorderShape,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
 ): Modifier = border(width, roundedCorner, color.id, shape.value)
 
 /** Dynamic border with a typed [RcBorderShape]. */
@@ -462,7 +462,7 @@ public fun Modifier.border(
     width: Float,
     roundedCorner: Float,
     color: RcColor,
-    shape: RcBorderShape,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
 ): Modifier = dynamicBorder(width, roundedCorner, color.id.toShort(), shape.value)
 
 /** Border with a typed [RcBorderShape]. */
@@ -470,7 +470,7 @@ public fun Modifier.border(
     width: RcFloat,
     roundedCorner: RcFloat,
     color: RcColorValue,
-    shape: RcBorderShape,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
 ): Modifier = border(width.id, roundedCorner.id, color.id, shape.value)
 
 /** Dynamic border with a typed [RcBorderShape]. */
@@ -478,7 +478,7 @@ public fun Modifier.border(
     width: RcFloat,
     roundedCorner: RcFloat,
     color: RcColor,
-    shape: RcBorderShape,
+    shape: RcBorderShape = RcBorderShape.Rectangle,
 ): Modifier = dynamicBorder(width.id, roundedCorner.id, color.id.toShort(), shape.value)
 
 /** Component ID using a typed [RcComponentId]. */

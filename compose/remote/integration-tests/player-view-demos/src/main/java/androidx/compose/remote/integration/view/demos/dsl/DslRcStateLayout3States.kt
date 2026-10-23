@@ -48,8 +48,8 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 public fun dslRcStateLayout3StatesDemo(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
-        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
         experimental = true,
+        HTag(Header.DOC_DENSITY_BEHAVIOR, CoreDocument.DENSITY_BEHAVIOR_DP),
     ) {
         val stateVar = remoteNamedInteger("state", 0)
 

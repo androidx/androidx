@@ -59,8 +59,8 @@ public interface RcScope {
     /** Adds a platform-specific Custom layout manager node to host native views. */
     public fun Custom(
         config: String,
-        properties: List<RcCustomProperty> = emptyList(),
         modifier: Modifier = Modifier,
+        properties: List<RcCustomProperty> = emptyList(),
         content: RcScope.() -> Unit = {},
     )
 
@@ -112,26 +112,24 @@ public interface RcScope {
     public fun Text(
         text: String,
         modifier: Modifier = Modifier,
-        color: Any = 0xFF000000.toInt(),
+        color: Int = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         maxLines: Int = Int.MAX_VALUE,
-        content: RcScope.() -> Unit = {},
     )
 
     /** Adds a Text component using a remote string reference. */
     public fun Text(
         text: RcText,
         modifier: Modifier = Modifier,
-        color: Any = 0xFF000000.toInt(),
+        color: Int = 0xFF000000.toInt(),
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
         maxLines: Int = Int.MAX_VALUE,
-        content: RcScope.() -> Unit = {},
     )
 
     /** Adds an Image component to the document. */
@@ -148,9 +146,8 @@ public interface RcScope {
         image: RcImage,
         modifier: Modifier = Modifier,
         contentDescription: String? = null,
-        tint: RcColorValue? = null,
     ) {
-        // In RemoteCompose, an Icon is represented as an Image node with optional color tinting.
+        // In RemoteCompose, an Icon is represented as an Image node.
         Image(
             image = image,
             modifier = modifier,
@@ -550,17 +547,17 @@ public interface RcScope {
 
     /** Registers a text style resource and returns its reference. */
     public fun remoteTextStyle(
-        fontSize: RcSp?,
+        fontSize: RcSp? = null,
         color: Int? = null,
-        fontWeight: Float? = null,
+        fontWeight: RcFontWeight? = null,
         textAlign: RcTextAlign? = null,
     ): RcTextStyle
 
     /** Registers a text style resource from a Long color and returns its reference. */
     public fun remoteTextStyle(
-        fontSize: RcSp?,
         color: Long,
-        fontWeight: Float? = null,
+        fontSize: RcSp? = null,
+        fontWeight: RcFontWeight? = null,
         textAlign: RcTextAlign? = null,
     ): RcTextStyle = remoteTextStyle(fontSize, color.toInt(), fontWeight, textAlign)
 
@@ -827,7 +824,7 @@ public interface RcScope {
     public fun shader(shaderString: String, block: RcShaderScope.() -> Unit): RcShader
 
     /** Adds a spacer component. */
-    public fun Spacer(modifier: Modifier)
+    public fun Spacer(modifier: Modifier = Modifier)
 
     /** debug */
     public fun debug(msg: String, value: RcFloat)
@@ -1573,127 +1570,117 @@ public interface RcScope {
         spec: RcTextFromFloatSpec,
     ): RcText = createTextFromFloat(value, whole, decimal, spec.bits)
 
+    /** Text overload taking a Long color literal. */
+    public fun Text(
+        text: String,
+        modifier: Modifier = Modifier,
+        color: Long,
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
+    ): Unit =
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color.toInt(),
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+
+    /** Text overload taking a RcText reference and a Long color literal. */
+    public fun Text(
+        text: RcText,
+        modifier: Modifier = Modifier,
+        color: Long,
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
+    ): Unit =
+        Text(
+            text = text,
+            modifier = modifier,
+            color = color.toInt(),
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+
     /** Text overload taking a typed RcColor reference. */
     public fun Text(
         text: String,
+        modifier: Modifier = Modifier,
         color: RcColor,
-        modifier: Modifier = Modifier,
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
-    ): Unit =
-        Text(
-            text,
-            modifier,
-            color as Any,
-            fontSize,
-            fontWeight,
-            textAlign,
-            overflow,
-            content = content,
-        )
-
-    /** Text overload taking a typed RcColorValue reference. */
-    public fun Text(
-        text: String,
-        color: RcColorValue,
-        modifier: Modifier = Modifier,
-        fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
-    ): Unit =
-        Text(
-            text,
-            modifier,
-            color as Any,
-            fontSize,
-            fontWeight,
-            textAlign,
-            overflow,
-            content = content,
-        )
+        maxLines: Int = Int.MAX_VALUE,
+    )
 
     /** Text overload taking a RcText reference and a typed RcColor. */
     public fun Text(
         text: RcText,
-        color: RcColor,
         modifier: Modifier = Modifier,
+        color: RcColor,
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
+        maxLines: Int = Int.MAX_VALUE,
+    )
+
+    /** Text overload taking a typed RcColorValue reference. */
+    public fun Text(
+        text: String,
+        modifier: Modifier = Modifier,
+        color: RcColorValue,
+        fontSize: RcSp = 16.rsp,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
+        textAlign: RcTextAlign = RcTextAlign.Start,
+        overflow: RcTextOverflow = RcTextOverflow.Clip,
+        maxLines: Int = Int.MAX_VALUE,
     ): Unit =
         Text(
-            text,
-            modifier,
-            color as Any,
-            fontSize,
-            fontWeight,
-            textAlign,
-            overflow,
-            content = content,
+            text = text,
+            modifier = modifier,
+            color = color.id,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
         )
 
     /** Text overload taking a RcText reference and a typed RcColorValue. */
     public fun Text(
         text: RcText,
-        color: RcColorValue,
         modifier: Modifier = Modifier,
+        color: RcColorValue,
         fontSize: RcSp = 16.rsp,
-        fontWeight: Float = RcFontWeight.Normal,
+        fontWeight: RcFontWeight = RcFontWeight.Normal,
         textAlign: RcTextAlign = RcTextAlign.Start,
         overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
+        maxLines: Int = Int.MAX_VALUE,
     ): Unit =
         Text(
-            text,
-            modifier,
-            color as Any,
-            fontSize,
-            fontWeight,
-            textAlign,
-            overflow,
-            content = content,
+            text = text,
+            modifier = modifier,
+            color = color.id,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
         )
-
-    /** Text overload taking a typed RcWeight. */
-    public fun Text(
-        text: String,
-        weight: RcWeight,
-        modifier: Modifier = Modifier,
-        color: Any = 0xFF000000.toInt(),
-        fontSize: RcSp = 16.rsp,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
-    ): Unit =
-        Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content = content)
-
-    /** Text overload taking a RcText reference and typed RcWeight. */
-    public fun Text(
-        text: RcText,
-        weight: RcWeight,
-        modifier: Modifier = Modifier,
-        color: Any = 0xFF000000.toInt(),
-        fontSize: RcSp = 16.rsp,
-        textAlign: RcTextAlign = RcTextAlign.Start,
-        overflow: RcTextOverflow = RcTextOverflow.Clip,
-        content: RcScope.() -> Unit = {},
-    ): Unit =
-        Text(text, modifier, color, fontSize, weight.value, textAlign, overflow, content = content)
-
-    /** remoteTextStyle overload taking a typed RcWeight. */
-    public fun remoteTextStyle(
-        fontSize: RcSp?,
-        weight: RcWeight,
-        color: Int? = null,
-        textAlign: RcTextAlign? = null,
-    ): RcTextStyle = remoteTextStyle(fontSize, color, weight.value, textAlign)
 
     /** drawRect taking a typed RcRect. */
     public fun drawRect(rect: RcRect): Unit = drawRect(rect.left, rect.top, rect.right, rect.bottom)
@@ -1931,12 +1918,12 @@ public interface RcCanvasScope : RcScope {
         defValue: RcFloat,
         min: RcFloat,
         max: RcFloat,
+        exp: RcFloat,
         stopMode: RcTouchStopMode = RcTouchStopMode.Gently,
-        velocity: RcFloat,
+        velocity: RcFloat = RcFloat(0f),
         notchHaptic: RcHaptic = RcHaptic.NoHaptics,
         touchSpec: FloatArray? = null,
         easingSpec: FloatArray? = null,
-        exp: RcFloat,
     ): RcFloat
 
     /**
@@ -2016,22 +2003,6 @@ public fun Modifier.toRecordingModifier(): RecordingModifier {
     foldIn(Unit) { _, element -> element.applyTo(recording) }
     return recording
 }
-
-/** Adds a spacer component defaulting to weight 1.0. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcColumnScope.Spacer(): Unit = Spacer(Modifier.weight(1f))
-
-/** Adds a spacer component defaulting to weight 1.0. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcRowScope.Spacer(): Unit = Spacer(Modifier.weight(1f))
-
-/** Adds a spacer component defaulting to weight 1.0. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcCollapsibleColumnScope.Spacer(): Unit = Spacer(Modifier.weight(1f))
-
-/** Adds a spacer component defaulting to weight 1.0. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcCollapsibleRowScope.Spacer(): Unit = Spacer(Modifier.weight(1f))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RcScope.format(

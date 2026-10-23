@@ -45,10 +45,10 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 public fun dslSysVar(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Activity Rings"),
-        experimental = true,
     ) {
         val rad = remoteNamedFloat("system.system_app_widget_background_radius", 32f)
         val innerRad = remoteNamedFloat("system.system_app_widget_inner_radius", 25f)

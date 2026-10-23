@@ -81,8 +81,8 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun Custom(
         config: String,
-        properties: List<RcCustomProperty>,
         modifier: Modifier,
+        properties: List<RcCustomProperty>,
         content: RcScope.() -> Unit,
     ) {
         val corePropList: List<Custom.CustomProperty> = properties.map {
@@ -443,13 +443,12 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun Text(
         text: String,
         modifier: Modifier,
-        color: Any,
+        color: Int,
         fontSize: RcSp,
-        fontWeight: Float,
+        fontWeight: RcFontWeight,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
         maxLines: Int,
-        content: RcScope.() -> Unit,
     ) {
         val textId = writer.addText(text)
         Text(
@@ -461,46 +460,89 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             textAlign,
             overflow,
             maxLines,
-            content,
         )
     }
 
     override fun Text(
         text: RcText,
         modifier: Modifier,
-        color: Any,
+        color: Int,
         fontSize: RcSp,
-        fontWeight: Float,
+        fontWeight: RcFontWeight,
         textAlign: RcTextAlign,
         overflow: RcTextOverflow,
         maxLines: Int,
-        content: RcScope.() -> Unit,
     ) {
-        // Resolve the color into a colorId (RcColor / RcColorValue) or a raw int.
-        // Previously RcColor fell into the `else` and rendered as default black —
-        // fixed here so the typed RcColor surface actually colors text.
-        val colorId: Int
-        val colorInt: Int
-        when (color) {
-            is RcColor -> {
-                colorId = color.id
-                colorInt = 0xFF000000.toInt()
-            }
-            is RcColorValue -> {
-                colorId = color.id
-                colorInt = 0xFF000000.toInt()
-            }
-            else -> {
-                colorId = -1
-                colorInt =
-                    when (color) {
-                        is Int -> color
-                        is Long -> color.toInt()
-                        else -> 0xFF000000.toInt()
-                    }
-            }
-        }
+        textComponentInternal(
+            text = text,
+            modifier = modifier,
+            colorInt = color,
+            colorId = -1,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+    }
 
+    override fun Text(
+        text: String,
+        modifier: Modifier,
+        color: RcColor,
+        fontSize: RcSp,
+        fontWeight: RcFontWeight,
+        textAlign: RcTextAlign,
+        overflow: RcTextOverflow,
+        maxLines: Int,
+    ) {
+        val textId = writer.addText(text)
+        Text(
+            RcText(textId),
+            modifier,
+            color,
+            fontSize,
+            fontWeight,
+            textAlign,
+            overflow,
+            maxLines,
+        )
+    }
+
+    override fun Text(
+        text: RcText,
+        modifier: Modifier,
+        color: RcColor,
+        fontSize: RcSp,
+        fontWeight: RcFontWeight,
+        textAlign: RcTextAlign,
+        overflow: RcTextOverflow,
+        maxLines: Int,
+    ) {
+        textComponentInternal(
+            text = text,
+            modifier = modifier,
+            colorInt = 0xFF000000.toInt(),
+            colorId = color.id,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+        )
+    }
+
+    private fun textComponentInternal(
+        text: RcText,
+        modifier: Modifier,
+        colorInt: Int,
+        colorId: Int,
+        fontSize: RcSp,
+        fontWeight: RcFontWeight,
+        textAlign: RcTextAlign,
+        overflow: RcTextOverflow,
+        maxLines: Int,
+    ) {
         writer.textComponent(
             modifier.toRecordingModifier(),
             text.id,
@@ -511,7 +553,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             -1f, // minFontSize
             -1f, // maxFontSize
             0, // fontStyle
-            fontWeight,
+            fontWeight.value,
             null, // fontFamily
             textAlign.value,
             overflow.value,
@@ -528,9 +570,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             null, // fontAxisValues
             false, // autosize
             0, // flags
-        ) {
-            RcScopeImpl(writer).content()
-        }
+        ) {}
     }
 
     override fun Image(
@@ -924,7 +964,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     override fun remoteTextStyle(
         fontSize: RcSp?,
         color: Int?,
-        fontWeight: Float?,
+        fontWeight: RcFontWeight?,
         textAlign: RcTextAlign?,
     ): RcTextStyle =
         RcTextStyle(
@@ -935,7 +975,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                 null,
                 null,
                 null,
-                fontWeight,
+                fontWeight?.value,
                 null,
                 textAlign?.value,
                 null,
@@ -2268,12 +2308,12 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
         defValue: RcFloat,
         min: RcFloat,
         max: RcFloat,
+        exp: RcFloat,
         stopMode: RcTouchStopMode,
         velocity: RcFloat,
         notchHaptic: RcHaptic,
         touchSpec: FloatArray?,
         easingSpec: FloatArray?,
-        exp: RcFloat,
     ): RcFloat {
         return RcFloat(
             writer,

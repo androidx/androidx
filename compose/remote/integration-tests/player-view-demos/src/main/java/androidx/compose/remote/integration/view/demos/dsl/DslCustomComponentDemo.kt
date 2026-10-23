@@ -20,11 +20,11 @@ import android.graphics.Color
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcCustomProperty
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -70,7 +70,7 @@ public fun dslCustomComponentDemo(): ByteArray {
 
             Text(
                 text = "Native Interoperability",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 36.rsp,
                 textAlign = RcTextAlign.Center,
@@ -81,7 +81,7 @@ public fun dslCustomComponentDemo(): ByteArray {
 
             Text(
                 text = "Uses Fully native Android TextView",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 48.rsp,
                 textAlign = RcTextAlign.Center,
@@ -198,7 +198,7 @@ public fun dslCustomComponentDemo(): ByteArray {
             val sliderValText = createTextFromFloat(slider, 3, 0, 0)
             Text(
                 text = "Text Slider Value: " join slider.genTextId(3),
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 fontSize = 64.rsp,
                 color = 0xFFE2E8F0.toInt(),
             )
