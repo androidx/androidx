@@ -205,6 +205,7 @@ internal class CompositionBuilder(
                 if (withSemantics) {
                     node.mergedSemantics.clear()
                     node.unmergedSemantics.clear()
+                    node.semanticsIds.clear()
                 }
             }
             if (node.bounds != null && parentNode.box == node.box) {
@@ -212,6 +213,7 @@ internal class CompositionBuilder(
             }
             parentNode.mergedSemantics.addAll(node.mergedSemantics)
             parentNode.unmergedSemantics.addAll(node.unmergedSemantics)
+            parentNode.semanticsIds.addAll(node.semanticsIds)
             release(node)
         }
         val nodeId = id
@@ -474,12 +476,16 @@ internal class CompositionBuilder(
         node.layoutNodes.add(layoutInfo)
         val modifierInfo = layoutInfo.getModifierInfo()
 
-        val unmergedSemantics = unmergedSemanticsMap[layoutInfo.semanticsId]
+        val semanticsId = layoutInfo.semanticsId
+        val unmergedSemantics = unmergedSemanticsMap[semanticsId]
         if (unmergedSemantics != null) {
             node.unmergedSemantics.addAll(unmergedSemantics)
+            // Every LayoutNode has a semanticsId, but only the ones in the unmerged semantics tree
+            // are semantics nodes. The merged semantics tree is a subset of the unmerged tree.
+            node.semanticsIds.add(semanticsId)
         }
 
-        val mergedSemantics = semanticsMap[layoutInfo.semanticsId]
+        val mergedSemantics = semanticsMap[semanticsId]
         if (mergedSemantics != null) {
             node.mergedSemantics.addAll(mergedSemantics)
         }
