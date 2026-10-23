@@ -25,10 +25,13 @@ import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Lightweight, thread-safe [LifecycleOwner] for headless document capture.
+ * Lightweight, thread-safe [LifecycleOwner] and [SavedStateRegistryOwner] for headless document
+ * capture.
  *
  * `androidx.lifecycle.LifecycleRegistry` enforces main-thread access (`enforceMainThreadIfNeeded`),
  * which throws [IllegalStateException] when a capture runs on a background thread (e.g. a Binder
@@ -45,7 +48,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * downward events (`ON_PAUSE` .. `ON_DESTROY`) are delivered in reverse registration order.
  */
 internal class HeadlessLifecycleOwner(private val savedState: SavedState? = null) :
-    LifecycleOwner, SavedStateRegistryOwner {
+    LifecycleOwner, SavedStateRegistryOwner, AutoCloseable {
     private class Registration(val observer: LifecycleObserver) {
         @Volatile var active = true
 
@@ -69,25 +72,35 @@ internal class HeadlessLifecycleOwner(private val savedState: SavedState? = null
     }
 
     private val lock = Any()
-    @Volatile private var state = Lifecycle.State.INITIALIZED
-    private val registrations = CopyOnWriteArrayList<Registration>()
+    private val _currentStateFlow = MutableStateFlow(Lifecycle.State.INITIALIZED)
+    // Guarded by lock; iterated over copies so that callbacks may add or remove observers.
+    private val registrations = ArrayList<Registration>()
 
     override val lifecycle: Lifecycle =
         object : Lifecycle() {
             override val currentState: State
-                get() = state
+                get() = _currentStateFlow.value
+
+            override val currentStateFlow: StateFlow<State> = _currentStateFlow.asStateFlow()
 
             override fun addObserver(observer: LifecycleObserver) {
                 synchronized(lock) {
-                    if (state == State.DESTROYED) {
+                    if (_currentStateFlow.value == State.DESTROYED) {
                         return
+                    }
+                    for (i in registrations.indices) {
+                        if (registrations[i].observer === observer) {
+                            return
+                        }
                     }
                     val registration = Registration(observer)
                     registrations.add(registration)
                     // Only bring the observer up to the current state, which is below RESUMED if
-                    // it is added from a callback while destroy() is in progress.
+                    // it is added from a callback while close() is in progress.
                     for (event in arrayOf(Event.ON_CREATE, Event.ON_START, Event.ON_RESUME)) {
-                        if (!registration.active || event.targetState > state) break
+                        if (!registration.active || event.targetState > _currentStateFlow.value) {
+                            break
+                        }
                         registration.dispatch(this@HeadlessLifecycleOwner, event)
                     }
                 }
@@ -120,7 +133,7 @@ internal class HeadlessLifecycleOwner(private val savedState: SavedState? = null
                     Lifecycle.Event.ON_START,
                     Lifecycle.Event.ON_RESUME,
                 )) {
-                state = event.targetState
+                _currentStateFlow.value = event.targetState
                 for (registration in registrations.toTypedArray()) {
                     if (registration.active) registration.dispatch(this, event)
                 }
@@ -135,11 +148,11 @@ internal class HeadlessLifecycleOwner(private val savedState: SavedState? = null
 
     /**
      * Moves to [Lifecycle.State.DESTROYED] one event at a time. For each of `ON_PAUSE`, `ON_STOP`
-     * and `ON_DESTROY`, [state] is first set to the event's target state and then the event is
-     * delivered to every observer in reverse registration order, so observers see `STARTED` in
-     * `onPause`, `CREATED` in `onStop` and `DESTROYED` in `onDestroy`.
+     * and `ON_DESTROY`, the current state is first set to the event's target state and then the
+     * event is delivered to every observer in reverse registration order, so observers see
+     * `STARTED` in `onPause`, `CREATED` in `onStop` and `DESTROYED` in `onDestroy`.
      */
-    fun destroy() {
+    override fun close() {
         synchronized(lock) {
             for (event in
                 arrayOf(
@@ -147,8 +160,8 @@ internal class HeadlessLifecycleOwner(private val savedState: SavedState? = null
                     Lifecycle.Event.ON_STOP,
                     Lifecycle.Event.ON_DESTROY,
                 )) {
-                if (state <= event.targetState) continue
-                state = event.targetState
+                if (_currentStateFlow.value <= event.targetState) continue
+                _currentStateFlow.value = event.targetState
                 for (registration in registrations.toTypedArray().reversedArray()) {
                     if (registration.active) registration.dispatch(this, event)
                 }
