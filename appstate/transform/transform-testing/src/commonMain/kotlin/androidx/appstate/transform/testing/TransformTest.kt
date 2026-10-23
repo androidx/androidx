@@ -16,8 +16,6 @@
 
 package androidx.appstate.transform.testing
 
-import androidx.compose.runtime.snapshots.Snapshot
-import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -25,8 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestResult
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
 
 /**
  * Runs [block] as a test of [androidx.appstate.transform.transform].
@@ -35,14 +31,10 @@ import kotlinx.coroutines.test.runTest
  * @param block the test code, run with a [TransformTestScope] receiver
  * @return the [TestResult] of the test
  */
-public fun transformTest(
+public expect fun transformTest(
     context: CoroutineContext = EmptyCoroutineContext,
     block: suspend TransformTestScope.() -> Unit,
-): TestResult =
-    runTest(context) {
-        // Create a test scope for the test using the test scope passed in by runTest
-        TransformTestScopeImpl(this).block()
-    }
+): TestResult
 
 /** A test scope used in tests that allows controlling and testing transforms. */
 public sealed interface TransformTestScope : CoroutineScope {
@@ -67,27 +59,4 @@ public sealed interface TransformTestScope : CoroutineScope {
 
     /** Advance the clock until no work is scheduled */
     public fun advanceUntilIdle()
-}
-
-private class TransformTestScopeImpl(private val testScope: TestScope) :
-    TransformTestScope, CoroutineScope by testScope {
-
-    override val testCoroutineScheduler: TestCoroutineScheduler
-        get() = testScope.testScheduler
-
-    override val testDispatcher: TestDispatcher =
-        testScope.coroutineContext[ContinuationInterceptor] as TestDispatcher
-
-    override val backgroundScope: CoroutineScope
-        get() = testScope.backgroundScope
-
-    override fun advance() {
-        testCoroutineScheduler.runCurrent()
-        Snapshot.sendApplyNotifications()
-        testCoroutineScheduler.runCurrent()
-    }
-
-    override fun advanceTimeBy(duration: Duration) = testCoroutineScheduler.advanceTimeBy(duration)
-
-    override fun advanceUntilIdle() = testCoroutineScheduler.advanceUntilIdle()
 }
