@@ -30,6 +30,7 @@ import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -44,6 +45,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 
 /** Separate class to host the implementation of scroll capture for dex verification. */
+@OptIn(ExperimentalComposeUiHostApi::class)
 @RequiresApi(31)
 internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSessionListener {
 
@@ -120,6 +122,7 @@ internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSession
  * Walks the tree of [SemanticsNode]s rooted at [fromNode] to find nodes that look scrollable and
  * calculate their nesting depth.
  */
+@OptIn(ExperimentalComposeUiHostApi::class)
 private fun visitScrollCaptureCandidates(
     fromNode: SemanticsNode,
     depth: Int = 0,
@@ -176,9 +179,11 @@ private fun visitScrollCaptureCandidates(
     }
 }
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 internal val SemanticsNode.scrollCaptureScrollByAction
     get() = unmergedConfig.getOrNull(ScrollByOffset)
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 private val SemanticsNode.canScrollVertically: Boolean
     get() {
         val scrollByOffset = scrollCaptureScrollByAction
