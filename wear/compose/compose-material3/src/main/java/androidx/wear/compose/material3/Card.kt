@@ -1281,25 +1281,44 @@ internal fun Modifier.cardContainerModifier(
     transformation: SurfaceTransformation?,
 ): Modifier {
     val painter = containerPainter ?: ColorPainter(colors.containerColor)
-    val clickableModifier =
-        if (onClick != null) {
-            Modifier.combinedClickable(
+    if (onClick != null) {
+        val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
+        val actualInteractionSource =
+            if (hasInsetFocusRing) {
+                interactionSource ?: remember { MutableInteractionSource() }
+            } else {
+                interactionSource
+            }
+        return this.cardSizeModifier()
+            .fillMaxWidth()
+            .insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
+            .surface(
+                transformation = transformation,
+                painter = painter,
+                shape = shape,
+                border = border,
+            )
+            .combinedClickable(
                 enabled = enabled,
                 onClick = onClick,
                 onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
                 onLongClickLabel = onLongClickLabel,
                 role = null,
-                indication = ripple(),
-                interactionSource = interactionSource,
+                indication = ripple(enableFocusIndication = !hasInsetFocusRing),
+                interactionSource = actualInteractionSource,
             )
-        } else {
-            Modifier.focusable(enabled = true, interactionSource = interactionSource).semantics(
-                mergeDescendants = true
-            ) {}
-        }
-    return this.cardSizeModifier()
-        .fillMaxWidth()
-        .surface(transformation = transformation, painter = painter, shape = shape, border = border)
-        .then(clickableModifier)
-        .padding(contentPadding)
+            .padding(contentPadding)
+    } else {
+        return this.cardSizeModifier()
+            .fillMaxWidth()
+            .surface(
+                transformation = transformation,
+                painter = painter,
+                shape = shape,
+                border = border,
+            )
+            .focusable(enabled = true, interactionSource = interactionSource)
+            .semantics(mergeDescendants = true) {}
+            .padding(contentPadding)
+    }
 }

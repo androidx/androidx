@@ -22,6 +22,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.graphics.toArgb
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.material3.tokens.ColorTokens
 
@@ -286,6 +287,30 @@ public class ColorScheme(
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
     internal var defaultDatePickerColorsCached: DatePickerColors? = null
+
+    /**
+     * The complementary color of [primary], with its chroma increased by
+     * [ComplementaryColorChromaIncrease] for vibrancy.
+     *
+     * Computing the complement is expensive (see [TemperatureCache]), so it is computed lazily the
+     * first time it is needed, and then cached on this [ColorScheme] instance. It is shared by all
+     * callers using this [ColorScheme], and is only recomputed when the [ColorScheme] changes.
+     */
+    internal val complementaryColor: Color
+        get() = complementaryColorCached.takeOrElse {
+            val complement = TemperatureCache(Hct.fromInt(primary.toArgb())).complement
+            Color(
+                    Hct.from(
+                            hue = complement.hue,
+                            chroma = complement.chroma + ComplementaryColorChromaIncrease,
+                            tone = complement.tone,
+                        )
+                        .toInt()
+                )
+                .also { complementaryColorCached = it }
+        }
+
+    private var complementaryColorCached: Color = Color.Unspecified
 }
 
 /**
@@ -413,3 +438,4 @@ internal val ColorSchemeKeyTokens.value: Color
 internal const val DisabledContentAlpha = 0.38f
 internal const val DisabledContainerAlpha = 0.12f
 internal const val DisabledBorderAlpha = 0.20f
+private const val ComplementaryColorChromaIncrease = 10.0
