@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -36,7 +35,6 @@ import java.util.Objects;
  * A primitive defining container shapes.
  */
 @RequiresCarApi(9)
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 public final class Shape {
@@ -58,74 +56,76 @@ public final class Shape {
     }
 
     /**
-     * Represents a rectangular shape with sharp corners
+     * Represents a rectangular shape type with sharp corners (no corner radius).
      */
     public static final int TYPE_NONE = 1;
 
     /**
-     * An extra small corner shape.
+     * Represents a shape type with an extra small corner radius.
      */
     public static final int TYPE_CORNER_EXTRA_SMALL = 2;
 
     /**
-     * A small corner shape.
+     * Represents a shape type with a small corner radius.
      */
     public static final int TYPE_CORNER_SMALL = 3;
 
     /**
-     * A medium corner shape.
+     * Represents a shape type with a medium corner radius.
      */
     public static final int TYPE_CORNER_MEDIUM = 4;
 
     /**
-     * A large corner shape.
+     * Represents a shape type with a large corner radius.
      */
     public static final int TYPE_CORNER_LARGE = 5;
 
     /**
-     * An extra large corner shape.
+     * Represents a shape type with an extra large corner radius.
      */
     public static final int TYPE_CORNER_EXTRA_LARGE = 6;
 
     /**
-     * A full corner (pill/circle) shape.
+     * Represents a shape type with fully rounded corners (forming a circle for square bounds or a
+     * pill shape for rectangular bounds).
      */
     public static final int TYPE_CORNER_FULL = 7;
 
     /**
-     * A {@link Shape} instance with no rounding.
+     * A {@link Shape} instance with sharp corners (no corner radius).
      */
     public static final @NonNull Shape NONE = new Shape(TYPE_NONE);
 
     /**
-     * An extra small cornered {@link Shape} instance.
+     * A {@link Shape} instance with an extra small corner radius.
      */
     public static final @NonNull Shape CORNER_EXTRA_SMALL =
             new Shape(TYPE_CORNER_EXTRA_SMALL);
 
     /**
-     * A small cornered {@link Shape} instance.
+     * A {@link Shape} instance with a small corner radius.
      */
     public static final @NonNull Shape CORNER_SMALL = new Shape(TYPE_CORNER_SMALL);
 
     /**
-     * A medium cornered {@link Shape} instance.
+     * A {@link Shape} instance with a medium corner radius.
      */
     public static final @NonNull Shape CORNER_MEDIUM = new Shape(TYPE_CORNER_MEDIUM);
 
     /**
-     * A large cornered {@link Shape} instance.
+     * A {@link Shape} instance with a large corner radius.
      */
     public static final @NonNull Shape CORNER_LARGE = new Shape(TYPE_CORNER_LARGE);
 
     /**
-     * An extra large cornered {@link Shape} instance.
+     * A {@link Shape} instance with an extra large corner radius.
      */
     public static final @NonNull Shape CORNER_EXTRA_LARGE =
             new Shape(TYPE_CORNER_EXTRA_LARGE);
 
     /**
-     * A fully cornered {@link Shape} instance.
+     * A {@link Shape} instance with fully rounded corners (forming a circle for square bounds or a
+     * pill shape for rectangular bounds).
      */
     public static final @NonNull Shape CORNER_FULL = new Shape(TYPE_CORNER_FULL);
 

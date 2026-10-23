@@ -119,7 +119,7 @@ class GridSectionTest {
                 GridSection.Builder().setTitle(testHeader).build(),
                 GridSection.Builder().setNoItemsMessage("Example").build(),
                 GridSection.Builder()
-                    .setIncompleteLastRowStrategy(GridSection.INCOMPLETE_LAST_ROW_AS_IS)
+                    .setIncompleteLastRowStrategy(GridSection.INCOMPLETE_LAST_ROW_TRUNCATE)
                     .build(),
             )
 

@@ -17,10 +17,8 @@
 package androidx.car.app.model;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -128,16 +126,14 @@ public final class GridSection extends Section<GridItem> {
 
 
     // Empty constructor for serialization
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private GridSection() {
         super();
         mItemSize = ITEM_SIZE_SMALL;
         mItemImageShape = ITEM_IMAGE_SHAPE_UNSET;
-        mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_TRUNCATE;
+        mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_AS_IS;
     }
 
     /** Creates a {@link GridSection} from the {@link Builder}. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private GridSection(Builder builder) {
         super(builder);
         mItemSize = builder.mItemSize;
@@ -161,20 +157,17 @@ public final class GridSection extends Section<GridItem> {
      * Returns the strategy for handling incomplete last row
      */
     @RequiresCarApi(9)
-    @ExperimentalCarApi
     @IncompleteLastRowStrategy
     public int getIncompleteLastRowStrategy() {
         return mIncompleteLastRowStrategy;
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), mItemImageShape, mItemSize,
                 mIncompleteLastRowStrategy);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (other == null) {
@@ -240,7 +233,6 @@ public final class GridSection extends Section<GridItem> {
          */
         @CanIgnoreReturnValue
         @RequiresCarApi(9)
-        @ExperimentalCarApi
         public @NonNull Builder setIncompleteLastRowStrategy(
                 @IncompleteLastRowStrategy int incompleteLastRowStrategy) {
             mIncompleteLastRowStrategy = incompleteLastRowStrategy;

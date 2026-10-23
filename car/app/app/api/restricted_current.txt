@@ -1291,13 +1291,13 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Background {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class Background {
     method public androidx.car.app.model.CarColor? getColor();
     method public androidx.car.app.model.CarIcon? getImage();
     field public static final androidx.car.app.model.Background TRANSPARENT;
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class Background.Builder {
+  public static final class Background.Builder {
     ctor public Background.Builder();
     ctor public Background.Builder(androidx.car.app.model.Background);
     method public androidx.car.app.model.Background build();
@@ -1449,7 +1449,7 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public class CarIconStyle {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Shape? getShape();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Shape? getShape();
     method public androidx.car.app.model.CarColor? getTint();
     field public static final androidx.car.app.model.CarIconStyle ORIGINAL;
     field public static final androidx.car.app.model.CarIconStyle TINTED;
@@ -1458,7 +1458,7 @@ package androidx.car.app.model {
   public static final class CarIconStyle.Builder {
     ctor public CarIconStyle.Builder(androidx.car.app.model.CarIconStyle);
     method public androidx.car.app.model.CarIconStyle build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIconStyle.Builder setShape(androidx.car.app.model.Shape);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIconStyle.Builder setShape(androidx.car.app.model.Shape);
     method public androidx.car.app.model.CarIconStyle.Builder setTint(androidx.car.app.model.CarColor);
   }
 
@@ -1697,7 +1697,7 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public final class GridSection extends androidx.car.app.model.Section<androidx.car.app.model.GridItem!> {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getIncompleteLastRowStrategy();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public int getIncompleteLastRowStrategy();
     method public int getItemImageShape();
     method public int getItemSize();
     field public static final int INCOMPLETE_LAST_ROW_AS_IS = 0; // 0x0
@@ -1713,7 +1713,7 @@ package androidx.car.app.model {
   public static final class GridSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.GridItem!,androidx.car.app.model.GridSection.Builder!> {
     ctor public GridSection.Builder();
     method public androidx.car.app.model.GridSection build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setIncompleteLastRowStrategy(int);
+    method @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setIncompleteLastRowStrategy(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemImageShape(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemSize(int);
   }
@@ -2220,7 +2220,7 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class Shape {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class Shape {
     method public int getShapeType();
     field public static final androidx.car.app.model.Shape CORNER_EXTRA_LARGE;
     field public static final androidx.car.app.model.Shape CORNER_EXTRA_SMALL;
