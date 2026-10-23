@@ -25,6 +25,7 @@ import androidx.compose.remote.integration.demos.integration.GesturePropagationD
 import androidx.compose.remote.integration.demos.integration.GesturePropagationViewDemo
 import androidx.compose.remote.integration.demos.integration.HorizontalDragPropagationDemo
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
+import androidx.compose.remote.integration.demos.layout.RemoteComponentDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFitBoxSharedElementsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSharedElementsDemo
@@ -50,6 +51,7 @@ import androidx.compose.runtime.Composable
 
 private object ScreenKeys {
     const val REMOTE_BOX_ALIGNMENT = "REMOTE_BOX_ALIGNMENT"
+    const val REMOTE_COMPONENT = "REMOTE_COMPONENT"
     const val REMOTE_FLOW_ROW = "REMOTE_FLOW_ROW"
     const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
     const val REMOTE_STATE_LAYOUT_SHARED_ELEMENTS = "REMOTE_STATE_LAYOUT_SHARED_ELEMENTS"
@@ -88,6 +90,7 @@ internal fun ComposableScreenNavigation(
 ) {
     when (key) {
         ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo(onDocument)
+        ScreenKeys.REMOTE_COMPONENT -> RemoteComponentDemo(onDocument)
         ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo(onDocument)
         ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo(onDocument)
         ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS ->
@@ -133,6 +136,10 @@ val Screens =
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_BOX_ALIGNMENT,
                                 title = "RemoteBox alignment",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_COMPONENT,
+                                title = "RemoteComponent",
                             ),
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_FLOW_ROW,
