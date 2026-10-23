@@ -16,12 +16,10 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.layout.ContentScale
 
 /** Converts a Compose UI [ContentScale] to a [RemoteContentScale]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ContentScale.toRemoteContentScale(): RemoteContentScale =
+internal fun ContentScale.toRemoteContentScale(): RemoteContentScale =
     when (this) {
         ContentScale.Crop -> RemoteContentScale.Crop
         ContentScale.Fit -> RemoteContentScale.Fit
