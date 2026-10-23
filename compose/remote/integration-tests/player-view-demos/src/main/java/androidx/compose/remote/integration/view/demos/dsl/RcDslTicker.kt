@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcSp
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
-import androidx.compose.remote.creation.dsl.Spacer
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.componentId
@@ -83,7 +82,7 @@ fun dslTicker(): ByteArray {
                     fontSize = fontSizes.head1.value.rsp,
                     color = colors.textColor,
                 )
-                Spacer()
+                Spacer(Modifier.weight(1f))
                 RefreshIcon()
             }
 
@@ -153,7 +152,7 @@ private fun RcFlowScope.Stock(name: String, price: Float, change: String) {
                     Text(name, color = colors.stockName, fontSize = fontSizes.default)
                     Text(change, color = colors.dotColor, fontSize = fontSizes.default)
                 }
-                Spacer()
+                Spacer(Modifier.weight(1f))
                 DirectionIcon()
             }
         }
@@ -191,7 +190,7 @@ private fun RcScope.BigStock(name: String, price: Float, change: String) {
                     )
                 }
             }
-            Spacer()
+            Spacer(Modifier.weight(1f))
             DirectionIcon()
         }
         StockGraph()

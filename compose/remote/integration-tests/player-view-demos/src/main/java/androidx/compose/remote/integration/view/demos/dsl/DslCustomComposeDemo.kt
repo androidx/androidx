@@ -20,11 +20,11 @@ import android.graphics.Color
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcCustomProperty
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -64,7 +64,7 @@ public fun dslCustomComposeDemo(): ByteArray {
             // Title Header
             Text(
                 text = "Compose Server Driven UI",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 36.rsp,
                 textAlign = RcTextAlign.Center,
@@ -75,7 +75,7 @@ public fun dslCustomComposeDemo(): ByteArray {
 
             Text(
                 text = "Hosts Pure Compose @Composable widgets",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 48.rsp,
                 textAlign = RcTextAlign.Center,
@@ -165,7 +165,7 @@ public fun dslCustomComposeDemo(): ByteArray {
             val sliderValText = createTextFromFloat(slider, 3, 0, 0)
             Text(
                 text = "Slider Value: " join slider.genTextId(3),
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 fontSize = 64.rsp,
                 color = 0xFFF59E0B.toInt(),
             )

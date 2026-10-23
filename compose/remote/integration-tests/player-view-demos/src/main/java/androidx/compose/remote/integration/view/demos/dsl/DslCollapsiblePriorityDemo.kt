@@ -46,7 +46,7 @@ public fun dslCollapsiblePriorityDemo(): ByteArray {
             // Title Header
             Text(
                 text = "Collapsible Layout \nPriorities",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 72.rsp,
                 textAlign = RcTextAlign.Center,
@@ -59,7 +59,7 @@ public fun dslCollapsiblePriorityDemo(): ByteArray {
             Text(
                 text =
                     "Elements below are placed inside a CollapsibleRow. \n When the screen constraints tighten, cards with lower priority collapse first, leaving high priority cards standing.",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 58.rsp,
                 textAlign = RcTextAlign.Center,
@@ -88,14 +88,14 @@ public fun dslCollapsiblePriorityDemo(): ByteArray {
                     ) {
                         Text(
                             text = "CARD A",
-                            weight = RcWeight.Bold,
+                            fontWeight = RcFontWeight.Bold,
                             fontSize = 24.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )
                         Spacer(Modifier.height(8.rdp))
                         Text(
                             text = "Priority: 1f",
-                            weight = RcWeight.Medium,
+                            fontWeight = RcFontWeight.Medium,
                             fontSize = 18.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )
@@ -113,14 +113,14 @@ public fun dslCollapsiblePriorityDemo(): ByteArray {
                     ) {
                         Text(
                             text = "CARD B",
-                            weight = RcWeight.Bold,
+                            fontWeight = RcFontWeight.Bold,
                             fontSize = 24.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )
                         Spacer(Modifier.height(8.rdp))
                         Text(
                             text = "Priority: 10f",
-                            weight = RcWeight.Medium,
+                            fontWeight = RcFontWeight.Medium,
                             fontSize = 18.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )
@@ -138,14 +138,14 @@ public fun dslCollapsiblePriorityDemo(): ByteArray {
                     ) {
                         Text(
                             text = "CARD C",
-                            weight = RcWeight.Bold,
+                            fontWeight = RcFontWeight.Bold,
                             fontSize = 24.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )
                         Spacer(Modifier.height(8.rdp))
                         Text(
                             text = "Priority: 5f",
-                            weight = RcWeight.Medium,
+                            fontWeight = RcFontWeight.Medium,
                             fontSize = 18.rsp,
                             color = 0xFFFFFFFF.toInt(),
                         )

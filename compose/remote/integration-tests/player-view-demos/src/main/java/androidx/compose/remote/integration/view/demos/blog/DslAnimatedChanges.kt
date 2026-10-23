@@ -23,10 +23,10 @@ import androidx.compose.remote.creation.dsl.RcAnimationCurve
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -100,8 +100,8 @@ private const val REFERENCE_COLOR = 0xFFFFFFFF.toInt()
 public fun dslAnimatedChanges(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
-        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Animated changes"),
         experimental = true,
+        RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Animated changes"),
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(PAGE_COLOR)) {
             val w = componentWidth()
@@ -198,7 +198,7 @@ private fun RcCanvasScope.legend(w: RcFloat) {
             color(color)
             style(RcPaintStyle.Fill)
             textSize(size)
-            typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+            typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
         }
         // pan (-1, -1) anchors the text's top-left corner at (x, y).
         drawTextAnchored(

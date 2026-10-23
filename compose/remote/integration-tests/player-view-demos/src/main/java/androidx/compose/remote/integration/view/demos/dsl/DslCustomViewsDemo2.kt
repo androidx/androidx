@@ -21,13 +21,13 @@ import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcColumnVerticalPositioning
 import androidx.compose.remote.creation.dsl.RcCustomProperty
 import androidx.compose.remote.creation.dsl.RcFloat
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcHorizontalPositioning
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.RcTextAlign
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clip
 import androidx.compose.remote.creation.dsl.createRcBuffer
@@ -68,7 +68,7 @@ public fun dslCustomViewsDemo(): ByteArray {
             // Title Header
             Text(
                 text = "Native Interoperability",
-                weight = RcWeight.Bold,
+                fontWeight = RcFontWeight.Bold,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 36.rsp,
                 textAlign = RcTextAlign.Center,
@@ -79,7 +79,7 @@ public fun dslCustomViewsDemo(): ByteArray {
 
             Text(
                 text = "Uses native View component",
-                weight = RcWeight.Normal,
+                fontWeight = RcFontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 48.rsp,
                 textAlign = RcTextAlign.Center,

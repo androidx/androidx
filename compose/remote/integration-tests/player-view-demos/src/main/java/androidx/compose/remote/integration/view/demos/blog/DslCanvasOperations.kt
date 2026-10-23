@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.dsl.RcContentScale
 import androidx.compose.remote.creation.dsl.RcDrawOnBitmapMode
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcImage
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcPaintStyle
@@ -39,7 +40,6 @@ import androidx.compose.remote.creation.dsl.RcRowScope
 import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcText
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.bitmapFontGlyph
 import androidx.compose.remote.creation.dsl.clip
@@ -86,10 +86,10 @@ import kotlin.random.Random
 public fun dslCanvasOperations(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 800),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 1200),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Canvas Operations"),
-        experimental = true,
     ) {
         Column(modifier = Modifier.fillMaxSize().background(PAGE_BG)) {
             Row(modifier = Modifier.fillMaxSize().verticalWeight(1f)) {
@@ -128,7 +128,7 @@ private fun RcCanvasScope.panelTitle(title: String) {
         color(TITLE_COLOR)
         style(RcPaintStyle.Fill)
         textSize(22f)
-        typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+        typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
     }
     // pan (-1, -1) anchors the text's top-left corner at (x, y).
     drawTextAnchored(remoteText(title), 10f, 8f, -1f, 2f)
@@ -141,7 +141,7 @@ private fun RcScope.caption(text: String, x: RcFloat, y: RcFloat, color: Int = C
         color(color)
         style(RcPaintStyle.Fill)
         textSize(15f)
-        typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+        typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
     }
     drawTextAnchored(remoteText(text), x, y, (-1f).rf, (-1f).rf)
 }
@@ -245,7 +245,7 @@ private fun RcCanvasScope.drawCommandsPanel() {
                 strokeWidth(4f)
                 strokeCap(RcStrokeCap.Round)
                 textSize(s * 1.4f)
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             drawPrimitive(primitive, filled, s, texture, label)
             restore()
@@ -712,7 +712,7 @@ private fun RcCanvasScope.particlesPanel() {
     paint {
         style(RcPaintStyle.Fill)
         textSize(64f)
-        typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+        typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
     }
     // A single impulse that never ends: set the system up once, then run it every frame.
     impulse(1_000_000f.rf, 0f.rf) {

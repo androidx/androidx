@@ -19,8 +19,8 @@ package androidx.compose.remote.integration.view.demos.dsl.graph2d.lib
 import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcFloat
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
-import androidx.compose.remote.creation.dsl.RcWeight
 
 /**
  * Small drawing helpers shared by the chart chrome and the marks, kept backward-compatible (only
@@ -159,7 +159,11 @@ public fun RcCanvasScope.labelR(
         color(color)
         style(RcPaintStyle.Fill)
         textSize(size)
-        typeface(RcFontType.Default, if (bold) RcWeight.Bold else RcWeight.Normal, italic = false)
+        typeface(
+            RcFontType.Default,
+            if (bold) RcFontWeight.Bold else RcFontWeight.Normal,
+            italic = false,
+        )
     }
     drawTextAnchored(remoteText(text), x, y, panX.rf, panY.rf, 0)
 }
@@ -181,7 +185,11 @@ public fun RcCanvasScope.label(
         color(color)
         style(RcPaintStyle.Fill)
         textSize(size)
-        typeface(RcFontType.Default, if (bold) RcWeight.Bold else RcWeight.Normal, italic = false)
+        typeface(
+            RcFontType.Default,
+            if (bold) RcFontWeight.Bold else RcFontWeight.Normal,
+            italic = false,
+        )
     }
     drawTextAnchored(remoteText(text), x, y, panX, panY, 0)
 }

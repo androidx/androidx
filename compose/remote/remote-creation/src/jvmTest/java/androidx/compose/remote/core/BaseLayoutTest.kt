@@ -282,7 +282,7 @@ open class BaseLayoutTest : LayoutTestPlayer() {
                     h,
                 ),
             )
-        val byteBuffer = createRcBuffer(profile, *tags, experimental = true, content = content)
+        val byteBuffer = createRcBuffer(profile, experimental = true, *tags, content = content)
         if (overridePlayerSize) {
             play(byteBuffer, byteBuffer.size, ops, testParameters, w, h, true)
         } else {

@@ -20,11 +20,11 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
 import androidx.compose.remote.creation.dsl.RcFontType
+import androidx.compose.remote.creation.dsl.RcFontWeight
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec
 import androidx.compose.remote.creation.dsl.RcTileMode
-import androidx.compose.remote.creation.dsl.RcWeight
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
@@ -49,10 +49,10 @@ public fun dslDemoHydrationWave(): ByteArray {
 
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 450),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Hydration Progress Wave"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(0xFF0F172A.toInt())) {
             val w = componentWidth()
@@ -141,7 +141,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                 color(0xFFFFFFFF.toInt())
                 style(RcPaintStyle.Fill)
                 textSize((density * 42f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             val cupsText =
                 createTextFromFloat(
@@ -155,7 +155,7 @@ public fun dslDemoHydrationWave(): ByteArray {
             paint {
                 color(0xAAFFFFFF.toInt())
                 textSize((density * 16f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Normal, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Normal, italic = false)
             }
             val goalText =
                 createTextFromFloat(
@@ -171,7 +171,7 @@ public fun dslDemoHydrationWave(): ByteArray {
             paint {
                 color(0xCCFFFFFF.toInt())
                 textSize((density * 20f).toFloat())
-                typeface(RcFontType.Default, RcWeight.Bold, italic = false)
+                typeface(RcFontType.Default, RcFontWeight.Bold, italic = false)
             }
             val pctVal = progress * 100f
             val pctText =

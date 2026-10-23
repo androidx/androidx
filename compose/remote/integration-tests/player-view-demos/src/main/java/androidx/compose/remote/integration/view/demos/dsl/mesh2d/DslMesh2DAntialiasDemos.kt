@@ -162,10 +162,10 @@ private fun RcCanvasScope.drawSideBySide(
 public fun dslMesh2DAntialiasShapes(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias shapes"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()
@@ -308,10 +308,10 @@ private fun RcCanvasScope.drawMagnified(
 public fun dslMesh2DAntialiasZoom(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias zoom"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()
@@ -384,10 +384,10 @@ public fun dslMesh2DAntialiasZoom(): ByteArray {
 public fun dslMesh2DAntialiasTextured(): ByteArray {
     return createRcBuffer(
         RcProfile(RcPlatformProfiles.ANDROIDX),
+        experimental = true,
         RemoteComposeWriter.hTag(Header.DOC_WIDTH, 400),
         RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 400),
         RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Mesh2D antialias textured"),
-        experimental = true,
     ) {
         Canvas(modifier = Modifier.fillMaxSize().background(BACKDROP)) {
             val w = componentWidth()
