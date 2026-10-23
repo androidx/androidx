@@ -67,7 +67,7 @@ public class RoutingInfoTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(IconCompat.createWithContentUri(iconUri));
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new RoutingInfo.Builder().setJunctionImage(carIcon));

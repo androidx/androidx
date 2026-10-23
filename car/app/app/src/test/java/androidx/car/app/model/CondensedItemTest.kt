@@ -55,7 +55,7 @@ class CondensedItemTest {
     @Test
     fun setLeadingImage_invalidIcon_throws() {
         assertThrows(IllegalArgumentException::class.java) {
-            val icon = CarIcon.Builder(IconCompat.createWithData(ByteArray(0), 0, 0)).build()
+            val icon = CarIcon.createOriginalIcon(IconCompat.createWithData(ByteArray(0), 0, 0))
             CondensedItem.Builder().setLeadingImage(icon, CondensedItem.IMAGE_TYPE_SMALL)
         }
     }

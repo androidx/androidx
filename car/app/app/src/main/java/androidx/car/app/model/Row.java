@@ -94,12 +94,19 @@ public final class Row implements Item {
      * images targeting a 88 x 88 dp bounding box. If necessary, the icon will be scaled down while
      * preserving its aspect ratio.
      *
-     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
-     * provided to the icon with {@link CarIcon.Builder#setStyle}.
-     * Otherwise, a default tint color as determined by the host will be applied.
+     * <p>A tint color is expected to be provided via {@link
+     * CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat, CarColor)
+     * CarIcon.createTintedIcon(IconCompat, CarColor)} or {@link CarIconStyle.Builder#setTint}
+     * passed to {@link
+     * CarIcon.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CarIconStyle)
+     * CarIcon.Builder(IconCompat, CarIconStyle)}. Otherwise, a default tint color as determined by
+     * the host will be applied.
      *
-     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead and set explicit tint via {@link
-     *     CarIcon.Builder#setTint} if needed.
+     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead with {@link
+     *     CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat)
+     *     CarIcon.createTintedIcon(IconCompat)} or {@link
+     *     CarIcon#createTintedIcon(androidx.core.graphics.drawable.IconCompat, CarColor)
+     *     CarIcon.createTintedIcon(IconCompat, CarColor)}.
      */
     @Deprecated
     public static final int IMAGE_TYPE_ICON = (1 << 2);

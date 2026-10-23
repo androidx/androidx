@@ -228,12 +228,10 @@ class TabTemplateStyleDemoScreen(carContext: CarContext) : Screen(carContext) {
         return MessageTemplate.Builder(carContext.getString(messageRes))
             .setIcon(
                 CarIcon.Builder(
-                        IconCompat.createWithResource(carContext, R.drawable.test_android_media)
-                    )
-                    .setStyle(
+                        IconCompat.createWithResource(carContext, R.drawable.test_android_media),
                         CarIconStyle.Builder(CarIconStyle.ORIGINAL)
                             .setShape(Shape.CORNER_SMALL)
-                            .build()
+                            .build(),
                     )
                     .build()
             )

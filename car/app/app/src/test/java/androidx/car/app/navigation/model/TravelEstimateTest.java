@@ -238,7 +238,7 @@ public class TravelEstimateTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(IconCompat.createWithContentUri(iconUri));
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new TravelEstimate.Builder(mRemainingDistance,

@@ -70,7 +70,7 @@ public class ActionTest {
         builder.scheme(ContentResolver.SCHEME_CONTENT);
         builder.appendPath("foo/bar");
         Uri iconUri = builder.build();
-        CarIcon carIcon = new CarIcon.Builder(IconCompat.createWithContentUri(iconUri)).build();
+        CarIcon carIcon = CarIcon.createOriginalIcon(IconCompat.createWithContentUri(iconUri));
 
         assertThrows(IllegalArgumentException.class, () -> new Action.Builder().setIcon(carIcon));
     }
@@ -111,7 +111,7 @@ public class ActionTest {
         IconCompat icon = IconCompat.createWithResource(
                 context, TestUtils.getTestDrawableResId(context, "ic_test_1"));
         Action action = new Action.Builder()
-                .setIcon(new CarIcon.Builder(icon).build())
+                .setIcon(CarIcon.createOriginalIcon(icon))
                 .build();
         assertThat(icon).isEqualTo(action.getIcon().getIcon());
     }
@@ -199,7 +199,7 @@ public class ActionTest {
         String title = "foo";
         Action action = new Action.Builder()
                 .setTitle(title)
-                .setIcon(new CarIcon.Builder(icon).build())
+                .setIcon(CarIcon.createOriginalIcon(icon))
                 .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(onClickListener)
                 .setEnabled(true)

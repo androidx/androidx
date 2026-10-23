@@ -68,8 +68,8 @@ public class TestUtils {
     }
 
     public static CarIcon getTestCarIcon(Context context, String drawable) {
-        return new CarIcon.Builder(IconCompat.createWithResource(context,
-                TestUtils.getTestDrawableResId(context, drawable))).build();
+        return CarIcon.createOriginalIcon(IconCompat.createWithResource(context,
+                TestUtils.getTestDrawableResId(context, drawable)));
     }
 
     @DrawableRes

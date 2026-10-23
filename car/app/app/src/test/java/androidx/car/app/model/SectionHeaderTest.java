@@ -125,8 +125,8 @@ public final class SectionHeaderTest {
 
     @Test
     public void setStartIcon_uriIcon() {
-        CarIcon uriIcon = new CarIcon.Builder(
-                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        CarIcon uriIcon = CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test")));
         SectionHeader header = new SectionHeader.Builder("title")
                 .setStartIcon(uriIcon, SectionHeader.IMAGE_TYPE_LARGE)
                 .build();
@@ -153,8 +153,8 @@ public final class SectionHeaderTest {
 
     @Test
     public void setEndIcon_uriIcon() {
-        CarIcon uriIcon = new CarIcon.Builder(
-                IconCompat.createWithContentUri(Uri.parse("content://test"))).build();
+        CarIcon uriIcon = CarIcon.createOriginalIcon(
+                IconCompat.createWithContentUri(Uri.parse("content://test")));
         SectionHeader header = new SectionHeader.Builder("title")
                 .setEndIcon(uriIcon)
                 .build();
