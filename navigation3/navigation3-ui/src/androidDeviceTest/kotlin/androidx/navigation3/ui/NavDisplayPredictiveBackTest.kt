@@ -21,6 +21,7 @@ import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -30,8 +31,12 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,16 +44,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.navigation3.first
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneStrategy
+import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.second
+import androidx.navigation3.third
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventDispatcher
@@ -535,5 +547,124 @@ class NavDisplayPredictiveBackTest {
 
         composeTestRule.mainClock.autoAdvance = true
         composeTestRule.waitForIdle()
+    }
+
+    @Test
+    fun testPredictiveBackSharedElementPreservesIncomingLayout() {
+        lateinit var input: DirectNavigationEventInput
+        lateinit var navEventDispatcher: NavigationEventDispatcher
+        lateinit var backStack: MutableList<Any>
+        var leftPaneWidthPx = 0f
+
+        val listDetailStrategy =
+            object : SceneStrategy<Any> {
+                override fun SceneStrategyScope<Any>.calculateScene(
+                    entries: List<NavEntry<Any>>
+                ): Scene<Any>? {
+                    if (entries.size < 2) return null
+                    val listEntry = entries.first()
+                    val detailEntry = entries.last()
+                    return object : Scene<Any> {
+                        override val key: Any = Pair(listEntry.contentKey, detailEntry.contentKey)
+                        override val entries: List<NavEntry<Any>> = listOf(listEntry, detailEntry)
+                        override val previousEntries: List<NavEntry<Any>> = entries.dropLast(1)
+                        override val content: @Composable () -> Unit = {
+                            Row(Modifier.fillMaxSize()) {
+                                listEntry.Content()
+                                Box(Modifier.weight(1f).fillMaxSize()) { detailEntry.Content() }
+                            }
+                        }
+                    }
+                }
+            }
+
+        composeTestRule.setContent {
+            val width100Dp = 100.dp
+            leftPaneWidthPx = with(LocalDensity.current) { width100Dp.toPx() }
+            navEventDispatcher =
+                LocalNavigationEventDispatcherOwner.current!!.navigationEventDispatcher
+            input = DirectNavigationEventInput()
+            navEventDispatcher.addInput(input)
+            backStack = remember { mutableStateListOf(first, second, third) }
+
+            SharedTransitionLayout {
+                NavDisplay(
+                    backStack = backStack,
+                    sceneStrategies = listOf(listDetailStrategy),
+                    sharedTransitionScope = this,
+                    onBack = { backStack.removeAt(backStack.lastIndex) },
+                ) { key ->
+                    when (key) {
+                        first ->
+                            NavEntry(first) {
+                                Box(
+                                    Modifier.width(width100Dp)
+                                        .fillMaxHeight()
+                                        .testTag("shared-list")
+                                ) {
+                                    Text(first)
+                                }
+                            }
+                        second ->
+                            NavEntry(second) {
+                                Box(Modifier.fillMaxSize().testTag("detail-second")) {
+                                    Text(second)
+                                }
+                            }
+                        third ->
+                            NavEntry(third) {
+                                Box(Modifier.fillMaxSize().testTag("detail-third")) { Text(third) }
+                            }
+                        else -> error("Invalid key passed")
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // Start predictive back gesture from [first, third] back to [first, second]
+        composeTestRule.runOnIdle {
+            input.backStarted(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.1F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
+            input.backProgressed(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5F,
+                    touchX = 0.1F,
+                    touchY = 0.1F,
+                )
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        // During the predictive back gesture (deferred phase), the shared list pane is rendered in
+        // the incoming scene, preserving the layout of the incoming detail pane ('second') so its
+        // left edge is at leftPaneWidthPx (100.dp), not 0f.
+        val incomingDetailLeftDuringGesture =
+            composeTestRule.onNodeWithTag("detail-second").fetchSemanticsNode().positionInRoot.x
+        assertWithMessage("Incoming detail pane should be positioned after the 100.dp list pane")
+            .that(incomingDetailLeftDuringGesture)
+            .isWithin(1f)
+            .of(leftPaneWidthPx)
+
+        // Complete the back gesture and verify the incoming detail pane stays at the same x
+        // position
+        composeTestRule.runOnIdle { input.backCompleted() }
+        composeTestRule.waitForIdle()
+
+        val incomingDetailLeftAfterCommit =
+            composeTestRule.onNodeWithTag("detail-second").fetchSemanticsNode().positionInRoot.x
+        assertWithMessage("Incoming detail pane should remain at the same position after commit")
+            .that(incomingDetailLeftAfterCommit)
+            .isWithin(1f)
+            .of(leftPaneWidthPx)
     }
 }

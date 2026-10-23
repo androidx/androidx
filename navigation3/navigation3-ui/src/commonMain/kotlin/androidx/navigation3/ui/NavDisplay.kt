@@ -706,6 +706,7 @@ public fun <T : Any> NavDisplay(
             currentOverlayScenes.toList(),
             zIndices.toString(),
             transition.targetState,
+            transition.pendingTargetState,
         ) {
             buildMap {
                 val scenes = mutableListOf<Scene<T>>()
@@ -715,7 +716,8 @@ public fun <T : Any> NavDisplay(
                     .map { it.value }
                     .forEach { if (!scenes.contains(it)) scenes.add(it) }
 
-                val isPop = transition.targetState != scenes.first()
+                val isPop =
+                    (transition.pendingTargetState ?: transition.targetState) != scenes.first()
 
                 // At this point we have a list in this order
                 // [zIndex larger --> zIndex smaller]
