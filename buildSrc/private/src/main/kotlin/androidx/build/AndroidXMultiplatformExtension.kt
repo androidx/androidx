@@ -796,9 +796,7 @@ private fun Project.configureDefaultIncrementalSyncTask() {
                     )
             val projectPath = group.toString().replace(".", "-") + "-" + name + suffixPath
             task.destinationDirectory.set(
-                rootProject.layout.buildDirectory.dir("js/packages/$projectPath/kotlin").map {
-                    it.asFile
-                }
+                File(project.getOutDirectory(), "androidx/build/js/packages/$projectPath/kotlin")
             )
         }
     }
