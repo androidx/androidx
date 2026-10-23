@@ -187,4 +187,52 @@ class RemoteButtonColorsTest {
 
         assertEquals(expectedPrimary.constantValue, colors.iconColor.constantValue)
     }
+
+    @Test
+    fun iconButtonColors_defaultsContentColorToPrimary() {
+        lateinit var colors: RemoteIconButtonColors
+        val expectedPrimary = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme().copy(primary = expectedPrimary, onSurface = Color.Red.rc)
+            ) {
+                colors = RemoteIconButtonDefaults.iconButtonColors()
+            }
+        }
+
+        assertEquals(expectedPrimary.constantValue, colors.contentColor.constantValue)
+    }
+
+    @Test
+    fun filledTonalIconButtonColors_defaultsContentColorToPrimary() {
+        lateinit var colors: RemoteIconButtonColors
+        val expectedPrimary = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme().copy(primary = expectedPrimary, onSurface = Color.Red.rc)
+            ) {
+                colors = RemoteIconButtonDefaults.filledTonalIconButtonColors()
+            }
+        }
+
+        assertEquals(expectedPrimary.constantValue, colors.contentColor.constantValue)
+    }
+
+    @Test
+    fun outlinedIconButtonColors_defaultsContentColorToPrimary() {
+        lateinit var colors: RemoteIconButtonColors
+        val expectedPrimary = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme().copy(primary = expectedPrimary, onSurface = Color.Red.rc)
+            ) {
+                colors = RemoteIconButtonDefaults.outlinedIconButtonColors()
+            }
+        }
+
+        assertEquals(expectedPrimary.constantValue, colors.contentColor.constantValue)
+    }
 }
