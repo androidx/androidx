@@ -30,7 +30,7 @@ plugins {
 dependencies {
     api(libs.jspecify)
     implementation(libs.junit)
-    implementation(libs.testCore)
+    implementation("androidx.test:core:1.7.0")
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.tracing:tracing:1.1.0")
     implementation(project(":test:uiautomator:uiautomator-shell"))

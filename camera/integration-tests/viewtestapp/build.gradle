@@ -96,6 +96,7 @@ dependencies {
     implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
+        exclude(group:"androidx.test.espresso", module:"espresso-core")
     }
 
     // Transitive dependencies

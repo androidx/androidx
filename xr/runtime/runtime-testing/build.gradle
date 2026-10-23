@@ -44,9 +44,9 @@ dependencies {
     // For more information, see b/522695454
     implementation("org.bouncycastle:bcprov-jdk18on:1.84")
 
-    implementation(libs.testCoreKtx)
+    implementation("androidx.test:core-ktx:1.7.0")
     implementation(libs.robolectric)
-    implementation(libs.espressoCore)
+    implementation("androidx.test.espresso:espresso-core:3.7.0")
     implementation(libs.mockitoKotlin4)
 
     testImplementation(libs.kotlinCoroutinesTest)

@@ -37,7 +37,7 @@ dependencies {
 
     implementation(project(":xr:runtime:runtime-testing"))
     implementation(project(":xr:scenecore:scenecore-runtime"))
-    implementation(libs.testExtTruth)
+    implementation("androidx.test.ext:truth:1.7.0")
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.media3:media3-exoplayer:1.10.0")
