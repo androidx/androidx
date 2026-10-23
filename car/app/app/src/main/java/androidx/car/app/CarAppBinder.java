@@ -29,7 +29,6 @@ import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -301,7 +300,6 @@ final class CarAppBinder extends ICarApp.Stub {
         });
     }
 
-    @ExperimentalCarApi
     @Override
     public void getAppTheme(IOnDoneCallback callback) {
         RemoteUtils.dispatchCallFromHost(
