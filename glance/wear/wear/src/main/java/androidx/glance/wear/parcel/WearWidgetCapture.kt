@@ -29,6 +29,7 @@ import androidx.glance.wear.core.WearWidgetRawContent
 
 internal object WearWidgetCapture {
     const val PENDING_INTENT_KEY = "pending_intents"
+    const val CREATION_UPTIME_MILLIS_KEY = "creation_uptime_millis"
 
     /**
      * Directly capture a RemoteCompose document and gather the pending intents used in the layout.
@@ -56,17 +57,18 @@ internal object WearWidgetCapture {
         return Bundle().addPendingIntentsFrom(this)
     }
 
-    private fun Bundle.addPendingIntentsFrom(capturedDocument: CapturedDocument): Bundle {
-        putParcelable(
-            WearWidgetCapture.PENDING_INTENT_KEY,
-            capturedDocument.toPendingIntentBundle(),
-        )
+    fun Bundle.addCreationUptimeMillis(creationUptimeMillis: Long): Bundle {
+        putLong(CREATION_UPTIME_MILLIS_KEY, creationUptimeMillis)
         return this
     }
 
-    private fun CapturedDocument.toPendingIntentBundle(): Bundle {
-        return Bundle().apply {
+    private fun Bundle.addPendingIntentsFrom(capturedDocument: CapturedDocument): Bundle {
+        putParcelable(PENDING_INTENT_KEY, capturedDocument.toPendingIntentBundle())
+        return this
+    }
+
+    private fun CapturedDocument.toPendingIntentBundle(): Bundle =
+        Bundle().apply {
             pendingIntents.forEach { key, pendingIntent -> putParcelable("$key", pendingIntent) }
         }
-    }
 }

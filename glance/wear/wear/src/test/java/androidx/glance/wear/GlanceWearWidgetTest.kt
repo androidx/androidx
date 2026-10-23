@@ -25,6 +25,7 @@ import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.parcel.WearWidgetCapture
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -203,7 +204,9 @@ class GlanceWearWidgetTest {
                 argThat {
                     instanceId == TEST_INSTANCE_ID && creationUptimeMillis == 12345L
                 },
-                any(),
+                argThat {
+                    extras.getLong(WearWidgetCapture.CREATION_UPTIME_MILLIS_KEY) == 12345L
+                },
             )
     }
 
