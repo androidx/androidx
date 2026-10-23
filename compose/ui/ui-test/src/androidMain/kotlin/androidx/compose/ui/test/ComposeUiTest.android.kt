@@ -19,7 +19,9 @@
 package androidx.compose.ui.test
 
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
+import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -44,6 +46,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.PrintStream
 import java.io.PrintWriter
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -581,6 +584,8 @@ internal constructor(
     private lateinit var composeIdlingResource: ComposeIdlingResource
     private var idlingStrategy: IdlingStrategy = EspressoLink(idlingResourceRegistry)
 
+    private val mainChoreographer by lazy { runOnUiThread { Choreographer.getInstance() } }
+
     private lateinit var recomposer: Recomposer
 
     private val customTestDispatcher: TestDispatcher? =
@@ -839,17 +844,18 @@ internal constructor(
     }
 
     private fun waitForNextChoreographerFrame() {
-        val view =
-            composeRootRegistry
-                .getRegisteredComposeRoots()
-                .map { it.view.rootView }
-                .firstOrNull { it.isAttachedToWindow }
-        if (view != null) {
-            var frameHit = false
+        val anyRootAttached =
+            composeRootRegistry.getRegisteredComposeRoots().any {
+                it.view.rootView.isAttachedToWindow
+            }
+        if (anyRootAttached) {
+            val frameHit = AtomicBoolean(false)
+            val handler = Handler(Looper.getMainLooper())
             // The animation callback is called before draw, so post a message from the callback
-            // that will be executed after draw happened
-            view.postOnAnimation { view.post { frameHit = true } }
-            while (!frameHit) {
+            // that will be executed after draw happened. Neither callback may depend on the
+            // selected view remaining attached: a dialog can be dismissed during this frame.
+            mainChoreographer.postFrameCallback { handler.post { frameHit.set(true) } }
+            while (!frameHit.get()) {
                 idlingStrategy.runUntilIdle()
                 throwPendingException()
             }
