@@ -23,6 +23,15 @@ import static org.junit.Assert.assertThrows;
 import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.Banner;
+import androidx.car.app.model.BannerSection;
+import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.Chip;
+import androidx.car.app.model.ChipSection;
+import androidx.car.app.model.CondensedItem;
+import androidx.car.app.model.CondensedSection;
+import androidx.car.app.model.GridItem;
+import androidx.car.app.model.GridSection;
 import androidx.car.app.model.GridTemplate;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
@@ -33,6 +42,7 @@ import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.RowSection;
 import androidx.car.app.model.SectionedItemTemplate;
+import androidx.car.app.model.SpotlightSection;
 import androidx.car.app.model.signin.PinSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.test.core.app.ApplicationProvider;
@@ -105,9 +115,16 @@ public class MapWithContentTemplateTest {
                 .addItem(new Row.Builder().setTitle("Row 1").build())
                 .setTitle("Section 1")
                 .build();
+        GridSection gridSection = new GridSection.Builder()
+                .addItem(new GridItem.Builder()
+                        .setTitle("Grid 1")
+                        .setImage(CarIcon.APP_ICON)
+                        .build())
+                .setTitle("Section 2")
+                .build();
 
         return new SectionedItemTemplate.Builder()
-                .addSection(rowSection).build();
+                .addSection(rowSection).addSection(gridSection).build();
     }
 
     @Test
@@ -120,8 +137,8 @@ public class MapWithContentTemplateTest {
     public void createInstance_unsupportedTemplate_throws() {
         assertThrows(IllegalArgumentException.class, () ->
                 new MapWithContentTemplate.Builder()
-                .setContentTemplate(createSignInTemplate())
-                .build());
+                        .setContentTemplate(createSignInTemplate())
+                        .build());
     }
 
     @Test
@@ -141,22 +158,107 @@ public class MapWithContentTemplateTest {
     @Test
     public void createInstance_gridTemplate_doesNotThrow() {
         new MapWithContentTemplate.Builder()
-            .setContentTemplate(createGridTemplate())
-            .build();
+                .setContentTemplate(createGridTemplate())
+                .build();
     }
 
     @Test
     public void createInstance_messageTemplate_doesNotThrow() {
         new MapWithContentTemplate.Builder()
-            .setContentTemplate(createMessageTemplate())
-            .build();
+                .setContentTemplate(createMessageTemplate())
+                .build();
     }
 
     @Test
-    public void createInstance_sectionedItemTemplate_doesNotThrow() {
+    public void createInstance_sectionedItemTemplate_withRowAndGrid_doesNotThrow() {
         new MapWithContentTemplate.Builder()
                 .setContentTemplate(createSectionedItemTemplate())
                 .build();
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_withBannerSection_throws() {
+        BannerSection bannerSection = new BannerSection.Builder()
+                .addItem(new Banner.Builder().setTitle("Banner").build())
+                .build();
+        SectionedItemTemplate template = new SectionedItemTemplate.Builder()
+                .addSection(bannerSection)
+                .build();
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MapWithContentTemplate.Builder()
+                        .setContentTemplate(template)
+                        .build());
+        assertThat(exception).hasMessageThat().contains("BannerSection is not allowed");
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_withCondensedSection_throws() {
+        CondensedSection condensedSection = new CondensedSection.Builder()
+                .addItem(new CondensedItem.Builder().setTitle("Condensed").build())
+                .build();
+        SectionedItemTemplate template = new SectionedItemTemplate.Builder()
+                .addSection(condensedSection)
+                .build();
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MapWithContentTemplate.Builder()
+                        .setContentTemplate(template)
+                        .build());
+        assertThat(exception).hasMessageThat().contains("CondensedSection is not allowed");
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_withSpotlightSection_throws() {
+        SpotlightSection spotlightSection = new SpotlightSection.Builder(CarIcon.APP_ICON)
+                .addItem(new CondensedItem.Builder().setTitle("Spotlight").build())
+                .build();
+        SectionedItemTemplate template = new SectionedItemTemplate.Builder()
+                .addSection(spotlightSection)
+                .build();
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MapWithContentTemplate.Builder()
+                        .setContentTemplate(template)
+                        .build());
+        assertThat(exception).hasMessageThat().contains("SpotlightSection is not allowed");
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_withChipSection_throws() {
+        ChipSection chipSection = new ChipSection.Builder()
+                .addItem(new Chip.Builder().setTitle("Chip").setOnClickListener(() -> {
+                }).build())
+                .build();
+        SectionedItemTemplate template = new SectionedItemTemplate.Builder()
+                .addSection(chipSection)
+                .build();
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MapWithContentTemplate.Builder()
+                        .setContentTemplate(template)
+                        .build());
+        assertThat(exception).hasMessageThat().contains("ChipSection is not allowed");
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_withAllowedAndDisallowedSections_throws() {
+        RowSection rowSection = new RowSection.Builder()
+                .addItem(new Row.Builder().setTitle("Row 1").build())
+                .build();
+        BannerSection bannerSection = new BannerSection.Builder()
+                .addItem(new Banner.Builder().setTitle("Banner").build())
+                .build();
+        SectionedItemTemplate template = new SectionedItemTemplate.Builder()
+                .addSection(rowSection)
+                .addSection(bannerSection)
+                .build();
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new MapWithContentTemplate.Builder()
+                        .setContentTemplate(template)
+                        .build());
+        assertThat(exception).hasMessageThat().contains("BannerSection is not allowed");
     }
 
     @Test

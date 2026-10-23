@@ -23,8 +23,10 @@ import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.SearchTemplate;
+import androidx.car.app.model.Section;
 import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.Template;
+import androidx.car.app.model.constraints.SectionedItemTemplateConstraints;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -42,7 +44,7 @@ public class ContentTemplateConstraints {
      * introduction of the map with content template (API 7).
      */
     public static final @NonNull ContentTemplateConstraints
-        MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
+            MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS =
             new ContentTemplateConstraints(ImmutableSet.of(
                     GridTemplate.class,
                     MessageTemplate.class,
@@ -52,7 +54,7 @@ public class ContentTemplateConstraints {
 
     /** The set of allowed templates as content within a map with content template since API 8. */
     public static final @NonNull ContentTemplateConstraints
-        MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS_API_8 =
+            MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS_API_8 =
             new ContentTemplateConstraints(ImmutableSet.of(
                     GridTemplate.class,
                     MessageTemplate.class,
@@ -70,17 +72,25 @@ public class ContentTemplateConstraints {
                     MessageTemplate.class,
                     SearchTemplate.class
             ));
+
     private ImmutableSet<Class<? extends Template>> mAllowedTemplateTypes;
 
     /**
      * Checks if the {@link Template} meets the constraint's requirement(s).
      *
-     * @throws IllegalArgumentException if any types are not allowed
+     * @throws IllegalArgumentException if the template type is not allowed, or if the template is
+     *                                  a {@link SectionedItemTemplate} containing any disallowed
+     *                                  {@link Section} types
      */
     public void validateOrThrow(@NonNull Template template) {
         if (!mAllowedTemplateTypes.contains(template.getClass())) {
             throw new IllegalArgumentException(template.getClass().getSimpleName()
                     + " is not allowed as content within the parent template");
+        }
+
+        if (template instanceof SectionedItemTemplate) {
+            SectionedItemTemplateConstraints.MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS.validateOrThrow(
+                    (SectionedItemTemplate) template);
         }
     }
 
