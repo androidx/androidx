@@ -46,9 +46,9 @@ fun IconToggleButtonSample() {
 fun CustomColorsIconToggleButtonSample() {
     var checked by remember { mutableStateOf(false) }
     val focusedBackgroundColor =
-        IconToggleButtonDefaults.focusedBackgroundColor(baseColor = Color(0xFFE3FF6F))
+        IconToggleButtonDefaults.calculateFocusedBackgroundColor(Color(0xFFE3FF6F))
     val checkedBackgroundColor =
-        IconToggleButtonDefaults.checkedBackgroundColor(baseColor = Color(0xFF34E0A1))
+        IconToggleButtonDefaults.calculateCheckedBackgroundColor(Color(0xFF34E0A1))
     IconToggleButton(
         checked = checked,
         onCheckedChange = { checked = it },

@@ -87,11 +87,15 @@ class IconToggleButtonScreenshotTest(private val parameters: ToggleButtonStates)
                     colors =
                         IconToggleButtonDefaults.colors(
                             focusedBackgroundColor =
-                                IconToggleButtonDefaults.focusedBackgroundColor(customFocusedColor),
+                                IconToggleButtonDefaults.calculateFocusedBackgroundColor(
+                                    customFocusedColor
+                                ),
                             checkedBackgroundColor =
-                                IconToggleButtonDefaults.checkedBackgroundColor(customCheckedColor),
+                                IconToggleButtonDefaults.calculateCheckedBackgroundColor(
+                                    customCheckedColor
+                                ),
                             focusedCheckedBackgroundColor =
-                                IconToggleButtonDefaults.focusedCheckedBackgroundColor(
+                                IconToggleButtonDefaults.calculateFocusedCheckedBackgroundColor(
                                     customCheckedColor
                                 ),
                         ),
