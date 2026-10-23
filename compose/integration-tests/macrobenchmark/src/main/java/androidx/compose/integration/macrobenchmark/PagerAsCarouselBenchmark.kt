@@ -22,10 +22,12 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
-import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
+import androidx.tracing.trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,14 +49,17 @@ class PagerAsCarouselBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
             // Setting a gesture margin is important otherwise gesture nav is triggered.
-            val pager = device.findObject(By.desc(ContentDescription))
+            val pager = device.findObjectOrThrow(By.desc(ContentDescription))
             pager.setGestureMargin(device.displayWidth / 5)
             for (i in 1..10) {
-                pager.swipe(Direction.LEFT, 1.0f)
-                device.wait(Until.findObject(By.desc(PagerAsCarouselBenchmark.ComposeIdle)), 3000)
+                trace("PagerAsCarousel#swipe_$i") {
+                    pager.swipe(Direction.LEFT, 1.0f)
+                    device.waitForComposeIdleOrThrow()
+                }
             }
         }
     }
@@ -64,7 +69,6 @@ class PagerAsCarouselBenchmark(private val compilationMode: CompilationMode) {
         private const val Action =
             "androidx.compose.integration.macrobenchmark.target.PagerAsCarouselActivity"
         const val ContentDescription = "Carousel"
-        const val ComposeIdle = "COMPOSE-IDLE"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

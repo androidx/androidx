@@ -27,6 +27,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.tracing.trace
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -56,15 +58,18 @@ class AndroidViewPagerBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
+                device.waitForIdle()
             },
         ) {
-            val pager = device.findObject(By.res(PackageName, ResourceId))
+            val pager = device.findObjectOrThrow(By.res(PackageName, ResourceId))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             pager.setGestureMargin(device.displayWidth / 5)
-            repeat(10) {
-                // From center we scroll 2/3 of it which is 1/3 of the screen.
-                pager.swipe(Direction.LEFT, 1.0f)
-                device.waitForIdle()
+            repeat(10) { iter ->
+                trace("AndroidViewPager#swipe_$iter") {
+                    // From center we scroll 2/3 of it which is 1/3 of the screen.
+                    pager.swipe(Direction.LEFT, 1.0f)
+                    device.waitForIdle()
+                }
             }
         }
     }

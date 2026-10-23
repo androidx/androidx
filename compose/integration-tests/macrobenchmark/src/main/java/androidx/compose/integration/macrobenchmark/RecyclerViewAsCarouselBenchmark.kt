@@ -25,6 +25,8 @@ import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.tracing.trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,14 +48,17 @@ class RecyclerViewAsCarouselBenchmark(private val compilationMode: CompilationMo
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
+                device.waitForIdle()
             },
         ) {
             // Setting a gesture margin is important otherwise gesture nav is triggered.
-            val pager = device.findObject(By.res(PackageName, ResourceId))
+            val pager = device.findObjectOrThrow(By.res(PackageName, ResourceId))
             pager.setGestureMargin(device.displayWidth / 5)
             for (i in 1..10) {
-                pager.swipe(Direction.LEFT, 1.0f)
-                device.waitForIdle()
+                trace("RecyclerViewAsCarousel#swipe_$i") {
+                    pager.swipe(Direction.LEFT, 1.0f)
+                    device.waitForIdle()
+                }
             }
         }
     }

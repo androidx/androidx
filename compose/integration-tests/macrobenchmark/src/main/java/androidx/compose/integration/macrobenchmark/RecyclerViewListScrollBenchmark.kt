@@ -27,6 +27,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.tracing.trace
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -57,15 +59,18 @@ class RecyclerViewListScrollBenchmark(private val compilationMode: CompilationMo
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
+                device.waitForIdle()
             },
         ) {
-            val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
+            val recycler = device.findObjectOrThrow(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             recycler.setGestureMargin(device.displayWidth / 5)
-            repeat(10) {
-                // From center we scroll 2/3 of it which is 1/3 of the screen.
-                recycler.drag(Point(0, recycler.visibleCenter.y / 3))
-                device.waitForIdle()
+            repeat(10) { iter ->
+                trace("RecyclerViewListScroll#drag_$iter") {
+                    // From center we scroll 2/3 of it which is 1/3 of the screen.
+                    recycler.drag(Point(0, recycler.visibleCenter.y / 3))
+                    device.waitForIdle()
+                }
             }
         }
     }

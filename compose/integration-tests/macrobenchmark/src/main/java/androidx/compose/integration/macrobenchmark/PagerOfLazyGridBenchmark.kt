@@ -24,10 +24,12 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
+import androidx.tracing.trace
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -59,12 +61,15 @@ class PagerOfLazyGridBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = Action
                 startActivityAndWait(intent)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
-            val nextButton = device.findObject(By.text(NextDescription))
-            repeat(3) {
-                nextButton.click()
-                device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
+            val nextButton = device.findObjectOrThrow(By.text(NextDescription))
+            repeat(3) { iter ->
+                trace("PagerOfLazyGrid#next_click_$iter") {
+                    nextButton.click()
+                    device.waitForComposeIdleOrThrow()
+                }
             }
         }
     }
@@ -73,7 +78,6 @@ class PagerOfLazyGridBenchmark(private val compilationMode: CompilationMode) {
         private const val PackageName = "androidx.compose.integration.macrobenchmark.target"
         private const val Action =
             "androidx.compose.integration.macrobenchmark.target.PAGER_LAZYGRID_ACTIVITY"
-        private const val ComposeIdle = "COMPOSE-IDLE"
         private const val NextDescription = "Next"
 
         @Parameterized.Parameters(name = "compilation={0}")

@@ -25,9 +25,11 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
+import androidx.tracing.trace
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,15 +60,20 @@ class ComplexNestedListsScrollBenchmark {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
-            val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
+            val lazyColumn = device.findObjectOrThrow(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             lazyColumn.setGestureMargin(device.displayWidth / 5)
             for (i in 1..8) {
-                // From center we scroll 2/3 of it which is 1/3 of the screen.
-                lazyColumn.drag(Point(lazyColumn.visibleCenter.x, lazyColumn.visibleCenter.y / 3))
-                device.wait(Until.findObject(By.desc(COMPOSE_IDLE)), 3000)
+                trace("ComplexNestedListsScroll#drag_$i") {
+                    // From center we scroll 2/3 of it which is 1/3 of the screen.
+                    lazyColumn.drag(
+                        Point(lazyColumn.visibleCenter.x, lazyColumn.visibleCenter.y / 3)
+                    )
+                    device.waitForComposeIdleOrThrow()
+                }
             }
         }
     }
@@ -76,7 +83,5 @@ class ComplexNestedListsScrollBenchmark {
         private const val ACTION =
             "androidx.compose.integration.macrobenchmark.target.COMPLEX_NESTED_LISTS_ACTIVITY"
         private const val CONTENT_DESCRIPTION = "IamLazy"
-
-        private const val COMPOSE_IDLE = "COMPOSE-IDLE"
     }
 }
