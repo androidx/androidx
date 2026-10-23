@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.RoundedPolygon
@@ -47,8 +46,8 @@ public fun RemoteCanvas.drawColor(drawColor: Int) {
     drawRect(
         0f.rf,
         0f.rf,
-        creationState.creationDisplayInfo.size.width.toInt().rf,
-        creationState.creationDisplayInfo.size.height.toInt().rf,
+        creationDisplayInfo.size.width.toInt().rf,
+        creationDisplayInfo.size.height.toInt().rf,
         Paint().apply {
             color = drawColor
             style = Paint.Style.FILL
@@ -582,17 +581,14 @@ public fun RemoteCanvas.drawTweenPath(
 /** Draws an [ImageBitmap] at ([left], [top]) using the specified [paint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCanvas.drawBitmap(bitmap: ImageBitmap, left: Float, top: Float, paint: Paint?) {
-    recordRenderingOp(paint?.asRemotePaint()) {
-        val androidBitmap = bitmap.asAndroidBitmap()
-        document.drawBitmap(
-            androidBitmap,
-            left,
-            top,
-            left + androidBitmap.width.toFloat(),
-            top + androidBitmap.height.toFloat(),
-            "",
-        )
-    }
+    drawBitmap(
+        RemoteImageBitmap(bitmap),
+        left.rf,
+        top.rf,
+        (left + bitmap.width).rf,
+        (top + bitmap.height).rf,
+        paint?.asRemotePaint(),
+    )
 }
 
 /** Draws a [Bitmap] at ([left], [top]) using the specified [paint]. */
@@ -620,14 +616,14 @@ public fun RemoteCanvas.drawBitmap(
     dst: Rect,
     paint: Paint?,
 ) {
-    val dstLeft = dst.left.toFloat()
-    val dstTop = dst.top.toFloat()
-    val dstRight = dst.right.toFloat()
-    val dstBottom = dst.bottom.toFloat()
-    recordRenderingOp(paint?.asRemotePaint()) {
-        val androidBitmap = bitmap.asAndroidBitmap()
-        document.drawBitmap(androidBitmap, dstLeft, dstTop, dstRight, dstBottom, "")
-    }
+    drawBitmap(
+        RemoteImageBitmap(bitmap),
+        dst.left.rf,
+        dst.top.rf,
+        dst.right.rf,
+        dst.bottom.rf,
+        paint?.asRemotePaint(),
+    )
 }
 
 /** Draws a [Bitmap] into [dst] using the specified [paint]. */
@@ -646,10 +642,10 @@ public fun RemoteCanvas.drawBitmap(
 ) {
     drawBitmap(
         bitmap,
-        dst.left.toFloat(),
-        dst.top.toFloat(),
-        dst.right.toFloat(),
-        dst.bottom.toFloat(),
+        dst.left.rf,
+        dst.top.rf,
+        dst.right.rf,
+        dst.bottom.rf,
         paint?.asRemotePaint(),
     )
 }
@@ -662,14 +658,14 @@ public fun RemoteCanvas.drawBitmap(
     dst: RectF,
     paint: Paint?,
 ) {
-    val dstLeft = dst.left
-    val dstTop = dst.top
-    val dstRight = dst.right
-    val dstBottom = dst.bottom
-    recordRenderingOp(paint?.asRemotePaint()) {
-        val androidBitmap = bitmap.asAndroidBitmap()
-        document.drawBitmap(androidBitmap, dstLeft, dstTop, dstRight, dstBottom, "")
-    }
+    drawBitmap(
+        RemoteImageBitmap(bitmap),
+        dst.left.rf,
+        dst.top.rf,
+        dst.right.rf,
+        dst.bottom.rf,
+        paint?.asRemotePaint(),
+    )
 }
 
 /** Draws a [Bitmap] into [dst] using the specified [paint]. */
@@ -688,18 +684,14 @@ public fun RemoteCanvas.drawBitmap(
     bottom: RemoteFloat,
     paint: Paint?,
 ) {
-    val op =
-        recordRenderingOp(paint?.asRemotePaint()) {
-            document.drawBitmap(
-                bitmap,
-                left.getFloatIdForCreationState(creationState),
-                top.getFloatIdForCreationState(creationState),
-                right.getFloatIdForCreationState(creationState),
-                bottom.getFloatIdForCreationState(creationState),
-                "",
-            )
-        }
-    buffer.addRoots(op, left, top, right, bottom)
+    drawBitmap(
+        RemoteImageBitmap(bitmap.asImageBitmap()),
+        left,
+        top,
+        right,
+        bottom,
+        paint?.asRemotePaint(),
+    )
 }
 
 /**
@@ -733,33 +725,19 @@ public fun RemoteCanvas.drawScaledBitmap(
     scaleFactor: RemoteFloat,
     contentDescription: String?,
 ) {
-    val op = recordRenderingOp {
-        document.drawScaledBitmap(
-            image,
-            srcLeft.getFloatIdForCreationState(creationState),
-            srcTop.getFloatIdForCreationState(creationState),
-            srcRight.getFloatIdForCreationState(creationState),
-            srcBottom.getFloatIdForCreationState(creationState),
-            dstLeft.getFloatIdForCreationState(creationState),
-            dstTop.getFloatIdForCreationState(creationState),
-            dstRight.getFloatIdForCreationState(creationState),
-            dstBottom.getFloatIdForCreationState(creationState),
-            scaleType,
-            scaleFactor.getFloatIdForCreationState(creationState),
-            contentDescription,
-        )
-    }
-    buffer.addRoots(
-        op,
-        srcLeft,
-        srcTop,
-        srcRight,
-        srcBottom,
-        dstLeft,
-        dstTop,
-        dstRight,
-        dstBottom,
-        scaleFactor,
+    drawScaledBitmap(
+        bitmap = RemoteImageBitmap(image.asImageBitmap()),
+        srcLeft = srcLeft,
+        srcTop = srcTop,
+        srcRight = srcRight,
+        srcBottom = srcBottom,
+        dstLeft = dstLeft,
+        dstTop = dstTop,
+        dstRight = dstRight,
+        dstBottom = dstBottom,
+        scaleType = scaleType,
+        scaleFactor = scaleFactor,
+        contentDescription = contentDescription,
     )
 }
 
