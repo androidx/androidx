@@ -22,7 +22,8 @@ import androidx.compose.ui.implementedInJetBrainsFork
 public actual data class PointerEvent
 internal actual constructor(
     actual val changes: List<PointerInputChange>,
-    @Suppress("HiddenTypeParameter") // The generated `copy` is public but uses an internal type
+    // The generated `copy` is public but uses an internal type
+    @Suppress("HiddenTypeParameter", "ReferencesHidden")
     internal val internalPointerEvent: InternalPointerEvent?,
 ) {
     actual val buttons: PointerButtons
