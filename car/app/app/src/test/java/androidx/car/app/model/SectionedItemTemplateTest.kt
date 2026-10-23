@@ -172,10 +172,13 @@ class SectionedItemTemplateTest {
 
     @Test
     fun build_allowsSpotlightSection() {
+        val item = CondensedItem.Builder().setTitle("Item").build()
         val section =
             SpotlightSection.Builder(CarIcon.APP_ICON)
                 .setTitle("Spotlight")
-                .addItem(CondensedItem.Builder().setTitle("Item").build())
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
                 .build()
         val template = SectionedItemTemplate.Builder().addSection(section).build()
 
