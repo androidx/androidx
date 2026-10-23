@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="AppFunctionMetadata.getComponents can only be called from within the same library group (referenced groupId=`androidx.appfunctions` from groupId=`androidx.appfunctions.integration-tests.multi-modules-testapp`)"
+        errorLine1="                                metadata.components,"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/appfunctions/integration/testapp/CustomAppFunctionService.kt"/>
+    </issue>
+
+</issues>

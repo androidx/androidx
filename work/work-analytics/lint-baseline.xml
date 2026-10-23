@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 31 (current min is 24): `getStopReason`"
+        errorLine1="            stopReason = this.stopReason,"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/model/WorkMetricsInfoRepositoryTest.kt"/>
+    </issue>
+
+</issues>
