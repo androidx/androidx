@@ -79,6 +79,7 @@ package androidx.compose.ui {
     property public boolean isHardwareNavigationHandlingEnabled;
     property public boolean isNestedScrollInteropViewHolderFixEnabled;
     property public boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
+    property public boolean isPointerInteropFilterNodeEnabled;
     property public boolean isScrollAccessibilityFocusEventEnabled;
     property public boolean isShowOnScreenContentPaddingEnabled;
     property public boolean isViewBasedSemanticsHandlerEnabled;
@@ -90,6 +91,7 @@ package androidx.compose.ui {
     field public static boolean isHardwareNavigationHandlingEnabled;
     field public static boolean isNestedScrollInteropViewHolderFixEnabled;
     field public static boolean isOutOfFrameSchedulerForTextInputEventsEnabled;
+    field public static boolean isPointerInteropFilterNodeEnabled;
     field public static boolean isScrollAccessibilityFocusEventEnabled;
     field public static boolean isShowOnScreenContentPaddingEnabled;
     field public static boolean isViewBasedSemanticsHandlerEnabled;
