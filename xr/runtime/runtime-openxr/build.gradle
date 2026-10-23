@@ -49,13 +49,23 @@ dependencies {
 }
 
 
+def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+def activeBranchFile = new File(prebuiltsRoot, "androidx/xr/native/ACTIVE_BRANCH")
+def defaultBranch = activeBranchFile.exists()
+    ? activeBranchFile.text.trim().replace("XR_NATIVE_BRANCH=", "")
+    : "main"
+def requestedBranch = providers.gradleProperty("xrNativeBranch")
+    .orElse(providers.environmentVariable("XR_NATIVE_BRANCH"))
+    .getOrElse(defaultBranch)
+def nativeBranch = requestedBranch.trim() == "release" ? "release" : "main"
+
 android {
     namespace = "androidx.xr.runtime.openxr"
     sourceSets.main {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/runtime-openxr/android")
+        jniLibs.srcDirs += new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/runtime-openxr/android")
     }
     sourceSets.androidTest {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/runtime-openxr/androidTest")
+        jniLibs.srcDirs += new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/runtime-openxr/androidTest")
     }
 }
 
