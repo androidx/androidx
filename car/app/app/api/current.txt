@@ -1564,7 +1564,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate getOnClickDelegate();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItem implements androidx.car.app.model.Item {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItem implements androidx.car.app.model.Item {
     method public androidx.car.app.model.CarIcon? getLeadingImage();
     method public int getLeadingImageType();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -1580,42 +1580,42 @@ package androidx.car.app.model {
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItem.Builder {
+  @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItem.Builder {
     ctor public CondensedItem.Builder();
     method public androidx.car.app.model.CondensedItem build();
     method public androidx.car.app.model.CondensedItem.Builder setIndexable(boolean);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon, int);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setStyle(androidx.car.app.model.CondensedItemStyle);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setText(androidx.car.app.model.CarText);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setText(CharSequence);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTitle(androidx.car.app.model.CarText);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTitle(CharSequence);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon, int);
+    method public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.CondensedItem.Builder setLeadingImage(androidx.car.app.model.CarIcon, int);
+    method public androidx.car.app.model.CondensedItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
+    method public androidx.car.app.model.CondensedItem.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
+    method public androidx.car.app.model.CondensedItem.Builder setStyle(androidx.car.app.model.CondensedItemStyle);
+    method public androidx.car.app.model.CondensedItem.Builder setText(androidx.car.app.model.CarText);
+    method public androidx.car.app.model.CondensedItem.Builder setText(CharSequence);
+    method public androidx.car.app.model.CondensedItem.Builder setTitle(androidx.car.app.model.CarText);
+    method public androidx.car.app.model.CondensedItem.Builder setTitle(CharSequence);
+    method public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.model.CondensedItem.Builder setTrailingImage(androidx.car.app.model.CarIcon, int);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItemStyle {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedItemStyle {
     method public androidx.car.app.model.Background? getBackground();
     method public androidx.car.app.model.Shape? getShape();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItemStyle.Builder {
+  @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItemStyle.Builder {
     ctor public CondensedItemStyle.Builder();
     method public androidx.car.app.model.CondensedItemStyle build();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItemStyle.Builder setBackground(androidx.car.app.model.Background);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedItemStyle.Builder setShape(androidx.car.app.model.Shape);
+    method public androidx.car.app.model.CondensedItemStyle.Builder setBackground(androidx.car.app.model.Background);
+    method public androidx.car.app.model.CondensedItemStyle.Builder setShape(androidx.car.app.model.Shape);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public int getIncompleteLastRowStrategy();
     field public static final int INCOMPLETE_LAST_ROW_AS_IS = 0; // 0x0
     field public static final int INCOMPLETE_LAST_ROW_TRUNCATE = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.CondensedSection.Builder!> {
+  @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.CondensedSection.Builder!> {
     ctor public CondensedSection.Builder();
     method public androidx.car.app.model.CondensedSection build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedSection.Builder setIncompleteLastRowStrategy(int);
@@ -2234,17 +2234,17 @@ package androidx.car.app.model {
     field public static final int TYPE_NONE = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public androidx.car.app.model.CarIcon getImage();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getIncompleteLastColumnStrategy();
+    method public int getIncompleteLastColumnStrategy();
     field public static final int INCOMPLETE_LAST_COLUMN_AS_IS = 0; // 0x0
     field public static final int INCOMPLETE_LAST_COLUMN_TRUNCATE = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
+  @androidx.car.app.annotations.RequiresCarApi(9) public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
     ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.SpotlightSection build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setIncompleteLastColumnStrategy(int);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setIncompleteLastColumnStrategy(int);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class StrokeCap {

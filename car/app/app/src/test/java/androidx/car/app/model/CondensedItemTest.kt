@@ -112,6 +112,13 @@ class CondensedItemTest {
     }
 
     @Test
+    fun imageTypes_noImages_defaultToMedium() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+        assertThat(item.leadingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_MEDIUM)
+        assertThat(item.trailingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_MEDIUM)
+    }
+
+    @Test
     fun setOnClickListener() {
         val item = CondensedItem.Builder().setTitle("Title").setOnClickListener {}.build()
         assertThat(item.onClickDelegate).isNotNull()

@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -44,7 +43,6 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 @RequiresCarApi(9)
-@ExperimentalCarApi
 public final class SpotlightSection extends Section<CondensedItem> {
     /**
      * Defines the strategy to use for handling the incomplete last column
@@ -91,8 +89,6 @@ public final class SpotlightSection extends Section<CondensedItem> {
     /**
      * Returns the strategy for handling incomplete last column
      */
-    @RequiresCarApi(9)
-    @ExperimentalCarApi
     @IncompleteLastColumnStrategy
     public int getIncompleteLastColumnStrategy() {
         return mIncompleteLastColumnStrategy;
@@ -137,6 +133,7 @@ public final class SpotlightSection extends Section<CondensedItem> {
      * <p>Upon building, this class validates that at least 3 {@link CondensedItem}s have been
      * added to the section via {@link #addItem} or {@link #setItems}.
      */
+    @RequiresCarApi(9)
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
         private static final int MIN_ITEMS = 3;
 
@@ -157,8 +154,6 @@ public final class SpotlightSection extends Section<CondensedItem> {
          * <p>By default, {@link #INCOMPLETE_LAST_COLUMN_AS_IS} is used.
          */
         @CanIgnoreReturnValue
-        @RequiresCarApi(9)
-        @ExperimentalCarApi
         public @NonNull Builder setIncompleteLastColumnStrategy(
                 @IncompleteLastColumnStrategy int incompleteLastColumnStrategy) {
             mIncompleteLastColumnStrategy = incompleteLastColumnStrategy;

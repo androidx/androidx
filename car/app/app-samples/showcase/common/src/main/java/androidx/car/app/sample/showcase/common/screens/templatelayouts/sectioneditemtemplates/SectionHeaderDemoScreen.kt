@@ -17,11 +17,9 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarIcon
@@ -41,7 +39,6 @@ import androidx.car.app.sample.showcase.common.R
 import androidx.core.graphics.drawable.IconCompat
 
 @RequiresCarApi(9)
-@OptIn(ExperimentalCarApi::class)
 /**
  * A screen demonstrating SectionHeader configurations including headline and subtitle hierarchy.
  */
