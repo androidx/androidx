@@ -37,7 +37,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.NodeCoordinator
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAll
@@ -68,11 +72,19 @@ import androidx.compose.ui.viewinterop.AndroidViewHolder
  * @see [View.onTouchEvent]
  * @see [ViewParent.requestDisallowInterceptTouchEvent]
  */
+@OptIn(ExperimentalComposeUiApi::class)
 public fun Modifier.pointerInteropFilter(
     requestDisallowInterceptTouchEvent: (RequestDisallowInterceptTouchEvent)? = null,
     onTouchEvent: (MotionEvent) -> Boolean,
-): Modifier =
-    composed(
+): Modifier {
+    if (AndroidComposeUiFlags.isPointerInteropFilterNodeEnabled) {
+        return this then
+            PointerInteropFilterElement(
+                requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent,
+                onTouchEvent = onTouchEvent,
+            )
+    }
+    return composed(
         inspectorInfo =
             debugInspectorInfo {
                 name = "pointerInteropFilter"
@@ -86,6 +98,100 @@ public fun Modifier.pointerInteropFilter(
         filter.requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent
         filter
     }
+}
+
+private class PointerInteropFilterElement(
+    private val requestDisallowInterceptTouchEvent: RequestDisallowInterceptTouchEvent?,
+    private val onTouchEvent: (MotionEvent) -> Boolean,
+) : ModifierNodeElement<PointerInteropFilterNode>() {
+    override fun create(): PointerInteropFilterNode =
+        PointerInteropFilterNode(
+            requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent,
+            onTouchEvent = onTouchEvent,
+        )
+
+    override fun update(node: PointerInteropFilterNode) {
+        node.update(
+            requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent,
+            onTouchEvent = onTouchEvent,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "pointerInteropFilter"
+        properties["requestDisallowInterceptTouchEvent"] = requestDisallowInterceptTouchEvent
+        properties["onTouchEvent"] = onTouchEvent
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PointerInteropFilterElement) return false
+        if (requestDisallowInterceptTouchEvent != other.requestDisallowInterceptTouchEvent) {
+            return false
+        }
+        if (onTouchEvent !== other.onTouchEvent) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = requestDisallowInterceptTouchEvent?.hashCode() ?: 0
+        result = 31 * result + onTouchEvent.hashCode()
+        return result
+    }
+}
+
+private class PointerInteropFilterNode(
+    private var requestDisallowInterceptTouchEvent: RequestDisallowInterceptTouchEvent?,
+    onTouchEvent: (MotionEvent) -> Boolean,
+) : Modifier.Node(), PointerInputModifierNode {
+    private val filter =
+        PointerInteropFilter().also {
+            it.onTouchEvent = onTouchEvent
+            it.requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent
+        }
+
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
+    fun update(
+        requestDisallowInterceptTouchEvent: RequestDisallowInterceptTouchEvent?,
+        onTouchEvent: (MotionEvent) -> Boolean,
+    ) {
+        this.requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent
+        filter.onTouchEvent = onTouchEvent
+        filter.requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent
+    }
+
+    override fun updateCoordinator(coordinator: NodeCoordinator?) {
+        super.updateCoordinator(coordinator)
+        filter.pointerInputFilter.layoutCoordinates = coordinator
+    }
+
+    override fun onAttach() {
+        filter.pointerInputFilter.layoutCoordinates = coordinator
+        filter.requestDisallowInterceptTouchEvent = requestDisallowInterceptTouchEvent
+    }
+
+    override fun onDetach() {
+        filter.pointerInputFilter.layoutCoordinates = null
+        filter.requestDisallowInterceptTouchEvent = null
+    }
+
+    override fun sharePointerInputWithSiblings(): Boolean =
+        filter.pointerInputFilter.shareWithSiblings
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        filter.pointerInputFilter.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancelPointerInput() {
+        filter.pointerInputFilter.onCancel()
+    }
+}
 
 /**
  * Function that can be passed to [pointerInteropFilter] and then later invoked which provides an
