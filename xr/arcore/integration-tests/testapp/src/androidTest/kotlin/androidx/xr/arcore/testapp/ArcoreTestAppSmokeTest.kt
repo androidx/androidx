@@ -32,6 +32,8 @@ import androidx.xr.arcore.testapp.persistentanchors.PersistentAnchorsActivity
 import androidx.xr.testutils.TestAppSmokeTest
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -57,6 +59,14 @@ class ArCoreTestAppSmokeTest(activityClass: Class<out Activity>) : TestAppSmokeT
                 "android.permission.ACCESS_FINE_LOCATION",
             )
         )
+
+    @Before
+    fun skipKnownFailures() {
+        assumeFalse(
+            "Known failure (b/552839023): GeospatialActivity native crash on launch",
+            activityClass == GeospatialActivity::class.java,
+        )
+    }
 
     companion object {
         @JvmStatic
