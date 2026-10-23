@@ -69,6 +69,7 @@ import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumn
 import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
 import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
 import androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
+import androidx.wear.compose.material3.samples.OneHandedGestureVisibilitySample
 import androidx.wear.compose.material3.samples.TitleCardContentWithOneHandedGestureSample
 import androidx.wear.compose.material3.samples.icons.FavoriteIcon
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
@@ -95,6 +96,9 @@ val OneHandedGestureDemos =
         },
         ComposableDemo("TransformingLazyColumn with Button") {
             OneHandedGestureTransformingLazyColumnWithButtonDemo()
+        },
+        ComposableDemo("TLC with Button visibility threshold") {
+            OneHandedGestureVisibilitySample()
         },
         ComposableDemo("Horizontal Pager") { OneHandedGestureHorizontalPagerSample() },
         ComposableDemo("Vertical Pager") { OneHandedGestureVerticalPagerSample() },
