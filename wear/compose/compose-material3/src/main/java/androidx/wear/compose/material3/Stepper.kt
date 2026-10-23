@@ -448,10 +448,7 @@ private fun ColumnScope.StepperButton(
                             color = colors.buttonContainerColor(enabled),
                             shape = finalShape,
                         )
-                        .indication(
-                            interactionSource,
-                            ripple(focusRingShape = rememberDelegatingShape(finalShape)),
-                        ),
+                        .indication(interactionSource, ripple()),
                 contentAlignment = Alignment.Center,
                 content = { content() },
             )

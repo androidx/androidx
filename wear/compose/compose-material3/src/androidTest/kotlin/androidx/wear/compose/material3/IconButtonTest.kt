@@ -637,14 +637,6 @@ class IconButtonTest {
             },
         )
     }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun draws_focus_ring_when_focused() {
-        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
-            IconButton(onClick = {}, modifier = modifier, interactionSource = interactionSource) {}
-        }
-    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
