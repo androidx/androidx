@@ -15,18 +15,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <activity android:name="androidx.compose.ui.inspection.testdata.AndroidViewTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.BoxWithConstraintsDialogTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.ComposeViewTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.DialogTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.LazyColumnTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.NavigationDrawerTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.OverlappingTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.ParametersTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.RippleTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.RecompositionTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.SharedTransitionLayoutTestActivity" />
-        <activity android:name="androidx.compose.ui.inspection.testdata.TestActivity"
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.AndroidViewTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.BoxWithConstraintsDialogTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.ComposeViewTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.DialogTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.LazyColumnTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.NavigationDrawerTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.OverlappingTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.ParametersTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.RippleTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.RecompositionTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.SharedTransitionLayoutTestActivity" />
+        <activity android:name="androidx.compose.ui.inspection.test.testdata.TestActivity"
             android:theme="@style/TestTheme"/>
         <activity android:name="androidx.compose.ui.tooling.PreviewActivity" />
     </application>
