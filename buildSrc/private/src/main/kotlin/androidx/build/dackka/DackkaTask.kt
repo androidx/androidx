@@ -381,6 +381,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                         "validNullabilityAnnotations" to
                                             nullabilityAnnotations.get(),
                                         "traceFile" to traceFile.get().asFile.absolutePath,
+                                        "unlinkedExternalPackages" to unlinkedExternalPackages,
                                     )
                                 ),
                         )
@@ -420,6 +421,44 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
             argsFile = computeArguments(),
             workerExecutor = workerExecutor,
         )
+    }
+
+    companion object {
+        private val unlinkedExternalPackages =
+            listOf(
+                // Public docs don't exist
+                "androidx.legacy.content",
+                "androidx.viewbinding",
+                "com.android.adblib",
+                "com.android.extensions.appfunctions",
+                "com.google.android.apps.common.testing.accessibility.framework",
+                "com.google.android.apps.common.testing.accessibility.framework.integrations.espresso",
+                "com.google.android.wearable.input",
+                "com.google.common.util.concurrent.internal",
+                "io.antmedia.rtmp_client",
+                "junit.framework",
+                "kotlin.internal",
+                "org.junit.internal",
+                "platform.CoreGraphics",
+                "platform.Metal",
+                "platform.UIKit",
+                // References to hidden APIs (TODO b/569950872)
+                "androidx.compose.foundation.text.input.internal",
+                "androidx.compose.material.internal",
+                "androidx.compose.material3.internal",
+                "androidx.compose.material3.tokens",
+                "androidx.core",
+                "androidx.core.app.unusedapprestrictions",
+                "androidx.leanback",
+                "androidx.lifecycle.viewmodel.internal",
+                "androidx.media3",
+                "androidx.room3.coroutines",
+                "androidx.slice.view",
+                "androidx.test.internal.runner.hidden",
+                "androidx.test.uiautomator.internal",
+                "androidx.wear.protolayout.proto",
+                "androidx.xr.projected.platform",
+            )
     }
 }
 
