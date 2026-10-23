@@ -18,8 +18,10 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
@@ -319,4 +321,220 @@ class DrawWithContentModifierScreenshotTest {
 
         gridScreenshotUI.GridContent(tests)
     }
+
+    @Test
+    fun chainedDrawWithContent() = composeTestRule.runScreenshotTest {
+        gridScreenshotUI.GridContent(chainedDrawWithContentTests())
+    }
+}
+
+internal fun chainedDrawWithContentTests():
+    List<Pair<String, @RemoteComposable @Composable () -> Unit>> =
+    listOf(
+        "chained pre + post" to @RemoteComposable @Composable { ChainedPreAndPostDraw() },
+        "draw + pad + draw" to @RemoteComposable @Composable { DrawPaddingDraw() },
+        "pad + draw + pad + draw" to @RemoteComposable @Composable { PaddingDrawPaddingDraw() },
+        "triple chain" to @RemoteComposable @Composable { TripleChainedDrawWithContent() },
+        "canvas chained" to @RemoteComposable @Composable { ChainedRemoteCanvas() },
+        "card + caller overlay" to @RemoteComposable @Composable { CardWithCallerOverlay() },
+    )
+
+@Composable
+@RemoteComposable
+private fun ChainedPreAndPostDraw() {
+    RemoteBox(
+        modifier =
+            RemoteModifier.size(70.rdp)
+                .background(Color.White.rc)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    drawRect(paint = paintBlue)
+                    drawContent()
+                    drawRect(
+                        paint = paintYellow,
+                        topLeft = RemoteOffset.Zero,
+                        size = RemoteSize(width, 10f.rf),
+                    )
+                }
+                .drawWithContent {
+                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    val paintGreen = RemotePaint { color = Color.Green.rc }
+                    drawRect(
+                        paint = paintCyan,
+                        topLeft = RemoteOffset(12f.rf, 12f.rf),
+                        size = RemoteSize(width - 24f.rf, height - 24f.rf),
+                    )
+                    drawContent()
+                    drawRect(
+                        paint = paintGreen,
+                        topLeft = RemoteOffset(0f.rf, height - 10f.rf),
+                        size = RemoteSize(width, 10f.rf),
+                    )
+                }
+    ) {
+        RemoteBox(modifier = RemoteModifier.padding(25.rdp).size(20.rdp).background(Color.Red.rc))
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun DrawPaddingDraw() {
+    RemoteBox(
+        modifier =
+            RemoteModifier.size(70.rdp)
+                .background(Color.White.rc)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    drawRect(paint = paintBlue)
+                    drawContent()
+                    drawRect(
+                        paint = paintYellow,
+                        topLeft = RemoteOffset.Zero,
+                        size = RemoteSize(width, 8f.rf),
+                    )
+                }
+                .padding(14.rdp)
+                .drawWithContent {
+                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    drawRect(paint = paintCyan)
+                    drawContent()
+                }
+    ) {
+        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc))
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun PaddingDrawPaddingDraw() {
+    RemoteBox(
+        modifier =
+            RemoteModifier.size(70.rdp)
+                .background(Color.White.rc)
+                .padding(8.rdp)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    drawRect(paint = paintBlue)
+                    drawContent()
+                }
+                .padding(10.rdp)
+                .drawWithContent {
+                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    drawRect(paint = paintYellow)
+                    drawContent()
+                }
+    ) {
+        RemoteBox(modifier = RemoteModifier.size(16.rdp).background(Color.Red.rc))
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun TripleChainedDrawWithContent() {
+    RemoteBox(
+        modifier =
+            RemoteModifier.size(70.rdp)
+                .background(Color.White.rc)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintGreen = RemotePaint { color = Color.Green.rc }
+                    drawRect(paint = paintBlue)
+                    drawContent()
+                    drawRect(
+                        paint = paintGreen,
+                        topLeft = RemoteOffset.Zero,
+                        size = RemoteSize(16f.rf, 16f.rf),
+                    )
+                }
+                .padding(8.rdp)
+                .drawWithContent {
+                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    drawRect(paint = paintCyan)
+                    drawContent()
+                }
+                .padding(8.rdp)
+                .drawWithContent {
+                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    drawRect(paint = paintYellow)
+                    drawContent()
+                }
+    ) {
+        RemoteBox(modifier = RemoteModifier.size(18.rdp).background(Color.Red.rc))
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun ChainedRemoteCanvas() {
+    RemoteCanvas(
+        modifier =
+            RemoteModifier.size(70.rdp)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    val paintYellow = RemotePaint { color = Color.Yellow.rc }
+                    drawRect(paint = paintBlue)
+                    drawContent()
+                    drawRect(
+                        paint = paintYellow,
+                        topLeft = RemoteOffset.Zero,
+                        size = RemoteSize(width, 10f.rf),
+                    )
+                }
+                .drawWithContent {
+                    val paintCyan = RemotePaint { color = Color.Cyan.rc }
+                    drawRect(
+                        paint = paintCyan,
+                        topLeft = RemoteOffset(14f.rf, 14f.rf),
+                        size = RemoteSize(width - 28f.rf, height - 28f.rf),
+                    )
+                    drawContent()
+                }
+    ) {
+        val paintRed = RemotePaint { color = Color.Red.rc }
+        drawCircle(paint = paintRed, radius = 14f.rf, center = center)
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun CardWithCallerOverlay() {
+    SimulatedCard(
+        modifier =
+            RemoteModifier.drawWithContent {
+                val paintGreen = RemotePaint { color = Color.Green.rc }
+                drawContent()
+                drawCircle(
+                    paint = paintGreen,
+                    radius = 10f.rf,
+                    center = RemoteOffset(width - 14f.rf, 14f.rf),
+                )
+            }
+    ) {
+        RemoteBox(modifier = RemoteModifier.size(20.rdp).background(Color.Red.rc))
+    }
+}
+
+@Composable
+@RemoteComposable
+private fun SimulatedCard(
+    modifier: RemoteModifier = RemoteModifier,
+    content: @Composable @RemoteComposable () -> Unit,
+) {
+    RemoteBox(
+        modifier =
+            modifier
+                .size(70.rdp)
+                .drawWithContent {
+                    val paintBlue = RemotePaint { color = Color.Blue.rc }
+                    drawRoundRect(
+                        paint = paintBlue,
+                        cornerRadius = RemoteOffset(16f.rf, 16f.rf),
+                    )
+                    drawContent()
+                }
+                .padding(14.rdp),
+        content = content,
+    )
 }

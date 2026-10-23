@@ -51,24 +51,45 @@ internal abstract class RemoteComposeNode {
 
     abstract fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas)
 
+    private class DrawWithContentEntry(
+        val modifier: DrawWithContentModifier,
+        val paddingLeft: RemoteFloat?,
+        val paddingTop: RemoteFloat?,
+        val paddingRight: RemoteFloat?,
+        val paddingBottom: RemoteFloat?,
+        val stepPaddingLeft: RemoteFloat?,
+        val stepPaddingTop: RemoteFloat?,
+    )
+
     fun renderChildren(
         creationState: RemoteComposeCreationState,
         remoteCanvas: RemoteCanvas,
         reversed: Boolean = false,
     ) {
         val scope = overriddenScope(creationState)
-        var drawWithContent: DrawWithContentModifier? = null
+        val drawEntries = mutableListOf<DrawWithContentEntry>()
         var paddingLeft: RemoteFloat? = null
         var paddingTop: RemoteFloat? = null
         var paddingRight: RemoteFloat? = null
         var paddingBottom: RemoteFloat? = null
+        var stepPaddingLeft: RemoteFloat? = null
+        var stepPaddingTop: RemoteFloat? = null
 
         modifier.foldIn<Unit>(Unit) { _, element ->
-            if (drawWithContent != null) {
-                return@foldIn
-            }
             if (element is DrawWithContentModifier) {
-                drawWithContent = element
+                drawEntries.add(
+                    DrawWithContentEntry(
+                        modifier = element,
+                        paddingLeft = paddingLeft,
+                        paddingTop = paddingTop,
+                        paddingRight = paddingRight,
+                        paddingBottom = paddingBottom,
+                        stepPaddingLeft = stepPaddingLeft,
+                        stepPaddingTop = stepPaddingTop,
+                    )
+                )
+                stepPaddingLeft = null
+                stepPaddingTop = null
             } else if (element is PaddingModifier) {
                 val left = element.resolveLeft(scope)
                 val top = element.resolveTop(scope)
@@ -77,9 +98,11 @@ internal abstract class RemoteComposeNode {
 
                 if (left.constantValueOrNull != 0f) {
                     paddingLeft = paddingLeft?.let { it + left } ?: left
+                    stepPaddingLeft = stepPaddingLeft?.let { it + left } ?: left
                 }
                 if (top.constantValueOrNull != 0f) {
                     paddingTop = paddingTop?.let { it + top } ?: top
+                    stepPaddingTop = stepPaddingTop?.let { it + top } ?: top
                 }
                 if (right.constantValueOrNull != 0f) {
                     paddingRight = paddingRight?.let { it + right } ?: right
@@ -90,15 +113,18 @@ internal abstract class RemoteComposeNode {
             }
         }
 
-        if (drawWithContent != null) {
-            val contentWidthProvider =
-                if (paddingLeft != null || paddingRight != null) {
+        if (drawEntries.isNotEmpty()) {
+            fun contentWidthProvider(
+                left: RemoteFloat?,
+                right: RemoteFloat?,
+            ): (() -> RemoteFloat)? =
+                if (left != null || right != null) {
                     {
                         val totalHorizPadding =
-                            if (paddingLeft != null && paddingRight != null) {
-                                paddingLeft!! + paddingRight!!
+                            if (left != null && right != null) {
+                                left + right
                             } else {
-                                paddingLeft ?: paddingRight!!
+                                left ?: right!!
                             }
                         remoteCanvas.remote.component.width - totalHorizPadding
                     }
@@ -106,14 +132,17 @@ internal abstract class RemoteComposeNode {
                     null
                 }
 
-            val contentHeightProvider =
-                if (paddingTop != null || paddingBottom != null) {
+            fun contentHeightProvider(
+                top: RemoteFloat?,
+                bottom: RemoteFloat?,
+            ): (() -> RemoteFloat)? =
+                if (top != null || bottom != null) {
                     {
                         val totalVertPadding =
-                            if (paddingTop != null && paddingBottom != null) {
-                                paddingTop!! + paddingBottom!!
+                            if (top != null && bottom != null) {
+                                top + bottom
                             } else {
-                                paddingTop ?: paddingBottom!!
+                                top ?: bottom!!
                             }
                         remoteCanvas.remote.component.height - totalVertPadding
                     }
@@ -121,22 +150,57 @@ internal abstract class RemoteComposeNode {
                     null
                 }
 
-            val hasOffset = paddingLeft != null || paddingTop != null
-            val drawWithContentScope =
+            val lastEntry = drawEntries.last()
+            var currentScope =
                 RemoteContentDrawScope(
                     remoteCanvas = remoteCanvas,
-                    contentWidth = contentWidthProvider,
-                    contentHeight = contentHeightProvider,
-                    paddingLeft = paddingLeft,
-                    paddingTop = paddingTop,
+                    contentWidth =
+                        contentWidthProvider(lastEntry.paddingLeft, lastEntry.paddingRight),
+                    contentHeight =
+                        contentHeightProvider(lastEntry.paddingTop, lastEntry.paddingBottom),
+                    paddingLeft = lastEntry.paddingLeft,
+                    paddingTop = lastEntry.paddingTop,
                 )
+
+            for (i in drawEntries.lastIndex - 1 downTo 0) {
+                val entry = drawEntries[i]
+                val nextEntry = drawEntries[i + 1]
+                val nextScope = currentScope
+                val deltaLeft = nextEntry.stepPaddingLeft
+                val deltaTop = nextEntry.stepPaddingTop
+                val hasDelta = deltaLeft != null || deltaTop != null
+                currentScope =
+                    RemoteContentDrawScope(
+                        remoteCanvas = remoteCanvas,
+                        content = {
+                            if (hasDelta) {
+                                val dx = deltaLeft ?: 0f.rf
+                                val dy = deltaTop ?: 0f.rf
+                                remoteCanvas.translate(dx, dy)
+                                nextEntry.modifier.onDraw(nextScope)
+                                remoteCanvas.translate(-dx, -dy)
+                            } else {
+                                nextEntry.modifier.onDraw(nextScope)
+                            }
+                        },
+                        contentWidth = contentWidthProvider(entry.paddingLeft, entry.paddingRight),
+                        contentHeight =
+                            contentHeightProvider(entry.paddingTop, entry.paddingBottom),
+                    )
+            }
+
+            val firstEntry = drawEntries[0]
+            val hasOffset = firstEntry.paddingLeft != null || firstEntry.paddingTop != null
 
             creationState.document.startCanvasOperations()
             if (hasOffset) {
                 remoteCanvas.save()
-                remoteCanvas.translate(paddingLeft ?: 0f.rf, paddingTop ?: 0f.rf)
+                remoteCanvas.translate(
+                    firstEntry.paddingLeft ?: 0f.rf,
+                    firstEntry.paddingTop ?: 0f.rf,
+                )
             }
-            drawWithContent.onDraw(drawWithContentScope)
+            firstEntry.modifier.onDraw(currentScope)
             if (hasOffset) {
                 remoteCanvas.restore()
             }
