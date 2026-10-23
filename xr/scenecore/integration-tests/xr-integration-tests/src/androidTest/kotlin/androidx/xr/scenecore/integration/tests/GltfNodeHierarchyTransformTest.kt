@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 /** Automated integration tests for SceneCore glTF node hierarchy and transformation matrices. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class SceneCoreGltfNodeHierarchyTransformTest {
+class GltfNodeHierarchyTransformTest {
 
     @Test
     @XrDeviceTest
