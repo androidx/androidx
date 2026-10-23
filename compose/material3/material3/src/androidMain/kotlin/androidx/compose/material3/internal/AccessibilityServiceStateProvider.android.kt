@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +52,13 @@ internal actual fun rememberAccessibilityServiceState(
 
     val listener =
         remember(
+            accessibilityManager,
             listenToTouchExplorationState,
             listenToSwitchAccessState,
             listenToVoiceAccessState,
         ) {
             Listener(
+                accessibilityManager = accessibilityManager,
                 listenToTouchExplorationState = listenToTouchExplorationState,
                 listenToSwitchAccessState = listenToSwitchAccessState,
                 listenToVoiceAccessState = listenToVoiceAccessState,
@@ -91,18 +94,28 @@ private fun ObserveState(
     }
 }
 
+/**
+ * Tracks the accessibility service state as a [State].
+ *
+ * The cheap, client-cached backing states (accessibility and touch exploration enabled) are seeded
+ * from [accessibilityManager] at construction so that the value read during the first composition
+ * already matches what [register] observes when the lifecycle observer synchronously dispatches
+ * `ON_RESUME` during apply changes. Combined with [derivedValue], this prevents [register] from
+ * invalidating readers and forcing a second composition pass before the first frame.
+ */
 @Stable
 private class Listener(
+    accessibilityManager: AccessibilityManager,
     listenToTouchExplorationState: Boolean,
     val listenToSwitchAccessState: Boolean,
     val listenToVoiceAccessState: Boolean,
 ) : AccessibilityStateChangeListener, State<Boolean> {
-    private var accessibilityEnabled by mutableStateOf(false)
+    private var accessibilityEnabled by mutableStateOf(accessibilityManager.isEnabled)
 
     private val touchExplorationListener =
         if (listenToTouchExplorationState) {
             object : TouchExplorationStateChangeListener {
-                var enabled by mutableStateOf(false)
+                var enabled by mutableStateOf(accessibilityManager.isTouchExplorationEnabled)
 
                 override fun onTouchExplorationStateChanged(enabled: Boolean) {
                     this.enabled = enabled
@@ -144,14 +157,16 @@ private class Listener(
                     true
             }
 
+    private val derivedValue = derivedStateOf {
+        accessibilityEnabled &&
+            ((touchExplorationListener?.enabled == true) ||
+                (listenToSwitchAccessState &&
+                    otherA11yServicesListener?.switchAccessEnabled == true) ||
+                (listenToVoiceAccessState && otherA11yServicesListener?.voiceAccessEnabled == true))
+    }
+
     override val value: Boolean
-        get() =
-            accessibilityEnabled &&
-                ((touchExplorationListener?.enabled == true) ||
-                    (listenToSwitchAccessState &&
-                        otherA11yServicesListener?.switchAccessEnabled == true) ||
-                    (listenToVoiceAccessState &&
-                        otherA11yServicesListener?.voiceAccessEnabled == true))
+        get() = derivedValue.value
 
     override fun onAccessibilityStateChanged(enabled: Boolean) {
         accessibilityEnabled = enabled
