@@ -52,6 +52,7 @@ dependencies {
     docs(project(":camera:camera-compose"))
     docs(project(":camera:camera-core"))
     docs(project(":camera:camera-effects"))
+    docs(project(":camera:camera-effects-play-services"))
     docs(project(":camera:camera-extensions"))
     stubs(fileTree(dir: "../camera/camera-extensions-stub", include: ["camera-extensions-stub.jar"]))
     docs(project(":camera:featurecombinationquery:featurecombinationquery"))

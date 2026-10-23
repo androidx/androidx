@@ -274,6 +274,7 @@ playServicesAuth = {module = "com.google.android.gms:play-services-auth", versio
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
 playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "18.10.0" }
 playServicesBlockstore = {module = "com.google.android.gms:play-services-auth-blockstore", version = "16.4.0"}
+playServicesCameraLowLightBoost = { module = "com.google.android.gms:play-services-camera-low-light-boost", version = "16.0.1-beta09" }
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.0.0"}
 playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha12"}
