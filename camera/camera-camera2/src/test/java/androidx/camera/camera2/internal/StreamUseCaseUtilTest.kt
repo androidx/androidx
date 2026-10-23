@@ -19,8 +19,6 @@ package androidx.camera.camera2.internal
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
-import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.impl.Camera2ImplConfig
@@ -929,23 +927,15 @@ class StreamUseCaseUtilTest {
     private fun getCameraMetadata(
         noAvailableStreamUseCase: Boolean
     ): androidx.camera.camera2.pipe.CameraMetadata {
-        val characteristicsMap: MutableMap<CameraCharacteristics.Key<*>, Any?> = mutableMapOf()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !noAvailableStreamUseCase) {
-            val uc =
-                longArrayOf(
-                    CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
-                    CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong(),
-                    SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL.toLong(),
-                    CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE.toLong(),
-                    CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_CALL.toLong(),
-                    CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong(),
-                )
-            characteristicsMap[CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES] = uc
-        }
         return FakeCameraMetadata.fromTemplate(
             template = HighEndDeviceTemplate,
             cameraId = CameraId.fromCamera2Id(CAMERA_ID_0),
-            characteristicsOverrides = characteristicsMap,
+            characteristicsOverrides =
+                if (noAvailableStreamUseCase) {
+                    mapOf(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES to null)
+                } else {
+                    emptyMap()
+                },
         )
     }
 

@@ -19,8 +19,6 @@ package androidx.camera.camera2.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
-import android.util.Range
-import android.util.Rational
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.EvCompImpl
 import androidx.camera.camera2.pipe.RequestNumber
@@ -28,7 +26,6 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
-import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.common.CameraFrameNumber
@@ -60,16 +57,6 @@ class EvCompControlTest {
 
         UseCaseThreads(cameraScope, executor, dispatcher)
     }
-    private val metadata =
-        FakeCameraMetadata.fromTemplate(
-            template = HighEndDeviceTemplate,
-            characteristicsOverrides =
-                mapOf(
-                    CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE to Range.create(-4, 4),
-                    CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP to
-                        Rational.parseRational("1/2"),
-                ),
-        )
     private val comboRequestListener = ComboRequestListener()
     private lateinit var exposureControl: EvCompControl
 
@@ -77,7 +64,7 @@ class EvCompControlTest {
     fun setUp() {
         exposureControl =
             EvCompControl(
-                EvCompImpl(FakeCameraProperties(metadata), fakeUseCaseThreads, comboRequestListener)
+                EvCompImpl(FakeCameraProperties(), fakeUseCaseThreads, comboRequestListener)
             )
         exposureControl.requestControl = FakeUseCaseCameraRequestControl()
     }
@@ -120,8 +107,12 @@ class EvCompControlTest {
 
     @Test
     fun setExposureNotInRange_shouldCompleteTheTaskWithException(): Unit = runBlocking {
-        // Assert. The Exposure index 5 is not in the valid range. It should throw an exception.
-        assertThrows<IllegalArgumentException> { exposureControl.updateAsync(5).awaitWithTimeout() }
+        val outOfRangeIndex = exposureControl.exposureState.exposureCompensationRange.upper + 1
+
+        // Assert. The Exposure index is not in the valid range. It should throw an exception.
+        assertThrows<IllegalArgumentException> {
+            exposureControl.updateAsync(outOfRangeIndex).awaitWithTimeout()
+        }
     }
 
     @Test
@@ -130,7 +121,15 @@ class EvCompControlTest {
         val evCompCompat =
             EvCompImpl(
                 // Fake CameraProperties without CONTROL_AE_COMPENSATION related properties.
-                FakeCameraProperties(),
+                FakeCameraProperties(
+                    FakeCameraMetadata.fromTemplate(
+                        characteristicsOverrides =
+                            mapOf(
+                                CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE to null,
+                                CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP to null,
+                            )
+                    )
+                ),
                 fakeUseCaseThreads,
                 comboRequestListener,
             )

@@ -16,11 +16,7 @@
 
 package androidx.camera.camera2.testing
 
-import android.graphics.Rect
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
-import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.adapter.CameraInfoAdapter
@@ -81,16 +77,6 @@ object FakeCameraInfoAdapterCreator {
             .addOutputSize(formatPrivate, Size(640, 480))
             .build()
 
-    private val cameraCharacteristics =
-        mapOf(
-            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap,
-            CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 640, 480),
-            CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
-                arrayOf(Range(12, 30), Range(24, 24), Range(30, 30), Range(60, 60)),
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
-                intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA),
-        )
-
     private val zoomControl = ZoomControl(FakeZoomCompat())
 
     fun createCameraQuirks(
@@ -109,7 +95,6 @@ object FakeCameraInfoAdapterCreator {
                 FakeCameraMetadata.fromTemplate(
                     template = HighEndDeviceTemplate,
                     cameraId = cameraId,
-                    characteristicsOverrides = cameraCharacteristics,
                     physicalMetadata =
                         mapOf(
                             PHYSICAL_CAMERA_ID_5 to
