@@ -34,8 +34,6 @@ import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.isSupportedWithVmSettings
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
-import androidx.test.uiautomator.SearchCondition
-import androidx.test.uiautomator.UiDevice
 
 /**
  * Compilation modes to sweep over for jetpack internal macrobenchmarks.
@@ -76,14 +74,8 @@ fun defaultMemoryMetrics(): List<Metric> {
         add(MemoryUsageMetric.SubMetric.RssFile)
     }
     return listOf(
-        MemoryUsageMetric(
-            mode = MemoryUsageMetric.Mode.Last,
-            subMetrics = subMetrics,
-        ),
-        MemoryUsageMetric(
-            mode = MemoryUsageMetric.Mode.Max,
-            subMetrics = subMetrics,
-        ),
+        MemoryUsageMetric(mode = MemoryUsageMetric.Mode.Last, subMetrics = subMetrics),
+        MemoryUsageMetric(mode = MemoryUsageMetric.Mode.Max, subMetrics = subMetrics),
     )
 }
 
@@ -314,22 +306,3 @@ fun composeSectionMetrics(): List<Metric> =
 @OptIn(ExperimentalMetricApi::class)
 fun defaultComposeScrollingMetrics(): List<Metric> =
     listOf(FrameTimingMetric()) + composeSectionMetrics()
-
-/**
- * Wait for the [condition] to become true for [timeoutMillis] ms or throw an exception and dump the
- * window hierarchy if the condition is not met.
- */
-fun UiDevice.waitOrThrow(
-    condition: SearchCondition<Boolean>,
-    timeoutMillis: Long,
-    dumpWindowHierarchyOnFailure: Boolean = true,
-    lazyMessage: () -> String = {
-        "Waited for $condition, was not fulfilled after $timeoutMillis ms."
-    },
-) {
-    val waitResult = wait(condition, timeoutMillis)
-    if (waitResult != true && dumpWindowHierarchyOnFailure) {
-        dumpWindowHierarchy(System.out)
-    }
-    require(waitResult == true, lazyMessage)
-}
