@@ -92,9 +92,10 @@ class VerticalTextKexVerifiedTest {
     }
 
     // Branch: cached != null, but each of the six keys (text, height, orientation, style, typeface,
-    // density) mismatches in turn -> reuses cachedPaint and computes a new VerticalTextLayout.
+    // density) mismatches in turn -> allocates a new TextPaint and computes a new
+    // VerticalTextLayout, so earlier layouts keep their own paint.
     @Test
-    fun kex_getLayout_whenAnyOfSixCacheKeysChanges_reusesCachedPaintAndReturnsNewLayout() {
+    fun kex_getLayout_whenAnyOfSixCacheKeysChanges_allocatesIsolatedPaintAndReturnsNewLayout() {
         val cache = VerticalTextLayoutCache()
         val baseStyle = VerticalTextStyle(fontSize = 16.sp)
         val altStyle = VerticalTextStyle(fontSize = 20.sp)
@@ -171,12 +172,12 @@ class VerticalTextKexVerifiedTest {
         assertNotSame(l3, l4)
         assertNotSame(l4, l5)
         assertNotSame(l5, l6)
-        assertSame(p0, p1)
-        assertSame(p0, p2)
-        assertSame(p0, p3)
-        assertSame(p0, p4)
-        assertSame(p0, p5)
-        assertSame(p0, p6)
+        assertNotSame(p0, p1)
+        assertNotSame(p1, p2)
+        assertNotSame(p2, p3)
+        assertNotSame(p3, p4)
+        assertNotSame(p4, p5)
+        assertNotSame(p5, p6)
     }
 
     // =========================================================================
@@ -239,8 +240,6 @@ class VerticalTextKexVerifiedTest {
                 Typeface.DEFAULT,
                 density,
             )
-        // Assert redLayout before the next getLayout call because VerticalTextLayoutCache reuses a
-        // single cachedPaint instance and mutates it in place on each cache miss.
         assertThat(redLayout.countColorPixels(Color.Red.toArgb(), height)).isGreaterThan(0)
 
         val unspecifiedColorLayout =
@@ -274,8 +273,6 @@ class VerticalTextKexVerifiedTest {
                 Typeface.DEFAULT,
                 density,
             )
-        // Assert yellowBgLayout before the next getLayout call because VerticalTextLayoutCache
-        // reuses a single cachedPaint instance and mutates it in place on each cache miss.
         assertThat(yellowBgLayout.countColorPixels(Color.Yellow.toArgb(), height)).isGreaterThan(0)
 
         val transparentBgLayout =
@@ -374,7 +371,7 @@ class VerticalTextKexVerifiedTest {
     }
 
     // =========================================================================
-    // Target 3: VerticalText and VerticalTextImpl
+    // Target 3: VerticalText
     // =========================================================================
 
     // Branch: minColumns > maxColumns -> require(minColumns <= maxColumns) throws

@@ -221,6 +221,9 @@ public fun buildVerticalText(density: Density, builder: VerticalTextScope.() -> 
  * [TextUnit] values. For non-composable callers or nested builds, use the overload that takes an
  * explicit [Density].
  *
+ * Builds a new [Spanned] on every call. Wrap a static or keyed build in
+ * [androidx.compose.runtime.remember] so recomposition does not create new span instances.
+ *
  * @param builder the DSL block describing the content.
  */
 @Composable

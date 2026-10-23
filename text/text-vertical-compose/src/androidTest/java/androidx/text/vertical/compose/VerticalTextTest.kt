@@ -787,8 +787,6 @@ class VerticalTextLayoutCacheTest {
         val density = Density(1f)
         val layoutHeight = 200
 
-        // Assert on layout1 before the second getLayout call, because VerticalTextLayoutCache
-        // reuses a single cachedPaint instance that layout1 references directly.
         val layout1 =
             cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withBg, typeface, density)
         assertWithMessage("layout1 must draw the yellow background")
@@ -803,6 +801,30 @@ class VerticalTextLayoutCacheTest {
         assertWithMessage("layout2 must draw black text")
             .that(layout2.countColorPixels(Color.Black.toArgb(), layoutHeight))
             .isGreaterThan(0)
+    }
+
+    @Test
+    fun cache_doesNotMutatePreviousLayoutPaintOnMiss() {
+        val cache = VerticalTextLayoutCache()
+        val text = SpannableString("Hello")
+        val withBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Yellow)
+        val withoutBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Unspecified)
+        val typeface = Typeface.DEFAULT
+        val density = Density(1f)
+        val layoutHeight = 200
+
+        val layout1 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withBg, typeface, density)
+        val layout2 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withoutBg, typeface, density)
+
+        assertNotSame(layout1, layout2)
+        assertWithMessage("layout1 must still draw the yellow background after a cache miss")
+            .that(layout1.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isGreaterThan(0)
+        assertWithMessage("layout2 must not draw a yellow background")
+            .that(layout2.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isEqualTo(0)
     }
 
     @Test
