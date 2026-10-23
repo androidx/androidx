@@ -22,14 +22,19 @@ import androidx.xr.arcore.testapp.capabilities.CapabilitiesActivity
 import androidx.xr.arcore.testapp.depth.DepthActivity
 import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
+import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
 import androidx.xr.arcore.testapp.handtracking.HandTrackingActivity
+import androidx.xr.arcore.testapp.helloar.HelloArAugmentedImageActivity
 import androidx.xr.arcore.testapp.helloar.HelloArObjectActivity
 import androidx.xr.arcore.testapp.helloar.HelloArPlaneActivity
 import androidx.xr.arcore.testapp.helloar.HelloArQrCodeActivity
+import androidx.xr.arcore.testapp.nativedata.NativeDataActivity
 import androidx.xr.arcore.testapp.persistentanchors.PersistentAnchorsActivity
 import androidx.xr.testutils.TestAppActivityLeakTest
 import androidx.xr.testutils.XrDeviceTest
 import androidx.xr.testutils.filterSupportedPermissions
+import org.junit.Assume.assumeFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -60,15 +65,25 @@ class ArCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
     @get:Rule
     val uncaughtExceptionsRule: CatchUncaughtExceptionsRule = CatchUncaughtExceptionsRule()
 
+    @Before
+    fun skipKnownFailures() {
+        assumeFalse(
+            "Known failure (b/515469379): Activity leak test failing",
+            activityClass == HelloArAugmentedImageActivity::class.java ||
+                activityClass == NativeDataActivity::class.java ||
+                activityClass == GeospatialActivity::class.java,
+        )
+        assumeFalse(
+            "Known failure (b/573223773): HelloArPlaneActivity native SplitEngine crash on rapid teardown",
+            activityClass == HelloArPlaneActivity::class.java,
+        )
+    }
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
             return listOf(
-                // TODO b/515469379 - Re-enable when the test is fixed.
-                // arrayOf(HelloArAugmentedImageActivity::class.java),
-                // arrayOf(NativeDataActivity::class.java),
-                // arrayOf(GeospatialActivity::class.java),
                 arrayOf(MainActivity::class.java),
                 arrayOf(CapabilitiesActivity::class.java),
                 arrayOf(DepthActivity::class.java),
