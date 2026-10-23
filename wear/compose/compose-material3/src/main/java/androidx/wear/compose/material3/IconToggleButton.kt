@@ -130,7 +130,7 @@ public fun IconToggleButton(
             toggleButtonSize = IconToggleButtonDefaults.Size,
             interactionSource = finalInteractionSource,
             shape = finalShape,
-            ripple = ripple(),
+            ripple = ripple(focusRingShape = rememberDelegatingShape(finalShape)),
             content = content,
         )
     }
