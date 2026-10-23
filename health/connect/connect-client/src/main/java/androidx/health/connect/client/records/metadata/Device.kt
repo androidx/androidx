@@ -34,14 +34,30 @@ import androidx.annotation.RestrictTo
  * @property model an optional client supplied model of the device
  * @property displayName an optional display name for the device. Requires SDK extension 22 or
  *   higher; on earlier versions it is ignored when writing and `null` when reading.
+ * @property udi an optional client supplied Unique Device Identifier (UDI) of a medical device,
+ *   such as `"04015674011832"`. To protect user privacy, only populate the Device Identifier
+ *   (UDI-DI) portion, without Production Identifier (UDI-PI) attributes such as serial or batch
+ *   numbers. Writing a record with a non-null [udi] requires declaring the normal manifest
+ *   permission `android.permission.health.WRITE_DEVICE_UDI`, or a [SecurityException] is thrown.
+ *   Requires SDK extension 23 or higher; on earlier versions it is ignored when writing and `null`
+ *   when reading.
  */
 public class Device(
     @property:DeviceType public val type: Int,
     public val manufacturer: String? = null,
     public val model: String? = null,
     public val displayName: String? = null,
+    public val udi: String? = null,
 ) {
-    /** Creates a [Device] without a [displayName]. */
+    /** Creates a [Device] with [type], [manufacturer], [model], and [displayName]. */
+    public constructor(
+        @DeviceType type: Int,
+        manufacturer: String?,
+        model: String?,
+        displayName: String?,
+    ) : this(type, manufacturer, model, displayName, udi = null)
+
+    /** Creates a [Device] with [type], [manufacturer], and [model]. */
     // Keeps the 1.1 constructors: Device(int, String, String), and the synthetic one that Kotlin
     // calls when arguments are omitted. Code compiled against 1.1 links to them, so don't remove
     // this or fold it into the primary constructor. @JvmOverloads gives Java every arity.
@@ -50,7 +66,7 @@ public class Device(
         @DeviceType type: Int,
         manufacturer: String? = null,
         model: String? = null,
-    ) : this(type, manufacturer, model, displayName = null)
+    ) : this(type, manufacturer, model, displayName = null, udi = null)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -62,6 +78,7 @@ public class Device(
         if (manufacturer != other.manufacturer) return false
         if (model != other.model) return false
         if (displayName != other.displayName) return false
+        if (udi != other.udi) return false
 
         return true
     }
@@ -71,12 +88,13 @@ public class Device(
         result = 31 * result + (manufacturer?.hashCode() ?: 0)
         result = 31 * result + (model?.hashCode() ?: 0)
         result = 31 * result + (displayName?.hashCode() ?: 0)
+        result = 31 * result + (udi?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
         return "Device(type=$type, manufacturer=$manufacturer, model=$model, " +
-            "displayName=$displayName)"
+            "displayName=$displayName, udi=$udi)"
     }
 
     public companion object {

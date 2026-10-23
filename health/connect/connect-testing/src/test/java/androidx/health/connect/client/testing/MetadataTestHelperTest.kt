@@ -80,6 +80,22 @@ class MetadataTestHelperTest {
     }
 
     @Test
+    fun populatedWithTestValues_deviceWithUdi_keepsUdi() {
+        val metadata =
+            Metadata.autoRecorded(
+                device =
+                    Device(
+                        type = Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                        udi = "04015674011832",
+                    )
+            )
+
+        val updatedMetadata = metadata.populatedWithTestValues(id = testId)
+
+        assertThat(updatedMetadata.device?.udi).isEqualTo("04015674011832")
+    }
+
+    @Test
     fun populatedWithTestValues_noMetadataFieldsSet_copiesExistingValues() = runTest {
         val metadata =
             Metadata.unknownRecordingMethod()

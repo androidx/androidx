@@ -149,4 +149,7 @@
     <!-- Write permissions for WELLBEING. -->
     <uses-permission android:name="android.permission.health.WRITE_MINDFULNESS"/>
 
+    <!-- Write permission for Device UDI. -->
+    <uses-permission android:name="android.permission.health.WRITE_DEVICE_UDI"/>
+
 </manifest>

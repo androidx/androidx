@@ -84,6 +84,33 @@ class FakeHealthConnectClientRecordsTest {
     }
 
     @Test
+    fun insertRecordWithDeviceUdi_readRecordHasUdi() = runTest {
+        val fake = FakeHealthConnectClient()
+        val startTime = Instant.parse("2025-01-01T10:00:00Z")
+        val record =
+            StepsRecord(
+                startTime = startTime,
+                startZoneOffset = null,
+                endTime = startTime.plusSeconds(60),
+                endZoneOffset = null,
+                count = 100,
+                metadata =
+                    Metadata.autoRecorded(
+                        Device(
+                            type = Device.TYPE_CONSUMER_MEDICAL_DEVICE,
+                            udi = "04015674011832",
+                        )
+                    ),
+            )
+
+        fake.insertRecords(listOf(record))
+        val response =
+            fake.readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.after(EPOCH)))
+
+        assertThat(response.records.single().metadata.device?.udi).isEqualTo("04015674011832")
+    }
+
+    @Test
     fun updateRecordAndRead_responseHasUpdated() {
         // Given
         val fakeRecord = runRecord1

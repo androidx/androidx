@@ -137,8 +137,10 @@ class DeviceDataSourceConvertersTest {
         assertThat(sdkDataSource.device.type).isEqualTo(Device.TYPE_WATCH)
         assertThat(sdkDataSource.device.manufacturer).isEqualTo("Google")
         assertThat(sdkDataSource.device.model).isEqualTo("Pixel Watch")
-        // Display names need SDK extension 22, which this Robolectric Android U runtime lacks.
+        // Display names and UDIs need SDK extensions 22 and 23, which this Robolectric Android U
+        // runtime lacks.
         assertThat(sdkDataSource.device.displayName).isNull()
+        assertThat(sdkDataSource.device.udi).isNull()
         assertThat(sdkDataSource.deviceDataTypeSources).hasSize(1)
 
         val recordSource = sdkDataSource.deviceDataTypeSources.first()
@@ -169,6 +171,34 @@ class DeviceDataSourceConvertersTest {
 
         assertThat(sdkDataSource.device)
             .isEqualTo(Device(type = Device.TYPE_WATCH, displayName = "Pixel Watch 3"))
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.CINNAMON_BUN]) // First runtime with Device#getUdi
+    fun toSdkDeviceDataSource_sdkExtension23_convertsUdi() {
+        ReflectionHelpers.setStaticField(SdkExtensions::class.java, "U_EXTENSION_INT", 23)
+        val platformDataOrigin =
+            android.health.connect.datatypes.DataOrigin.Builder()
+                .setPackageName("com.example.device")
+                .build()
+        val platformDevice = mock(PlatformDevice::class.java)
+        `when`(platformDevice.type)
+            .thenReturn(android.health.connect.datatypes.Device.DEVICE_TYPE_WATCH)
+        `when`(platformDevice.udi).thenReturn("04015674011832")
+        val platformDataSource = mock(PlatformDeviceDataSource::class.java)
+        `when`(platformDataSource.deviceDataOrigin).thenReturn(platformDataOrigin)
+        `when`(platformDataSource.device).thenReturn(platformDevice)
+        `when`(platformDataSource.deviceDataTypeSources).thenReturn(emptySet())
+
+        val sdkDataSource = platformDataSource.toSdkDeviceDataSource()
+
+        assertThat(sdkDataSource.device)
+            .isEqualTo(
+                Device(
+                    type = Device.TYPE_WATCH,
+                    udi = "04015674011832",
+                )
+            )
     }
 
     @Test

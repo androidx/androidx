@@ -2301,16 +2301,19 @@ package androidx.health.connect.client.records.metadata {
     ctor public Device(int type, optional String? manufacturer);
     ctor public Device(int type, optional String? manufacturer, optional String? model);
     ctor @BytecodeOnly public Device(int, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public Device(int type, optional String? manufacturer, optional String? model, optional String? displayName);
-    ctor @BytecodeOnly public Device(int, String!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public Device(int type, String? manufacturer, String? model, String? displayName);
+    ctor public Device(int type, optional String? manufacturer, optional String? model, optional String? displayName, optional String? udi);
+    ctor @BytecodeOnly public Device(int, String!, String!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getDisplayName();
     method @InaccessibleFromKotlin public String? getManufacturer();
     method @InaccessibleFromKotlin public String? getModel();
     method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public String? getUdi();
     property public String? displayName;
     property public String? manufacturer;
     property public String? model;
     property public int type;
+    property public String? udi;
     field public static final androidx.health.connect.client.records.metadata.Device.Companion Companion;
     field public static final int TYPE_CHEST_STRAP = 7; // 0x7
     field public static final int TYPE_CONSUMER_MEDICAL_DEVICE = 9; // 0x9

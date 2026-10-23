@@ -24,6 +24,7 @@ import android.content.pm.PackageManager.GET_PERMISSIONS
 import android.content.pm.PackageManager.PackageInfoFlags
 import android.health.connect.HealthConnectException
 import android.health.connect.HealthConnectManager
+import android.health.connect.HealthPermissions.WRITE_DEVICE_UDI
 import android.health.connect.ReadRecordsRequestUsingIds
 import android.health.connect.RecordIdFilter
 import android.health.connect.changelog.ChangeLogsRequest
@@ -414,8 +415,10 @@ public class HealthConnectClientUpsideDownImpl : HealthConnectClient, Permission
                 return buildSet {
                     val requestedPermissions = it.requestedPermissions ?: emptyArray()
                     for (i in requestedPermissions.indices) {
+                        // WRITE_DEVICE_UDI is excluded because it's a normal permission
                         if (
                             requestedPermissions[i].startsWith(PERMISSION_PREFIX) &&
+                                requestedPermissions[i] != WRITE_DEVICE_UDI &&
                                 it.requestedPermissionsFlags!![i] and REQUESTED_PERMISSION_GRANTED >
                                     0
                         ) {
@@ -431,7 +434,10 @@ public class HealthConnectClientUpsideDownImpl : HealthConnectClient, Permission
             context.packageManager
                 .getPackageInfo(context.packageName, PackageInfoFlags.of(GET_PERMISSIONS.toLong()))
                 .requestedPermissions ?: emptyArray()
-        val allHealthPermissions = requestedPermissions.filter { it.startsWith(PERMISSION_PREFIX) }
+        // WRITE_DEVICE_UDI is excluded because it's a normal permission
+        val allHealthPermissions = requestedPermissions.filter {
+            it.startsWith(PERMISSION_PREFIX) && it != WRITE_DEVICE_UDI
+        }
         if (allHealthPermissions.isNotEmpty()) {
             revokePermissionsFunction(allHealthPermissions)
         }

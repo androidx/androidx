@@ -41,6 +41,7 @@ message Device {
   optional string model = 3;
   optional string type = 4;
   optional string display_name = 5;
+  optional string udi = 6;
 }
 
 message DataOrigin {
