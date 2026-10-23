@@ -16,20 +16,17 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Converts a Compose UI [LayoutDirection] to a [RemoteLayoutDirection]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun LayoutDirection.toRemoteLayoutDirection(): RemoteLayoutDirection =
+internal fun LayoutDirection.toRemoteLayoutDirection(): RemoteLayoutDirection =
     when (this) {
         LayoutDirection.Ltr -> RemoteLayoutDirection.Ltr
         LayoutDirection.Rtl -> RemoteLayoutDirection.Rtl
     }
 
 /** Converts a [RemoteLayoutDirection] to a Compose UI [LayoutDirection]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteLayoutDirection.toComposeLayoutDirection(): LayoutDirection =
+internal fun RemoteLayoutDirection.toComposeLayoutDirection(): LayoutDirection =
     when (this) {
         RemoteLayoutDirection.Ltr -> LayoutDirection.Ltr
         RemoteLayoutDirection.Rtl -> LayoutDirection.Rtl
