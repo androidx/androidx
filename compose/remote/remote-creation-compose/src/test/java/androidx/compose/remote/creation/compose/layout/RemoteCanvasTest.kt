@@ -546,6 +546,42 @@ class RemoteCanvasTest {
         assertThat(fakeBuffer.calls).containsExactly("drawScaledBitmap(42)")
     }
 
+    @Test
+    fun testDrawBitmap_withRemoteFloatBounds_recordsOperationAndTracksDependencies() {
+        setupRemoteCanvas()
+
+        val bitmap = RemoteImageBitmap.createForId(99)
+        val left = createNamedRemoteFloat("left", 10f)
+        val top = createNamedRemoteFloat("top", 20f)
+        val right = createNamedRemoteFloat("right", 110f)
+        val bottom = createNamedRemoteFloat("bottom", 120f)
+
+        remoteCanvas.drawBitmap(
+            bitmap = bitmap,
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+            paint = RemotePaint(),
+        )
+
+        assertThat(fakeBuffer.calls).isEmpty()
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addPaint",
+                "setNamedVariable(42, \"USER:left\", 1)",
+                "setNamedVariable(43, \"USER:top\", 1)",
+                "setNamedVariable(44, \"USER:right\", 1)",
+                "setNamedVariable(45, \"USER:bottom\", 1)",
+                "textData(46, \"\")",
+                "addDrawBitmap(99)",
+            )
+            .inOrder()
+    }
+
     private fun captureDrawCalls(): List<String> {
         val wireBuffer = fakeBuffer.buffer
         val bytes = wireBuffer.buffer.copyOfRange(0, wireBuffer.size)
