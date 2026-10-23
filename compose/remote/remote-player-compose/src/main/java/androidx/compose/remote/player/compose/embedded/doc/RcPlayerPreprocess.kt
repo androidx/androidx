@@ -31,6 +31,7 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
 import androidx.compose.remote.core.VariableSupport
@@ -451,6 +452,10 @@ internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
  * `registerListening` without allocating a throwaway [RemoteContext] (and its [CoreDocument] and
  * state stores) during document preprocessing. Keep in sync with core; parity is verified by
  * `RcPlayerExpressionTest`.
+ *
+ * Operations that bind a time variable directly (modifiers, draws, matrix ops, tweens, loops,
+ * conditionals, ...) are picked up after setup instead, from the listeners core registered (see
+ * [listensToContinuousTime] and [listensToDiscreteTime]).
  */
 internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Unit) {
     when (op) {
@@ -487,6 +492,27 @@ internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Un
         }
         is ComponentVisibilityOperation -> action(op.getVisibilityId())
     }
+}
+
+/**
+ * Whether any operation registered a listener for a continuous time variable
+ * ([CONTINUOUS_TIME_VARIABLES]) while the document was set up.
+ *
+ * Core's `CoreDocument.registerVariables` calls `registerListening` on every `VariableSupport`
+ * operation, including component modifiers and canvas operations, and core's View player picks its
+ * repaint cadence from the resulting listeners. This catches operations that read a time variable
+ * directly, without a wrapping expression, which [preprocessDocument] does not decode.
+ */
+internal fun RemoteComposeState.listensToContinuousTime(): Boolean = CONTINUOUS_TIME_VARIABLES.any {
+    hasListener(it)
+}
+
+/**
+ * Whether any operation registered a listener for a discrete wall-clock or calendar variable
+ * ([DISCRETE_TIME_VARIABLES]) while the document was set up. See [listensToContinuousTime].
+ */
+internal fun RemoteComposeState.listensToDiscreteTime(): Boolean = DISCRETE_TIME_VARIABLES.any {
+    hasListener(it)
 }
 
 internal fun mapEasing(type: Int): ComposeEasing {

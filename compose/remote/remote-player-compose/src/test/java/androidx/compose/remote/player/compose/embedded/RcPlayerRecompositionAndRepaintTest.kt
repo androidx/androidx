@@ -48,14 +48,11 @@ import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
-import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
-import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -67,7 +64,6 @@ import java.time.Instant
 import java.time.ZoneOffset
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -89,12 +85,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerRecompositionAndRepaintTest {
 
-    @get:Rule val rule = createComposeRule()
-
-    @Before
-    fun setUp() {
-        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
-    }
+    @get:Rule val rule = RcPlayerTestRule()
 
     private data class FrameActivity(val snapshotWrites: Int, val boundsChanges: Int)
 
@@ -183,8 +174,6 @@ class RcPlayerRecompositionAndRepaintTest {
                 .bytes
 
         val document = loadCoreDocument(bytes, fixedClock)
-        val preprocessed = preprocessDocument(document)
-        assertThat(preprocessed.hasContinuousTime).isTrue()
 
         setPlayerContent(document)
 
@@ -223,9 +212,6 @@ class RcPlayerRecompositionAndRepaintTest {
                 .bytes
 
         val document = loadCoreDocument(bytes, fixedClock)
-        val preprocessed = preprocessDocument(document)
-        assertThat(preprocessed.hasContinuousTime).isFalse()
-        assertThat(preprocessed.hasDiscreteTime).isTrue()
 
         setPlayerContent(document)
 
@@ -275,9 +261,6 @@ class RcPlayerRecompositionAndRepaintTest {
                     .bytes
 
             val document = loadCoreDocument(bytes, fixedClock)
-            val preprocessed = preprocessDocument(document)
-            assertThat(preprocessed.hasContinuousTime).isFalse()
-            assertThat(preprocessed.hasDiscreteTime).isTrue()
 
             setPlayerContent(document)
             assertThat(widthOf("monthBox")).isWithin(0.1f).of(20f) // January = 1 * 20
@@ -334,10 +317,6 @@ class RcPlayerRecompositionAndRepaintTest {
                     .bytes
 
             val document = loadCoreDocument(bytes, fixedClock)
-            val preprocessed = preprocessDocument(document)
-            // Compose UI animations do NOT keep RcPlayer's background time loop running:
-            assertThat(preprocessed.hasContinuousTime).isFalse()
-            assertThat(preprocessed.hasDiscreteTime).isFalse()
 
             setPlayerContent(document)
             // Allow initial 200ms appearance animation to complete and settle.
@@ -399,9 +378,6 @@ class RcPlayerRecompositionAndRepaintTest {
                 .bytes
 
         val document = loadCoreDocument(bytes, fixedClock)
-        val preprocessed = preprocessDocument(document)
-        assertThat(preprocessed.hasContinuousTime).isFalse()
-        assertThat(preprocessed.hasDiscreteTime).isFalse()
 
         setPlayerContent(document)
 

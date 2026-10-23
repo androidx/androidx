@@ -166,6 +166,25 @@ internal class GraphTimeState(
         }
 }
 
+/** The built-in variables that change continuously, every frame. */
+internal val CONTINUOUS_TIME_VARIABLES: IntArray =
+    intArrayOf(RemoteContext.ID_ANIMATION_TIME, RemoteContext.ID_CONTINUOUS_SEC)
+
+/** The built-in wall-clock and calendar variables that change at most once per second. */
+internal val DISCRETE_TIME_VARIABLES: IntArray =
+    intArrayOf(
+        RemoteContext.ID_TIME_IN_SEC,
+        RemoteContext.ID_TIME_IN_MIN,
+        RemoteContext.ID_TIME_IN_HR,
+        RemoteContext.ID_CALENDAR_MONTH,
+        RemoteContext.ID_OFFSET_TO_UTC,
+        RemoteContext.ID_WEEK_DAY,
+        RemoteContext.ID_DAY_OF_MONTH,
+        RemoteContext.ID_DAY_OF_YEAR,
+        RemoteContext.ID_YEAR,
+        RemoteContext.ID_EPOCH_SECOND,
+    )
+
 internal fun isContinuousTimeVariable(id: Int): Boolean =
     id == RemoteContext.ID_ANIMATION_TIME || id == RemoteContext.ID_CONTINUOUS_SEC
 

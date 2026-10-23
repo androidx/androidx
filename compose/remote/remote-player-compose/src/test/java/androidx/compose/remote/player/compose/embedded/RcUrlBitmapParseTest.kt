@@ -16,16 +16,21 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.content.Context
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.core.WireBuffer
-import androidx.compose.remote.core.operations.BitmapData
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.remote.player.compose.embedded.resources.RemoteImageSupport
+import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,43 +41,35 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcUrlBitmapParseTest {
 
-    private fun createUrlBitmapBuffer(): ByteArray {
-        val buffer = WireBuffer()
-        BitmapData.apply(
-            buffer,
-            1, // imageId
-            BitmapData.TYPE_PNG_8888,
-            100.toShort(),
-            BitmapData.ENCODING_URL,
-            100.toShort(),
-            "https://example.com/test.png".toByteArray(),
-        )
-        return buffer.buffer
+    private suspend fun createUrlBitmapDocument(): CapturedDocument {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        return captureSingleRemoteDocument(context = context) {
+            RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
+                document.addBitmapUrl("https://example.com/test.png", 100, 100)
+            }
+        }
     }
 
     @Test
-    fun urlBitmapFailsWhenLimitsDisabled() {
-        val bytes = createUrlBitmapBuffer()
+    fun urlBitmapFailsWhenLimitsDisabled(): Unit = runBlocking {
+        val captured = createUrlBitmapDocument()
         Limits.ENABLE_IMAGE_URLS = false
 
         assertThrows(RuntimeException::class.java) {
             val doc = CoreDocument(RemoteClock.SYSTEM)
-            ByteArrayInputStream(bytes).use {
+            ByteArrayInputStream(captured.bytes).use {
                 doc.initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
             }
         }
     }
 
     @Test
-    fun urlBitmapSucceedsWhenLimitsEnabled() {
-        val bytes = createUrlBitmapBuffer()
-        RemoteImageSupport.enableEncodedImageReferences()
+    fun urlBitmapSucceedsWhenLimitsEnabled(): Unit = runBlocking {
+        val captured = createUrlBitmapDocument()
+        Limits.ENABLE_IMAGE_URLS = false
 
-        val doc = CoreDocument(RemoteClock.SYSTEM)
-        ByteArrayInputStream(bytes).use {
-            doc.initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-        }
+        val state = RcPlayerState(captured)
 
-        assertThat(doc.getOperationsList()).isNotEmpty()
+        assertThat(state.document.operations).isNotEmpty()
     }
 }

@@ -162,12 +162,15 @@ public fun RcPlayer(
     // - Documents with only discrete wall-clock/calendar variables (ID_TIME_IN_SEC, ID_TIME_IN_MIN,
     //   ID_CALENDAR_MONTH, etc.) sleep between whole second boundaries via delay().
     // - Static documents and documents whose animations are driven by Compose's own animation
-    //   clocks (FloatAnimation via Animatable, StateLayout via AnimatedContent) initialize t=0 once
-    //   and settle immediately to idle without a background loop.
+    //   clocks (FloatAnimation via Animatable, StateLayout via AnimatedContent) keep the t=0 seeded
+    //   by GraphTimeState and never request a frame.
+    // The loop awaits infinite-animation frames, so a host can pause clock-driven content (e.g. in
+    // previews or offscreen) with an InfiniteAnimationPolicy in the composition's coroutine
+    // context; finite tween, spring and visibility animations keep running.
     val currentTimeMillisState = state.currentTimeMillisState
     val needsContinuousLoop =
-        preprocessed.hasContinuousTime || preprocessed.hasParticles || preprocessed.hasWakeIn
-    val needsDiscreteLoop = !needsContinuousLoop && preprocessed.hasDiscreteTime
+        state.hasContinuousTime || preprocessed.hasParticles || preprocessed.hasWakeIn
+    val needsDiscreteLoop = !needsContinuousLoop && state.hasDiscreteTime
 
     // Pure-Compose evaluation of *derived/computed* operations (color & text expressions,
     // attributes, lookups). Each computed id resolves to a derivedStateOf that runs the op's
@@ -194,6 +197,10 @@ public fun RcPlayer(
         needsContinuousLoop,
         needsDiscreteLoop,
     ) {
+        remoteContext.currentTime = startClockMillis
+        // Static document: time stays at the t = 0 seeded at setup, so don't wait for any frame.
+        if (!needsContinuousLoop && !needsDiscreteLoop) return@LaunchedEffect
+
         val startMillis = withInfiniteAnimationFrameMillis { it }
         while (true) {
             val frameMillis = withInfiniteAnimationFrameMillis { it } - startMillis
@@ -203,8 +210,6 @@ public fun RcPlayer(
                 updateContinuous = needsContinuousLoop,
             )
             remoteContext.currentTime = startClockMillis + frameMillis
-
-            if (!needsContinuousLoop && !needsDiscreteLoop) break
 
             if (needsDiscreteLoop) {
                 val currentMillis = startClockMillis + frameMillis
