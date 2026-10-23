@@ -66,4 +66,48 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
             arrayProvider = { _ -> floatArrayOf(value) },
         )
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun componentX(): RemoteFloat {
+        val doc = state.document
+        val value = doc.addComponentXValue()
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "x"),
+            arrayProvider = { _ -> floatArrayOf(value) },
+        )
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun componentY(): RemoteFloat {
+        val doc = state.document
+        val value = doc.addComponentYValue()
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "y"),
+            arrayProvider = { _ -> floatArrayOf(value) },
+        )
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun componentRootX(): RemoteFloat {
+        val doc = state.document
+        val value = doc.addComponentRootXValue()
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootX"),
+            arrayProvider = { _ -> floatArrayOf(value) },
+        )
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun componentRootY(): RemoteFloat {
+        val doc = state.document
+        val value = doc.addComponentRootYValue()
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteComponentCacheKey(doc.buffer.lastComponentId, "rootY"),
+            arrayProvider = { _ -> floatArrayOf(value) },
+        )
+    }
 }
