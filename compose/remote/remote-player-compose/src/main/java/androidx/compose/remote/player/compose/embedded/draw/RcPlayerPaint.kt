@@ -101,6 +101,12 @@ public class ComposeLocalPaint {
     /** The fill color with the paint's [alpha] folded into its alpha channel. */
     public fun effectiveColor(): Color = Color(color).let { it.copy(alpha = it.alpha * alpha) }
 
+    /**
+     * Combined paint alpha in `[0, 1]` folding the paint color's alpha channel with [alpha],
+     * matching framework `Paint` behavior when drawing shaders/brushes and bitmaps.
+     */
+    internal fun effectiveAlpha(): Float = (Color(color).alpha * alpha).coerceIn(0f, 1f)
+
     internal fun toDrawStyle(): DrawStyle =
         if (isStroke) {
             Stroke(
@@ -190,7 +196,7 @@ public class ComposeLocalPaint {
         return if (brush != null) {
             TextStyle(
                 brush = brush,
-                alpha = alpha,
+                alpha = effectiveAlpha(),
                 fontSize = fontSizeSp,
                 fontWeight = weight,
                 fontStyle = fontStyle,

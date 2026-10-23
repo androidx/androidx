@@ -171,20 +171,27 @@ internal fun ComponentModifiers.toModifier(
                 is MarqueeModifierOperation -> modifier.marquee(op)
                 is CoreSemantics -> modifier.semantics(op)
                 is DrawContentOperation -> {
-                    drawContentProcessed = true
-                    if (drawOpsList != null) {
-                        val textMeasurer = rememberTextMeasurer()
-                        val remoteContext = LocalRemoteContext.current
-                        val graph = LocalGraphContext.current
-                        modifier.drawWithContent {
-                            executeOperations(
-                                operations = drawOpsList,
-                                remoteContext = remoteContext,
-                                textMeasurer = textMeasurer,
-                                onDrawContent = { drawContent() },
-                                graph = graph,
-                                contentLayer = contentLayer,
-                            )
+                    // RemoteCompose merges all drawWithContent blocks on a component into a single
+                    // CanvasOperations stream, so attach Modifier.drawWithContent once at the
+                    // outermost DrawContentOperation and ignore subsequent markers.
+                    if (!drawContentProcessed) {
+                        drawContentProcessed = true
+                        if (drawOpsList != null) {
+                            val textMeasurer = rememberTextMeasurer()
+                            val remoteContext = LocalRemoteContext.current
+                            val graph = LocalGraphContext.current
+                            modifier.drawWithContent {
+                                executeOperations(
+                                    operations = drawOpsList,
+                                    remoteContext = remoteContext,
+                                    textMeasurer = textMeasurer,
+                                    onDrawContent = { drawContent() },
+                                    graph = graph,
+                                    contentLayer = contentLayer,
+                                )
+                            }
+                        } else {
+                            modifier
                         }
                     } else {
                         modifier
