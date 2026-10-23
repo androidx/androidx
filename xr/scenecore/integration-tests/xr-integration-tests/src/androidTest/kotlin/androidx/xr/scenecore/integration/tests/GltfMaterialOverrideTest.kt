@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 /** Automated integration tests for glTF material overrides. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class SceneCoreGltfMaterialAndIblVisualTest {
+class GltfMaterialOverrideTest {
 
     @Test
     @XrDeviceTest
