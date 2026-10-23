@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -230,11 +231,9 @@ public fun Slider(
         val selectedBarSeparatorColor = colors.barSeparatorColor(enabled, true)
         val unselectedBarSeparatorColor = colors.barSeparatorColor(enabled, false)
         val buttonIconColor = colors.buttonIconColor(enabled).value
+        val maxWidth = this.maxWidth
 
-        CompositionLocalProvider(
-            LocalIndication provides ripple(bounded = false, radius = this.maxWidth),
-            LocalContentColor provides buttonIconColor,
-        ) {
+        CompositionLocalProvider(LocalContentColor provides buttonIconColor) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
@@ -260,23 +259,35 @@ public fun Slider(
                         label = "sliderProgressBarAnimation",
                     )
 
-                InlineSliderButton(
-                    enabled = decreaseButtonEnabled,
-                    onClick = { updateValue(-1) },
-                    contentAlignment = Alignment.Center,
-                    buttonControlSize = CONTROL_SIZE,
-                    modifier =
-                        Modifier.semantics(mergeDescendants = true) {
-                            progressBarRangeInfo = ProgressBarRangeInfo(value, valueRange)
-                        },
-                    content = {
-                        SliderButtonContent(
-                            decreaseButtonEnabled,
-                            { enabled -> colors.buttonIconColor(enabled) },
-                            decreaseIcon,
+                CompositionLocalProvider(
+                    LocalIndication provides
+                        ripple(
+                            bounded = false,
+                            radius = maxWidth,
+                            focusRingShape =
+                                rememberDelegatingShape(
+                                    shape.startSection(innerShape = SLIDER_BUTTON_INNER_SHAPE)
+                                ),
                         )
-                    },
-                )
+                ) {
+                    InlineSliderButton(
+                        enabled = decreaseButtonEnabled,
+                        onClick = { updateValue(-1) },
+                        contentAlignment = Alignment.Center,
+                        buttonControlSize = CONTROL_SIZE,
+                        modifier =
+                            Modifier.semantics(mergeDescendants = true) {
+                                progressBarRangeInfo = ProgressBarRangeInfo(value, valueRange)
+                            },
+                        content = {
+                            SliderButtonContent(
+                                decreaseButtonEnabled,
+                                { enabled -> colors.buttonIconColor(enabled) },
+                                decreaseIcon,
+                            )
+                        },
+                    )
+                }
 
                 Box(
                     modifier =
@@ -295,23 +306,35 @@ public fun Slider(
                             )
                 )
 
-                InlineSliderButton(
-                    enabled = increaseButtonEnabled,
-                    onClick = { updateValue(1) },
-                    contentAlignment = Alignment.Center,
-                    buttonControlSize = CONTROL_SIZE,
-                    modifier =
-                        Modifier.semantics(mergeDescendants = true) {
-                            progressBarRangeInfo = ProgressBarRangeInfo(value, valueRange)
-                        },
-                    content = {
-                        SliderButtonContent(
-                            increaseButtonEnabled,
-                            { enabled -> colors.buttonIconColor(enabled) },
-                            increaseIcon,
+                CompositionLocalProvider(
+                    LocalIndication provides
+                        ripple(
+                            bounded = false,
+                            radius = maxWidth,
+                            focusRingShape =
+                                rememberDelegatingShape(
+                                    shape.endSection(innerShape = SLIDER_BUTTON_INNER_SHAPE)
+                                ),
                         )
-                    },
-                )
+                ) {
+                    InlineSliderButton(
+                        enabled = increaseButtonEnabled,
+                        onClick = { updateValue(1) },
+                        contentAlignment = Alignment.Center,
+                        buttonControlSize = CONTROL_SIZE,
+                        modifier =
+                            Modifier.semantics(mergeDescendants = true) {
+                                progressBarRangeInfo = ProgressBarRangeInfo(value, valueRange)
+                            },
+                        content = {
+                            SliderButtonContent(
+                                increaseButtonEnabled,
+                                { enabled -> colors.buttonIconColor(enabled) },
+                                increaseIcon,
+                            )
+                        },
+                    )
+                }
             }
         }
     }
@@ -1091,3 +1114,4 @@ private val SELECTED_BAR_HEIGHT = 12.dp
 private val UNSELECTED_BAR_HEIGHT = 4.dp
 private val BAR_SEPARATOR_RADIUS = 2.dp
 private val SEGMENT_BAR_PADDING = 4.dp
+private val SLIDER_BUTTON_INNER_SHAPE = RoundedCornerShape(BAR_SEPARATOR_RADIUS)
