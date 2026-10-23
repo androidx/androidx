@@ -14,366 +14,439 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
-import androidx.collection.emptyIntObjectMap
-import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
-import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.WireBuffer
+import androidx.compose.remote.core.operations.DataListFloat
+import androidx.compose.remote.core.operations.DataListIds
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
+import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.ArrayAccess
-import androidx.compose.remote.core.operations.utilities.CollectionsAccess
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.core.operations.utilities.NanMap
+import androidx.compose.remote.core.operations.utilities.easing.Easing
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
-import androidx.compose.remote.player.compose.embedded.doc.GraphContext
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.doc.StoreBackedRemoteContext
-import androidx.compose.remote.player.compose.embedded.doc.buildComputedOpIndex
-import androidx.compose.remote.player.compose.embedded.doc.forEachListenedVariableId
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.remote.player.compose.embedded.doc.isContinuousTimeVariable
-import androidx.compose.remote.player.compose.embedded.doc.isExpressionContinuousTimeDependent
-import androidx.compose.remote.player.compose.embedded.doc.isExpressionDiscreteTimeDependent
-import androidx.compose.remote.player.compose.embedded.doc.isExpressionTimeDependent
-import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
-import androidx.compose.remote.player.compose.embedded.state.AddOp
-import androidx.compose.remote.player.compose.embedded.state.DivOp
-import androidx.compose.remote.player.compose.embedded.state.LerpOp
-import androidx.compose.remote.player.compose.embedded.state.MadOp
-import androidx.compose.remote.player.compose.embedded.state.MulOp
-import androidx.compose.remote.player.compose.embedded.state.SubOp
-import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
-import androidx.compose.remote.player.compose.embedded.state.parseRpn
+import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.InspectableValue
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], qualifiers = "mdpi")
 class RcPlayerExpressionTest {
+
+    @get:Rule val rule = RcPlayerTestRule()
+
+    /**
+     * Evaluates one or more RPN [FloatExpression]s through [RcPlayer]'s compiled animated
+     * expression pipeline (`mSrcAnimation = floatArrayOf(0f)` triggers
+     * `rememberAnimatedRemoteFloat` -> `rememberRemoteExpression` -> `parseRpn`) and returns the
+     * evaluated values from [RcPlayerState].
+     */
+    private fun evalRpnBatch(
+        vararg expressions: FloatArray,
+        setupOps: List<Operation> = emptyList(),
+    ): List<Float> {
+        val doc = CoreDocument(RemoteClock.SYSTEM)
+        doc.operations.addAll(setupOps)
+        expressions.forEachIndexed { index, exp ->
+            val id = 100 + index
+            doc.operations.add(FloatExpression(id, exp.copyOf(), floatArrayOf(0f)))
+            doc.operations.add(NamedVariable(id, NamedVariable.FLOAT_TYPE, "USER:e$index"))
+        }
+        val playerState = RcPlayerState(doc)
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = playerState) }
+        }
+        rule.waitForIdle()
+        return expressions.indices.map { index -> playerState.floatState("e$index").value }
+    }
+
+    private fun evalSingleRpn(vararg exp: Float): Float = evalRpnBatch(exp).single()
 
     @Test
     fun testParseSimpleAdd() {
-        val exp = floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(AddOp::class.java)
-        assertThat(tree.eval()).isEqualTo(3f)
+        assertThat(evalSingleRpn(1f, 2f, AnimatedFloatExpression.ADD)).isEqualTo(3f)
     }
 
     @Test
     fun testParseSimpleSub() {
-        val exp = floatArrayOf(5f, 2f, AnimatedFloatExpression.SUB)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(SubOp::class.java)
-        assertThat(tree.eval()).isEqualTo(3f)
+        assertThat(evalSingleRpn(5f, 2f, AnimatedFloatExpression.SUB)).isEqualTo(3f)
     }
 
     @Test
     fun testParseSimpleMul() {
-        val exp = floatArrayOf(3f, 4f, AnimatedFloatExpression.MUL)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(MulOp::class.java)
-        assertThat(tree.eval()).isEqualTo(12f)
+        assertThat(evalSingleRpn(3f, 4f, AnimatedFloatExpression.MUL)).isEqualTo(12f)
     }
 
     @Test
     fun testParseSimpleDiv() {
-        val exp = floatArrayOf(12f, 3f, AnimatedFloatExpression.DIV)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(DivOp::class.java)
-        assertThat(tree.eval()).isEqualTo(4f)
+        assertThat(evalSingleRpn(12f, 3f, AnimatedFloatExpression.DIV)).isEqualTo(4f)
     }
 
     @Test
     fun testParseMad() {
-        val exp = floatArrayOf(2f, 3f, 4f, AnimatedFloatExpression.MAD)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(MadOp::class.java)
-        assertThat(tree.eval()).isEqualTo(10f) // 2 * 3 + 4
+        assertThat(evalSingleRpn(2f, 3f, 4f, AnimatedFloatExpression.MAD))
+            .isEqualTo(10f) // 2 * 3 + 4
     }
 
     @Test
     fun testParseLerp() {
-        val exp = floatArrayOf(10f, 20f, 0.5f, AnimatedFloatExpression.LERP)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree).isInstanceOf(LerpOp::class.java)
-        assertThat(tree.eval()).isEqualTo(15f)
+        assertThat(evalSingleRpn(10f, 20f, 0.5f, AnimatedFloatExpression.LERP)).isEqualTo(15f)
     }
 
     @Test
     fun testParseWithVariable() {
         val varId = 42
-        val varValue = 10f
-        val state = mutableStateOf(varValue)
-        val stateMap = mapOf(varId to state)
+        val exprId = 43
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(FloatConstant(varId, 10f))
+                operations.add(NamedVariable(varId, NamedVariable.FLOAT_TYPE, "USER:input"))
+                operations.add(
+                    FloatExpression(
+                        exprId,
+                        floatArrayOf(Utils.asNan(varId), 5f, AnimatedFloatExpression.ADD),
+                        floatArrayOf(0f),
+                    )
+                )
+                operations.add(NamedVariable(exprId, NamedVariable.FLOAT_TYPE, "USER:output"))
+            }
+        val playerState = RcPlayerState(doc)
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = playerState) }
+        }
+        rule.waitForIdle()
+        assertThat(playerState.floatState("output").value).isEqualTo(15f)
 
-        val exp = floatArrayOf(Utils.asNan(varId), 5f, AnimatedFloatExpression.ADD)
-        val tree = parseRpn(exp, stateMap)
-        assertThat(tree.eval()).isEqualTo(15f)
-
-        state.value = 20f
-        assertThat(tree.eval()).isEqualTo(25f)
+        playerState.floatState("input").value = 20f
+        rule.waitForIdle()
+        assertThat(playerState.floatState("output").value).isEqualTo(25f)
     }
 
     @Test
     fun testInspectableValue() {
-        val exp = floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD)
-        val tree = parseRpn(exp, emptyMap())
-
-        val elements = tree.inspectableElements.toList()
-        assertThat(elements).hasSize(2)
-        assertThat(elements[0].name).isEqualTo("left")
-        assertThat(elements[1].name).isEqualTo("right")
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD),
+                        null,
+                    )
+                )
+                operations.add(NamedVariable(100, NamedVariable.FLOAT_TYPE, "USER:sum"))
+            }
+        val playerState = RcPlayerState(doc)
+        val operations =
+            playerState.inspectableElements.first { it.name == "operations" }.value as List<*>
+        val exprInspectable =
+            operations.filterIsInstance<InspectableValue>().first {
+                it.inspectableElements.any { e -> e.name == "kind" && e.value == "FloatExpression" }
+            }
+        val elements = exprInspectable.inspectableElements.associate { it.name to it.value }
+        assertThat(exprInspectable.nameFallback).isEqualTo("rcVariable")
+        assertThat(elements["variableId"]).isEqualTo(100)
+        assertThat(elements["value"]).isEqualTo(3f)
     }
 
     @Test
     fun testToString() {
-        val exp = floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD)
-        val tree = parseRpn(exp, emptyMap())
-        assertThat(tree.toString()).isEqualTo("(1.0 + 2.0)")
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD),
+                        null,
+                    )
+                )
+            }
+        val playerState = RcPlayerState(doc)
+        val operations =
+            playerState.inspectableElements.first { it.name == "operations" }.value as List<*>
+        val exprInspectable = operations.filterIsInstance<InspectableValue>().single()
+        assertThat(exprInspectable.valueOverride.toString()).contains("+")
     }
 
     @Test
     fun testDivByZeroIsNaN() {
-        val exp = floatArrayOf(0f, 0f, AnimatedFloatExpression.DIV) // 0/0 produces NaN
-        assertThat(parseRpn(exp, emptyMap()).eval().isNaN()).isTrue()
+        assertThat(evalSingleRpn(0f, 0f, AnimatedFloatExpression.DIV).isNaN()).isTrue()
     }
 
-    // --- Operator coverage: verify parseRpn against the canonical core evaluator -----------------
+    // --- Operator coverage: verify RcPlayer RPN compilation against canonical core evaluator -----
 
-    /** Evaluates [exp] with both parseRpn and core AnimatedFloatExpression; asserts they agree. */
-    private fun assertMatchesCore(vararg exp: Float) {
-        val expected = AnimatedFloatExpression().eval(exp.copyOf(), exp.size)
-        val actual = parseRpn(exp.copyOf(), emptyMap()).eval()
-        if (expected.isNaN()) {
-            assertThat(actual.isNaN()).isTrue()
-        } else {
-            assertThat(actual).isWithin(1e-3f).of(expected)
+    private fun assertBatchMatchesCore(vararg expressions: FloatArray) {
+        val actuals = evalRpnBatch(*expressions)
+        expressions.forEachIndexed { index, exp ->
+            val expected = AnimatedFloatExpression().eval(exp.copyOf(), exp.size)
+            val actual = actuals[index]
+            if (expected.isNaN()) {
+                assertWithMessage("Expression #$index").that(actual.isNaN()).isTrue()
+            } else {
+                assertWithMessage("Expression #$index").that(actual).isWithin(1e-3f).of(expected)
+            }
         }
     }
 
     @Test
     fun testBinaryOperators() {
-        assertMatchesCore(7f, 3f, AnimatedFloatExpression.MOD)
-        assertMatchesCore(2f, 5f, AnimatedFloatExpression.MAX)
-        assertMatchesCore(2f, 5f, AnimatedFloatExpression.MIN)
-        assertMatchesCore(2f, 10f, AnimatedFloatExpression.POW)
-        assertMatchesCore(-3f, 1f, AnimatedFloatExpression.COPY_SIGN)
-        assertMatchesCore(1f, 1f, AnimatedFloatExpression.ATAN2)
-        assertMatchesCore(3f, 4f, AnimatedFloatExpression.HYPOT)
-        assertMatchesCore(5f, 3f, AnimatedFloatExpression.STEP)
-        assertMatchesCore(3f, 4f, AnimatedFloatExpression.SQUARE_SUM)
-        assertMatchesCore(7f, 3f, AnimatedFloatExpression.PINGPONG)
+        assertBatchMatchesCore(
+            floatArrayOf(7f, 3f, AnimatedFloatExpression.MOD),
+            floatArrayOf(2f, 5f, AnimatedFloatExpression.MAX),
+            floatArrayOf(2f, 5f, AnimatedFloatExpression.MIN),
+            floatArrayOf(2f, 10f, AnimatedFloatExpression.POW),
+            floatArrayOf(-3f, 1f, AnimatedFloatExpression.COPY_SIGN),
+            floatArrayOf(1f, 1f, AnimatedFloatExpression.ATAN2),
+            floatArrayOf(3f, 4f, AnimatedFloatExpression.HYPOT),
+            floatArrayOf(5f, 3f, AnimatedFloatExpression.STEP),
+            floatArrayOf(3f, 4f, AnimatedFloatExpression.SQUARE_SUM),
+            floatArrayOf(7f, 3f, AnimatedFloatExpression.PINGPONG),
+        )
     }
 
     @Test
     fun testUnaryOperators() {
-        assertMatchesCore(16f, AnimatedFloatExpression.SQRT)
-        assertMatchesCore(-3f, AnimatedFloatExpression.ABS)
-        assertMatchesCore(-2f, AnimatedFloatExpression.SIGN)
-        assertMatchesCore(1f, AnimatedFloatExpression.EXP)
-        assertMatchesCore(3.7f, AnimatedFloatExpression.FLOOR)
-        assertMatchesCore(100f, AnimatedFloatExpression.LOG)
-        assertMatchesCore(2.718281828f, AnimatedFloatExpression.LN)
-        assertMatchesCore(3.5f, AnimatedFloatExpression.ROUND)
-        assertMatchesCore(0.5f, AnimatedFloatExpression.SIN)
-        assertMatchesCore(0.5f, AnimatedFloatExpression.COS)
-        assertMatchesCore(0.5f, AnimatedFloatExpression.TAN)
-        assertMatchesCore(0.5f, AnimatedFloatExpression.ASIN)
-        assertMatchesCore(0.5f, AnimatedFloatExpression.ACOS)
-        assertMatchesCore(1f, AnimatedFloatExpression.ATAN)
-        assertMatchesCore(27f, AnimatedFloatExpression.CBRT)
-        assertMatchesCore(3.14159f, AnimatedFloatExpression.DEG)
-        assertMatchesCore(180f, AnimatedFloatExpression.RAD)
-        assertMatchesCore(3.2f, AnimatedFloatExpression.CEIL)
-        assertMatchesCore(4f, AnimatedFloatExpression.SQUARE)
-        assertMatchesCore(8f, AnimatedFloatExpression.LOG2)
-        assertMatchesCore(4f, AnimatedFloatExpression.INV)
-        assertMatchesCore(3.75f, AnimatedFloatExpression.FRACT)
-        assertMatchesCore(5f, AnimatedFloatExpression.CHANGE_SIGN)
+        assertBatchMatchesCore(
+            floatArrayOf(16f, AnimatedFloatExpression.SQRT),
+            floatArrayOf(-3f, AnimatedFloatExpression.ABS),
+            floatArrayOf(-2f, AnimatedFloatExpression.SIGN),
+            floatArrayOf(1f, AnimatedFloatExpression.EXP),
+            floatArrayOf(3.7f, AnimatedFloatExpression.FLOOR),
+            floatArrayOf(100f, AnimatedFloatExpression.LOG),
+            floatArrayOf(2.718281828f, AnimatedFloatExpression.LN),
+            floatArrayOf(3.5f, AnimatedFloatExpression.ROUND),
+            floatArrayOf(0.5f, AnimatedFloatExpression.SIN),
+            floatArrayOf(0.5f, AnimatedFloatExpression.COS),
+            floatArrayOf(0.5f, AnimatedFloatExpression.TAN),
+            floatArrayOf(0.5f, AnimatedFloatExpression.ASIN),
+            floatArrayOf(0.5f, AnimatedFloatExpression.ACOS),
+            floatArrayOf(1f, AnimatedFloatExpression.ATAN),
+            floatArrayOf(27f, AnimatedFloatExpression.CBRT),
+            floatArrayOf(3.14159f, AnimatedFloatExpression.DEG),
+            floatArrayOf(180f, AnimatedFloatExpression.RAD),
+            floatArrayOf(3.2f, AnimatedFloatExpression.CEIL),
+            floatArrayOf(4f, AnimatedFloatExpression.SQUARE),
+            floatArrayOf(8f, AnimatedFloatExpression.LOG2),
+            floatArrayOf(4f, AnimatedFloatExpression.INV),
+            floatArrayOf(3.75f, AnimatedFloatExpression.FRACT),
+            floatArrayOf(5f, AnimatedFloatExpression.CHANGE_SIGN),
+        )
     }
 
     @Test
     fun testTernaryOperators() {
-        assertMatchesCore(2f, 3f, 4f, AnimatedFloatExpression.MAD)
-        assertMatchesCore(0f, 10f, 0.25f, AnimatedFloatExpression.LERP)
-        assertMatchesCore(1f, 2f, 1f, AnimatedFloatExpression.IFELSE)
-        assertMatchesCore(1f, 2f, -1f, AnimatedFloatExpression.IFELSE)
-        assertMatchesCore(9f, 5f, 0f, AnimatedFloatExpression.CLAMP)
-        assertMatchesCore(-3f, 5f, 0f, AnimatedFloatExpression.CLAMP)
-        assertMatchesCore(0.3f, 1f, 0f, AnimatedFloatExpression.SMOOTH_STEP)
-        // CUBIC bezier easing: (x1,y1,x2,y2,pos) -> eased value.
-        assertMatchesCore(0.25f, 0.1f, 0.25f, 1.0f, 0.5f, AnimatedFloatExpression.CUBIC)
-        assertMatchesCore(0.4f, 0f, 0.2f, 1f, 0.3f, AnimatedFloatExpression.CUBIC)
+        assertBatchMatchesCore(
+            floatArrayOf(2f, 3f, 4f, AnimatedFloatExpression.MAD),
+            floatArrayOf(0f, 10f, 0.25f, AnimatedFloatExpression.LERP),
+            floatArrayOf(1f, 2f, 1f, AnimatedFloatExpression.IFELSE),
+            floatArrayOf(1f, 2f, -1f, AnimatedFloatExpression.IFELSE),
+            floatArrayOf(9f, 5f, 0f, AnimatedFloatExpression.CLAMP),
+            floatArrayOf(-3f, 5f, 0f, AnimatedFloatExpression.CLAMP),
+            floatArrayOf(0.3f, 1f, 0f, AnimatedFloatExpression.SMOOTH_STEP),
+            // CUBIC bezier easing: (x1,y1,x2,y2,pos) -> eased value.
+            floatArrayOf(0.25f, 0.1f, 0.25f, 1.0f, 0.5f, AnimatedFloatExpression.CUBIC),
+            floatArrayOf(0.4f, 0f, 0.2f, 1f, 0.3f, AnimatedFloatExpression.CUBIC),
+        )
     }
 
     @Test
     fun testStackManipulationAndCompoundExpressions() {
-        // DUP: x dup * == x^2
-        assertMatchesCore(6f, AnimatedFloatExpression.DUP, AnimatedFloatExpression.MUL)
-        // SWAP: 3 7 swap - == 7 - 3 == 4
-        assertMatchesCore(3f, 7f, AnimatedFloatExpression.SWAP, AnimatedFloatExpression.SUB)
-        // sqrt(3*3 + 4*4) == 5
-        assertMatchesCore(
-            3f,
-            3f,
-            AnimatedFloatExpression.MUL,
-            4f,
-            4f,
-            AnimatedFloatExpression.MUL,
-            AnimatedFloatExpression.ADD,
-            AnimatedFloatExpression.SQRT,
-        )
-        // max(abs(-5), min(2, 9)) == 5
-        assertMatchesCore(
-            -5f,
-            AnimatedFloatExpression.ABS,
-            2f,
-            9f,
-            AnimatedFloatExpression.MIN,
-            AnimatedFloatExpression.MAX,
+        assertBatchMatchesCore(
+            // DUP: x dup * == x^2
+            floatArrayOf(6f, AnimatedFloatExpression.DUP, AnimatedFloatExpression.MUL),
+            // SWAP: 3 7 swap - == 7 - 3 == 4
+            floatArrayOf(3f, 7f, AnimatedFloatExpression.SWAP, AnimatedFloatExpression.SUB),
+            // sqrt(3*3 + 4*4) == 5
+            floatArrayOf(
+                3f,
+                3f,
+                AnimatedFloatExpression.MUL,
+                4f,
+                4f,
+                AnimatedFloatExpression.MUL,
+                AnimatedFloatExpression.ADD,
+                AnimatedFloatExpression.SQRT,
+            ),
+            // max(abs(-5), min(2, 9)) == 5
+            floatArrayOf(
+                -5f,
+                AnimatedFloatExpression.ABS,
+                2f,
+                9f,
+                AnimatedFloatExpression.MIN,
+                AnimatedFloatExpression.MAX,
+            ),
         )
     }
 
     @Test
     fun testRandEvaluatesInRangeViaImperativePath() {
-        // RAND routes through the imperative evaluator (delegating to the core); it yields [0,1).
-        val tree = parseRpn(floatArrayOf(AnimatedFloatExpression.RAND), emptyMap())
-        val v = tree.eval()
+        val v = evalSingleRpn(AnimatedFloatExpression.RAND)
         assertThat(v).isAtLeast(0f)
         assertThat(v).isLessThan(1f)
     }
 
     @Test
     fun testRegisterStoreLoadViaImperativePath() {
-        // 5 STORE_R0 3 LOAD_R0 ADD == 3 + 5 == 8 (registers need eval-order state -> imperative
-        // path).
-        assertMatchesCore(
-            5f,
-            AnimatedFloatExpression.STORE_RO,
-            3f,
-            AnimatedFloatExpression.LOAD_R0,
-            AnimatedFloatExpression.ADD,
+        assertBatchMatchesCore(
+            floatArrayOf(
+                5f,
+                AnimatedFloatExpression.STORE_RO,
+                3f,
+                AnimatedFloatExpression.LOAD_R0,
+                AnimatedFloatExpression.ADD,
+            )
         )
     }
 
     @Test
     fun testNoiseFromIsDeterministicViaImperativePath() {
-        // NOISE_FROM is a pure hash (no RNG state); the imperative path must match the core
-        // exactly.
-        assertMatchesCore(0.5f, AnimatedFloatExpression.NOISE_FROM)
-        assertMatchesCore(42f, AnimatedFloatExpression.NOISE_FROM)
+        assertBatchMatchesCore(
+            floatArrayOf(0.5f, AnimatedFloatExpression.NOISE_FROM),
+            floatArrayOf(42f, AnimatedFloatExpression.NOISE_FROM),
+        )
     }
 
     @Test
     fun testArrayOpsResolveThroughCollectionsAccess() {
-        // A_SUM / A_MAX / A_LEN over a float array supplied via a CollectionsAccess. The array id
-        // is a
-        // data-variable NaN (in the array id-region) consumed by the op; the imperative evaluator
-        // passes it through verbatim and the core decodes it.
         val arrayId = NanMap.START_ARRAY
-        val data = floatArrayOf(2f, 5f, 3f)
-        val ca =
-            object : CollectionsAccess {
-                override fun getFloatValue(id: Int, index: Int): Float = data[index]
-
-                override fun getFloats(id: Int): FloatArray? = if (id == arrayId) data else null
-
-                override fun getDynamicFloats(id: Int): FloatArray? = getFloats(id)
-
-                override fun getArray(id: Int): ArrayAccess? = null
-
-                override fun getListLength(id: Int): Int = if (id == arrayId) data.size else 0
-
-                override fun getId(listId: Int, index: Int): Int = 0
-            }
         val arrayNan = NanMap.asNan(arrayId)
-        assertThat(
-                parseRpn(floatArrayOf(arrayNan, AnimatedFloatExpression.A_SUM), emptyMap(), ca)
-                    .eval()
+        val results =
+            evalRpnBatch(
+                floatArrayOf(arrayNan, AnimatedFloatExpression.A_SUM),
+                floatArrayOf(arrayNan, AnimatedFloatExpression.A_MAX),
+                floatArrayOf(arrayNan, AnimatedFloatExpression.A_LEN),
+                setupOps = listOf(DataListFloat(arrayId, floatArrayOf(2f, 5f, 3f))),
             )
-            .isEqualTo(10f)
-        assertThat(
-                parseRpn(floatArrayOf(arrayNan, AnimatedFloatExpression.A_MAX), emptyMap(), ca)
-                    .eval()
-            )
-            .isEqualTo(5f)
-        assertThat(
-                parseRpn(floatArrayOf(arrayNan, AnimatedFloatExpression.A_LEN), emptyMap(), ca)
-                    .eval()
-            )
-            .isEqualTo(3f)
+        assertThat(results).containsExactly(10f, 5f, 3f).inOrder()
     }
 
     @Test
     fun testHostFloatOverrideBeatsAuthoredExpression() {
-        val realState = SnapshotRemoteComposeState()
-        val op = FloatExpression(100, floatArrayOf(2f, 3f, AnimatedFloatExpression.ADD), null)
-        val opsMap = mutableIntObjectMapOf<Operation>()
-        opsMap[100] = op
-        val timeState = mutableStateOf(0f)
-        val graph = GraphContext(realState, opsMap, timeState, RemoteClock.SYSTEM)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(2f, 3f, AnimatedFloatExpression.ADD),
+                        null,
+                    )
+                )
+                operations.add(NamedVariable(100, NamedVariable.FLOAT_TYPE, "USER:sum"))
+            }
+        val state = RcPlayerState(doc)
 
-        assertThat(graph.getFloat(100)).isEqualTo(5f)
-        assertThat(realState.isFloatOverridden(100)).isFalse()
+        assertThat(state.floatState("sum").value).isEqualTo(5f)
 
-        realState.overrideFloat(100, 42f)
-        assertThat(realState.isFloatOverridden(100)).isTrue()
-        assertThat(graph.getFloat(100)).isEqualTo(42f)
+        state.floatState("sum").value = 42f
+        assertThat(state.floatState("sum").value).isEqualTo(42f)
+
+        state.clearOverride("sum")
+        assertThat(state.floatState("sum").value).isEqualTo(5f)
+    }
+
+    private fun CoreDocument.addTimeReadFloat(varId: Int, systemTimeId: Int, name: String) {
+        operations.add(FloatExpression(varId, floatArrayOf(Utils.asNan(systemTimeId)), null))
+        operations.add(NamedVariable(varId, NamedVariable.FLOAT_TYPE, "USER:$name"))
+    }
+
+    private fun CoreDocument.addTimeReadInt(varId: Int, systemTimeId: Int, name: String) {
+        operations.add(
+            IntegerExpression(
+                varId,
+                0b101,
+                intArrayOf(systemTimeId, 0, IntegerExpressionEvaluator.I_ADD),
+            )
+        )
+        operations.add(NamedVariable(varId, NamedVariable.INT_TYPE, "USER:$name"))
     }
 
     @Test
     fun testContinuousSecResolvesInGraphContext() {
-        val realState = SnapshotRemoteComposeState()
         val baseInstant = Instant.parse("2026-01-01T12:30:45.123Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
-        val graph = GraphContext(realState, emptyIntObjectMap(), clock = clock)
-        graph.updateTime(5000f)
+        val doc =
+            CoreDocument(clock).apply {
+                addTimeReadFloat(100, RemoteContext.ID_ANIMATION_TIME, "animTime")
+                addTimeReadFloat(101, RemoteContext.ID_TIME_IN_HR, "hr")
+                addTimeReadFloat(102, RemoteContext.ID_TIME_IN_MIN, "min")
+                addTimeReadFloat(103, RemoteContext.ID_TIME_IN_SEC, "sec")
+                addTimeReadFloat(104, RemoteContext.ID_CONTINUOUS_SEC, "contSec")
+                addTimeReadInt(105, RemoteContext.ID_EPOCH_SECOND, "epoch")
+            }
+        val state = RcPlayerState(doc)
+        state.updateTime(5000f)
 
         // At t = 5s (12:30:50.123Z):
-        assertThat(graph.getFloat(RemoteContext.ID_ANIMATION_TIME)).isEqualTo(5f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_HR)).isEqualTo(12f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(750f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1850f)
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(0.001f).of(1850.123f)
-        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
-            .isEqualTo((baseInstant.epochSecond + 5).toInt())
+        assertThat(state.floatState("animTime").value).isEqualTo(5f)
+        assertThat(state.floatState("hr").value).isEqualTo(12f)
+        assertThat(state.floatState("min").value).isEqualTo(750f)
+        assertThat(state.floatState("sec").value).isEqualTo(1850f)
+        assertThat(state.floatState("contSec").value).isWithin(0.001f).of(1850.123f)
+        assertThat(state.intState("epoch").value).isEqualTo((baseInstant.epochSecond + 5).toInt())
 
         // Advance to t = 65s (12:31:50.123Z):
-        graph.updateTime(65000f)
-        assertThat(graph.getFloat(RemoteContext.ID_ANIMATION_TIME)).isEqualTo(65f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_HR)).isEqualTo(12f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(751f)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1910f)
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(0.001f).of(1910.123f)
-        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
-            .isEqualTo((baseInstant.epochSecond + 65).toInt())
+        state.updateTime(65000f)
+        assertThat(state.floatState("animTime").value).isEqualTo(65f)
+        assertThat(state.floatState("hr").value).isEqualTo(12f)
+        assertThat(state.floatState("min").value).isEqualTo(751f)
+        assertThat(state.floatState("sec").value).isEqualTo(1910f)
+        assertThat(state.floatState("contSec").value).isWithin(0.001f).of(1910.123f)
+        assertThat(state.intState("epoch").value).isEqualTo((baseInstant.epochSecond + 65).toInt())
     }
 
     @Test
     fun testTimeFieldsOnlyInvalidateWhenTheirSpecificUnitChanges() {
-        val realState = SnapshotRemoteComposeState()
         val baseInstant = Instant.parse("2026-01-01T12:30:45.100Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
-        val graph = GraphContext(realState, emptyIntObjectMap(), clock = clock)
+        val doc =
+            CoreDocument(clock).apply {
+                addTimeReadFloat(100, RemoteContext.ID_CONTINUOUS_SEC, "cont")
+                addTimeReadFloat(101, RemoteContext.ID_TIME_IN_SEC, "sec")
+                addTimeReadFloat(102, RemoteContext.ID_TIME_IN_MIN, "min")
+                addTimeReadFloat(103, RemoteContext.ID_TIME_IN_HR, "hr")
+                addTimeReadFloat(104, RemoteContext.ID_CALENDAR_MONTH, "month")
+            }
+        val state = RcPlayerState(doc)
 
         var contEvals = 0
         var secEvals = 0
@@ -383,23 +456,23 @@ class RcPlayerExpressionTest {
 
         val contDerived = derivedStateOf {
             contEvals++
-            graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)
+            state.floatState("cont").value
         }
         val secDerived = derivedStateOf {
             secEvals++
-            graph.getFloat(RemoteContext.ID_TIME_IN_SEC)
+            state.floatState("sec").value
         }
         val minDerived = derivedStateOf {
             minEvals++
-            graph.getFloat(RemoteContext.ID_TIME_IN_MIN)
+            state.floatState("min").value
         }
         val hrDerived = derivedStateOf {
             hrEvals++
-            graph.getFloat(RemoteContext.ID_TIME_IN_HR)
+            state.floatState("hr").value
         }
         val monthDerived = derivedStateOf {
             monthEvals++
-            graph.getFloat(RemoteContext.ID_CALENDAR_MONTH)
+            state.floatState("month").value
         }
 
         // Initial reads
@@ -416,7 +489,7 @@ class RcPlayerExpressionTest {
 
         // Advance 10 frames (16ms each = 160ms total, still within second 45 at .260Z)
         for (frame in 1..10) {
-            Snapshot.withMutableSnapshot { graph.updateTime(frame * 16f) }
+            Snapshot.withMutableSnapshot { state.updateTime(frame * 16f) }
             contDerived.value
             secDerived.value
             minDerived.value
@@ -432,7 +505,7 @@ class RcPlayerExpressionTest {
         assertThat(monthEvals).isEqualTo(1)
 
         // Advance past second boundary to t = 1000ms (12:30:46.100Z)
-        Snapshot.withMutableSnapshot { graph.updateTime(1000f) }
+        Snapshot.withMutableSnapshot { state.updateTime(1000f) }
         assertThat(secDerived.value).isEqualTo(1846f)
         assertThat(minDerived.value).isEqualTo(750f)
         assertThat(hrDerived.value).isEqualTo(12f)
@@ -443,7 +516,7 @@ class RcPlayerExpressionTest {
         assertThat(monthEvals).isEqualTo(1)
 
         // Advance past minute boundary to t = 15000ms (12:31:00.100Z)
-        Snapshot.withMutableSnapshot { graph.updateTime(15000f) }
+        Snapshot.withMutableSnapshot { state.updateTime(15000f) }
         assertThat(minDerived.value).isEqualTo(751f)
         assertThat(hrDerived.value).isEqualTo(12f)
         assertThat(monthDerived.value).isEqualTo(1f)
@@ -452,38 +525,102 @@ class RcPlayerExpressionTest {
         assertThat(monthEvals).isEqualTo(1)
     }
 
-    @Test
-    fun testExpressionDependsOnAnimationDetectsNestedAnimation() {
-        val inner =
-            FloatExpression(1, floatArrayOf(10f), null).apply {
-                mFloatAnimation = FloatAnimation(1f)
-            }
-        val outer =
-            FloatExpression(2, floatArrayOf(Utils.asNan(1), 5f, AnimatedFloatExpression.ADD), null)
-        val standalone = FloatExpression(3, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
-
-        val map = mapOf(1 to inner, 2 to outer, 3 to standalone)
-        assertThat(expressionDependsOnAnimation(map, 1)).isTrue()
-        assertThat(expressionDependsOnAnimation(map, 2)).isTrue()
-        assertThat(expressionDependsOnAnimation(map, 3)).isFalse()
+    private fun buildLayoutDocumentWithWidthExpression(
+        widthVarId: Int,
+        writePreOps: (WireBuffer) -> Unit,
+    ): CoreDocument = buildDocument {
+        val descId = writer.addText("target")
+        writePreOps(writer.buffer.buffer)
+        root {
+            startBox(
+                RecordingModifier().fillMaxSize(),
+                BoxLayout.START,
+                BoxLayout.TOP,
+            )
+            startBox(
+                RecordingModifier().then { w ->
+                    val wire = w.buffer.buffer
+                    CoreSemantics().apply { mContentDescriptionId = descId }.write(wire)
+                    WidthModifierOperation.apply(
+                        wire,
+                        DimensionModifierOperation.Type.EXACT.ordinal,
+                        Utils.asNan(widthVarId),
+                    )
+                    HeightModifierOperation.apply(
+                        wire,
+                        DimensionModifierOperation.Type.EXACT.ordinal,
+                        20f,
+                    )
+                },
+                BoxLayout.START,
+                BoxLayout.TOP,
+            )
+            endBox()
+            endBox()
+        }
     }
 
     @Test
+    fun testExpressionDependsOnAnimationDetectsNestedAnimation() {
+        // inner animates linearly from initialValue = 0f to target = 100f over 1s;
+        // outer = inner + 10f has no animation of its own, so layout width must track inner's
+        // live animated progression from 10dp -> ~60dp -> 110dp.
+        val animSpec = FloatAnimation.packToFloatArray(1f, Easing.CUBIC_LINEAR, null, 0f, Float.NaN)
+        val doc =
+            buildLayoutDocumentWithWidthExpression(92) { wire ->
+                FloatExpression.apply(wire, 91, floatArrayOf(100f), animSpec)
+                FloatExpression.apply(
+                    wire,
+                    92,
+                    floatArrayOf(Utils.asNan(91), 10f, AnimatedFloatExpression.ADD),
+                    null,
+                )
+            }
+
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = doc) }
+        }
+        rule.mainClock.advanceTimeBy(32)
+        val startWidth =
+            rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+        assertThat(startWidth).isLessThan(30f)
+
+        rule.mainClock.advanceTimeBy(500)
+        val midWidth =
+            rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+        assertThat(midWidth).isGreaterThan(35f)
+        assertThat(midWidth).isLessThan(95f)
+
+        rule.mainClock.advanceTimeBy(1000)
+        val endWidth =
+            rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+        assertThat(endWidth).isWithin(1f).of(110f)
+    }
+
+    @Test(timeout = 5_000L)
     fun testExpressionDependsOnAnimationHandlesCyclesSafely() {
-        val exprA =
-            FloatExpression(
-                10,
-                floatArrayOf(Utils.asNan(11), 1f, AnimatedFloatExpression.ADD),
-                null,
-            )
-        val exprB =
-            FloatExpression(
-                11,
-                floatArrayOf(Utils.asNan(10), 1f, AnimatedFloatExpression.ADD),
-                null,
-            )
-        val cycleMap = mapOf(10 to exprA, 11 to exprB)
-        assertThat(expressionDependsOnAnimation(cycleMap, 10)).isFalse()
+        val doc =
+            buildLayoutDocumentWithWidthExpression(91) { wire ->
+                FloatExpression.apply(
+                    wire,
+                    91,
+                    floatArrayOf(Utils.asNan(92), 1f, AnimatedFloatExpression.ADD),
+                    null,
+                )
+                FloatExpression.apply(
+                    wire,
+                    92,
+                    floatArrayOf(Utils.asNan(91), 1f, AnimatedFloatExpression.ADD),
+                    null,
+                )
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = doc) }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot()
     }
 
     @Test
@@ -494,65 +631,62 @@ class RcPlayerExpressionTest {
                 floatArrayOf(10f, 20f, AnimatedFloatExpression.ADD),
                 null,
             )
-        val canvasOps = CanvasOperations().apply { mList.add(expr) }
+        val named = NamedVariable(100, NamedVariable.FLOAT_TYPE, "USER:canvasExpr")
+        val canvasOps =
+            CanvasOperations().apply {
+                mList.add(expr)
+                mList.add(named)
+            }
         val layout =
             LayoutComponent(null, 1, 0, 0f, 0f, 100f, 100f).apply {
                 setCanvasOperations(canvasOps)
             }
+        val doc = CoreDocument(RemoteClock.SYSTEM).apply { operations.add(layout) }
+        val state = RcPlayerState(doc)
 
-        val index = buildComputedOpIndex(listOf(layout))
-        assertThat(index.containsKey(100)).isTrue()
-        assertThat(index[100]).isSameInstanceAs(expr)
+        assertThat(state.floatState("canvasExpr").value).isEqualTo(30f)
     }
 
     @Test
     fun testIsExpressionTimeDependentDetectsTimeVariables() {
-        val continuousSecExpr =
-            FloatExpression(1, floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)), null)
-        val animationTimeExpr =
-            FloatExpression(8, floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_TIME)), null)
-        val epochSecondExpr =
-            FloatExpression(2, floatArrayOf(Utils.asNan(RemoteContext.ID_EPOCH_SECOND)), null)
-        val timeInSecExpr =
-            FloatExpression(3, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_SEC)), null)
-        val timeInMinExpr =
-            FloatExpression(4, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_MIN)), null)
-        val timeInHrExpr =
-            FloatExpression(5, floatArrayOf(Utils.asNan(RemoteContext.ID_TIME_IN_HR)), null)
-        val dayOfMonthExpr =
-            FloatExpression(6, floatArrayOf(Utils.asNan(RemoteContext.ID_DAY_OF_MONTH)), null)
-        val plainExpr = FloatExpression(7, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
-
-        val deltaTimeExpr =
-            FloatExpression(
-                9,
-                floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_DELTA_TIME)),
-                null,
+        assertThat(
+                rule.observeClockCadence(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)),
+                        null,
+                    )
+                )
             )
+            .isEqualTo(ClockCadence.CONTINUOUS_FRAME)
+    }
 
-        assertThat(isExpressionContinuousTimeDependent(continuousSecExpr)).isTrue()
-        assertThat(isExpressionDiscreteTimeDependent(continuousSecExpr)).isFalse()
-        assertThat(isExpressionContinuousTimeDependent(animationTimeExpr)).isTrue()
-        assertThat(isExpressionDiscreteTimeDependent(animationTimeExpr)).isFalse()
-        assertThat(isContinuousTimeVariable(RemoteContext.ID_ANIMATION_DELTA_TIME)).isFalse()
-        assertThat(isExpressionContinuousTimeDependent(deltaTimeExpr)).isFalse()
-        assertThat(isExpressionDiscreteTimeDependent(deltaTimeExpr)).isFalse()
-        assertThat(isExpressionTimeDependent(deltaTimeExpr)).isFalse()
+    @Test
+    fun testAnimationTimeDrivesContinuousFramesWhileDeltaTimeIsStatic() {
+        assertThat(
+                rule.observeClockCadence(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_TIME)),
+                        null,
+                    )
+                )
+            )
+            .isEqualTo(ClockCadence.CONTINUOUS_FRAME)
+    }
 
-        assertThat(isExpressionDiscreteTimeDependent(epochSecondExpr)).isTrue()
-        assertThat(isExpressionContinuousTimeDependent(epochSecondExpr)).isFalse()
-        assertThat(isExpressionDiscreteTimeDependent(timeInSecExpr)).isTrue()
-        assertThat(isExpressionDiscreteTimeDependent(timeInMinExpr)).isTrue()
-        assertThat(isExpressionDiscreteTimeDependent(timeInHrExpr)).isTrue()
-        assertThat(isExpressionDiscreteTimeDependent(dayOfMonthExpr)).isTrue()
-
-        assertThat(isExpressionTimeDependent(continuousSecExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(epochSecondExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(timeInSecExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(timeInMinExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(timeInHrExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(dayOfMonthExpr)).isTrue()
-        assertThat(isExpressionTimeDependent(plainExpr)).isFalse()
+    @Test
+    fun testDeltaTimeExpressionDoesNotRunBackgroundClock() {
+        assertThat(
+                rule.observeClockCadence(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(Utils.asNan(RemoteContext.ID_ANIMATION_DELTA_TIME)),
+                        null,
+                    )
+                )
+            )
+            .isEqualTo(ClockCadence.STATIC)
     }
 
     @Test
@@ -567,10 +701,6 @@ class RcPlayerExpressionTest {
                     queriedTimestamps.add(m)
                     val baseSnap = underlying.snapshot(m)
                     return object : RemoteClock.TimeSnapshot by baseSnap {
-                        // Even if a custom TimeSnapshot implementation returns fractional timeInSec
-                        // when queried at a non-boundary timestamp, querying at boundaryMillis
-                        // ensures timeInSec is integer-aligned and continuousSec does not
-                        // double-count fractional milliseconds.
                         override fun getTimeInSec(): Float =
                             baseSnap.minute * 60f +
                                 baseSnap.second +
@@ -579,80 +709,74 @@ class RcPlayerExpressionTest {
                 }
             }
 
-        val graph =
-            GraphContext(SnapshotRemoteComposeState(), emptyIntObjectMap(), clock = trackingClock)
-        // Initial updateTime(0f) at 12:30:45.450Z -> must query snapshot at 12:30:45.000Z
-        assertThat(queriedTimestamps).hasSize(1)
-        assertThat(queriedTimestamps[0] % 1000L).isEqualTo(0L)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845f)
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1845.450f)
+        val doc =
+            CoreDocument(trackingClock).apply {
+                addTimeReadFloat(100, RemoteContext.ID_TIME_IN_SEC, "sec")
+                addTimeReadFloat(101, RemoteContext.ID_CONTINUOUS_SEC, "contSec")
+            }
+        val state = RcPlayerState(doc)
 
+        // Note: CoreDocument initialization queries clock once during RemoteContext setup; clear
+        // setup queries after capturing RcPlayerState's initial boundary check.
+        val playerBoundaryQueries = queriedTimestamps.filter { it % 1000L == 0L }
+        assertThat(playerBoundaryQueries).isNotEmpty()
+        assertThat(state.floatState("sec").value).isEqualTo(1845f)
+        assertThat(state.floatState("contSec").value).isWithin(1e-3f).of(1845.450f)
+
+        val countBeforeIntraSecond = queriedTimestamps.size
         // Advance within the same second to 12:30:45.750Z (frameMillis = 300f)
-        graph.updateTime(300f)
-        assertThat(queriedTimestamps).hasSize(1)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845f)
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1845.750f)
+        state.updateTime(300f)
+        assertThat(queriedTimestamps).hasSize(countBeforeIntraSecond)
+        assertThat(state.floatState("sec").value).isEqualTo(1845f)
+        assertThat(state.floatState("contSec").value).isWithin(1e-3f).of(1845.750f)
 
         // Advance across second boundary to 12:30:46.200Z (frameMillis = 750f)
-        graph.updateTime(750f)
-        assertThat(queriedTimestamps).hasSize(2)
-        assertThat(queriedTimestamps[1] % 1000L).isEqualTo(0L)
-        assertThat(graph.getFloat(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1846f)
-        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isWithin(1e-3f).of(1846.200f)
+        state.updateTime(750f)
+        assertThat(queriedTimestamps).hasSize(countBeforeIntraSecond + 1)
+        assertThat(queriedTimestamps.last() % 1000L).isEqualTo(0L)
+        assertThat(state.floatState("sec").value).isEqualTo(1846f)
+        assertThat(state.floatState("contSec").value).isWithin(1e-3f).of(1846.200f)
     }
 
     @Test
     fun testFloatResultsFeedIntegerReader() {
-        val floatExpr =
-            FloatExpression(
-                50,
-                floatArrayOf(1.75f),
-                null,
-            )
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(50, floatExpr)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(FloatExpression(50, floatArrayOf(1.75f), null))
+                operations.add(NamedVariable(50, NamedVariable.FLOAT_TYPE, "USER:exprVal"))
+                operations.add(FloatConstant(51, 2.75f))
+                operations.add(NamedVariable(51, NamedVariable.FLOAT_TYPE, "USER:constVal"))
             }
-        val realState = SnapshotRemoteComposeState()
-        val graph =
-            GraphContext(
-                realState = realState,
-                computedOps = computedOps,
-                timeMillis = mutableStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-            )
-        assertThat(graph.getFloat(50)).isEqualTo(1.75f)
-        assertThat(graph.getInteger(50)).isEqualTo(1)
+        val state = RcPlayerState(doc)
+        assertThat(state.floatState("exprVal").value).isEqualTo(1.75f)
+        assertThat(state.intState("exprVal").value).isEqualTo(1)
 
-        realState.updateFloat(51, 2.75f)
-        assertThat(realState.getFloat(51)).isEqualTo(2.75f)
-        assertThat(realState.getInteger(51)).isEqualTo(2)
+        assertThat(state.floatState("constVal").value).isEqualTo(2.75f)
+        assertThat(state.intState("constVal").value).isEqualTo(2)
     }
 
     @Test(timeout = 5_000L)
     fun diamondFloatExpressionDag_evaluatesLinearlyAndTracksSnapshotDependencies() {
-        val realState = SnapshotRemoteComposeState()
+        val doc = CoreDocument(RemoteClock.SYSTEM)
         val rootId = 100
-        realState.updateFloat(rootId, 0f)
+        doc.operations.add(FloatConstant(rootId, 0f))
+        doc.operations.add(NamedVariable(rootId, NamedVariable.FLOAT_TYPE, "USER:root"))
 
-        val computedOps = mutableIntObjectMapOf<Operation>()
         var aId = rootId
         var bId = 101
-        computedOps.put(
-            bId,
+        doc.operations.add(
             FloatExpression(
                 bId,
                 floatArrayOf(Utils.asNan(rootId), 1f, AnimatedFloatExpression.ADD),
                 null,
-            ),
+            )
         )
 
         var nextId = 102
         repeat(32) {
             val nextA = nextId++
             val nextB = nextId++
-            computedOps.put(
-                nextA,
+            doc.operations.add(
                 FloatExpression(
                     nextA,
                     floatArrayOf(
@@ -663,10 +787,9 @@ class RcPlayerExpressionTest {
                         AnimatedFloatExpression.MUL,
                     ),
                     null,
-                ),
+                )
             )
-            computedOps.put(
-                nextB,
+            doc.operations.add(
                 FloatExpression(
                     nextB,
                     floatArrayOf(
@@ -677,34 +800,25 @@ class RcPlayerExpressionTest {
                         AnimatedFloatExpression.MUL,
                     ),
                     null,
-                ),
+                )
             )
             aId = nextA
             bId = nextB
         }
 
         val finalId = nextId
-        computedOps.put(
-            finalId,
+        doc.operations.add(
             FloatExpression(
                 finalId,
                 floatArrayOf(Utils.asNan(aId), Utils.asNan(bId), AnimatedFloatExpression.ADD),
                 null,
-            ),
-        )
-
-        val graph =
-            GraphContext(
-                realState = realState,
-                computedOps = computedOps,
-                timeMillis = mutableStateOf(0f),
-                clock = RemoteClock.SYSTEM,
             )
+        )
+        doc.operations.add(NamedVariable(finalId, NamedVariable.FLOAT_TYPE, "USER:final"))
 
-        // Note: (a + b)*0.5 + (a - b)*0.5 == a at every stage, so finalCoord == a_31.
-        // At root = 0f: a_0 = 0, b_0 = 1 -> a_1 = 0.5, b_1 = -0.5 -> a_2 = 0, b_2 = 0.5 ...
-        val observerA = derivedStateOf { graph.getFloat(finalId) }
-        val observerB = derivedStateOf { graph.getFloat(finalId) }
+        val state = RcPlayerState(doc)
+        val observerA = derivedStateOf { state.floatState("final").value }
+        val observerB = derivedStateOf { state.floatState("final").value }
 
         val initialA = observerA.value
         val initialB = observerB.value
@@ -712,7 +826,7 @@ class RcPlayerExpressionTest {
 
         // Mutate root in a new snapshot and verify both observers invalidate and recompute in O(D).
         Snapshot.withMutableSnapshot {
-            realState.updateFloat(rootId, 4f)
+            state.floatState("root").value = 4f
         }
 
         val updatedA = observerA.value
@@ -725,193 +839,157 @@ class RcPlayerExpressionTest {
     fun updateTime_updatesBothGraphContextAndCurrentTimeMillisState() {
         val baseInstant = Instant.parse("2026-01-01T00:00:00Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
-        val doc = CoreDocument(clock)
+        val doc =
+            CoreDocument(clock).apply {
+                addTimeReadFloat(100, RemoteContext.ID_ANIMATION_TIME, "animTime")
+            }
         val state = RcPlayerState(doc)
 
         state.updateTime(250f)
 
-        assertThat(state.currentTimeMillisState.floatValue).isEqualTo(250f)
-        assertThat(state.graphContext.getFloat(RemoteContext.ID_ANIMATION_TIME))
-            .isWithin(0.0001f)
-            .of(0.25f)
+        val currentMillis = state.currentTimeMillis
+        assertThat(currentMillis).isEqualTo(250f)
+        assertThat(state.floatState("animTime").value).isWithin(0.0001f).of(0.25f)
     }
 
     @Test
     fun preprocessDocument_reservedSystemVariableId_doesNotRemap() {
         val baseInstant = Instant.parse("2026-01-01T00:00:00Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.UTC))
-        val doc = CoreDocument(clock)
-        doc.getOperationsList().add(FloatConstant(RemoteContext.ID_OFFSET_TO_UTC, 123.456f))
+        val doc =
+            CoreDocument(clock).apply {
+                operations.add(FloatConstant(RemoteContext.ID_OFFSET_TO_UTC, 123.456f))
+                addTimeReadFloat(100, RemoteContext.ID_OFFSET_TO_UTC, "utcOffset")
+            }
 
         val state = RcPlayerState(doc)
 
-        // Reserved system variable ID (10 = ID_OFFSET_TO_UTC) is not remapped or fixed;
-        // GraphContext continues resolving the system clock variable (0.0f in UTC).
-        assertThat(state.graphContext.getFloat(RemoteContext.ID_OFFSET_TO_UTC)).isEqualTo(0f)
+        // Reserved system variable ID (10 = ID_OFFSET_TO_UTC) is not clobbered by FloatConstant;
+        // the player resolves the system clock variable (0.0f in UTC).
+        assertThat(state.floatState("utcOffset").value).isEqualTo(0f)
     }
 
     @Test
     fun testDiscreteTimeVariablesResolveViaGetIntegerAndIntegerExpression() {
-        val realState = SnapshotRemoteComposeState()
         // 2026-03-15T12:30:45Z is a Sunday (ISO day-of-week = 7), day-of-year = 74
         val baseInstant = Instant.parse("2026-03-15T12:30:45.123Z")
         val clock = SystemClock(Clock.fixed(baseInstant, ZoneOffset.ofHours(2)))
-        // In +02:00, local time is 2026-03-15T14:30:45.123+02:00:
-        // hour = 14, timeInMin = 14 * 60 + 30 = 870, timeInSec = 30 * 60 + 45 = 1845
         val exprId = 100
-        // IntegerExpression: ID_TIME_IN_SEC + 10
-        // mask bit 0 = ID (1), bit 1 = literal 10 (0), bit 2 = operator I_ADD (1) -> mask = 0b101 =
-        // 5
-        val intExpr =
-            IntegerExpression(
-                exprId,
-                0b101,
-                intArrayOf(RemoteContext.ID_TIME_IN_SEC, 10, IntegerExpressionEvaluator.I_ADD),
-            )
-        val computedOps = mutableIntObjectMapOf<Operation>().apply { put(exprId, intExpr) }
-        val graph = GraphContext(realState, computedOps, clock = clock)
+        val doc =
+            CoreDocument(clock).apply {
+                operations.add(
+                    IntegerExpression(
+                        exprId,
+                        0b101,
+                        intArrayOf(
+                            RemoteContext.ID_TIME_IN_SEC,
+                            10,
+                            IntegerExpressionEvaluator.I_ADD,
+                        ),
+                    )
+                )
+                operations.add(NamedVariable(exprId, NamedVariable.INT_TYPE, "USER:secPlus10"))
+                addTimeReadInt(101, RemoteContext.ID_TIME_IN_SEC, "sec")
+                addTimeReadInt(102, RemoteContext.ID_TIME_IN_MIN, "min")
+                addTimeReadInt(103, RemoteContext.ID_TIME_IN_HR, "hr")
+                addTimeReadInt(104, RemoteContext.ID_CALENDAR_MONTH, "month")
+                addTimeReadInt(105, RemoteContext.ID_DAY_OF_MONTH, "dayOfMonth")
+                addTimeReadInt(106, RemoteContext.ID_WEEK_DAY, "weekDay")
+                addTimeReadInt(107, RemoteContext.ID_DAY_OF_YEAR, "dayOfYear")
+                addTimeReadInt(108, RemoteContext.ID_YEAR, "year")
+                addTimeReadInt(109, RemoteContext.ID_OFFSET_TO_UTC, "offsetUtc")
+                addTimeReadInt(110, RemoteContext.ID_EPOCH_SECOND, "epoch")
+            }
+        val state = RcPlayerState(doc)
 
-        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1845)
-        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_MIN)).isEqualTo(870)
-        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_HR)).isEqualTo(14)
-        assertThat(graph.getInteger(RemoteContext.ID_CALENDAR_MONTH)).isEqualTo(3)
-        assertThat(graph.getInteger(RemoteContext.ID_DAY_OF_MONTH)).isEqualTo(15)
-        assertThat(graph.getInteger(RemoteContext.ID_WEEK_DAY)).isEqualTo(7)
-        assertThat(graph.getInteger(RemoteContext.ID_DAY_OF_YEAR)).isEqualTo(74)
-        assertThat(graph.getInteger(RemoteContext.ID_YEAR)).isEqualTo(2026)
-        assertThat(graph.getInteger(RemoteContext.ID_OFFSET_TO_UTC)).isEqualTo(7200)
-        assertThat(graph.getInteger(RemoteContext.ID_EPOCH_SECOND))
-            .isEqualTo(baseInstant.epochSecond.toInt())
-        assertThat(graph.getInteger(exprId)).isEqualTo(1855)
+        assertThat(state.intState("sec").value).isEqualTo(1845)
+        assertThat(state.intState("min").value).isEqualTo(870)
+        assertThat(state.intState("hr").value).isEqualTo(14)
+        assertThat(state.intState("month").value).isEqualTo(3)
+        assertThat(state.intState("dayOfMonth").value).isEqualTo(15)
+        assertThat(state.intState("weekDay").value).isEqualTo(7)
+        assertThat(state.intState("dayOfYear").value).isEqualTo(74)
+        assertThat(state.intState("year").value).isEqualTo(2026)
+        assertThat(state.intState("offsetUtc").value).isEqualTo(7200)
+        assertThat(state.intState("epoch").value).isEqualTo(baseInstant.epochSecond.toInt())
+        assertThat(state.intState("secPlus10").value).isEqualTo(1855)
 
         // Advance by 5 seconds:
-        graph.updateTime(5000f)
-        assertThat(graph.getInteger(RemoteContext.ID_TIME_IN_SEC)).isEqualTo(1850)
-        assertThat(graph.getInteger(exprId)).isEqualTo(1860)
+        state.updateTime(5000f)
+        assertThat(state.intState("sec").value).isEqualTo(1850)
+        assertThat(state.intState("secPlus10").value).isEqualTo(1860)
     }
 
     @Test
     fun preprocessDocument_integerExpressionWithTimeVariable_setsHasDiscreteTime() {
-        val doc = CoreDocument()
-        doc.getOperationsList()
-            .add(
-                IntegerExpression(
-                    100,
-                    0b101,
-                    intArrayOf(RemoteContext.ID_TIME_IN_SEC, 1, IntegerExpressionEvaluator.I_ADD),
+        assertThat(
+                rule.observeClockCadence(
+                    IntegerExpression(
+                        100,
+                        0b101,
+                        intArrayOf(
+                            RemoteContext.ID_TIME_IN_SEC,
+                            1,
+                            IntegerExpressionEvaluator.I_ADD,
+                        ),
+                    )
                 )
             )
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasDiscreteTime).isTrue()
-        assertThat(preprocessed.hasContinuousTime).isFalse()
+            .isEqualTo(ClockCadence.DISCRETE_SECOND)
     }
 
     @Test
     fun preprocessDocument_floatExpressionWithContinuousTimeVariable_setsHasContinuousTime() {
-        val doc = CoreDocument()
-        doc.getOperationsList()
-            .add(
-                FloatExpression(
-                    100,
-                    floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)),
-                    null,
+        assertThat(
+                rule.observeClockCadence(
+                    FloatExpression(
+                        100,
+                        floatArrayOf(Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC)),
+                        null,
+                    )
                 )
             )
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasContinuousTime).isTrue()
-        assertThat(preprocessed.hasDiscreteTime).isFalse()
-    }
-
-    @Test
-    fun forEachListenedVariableId_matchesCoreRegisterListening() {
-        val ops =
-            listOf(
-                FloatExpression(
-                    100,
-                    floatArrayOf(
-                        Utils.asNan(RemoteContext.ID_CONTINUOUS_SEC),
-                        Utils.asNan(200),
-                        AnimatedFloatExpression.ADD,
-                        3f,
-                        AnimatedFloatExpression.MUL,
-                    ),
-                    null,
-                ),
-                FloatExpression(101, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null),
-                IntegerExpression(
-                    102,
-                    0b101,
-                    intArrayOf(RemoteContext.ID_TIME_IN_SEC, 1, IntegerExpressionEvaluator.I_ADD),
-                ),
-                IntegerExpression(
-                    103,
-                    0b011,
-                    intArrayOf(300, RemoteContext.ID_YEAR, IntegerExpressionEvaluator.I_ADD),
-                ),
-                TextFromFloat(104, Utils.asNan(RemoteContext.ID_TIME_IN_MIN), 2, 0, 0),
-                TextFromFloat(105, 4f, 2, 0, 0),
-                TextLookupInt(106, 400, RemoteContext.ID_WEEK_DAY),
-                ComponentVisibilityOperation(RemoteContext.ID_ANIMATION_TIME),
-            )
-
-        for (op in ops) {
-            val expected = mutableListOf<Int>()
-            val probe =
-                object : StoreBackedRemoteContext(RemoteClock.SYSTEM) {
-                    override fun listensTo(id: Int, variableSupport: VariableSupport) {
-                        expected.add(id)
-                    }
-                }
-            (op as VariableSupport).registerListening(probe)
-
-            val actual = mutableListOf<Int>()
-            forEachListenedVariableId(op) { actual.add(it) }
-
-            assertWithMessage(op.toString())
-                .that(actual)
-                .containsExactlyElementsIn(expected)
-                .inOrder()
-        }
+            .isEqualTo(ClockCadence.CONTINUOUS_FRAME)
     }
 
     @Test
     fun preprocessDocument_textFromFloatWithTimeVariable_setsHasDiscreteTime() {
-        val doc = CoreDocument()
-        doc.getOperationsList()
-            .add(TextFromFloat(100, Utils.asNan(RemoteContext.ID_TIME_IN_SEC), 2, 0, 0))
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasDiscreteTime).isTrue()
-        assertThat(preprocessed.hasContinuousTime).isFalse()
+        assertThat(
+                rule.observeClockCadence(
+                    TextFromFloat(100, Utils.asNan(RemoteContext.ID_TIME_IN_SEC), 2, 0, 0)
+                )
+            )
+            .isEqualTo(ClockCadence.DISCRETE_SECOND)
     }
 
     @Test
     fun preprocessDocument_textLookupIntWithTimeVariable_setsHasDiscreteTime() {
-        val doc = CoreDocument()
-        doc.getOperationsList().add(TextLookupInt(100, 200, RemoteContext.ID_WEEK_DAY))
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasDiscreteTime).isTrue()
-        assertThat(preprocessed.hasContinuousTime).isFalse()
+        val t0 = TextData(201, "Mon")
+        val listIds = DataListIds(200, IntArray(16) { 201 })
+        assertThat(
+                rule.observeClockCadence(
+                    t0,
+                    listIds,
+                    TextLookupInt(100, 200, RemoteContext.ID_WEEK_DAY),
+                )
+            )
+            .isEqualTo(ClockCadence.DISCRETE_SECOND)
     }
 
     @Test
     fun preprocessDocument_componentVisibilityWithContinuousTime_setsHasContinuousTime() {
-        val doc = CoreDocument()
-        doc.getOperationsList().add(ComponentVisibilityOperation(RemoteContext.ID_CONTINUOUS_SEC))
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasContinuousTime).isTrue()
+        assertThat(
+                rule.observeClockCadence(
+                    ComponentVisibilityOperation(RemoteContext.ID_CONTINUOUS_SEC)
+                )
+            )
+            .isEqualTo(ClockCadence.CONTINUOUS_FRAME)
     }
 
     @Test
     fun preprocessDocument_noTimeReferences_doesNotEnableClock() {
-        val doc = CoreDocument()
-        doc.getOperationsList()
-            .addAll(
-                listOf(
+        assertThat(
+                rule.observeClockCadence(
                     FloatExpression(100, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null),
                     IntegerExpression(
                         101,
@@ -921,41 +999,63 @@ class RcPlayerExpressionTest {
                     TextFromFloat(102, 4f, 2, 0, 0),
                 )
             )
-
-        val preprocessed = preprocessDocument(doc)
-        assertThat(preprocessed.hasContinuousTime).isFalse()
-        assertThat(preprocessed.hasDiscreteTime).isFalse()
+            .isEqualTo(ClockCadence.STATIC)
     }
 
     @Test
     fun springAnimatedFloatExpression_evaluatesCorrectlyInGraphContextAfterSettling() {
-        val realState = SnapshotRemoteComposeState()
         val springSpec = floatArrayOf(0f, 1400f, 74.833f, 0.001f, 0f)
-        val springOp = FloatExpression(100, floatArrayOf(1f), springSpec)
-        val opsMap = mutableIntObjectMapOf<Operation>()
-        opsMap[100] = springOp
-        val graph = GraphContext(realState, opsMap, mutableStateOf(0f), RemoteClock.SYSTEM)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(FloatExpression(100, floatArrayOf(1f), springSpec))
+                operations.add(NamedVariable(100, NamedVariable.FLOAT_TYPE, "USER:springVal"))
+            }
+        val state = RcPlayerState(doc)
 
-        // Simulate initial CoreDocument setup where updateVariables + apply settles the spring
-        springOp.updateVariables(graph)
-        springOp.apply(graph)
-
-        // Subsequent GraphContext evaluations must still return 1f (not null -> 0f)
-        assertThat(graph.getFloat(100)).isEqualTo(1f)
-        assertThat(graph.getFloat(100)).isEqualTo(1f)
+        // Subsequent evaluations must return 1f (not null -> 0f) even after setup settled the
+        // spring.
+        assertThat(state.floatState("springVal").value).isEqualTo(1f)
+        assertThat(state.floatState("springVal").value).isEqualTo(1f)
     }
 
     @Test
     fun testExpressionDependsOnAnimationDetectsSpringAnimation() {
         val springSpec = floatArrayOf(0f, 1400f, 74.833f, 0.001f, 0f)
-        val innerSpring = FloatExpression(1, floatArrayOf(1f), springSpec)
-        val outer =
-            FloatExpression(2, floatArrayOf(Utils.asNan(1), 5f, AnimatedFloatExpression.ADD), null)
-        val standalone = FloatExpression(3, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
+        val doc =
+            buildLayoutDocumentWithWidthExpression(93) { wire ->
+                FloatConstant.apply(wire, 91, 0f)
+                NamedVariable.apply(wire, 91, NamedVariable.FLOAT_TYPE, "USER:target")
+                FloatExpression.apply(wire, 92, floatArrayOf(Utils.asNan(91)), springSpec)
+                FloatExpression.apply(
+                    wire,
+                    93,
+                    floatArrayOf(Utils.asNan(92), 10f, AnimatedFloatExpression.ADD),
+                    null,
+                )
+            }
+        val state = RcPlayerState(doc)
 
-        val map = mapOf(1 to innerSpring, 2 to outer, 3 to standalone)
-        assertThat(expressionDependsOnAnimation(map, 1)).isTrue()
-        assertThat(expressionDependsOnAnimation(map, 2)).isTrue()
-        assertThat(expressionDependsOnAnimation(map, 3)).isFalse()
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) { RcPlayer(state = state) }
+        }
+        rule.mainClock.advanceTimeBy(32)
+        assertThat(
+                rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+            )
+            .isWithin(1f)
+            .of(10f)
+
+        Snapshot.withMutableSnapshot { state.floatState("target").value = 100f }
+        rule.mainClock.advanceTimeBy(80)
+        val midWidth =
+            rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+        assertThat(midWidth).isGreaterThan(15f)
+        assertThat(midWidth).isLessThan(108f)
+
+        rule.mainClock.advanceTimeBy(1000)
+        val endWidth =
+            rule.onNodeWithContentDescription("target").getUnclippedBoundsInRoot().width.value
+        assertThat(endWidth).isWithin(1f).of(110f)
     }
 }

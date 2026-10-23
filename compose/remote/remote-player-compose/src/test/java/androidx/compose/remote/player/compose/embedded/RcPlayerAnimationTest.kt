@@ -815,8 +815,11 @@ class RcPlayerAnimationTest {
             initialNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
         assertThat(initialWidth).isWithin(2f).of(80f)
 
-        // Resize container to 150dp: child 0 (250dp) no longer fits, child 1 (120dp) fits
+        // Resize container to 150dp: child 0 (250dp) no longer fits, child 1 (120dp) fits. Wait for
+        // idle so the state change is applied before the frame, rather than relying on another
+        // pending frame request.
         containerWidth = 150.dp
+        rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
 
         // Halfway (500ms into 1000ms linear interpolation): (80 + 40) / 2 = 60dp
@@ -934,8 +937,10 @@ class RcPlayerAnimationTest {
         rule.onNodeWithContentDescription("fitDisabled_wide").assertIsDisplayed()
         rule.onNodeWithContentDescription("fitDisabled_narrow").assertDoesNotExist()
 
-        // Shrink container so narrow alternative is chosen
+        // Shrink container so narrow alternative is chosen. Wait for idle so the state change is
+        // applied before the frame, rather than relying on another pending frame request.
         containerWidth = 150.dp
+        rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
 
         // Because animation is disabled on FitBox, SharedTransitionLayout and AnimatedContent

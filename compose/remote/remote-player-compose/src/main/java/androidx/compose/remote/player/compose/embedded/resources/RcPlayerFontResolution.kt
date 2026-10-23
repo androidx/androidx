@@ -27,8 +27,6 @@ import androidx.compose.remote.player.compose.embedded.EmbeddedPlayerTypefaceRes
 import androidx.compose.remote.player.compose.embedded.RcTypefaceRequest
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
-import androidx.compose.ui.text.font.DeviceFontFamilyName
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
@@ -46,11 +44,11 @@ internal fun buildFontFeatureSettings(
     var builder: StringBuilder? = null
     for (i in 0 until count) {
         val name = context.getText(fontAxis[i]) ?: continue
-        if (isVariationAxisTag(name)) continue
+        if (!isFontFeatureTag(name)) continue
         val resolvedValue = resolveFloat(fontAxisValues[i], fontAxisValues[i], context)
         val sb = builder ?: StringBuilder().also { builder = it }
         if (sb.isNotEmpty()) sb.append(", ")
-        sb.append('\'').append(name).append("' ").append(resolvedValue.toInt())
+        sb.append('\'').append(name).append("' ").append(resolvedValue.toInt().coerceAtLeast(0))
     }
     return builder?.toString()
 }
@@ -159,7 +157,7 @@ internal fun resolveTypeface(
             return it
         }
     }
-    return EmbeddedPlayerTypefaceResolver.resolveSync(request)
+    return context.typefaceCache.resolveDefault(request)
 }
 
 internal fun resolveFontFamily(
@@ -269,13 +267,11 @@ internal fun resolveFontFamily(
         buildFontVariationSettings(fontAxis, fontAxisValues, fontWeight, fontStyle, context)
     if (settings != null) {
         val systemFamilyName = if (standardName == "default") "sans-serif" else standardName
-        return FontFamily(
-            Font(
-                DeviceFontFamilyName(systemFamilyName),
-                weight = fontWeight,
-                style = fontStyle,
-                variationSettings = settings,
-            )
+        return context.typefaceCache.deviceFontFamily(
+            systemFamilyName,
+            fontWeight,
+            fontStyle,
+            settings,
         )
     }
 
@@ -294,12 +290,5 @@ private fun createDeviceFontFamily(
         buildFontVariationSettings(fontAxis, fontAxisValues, fontWeight, fontStyle, context)
             ?: FontVariation.Settings()
 
-    return FontFamily(
-        Font(
-            DeviceFontFamilyName(familyName),
-            weight = fontWeight,
-            style = fontStyle,
-            variationSettings = settings,
-        )
-    )
+    return context.typefaceCache.deviceFontFamily(familyName, fontWeight, fontStyle, settings)
 }

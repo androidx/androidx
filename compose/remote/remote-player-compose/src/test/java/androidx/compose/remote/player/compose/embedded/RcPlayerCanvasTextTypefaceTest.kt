@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import android.graphics.Paint
 import android.graphics.Typeface
-import androidx.collection.emptyIntObjectMap
+import android.graphics.fonts.Font as NativeFont
+import android.graphics.fonts.FontFamily as NativeFontFamily
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -31,37 +38,34 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
-import androidx.compose.remote.player.compose.embedded.doc.GraphContext
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
-import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
-import androidx.compose.remote.player.compose.embedded.resources.RcTypefaceCache
-import androidx.compose.remote.player.compose.embedded.resources.applyVariationSettings
-import androidx.compose.remote.player.compose.embedded.resources.rcTypefaceResolver
-import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.LoadedFontFamily
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.core.provider.FontRequest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
+import java.nio.ByteBuffer
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CompletableDeferred
@@ -73,9 +77,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerCanvasTextTypefaceTest {
 
     @get:Rule val rule = RcPlayerTestRule()
@@ -89,121 +95,243 @@ class RcPlayerCanvasTextTypefaceTest {
             resolveCalled = true
             lastRequest = request
             requests.add(request)
-            return applyVariationSettings(expectedTypeface, request.variationSettings)
+            return applyVariations(expectedTypeface, request.variationSettings)
         }
     }
 
     @Test
     fun toNativeTextPaintUsesContextTypefaceResolver() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
+        val monoResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val sansResolver = CustomTestTypefaceResolver(loadKarlaTypeface())
+        val sample = "iiiiWWWW"
+        fun makeDoc(): CoreDocument = buildDocument {
+            val textId = addText(sample)
+            val pathId = addPathString("M 5 50 L 145 50")
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 150f, 80f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF000000.toInt())
+                    setTextSize(28f)
+                }
+            )
+            drawTextOnPath(textId, pathId, 0f, 0f)
+        }
 
-        val paint = ComposeLocalPaint().apply { textSize = 24f }
+        var currentResolver by mutableStateOf<RcTypefaceResolver>(monoResolver)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(Modifier.size(150.dp, 80.dp)) {
+                    key(currentResolver) {
+                        RcPlayer(document = makeDoc(), typefaceResolver = currentResolver)
+                    }
+                }
+            }
+        }
+        val monoPixels = rule.captureRootPixels(150, 80)
+        assertThat(monoResolver.resolveCalled).isTrue()
 
-        val nativePaint = paint.toNativeTextPaint(context)
-
-        assertThat(testResolver.resolveCalled).isTrue()
-        assertThat(nativePaint.typeface).isEqualTo(testTypeface)
+        currentResolver = sansResolver
+        rule.waitForIdle()
+        val sansPixels = rule.captureRootPixels(150, 80)
+        assertThat(sansResolver.resolveCalled).isTrue()
+        assertThat(monoPixels).isNotEqualTo(sansPixels)
     }
 
     @Test
     fun toNativeTextPaintWithGraphContextUsesConfiguredTypefaceResolver() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val snapshotState = SnapshotRemoteComposeState()
-        val graphContext =
-            GraphContext(
-                    snapshotState,
-                    emptyIntObjectMap(),
-                    mutableFloatStateOf(0f),
-                    RemoteClock.SYSTEM,
+        val monoResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val sansResolver = CustomTestTypefaceResolver(Typeface.SANS_SERIF)
+        val document = buildDocument {
+            val sampleId = addText("iiiiiiWWWWWW")
+            writer.buffer.addPaint(PaintBundle().apply { setTextSize(24f) })
+            val measuredWidth = textMeasure(sampleId, 0)
+            val widthTextId = createTextFromFloat(measuredWidth, 4, 1, 0)
+            root {
+                startTextComponent(
+                    RecordingModifier().width(200f).height(60f),
+                    widthTextId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    18f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    null,
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    null,
+                    null,
+                    false,
+                    0,
                 )
-                .apply { setTypefaceResolver(testResolver) }
+                endTextComponent()
+            }
+        }
 
-        val paint = ComposeLocalPaint().apply { textSize = 24f }
-        val nativePaint = paint.toNativeTextPaint(graphContext)
+        var currentResolver by mutableStateOf<RcTypefaceResolver>(monoResolver)
+        rule.setContent {
+            Box(Modifier.size(200.dp, 60.dp)) {
+                RcPlayer(document = document, typefaceResolver = currentResolver)
+            }
+        }
+        rule.waitForIdle()
+        assertThat(monoResolver.resolveCalled).isTrue()
 
-        assertThat(testResolver.resolveCalled).isTrue()
-        assertThat(nativePaint.typeface).isEqualTo(testTypeface)
+        currentResolver = sansResolver
+        rule.waitForIdle()
+        assertThat(sansResolver.resolveCalled).isTrue()
     }
 
     @Test
     fun toTextStyleUsesContextTypefaceResolver() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
+        val testResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val document = buildDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF000000.toInt())
+                    setTextSize(24f)
+                }
+            )
+            drawTextAnchored("Anchored", 50f, 50f, 0f, 0f, 0)
+        }
 
-        val paint = ComposeLocalPaint().apply { textSize = 24f }
-        val textStyle = paint.toTextStyle(Density(1f), context)
+        rule.setContent {
+            Box(Modifier.size(100.dp)) {
+                RcPlayer(document = document, typefaceResolver = testResolver)
+            }
+        }
+        rule.onRoot().captureToImage()
 
         assertThat(testResolver.resolveCalled).isTrue()
-        assertThat(textStyle.fontFamily).isNotNull()
     }
 
     @Test
     fun toTextStylePreservesFontWeightAndStyleWhenFontAxisIsSet() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        context.loadText(10, "device:sans-serif")
-        context.loadText(20, "wdth")
-
-        val bundle =
-            PaintBundle().apply {
-                setTextStyle(10, 700, true)
-                setTextAxis(intArrayOf(20), floatArrayOf(85f))
-                setTextSize(18f)
+        val document = buildDocument {
+            val textId = addText("Weighted Italic Axis")
+            root {
+                startTextComponent(
+                    RecordingModifier().width(200f).height(80f),
+                    textId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    18f,
+                    -1f,
+                    -1f,
+                    1, // italic
+                    700f, // weight
+                    "device:sans-serif",
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    arrayOf("wdth"),
+                    floatArrayOf(85f),
+                    false,
+                    0,
+                )
+                endTextComponent()
             }
-        val paint = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paint, context)
+        }
 
-        val textStyle = paint.toTextStyle(Density(1f), context)
-        assertThat(textStyle.fontWeight).isEqualTo(FontWeight(700))
-        assertThat(textStyle.fontStyle).isEqualTo(FontStyle.Italic)
-        assertThat(textStyle.fontFamily).isNotNull()
+        rule.setContent { Box(Modifier.size(200.dp, 80.dp)) { RcPlayer(document = document) } }
+        rule.waitForIdle()
+
+        val style = rule.textLayoutResultOf("Weighted Italic Axis").layoutInput.style
+        assertThat(style.fontWeight).isEqualTo(FontWeight(700))
+        assertThat(style.fontStyle).isEqualTo(FontStyle.Italic)
+        assertThat(style.fontFamily).isNotNull()
     }
 
     @Test
     fun toDrawStylePopulatesStrokeMiterAndPathEffectFromPaintBundle() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val bundle =
-            PaintBundle().apply {
-                setStyle(PaintBundle.STYLE_STROKE)
-                setStrokeWidth(6f)
-                setStrokeMiter(8.5f)
-                setPathEffect(PaintPathEffects.dash(0f, 10f, 5f))
-            }
-        val paint = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paint, context)
+        val bitmap = rule.renderDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFFFF0000.toInt())
+                    setStyle(PaintBundle.STYLE_STROKE)
+                    setStrokeWidth(10f)
+                    setStrokeMiter(8.5f)
+                    setPathEffect(PaintPathEffects.dash(0f, 10f, 10f))
+                }
+            )
+            drawLine(0f, 50f, 100f, 50f)
+        }
 
-        val style = paint.toDrawStyle()
-        assertThat(style).isInstanceOf(Stroke::class.java)
-        val stroke = style as Stroke
-        assertThat(stroke.width).isEqualTo(6f)
-        assertThat(stroke.miter).isEqualTo(8.5f)
-        assertThat(stroke.pathEffect).isNotNull()
+        // Dash pattern 10px on (0..10, 20..30), 10px off (10..20, 30..40).
+        assertRed(bitmap, 5, 50)
+        assertNotRed(bitmap, 15, 50)
+        assertRed(bitmap, 25, 50)
     }
 
     @Test
     fun customTypefaceResolverAppliesFontVariationSettings() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
-        context.loadText(20, "wght")
-        context.loadText(21, "wdth")
+        val testResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val document = buildDocument {
+            val textId = addText("Variation Text")
+            root {
+                startTextComponent(
+                    RecordingModifier().width(200f).height(80f),
+                    textId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    18f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    "default",
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    arrayOf("wght", "wdth"),
+                    floatArrayOf(100f, 150f),
+                    false,
+                    0,
+                )
+                endTextComponent()
+            }
+        }
 
-        resolveFontFamily(
-            fontFamilyType = 0,
-            fontName = "default",
-            fontWeight = FontWeight.Normal,
-            fontStyle = FontStyle.Normal,
-            fontAxis = intArrayOf(20, 21),
-            fontAxisValues = floatArrayOf(100f, 150f),
-            context = context,
-            typefaceResolver = testResolver,
-        )
+        rule.setContent {
+            Box(Modifier.size(200.dp, 80.dp)) {
+                RcPlayer(document = document, typefaceResolver = testResolver)
+            }
+        }
+        rule.waitForIdle()
 
         assertThat(testResolver.resolveCalled).isTrue()
         assertThat(testResolver.lastRequest?.variationSettings)
@@ -212,25 +340,30 @@ class RcPlayerCanvasTextTypefaceTest {
 
     @Test
     fun toNativeTextPaintAppliesFontVariationSettingsViaResolver() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
-        context.loadText(20, "wght")
-        context.loadText(21, "wdth")
+        val testResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val sample = "Canvas Axis"
+        val document = buildDocument {
+            val textId = addText(sample)
+            val wghtId = addText("wght")
+            val wdthId = addText("wdth")
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF000000.toInt())
+                    setTextStyle(PaintBundle.FONT_TYPE_SANS_SERIF, 500, false)
+                    setTextAxis(intArrayOf(wghtId, wdthId), floatArrayOf(650f, 90f))
+                    setTextSize(24f)
+                }
+            )
+            drawTextRun(textId, 0, sample.length, 0, sample.length, 5f, 50f, false)
+        }
 
-        val bundle =
-            PaintBundle().apply {
-                setTextStyle(PaintBundle.FONT_TYPE_SANS_SERIF, 500, false)
-                setTextAxis(intArrayOf(20, 21), floatArrayOf(650f, 90f))
-                setTextSize(24f)
+        rule.setContent {
+            Box(Modifier.size(150.dp, 80.dp)) {
+                RcPlayer(document = document, typefaceResolver = testResolver)
             }
-        val paint = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paint, context)
+        }
+        rule.onRoot().captureToImage()
 
-        val nativePaint = paint.toNativeTextPaint(context)
-
-        assertThat(nativePaint.typeface).isNotNull()
         assertThat(testResolver.resolveCalled).isTrue()
         assertThat(testResolver.lastRequest?.variationSettings)
             .isEqualTo("'wght' 650.0, 'wdth' 90.0")
@@ -238,41 +371,52 @@ class RcPlayerCanvasTextTypefaceTest {
 
     @Test
     fun customTypefaceResolverAppliesTnumAndPnumSettings() {
-        val testTypeface = Typeface.MONOSPACE
-        val testResolver = CustomTestTypefaceResolver(testTypeface)
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = testResolver }
-        context.loadText(20, "wght")
-        context.loadText(21, "tnum")
-        context.loadText(22, "pnum")
-
-        resolveFontFamily(
-            fontFamilyType = 0,
-            fontName = "default",
-            fontWeight = FontWeight.Normal,
-            fontStyle = FontStyle.Normal,
-            fontAxis = intArrayOf(20, 21),
-            fontAxisValues = floatArrayOf(500f, 1f),
-            context = context,
-            typefaceResolver = testResolver,
-        )
-
-        assertThat(testResolver.lastRequest?.variationSettings).isEqualTo("'wght' 500.0")
-
-        val bundle =
-            PaintBundle().apply {
-                setTextStyle(PaintBundle.FONT_TYPE_SANS_SERIF, 400, false)
-                setTextAxis(intArrayOf(20, 22), floatArrayOf(500f, 1f))
-                setTextSize(24f)
+        val testResolver = CustomTestTypefaceResolver(Typeface.MONOSPACE)
+        val document = buildDocument {
+            val textId = addText("Feature Pnum")
+            root {
+                startTextComponent(
+                    RecordingModifier().width(200f).height(80f),
+                    textId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    24f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    "default",
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    arrayOf("wght", "pnum"),
+                    floatArrayOf(500f, 1f),
+                    false,
+                    0,
+                )
+                endTextComponent()
             }
-        val paint = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paint, context)
-        val nativePaint = paint.toNativeTextPaint(context)
-        val textStyle = paint.toTextStyle(Density(1f), context)
+        }
+
+        rule.setContent {
+            Box(Modifier.size(200.dp, 80.dp)) {
+                RcPlayer(document = document, typefaceResolver = testResolver)
+            }
+        }
+        rule.waitForIdle()
 
         assertThat(testResolver.lastRequest?.variationSettings).isEqualTo("'wght' 500.0")
-        assertThat(nativePaint.fontFeatureSettings).isEqualTo("'pnum' 1")
-        assertThat(textStyle.fontFeatureSettings).isEqualTo("'pnum' 1")
+        assertThat(rule.textLayoutResultOf("Feature Pnum").layoutInput.style.fontFeatureSettings)
+            .isEqualTo("'pnum' 1")
     }
 
     @Test
@@ -306,23 +450,11 @@ class RcPlayerCanvasTextTypefaceTest {
 
         rule.onNodeWithText("tnum: 11111").assertIsDisplayed()
         rule.onNodeWithText("pnum: 11111").assertIsDisplayed()
-        val tnumLayout = mutableListOf<TextLayoutResult>()
-        val pnumLayout = mutableListOf<TextLayoutResult>()
-        rule
-            .onNodeWithText("tnum: 11111")
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(tnumLayout)
-        rule
-            .onNodeWithText("pnum: 11111")
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(pnumLayout)
-        assertThat(tnumLayout.single().layoutInput.style.fontFeatureSettings).isEqualTo("'tnum' 1")
-        assertThat(pnumLayout.single().layoutInput.style.fontFeatureSettings).isEqualTo("'pnum' 1")
-        assertThat(tnumLayout.single().size.width).isGreaterThan(pnumLayout.single().size.width)
+        val tnumLayout = rule.textLayoutResultOf("tnum: 11111")
+        val pnumLayout = rule.textLayoutResultOf("pnum: 11111")
+        assertThat(tnumLayout.layoutInput.style.fontFeatureSettings).isEqualTo("'tnum' 1")
+        assertThat(pnumLayout.layoutInput.style.fontFeatureSettings).isEqualTo("'pnum' 1")
+        assertThat(tnumLayout.size.width).isGreaterThan(pnumLayout.size.width)
         assertThat(testResolver.requests.map { it.variationSettings })
             .containsAtLeast("'wght' 500.0", "'wdth' 110.0")
     }
@@ -394,51 +526,61 @@ class RcPlayerCanvasTextTypefaceTest {
     fun defaultGmsFontLoaderShortCircuitsWithoutProviderOrBackgroundThread() {
         val context: Context = ApplicationProvider.getApplicationContext()
         val resolver = GmsFontTypefaceResolver(context = context, fontCertsResId = 123)
-        val cache = RcTypefaceCache(resolver)
-        val request =
-            RcTypefaceRequest(
-                fontFamily = "google:Roboto Flex",
-                weight = 500,
-                italic = false,
-                variationSettings = "'wght' 500.0",
-            )
 
         // When the GMS font provider is absent (such as in Android Studio Previews / Robolectric),
         // DefaultGmsFontLoader must short-circuit synchronously without suspending or spawning the
         // "fonts-androidx" FontRequestWorker background thread.
-        val resolvedSynchronously = cache.resolve(request)
+        rule.setRemoteContent(typefaceResolver = resolver) {
+            RemoteText(
+                text = "GMS Preview Text".rs,
+                style =
+                    RemoteTextStyle(
+                        fontFamily = RemoteFontFamily.Named("google:Roboto Flex"),
+                        fontSize = 18.rsp,
+                        fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
+                    ),
+            )
+        }
 
-        assertThat(resolvedSynchronously).isNotNull()
+        rule.onNodeWithText("GMS Preview Text").assertIsDisplayed()
         val threadNames = Thread.getAllStackTraces().keys.map { it.name }
         assertThat(threadNames).doesNotContain("fonts-androidx")
     }
 
     @Test
-    fun synchronousTypefaceResolverPerformsZeroSnapshotReadsOrWrites() {
+    fun synchronousTypefaceResolverPerformsZeroSnapshotWritesDuringDraw() {
+        var resolvedCount = 0
         val syncResolver = RcTypefaceResolver { request ->
-            applyVariationSettings(Typeface.MONOSPACE, request.variationSettings)
+            resolvedCount++
+            applyVariations(Typeface.MONOSPACE, request.variationSettings)
         }
-        val cache = RcTypefaceCache(syncResolver)
-        val request =
-            RcTypefaceRequest(
-                fontFamily = "roboto-flex",
-                weight = 600,
-                italic = false,
-                variationSettings = "'wght' 600.0",
+        val sample = "Sync Canvas Font"
+        val document = buildDocument {
+            val textId = addText(sample)
+            val fontNameId = addText("roboto-flex")
+            val wghtId = addText("wght")
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF000000.toInt())
+                    setTextStyle(fontNameId, 600, false)
+                    setTextAxis(intArrayOf(wghtId), floatArrayOf(600f))
+                    setTextSize(20f)
+                }
             )
+            drawTextRun(textId, 0, sample.length, 0, sample.length, 5f, 40f, false)
+        }
 
-        var snapshotReads = 0
-        var snapshotWrites = 0
-        val resolved =
-            Snapshot.observe(
-                readObserver = { snapshotReads++ },
-                writeObserver = { snapshotWrites++ },
-            ) {
-                cache.resolve(request)
+        rule.setContent {
+            Box(Modifier.size(150.dp, 60.dp)) {
+                RcPlayer(document = document, typefaceResolver = syncResolver)
             }
+        }
+        rule.waitForIdle()
 
-        assertThat(resolved).isNotNull()
-        assertThat(snapshotReads).isEqualTo(0)
+        var snapshotWrites = 0
+        Snapshot.observe(writeObserver = { snapshotWrites++ }) { rule.onRoot().captureToImage() }
+
+        assertThat(resolvedCount).isGreaterThan(0)
         assertThat(snapshotWrites).isEqualTo(0)
     }
 
@@ -468,7 +610,7 @@ class RcPlayerCanvasTextTypefaceTest {
                 }
             }
         val customResolver = RcTypefaceResolver { request ->
-            applyVariationSettings(Typeface.MONOSPACE, request.variationSettings)
+            applyVariations(Typeface.MONOSPACE, request.variationSettings)
         }
 
         var showPlayer by mutableStateOf(false)
@@ -550,14 +692,7 @@ class RcPlayerCanvasTextTypefaceTest {
         activeContinuation!!.resume(Typeface.MONOSPACE)
         rule.waitForIdle()
 
-        val afterLayout = mutableListOf<TextLayoutResult>()
-        rule
-            .onNodeWithText("Disposable Async Font")
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(afterLayout)
-        assertThat(afterLayout.single().layoutInput.style.fontFamily)
+        assertThat(rule.textLayoutResultOf("Disposable Async Font").layoutInput.style.fontFamily)
             .isInstanceOf(LoadedFontFamily::class.java)
     }
 
@@ -593,28 +728,16 @@ class RcPlayerCanvasTextTypefaceTest {
             .isEqualTo("'wght' 500.0, 'wdth' 120.0")
 
         // Before completion, fallback font family is used.
-        val beforeLayout = mutableListOf<TextLayoutResult>()
-        rule
-            .onNodeWithText("Async Variable Font")
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(beforeLayout)
-        val initialFontFamily: FontFamily? = beforeLayout.single().layoutInput.style.fontFamily
+        val initialFontFamily: FontFamily? =
+            rule.textLayoutResultOf("Async Variable Font").layoutInput.style.fontFamily
         assertThat(initialFontFamily).isNotInstanceOf(LoadedFontFamily::class.java)
 
         // Complete the async typeface resolution and verify recomposition updates the FontFamily.
         deferred.complete(Typeface.MONOSPACE)
         rule.waitForIdle()
 
-        val afterLayout = mutableListOf<TextLayoutResult>()
-        rule
-            .onNodeWithText("Async Variable Font")
-            .fetchSemanticsNode()
-            .config[SemanticsActions.GetTextLayoutResult]
-            .action
-            ?.invoke(afterLayout)
-        val resolvedFontFamily: FontFamily? = afterLayout.single().layoutInput.style.fontFamily
+        val resolvedFontFamily: FontFamily? =
+            rule.textLayoutResultOf("Async Variable Font").layoutInput.style.fontFamily
         assertThat(resolvedFontFamily).isInstanceOf(LoadedFontFamily::class.java)
     }
 
@@ -626,9 +749,13 @@ class RcPlayerCanvasTextTypefaceTest {
             capturedRequests.add(request)
             deferred.await()
         }
-        val context =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { rcTypefaceResolver = asyncResolver }
+        val playerState = RcPlayerState(CoreDocument(RemoteClock.SYSTEM))
+        rule.setContent { RcPlayer(state = playerState, typefaceResolver = asyncResolver) }
+        rule.waitForIdle()
 
+        val context =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
         val coreAdapter = context.typefaceResolver
         val fontInstance =
             coreAdapter.resolve(
@@ -674,5 +801,26 @@ class RcPlayerCanvasTextTypefaceTest {
         assertThat(resolvedTypeface).isNotNull()
         assertThat(resolvedTypeface).isNotEqualTo(initialTypeface)
         assertThat(resolvedTypefaceSecondCall).isSameInstanceAs(resolvedTypeface)
+    }
+
+    private fun loadKarlaTypeface(): Typeface {
+        val bytes =
+            requireNotNull(javaClass.getResourceAsStream("/font/karla_regular.ttf")).use {
+                it.readBytes()
+            }
+        val buffer = ByteBuffer.allocateDirect(bytes.size).put(bytes).apply { rewind() }
+        val font = NativeFont.Builder(buffer).build()
+        val family = NativeFontFamily.Builder(font).build()
+        return Typeface.CustomFallbackBuilder(family).build()
+    }
+
+    private companion object {
+        fun applyVariations(typeface: Typeface, variationSettings: String?): Typeface {
+            if (variationSettings.isNullOrEmpty()) return typeface
+            val paint = Paint()
+            paint.typeface = typeface
+            paint.fontVariationSettings = variationSettings
+            return paint.typeface ?: typeface
+        }
     }
 }

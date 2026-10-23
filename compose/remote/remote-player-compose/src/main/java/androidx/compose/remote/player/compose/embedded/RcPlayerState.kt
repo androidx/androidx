@@ -31,6 +31,8 @@ import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.listensToContinuousTime
+import androidx.compose.remote.player.compose.embedded.doc.listensToDiscreteTime
 import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.remote.player.compose.embedded.inspectable.RcComponentInspectable
 import androidx.compose.remote.player.compose.embedded.inspectable.RcFunctionDefineInspectable
@@ -87,6 +89,18 @@ public class RcPlayerState(
             document.clock,
             preprocessed,
         )
+
+    /**
+     * Whether the document reads a continuous time variable: found by preprocessing, or registered
+     * as a listener by core during setup (operations that bind the variable directly).
+     */
+    internal val hasContinuousTime: Boolean =
+        preprocessed.hasContinuousTime ||
+            remoteContext.mRemoteComposeState.listensToContinuousTime()
+
+    /** Whether the document reads a discrete wall-clock or calendar variable. */
+    internal val hasDiscreteTime: Boolean =
+        preprocessed.hasDiscreteTime || remoteContext.mRemoteComposeState.listensToDiscreteTime()
 
     internal val currentTimeMillisState: MutableFloatState = mutableFloatStateOf(0f)
     internal val graphContext: GraphContext =

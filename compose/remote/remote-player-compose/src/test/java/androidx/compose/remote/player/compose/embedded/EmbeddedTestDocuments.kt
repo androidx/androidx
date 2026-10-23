@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -44,6 +45,7 @@ import java.io.ByteArrayInputStream
  */
 internal fun buildDocument(
     profiles: Int = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     content: RemoteComposeContextAndroid.() -> Unit,
 ): CoreDocument {
     val docContext =
@@ -57,7 +59,7 @@ internal fun buildDocument(
         ) {
             content()
         }
-    return CoreDocument().apply {
+    return CoreDocument(clock).apply {
         ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
             initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
         }
