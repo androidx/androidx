@@ -166,7 +166,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      * This should be accessed via
      * {@link ViewCompat#setBackgroundTintList(View, ColorStateList)}
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -179,7 +178,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
@@ -191,7 +189,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      * {@link ViewCompat#setBackgroundTintMode(View, PorterDuff.Mode)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -204,7 +201,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
@@ -328,7 +324,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
@@ -350,7 +345,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tintList) {
         mTextHelper.setCompoundDrawableTintList(tintList);
         mTextHelper.applyCompoundDrawablesTints();
@@ -368,7 +362,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
@@ -387,7 +380,6 @@ public class AppCompatCheckedTextView extends CheckedTextView implements Tintabl
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
