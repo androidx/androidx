@@ -16,7 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.appcompat.widget.AppCompatTextHelper.FontVariationSettingsManager;
 import static androidx.appcompat.widget.ViewUtils.SDK_LEVEL_SUPPORTS_AUTOSIZE;
 
@@ -37,7 +36,6 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
@@ -130,7 +128,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * {@link androidx.core.view.ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -143,7 +140,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * {@link androidx.core.view.ViewCompat#getBackgroundTintList(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
@@ -155,7 +151,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * {@link androidx.core.view.ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -168,7 +163,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * {@link androidx.core.view.ViewCompat#getBackgroundTintMode(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
@@ -237,7 +231,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeWithDefaults(
             @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
@@ -252,7 +245,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeUniformWithConfiguration(
             int autoSizeMinTextSize,
@@ -272,7 +264,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeUniformWithPresetSizes(int @NonNull [] presetSizes, int unit)
             throws IllegalArgumentException {
@@ -287,7 +278,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     @TextViewCompat.AutoSizeTextType
     // Suppress lint error for TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM [WrongConstant]
@@ -307,7 +297,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeStepGranularity() {
         if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -322,7 +311,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeMinTextSize() {
         if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -337,7 +325,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeMaxTextSize() {
         if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -352,7 +339,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
 
     /**
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int[] getAutoSizeTextAvailableSizes() {
         if (SDK_LEVEL_SUPPORTS_AUTOSIZE) {
@@ -401,7 +387,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * @param tint the tint to apply, may be {@code null} to clear tint
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tint) {
         mTextHelper.setCompoundDrawableTintList(tint);
         mTextHelper.applyCompoundDrawablesTints();
@@ -411,7 +396,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * @return the tint applied to the compound drawables
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
@@ -420,7 +404,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * @param tintMode the blending mode used to apply the tint, may be {@code null} to clear tint
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
@@ -430,7 +413,6 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
      * @return the blending mode used to apply the tint to the compound drawables
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }

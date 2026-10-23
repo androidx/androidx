@@ -18,7 +18,6 @@
 package androidx.core.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -1990,7 +1989,6 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
      * <p>The scroll range of a scroll view is the overall height of all of its
      * children.</p>
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollRange() {
         final int count = getChildCount();
@@ -2013,31 +2011,26 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         return scrollRange;
     }
 
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollOffset() {
         return Math.max(0, super.computeVerticalScrollOffset());
     }
 
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeVerticalScrollExtent() {
         return super.computeVerticalScrollExtent();
     }
 
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollRange() {
         return super.computeHorizontalScrollRange();
     }
 
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollOffset() {
         return super.computeHorizontalScrollOffset();
     }
 
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int computeHorizontalScrollExtent() {
         return super.computeHorizontalScrollExtent();
