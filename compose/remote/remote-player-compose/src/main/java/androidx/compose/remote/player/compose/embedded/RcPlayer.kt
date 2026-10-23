@@ -360,7 +360,6 @@ public fun RcPlayer(
             LocalRcCustomPlugins provides customPlugins,
             LocalRcTypefaceResolver provides typefaceResolver,
         ) {
-            // Includes animated FloatExpressions collected from LayoutComponent canvas operations.
             val animatedExpressionIds =
                 remember(document) {
                     val ids = MutableIntList()
