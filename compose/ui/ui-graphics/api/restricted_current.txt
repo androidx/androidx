@@ -1776,17 +1776,14 @@ package androidx.compose.ui.graphics.drawscope {
     method @KotlinOnly public androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams copy(optional androidx.compose.ui.unit.Density density, optional androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.ui.graphics.Canvas canvas, optional androidx.compose.ui.geometry.Size size);
     method @BytecodeOnly public androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams copy-Ug5Nnss(androidx.compose.ui.unit.Density, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.graphics.Canvas, long);
     method @BytecodeOnly public static androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams! copy-Ug5Nnss$default(androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams!, androidx.compose.ui.unit.Density!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.ui.graphics.Canvas!, long, int, Object!);
-    method internal boolean equals(Object? other);
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Canvas getCanvas();
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method @BytecodeOnly public long getSize-NH-jbRc();
-    method internal int hashCode();
     method @InaccessibleFromKotlin public void setCanvas(androidx.compose.ui.graphics.Canvas);
     method @InaccessibleFromKotlin public void setDensity(androidx.compose.ui.unit.Density);
     method @InaccessibleFromKotlin public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection);
     method @BytecodeOnly public void setSize-uvyYCjk(long);
-    method internal String toString();
     property public androidx.compose.ui.graphics.Canvas canvas;
     property public androidx.compose.ui.unit.Density density;
     property public androidx.compose.ui.unit.LayoutDirection layoutDirection;
