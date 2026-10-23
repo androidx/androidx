@@ -50,6 +50,7 @@ import androidx.compose.remote.player.compose.embedded.components.RcPlayerClickA
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerHapticEffect
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerRawDocument
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerRootLayoutComponent
+import androidx.compose.remote.player.compose.embedded.components.publishComponentValues
 import androidx.compose.remote.player.compose.embedded.components.rootTouchExpressions
 import androidx.compose.remote.player.compose.embedded.doc.ClockScheduler
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
@@ -71,6 +72,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
@@ -297,6 +299,22 @@ public fun RcPlayer(
         }
 
     val rootCoordsHolder = remember(document) { RootLayoutCoordinatesHolder() }
+
+    // Identify ComponentValue operations, each with reactive state that graph reads resolve first.
+    // Created here so the root's own values (published from its onPlaced below) reach it too.
+    val componentValueMap = preprocessed.componentValueMap
+    val componentValueStateMap =
+        remember(componentValueMap) {
+            val states = mutableMapOf<Int, MutableState<Float>>()
+            componentValueMap.values.forEach { list ->
+                list.fastForEach { op ->
+                    if (!states.containsKey(op.valueId)) {
+                        states[op.valueId] = mutableFloatStateOf(0f)
+                    }
+                }
+            }
+            states
+        }
     Box(
         modifier =
             modifier
@@ -322,14 +340,36 @@ public fun RcPlayer(
                     // Only write when the size changed, not on every re-placement (e.g. inside a
                     // scrolling host), matching RcPlayerComponent.
                     val size = it.size
-                    if (size != rootCoordsHolder.publishedSize) {
+                    val previousSize = rootCoordsHolder.publishedSize
+                    if (size != previousSize) {
                         rootCoordsHolder.publishedSize = size
                         val root = document.rootLayoutComponent
                         if (root != null) {
-                            root.setWidth(size.width.toFloat())
-                            root.setHeight(size.height.toFloat())
-                            // Re-evaluate the root's ComponentValues (its WIDTH / HEIGHT).
+                            val w = size.width.toFloat()
+                            val h = size.height.toFloat()
+                            root.setWidth(w)
+                            root.setHeight(h)
+                            // Re-evaluate the root's ComponentValues (its WIDTH / HEIGHT) in the
+                            // store.
                             root.updateVariables(remoteContext)
+                            // Also publish them to their reactive state, which graph reads resolve
+                            // before the store. The root has no padding, so its content is its
+                            // whole size.
+                            val rootOps = componentValueMap[root.componentId]
+                            if (!rootOps.isNullOrEmpty()) {
+                                publishComponentValues(
+                                    ops = rootOps,
+                                    width = w,
+                                    height = h,
+                                    contentWidth = w,
+                                    contentHeight = h,
+                                    posInParent = Offset.Zero,
+                                    rootOffset = Offset.Zero,
+                                    store = remoteContext,
+                                    states = componentValueStateMap,
+                                    initial = previousSize == null,
+                                )
+                            }
                         } else if (document.contentSizing != RootContentBehavior.SIZING_SCALE) {
                             // Raw draw-list document: mirror CoreDocument.paint, so draws
                             // positioned by the document size resolve. A document that scales
@@ -355,20 +395,6 @@ public fun RcPlayer(
         // ColorConstant / IntegerConstant / FloatExpression defaults already live in the
         // snapshot-backed store (applied by applyOperations during setup); the single store is the
         // source of truth for variables now, so there is no separate draw-path map to populate.
-
-        // Identify ComponentValue operations
-        val componentValueMap = preprocessed.componentValueMap
-
-        val componentValueStateMap = remember { mutableMapOf<Int, MutableState<Float>>() }
-        remember(componentValueMap) {
-            componentValueMap.values.forEach { list ->
-                list.fastForEach { op ->
-                    if (!componentValueStateMap.containsKey(op.valueId)) {
-                        componentValueStateMap[op.valueId] = mutableFloatStateOf(0f)
-                    }
-                }
-            }
-        }
         graphContext.componentValues = componentValueStateMap
 
         val stateUpdater = remember(remoteContext) { StateUpdaterImpl(remoteContext) }

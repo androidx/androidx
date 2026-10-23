@@ -181,3 +181,25 @@ internal fun ComposeContentTestRule.framesWithStateChanges(
     }
     return changedFrames
 }
+
+/**
+ * Runs [block] and returns how many snapshot state objects its applied changes touched, summed over
+ * every apply, leaving out the objects in [ignored] (for example the host state the test itself
+ * writes).
+ */
+internal fun ComposeContentTestRule.appliedStateObjects(
+    ignored: Set<Any> = emptySet(),
+    block: () -> Unit,
+): Int {
+    var objects = 0
+    val handle = Snapshot.registerApplyObserver { set, _ ->
+        objects += set.count { it !in ignored }
+    }
+    try {
+        block()
+        waitForIdle()
+    } finally {
+        handle.dispose()
+    }
+    return objects
+}
