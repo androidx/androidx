@@ -190,4 +190,9 @@
     <string name="navigate_url_input_text">https://google.com</string>
     <string name="navigate_url_input_empty_message">Please enter a URL</string>
     <string name="navigate_load_button">Load URL in WebView</string>
+
+    <!-- Google Accounts Callback -->
+    <string name="google_accounts_callback_activity_title">Google Accounts Callback Demo</string>
+    <string name="google_accounts_callback_waiting">Press the sign-in button in the top-right corner…</string>
+    <string name="google_accounts_callback_event_text">Action type: %1$s\nContinue URL: %2$s\nOutermost main frame: %3$b\nNavigation request: %4$b</string>
 </resources>

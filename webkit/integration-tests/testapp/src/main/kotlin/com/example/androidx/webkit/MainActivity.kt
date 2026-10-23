@@ -135,6 +135,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.navigate_activity_title),
                         Intent(this, NavigateActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.google_accounts_callback_activity_title),
+                        Intent(this, GoogleAccountsCallbackActivity::class.java),
+                    ),
                 )
             )
     }

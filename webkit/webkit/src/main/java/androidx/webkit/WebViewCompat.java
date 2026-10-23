@@ -76,6 +76,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Compatibility version of {@link WebView}
@@ -135,6 +136,16 @@ public class WebViewCompat {
     @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
     public @interface ExperimentalNavigate {}
+
+    /**
+     * Denotes that the {@link WebViewCompat#setGoogleAccountsCallback} API surface is experimental.
+     * It may change or be removed without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface ExperimentalGoogleAccountsCallback {}
 
     /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
@@ -1977,6 +1988,110 @@ public class WebViewCompat {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_LISTENER;
         if (feature.isSupportedByWebView()) {
             getProvider(webView).removeNavigationListener(listener);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Registers a callback to observe Google account change events on the specified
+     * {@link WebView}.
+     *
+     * <p>If a callback is set, users will not be able to change their Google account in this
+     * {@link WebView}. When the user attempts to change their account (e.g. logging out or adding
+     * a new account), the callback will instead be invoked on the given {@code executor}.
+     *
+     * <p>When this callback is set, Google account user interfaces will not present the option for
+     * users to add accounts or switch to incognito mode.
+     *
+     * <p>If the logged-in user changes, call this method again with a new {@code accountId} to
+     * update the value.
+     *
+     * <p><b>Privacy</b>
+     * <p>When active, this API will attach an {@code X-Chrome-Connected} header on all requests to
+     * Google-owned domains. The header will include the value of {@code accountId} on requests to
+     * {@code drive.google.com} and {@code docs.google.com}, but not on requests to any other
+     * domains. On all other requests, the information will be non-identifying.
+     *
+     * @param webView   The {@link WebView} to attach to.
+     * @param accountId The logged-in user Google account ID. Set to {@code null} if no user is
+     *                  logged in.
+     * @param executor  The {@link Executor} to call the {@code callback} on.
+     * @param callback  The callback implementation.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalGoogleAccountsCallback
+    @UiThread
+    public static void setGoogleAccountsCallback(
+            @NonNull WebView webView,
+            @Nullable String accountId,
+            @NonNull Executor executor,
+            @NonNull Consumer<GoogleAccountsEvent> callback) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.GOOGLE_ACCOUNTS_CALLBACK;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).setGoogleAccountsCallback(accountId, executor, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Registers a callback to observe Google account change events on the specified
+     * {@link WebView}.
+     *
+     * <p>The callback will be executed on the main thread using {@link Looper#getMainLooper()}. To
+     * specify the execution thread, use
+     * {@link #setGoogleAccountsCallback(WebView, String, Executor, Consumer)}.
+     *
+     * @param webView   The {@link WebView} to attach to.
+     * @param accountId The logged-in user Google account ID. Set to {@code null} if no user is
+     *                  logged in.
+     * @param callback  The callback implementation.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @see #setGoogleAccountsCallback(WebView, String, Executor, Consumer)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalGoogleAccountsCallback
+    @UiThread
+    public static void setGoogleAccountsCallback(
+            @NonNull WebView webView,
+            @Nullable String accountId,
+            @NonNull Consumer<GoogleAccountsEvent> callback) {
+        setGoogleAccountsCallback(webView, accountId, new Handler(Looper.getMainLooper())::post,
+                callback);
+    }
+
+    /**
+     * Clears any Google accounts callback set via {@link #setGoogleAccountsCallback} on the
+     * specified {@link WebView}.
+     *
+     * @param webView The {@link WebView} to clear the callback from.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1} feature is not supported.
+     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     * @see #setGoogleAccountsCallback(WebView, String, Executor, Consumer)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(
+            name = WebViewFeature.GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalGoogleAccountsCallback
+    @UiThread
+    public static void clearGoogleAccountsCallback(@NonNull WebView webView) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.GOOGLE_ACCOUNTS_CALLBACK;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).clearGoogleAccountsCallback();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

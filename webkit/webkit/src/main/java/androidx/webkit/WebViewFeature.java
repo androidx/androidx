@@ -44,6 +44,7 @@ import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Utility class for checking which WebView Support Library features are supported on the device.
@@ -150,6 +151,7 @@ public class WebViewFeature {
             NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS,
             NAVIGATION_LISTENER_NAVIGATION_STATE,
             NAVIGATION_LISTENER_NAVIGATION_VISIBLE,
+            GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1063,6 +1065,22 @@ public class WebViewFeature {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_LISTENER_NAVIGATION_VISIBLE =
             "WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#setGoogleAccountsCallback(WebView, String, Executor, Consumer)},
+     * {@link WebViewCompat#setGoogleAccountsCallback(WebView, String, Consumer)},
+     * {@link WebViewCompat#clearGoogleAccountsCallback(WebView)},
+     * {@link GoogleAccountsEvent#getActionType()},
+     * {@link GoogleAccountsEvent#getContinueUrl()},
+     * {@link GoogleAccountsEvent#isOutermostMainFrame()}, and
+     * {@link GoogleAccountsEvent#isNavigationRequest()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebViewCompat.ExperimentalGoogleAccountsCallback
+    public static final String GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1 =
+            "GOOGLE_ACCOUNTS_CALLBACK_EXPERIMENTAL_V1";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
