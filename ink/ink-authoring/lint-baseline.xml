@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha09)" variant="all" version="9.5.0-alpha09">
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        get() = ensureInit().inProgressStrokesManager.countDownWhenFlushInProgressTestLatch"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="            ensureInit().inProgressStrokesManager.countDownWhenFlushInProgressTestLatch = value"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        get() = ensureInit().inProgressStrokesManager.awaitAfterStartOfHandoffTestLatch"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="            ensureInit().inProgressStrokesManager.awaitAfterStartOfHandoffTestLatch = value"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit().inProgressStrokesManager.canSynchronouslyWaitForFlush()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
 
     <issue
         id="ThreadConstraint"
@@ -8,6 +53,141 @@
         errorLine2="               ^">
         <location
             file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        @Suppress(&quot;UNUSED_VARIABLE&quot;) val unused = ensureInit()"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit()"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit()"
+        errorLine2="        ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit()"
+        errorLine2="        ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit().inProgressStrokesManager.startStroke(input, shapeSpec, shapeToViewTransform)"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        ensureInit().inProgressStrokesManager.startStroke(input, shapeSpec, shapeToViewTransform)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressShapesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        inProgressShapesView.eagerInit()"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        inProgressShapesView.startShape("
+        errorLine2="        ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        inProgressShapesView.startShape("
+        errorLine2="        ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        inProgressShapesView.startShape("
+        errorLine2="                             ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="    ): InProgressStrokeId = inProgressShapesView.startShape(input, brush, strokeToViewTransform)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="    ): InProgressStrokeId = inProgressShapesView.startShape(input, brush, strokeToViewTransform)"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="        inProgressShapesView.canSynchronouslyWaitForFlush()"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/InProgressStrokesView.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="                inProgressShapesView.startShape("
+        errorLine2="                                     ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/StrokeGestureCallback.kt"/>
+    </issue>
+
+    <issue
+        id="ThreadConstraint"
+        message="Argument at `shapeWorkflow` must allow calling `getInProgressShapeRenderer()` from `@{Main,Ui}Thread`, but that call is requiring `@WorkerThread`."
+        errorLine1="                inProgressStrokesView.startStroke("
+        errorLine2="                                      ^">
+        <location
+            file="src/androidMain/kotlin/androidx/ink/authoring/StrokeGestureCallback.kt"/>
     </issue>
 
 </issues>

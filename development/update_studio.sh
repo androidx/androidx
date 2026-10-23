@@ -28,10 +28,10 @@ checkGcloudPermissions || exit 1
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-9.5.0-alpha09}
-STUDIO_VERSION_STRING=${2:-"Android Studio Rabbit 2 | 2026.2.2 Canary 4"}
+AGP_VERSION=${1:-9.6.0-alpha01}
+STUDIO_VERSION_STRING=${2:-"Android Studio Rabbit 3 | 2026.2.3 Canary 1"}
 # Instructions for how to update the build id can be found here: go/androidx/playbook#update-aswb
-NEW_ASWB_BUILD_ID=${5:-"16548196"}
+NEW_ASWB_BUILD_ID=${5:-"16689957"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
