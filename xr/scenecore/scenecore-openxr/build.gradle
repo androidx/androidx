@@ -89,8 +89,16 @@ android {
 
 androidComponents {
     def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
-    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-openxr/android").absolutePath
-    def testSceneCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/scenecore-openxr/androidTest").absolutePath
+    def activeBranchFile = new File(prebuiltsRoot, "androidx/xr/native/ACTIVE_BRANCH")
+    def defaultBranch = activeBranchFile.exists()
+        ? activeBranchFile.text.trim().replace("XR_NATIVE_BRANCH=", "")
+        : "main"
+    def requestedBranch = providers.gradleProperty("xrNativeBranch")
+        .orElse(providers.environmentVariable("XR_NATIVE_BRANCH"))
+        .getOrElse(defaultBranch)
+    def nativeBranch = requestedBranch.trim() == "release" ? "release" : "main"
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/scenecore-openxr/android").absolutePath
+    def testSceneCoreNativePath = new File(prebuiltsRoot, "androidx/xr/native/${nativeBranch}/scenecore-openxr/androidTest").absolutePath
 
     onVariants(selector().all()) { variant ->
         variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
