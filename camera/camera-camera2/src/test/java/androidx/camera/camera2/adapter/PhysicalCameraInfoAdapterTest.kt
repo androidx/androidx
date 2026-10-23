@@ -18,10 +18,9 @@ package androidx.camera.camera2.adapter
 
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.common.CameraId
+import androidx.camera.core.CameraIdentifier.CompositeCameraId
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -42,8 +41,7 @@ class PhysicalCameraInfoAdapterTest {
     private val defaultIntrinsicZoomCalculator =
         IntrinsicZoomCalculator.NO_OP_INTRINSIC_ZOOM_CALCULATOR
 
-    private val defaultCameraProperties =
-        FakeCameraProperties(FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate))
+    private val defaultCameraProperties = FakeCameraProperties()
 
     @Test
     fun intrinsicZoomRatioIsEqualToCalculatorResult_whenCalculatorReturnsValidRatio() {
@@ -96,8 +94,7 @@ class PhysicalCameraInfoAdapterTest {
         val physicalCameraId = "2"
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                cameraId = CameraId(physicalCameraId),
+                defaultCameraProperties.metadata.awaitPhysicalMetadata(CameraId(physicalCameraId))
             )
         val adapter =
             PhysicalCameraInfoAdapter(
@@ -171,8 +168,7 @@ class PhysicalCameraInfoAdapterTest {
         val physicalCameraId = "2"
         val cameraProperties =
             FakeCameraProperties(
-                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                cameraId = CameraId(physicalCameraId),
+                defaultCameraProperties.metadata.awaitPhysicalMetadata(CameraId(physicalCameraId))
             )
         val adapter =
             PhysicalCameraInfoAdapter(
@@ -186,9 +182,6 @@ class PhysicalCameraInfoAdapterTest {
 
         // Assert
         assertThat(identifier).isNotNull()
-        assertThat(identifier!!.cameraIds)
-            .containsExactly(
-                androidx.camera.core.CameraIdentifier.CompositeCameraId("0", physicalCameraId)
-            )
+        assertThat(identifier!!.cameraIds).containsExactly(CompositeCameraId("0", physicalCameraId))
     }
 }

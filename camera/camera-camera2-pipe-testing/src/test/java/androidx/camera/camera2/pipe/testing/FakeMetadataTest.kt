@@ -169,6 +169,31 @@ class CameraMetadataTest {
     }
 
     @Test
+    fun verifyHighEndDeviceTemplate_providesPhysicalCameraMetadata() {
+        val backMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+                lensFacing = CameraCharacteristics.LENS_FACING_BACK,
+            )
+        val frontMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("1"),
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(backMetadata.physicalCameraIds).isNotEmpty()
+        assertThat(frontMetadata.physicalCameraIds).isNotEmpty()
+        assertThat(backMetadata.physicalCameraIds).containsNoneIn(frontMetadata.physicalCameraIds)
+        assertThat(backMetadata.physicalRequestKeys).isNotEmpty()
+        assertThat(frontMetadata.physicalRequestKeys).isNotEmpty()
+
+        assertPhysicalCamerasHaveMetadata(backMetadata, CameraCharacteristics.LENS_FACING_BACK)
+        assertPhysicalCamerasHaveMetadata(frontMetadata, CameraCharacteristics.LENS_FACING_FRONT)
+    }
+
+    @Test
     fun verifyHighEndDeviceTemplate_resolvesLensFacingAndNullCharacteristicsOverrides() {
         val metadata =
             FakeCameraMetadata.fromTemplate(
@@ -186,9 +211,24 @@ class CameraMetadataTest {
             .isEqualTo(CameraCharacteristics.LENS_FACING_FRONT)
         assertThat(metadata[CameraCharacteristics.SENSOR_ORIENTATION]).isEqualTo(270)
         assertThat(metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]).isFalse()
+        assertThat(metadata.physicalCameraIds).isNotEmpty()
         assertThat(metadata[CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE]).isNull()
         assertThat(metadata.keys)
             .doesNotContain(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
+    }
+
+    @Test
+    fun verifyHighEndDeviceTemplate_omitsDefaultPhysicalMetadataWithoutLogicalMultiCameraCapability() {
+        val metadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+                characteristicsOverrides =
+                    mapOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to null),
+            )
+
+        assertThat(metadata.physicalCameraIds).isEmpty()
+        assertThat(metadata.physicalRequestKeys).isEmpty()
     }
 
     @Test
@@ -283,6 +323,35 @@ class CameraMetadataTest {
         assertThat(metadata.unwrapAs(CameraCharacteristicsWrapper::class.java))
             .isSameInstanceAs(metadata)
         assertThat(metadata.unwrapAs(CameraCharacteristics::class.java)).isNull()
+    }
+
+    private fun assertPhysicalCamerasHaveMetadata(
+        metadata: CameraMetadata,
+        expectedLensFacing: Int,
+    ) {
+        for (physicalId in metadata.physicalCameraIds) {
+            val physicalCamera = metadata.awaitPhysicalMetadata(physicalId)
+            assertThat(physicalCamera[CameraCharacteristics.LENS_FACING])
+                .isEqualTo(expectedLensFacing)
+            assertThat(physicalCamera[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE]).isNotNull()
+            assertThat(physicalCamera[CameraCharacteristics.LENS_INTRINSIC_CALIBRATION]).isNotNull()
+            if (Build.VERSION.SDK_INT >= 30) {
+                assertThat(physicalCamera[CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE])
+                    .isNotNull()
+            }
+            val streamMap = physicalCamera[CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP]
+            assertThat(streamMap).isNotNull()
+            val outputFormats = streamMap!!.getOutputFormats()
+            assertThat(outputFormats).isNotEmpty()
+            for (format in outputFormats) {
+                val sizes = streamMap.getOutputSizes(format)
+                assertThat(sizes).isNotEmpty()
+                for (size in sizes) {
+                    assertThat(streamMap.getOutputMinFrameDuration(format, size)).isAtLeast(0L)
+                    assertThat(streamMap.getOutputStallDuration(format, size)).isAtLeast(0L)
+                }
+            }
+        }
     }
 }
 
