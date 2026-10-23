@@ -111,6 +111,7 @@ private val TEST_METADATA =
                 type = Device.Companion.TYPE_PHONE,
                 manufacturer = "manufacturer",
                 displayName = "displayName",
+                udi = "udi",
             ),
     )
 

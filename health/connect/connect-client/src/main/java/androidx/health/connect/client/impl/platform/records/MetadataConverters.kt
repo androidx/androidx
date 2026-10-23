@@ -24,6 +24,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.isAtLeastSdkExtension22
+import androidx.health.connect.client.records.isAtLeastSdkExtension23
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
@@ -51,6 +52,7 @@ internal fun PlatformDevice.toSdkDevice(): Device? {
         model = model,
         type = type.toSdkDevice(),
         displayName = if (isAtLeastSdkExtension22()) displayName else null,
+        udi = if (isAtLeastSdkExtension23()) udi else null,
     )
 }
 
@@ -85,6 +87,9 @@ internal fun Device.toPlatformDevice(): PlatformDevice {
             .setType(type.toPlatformDevice())
     if (isAtLeastSdkExtension22()) {
         @Suppress("CheckReturnValue") platformDeviceBuilder.setDisplayName(displayName)
+    }
+    if (isAtLeastSdkExtension23()) {
+        @Suppress("CheckReturnValue") platformDeviceBuilder.setUdi(udi)
     }
 
     return try {
