@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.layout
 
 import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
@@ -49,8 +48,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 
 /** Converts a Compose [BlendMode] to an Android framework [android.graphics.BlendMode]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode {
+internal fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode {
     return when (this) {
         BlendMode.Clear -> AndroidBlendMode.CLEAR
         BlendMode.Src -> AndroidBlendMode.SRC
@@ -86,38 +84,8 @@ public fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode {
 }
 
 /** Converts a [RemoteBlendMode] to an Android framework [AndroidBlendMode]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteBlendMode.toAndroidBlendMode(): AndroidBlendMode =
+internal fun RemoteBlendMode.toAndroidBlendMode(): AndroidBlendMode =
     toComposeBlendMode().toAndroidBlendMode()
-
-/** Converts a Compose [StrokeCap] to an Android framework [AndroidPaint.Cap]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun StrokeCap.toAndroidCap(): AndroidPaint.Cap =
-    when (this) {
-        StrokeCap.Butt -> AndroidPaint.Cap.BUTT
-        StrokeCap.Round -> AndroidPaint.Cap.ROUND
-        StrokeCap.Square -> AndroidPaint.Cap.SQUARE
-        else -> AndroidPaint.Cap.BUTT
-    }
-
-/** Converts a Compose [StrokeJoin] to an Android framework [AndroidPaint.Join]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun StrokeJoin.toAndroidJoin(): AndroidPaint.Join =
-    when (this) {
-        StrokeJoin.Miter -> AndroidPaint.Join.MITER
-        StrokeJoin.Round -> AndroidPaint.Join.ROUND
-        StrokeJoin.Bevel -> AndroidPaint.Join.BEVEL
-        else -> AndroidPaint.Join.MITER
-    }
-
-/** Converts a Compose [PaintingStyle] to an Android framework [AndroidPaint.Style]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun PaintingStyle.toAndroidStyle(): AndroidPaint.Style =
-    when (this) {
-        PaintingStyle.Fill -> AndroidPaint.Style.FILL
-        PaintingStyle.Stroke -> AndroidPaint.Style.STROKE
-        else -> AndroidPaint.Style.FILL
-    }
 
 internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
     return when (this) {
@@ -154,8 +122,7 @@ internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
 }
 
 /** Converts an Android framework [AndroidPaint.Style] to a Compose [PaintingStyle]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun AndroidPaint.Style?.toPaintingStyle(): PaintingStyle =
+internal fun AndroidPaint.Style?.toPaintingStyle(): PaintingStyle =
     when (this) {
         AndroidPaint.Style.FILL -> PaintingStyle.Fill
         AndroidPaint.Style.STROKE -> PaintingStyle.Stroke
@@ -163,8 +130,7 @@ public fun AndroidPaint.Style?.toPaintingStyle(): PaintingStyle =
     }
 
 /** Converts an Android framework [AndroidPaint.Cap] to a Compose [StrokeCap]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun AndroidPaint.Cap?.toStrokeCap(): StrokeCap =
+internal fun AndroidPaint.Cap?.toStrokeCap(): StrokeCap =
     when (this) {
         AndroidPaint.Cap.BUTT -> StrokeCap.Butt
         AndroidPaint.Cap.ROUND -> StrokeCap.Round
@@ -173,8 +139,7 @@ public fun AndroidPaint.Cap?.toStrokeCap(): StrokeCap =
     }
 
 /** Converts an Android framework [AndroidPaint.Join] to a Compose [StrokeJoin]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
+internal fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
     when (this) {
         AndroidPaint.Join.MITER -> StrokeJoin.Miter
         AndroidPaint.Join.ROUND -> StrokeJoin.Round

@@ -28,12 +28,13 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.creation.compose.layout.toAndroidBlendMode
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -43,9 +44,7 @@ import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -53,40 +52,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-private val BlendMode.Companion.entries: List<BlendMode>
-    get() =
-        listOf(
-            BlendMode.Clear,
-            BlendMode.Src,
-            BlendMode.Dst,
-            BlendMode.SrcOver,
-            BlendMode.DstOver,
-            BlendMode.SrcIn,
-            BlendMode.DstIn,
-            BlendMode.SrcOut,
-            BlendMode.DstOut,
-            BlendMode.SrcAtop,
-            BlendMode.DstAtop,
-            BlendMode.Xor,
-            BlendMode.Plus,
-            BlendMode.Modulate,
-            BlendMode.Screen,
-            BlendMode.Overlay,
-            BlendMode.Darken,
-            BlendMode.Lighten,
-            BlendMode.ColorDodge,
-            BlendMode.ColorBurn,
-            BlendMode.Hardlight,
-            BlendMode.Softlight,
-            BlendMode.Difference,
-            BlendMode.Exclusion,
-            BlendMode.Multiply,
-            BlendMode.Hue,
-            BlendMode.Saturation,
-            BlendMode.Color,
-            BlendMode.Luminosity,
-        )
 
 /**
  * A test for BlendMode in RemoteCanvas, see
@@ -121,16 +86,12 @@ class BlendModeTest {
     @RemoteComposable
     @Composable
     private fun AllBlendModes() {
-        val blendModes = BlendMode.entries
-        val chunkedBlendModes = blendModes.toList().chunked(4)
+        val chunkedBlendModes = testCases.chunked(4)
         RemoteColumn {
             for (rowItems in chunkedBlendModes) {
                 RemoteRow {
-                    for (blendMode in rowItems) {
-                        RemoteBlendModeVisual(
-                            blendMode = blendMode,
-                            name = blendMode.toAndroidBlendMode().name,
-                        )
+                    for (testCase in rowItems) {
+                        RemoteBlendModeVisual(testCase)
                     }
                 }
             }
@@ -139,7 +100,7 @@ class BlendModeTest {
 
     @RemoteComposable
     @Composable
-    private fun RemoteBlendModeVisual(blendMode: BlendMode, name: String) {
+    private fun RemoteBlendModeVisual(testCase: BlendModeTestCase) {
         RemoteBox(
             RemoteModifier.size(100.rdp).border(1.rdp, Color.Black.rc).padding(8.rdp),
             contentAlignment = RemoteAlignment.TopStart,
@@ -149,7 +110,7 @@ class BlendModeTest {
                 val h = height
 
                 val paint = RemotePaint {
-                    style = PaintingStyle.Fill
+                    remoteStyle = RemotePaintingStyle.Fill
                     color = Color.Magenta.rc
                 }
 
@@ -162,14 +123,51 @@ class BlendModeTest {
 
                 // Draw src
                 paint.color = Color.Blue.rc
-                paint.blendMode = blendMode
+                paint.remoteBlendMode = testCase.blendMode
                 drawRect(
                     paint = paint,
                     topLeft = RemoteOffset(0f.rf, h * 1f / 3f),
                     size = RemoteSize(w * 2f / 3f, h * 2f / 3f),
                 )
             }
-            RemoteText(name.rs, fontSize = 12.rsp)
+            RemoteText(testCase.label.rs, fontSize = 12.rsp)
         }
+    }
+
+    private data class BlendModeTestCase(val blendMode: RemoteBlendMode, val label: String)
+
+    companion object {
+        private val testCases =
+            listOf(
+                BlendModeTestCase(blendMode = RemoteBlendMode.Clear, label = "CLEAR"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Src, label = "SRC"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Dst, label = "DST"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.SrcOver, label = "SRC_OVER"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.DstOver, label = "DST_OVER"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.SrcIn, label = "SRC_IN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.DstIn, label = "DST_IN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.SrcOut, label = "SRC_OUT"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.DstOut, label = "DST_OUT"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.SrcAtop, label = "SRC_ATOP"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.DstAtop, label = "DST_ATOP"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Xor, label = "XOR"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Plus, label = "PLUS"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Modulate, label = "MODULATE"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Screen, label = "SCREEN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Overlay, label = "OVERLAY"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Darken, label = "DARKEN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Lighten, label = "LIGHTEN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.ColorDodge, label = "COLOR_DODGE"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.ColorBurn, label = "COLOR_BURN"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Hardlight, label = "HARD_LIGHT"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Softlight, label = "SOFT_LIGHT"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Difference, label = "DIFFERENCE"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Exclusion, label = "EXCLUSION"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Multiply, label = "MULTIPLY"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Hue, label = "HUE"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Saturation, label = "SATURATION"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Color, label = "COLOR"),
+                BlendModeTestCase(blendMode = RemoteBlendMode.Luminosity, label = "LUMINOSITY"),
+            )
     }
 }

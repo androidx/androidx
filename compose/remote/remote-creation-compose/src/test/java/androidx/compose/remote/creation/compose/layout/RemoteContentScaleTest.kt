@@ -64,12 +64,9 @@ class RemoteContentScaleTest {
     }
 
     @Test
-    fun remoteColorPainter_instantiationAndBridges() {
+    fun remoteColorPainter_instantiation() {
         val painter = painterRemoteColor(RemoteColor(Color.Red))
         assertThat(painter).isInstanceOf(RemoteColorPainter::class.java)
         assertThat(painter.intrinsicSize).isNull()
-
-        val bridgePainter = painterRemoteColor(Color.Blue)
-        assertThat(bridgePainter).isInstanceOf(RemoteColorPainter::class.java)
     }
 }
