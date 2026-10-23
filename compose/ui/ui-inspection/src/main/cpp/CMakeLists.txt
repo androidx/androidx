@@ -20,6 +20,7 @@ project(compose_ui_inspection)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
+# The output library name is libcompose_inspection_jni.so (referenced in InspectorJarLoader.kt)
 add_library(
         compose_inspection_jni SHARED
         lambda_location_java_jni.cpp)
