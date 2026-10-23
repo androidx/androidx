@@ -17,7 +17,6 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
@@ -31,8 +30,7 @@ import androidx.compose.ui.unit.TextUnit
  * @param creationDisplayInfo The display information containing the screen density and font scale.
  * @return A [RemoteDensity] instance with the density and font scale from the display info.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteDensity.Companion.from(
+internal fun RemoteDensity.Companion.from(
     creationDisplayInfo: RemoteCreationDisplayInfo
 ): RemoteDensity {
     return RemoteDensity(

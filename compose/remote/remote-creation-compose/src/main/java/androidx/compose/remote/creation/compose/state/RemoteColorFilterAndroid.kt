@@ -27,9 +27,8 @@ import androidx.compose.ui.graphics.toArgb
 /**
  * A remote-compatible color filter that wraps a Compose [androidx.compose.ui.graphics.ColorFilter].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ComposeRemoteColorFilter(
-    public val composeColorFilter: androidx.compose.ui.graphics.ColorFilter
+internal class ComposeRemoteColorFilter(
+    val composeColorFilter: androidx.compose.ui.graphics.ColorFilter
 ) : RemoteColorFilter {
     override fun applyToPaintBundle(
         paintBundle: PaintBundle,
