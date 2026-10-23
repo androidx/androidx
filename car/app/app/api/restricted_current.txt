@@ -1469,24 +1469,24 @@ package androidx.car.app.model {
     method public double getLongitude();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBar {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBar {
     method public float getProgress();
     method public androidx.car.app.model.CarProgressBarStyle? getStyle();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBar.Builder {
+  public static final class CarProgressBar.Builder {
     ctor public CarProgressBar.Builder(@FloatRange(from=0.0f, to=1.0f) float);
     method public androidx.car.app.model.CarProgressBar build();
     method public androidx.car.app.model.CarProgressBar.Builder setStyle(androidx.car.app.model.CarProgressBarStyle);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBarStyle {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBarStyle {
     method public androidx.car.app.model.CarColor? getColor();
     method public int getStrokeCap();
     method public androidx.car.app.model.CarColor? getTrackColor();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBarStyle.Builder {
+  public static final class CarProgressBarStyle.Builder {
     ctor public CarProgressBarStyle.Builder();
     ctor public CarProgressBarStyle.Builder(androidx.car.app.model.CarProgressBarStyle);
     method public androidx.car.app.model.CarProgressBarStyle build();
@@ -1670,7 +1670,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarProgressBar? getProgressBar();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarProgressBar? getProgressBar();
     method public androidx.car.app.model.CarText? getText();
     method public androidx.car.app.model.CarText? getTitle();
     method @androidx.car.app.annotations.RequiresCarApi(8) public boolean isIndexable();
@@ -1689,7 +1689,7 @@ package androidx.car.app.model {
     method @androidx.car.app.annotations.RequiresCarApi(8) public androidx.car.app.model.GridItem.Builder setIndexable(boolean);
     method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.GridItem.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.GridItem.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
     method public androidx.car.app.model.GridItem.Builder setText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.GridItem.Builder setText(CharSequence);
     method public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText?);
@@ -2024,7 +2024,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Metadata? getMetadata();
     method @androidx.car.app.annotations.RequiresCarApi(6) public int getNumericDecoration();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarProgressBar? getProgressBar();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarProgressBar? getProgressBar();
     method @androidx.car.app.annotations.RequiresCarApi(8) public int getRowEndImageType();
     method public int getRowImageType();
     method public java.util.List<androidx.car.app.model.CarText!> getTexts();
@@ -2059,7 +2059,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row.Builder setMetadata(androidx.car.app.model.Metadata);
     method @IntRange(from=0) @androidx.car.app.annotations.RequiresCarApi(6) public androidx.car.app.model.Row.Builder setNumericDecoration(int);
     method public androidx.car.app.model.Row.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Row.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Row.Builder setProgressBar(androidx.car.app.model.CarProgressBar);
     method public androidx.car.app.model.Row.Builder setTitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row.Builder setTitle(CharSequence);
     method public androidx.car.app.model.Row.Builder setToggle(androidx.car.app.model.Toggle);
@@ -2251,7 +2251,7 @@ package androidx.car.app.model {
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setIncompleteLastColumnStrategy(int);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class StrokeCap {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class StrokeCap {
     field public static final int DEFAULT = 0; // 0x0
     field public static final int ROUND = 1; // 0x1
     field public static final int SQUARE = 2; // 0x2

@@ -16,11 +16,9 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates
 
-import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.CarToast
 import androidx.car.app.Screen
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.RequiresCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
@@ -40,7 +38,6 @@ import androidx.core.graphics.drawable.IconCompat
 
 /** A screen demonstrating sectioned item lists with progress bars and different configurations. */
 @RequiresCarApi(9)
-@OptIn(ExperimentalCarApi::class)
 class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
 
     private val actionClickable: Action =
