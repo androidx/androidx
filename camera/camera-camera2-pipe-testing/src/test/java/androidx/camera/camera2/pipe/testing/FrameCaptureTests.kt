@@ -50,16 +50,9 @@ class FrameCaptureTests {
     private val testScope = TestScope()
     private val testContext = ApplicationProvider.getApplicationContext() as Context
     private val cameraId = FakeCameraIds.next()
-    private val physicalCameraIds = List(3) { FakeCameraIds.next() }
-    private val physicalCameraMetadata = physicalCameraIds.associateWith {
-        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = it)
-    }
     private val cameraMetadata =
-        FakeCameraMetadata.fromTemplate(
-            template = HighEndDeviceTemplate,
-            cameraId = cameraId,
-            physicalMetadata = physicalCameraMetadata,
-        )
+        FakeCameraMetadata.fromTemplate(template = HighEndDeviceTemplate, cameraId = cameraId)
+    private val physicalCameraIds = cameraMetadata.physicalCameraIds.toList()
     private val cameraPipeSimulator =
         CameraPipeSimulator.create(testScope, testContext, listOf(cameraMetadata))
 
