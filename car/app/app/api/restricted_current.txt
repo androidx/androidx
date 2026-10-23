@@ -1750,11 +1750,11 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Background? getBackground();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Background? getBackground();
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public androidx.car.app.model.Action? getStartHeaderAction();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIcon? getStartHeaderImage();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarText? getSubtitle();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarIcon? getStartHeaderImage();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -1762,11 +1762,11 @@ package androidx.car.app.model {
     ctor public Header.Builder();
     method public androidx.car.app.model.Header.Builder addEndHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Header build();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setBackground(androidx.car.app.model.Background);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setBackground(androidx.car.app.model.Background);
     method public androidx.car.app.model.Header.Builder setStartHeaderAction(androidx.car.app.model.Action);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setStartHeaderImage(androidx.car.app.model.CarIcon);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(androidx.car.app.model.CarText);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(CharSequence);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setStartHeaderImage(androidx.car.app.model.CarIcon);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(androidx.car.app.model.CarText);
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Header.Builder setSubtitle(CharSequence);
     method public androidx.car.app.model.Header.Builder setTitle(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Header.Builder setTitle(CharSequence);
   }
@@ -2087,7 +2087,7 @@ package androidx.car.app.model {
     method public void sendSearchTextChanged(String, androidx.car.app.OnDoneCallback);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SearchHeader {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class SearchHeader {
     method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
     method public String? getInitialSearchText();
     method public androidx.car.app.model.SearchCallbackDelegate getSearchCallbackDelegate();
@@ -2096,7 +2096,7 @@ package androidx.car.app.model {
     method public boolean isShowKeyboardByDefault();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SearchHeader.Builder {
+  public static final class SearchHeader.Builder {
     ctor public SearchHeader.Builder(androidx.car.app.model.SearchCallback);
     method public androidx.car.app.model.SearchHeader build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setEndHeaderActions(java.util.List<androidx.car.app.model.Action!>);
@@ -2137,7 +2137,7 @@ package androidx.car.app.model {
     ctor protected Section(androidx.car.app.model.Section.BaseBuilder<T,? extends java.lang.Object!>);
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.OnItemVisibilityChangedDelegate? getOnItemVisibilityChangedDelegate();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SectionHeader? getSectionHeader();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SectionHeader? getSectionHeader();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
@@ -2149,12 +2149,12 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setNoItemsMessage(CharSequence?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setOnItemVisibilityChangedListener(androidx.car.app.model.ItemList.OnItemVisibilityChangedListener?);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public B setSectionHeader(androidx.car.app.model.SectionHeader?);
+    method @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public B setSectionHeader(androidx.car.app.model.SectionHeader?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(androidx.car.app.model.CarText?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setTitle(CharSequence?);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SectionHeader {
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(9) public final class SectionHeader {
     method public androidx.car.app.model.CarIcon? getEndIcon();
     method public androidx.car.app.model.CarText? getHeadline();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -2166,7 +2166,7 @@ package androidx.car.app.model {
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SectionHeader.Builder {
+  public static final class SectionHeader.Builder {
     ctor public SectionHeader.Builder(androidx.car.app.model.CarText);
     ctor public SectionHeader.Builder(CharSequence);
     method public androidx.car.app.model.SectionHeader build();
@@ -2191,7 +2191,7 @@ package androidx.car.app.model {
     method public int getAlphabeticalIndexingStrategy();
     method public androidx.car.app.model.Header? getHeader();
     method public int getScrollStatePersistenceStrategy();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SearchHeader? getSearchHeader();
+    method @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SearchHeader? getSearchHeader();
     method public java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!> getSections();
     method @Deprecated public boolean isAlphabeticalIndexingAllowed();
     method public boolean isLoading();
@@ -2216,7 +2216,7 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setHeader(androidx.car.app.model.Header?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setLoading(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setScrollStatePersistenceStrategy(int);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSearchHeader(androidx.car.app.model.SearchHeader?);
+    method @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSearchHeader(androidx.car.app.model.SearchHeader?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
   }
 

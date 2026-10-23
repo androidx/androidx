@@ -20,9 +20,7 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.BackgroundConstraints;
@@ -44,7 +42,6 @@ import java.util.Objects;
 @RequiresCarApi(5)
 @CarProtocol
 @KeepFields
-@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Header {
     private final @NonNull List<Action> mEndHeaderActions;
     private final @Nullable Action mStartHeaderAction;
@@ -86,7 +83,6 @@ public final class Header {
      *
      * @see Builder#setSubtitle(CharSequence)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable CarText getSubtitle() {
         return mSubtitle;
@@ -97,7 +93,6 @@ public final class Header {
      *
      * @see Builder#setBackground(Background)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable Background getBackground() {
         return mBackground;
@@ -106,7 +101,6 @@ public final class Header {
     /**
      * Returns the start image of the component or {@code null} if not set.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(9)
     public @Nullable CarIcon getStartHeaderImage() {
         return mStartHeaderImage;
@@ -252,7 +246,6 @@ public final class Header {
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
          * @see CarText
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public @NonNull Builder setSubtitle(@NonNull CharSequence subtitle) {
             return setSubtitle(CarText.create(subtitle));
@@ -267,7 +260,6 @@ public final class Header {
          * @throws IllegalArgumentException if {@code subtitle} contains unsupported spans
          * @see CarText
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public @NonNull Builder setSubtitle(@NonNull CarText subtitle) {
             mSubtitle = requireNonNull(subtitle);
@@ -280,7 +272,6 @@ public final class Header {
          *
          * @throws NullPointerException if {@code background} is null
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public @NonNull Builder setBackground(@NonNull Background background) {
             BackgroundConstraints.UNCONSTRAINED.validateOrThrow(background);
@@ -297,7 +288,6 @@ public final class Header {
          * @throws NullPointerException     if {@code startHeaderImage} is null
          * @throws IllegalArgumentException if {@code startHeaderImage} is not a custom icon
          */
-        @ExperimentalCarApi
         @RequiresCarApi(9)
         public @NonNull Builder setStartHeaderImage(@NonNull CarIcon startHeaderImage) {
             requireNonNull(startHeaderImage);

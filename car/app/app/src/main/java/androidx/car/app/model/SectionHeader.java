@@ -25,7 +25,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -47,7 +46,6 @@ import java.util.Objects;
  * handle click events.
  */
 @CarProtocol
-@ExperimentalCarApi
 @RequiresCarApi(9)
 @KeepFields
 public final class SectionHeader {
@@ -271,7 +269,7 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
-         * @throws IllegalArgumentException if {@code headline} contains spans unsupported, by
+         * @throws IllegalArgumentException if {@code subtitle} contains spans unsupported by
          * {@link CarTextConstraints#TEXT_WITH_COLORS}
          * @see CarText
          */
@@ -296,7 +294,7 @@ public final class SectionHeader {
          * #build()} will throw an {@link IllegalStateException}.
          *
          * @param subtitle the subtitle to set
-         * @throws IllegalArgumentException if {@code headline} contains spans unsupported, by
+         * @throws IllegalArgumentException if {@code subtitle} contains spans unsupported by
          * {@link CarTextConstraints#TEXT_WITH_COLORS}
          * @see CarText
          */
