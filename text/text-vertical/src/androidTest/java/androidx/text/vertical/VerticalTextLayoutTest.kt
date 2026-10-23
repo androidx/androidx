@@ -16,6 +16,7 @@
 
 package androidx.text.vertical
 
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Build
@@ -207,6 +208,73 @@ class VerticalTextLayoutTest {
             assertThat(draws.size).isAtLeast(1)
         }
     }
+
+    @Test
+    fun constructor_emptyRange_createsZeroLineLayout() {
+        val emptyText = VerticalTextLayout("", 0, 0, PAINT, 100f)
+        val emptySlice = VerticalTextLayout("あいう", 2, 2, PAINT, 100f)
+        for (layout in listOf(emptyText, emptySlice)) {
+            assertThat(layout.lineCount).isEqualTo(0)
+            assertThat(layout.width).isEqualTo(0f)
+            assertThat(layout.contentHeight).isEqualTo(0f)
+            assertThat(layout.columnWidth).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun draw_lineRange_drawsOnlyRequestedColumns() {
+        val text = "あ\nい\nう"
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 100f)
+        assertThat(layout.lineCount).isEqualTo(3)
+
+        // Columns are 1em = 10px wide and grow leftward from x = 100, so column 1 spans [80, 90).
+        val full = layout.drawToBitmap { draw(it, 100f, 0f) }
+        val slice = layout.drawToBitmap { draw(it, 100f, 0f, 1, 2) }
+        try {
+            val sliceInk = slice.inkColumns()
+            assertThat(sliceInk).isNotEmpty()
+            assertThat(sliceInk.min()).isAtLeast(79)
+            assertThat(sliceInk.max()).isAtMost(90)
+            val fullInk = full.inkColumns()
+            assertThat(fullInk.min()).isLessThan(79)
+            assertThat(fullInk.max()).isGreaterThan(90)
+            // The slice keeps column 1 at its full-layout position.
+            for (x in 81 until 89) {
+                assertThat(slice.column(x)).isEqualTo(full.column(x))
+            }
+        } finally {
+            full.recycle()
+            slice.recycle()
+        }
+    }
+
+    @Test
+    fun draw_lineRange_outOfBounds_throwsIndexOutOfBoundsException() {
+        val text = "あ\nい\nう"
+        val layout = VerticalTextLayout(text, 0, text.length, PAINT, 100f)
+        val canvas = Canvas()
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.draw(canvas, 0f, 0f, -1, 1) }
+        assertThrows(IndexOutOfBoundsException::class.java) {
+            layout.draw(canvas, 0f, 0f, 0, layout.lineCount + 1)
+        }
+        assertThrows(IndexOutOfBoundsException::class.java) { layout.draw(canvas, 0f, 0f, 2, 1) }
+    }
+
+    private fun VerticalTextLayout.drawToBitmap(
+        block: VerticalTextLayout.(Canvas) -> Unit
+    ): Bitmap {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        block(Canvas(bitmap))
+        return bitmap
+    }
+
+    /** Returns the x coordinates that hold at least one non-transparent pixel. */
+    private fun Bitmap.inkColumns(): Set<Int> =
+        (0 until width).filterTo(mutableSetOf()) { x ->
+            (0 until height).any { y -> getPixel(x, y) != 0 }
+        }
+
+    private fun Bitmap.column(x: Int): IntArray = IntArray(height) { y -> getPixel(x, y) }
 
     private fun createVerticalTextLayout() =
         VerticalTextLayout(JP_TEXT, 0, JP_TEXT.length, PAINT, 100f)

@@ -52,7 +52,18 @@ class VerticalTextLayoutKexVerifiedTest {
     // Target 1: VerticalTextLayout constructor precondition branches
     // =========================================================================================
 
-    // Branch: start > end fails require(start <= end && end <= text.length && height >= 0).
+    // Branch: start < 0 fails require(start in 0..end && end <= text.length && height >= 0).
+    @Test
+    fun kex_constructor_whenStartIsNegative_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            VerticalTextLayout(text = "あいう", start = -1, end = -1, paint = paint, height = 100f)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            VerticalTextLayout(text = "あいう", start = -1, end = 1, paint = paint, height = 100f)
+        }
+    }
+
+    // Branch: start > end fails require(start in 0..end && end <= text.length && height >= 0).
     @Test
     fun kex_constructor_whenStartGreaterThanEnd_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -60,8 +71,8 @@ class VerticalTextLayoutKexVerifiedTest {
         }
     }
 
-    // Branch: start <= end && end > text.length fails require(start <= end && end <= text.length
-    // && height >= 0).
+    // Branch: start in 0..end && end > text.length fails require(start in 0..end && end <=
+    // text.length && height >= 0).
     @Test
     fun kex_constructor_whenEndGreaterThanTextLength_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException::class.java) {
@@ -69,7 +80,7 @@ class VerticalTextLayoutKexVerifiedTest {
         }
     }
 
-    // Branch: start <= end && end <= text.length && height < 0f fails require(start <= end &&
+    // Branch: start in 0..end && end <= text.length && height < 0f fails require(start in 0..end &&
     // end <= text.length && height >= 0).
     @Test
     fun kex_constructor_whenHeightIsNegative_throwsIllegalArgumentException() {
@@ -98,26 +109,51 @@ class VerticalTextLayoutKexVerifiedTest {
     // =========================================================================================
 
     // Branch: Empty range (start == end, including default empty text) passes the constructor
-    // require check at boundary start == end and currently throws IllegalArgumentException inside
-    // LineBreaker.finish() because no runs are produced (not a VerticalTextLayout contract).
+    // require check at boundary start == end and produces a layout with zero lines, zero width, and
+    // no drawText calls.
     @Test
-    fun kex_constructor_whenRangeIsEmpty_currentlyThrowsFromLineBreaker() {
-        val defaultEmptyError =
-            assertThrows(IllegalArgumentException::class.java) { VerticalTextLayout() }
-        val emptySliceError =
-            assertThrows(IllegalArgumentException::class.java) {
-                VerticalTextLayout(
-                    text = "あいう",
-                    start = 3,
-                    end = 3,
-                    paint = paint,
-                    height = 0f,
-                    orientation = TextOrientation.Upright,
-                )
+    fun kex_constructor_whenRangeIsEmpty_createsZeroLineLayoutAndDrawsNothing() {
+        val defaultEmptyLayout = VerticalTextLayout()
+        val emptySliceLayout =
+            VerticalTextLayout(
+                text = "あいう",
+                start = 3,
+                end = 3,
+                paint = paint,
+                height = 0f,
+                orientation = TextOrientation.Upright,
+            )
+        val bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
+        canvasBitmap = bitmap
+        var drawCount = 0
+        val canvas =
+            object : Canvas(bitmap) {
+                override fun drawText(
+                    text: CharSequence,
+                    start: Int,
+                    end: Int,
+                    x: Float,
+                    y: Float,
+                    paint: Paint,
+                ) {
+                    drawCount++
+                    super.drawText(text, start, end, x, y, paint)
+                }
+
+                override fun drawText(text: String, x: Float, y: Float, paint: Paint) {
+                    drawCount++
+                    super.drawText(text, x, y, paint)
+                }
             }
 
-        assertThat(defaultEmptyError).hasMessageThat().isEqualTo("Cannot break with empty runs.")
-        assertThat(emptySliceError).hasMessageThat().isEqualTo("Cannot break with empty runs.")
+        defaultEmptyLayout.draw(canvas, 25f, 0f)
+        emptySliceLayout.draw(canvas, 25f, 0f)
+
+        assertThat(defaultEmptyLayout.lineCount).isEqualTo(0)
+        assertThat(defaultEmptyLayout.width).isEqualTo(0f)
+        assertThat(emptySliceLayout.lineCount).isEqualTo(0)
+        assertThat(emptySliceLayout.width).isEqualTo(0f)
+        assertThat(drawCount).isEqualTo(0)
     }
 
     // Branch: Default optional arguments (start = 0, end = text.length, paint = TextPaint(),
