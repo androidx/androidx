@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
 /** Automated integration tests for SceneCore multi-channel glTF animations. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class SceneCoreGltfMultiAnimationTest {
+class GltfMultiAnimationTest {
 
     @Test
     @XrDeviceTest
