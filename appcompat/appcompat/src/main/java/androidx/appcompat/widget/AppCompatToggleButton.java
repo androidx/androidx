@@ -16,8 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -28,7 +26,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.RestrictTo;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TintableCompoundDrawablesView;
@@ -105,7 +102,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * {@link ViewCompat#setBackgroundTintList(android.view.View, ColorStateList)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -118,7 +114,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * {@link ViewCompat#getBackgroundTintList(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public @Nullable ColorStateList getSupportBackgroundTintList() {
         return mBackgroundTintHelper != null
@@ -130,7 +125,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * {@link ViewCompat#setBackgroundTintMode(android.view.View, PorterDuff.Mode)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(PorterDuff.@Nullable Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -143,7 +137,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      * {@link ViewCompat#getBackgroundTintMode(android.view.View)}
      *
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public PorterDuff.@Nullable Mode getSupportBackgroundTintMode() {
         return mBackgroundTintHelper != null
@@ -222,7 +215,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
@@ -244,7 +236,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tintList) {
         mTextHelper.setCompoundDrawableTintList(tintList);
         mTextHelper.applyCompoundDrawablesTints();
@@ -262,7 +253,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.@Nullable Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
@@ -281,7 +271,6 @@ public class AppCompatToggleButton extends ToggleButton implements TintableBackg
      *
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintMode(PorterDuff.@Nullable Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();
