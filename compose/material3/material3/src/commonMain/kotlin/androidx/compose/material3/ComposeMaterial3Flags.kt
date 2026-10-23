@@ -151,15 +151,4 @@ public object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isModalBottomSheetStateRestorationFixEnabled: Boolean = true
-
-    /**
-     * When true (default), [Scaffold] will use [androidx.compose.ui.layout.Layout] instead of
-     * [androidx.compose.ui.layout.SubcomposeLayout] to measure and place its slots, updating the
-     * [androidx.compose.foundation.layout.PaddingValues] passed to its content lambda during
-     * measurement.
-     *
-     * When false, the legacy [androidx.compose.ui.layout.SubcomposeLayout] implementation is used.
-     */
-    // TODO: b/295960070
-    @field:Suppress("MutableBareField") @JvmField public var isScaffoldLayoutEnabled: Boolean = true
 }
