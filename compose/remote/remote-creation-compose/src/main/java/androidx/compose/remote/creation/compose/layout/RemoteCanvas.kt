@@ -618,20 +618,36 @@ public class RemoteCanvas(
         buffer.addRoots(op, bitmap, left, top)
     }
 
-    /** Draws a bitmap from ([left], [top]) to ([right], [bottom]) using the specified [paint]. */
+    /**
+     * Draws a [bitmap] into the destination rectangle `[left, top, right, bottom]`.
+     *
+     * @param bitmap The [RemoteImageBitmap] to draw.
+     * @param left The left coordinate of the destination rectangle.
+     * @param top The top coordinate of the destination rectangle.
+     * @param right The right coordinate of the destination rectangle.
+     * @param bottom The bottom coordinate of the destination rectangle.
+     * @param paint The [RemotePaint] to use for rendering, or `null` to use the current paint.
+     */
     public fun drawBitmap(
         bitmap: RemoteImageBitmap,
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
         paint: RemotePaint? = null,
     ) {
         val op =
             recordRenderingOp(paint) {
-                document.drawBitmap(bitmap.id, left, top, right, bottom, "")
+                document.drawBitmap(
+                    bitmap.id,
+                    left.floatId,
+                    top.floatId,
+                    right.floatId,
+                    bottom.floatId,
+                    "",
+                )
             }
-        buffer.addRoots(op, bitmap)
+        buffer.addRoots(op, bitmap, left, top, right, bottom)
     }
 
     /** Draws a bitmap scaled to the destination rectangle. */
