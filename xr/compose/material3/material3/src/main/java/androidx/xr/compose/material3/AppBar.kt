@@ -86,7 +86,7 @@ public val DefaultSpatialTopAppBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         position =
             OrbiterPosition.TopCenter(
-                EdgeAlignment.Inside,
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         0.dp,
@@ -161,7 +161,7 @@ public val DefaultTwoRowsTopAppBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
         position =
             OrbiterPosition.TopCenter(
-                EdgeAlignment.Inside,
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         0.dp,
