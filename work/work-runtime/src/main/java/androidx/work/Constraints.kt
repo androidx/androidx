@@ -472,6 +472,21 @@ public class Constraints {
         }
 
         /**
+         * Sets the delay that is allowed from the time a `content:` [Uri] change is detected to the
+         * time when the [WorkRequest] is scheduled. If there are more changes during this time, the
+         * delay will be reset to the start of the most recent change. This functionality is
+         * identical to the one found in `JobScheduler` and is described in
+         * `JobInfo.Builder#setTriggerContentUpdateDelay(long)`. Sub-millisecond precision is
+         * truncated.
+         *
+         * @param duration The length of the delay
+         * @return The current [Builder]
+         */
+        @Suppress("MissingGetterMatchingBuilder", "ValueClassUsageWithoutJvmName")
+        public fun setTriggerContentUpdateDelay(duration: kotlin.time.Duration): Builder =
+            setTriggerContentUpdateDelay(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+
+        /**
          * Sets the maximum delay that is allowed from the first time a `content:` [Uri] change is
          * detected to the time when the [WorkRequest] is scheduled. This functionality is identical
          * to the one found in `JobScheduler` and is described in
@@ -500,6 +515,20 @@ public class Constraints {
             triggerContentMaxDelay = duration.toMillisCompat()
             return this
         }
+
+        /**
+         * Sets the maximum delay that is allowed from the first time a `content:` [Uri] change is
+         * detected to the time when the [WorkRequest] is scheduled. This functionality is identical
+         * to the one found in `JobScheduler` and is described in
+         * `JobInfo.Builder#setTriggerContentMaxDelay(long)`. Sub-millisecond precision is
+         * truncated.
+         *
+         * @param duration The length of the delay
+         * @return The current [Builder]
+         */
+        @Suppress("MissingGetterMatchingBuilder", "ValueClassUsageWithoutJvmName")
+        public fun setTriggerContentMaxDelay(duration: kotlin.time.Duration): Builder =
+            setTriggerContentMaxDelay(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
 
         /**
          * Generates the [Constraints] from this Builder.
