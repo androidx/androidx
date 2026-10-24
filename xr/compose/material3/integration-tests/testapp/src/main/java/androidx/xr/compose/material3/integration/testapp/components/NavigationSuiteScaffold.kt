@@ -26,21 +26,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.material3.WideNavigationRailValue
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.material3.rememberWideNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.height
-import androidx.xr.compose.subspace.layout.movable
-import androidx.xr.compose.subspace.layout.resizable
-import androidx.xr.compose.subspace.layout.width
 
 /** Scope for declaring the items of a [NavigationSuiteScaffold]. */
 internal interface NavigationSuiteScope {
@@ -72,61 +65,35 @@ internal fun NavigationSuiteScaffold(
     content: @Composable () -> Unit,
 ) {
     if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-        // WORKAROUND: Host the scaffold in its own SpatialPanel within a Subspace, rather than
-        // directly in the main window. SpatialListDetailPaneScaffold uses a PlanarEmbeddedSubspace,
-        // which only shows its content once its parent entity has a non-zero size. When placed
-        // directly in the main window, its parent is the main panel, whose size is only tracked
-        // when the main panel is laid out within a Subspace, so the panes are never shown. Remove
-        // this once PlanarEmbeddedSubspace uses the main window size in this case.
-        //
-        // The panel is sized to match the main window so that the app appears at the same size as
-        // it would in Home Space, rather than filling the Subspace's (much larger) recommended
-        // content box.
-        val mainWindowSize = LocalWindowInfo.current.containerDpSize
-        Subspace {
-            SpatialPanel(
-                SubspaceModifier.width(mainWindowSize.width)
-                    .height(mainWindowSize.height)
-                    .movable()
-                    .resizable()
-            ) {
-                NavigationSuiteScaffoldContent(
-                    navigationSuiteItems = navigationSuiteItems,
-                    navigationSuiteType = navigationSuiteType,
-                    modifier = modifier,
-                    content = content,
-                )
-            }
-        }
+        NavigationSuiteLayout(navigationSuiteItems, navigationSuiteType, content)
     } else {
-        NavigationSuiteScaffoldContent(
-            navigationSuiteItems = navigationSuiteItems,
-            navigationSuiteType = navigationSuiteType,
+        // When not spatialized set a surface with the background color so that it is not
+        // transparent.
+        Surface(
             modifier = modifier,
-            content = content,
-        )
+            color = NavigationSuiteScaffoldDefaults.containerColor,
+        ) {
+            NavigationSuiteLayout(navigationSuiteItems, navigationSuiteType, content)
+        }
     }
 }
 
 @Composable
-private fun NavigationSuiteScaffoldContent(
+internal fun NavigationSuiteLayout(
     navigationSuiteItems: NavigationSuiteScope.() -> Unit,
     navigationSuiteType: NavigationSuiteType,
-    modifier: Modifier,
     content: @Composable () -> Unit,
 ) {
-    Surface(modifier = modifier) {
-        NavigationSuiteScaffoldLayout(
-            navigationSuite = {
-                NavigationSuite(
-                    navigationSuiteType = navigationSuiteType,
-                    navigationSuiteItems = navigationSuiteItems,
-                )
-            },
-            navigationSuiteType = navigationSuiteType,
-            content = content,
-        )
-    }
+    NavigationSuiteScaffoldLayout(
+        navigationSuite = {
+            NavigationSuite(
+                navigationSuiteType = navigationSuiteType,
+                navigationSuiteItems = navigationSuiteItems,
+            )
+        },
+        navigationSuiteType = navigationSuiteType,
+        content = content,
+    )
 }
 
 /**
