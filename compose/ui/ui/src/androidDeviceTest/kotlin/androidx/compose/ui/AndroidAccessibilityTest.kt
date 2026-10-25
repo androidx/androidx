@@ -4589,17 +4589,6 @@ class AndroidAccessibilityTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    private fun withInteropHoverZOrderFlag(enabled: Boolean = true, block: () -> Unit) {
-        val saved = AndroidComposeUiFlags.isInteropHoverZOrderEnabled
-        AndroidComposeUiFlags.isInteropHoverZOrderEnabled = enabled
-        try {
-            block()
-        } finally {
-            AndroidComposeUiFlags.isInteropHoverZOrderEnabled = saved
-        }
-    }
-
     @Composable
     private fun RecordingAndroidView(
         receivedActions: MutableList<Int>,
@@ -4632,151 +4621,139 @@ class AndroidAccessibilityTest {
     private fun dispatchHover(action: Int, x: Float, y: Float): Boolean =
         androidComposeView.dispatchHoverEvent(createHoverMotionEvent(action = action, x = x, y = y))
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun testViewInterop_hoverOverComposeContentCoveringAndroidView_doesNotForwardToView() =
-        withInteropHoverZOrderFlag {
-            val overlayTag = "overlayTag"
-            val receivedActions = mutableListOf<Int>()
-            setContent {
-                Box(Modifier.size(100.dp)) {
-                    RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
-                    Box(
-                        Modifier.fillMaxSize().testTag(overlayTag).semantics {
-                            contentDescription = "Covering Overlay"
-                        }
-                    )
-                }
-            }
-
-            val overlayId = rule.onNodeWithTag(overlayTag).semanticsId()
-            val (centerX, centerY) = nodeCenter(overlayTag)
-
-            rule.runOnUiThread {
-                // Hover enter, move, and exit over covering Compose node should not reach
-                // AndroidView
-                assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, centerY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(overlayId)
-                assertThat(dispatchHover(ACTION_HOVER_MOVE, centerX, centerY)).isTrue()
-                assertThat(dispatchHover(ACTION_HOVER_EXIT, centerX, centerY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
-                assertThat(receivedActions).isEmpty()
-
-                // Legacy behavior when flag disabled: hover enter forwards to covered AndroidView
-                AndroidComposeUiFlags.isInteropHoverZOrderEnabled = false
-                dispatchHover(ACTION_HOVER_ENTER, centerX, centerY)
-                assertThat(receivedActions).contains(ACTION_HOVER_ENTER)
-            }
-        }
-
-    @Test
-    fun testViewInterop_hoverOverUncoveredAndroidViewInFrontOfComposeContent_forwardsToView() =
-        withInteropHoverZOrderFlag {
-            val bgTag = "backgroundCompose"
-            val receivedActions = mutableListOf<Int>()
-            setContent {
-                Box(Modifier.size(100.dp)) {
-                    Box(
-                        Modifier.fillMaxSize().testTag(bgTag).semantics {
-                            contentDescription = "Background"
-                        }
-                    )
-                    // Raw AndroidView without any Compose modifiers or semantics placed in front
-                    RecordingAndroidView(receivedActions)
-                }
-            }
-
-            val (centerX, centerY) = nodeCenter(bgTag)
-
-            rule.runOnUiThread {
-                assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, centerY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
-                assertThat(receivedActions).containsExactly(ACTION_HOVER_ENTER)
-            }
-        }
-
-    @Test
-    fun testViewInterop_hoverMoveFromUncoveredAndroidViewToCoveringComposeNode_synthesizesHoverExit() =
-        withInteropHoverZOrderFlag {
-            val overlayTag = "overlayTag"
-            val receivedActions = mutableListOf<Int>()
-            setContent {
-                Box(Modifier.size(100.dp)) {
-                    RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
-                    // Overlay covers the bottom half (y in 50.dp..100.dp)
-                    Box(
-                        Modifier.offset(y = 50.dp)
-                            .size(width = 100.dp, height = 50.dp)
-                            .testTag(overlayTag)
-                            .semantics { contentDescription = "Bottom Sheet" }
-                    )
-                }
-            }
-
-            val overlayId = rule.onNodeWithTag(overlayTag).semanticsId()
-            val overlayBounds =
-                with(rule.density) { rule.onNodeWithTag(overlayTag).getBoundsInRoot().toRect() }
-            val centerX = overlayBounds.center.x
-            val topHalfY = overlayBounds.top / 2f
-            val bottomHalfY = overlayBounds.center.y
-
-            rule.runOnUiThread {
-                // 1. Hover enter on uncovered top half -> forwards to AndroidView
-                assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, topHalfY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
-                assertThat(receivedActions).contains(ACTION_HOVER_ENTER)
-                receivedActions.clear()
-
-                // 2. Hover move onto covering overlay -> synthesizes single HOVER_EXIT to
-                // AndroidView
-                assertThat(dispatchHover(ACTION_HOVER_MOVE, centerX, bottomHalfY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(overlayId)
-                assertThat(receivedActions).containsExactly(ACTION_HOVER_EXIT)
-                receivedActions.clear()
-
-                // 3. Hover exit from overlay -> does not send duplicate HOVER_EXIT to AndroidView
-                assertThat(dispatchHover(ACTION_HOVER_EXIT, centerX, bottomHalfY)).isTrue()
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
-                assertThat(receivedActions).isEmpty()
-            }
-        }
-
-    @Test
-    fun testViewInterop_hoverOverHiddenAndroidView_doesNotForwardToView() =
-        withInteropHoverZOrderFlag {
-            val directTag = "directHidden"
-            val ancestorTag = "ancestorHidden"
-            val receivedActions = mutableListOf<Int>()
-            setContent {
-                Column {
-                    RecordingAndroidView(
-                        receivedActions,
-                        Modifier.size(100.dp).testTag(directTag).semantics {
-                            hideFromAccessibility()
-                        },
-                    )
-                    Box(
-                        Modifier.size(100.dp).testTag(ancestorTag).semantics(
-                            mergeDescendants = true
-                        ) {
-                            hideFromAccessibility()
-                        }
-                    ) {
-                        RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
+    fun testViewInterop_hoverOverComposeContentCoveringAndroidView_doesNotForwardToView() {
+        val overlayTag = "overlayTag"
+        val receivedActions = mutableListOf<Int>()
+        setContent {
+            Box(Modifier.size(100.dp)) {
+                RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
+                Box(
+                    Modifier.fillMaxSize().testTag(overlayTag).semantics {
+                        contentDescription = "Covering Overlay"
                     }
-                }
-            }
-
-            val (directX, directY) = nodeCenter(directTag)
-            val (ancestorX, ancestorY) = nodeCenter(ancestorTag)
-
-            rule.runOnUiThread {
-                dispatchHover(ACTION_HOVER_ENTER, directX, directY)
-                dispatchHover(ACTION_HOVER_ENTER, ancestorX, ancestorY)
-                assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
-                assertThat(receivedActions).isEmpty()
+                )
             }
         }
+
+        val overlayId = rule.onNodeWithTag(overlayTag).semanticsId()
+        val (centerX, centerY) = nodeCenter(overlayTag)
+
+        rule.runOnUiThread {
+            // Hover enter, move, and exit over covering Compose node should not reach
+            // AndroidView
+            assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, centerY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(overlayId)
+            assertThat(dispatchHover(ACTION_HOVER_MOVE, centerX, centerY)).isTrue()
+            assertThat(dispatchHover(ACTION_HOVER_EXIT, centerX, centerY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
+            assertThat(receivedActions).isEmpty()
+        }
+    }
+
+    @Test
+    fun testViewInterop_hoverOverUncoveredAndroidViewInFrontOfComposeContent_forwardsToView() {
+        val bgTag = "backgroundCompose"
+        val receivedActions = mutableListOf<Int>()
+        setContent {
+            Box(Modifier.size(100.dp)) {
+                Box(
+                    Modifier.fillMaxSize().testTag(bgTag).semantics {
+                        contentDescription = "Background"
+                    }
+                )
+                // Raw AndroidView without any Compose modifiers or semantics placed in front
+                RecordingAndroidView(receivedActions)
+            }
+        }
+
+        val (centerX, centerY) = nodeCenter(bgTag)
+
+        rule.runOnUiThread {
+            assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, centerY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
+            assertThat(receivedActions).containsExactly(ACTION_HOVER_ENTER)
+        }
+    }
+
+    @Test
+    fun testViewInterop_hoverMoveFromUncoveredAndroidViewToCoveringComposeNode_synthesizesHoverExit() {
+        val overlayTag = "overlayTag"
+        val receivedActions = mutableListOf<Int>()
+        setContent {
+            Box(Modifier.size(100.dp)) {
+                RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
+                // Overlay covers the bottom half (y in 50.dp..100.dp)
+                Box(
+                    Modifier.offset(y = 50.dp)
+                        .size(width = 100.dp, height = 50.dp)
+                        .testTag(overlayTag)
+                        .semantics { contentDescription = "Bottom Sheet" }
+                )
+            }
+        }
+
+        val overlayId = rule.onNodeWithTag(overlayTag).semanticsId()
+        val overlayBounds =
+            with(rule.density) { rule.onNodeWithTag(overlayTag).getBoundsInRoot().toRect() }
+        val centerX = overlayBounds.center.x
+        val topHalfY = overlayBounds.top / 2f
+        val bottomHalfY = overlayBounds.center.y
+
+        rule.runOnUiThread {
+            // 1. Hover enter on uncovered top half -> forwards to AndroidView
+            assertThat(dispatchHover(ACTION_HOVER_ENTER, centerX, topHalfY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
+            assertThat(receivedActions).contains(ACTION_HOVER_ENTER)
+            receivedActions.clear()
+
+            // 2. Hover move onto covering overlay -> synthesizes single HOVER_EXIT to
+            // AndroidView
+            assertThat(dispatchHover(ACTION_HOVER_MOVE, centerX, bottomHalfY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(overlayId)
+            assertThat(receivedActions).containsExactly(ACTION_HOVER_EXIT)
+            receivedActions.clear()
+
+            // 3. Hover exit from overlay -> does not send duplicate HOVER_EXIT to AndroidView
+            assertThat(dispatchHover(ACTION_HOVER_EXIT, centerX, bottomHalfY)).isTrue()
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
+            assertThat(receivedActions).isEmpty()
+        }
+    }
+
+    @Test
+    fun testViewInterop_hoverOverHiddenAndroidView_doesNotForwardToView() {
+        val directTag = "directHidden"
+        val ancestorTag = "ancestorHidden"
+        val receivedActions = mutableListOf<Int>()
+        setContent {
+            Column {
+                RecordingAndroidView(
+                    receivedActions,
+                    Modifier.size(100.dp).testTag(directTag).semantics {
+                        hideFromAccessibility()
+                    },
+                )
+                Box(
+                    Modifier.size(100.dp).testTag(ancestorTag).semantics(mergeDescendants = true) {
+                        hideFromAccessibility()
+                    }
+                ) {
+                    RecordingAndroidView(receivedActions, Modifier.fillMaxSize())
+                }
+            }
+        }
+
+        val (directX, directY) = nodeCenter(directTag)
+        val (ancestorX, ancestorY) = nodeCenter(ancestorTag)
+
+        rule.runOnUiThread {
+            dispatchHover(ACTION_HOVER_ENTER, directX, directY)
+            dispatchHover(ACTION_HOVER_ENTER, ancestorX, ancestorY)
+            assertThat(delegate.hoveredVirtualViewId).isEqualTo(InvalidId)
+            assertThat(receivedActions).isEmpty()
+        }
+    }
 
     @Test
     fun dispatchHoverEvent_returnsTrueForHandledAndFalseForUnhandled() {
