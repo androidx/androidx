@@ -47,6 +47,11 @@ class FailureMessagesTest {
     }
 
     @Test
+    fun shownGivesTheSizeOfAByteArray() {
+        assertEquals("(3 bytes)", shown(byteArrayOf(1, 2, 3)))
+    }
+
+    @Test
     fun textMismatchShowsShortTextsWhole() {
         assertEquals(
             "Expected file content 'abc' but was 'abd'",

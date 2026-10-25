@@ -39,8 +39,8 @@ import androidx.test.backup.BackupDeviceActionResult
  * Asserts the correctness of restored test data.
  *
  * Parses the configuration from [BackupDeviceActionArgs] and verifies
- * [android.content.SharedPreferences], SQLite databases, or raw file contents in
- * credential-encrypted or device-protected storage. See
+ * [android.content.SharedPreferences], Preferences DataStores, SQLite databases, or raw file
+ * contents in credential-encrypted or device-protected storage. See
  * [androidx.test.backup.BackupActionInputKeys] for the keys each storage type consumes. With
  * [androidx.test.backup.BackupActionInputKeys.EXPECT_NULL], it verifies that the data is absent.
  *
@@ -58,6 +58,7 @@ public class AssertStorageAction : BackupDeviceAction {
         return try {
             when (target) {
                 is StorageTarget.Preference -> verify(target, args)
+                is StorageTarget.PreferencesDataStore -> verify(target, args)
                 is StorageTarget.Database -> verify(target, args)
                 is StorageTarget.FileContent -> verify(target, args)
             }
@@ -69,19 +70,48 @@ public class AssertStorageAction : BackupDeviceAction {
     private fun verify(
         target: StorageTarget.Preference,
         args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult =
+        verifyPreference(
+            target.context.getSharedPreferences(target.prefName, Context.MODE_PRIVATE).all,
+            target.key,
+            "'${target.prefName}'",
+            args,
+            ::parsePreferenceValue,
+        )
+
+    private fun verify(
+        target: StorageTarget.PreferencesDataStore,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult =
+        verifyPreference(
+            readPreferencesDataStore(target.file),
+            target.key,
+            "DataStore '${target.name}'",
+            args,
+            ::parseDataStoreValue,
+        )
+
+    /**
+     * Verifies the preference [key] in [preferences] against the value that [parse] reads from
+     * [args]. Failure messages name the store [storeName].
+     */
+    private fun verifyPreference(
+        preferences: Map<String, Any?>,
+        key: String,
+        storeName: String,
+        args: BackupDeviceActionArgs,
+        parse: (value: String, valueType: String) -> Any,
     ): BackupDeviceActionResult {
-        val key = target.key
-        val prefName = target.prefName
-        val sharedPrefs = target.context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-        // Absence is checked before any typed read, so a key stored with an unexpected type is
-        // reported as present rather than as a type mismatch.
+        val actual = preferences[key]
+        // Absence is checked before the type, so a key stored with an unexpected type is reported
+        // as present rather than as a type mismatch.
         if (args[EXPECT_NULL].toBoolean()) {
-            return if (!sharedPrefs.contains(key)) {
+            return if (key !in preferences) {
                 BackupDeviceActionResult.success()
             } else {
                 failure(
-                    "Expected preference '$key' in '$prefName' to be absent, but found " +
-                        "${shown(sharedPrefs.all[key])}."
+                    "Expected preference '$key' in $storeName to be absent, but found " +
+                        "${shown(actual)}."
                 )
             }
         }
@@ -90,43 +120,42 @@ public class AssertStorageAction : BackupDeviceAction {
             args[EXPECTED]
                 ?: args[VALUE]
                 ?: return failure(
-                    "Missing '$EXPECTED' or '$VALUE' argument for PREFS verification."
+                    "Missing '$EXPECTED' or '$VALUE' argument for preference '$key' in $storeName."
                 )
         val valueType = args[VALUE_TYPE] ?: VALUE_TYPE_STRING
         val expected =
             try {
-                parsePreferenceValue(expectedRaw, valueType)
+                parse(expectedRaw, valueType)
             } catch (e: IllegalArgumentException) {
                 return failure(e.message ?: "Invalid expected preference value.")
             }
-        if (!sharedPrefs.contains(key)) {
+        if (key !in preferences) {
             return failure(
-                "Preference '$key' not found in '$prefName'; expected ${shown(expected)}."
+                "Preference '$key' not found in $storeName; expected ${shown(expected)}."
             )
         }
-        val actual =
-            try {
-                when (expected) {
-                    is Int -> sharedPrefs.getInt(key, 0)
-                    is Long -> sharedPrefs.getLong(key, 0L)
-                    is Float -> sharedPrefs.getFloat(key, 0.0f)
-                    is Boolean -> sharedPrefs.getBoolean(key, false)
-                    is String -> sharedPrefs.getString(key, null)
-                    is Set<*> -> sharedPrefs.getStringSet(key, null)
-                    else -> error("Unexpected parsed preference value: $expected")
-                }
-            } catch (e: ClassCastException) {
-                return failure(
-                    "Preference '$key' in '$prefName' is not of expected type " +
-                        "${valueType.uppercase()}: ${e.message}"
+        // Sets are equal whatever their class and the order of their elements.
+        if (actual?.javaClass != expected.javaClass && !(actual is Set<*> && expected is Set<*>)) {
+            return failure(
+                "Preference '$key' in $storeName is not of expected type " +
+                    "${valueType.uppercase()}: found ${actual?.javaClass?.simpleName}."
+            )
+        }
+        if (expected is ByteArray) {
+            val bytes = actual as ByteArray
+            return if (expected.contentEquals(bytes)) {
+                BackupDeviceActionResult.success()
+            } else {
+                failure(
+                    "Preference '$key' in $storeName: ${binaryMismatch("value", expected, bytes)}."
                 )
             }
-        // Sets are equal whatever the order of their elements.
+        }
         return if (actual == expected) {
             BackupDeviceActionResult.success()
         } else {
             failure(
-                "Preference '$key' in '$prefName': expected ${shown(expected)} but found " +
+                "Preference '$key' in $storeName: expected ${shown(expected)} but found " +
                     "${shown(actual)}."
             )
         }

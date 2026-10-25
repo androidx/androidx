@@ -26,9 +26,11 @@ private const val EXCERPT_LEAD_CHARS = 16
 
 /**
  * Returns [value] as a failure message shows it: quoted, and cut to [MAX_SHOWN_CHARS] characters,
- * followed by its length, when it is longer. A set is shown with its elements in sorted order.
+ * followed by its length, when it is longer. A set is shown with its elements in sorted order, and
+ * a byte array by its size.
  */
 internal fun shown(value: Any?): String {
+    if (value is ByteArray) return "(${value.size} bytes)"
     val text = if (value is Set<*>) value.map { it.toString() }.sorted().toString() else "$value"
     return if (text.length <= MAX_SHOWN_CHARS) {
         "'$text'"

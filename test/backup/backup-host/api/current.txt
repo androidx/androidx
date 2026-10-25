@@ -178,6 +178,21 @@ package androidx.test.backup.host {
     property public String verifyAction;
   }
 
+  public static final class StorageDomain.DataStorePreference extends androidx.test.backup.host.StorageDomain {
+    ctor public StorageDomain.DataStorePreference(String dataStoreName, String key);
+    ctor public StorageDomain.DataStorePreference(String dataStoreName, String key, optional Object? value);
+    ctor public StorageDomain.DataStorePreference(String dataStoreName, String key, optional Object? value, optional boolean isDeviceProtectedStorage);
+    ctor @BytecodeOnly public StorageDomain.DataStorePreference(String!, String!, Object!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getDataStoreName();
+    method @InaccessibleFromKotlin public String getKey();
+    method @InaccessibleFromKotlin public Object? getValue();
+    method @InaccessibleFromKotlin public boolean isDeviceProtectedStorage();
+    property public String dataStoreName;
+    property public boolean isDeviceProtectedStorage;
+    property public String key;
+    property public Object? value;
+  }
+
   public static final class StorageDomain.Database extends androidx.test.backup.host.StorageDomain {
     ctor @BytecodeOnly public StorageDomain.Database(String!, String!, String!, Object!, java.util.Map!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public StorageDomain.Database(String dbName, String table, String primaryKeyCol, Object primaryKeyVal, java.util.Map<java.lang.String,? extends java.lang.Object?> columnValues);

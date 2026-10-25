@@ -61,6 +61,13 @@ class PreferenceValuesTest {
     }
 
     @Test
+    fun rejectsInvalidDataStoreDoubleValues() {
+        assertThrows(IllegalArgumentException::class.java) {
+            parseDataStoreValue("not_a_double", "DOUBLE")
+        }
+    }
+
+    @Test
     fun rejectsInvalidFloatValues() {
         assertThrows(IllegalArgumentException::class.java) {
             parsePreferenceValue("not_a_float", "FLOAT")

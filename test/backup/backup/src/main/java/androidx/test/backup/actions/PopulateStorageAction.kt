@@ -36,9 +36,9 @@ import androidx.test.backup.BackupDeviceActionResult
  * Populates test data inside the application sandbox before a backup.
  *
  * Reads [androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE] from the incoming arguments and
- * seeds the specified data into [android.content.SharedPreferences], a SQLite database, or raw file
- * storage. See [androidx.test.backup.BackupActionInputKeys] for the keys each storage type
- * consumes.
+ * seeds the specified data into [android.content.SharedPreferences], a Preferences DataStore, a
+ * SQLite database, or raw file storage. See [androidx.test.backup.BackupActionInputKeys] for the
+ * keys each storage type consumes.
  *
  * Once the data is written, [BackupManager.dataChanged] is called so the platform knows the app has
  * backup-eligible changes pending.
@@ -55,6 +55,7 @@ public class PopulateStorageAction : BackupDeviceAction {
             val result =
                 when (target) {
                     is StorageTarget.Preference -> populate(target, args)
+                    is StorageTarget.PreferencesDataStore -> populate(target, args)
                     is StorageTarget.Database -> populate(target, args)
                     is StorageTarget.FileContent -> populate(target, args)
                 }
@@ -101,6 +102,28 @@ public class PopulateStorageAction : BackupDeviceAction {
         if (!editor.commit()) {
             return failure("Failed to commit SharedPreferences changes for '${target.prefName}'.")
         }
+        return BackupDeviceActionResult.success()
+    }
+
+    private fun populate(
+        target: StorageTarget.PreferencesDataStore,
+        args: BackupDeviceActionArgs,
+    ): BackupDeviceActionResult {
+        val entries = readPreferencesDataStore(target.file).toMutableMap()
+        if (args[EXPECT_NULL].toBoolean()) {
+            entries.remove(target.key)
+        } else {
+            val value =
+                args[VALUE]
+                    ?: return failure("Missing '$VALUE' argument for DATASTORE_PREFS populate.")
+            entries[target.key] =
+                try {
+                    parseDataStoreValue(value, args[VALUE_TYPE] ?: VALUE_TYPE_STRING)
+                } catch (e: IllegalArgumentException) {
+                    return failure(e.message ?: "Invalid preference value.")
+                }
+        }
+        writePreferencesDataStore(target.file, entries)
         return BackupDeviceActionResult.success()
     }
 

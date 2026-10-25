@@ -53,9 +53,12 @@ package androidx.test.backup {
     property public static String STATUS_FAILURE;
     property public static String STATUS_SUCCESS;
     property public static String STORAGE_TYPE_DATABASE;
+    property public static String STORAGE_TYPE_DATASTORE_PREFS;
     property public static String STORAGE_TYPE_FILES;
     property public static String STORAGE_TYPE_PREFS;
     property public static String VALUE_TYPE_BOOLEAN;
+    property public static String VALUE_TYPE_BYTES;
+    property public static String VALUE_TYPE_DOUBLE;
     property public static String VALUE_TYPE_FLOAT;
     property public static String VALUE_TYPE_INT;
     property public static String VALUE_TYPE_LONG;
@@ -66,9 +69,12 @@ package androidx.test.backup {
     field public static final String STATUS_FAILURE = "failure";
     field public static final String STATUS_SUCCESS = "success";
     field public static final String STORAGE_TYPE_DATABASE = "DATABASE";
+    field public static final String STORAGE_TYPE_DATASTORE_PREFS = "DATASTORE_PREFS";
     field public static final String STORAGE_TYPE_FILES = "FILES";
     field public static final String STORAGE_TYPE_PREFS = "PREFS";
     field public static final String VALUE_TYPE_BOOLEAN = "BOOLEAN";
+    field public static final String VALUE_TYPE_BYTES = "BYTES";
+    field public static final String VALUE_TYPE_DOUBLE = "DOUBLE";
     field public static final String VALUE_TYPE_FLOAT = "FLOAT";
     field public static final String VALUE_TYPE_INT = "INT";
     field public static final String VALUE_TYPE_LONG = "LONG";

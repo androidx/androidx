@@ -354,6 +354,7 @@ class StorageDomainTest {
         for (domain in
             listOf(
                 StorageDomain.Preference("name", "key", "v"),
+                StorageDomain.DataStorePreference("name", "key", "v"),
                 database(),
                 StorageDomain.TextFile("a.txt", "c"),
                 StorageDomain.BinaryFile("a.bin", byteArrayOf(1)),
@@ -378,12 +379,58 @@ class StorageDomainTest {
         for (domain in
             listOf(
                 StorageDomain.Preference("name", "key"),
+                StorageDomain.DataStorePreference("name", "key"),
                 StorageDomain.CustomData(POPULATE, VERIFY),
                 StorageDomain.ExcludedData(StorageDomain.TextFile("a.txt", "c")),
             )) {
             assertThrows(IllegalArgumentException::class.java) {
                 StorageDomain.ExcludedData(domain)
             }
+        }
+    }
+
+    @Test
+    fun testDataStorePreference_validTypesImmutabilityAndEquality() {
+        StorageDomain.DataStorePreference("name", "key", "stringValue")
+        StorageDomain.DataStorePreference("name", "key", 123)
+        StorageDomain.DataStorePreference("name", "key", 123L)
+        StorageDomain.DataStorePreference("name", "key", 1.23f)
+        StorageDomain.DataStorePreference("name", "key", 1.23)
+        StorageDomain.DataStorePreference("name", "key", true)
+        StorageDomain.DataStorePreference("name", "key", null)
+
+        val mutableSet = mutableSetOf("a", "b")
+        val setDomain = StorageDomain.DataStorePreference("name", "key", mutableSet)
+        mutableSet += "c"
+        assertEquals(setOf("a", "b"), setDomain.value)
+        assertThrows(UnsupportedOperationException::class.java) {
+            @Suppress("UNCHECKED_CAST") (setDomain.value as MutableSet<String>).add("d")
+        }
+
+        val bytes = byteArrayOf(1, 2, 3)
+        val bytesDomain = StorageDomain.DataStorePreference("name", "key", bytes)
+        bytes[0] = 99
+        val readBytes = bytesDomain.value as ByteArray
+        assertArrayEquals(byteArrayOf(1, 2, 3), readBytes)
+        readBytes[0] = 88
+        assertArrayEquals(byteArrayOf(1, 2, 3), bytesDomain.value as ByteArray)
+
+        val sameBytesDomain = StorageDomain.DataStorePreference("name", "key", byteArrayOf(1, 2, 3))
+        assertEquals(bytesDomain, sameBytesDomain)
+        assertEquals(bytesDomain.hashCode(), sameBytesDomain.hashCode())
+        assertEquals(
+            "DataStorePreference(dataStoreName='name', key='key', value=(3 bytes))",
+            bytesDomain.toString(),
+        )
+    }
+
+    @Test
+    fun testDataStorePreference_invalidType_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.DataStorePreference("name", "key", listOf("invalid"))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            StorageDomain.DataStorePreference("name", "key", setOf("a", 1))
         }
     }
 
