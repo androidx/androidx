@@ -60,55 +60,59 @@ internal const val SUBTITLE_CUE_HORIZONTAL_TAG = "subtitle_cue_horizontal_text"
 internal val SUBTITLE_CUE_MAX_WIDTH = 280.dp
 
 /**
- * Displays vertical and horizontal subtitle cues inside one viewport.
+ * Displays vertical and horizontal subtitle cues inside one viewport with a style colors toggle.
  *
  * The top-end box uses [Modifier.heightIn] with [SUBTITLE_CUE_MAX_HEIGHT] so that [VerticalText]
  * wraps its height to the measured vertical column height. The bottom-center box uses
  * [Modifier.widthIn] with [SUBTITLE_CUE_MAX_WIDTH] so that [HorizontalText] wraps its width to the
  * widest measured line width.
  *
- * @param styleColorsEnabled whether the sample uses high-contrast style colors
  * @param modifier the [Modifier] applied to the outer container
  */
 @Composable
-fun SubtitleCueDemo(styleColorsEnabled: Boolean, modifier: Modifier = Modifier) {
+fun SubtitleCueDemo(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
     val cueText = remember(density) { buildSubtitleCueText(density) }
-    val cueStyle =
-        remember(styleColorsEnabled) {
-            TextStyle(
-                color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.White,
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Serif,
-                background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color(0xCC000000),
-                localeList = LocaleList(Locale("ja")),
-            )
-        }
-    val verticalCueStyle = remember(cueStyle) { cueStyle.toVerticalTextStyle() }
+    StyleColorsToggle(modifier = modifier) { styleColorsEnabled ->
+        val cueStyle =
+            remember(styleColorsEnabled) {
+                TextStyle(
+                    color = if (styleColorsEnabled) Color(0xFF1A237E) else Color.White,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Serif,
+                    background = if (styleColorsEnabled) Color(0xFFFFF59D) else Color(0xCC000000),
+                    localeList = LocaleList(Locale("ja")),
+                )
+            }
+        val verticalCueStyle = remember(cueStyle) { cueStyle.toVerticalTextStyle() }
 
-    Box(modifier = modifier.fillMaxSize().padding(24.dp)) {
-        Box(
-            modifier =
-                Modifier.align(Alignment.TopEnd).border(1.dp, Color(0xFF90CAF9)).padding(8.dp)
-        ) {
-            VerticalText(
-                text = cueText,
+        Box(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+            Box(
                 modifier =
-                    Modifier.heightIn(max = SUBTITLE_CUE_MAX_HEIGHT).testTag(SUBTITLE_CUE_TEXT_TAG),
-                style = verticalCueStyle,
-            )
-        }
-        Box(
-            modifier =
-                Modifier.align(Alignment.BottomCenter).border(1.dp, Color(0xFF90CAF9)).padding(8.dp)
-        ) {
-            HorizontalText(
-                text = cueText,
+                    Modifier.align(Alignment.TopEnd).border(1.dp, Color(0xFF90CAF9)).padding(8.dp)
+            ) {
+                VerticalText(
+                    text = cueText,
+                    modifier =
+                        Modifier.heightIn(max = SUBTITLE_CUE_MAX_HEIGHT)
+                            .testTag(SUBTITLE_CUE_TEXT_TAG),
+                    style = verticalCueStyle,
+                )
+            }
+            Box(
                 modifier =
-                    Modifier.widthIn(max = SUBTITLE_CUE_MAX_WIDTH)
-                        .testTag(SUBTITLE_CUE_HORIZONTAL_TAG),
-                style = cueStyle,
-            )
+                    Modifier.align(Alignment.BottomCenter)
+                        .border(1.dp, Color(0xFF90CAF9))
+                        .padding(8.dp)
+            ) {
+                HorizontalText(
+                    text = cueText,
+                    modifier =
+                        Modifier.widthIn(max = SUBTITLE_CUE_MAX_WIDTH)
+                            .testTag(SUBTITLE_CUE_HORIZONTAL_TAG),
+                    style = cueStyle,
+                )
+            }
         }
     }
 }
