@@ -20,16 +20,22 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.text.SpannableString
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -43,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.text.vertical.AnnotationPosition
 import androidx.text.vertical.EmphasisSpan
 import androidx.text.vertical.EmphasisStyle
@@ -373,6 +380,280 @@ class VerticalTextTest {
             assertThat(measuredSize.width).isLessThan(uniformColumnWidthPx)
         }
     }
+
+    @Test
+    fun maxColumns_tallerHiddenColumn_measuresDrawnColumnHeight() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        val text = "あ\nあいうえおかきくけこ"
+        var measuredSize = IntSize.Zero
+        var firstColumnHeightPx = 0
+        var fullContentHeightPx = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            val vtl =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = text,
+                        height = Constraints.Infinity,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+            firstColumnHeightPx = ceil(vtl.getLineHeight(0)).toInt()
+            fullContentHeightPx = ceil(vtl.contentHeight).toInt()
+            VerticalText(
+                text = text,
+                modifier = Modifier.onSizeChanged { measuredSize = it },
+                style = style,
+                maxColumns = 1,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(measuredSize.height).isEqualTo(firstColumnHeightPx)
+            assertThat(measuredSize.height).isLessThan(fullContentHeightPx)
+        }
+    }
+
+    @Test
+    fun zeroColumns_measuresZeroSize() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var measuredSize = IntSize(-1, -1)
+
+        rule.setContent {
+            VerticalText(
+                text = "あいうえお",
+                modifier = Modifier.onSizeChanged { measuredSize = it },
+                style = style,
+                maxColumns = 0,
+                minColumns = 0,
+            )
+        }
+
+        rule.runOnIdle { assertThat(measuredSize).isEqualTo(IntSize.Zero) }
+    }
+
+    @Test
+    fun emptyText_reservesMinColumnsWidth() {
+        val style = VerticalTextStyle(fontSize = 20.sp)
+        var oneColumnSize = IntSize(-1, -1)
+        var threeColumnSize = IntSize(-1, -1)
+        var zeroColumnSize = IntSize(-1, -1)
+        var annotatedOneColumnSize = IntSize(-1, -1)
+        var textSizePx = 0f
+
+        rule.setContent {
+            textSizePx = with(LocalDensity.current) { 20.sp.toPx() }
+            VerticalText(
+                text = "",
+                modifier = Modifier.onSizeChanged { oneColumnSize = it },
+                style = style,
+                minColumns = 1,
+            )
+            VerticalText(
+                text = "",
+                modifier = Modifier.onSizeChanged { threeColumnSize = it },
+                style = style,
+                minColumns = 3,
+            )
+            VerticalText(
+                text = "",
+                modifier = Modifier.onSizeChanged { zeroColumnSize = it },
+                style = style,
+                maxColumns = 0,
+                minColumns = 0,
+            )
+            VerticalText(
+                text = AnnotatedString(""),
+                modifier = Modifier.onSizeChanged { annotatedOneColumnSize = it },
+                style = style,
+                minColumns = 1,
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(oneColumnSize.width).isEqualTo(ceil(textSizePx).toInt())
+            assertThat(threeColumnSize.width).isEqualTo(ceil(3 * textSizePx).toInt())
+            assertThat(zeroColumnSize.width).isEqualTo(0)
+            assertThat(annotatedOneColumnSize.width).isEqualTo(ceil(textSizePx).toInt())
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun maxColumns_withOverflowVisible_doesNotDrawExtraColumns() {
+        val style = VerticalTextStyle(color = Color.Black, fontSize = 20.sp)
+        val text = "あ\nい"
+        var columnWidthPx = 0
+        var outerSizePx = 0
+
+        rule.setContent {
+            columnWidthPx = columnWidthPx(text, style, LocalDensity.current)
+            outerSizePx = 8 * columnWidthPx
+            WhiteOuterBox(outerSizePx) {
+                VerticalText(
+                    text = text,
+                    style = style,
+                    overflow = TextOverflow.Visible,
+                    maxColumns = 1,
+                )
+            }
+        }
+
+        // The node is one column wide and sits at the right edge of the outer box. Column 1 would
+        // land in [outer - 2 * columnWidth, outer - columnWidth), left of the node.
+        val bitmap = rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap()
+        assertThat(bitmap.countNonWhite(outerSizePx - columnWidthPx until outerSizePx))
+            .isGreaterThan(0)
+        assertThat(bitmap.countNonWhite(0 until outerSizePx - columnWidthPx - 2)).isEqualTo(0)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun maxColumns_withWideMinWidthConstraint_doesNotDrawExtraColumns() {
+        val style = VerticalTextStyle(color = Color.Black, fontSize = 20.sp)
+        val text = "あ\nい"
+        var columnWidthPx = 0
+        var outerSizePx = 0
+
+        rule.setContent {
+            columnWidthPx = columnWidthPx(text, style, LocalDensity.current)
+            outerSizePx = 8 * columnWidthPx
+            WhiteOuterBox(outerSizePx) {
+                VerticalText(
+                    text = text,
+                    modifier = Modifier.fixedSize(4 * columnWidthPx, 3 * columnWidthPx),
+                    style = style,
+                    overflow = TextOverflow.Clip,
+                    maxColumns = 1,
+                )
+            }
+        }
+
+        // The node is four columns wide, so column 1 would land inside its bounds where clipping
+        // cannot hide it.
+        val bitmap = rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap()
+        assertThat(bitmap.countNonWhite(outerSizePx - columnWidthPx until outerSizePx))
+            .isGreaterThan(0)
+        assertThat(
+                bitmap.countNonWhite(
+                    outerSizePx - 4 * columnWidthPx until outerSizePx - columnWidthPx - 2
+                )
+            )
+            .isEqualTo(0)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun overflowEllipsis_clipsContent() {
+        val style = VerticalTextStyle(color = Color.Black, fontSize = 20.sp)
+        val text = "あいうえおかきくけこ"
+        var columnWidthPx = 0
+        var outerSizePx = 0
+        var lineCount = 0
+
+        rule.setContent {
+            val density = LocalDensity.current
+            columnWidthPx = columnWidthPx(text, style, density)
+            val nodeHeightPx = ceil(2.5f * columnWidthPx).toInt()
+            lineCount =
+                VerticalTextLayoutCache()
+                    .getLayout(
+                        text = text,
+                        height = nodeHeightPx,
+                        orientation = TextOrientation.Mixed,
+                        style = style,
+                        typeface = Typeface.DEFAULT,
+                        density = density,
+                    )
+                    .lineCount
+            outerSizePx = 8 * columnWidthPx
+            WhiteOuterBox(outerSizePx) {
+                VerticalText(
+                    text = text,
+                    modifier = Modifier.fixedSize(2 * columnWidthPx, nodeHeightPx),
+                    style = style,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        // Two glyphs fit per column, so the text needs five columns but the node holds two.
+        assertThat(lineCount).isGreaterThan(2)
+        val bitmap = rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap()
+        assertThat(bitmap.countNonWhite(outerSizePx - 2 * columnWidthPx until outerSizePx))
+            .isGreaterThan(0)
+        assertThat(bitmap.countNonWhite(0 until outerSizePx - 2 * columnWidthPx - 2)).isEqualTo(0)
+    }
+}
+
+/** Returns the bounding column width in whole pixels for [text] laid out with [style]. */
+private fun columnWidthPx(text: CharSequence, style: VerticalTextStyle, density: Density): Int =
+    ceil(
+            VerticalTextLayoutCache()
+                .getLayout(
+                    text = text,
+                    height = Constraints.Infinity,
+                    orientation = TextOrientation.Mixed,
+                    style = style,
+                    typeface = Typeface.DEFAULT,
+                    density = density,
+                )
+                .columnWidth
+        )
+        .toInt()
+
+/**
+ * Composes [content] as the single child of a white box tagged `"outer"`.
+ *
+ * Centers the box in the window so system bars do not overlap the captured node, and places the
+ * child against the right edge of the box so leftward overflow stays inside the captured bounds.
+ */
+@Composable
+private fun WhiteOuterBox(outerSizePx: Int, content: @Composable () -> Unit) {
+    Layout(
+        content = {
+            Layout(
+                modifier = Modifier.drawBehind { drawRect(Color.White) }.testTag("outer"),
+                content = content,
+            ) { measurables, _ ->
+                val placeable =
+                    measurables
+                        .single()
+                        .measure(Constraints(maxWidth = outerSizePx, maxHeight = outerSizePx))
+                layout(outerSizePx, outerSizePx) {
+                    placeable.place(outerSizePx - placeable.width, 0)
+                }
+            }
+        }
+    ) { measurables, constraints ->
+        val placeable = measurables.single().measure(Constraints())
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                (constraints.maxWidth - placeable.width) / 2,
+                (constraints.maxHeight - placeable.height) / 2,
+            )
+        }
+    }
+}
+
+/** Counts the pixels in [xRange] across the full height that are not white. */
+private fun Bitmap.countNonWhite(xRange: IntRange): Int {
+    val white = Color.White.toArgb()
+    var count = 0
+    for (y in 0 until height) {
+        for (x in xRange) {
+            if (getPixel(x, y) != white) count++
+        }
+    }
+    return count
+}
+
+private fun Modifier.fixedSize(widthPx: Int, heightPx: Int): Modifier = layout { measurable, _ ->
+    val placeable = measurable.measure(Constraints.fixed(widthPx, heightPx))
+    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
 }
 
 private fun Modifier.maxHeight(maxHeightPx: Int): Modifier = layout { measurable, constraints ->
@@ -506,8 +787,6 @@ class VerticalTextLayoutCacheTest {
         val density = Density(1f)
         val layoutHeight = 200
 
-        // Assert on layout1 before the second getLayout call, because VerticalTextLayoutCache
-        // reuses a single cachedPaint instance that layout1 references directly.
         val layout1 =
             cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withBg, typeface, density)
         assertWithMessage("layout1 must draw the yellow background")
@@ -522,6 +801,30 @@ class VerticalTextLayoutCacheTest {
         assertWithMessage("layout2 must draw black text")
             .that(layout2.countColorPixels(Color.Black.toArgb(), layoutHeight))
             .isGreaterThan(0)
+    }
+
+    @Test
+    fun cache_doesNotMutatePreviousLayoutPaintOnMiss() {
+        val cache = VerticalTextLayoutCache()
+        val text = SpannableString("Hello")
+        val withBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Yellow)
+        val withoutBg = VerticalTextStyle(fontSize = 24.sp, background = Color.Unspecified)
+        val typeface = Typeface.DEFAULT
+        val density = Density(1f)
+        val layoutHeight = 200
+
+        val layout1 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withBg, typeface, density)
+        val layout2 =
+            cache.getLayout(text, layoutHeight, TextOrientation.Mixed, withoutBg, typeface, density)
+
+        assertNotSame(layout1, layout2)
+        assertWithMessage("layout1 must still draw the yellow background after a cache miss")
+            .that(layout1.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isGreaterThan(0)
+        assertWithMessage("layout2 must not draw a yellow background")
+            .that(layout2.countColorPixels(Color.Yellow.toArgb(), layoutHeight))
+            .isEqualTo(0)
     }
 
     @Test

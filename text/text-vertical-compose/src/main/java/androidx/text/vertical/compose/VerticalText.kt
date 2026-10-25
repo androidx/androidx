@@ -43,23 +43,41 @@ import androidx.compose.ui.unit.Density
 import androidx.text.vertical.TextOrientation
 import androidx.text.vertical.VerticalTextLayout
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Displays text laid out vertically using [VerticalTextLayout].
+ * Displays [text] laid out vertically with [VerticalTextLayout].
  *
- * This overload accepts an Android [CharSequence] and [TextPaint] directly, allowing use of
- * vertical-specific spans such as [androidx.text.vertical.RubySpan],
- * [androidx.text.vertical.EmphasisSpan], [androidx.text.vertical.FontShearSpan], and
- * [androidx.text.vertical.TextOrientationSpan].
+ * Accepts a plain [CharSequence], an [AnnotatedString], or an Android [android.text.Spanned] with
+ * vertical spans such as [androidx.text.vertical.RubySpan], [androidx.text.vertical.EmphasisSpan],
+ * [androidx.text.vertical.FontShearSpan], and [androidx.text.vertical.TextOrientationSpan].
+ * [buildVerticalText] creates such a [android.text.Spanned]. Treat an [android.text.Spannable] as
+ * immutable once passed: later span edits are not observed.
  *
- * @param text The [CharSequence] text to display.
- * @param style The [VerticalTextStyle] to use for text measurement and rendering.
- * @param modifier The [Modifier] to apply to the layout.
- * @param overflow How to handle text that overflows the available space.
- * @param maxColumns The maximum number of columns. Defaults to unlimited.
- * @param minColumns The minimum number of columns for layout sizing.
- * @param orientation The text orientation mode for vertical layout.
+ * For an [AnnotatedString], honors [androidx.compose.ui.text.SpanStyle.color],
+ * [androidx.compose.ui.text.SpanStyle.fontSize], [androidx.compose.ui.text.SpanStyle.fontWeight],
+ * [androidx.compose.ui.text.SpanStyle.fontStyle], [androidx.compose.ui.text.SpanStyle.background],
+ * and [androidx.compose.ui.text.SpanStyle.letterSpacing]. Ignores other span styles and all
+ * paragraph styles.
+ *
+ * Columns start at the right edge of the layout and advance to the left. The width wraps to the
+ * columns that fit in the height constraint, capped at [maxColumns] and padded to [minColumns], and
+ * the height wraps to the tallest drawn column.
+ *
+ * @param text text to display
+ * @param modifier [Modifier] to apply to this layout node
+ * @param style [VerticalTextStyle] for text measurement and rendering
+ * @param overflow how to handle text that overflows the bounds. [TextOverflow.Visible] draws past
+ *   the bounds; every other value clips. No value adds an ellipsis
+ * @param maxColumns maximum number of columns to measure and draw. `0` measures and draws no
+ *   column. Defaults to no limit
+ * @param minColumns minimum number of columns to reserve in the measured width. `0` lets empty text
+ *   measure zero width. Extra columns use the bounding column width across all laid-out columns, or
+ *   the resolved font size when [text] is empty
+ * @param orientation [TextOrientation] mode for each character
+ * @throws IllegalArgumentException if [minColumns] or [maxColumns] is negative, or if [minColumns]
+ *   is greater than [maxColumns]
  */
 @Composable
 public fun VerticalText(
@@ -71,31 +89,108 @@ public fun VerticalText(
     minColumns: Int = 1,
     orientation: TextOrientation = TextOrientation.Mixed,
 ) {
-    VerticalTextImpl(
-        text = text,
-        style = style,
-        modifier = modifier,
-        overflow = overflow,
-        maxColumns = maxColumns,
-        minColumns = minColumns,
-        orientation = orientation,
-    )
+    require(minColumns >= 0 && maxColumns >= 0) {
+        "minColumns ($minColumns) and maxColumns ($maxColumns) must be non-negative"
+    }
+    require(minColumns <= maxColumns) {
+        "minColumns ($minColumns) must be less than or equal to maxColumns ($maxColumns)"
+    }
+
+    val cache = remember { VerticalTextLayoutCache() }
+    var textLayout by remember { mutableStateOf<VerticalTextLayout?>(null) }
+    val clipModifier = if (overflow != TextOverflow.Visible) Modifier.clipToBounds() else Modifier
+    val semanticsText =
+        remember(text) { text as? AnnotatedString ?: AnnotatedString(text.toString()) }
+    val semanticsModifier = Modifier.semantics { this.text = semanticsText }
+    val drawModifier = Modifier.drawBehind {
+        val currentLayout = textLayout ?: return@drawBehind
+        val drawnColumns = min(currentLayout.lineCount, maxColumns)
+        drawIntoCanvas { canvas ->
+            currentLayout.draw(canvas.nativeCanvas, size.width, 0f, 0, drawnColumns)
+        }
+    }
+    val density = LocalDensity.current
+    val resolver = LocalFontFamilyResolver.current
+    val typeface by
+        remember(
+            style.fontFamily,
+            style.fontWeight,
+            style.fontStyle,
+            style.fontSynthesis,
+            resolver,
+        ) {
+            resolver.resolve(
+                style.fontFamily,
+                style.fontWeight ?: FontWeight.Normal,
+                style.fontStyle ?: FontStyle.Normal,
+                style.fontSynthesis ?: FontSynthesis.All,
+            )
+        }
+
+    // TODO(b/571750156): The default MeasurePolicy answers intrinsic queries by running this
+    // measure lambda, which can evict the cache with an intrinsic height.
+    Layout(modifier = modifier.then(semanticsModifier).then(clipModifier).then(drawModifier)) {
+        _,
+        constraints ->
+        val vtl =
+            cache.getLayout(
+                text,
+                constraints.maxHeight,
+                orientation,
+                style,
+                typeface as Typeface,
+                density,
+            )
+        textLayout = vtl
+
+        val columnWidth = if (vtl.lineCount > 0) vtl.columnWidth else cache.lastTextSize
+        val effectiveColumns = min(vtl.lineCount, maxColumns)
+        var desiredWidth = 0f
+        var desiredHeight = 0f
+        for (i in 0 until effectiveColumns) {
+            desiredWidth += vtl.getLineWidth(i)
+            desiredHeight = max(desiredHeight, vtl.getLineHeight(i))
+        }
+        val extraMinColumns = (minColumns - effectiveColumns).coerceAtLeast(0)
+
+        val layoutWidth =
+            ceil(desiredWidth + columnWidth * extraMinColumns)
+                .toInt()
+                .coerceIn(constraints.minWidth, constraints.maxWidth)
+        val layoutHeight =
+            ceil(desiredHeight).toInt().coerceIn(constraints.minHeight, constraints.maxHeight)
+
+        layout(layoutWidth, layoutHeight) {}
+    }
 }
 
+/** Caches the most recent [VerticalTextLayout] across measure and draw passes. */
 internal class VerticalTextLayoutCache {
-    private var layout: VerticalTextLayout? = null
+    private var cachedLayout: VerticalTextLayout? = null
     private var lastText: CharSequence? = null
     private var lastConstraintsHeight: Int = -1
     private var lastOrientation: TextOrientation? = null
     private var lastStyle: VerticalTextStyle? = null
     private var lastTypeface: Typeface? = null
     private var lastDensity: Density? = null
-    private var cachedPaint: TextPaint? = null
+
+    /** Text size in pixels that the last cache miss applied to its [TextPaint]. */
+    var lastTextSize: Float = 0f
+        private set
 
     /**
-     * Returns the cached layout if the inputs are unchanged, otherwise creates a new one.
+     * Returns the cached [VerticalTextLayout] when all inputs match, or builds a new one.
      *
+     * Each cache miss creates its own [TextPaint], so a layout returned earlier keeps the paint it
+     * was built with.
+     *
+     * @param text text to lay out, which may be an [AnnotatedString] or [android.text.Spanned]
      * @param height maximum height in pixels, or [Constraints.Infinity] for unbounded height
+     * @param orientation [TextOrientation] mode for each character
+     * @param style [VerticalTextStyle] for measurement and rendering
+     * @param typeface resolved [Typeface] for [style]
+     * @param density current [Density]
+     * @return measured [VerticalTextLayout]
      */
     fun getLayout(
         text: CharSequence,
@@ -105,7 +200,7 @@ internal class VerticalTextLayoutCache {
         typeface: Typeface,
         density: Density,
     ): VerticalTextLayout {
-        val cached = layout
+        val cached = cachedLayout
         if (
             cached != null &&
                 lastText == text &&
@@ -117,7 +212,7 @@ internal class VerticalTextLayoutCache {
         ) {
             return cached
         }
-        val paint = cachedPaint ?: TextPaint().also { cachedPaint = it }
+        val paint = TextPaint()
         setStyleToPaint(style, typeface, density, paint)
         val layoutText = if (text is AnnotatedString) text.toSpanned(density) else text
         val heightConstraint =
@@ -131,7 +226,8 @@ internal class VerticalTextLayoutCache {
                 height = heightConstraint,
                 orientation = orientation,
             )
-        layout = newLayout
+        cachedLayout = newLayout
+        lastTextSize = paint.textSize
         lastText = text
         lastConstraintsHeight = height
         lastOrientation = orientation
@@ -139,71 +235,5 @@ internal class VerticalTextLayoutCache {
         lastTypeface = typeface
         lastDensity = density
         return newLayout
-    }
-}
-
-@Composable
-private fun VerticalTextImpl(
-    text: CharSequence,
-    style: VerticalTextStyle,
-    modifier: Modifier,
-    overflow: TextOverflow,
-    maxColumns: Int,
-    minColumns: Int,
-    orientation: TextOrientation,
-) {
-    check(minColumns <= maxColumns) { "maxColumn must be bigger than minColumns!" }
-
-    val cache = remember { VerticalTextLayoutCache() }
-    var textLayout by remember { mutableStateOf<VerticalTextLayout?>(null) }
-    val clipModifier = if (overflow == TextOverflow.Clip) Modifier.clipToBounds() else Modifier
-    val semanticsText = text as? AnnotatedString ?: AnnotatedString(text.toString())
-    val semanticsModifier = Modifier.semantics { this.text = semanticsText }
-    val drawModifier = Modifier.drawBehind {
-        drawIntoCanvas { canvas -> textLayout?.draw(canvas.nativeCanvas, size.width, 0f) }
-    }
-    val density = LocalDensity.current
-    val resolver = LocalFontFamilyResolver.current
-    val typeface by
-        remember(style, resolver) {
-            resolver.resolve(
-                style.fontFamily,
-                style.fontWeight ?: FontWeight.Normal,
-                style.fontStyle ?: FontStyle.Normal,
-                style.fontSynthesis ?: FontSynthesis.All,
-            )
-        }
-
-    Layout(
-        content = {},
-        modifier = modifier.then(semanticsModifier).then(clipModifier).then(drawModifier),
-    ) { _, constraints ->
-        val vtl =
-            cache.getLayout(
-                text,
-                constraints.maxHeight,
-                orientation,
-                style,
-                typeface as Typeface,
-                density,
-            )
-        textLayout = vtl
-
-        val columnWidth = vtl.columnWidth
-        val effectiveColumns = min(vtl.lineCount, maxColumns)
-        var desiredWidth = 0f
-        for (i in 0 until effectiveColumns) {
-            desiredWidth += vtl.getLineWidth(i)
-        }
-        val extraMinColumns = (minColumns - effectiveColumns).coerceAtLeast(0)
-
-        val layoutWidth =
-            ceil(desiredWidth + columnWidth * extraMinColumns)
-                .toInt()
-                .coerceIn(constraints.minWidth, constraints.maxWidth)
-        val layoutHeight =
-            ceil(vtl.contentHeight).toInt().coerceIn(constraints.minHeight, constraints.maxHeight)
-
-        layout(layoutWidth, layoutHeight) {}
     }
 }
