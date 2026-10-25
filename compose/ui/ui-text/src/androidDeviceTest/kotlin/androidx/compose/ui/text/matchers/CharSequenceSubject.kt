@@ -74,6 +74,10 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Char
     }
 
     fun <T : Any> doesNotHaveSpan(spanClazz: KClass<out T>) {
+        if (subject !is Spanned) {
+            check("isNotNull()").that(subject).isNotNull()
+            return
+        }
         spans(spanClazz).isEmpty()
     }
 

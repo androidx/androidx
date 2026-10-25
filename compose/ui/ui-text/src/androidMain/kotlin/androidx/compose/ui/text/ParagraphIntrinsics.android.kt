@@ -350,5 +350,12 @@ private class TypefaceDirtyTrackerLinkedList(
         get() = resolveResult.value !== initial || (next != null && next.isStaleResolvedFont)
 }
 
+// Explicit null check avoids nullable value-class boxing (`EmojiSupportMatch.box-impl`) that
+// `platformStyle?.paragraphStyle?.emojiSupportMatch != EmojiSupportMatch.None` would emit,
+// compiling the non-null comparison to a direct primitive `int` compare (`if-eq` / `cmp`).
 private val TextStyle.hasEmojiCompat: Boolean
-    get() = platformStyle?.paragraphStyle?.emojiSupportMatch != EmojiSupportMatch.None
+    get() {
+        val paragraphPlatformStyle = platformStyle?.paragraphStyle
+        return paragraphPlatformStyle == null ||
+            paragraphPlatformStyle.emojiSupportMatch != EmojiSupportMatch.None
+    }

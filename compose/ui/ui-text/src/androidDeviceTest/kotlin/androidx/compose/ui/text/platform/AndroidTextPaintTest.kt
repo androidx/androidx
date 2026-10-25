@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.platform
 
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.PackedTextStylesLatch
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -499,4 +501,62 @@ class AndroidTextPaintTest {
 
     private val defaultTextPaint
         get() = AndroidTextPaint(flags = 0, density = 1.0f)
+
+    @Test
+    fun setColor_afterShaderBrush_and_SolidColor_invalidatesLastColorCache() {
+        val paint = AndroidTextPaint(0, 1.0f)
+        assertThat(paint.hasBackingComposePaint).isFalse()
+
+        paint.setColor(Color.Red)
+        assertThat(paint.color).isEqualTo(android.graphics.Color.RED)
+        assertThat(paint.shader).isNull()
+
+        val gradient = Brush.linearGradient(listOf(Color.Blue, Color.Green))
+        // Layout-pass call with Size.Unspecified skips backingComposePaint allocation when
+        // PackedTextStylesLatch is enabled and both shaderState and backingComposePaint are null,
+        // while falling back to eager composePaint allocation when the flag is off.
+        paint.setBrush(gradient, Size.Unspecified, 0.5f)
+        assertThat(paint.hasBackingComposePaint).isEqualTo(!PackedTextStylesLatch.isEnabled)
+        assertThat(paint.shader).isNull()
+        assertThat(paint.brush).isNull()
+        assertThat(paint.brushSize).isNull()
+        paint.setColor(Color.Red)
+        assertThat(paint.color).isEqualTo(android.graphics.Color.RED)
+        assertThat(paint.alpha).isEqualTo(255)
+
+        // Draw-pass call with specified Size creates shader and sets brush/brushSize
+        paint.setBrush(gradient, Size(20f, 20f), 0.5f)
+        assertThat(paint.hasBackingComposePaint).isTrue()
+        assertThat(paint.shader).isNotNull()
+        assertThat(paint.brush).isEqualTo(gradient)
+        assertThat(paint.brushSize).isEqualTo(Size(20f, 20f))
+
+        // Setting the same Color.Red after ShaderBrush must clear shader/brush and restore
+        // Color.Red (including full 255 alpha)
+        paint.setColor(Color.Red)
+        assertThat(paint.shader).isNull()
+        assertThat(paint.brush).isNull()
+        assertThat(paint.brushSize).isNull()
+        assertThat(paint.color).isEqualTo(android.graphics.Color.RED)
+        assertThat(paint.alpha).isEqualTo(255)
+
+        // Once backingComposePaint is allocated, Size.Unspecified still clears any active shader
+        paint.shader =
+            LinearGradient(
+                0f,
+                0f,
+                10f,
+                10f,
+                android.graphics.Color.RED,
+                android.graphics.Color.BLUE,
+                android.graphics.Shader.TileMode.CLAMP,
+            )
+        paint.setBrush(gradient, Size.Unspecified, 0.5f)
+        assertThat(paint.shader).isNull()
+
+        paint.setBrush(SolidColor(Color.Blue), Size(20f, 20f), 1.0f)
+        assertThat(paint.color).isEqualTo(android.graphics.Color.BLUE)
+        paint.setColor(Color.Red)
+        assertThat(paint.color).isEqualTo(android.graphics.Color.RED)
+    }
 }

@@ -2095,6 +2095,30 @@ class MultiParagraphIntegrationTest {
         assertThat(strings[3].annotations).containsExactly(Range(SpanStyle(), 0, 1))
     }
 
+    @Test
+    fun emptyText_withCollapsedAndOutOfBoundsAnnotations_usesEmptyAnnotationsAndDoesNotCrash() {
+        val text =
+            AnnotatedString(
+                text = "",
+                annotations =
+                    listOf(
+                        Range(SpanStyle(color = Color.Red), 0, 0),
+                        Range(SpanStyle(fontSize = 20.sp), 0, 1),
+                        Range(Bullet.Default, 0, 1),
+                    ),
+            )
+
+        val intrinsics = simpleMultiParagraphIntrinsics(text)
+        assertThat(intrinsics.infoList).hasSize(1)
+        val paragraphIntrinsics = intrinsics.infoList[0].intrinsics as AndroidParagraphIntrinsics
+        assertThat(paragraphIntrinsics.annotations).isEmpty()
+        assertThat(intrinsics.minIntrinsicWidth).isEqualTo(0f)
+        assertThat(intrinsics.maxIntrinsicWidth).isEqualTo(0f)
+
+        val paragraph = simpleMultiParagraph(text)
+        assertThat(paragraph.lineCount).isEqualTo(1)
+    }
+
     private fun MultiParagraph.disableAntialias() {
         paragraphInfoList.forEach {
             (it.paragraph as AndroidParagraph).textPaint.isAntiAlias = false
