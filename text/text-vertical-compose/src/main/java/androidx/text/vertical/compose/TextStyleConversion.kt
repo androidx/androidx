@@ -77,9 +77,9 @@ internal fun setStyleToPaint(
         if (style.color.isSpecified) {
             out.color = style.color.toArgb()
         }
-        // The caller reuses the TextPaint, and Paint.reset() does not reset the fields that
-        // TextPaint adds, such as bgColor. Assign each TextPaint field that this function sets
-        // every time, also when the style does not specify a value.
+        // Paint.reset() does not reset the fields that TextPaint adds, such as bgColor. Assign each
+        // TextPaint field that this function sets every time, so a reused TextPaint never keeps a
+        // stale value when the style does not specify one.
         out.bgColor =
             if (style.background.isSpecified) {
                 style.background.toArgb()
