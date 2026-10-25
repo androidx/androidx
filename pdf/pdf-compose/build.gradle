@@ -34,8 +34,8 @@ dependencies {
     api(project(":pdf:pdf-core"))
     api("androidx.compose.ui:ui:$compose_version")
     api("androidx.compose.runtime:runtime-annotation:1.9.0")
-
     implementation(project(":pdf:pdf-viewer"))
+    implementation(project(":pdf:pdf-ink"))
     implementation("androidx.compose.foundation:foundation:$compose_version")
     implementation("androidx.core:core-ktx:1.1.0")
     implementation("androidx.compose.runtime:runtime:$compose_version")
