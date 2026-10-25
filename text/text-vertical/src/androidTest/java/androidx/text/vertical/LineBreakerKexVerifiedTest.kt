@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.text.vertical.TextOrientationSpan.CombineUpright
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -67,10 +66,17 @@ class LineBreakerKexVerifiedTest {
     }
 
     @Test
-    fun breakTextIntoLines_emptyRange_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            LineBreaker.breakTextIntoLines("abc", 1, 1, paint, 100f, TextOrientation.Mixed)
-        }
+    fun breakTextIntoLines_emptyRange_returnsEmptyResult() {
+        val result = LineBreaker.breakTextIntoLines("abc", 1, 1, paint, 100f, TextOrientation.Mixed)
+
+        assertThat(result.lineCount).isEqualTo(0)
+        assertThat(result.width).isEqualTo(0f)
+        assertThat(result.height).isEqualTo(0f)
+        assertThat(result.lineWidth).isEqualTo(0f)
+
+        val canvas = RecordingCanvas()
+        result.draw(canvas, 100f, 20f, paint)
+        assertThat(canvas.drawnRanges).isEmpty()
     }
 
     @Test
@@ -240,5 +246,52 @@ class LineBreakerKexVerifiedTest {
         assertThat(result.getLineEnd(1)).isEqualTo(3)
         assertThat(result.getLineStart(2)).isEqualTo(3)
         assertThat(result.getLineEnd(2)).isEqualTo(4)
+    }
+
+    @Test
+    fun processNonBreakableLayout_oversizedRubyEndsText_returnsLinesWithoutThrowing() {
+        val text =
+            SpannableString("あ漢字").apply {
+                setSpan(RubySpan("かんじ"), 1, 3, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val result =
+            LineBreaker.breakTextIntoLines(
+                text,
+                0,
+                text.length,
+                paint,
+                getVerticalAdvance("あ"),
+                TextOrientation.Upright,
+            )
+
+        assertThat(result.lineCount).isEqualTo(2)
+        assertThat(result.getLineStart(0)).isEqualTo(0)
+        assertThat(result.getLineEnd(0)).isEqualTo(1)
+        assertThat(result.getLineStart(1)).isEqualTo(1)
+        assertThat(result.getLineEnd(1)).isEqualTo(3)
+    }
+
+    @Test
+    fun processNonBreakableLayout_oversizedRubyEndsParagraph_returnsLinesWithoutThrowing() {
+        // The RubySpan covers the '\n', so the paragraph has no run after the forced break.
+        val text =
+            SpannableString("漢字\nあ").apply {
+                setSpan(RubySpan("かんじ"), 0, 3, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
+        val result =
+            LineBreaker.breakTextIntoLines(
+                text,
+                0,
+                text.length,
+                paint,
+                getVerticalAdvance("あ"),
+                TextOrientation.Upright,
+            )
+
+        assertThat(result.lineCount).isEqualTo(2)
+        assertThat(result.getLineStart(0)).isEqualTo(0)
+        assertThat(result.getLineEnd(0)).isEqualTo(3)
+        assertThat(result.getLineStart(1)).isEqualTo(3)
+        assertThat(result.getLineEnd(1)).isEqualTo(4)
     }
 }

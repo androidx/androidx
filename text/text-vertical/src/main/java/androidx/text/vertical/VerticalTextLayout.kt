@@ -124,7 +124,7 @@ constructor(
     private val result: LineBreaker.Result
 
     init {
-        require(start <= end && end <= text.length && height >= 0)
+        require(start in 0..end && end <= text.length && height >= 0)
 
         result = LineBreaker.breakTextIntoLines(text, start, end, paint, height, orientation)
     }
@@ -138,6 +138,25 @@ constructor(
      */
     public fun draw(canvas: Canvas, @Px x: Float, @Px y: Float) {
         result.draw(canvas, x, y, paint)
+    }
+
+    /**
+     * Draws the vertical lines (columns) in `[lineStart, lineEnd)` onto the specified [Canvas].
+     *
+     * Each column keeps the position it has in [draw] without a range.
+     *
+     * @param canvas [Canvas] to draw onto
+     * @param x horizontal offset in pixels; the drawing origin is the top-right corner
+     * @param y vertical offset in pixels; the drawing origin is the top-right corner
+     * @param lineStart inclusive first line (column) index (`0 <= lineStart <= lineEnd`)
+     * @param lineEnd exclusive last line (column) index (`lineStart <= lineEnd <=` [lineCount])
+     * @throws IndexOutOfBoundsException if [lineStart] or [lineEnd] is outside `0..`[lineCount] or
+     *   `lineStart > lineEnd`
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // TODO(b/571750156): Remove @RestrictTo in 1.1.0-alpha01
+    public fun draw(canvas: Canvas, @Px x: Float, @Px y: Float, lineStart: Int, lineEnd: Int) {
+        result.draw(canvas, x, y, paint, lineStart, lineEnd)
     }
 
     /**
