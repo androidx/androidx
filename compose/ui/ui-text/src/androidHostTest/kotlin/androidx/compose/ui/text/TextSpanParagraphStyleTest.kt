@@ -24,7 +24,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.primaryConstructor
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,7 +34,7 @@ class TextSpanParagraphStyleTest {
     @Test
     fun spanStyle_constructor_is_covered_by_TextStyle() {
         val spanStyleParameters =
-            constructorParams(SpanStyle::class).toMutableSet().filter {
+            allPublicConstructorParams(SpanStyle::class).filter {
                 it.name != "platformStyle" && it.name != "textForegroundStyle"
             }
         val textStyleParameters = mutableSetOf<Parameter>()
@@ -132,8 +131,11 @@ class TextSpanParagraphStyleTest {
         assertThat(allProperties).containsAtLeastElementsIn(textStyleProperties)
     }
 
-    private fun <T : Any> constructorParams(clazz: KClass<T>): List<Parameter> {
-        return clazz.primaryConstructor?.let { constructorParams(it) } ?: listOf()
+    private fun <T : Any> allPublicConstructorParams(clazz: KClass<T>): Set<Parameter> {
+        return clazz.constructors
+            .filter { it.visibility == KVisibility.PUBLIC }
+            .flatMap { constructor -> constructorParams(constructor) }
+            .toSet()
     }
 
     private fun <T : Any> allConstructorParams(clazz: KClass<T>): Set<Parameter> {

@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
@@ -839,13 +838,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -908,13 +903,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -979,13 +970,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -1053,13 +1040,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
@@ -1120,13 +1103,9 @@ internal constructor(
     ): TextStyle {
         return TextStyle(
             spanStyle =
-                SpanStyle(
-                    textForegroundStyle =
-                        if (color == this.spanStyle.color) {
-                            spanStyle.textForegroundStyle
-                        } else {
-                            TextForegroundStyle.from(color)
-                        },
+                // SpanStyle.copy preserves existing brush when color == this.spanStyle.color.
+                this.spanStyle.copy(
+                    color = color,
                     fontSize = fontSize,
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,

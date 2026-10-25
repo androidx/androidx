@@ -1372,12 +1372,3 @@ internal fun resolveParagraphStyleDefaults(
     }
     return style.withResolvedDefaults(direction)
 }
-
-internal object BoxedStyleValues {
-    @JvmField
-    internal val ResolvedDefaultParagraphStyleLtr: ParagraphStyle =
-        DefaultParagraphStyle.withResolvedDefaults(LayoutDirection.Ltr)
-    @JvmField
-    internal val ResolvedDefaultParagraphStyleRtl: ParagraphStyle =
-        DefaultParagraphStyle.withResolvedDefaults(LayoutDirection.Rtl)
-}

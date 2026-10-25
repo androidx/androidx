@@ -171,7 +171,7 @@ internal fun createCharSequence(
                 mayHaveNewLine ||
                 placeholders.isNotEmpty() ||
                 (textIndent != null && textIndent != TextIndent.None) ||
-                contextTextStyle.baselineShift?.isApplicable == true ||
+                contextTextStyle.spanStyle.baselineShiftOrNone.isApplicable ||
                 spannableString.couldAffectRtl {
                     val textDirInt =
                         resolveTextDirectionHeuristics(
@@ -395,19 +395,41 @@ private fun SpanStyle.hasMetricAffectingSpanStyle(): Boolean {
 }
 
 internal fun List<AnnotatedString.Range<*>>.hasMetricAffectingSpanStyle(): Boolean {
+    if (!PackedTextStylesLatch.isEnabled) {
+        for (i in indices) {
+            val item = this[i].item
+            if (item is SpanStyle && item.hasMetricAffectingSpanStyle()) {
+                return true
+            }
+            if (item is LinkAnnotation) {
+                val styles = item.styles
+                if (styles != null) {
+                    if (
+                        styles.style?.hasMetricAffectingSpanStyle() == true ||
+                            styles.focusedStyle?.hasMetricAffectingSpanStyle() == true ||
+                            styles.hoveredStyle?.hasMetricAffectingSpanStyle() == true ||
+                            styles.pressedStyle?.hasMetricAffectingSpanStyle() == true
+                    ) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
     for (i in indices) {
         val item = this[i].item
-        if (item is SpanStyle && item.hasMetricAffectingSpanStyle()) {
+        if (item is SpanStyle && item.hasMetricAffectingAttributes) {
             return true
         }
         if (item is LinkAnnotation) {
             val styles = item.styles
             if (styles != null) {
                 if (
-                    styles.style?.hasMetricAffectingSpanStyle() == true ||
-                        styles.focusedStyle?.hasMetricAffectingSpanStyle() == true ||
-                        styles.hoveredStyle?.hasMetricAffectingSpanStyle() == true ||
-                        styles.pressedStyle?.hasMetricAffectingSpanStyle() == true
+                    styles.style?.hasMetricAffectingAttributes == true ||
+                        styles.focusedStyle?.hasMetricAffectingAttributes == true ||
+                        styles.hoveredStyle?.hasMetricAffectingAttributes == true ||
+                        styles.pressedStyle?.hasMetricAffectingAttributes == true
                 ) {
                     return true
                 }

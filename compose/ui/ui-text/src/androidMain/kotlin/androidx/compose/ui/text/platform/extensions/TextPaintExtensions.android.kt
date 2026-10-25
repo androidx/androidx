@@ -73,12 +73,10 @@ internal fun AndroidTextPaint.applySpanStyle(
         fontFeatureSettings = style.fontFeatureSettings
     }
 
-    if (
-        style.textGeometricTransform != null &&
-            style.textGeometricTransform != TextGeometricTransform.None
-    ) {
-        textScaleX *= style.textGeometricTransform.scaleX
-        textSkewX += style.textGeometricTransform.skewX
+    val textGeometricTransform = style.textGeometricTransform
+    if (textGeometricTransform != null && textGeometricTransform != TextGeometricTransform.None) {
+        textScaleX *= textGeometricTransform.scaleX
+        textSkewX += textGeometricTransform.skewX
     }
 
     // these parameters are also updated by the Paragraph.paint

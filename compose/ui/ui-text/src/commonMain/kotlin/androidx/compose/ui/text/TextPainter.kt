@@ -17,7 +17,6 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
@@ -33,7 +32,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextForegroundStyle.Unspecified
+import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.modulate
 import androidx.compose.ui.unit.Constraints
@@ -56,9 +55,8 @@ public object TextPainter {
         if (needClipping) {
             val width = textLayoutResult.size.width.toFloat()
             val height = textLayoutResult.size.height.toFloat()
-            val bounds = Rect(Offset.Zero, Size(width, height))
             canvas.save()
-            canvas.clipRect(bounds)
+            canvas.clipRect(0f, 0f, width, height)
         }
 
         /* inline resolveSpanStyleDefaults to avoid an allocation in draw */
@@ -67,14 +65,50 @@ public object TextPainter {
         val shadow = style.shadow ?: Shadow.None
         val drawStyle = style.drawStyle ?: Fill
         try {
+            val legacySpanStyle = style.legacySpanStyle
+            if (legacySpanStyle != null) {
+                val brush = legacySpanStyle.brush
+                if (brush != null) {
+                    val alpha =
+                        if (
+                            legacySpanStyle.textForegroundStyle !== TextForegroundStyle.Unspecified
+                        ) {
+                            legacySpanStyle.textForegroundStyle.alpha
+                        } else {
+                            1.0f
+                        }
+                    textLayoutResult.multiParagraph.paint(
+                        canvas = canvas,
+                        brush = brush,
+                        alpha = alpha,
+                        shadow = shadow,
+                        decoration = textDecoration,
+                        drawStyle = drawStyle,
+                    )
+                } else {
+                    val color =
+                        if (
+                            legacySpanStyle.textForegroundStyle !== TextForegroundStyle.Unspecified
+                        ) {
+                            legacySpanStyle.textForegroundStyle.color
+                        } else {
+                            Color.Black
+                        }
+                    textLayoutResult.multiParagraph.paint(
+                        canvas = canvas,
+                        color = color,
+                        shadow = shadow,
+                        decoration = textDecoration,
+                        drawStyle = drawStyle,
+                    )
+                }
+                return
+            }
             val brush = style.brush
             if (brush != null) {
-                val alpha =
-                    if (style.textForegroundStyle !== Unspecified) {
-                        style.textForegroundStyle.alpha
-                    } else {
-                        1.0f
-                    }
+                // When style.brush is non-null (a ShaderBrush in style.extras), style.alpha reads
+                // extras.alpha directly (Float.NaN if unspecified); see SpanStyle.alpha.
+                val alpha = style.alpha
                 textLayoutResult.multiParagraph.paint(
                     canvas = canvas,
                     brush = brush,
@@ -84,12 +118,11 @@ public object TextPainter {
                     drawStyle = drawStyle,
                 )
             } else {
-                val color =
-                    if (style.textForegroundStyle !== Unspecified) {
-                        style.textForegroundStyle.color
-                    } else {
-                        Color.Black
-                    }
+                // When style.brush is null, style.color decodes style.colorXor (returning
+                // Color.Unspecified when 0L, or the alpha-modulated Color if constructed from a
+                // SolidColor brush; see SpanStyle.color), so takeOrElse falls back to Color.Black
+                // just like the former textForegroundStyle !== Unspecified check.
+                val color = style.color.takeOrElse { Color.Black }
                 textLayoutResult.multiParagraph.paint(
                     canvas = canvas,
                     color = color,
@@ -266,9 +299,10 @@ public fun DrawScope.drawText(
     drawStyle: DrawStyle? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
-    val newShadow = shadow ?: textLayoutResult.layoutInput.style.shadow
-    val newTextDecoration = textDecoration ?: textLayoutResult.layoutInput.style.textDecoration
-    val newDrawStyle = drawStyle ?: textLayoutResult.layoutInput.style.drawStyle
+    val spanStyle = textLayoutResult.layoutInput.style.spanStyle
+    val newShadow = shadow ?: spanStyle.shadow
+    val newTextDecoration = textDecoration ?: spanStyle.textDecoration
+    val newDrawStyle = drawStyle ?: spanStyle.drawStyle
 
     withTransform({
         translate(topLeft.x, topLeft.y)
@@ -277,12 +311,12 @@ public fun DrawScope.drawText(
         drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
         // if text layout was created using brush, and [color] is unspecified, we should treat this
         // like drawText(brush) call
-        val brush = textLayoutResult.layoutInput.style.brush
+        val brush = spanStyle.brush
         if (brush != null && color.isUnspecified) {
             textLayoutResult.multiParagraph.paint(
                 drawContext.canvas,
                 brush,
-                if (!alpha.isNaN()) alpha else textLayoutResult.layoutInput.style.alpha,
+                if (!alpha.isNaN()) alpha else spanStyle.alpha,
                 newShadow,
                 newTextDecoration,
                 newDrawStyle,
@@ -291,7 +325,7 @@ public fun DrawScope.drawText(
         } else {
             textLayoutResult.multiParagraph.paint(
                 drawContext.canvas,
-                color.takeOrElse { textLayoutResult.layoutInput.style.color }.modulate(alpha),
+                color.takeOrElse { spanStyle.color }.modulate(alpha),
                 newShadow,
                 newTextDecoration,
                 newDrawStyle,
@@ -328,22 +362,19 @@ public fun DrawScope.drawText(
     drawStyle: DrawStyle? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
-    val newShadow = shadow ?: textLayoutResult.layoutInput.style.shadow
-    val newTextDecoration = textDecoration ?: textLayoutResult.layoutInput.style.textDecoration
-    val newDrawStyle = drawStyle ?: textLayoutResult.layoutInput.style.drawStyle
-
     withTransform({
         translate(topLeft.x, topLeft.y)
         clip(textLayoutResult)
     }) {
         drawAnnotationsBehind(textLayoutResult.layoutInput.text, textLayoutResult)
+        val spanStyle = textLayoutResult.layoutInput.style.spanStyle
         textLayoutResult.multiParagraph.paint(
             drawContext.canvas,
             brush,
-            if (!alpha.isNaN()) alpha else textLayoutResult.layoutInput.style.alpha,
-            newShadow,
-            newTextDecoration,
-            newDrawStyle,
+            if (!alpha.isNaN()) alpha else spanStyle.alpha,
+            shadow ?: spanStyle.shadow,
+            textDecoration ?: spanStyle.textDecoration,
+            drawStyle ?: spanStyle.drawStyle,
             blendMode,
         )
         drawAnnotationsOver(textLayoutResult.layoutInput.text, textLayoutResult)
