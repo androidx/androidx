@@ -121,16 +121,38 @@ internal object LineBreaker {
         fun getLineEnd(lineNo: Int) = lineLayouts[lineNo].end
 
         /**
-         * Draws the text lines onto the given canvas.
+         * Draws the lines (columns) in `[lineStart, lineEnd)` onto the given canvas.
          *
-         * @param canvas The Canvas to draw on.
-         * @param x The starting X position for drawing. The right-top is the drawing origin.
-         * @param y The starting Y position for drawing. The right-top is the drawing origin.
-         * @param paint The TextPaint object to use for text rendering.
+         * Each drawn line keeps the position it has in a full draw.
+         *
+         * @param canvas [Canvas] to draw on
+         * @param x starting X position for drawing; the right-top is the drawing origin
+         * @param y starting Y position for drawing; the right-top is the drawing origin
+         * @param paint [TextPaint] to use for text rendering
+         * @param lineStart inclusive first line (column) index
+         * @param lineEnd exclusive last line (column) index
+         * @throws IndexOutOfBoundsException if the range is outside `0..lineCount` or `lineStart >
+         *   lineEnd`
          */
-        fun draw(canvas: Canvas, x: Float, y: Float, paint: TextPaint) {
+        fun draw(
+            canvas: Canvas,
+            x: Float,
+            y: Float,
+            paint: TextPaint,
+            lineStart: Int = 0,
+            lineEnd: Int = lineLayouts.size,
+        ) {
+            if (lineStart < 0 || lineEnd > lineLayouts.size || lineStart > lineEnd) {
+                throw IndexOutOfBoundsException(
+                    "Line range [$lineStart, $lineEnd) is outside 0..${lineLayouts.size}"
+                )
+            }
             var currentX = x
-            lineLayouts.forEach { line ->
+            for (i in 0 until lineStart) {
+                currentX -= lineLayouts[i].width
+            }
+            for (i in lineStart until lineEnd) {
+                val line = lineLayouts[i]
                 line.draw(canvas, currentX - line.rightSide, y, paint)
                 currentX -= line.width
             }
@@ -174,7 +196,7 @@ internal object LineBreaker {
             }
 
             // Add a line break after each paragraph except the last one.
-            if (paraEnd != end) {
+            if (paraEnd != end && ctx.currentLineRuns.isNotEmpty()) {
                 ctx.breakLine()
             }
         }
@@ -463,7 +485,9 @@ private data class Context(
      * @return The result of the line breaking process.
      */
     fun finish(): Result {
-        breakLine()
+        if (currentLineRuns.isNotEmpty()) {
+            breakLine()
+        }
 
         var leftSide = 0f
         var rightSide = 0f
