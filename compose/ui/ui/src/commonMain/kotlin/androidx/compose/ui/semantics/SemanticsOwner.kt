@@ -430,22 +430,11 @@ private class UncoveredSemanticsNodeTraversal(
         val touchTop = touchBoundsInRoot.top.fastRoundToInt()
         val touchRight = touchBoundsInRoot.right.fastRoundToInt()
         val touchBottom = touchBoundsInRoot.bottom.fastRoundToInt()
-        val clippedLeft: Int
-        val clippedTop: Int
-        val clippedRight: Int
-        val clippedBottom: Int
-        if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
-            val clippedTouchBoundsInRoot = currentNode.clippedTouchBoundsInRoot
-            clippedLeft = clippedTouchBoundsInRoot.left.fastRoundToInt()
-            clippedTop = clippedTouchBoundsInRoot.top.fastRoundToInt()
-            clippedRight = clippedTouchBoundsInRoot.right.fastRoundToInt()
-            clippedBottom = clippedTouchBoundsInRoot.bottom.fastRoundToInt()
-        } else {
-            clippedLeft = touchLeft
-            clippedTop = touchTop
-            clippedRight = touchRight
-            clippedBottom = touchBottom
-        }
+        val clippedTouchBoundsInRoot = currentNode.clippedTouchBoundsInRoot
+        val clippedLeft = clippedTouchBoundsInRoot.left.fastRoundToInt()
+        val clippedTop = clippedTouchBoundsInRoot.top.fastRoundToInt()
+        val clippedRight = clippedTouchBoundsInRoot.right.fastRoundToInt()
+        val clippedBottom = clippedTouchBoundsInRoot.bottom.fastRoundToInt()
 
         val isCurrentHidden =
             isInMergingHiddenSubtree ||

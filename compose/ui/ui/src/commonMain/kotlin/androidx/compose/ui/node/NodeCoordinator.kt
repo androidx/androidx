@@ -1567,7 +1567,6 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
      * such that it is centered within the minimum touch target space, which may be outside of the
      * parent. Otherwise, it will return the child offset.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     protected fun calculateMinimumTouchTargetOffset(
         childRect: MutableRect,
         minimumTouchTargetSize: Size,
@@ -1587,21 +1586,17 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         val left =
             if (underWidth > 0) {
                 childLeft - underWidth
-            } else if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
+            } else {
                 maxOf(childLeft, minOf(0f, childRect.right - mttWidth))
                     .coerceAtLeast(-mttWidth / 2f)
-            } else {
-                childLeft.coerceAtLeast(-mttWidth / 2f)
             }
         val underHeight = (mttHeight - childRect.height) / 2f
         val top =
             if (underHeight > 0) {
                 childTop - underHeight
-            } else if (ComposeUiFlags.isClippedTouchBoundsOcclusionFixEnabled) {
+            } else {
                 maxOf(childTop, minOf(0f, childRect.bottom - mttHeight))
                     .coerceAtLeast(-mttHeight / 2f)
-            } else {
-                childTop.coerceAtLeast(-mttHeight / 2f)
             }
         return Offset(left, top)
     }
