@@ -162,4 +162,63 @@ public class CircularArrayTest {
         assertNull(array[1])
         assertEquals(ELEMENT_Y, array[2])
     }
+
+    @Test
+    public fun isNotEmptyTest() {
+        val array = CircularArray<String>()
+        assertFalse(array.isNotEmpty())
+        array.addLast(ELEMENT_X)
+        assertTrue(array.isNotEmpty())
+    }
+
+    @Test
+    public fun containsAndIndexOfTest() {
+        val array = CircularArray<String>()
+        assertFalse(ELEMENT_X in array)
+        assertEquals(-1, array.indexOf(ELEMENT_X))
+
+        array.addLast(ELEMENT_X)
+        array.addLast(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
+
+        assertTrue(ELEMENT_X in array)
+        assertTrue(ELEMENT_Y in array)
+        assertTrue(ELEMENT_Z in array)
+        assertEquals(0, array.indexOf(ELEMENT_X))
+        assertEquals(1, array.indexOf(ELEMENT_Y))
+        assertEquals(2, array.indexOf(ELEMENT_Z))
+
+        array.popFirst() // Remove X
+        assertFalse(ELEMENT_X in array)
+        assertEquals(-1, array.indexOf(ELEMENT_X))
+        assertEquals(0, array.indexOf(ELEMENT_Y))
+    }
+
+    @Test
+    public fun forEachTest() {
+        val array = CircularArray<String>()
+        array.addLast(ELEMENT_X)
+        array.addLast(ELEMENT_Y)
+        array.addLast(ELEMENT_Z)
+
+        val collected = mutableListOf<String>()
+        array.forEach { collected.add(it) }
+
+        assertEquals(listOf(ELEMENT_X, ELEMENT_Y, ELEMENT_Z), collected)
+    }
+
+    @Test
+    public fun extensionPropertiesTest() {
+        val array = CircularArray<String>()
+        assertEquals(0, array.size)
+        assertEquals(-1, array.lastIndex)
+        assertEquals(0 until 0, array.indices)
+
+        array.addLast(ELEMENT_X)
+        array.addLast(ELEMENT_Y)
+
+        assertEquals(2, array.size)
+        assertEquals(1, array.lastIndex)
+        assertEquals(0..1, array.indices)
+    }
 }

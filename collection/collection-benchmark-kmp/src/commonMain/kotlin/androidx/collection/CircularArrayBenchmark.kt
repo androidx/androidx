@@ -55,4 +55,29 @@ open class CircularArrayBenchmark {
 
         assertTrue(array.isEmpty())
     }
+
+    @Benchmark
+    open fun forEachIteration() {
+        val array = CircularArray<String>(source.size)
+        for (element in source) {
+            array.addLast(element)
+        }
+
+        var count = 0
+        array.forEach { _ -> count++ }
+        assertEquals(source.size, count)
+    }
+
+    @Benchmark
+    open fun indexOfAndContains() {
+        val array = CircularArray<String>(source.size)
+        for (element in source) {
+            array.addLast(element)
+        }
+
+        val target = "value 9999"
+        assertTrue(target in array)
+        assertEquals(9999, array.indexOf(target))
+    }
 }
+
