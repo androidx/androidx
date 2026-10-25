@@ -47,6 +47,12 @@ public class TextDecoration internal constructor(public val mask: Int) {
         @Stable public val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**
+         * Max valid [TextDecoration.mask] (`Underline.mask or LineThrough.mask = 0b11`). Update
+         * [androidx.compose.ui.text.SpanStyle] bit pack code if you add a new flag.
+         */
+        internal const val MAX_TEXT_DECORATION_MASK = 0b11
+
+        /**
          * Combines multiple [TextDecoration]s into a single decoration.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
@@ -68,7 +74,7 @@ public class TextDecoration internal constructor(public val mask: Int) {
          */
         public fun valueOf(mask: Int): TextDecoration {
             // Prevent creating an invalid TextDecoration combination.
-            requirePrecondition((mask or 0b11) == 0b11) {
+            requirePrecondition((mask or MAX_TEXT_DECORATION_MASK) == MAX_TEXT_DECORATION_MASK) {
                 "The given mask=$mask is not recognized by TextDecoration."
             }
             return when (mask) {

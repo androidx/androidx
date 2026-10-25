@@ -84,6 +84,12 @@ public value class FontSynthesis internal constructor(public val value: Int) {
             get() = FontSynthesis(AllFlags)
 
         /**
+         * Mask of the packed flags (`WeightFlag or StyleFlag = 0b11`). Update
+         * [androidx.compose.ui.text.SpanStyle] bit pack code if you add a new flag.
+         */
+        internal const val MAX_FONT_SYNTHESIS_MASK = WeightFlag or StyleFlag
+
+        /**
          * Creates a FontSynthesis from the given integer value. This can be useful if you need to
          * serialize/deserialize FontSynthesis values.
          *

@@ -22,6 +22,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import org.junit.Test
@@ -136,7 +137,7 @@ class TextSpanParagraphStyleTest {
     }
 
     private fun <T : Any> allConstructorParams(clazz: KClass<T>): Set<Parameter> {
-        return clazz.constructors.flatMap { ctor -> constructorParams(ctor) }.toSet()
+        return clazz.constructors.flatMap { constructor -> constructorParams(constructor) }.toSet()
     }
 
     private fun <T : Any> constructorParams(constructor: KFunction<T>): List<Parameter> {
@@ -144,7 +145,13 @@ class TextSpanParagraphStyleTest {
     }
 
     private fun <T : Any> memberProperties(clazz: KClass<T>): Collection<Property> {
-        return clazz.memberProperties.map { Property(it) }
+        // KClass.memberProperties includes computed getter properties (which unpack from bits) as
+        // well as internal backing properties (bits, colorXor, extras). Filtering to PUBLIC keeps
+        // the API surface check between TextStyle, SpanStyle, and ParagraphStyle working against
+        // the public getters.
+        return clazz.memberProperties
+            .filter { it.visibility == KVisibility.PUBLIC }
+            .map { Property(it) }
     }
 
     private data class Parameter(

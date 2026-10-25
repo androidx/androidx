@@ -315,31 +315,55 @@ private object StyleSavers {
     internal val ParagraphStyleSaverInstance: Saver<ParagraphStyle, Any> =
         Saver<ParagraphStyle, Any>(
             save = {
-                arrayListOf(
-                    save(it.textAlign, TextAlign.Saver, this),
-                    save(it.textDirection, TextDirection.Saver, this),
-                    save(it.lineHeight, TextUnit.Saver, this),
-                    save(it.textIndent, TextIndent.Saver, this),
-                    save(it.platformStyle, PlatformParagraphStyle.Saver, this),
-                    save(it.lineHeightStyle, LineHeightStyle.Saver, this),
-                    save(it.lineBreak, LineBreak.Saver, this),
-                    save(it.hyphens, Hyphens.Saver, this),
-                    save(it.textMotion, TextMotion.Saver, this),
-                )
+                if (!PackedTextStylesLatch.isEnabled) {
+                    arrayListOf(
+                        save(it.textAlign, TextAlign.Saver, this),
+                        save(it.textDirection, TextDirection.Saver, this),
+                        save(it.lineHeight, TextUnit.Saver, this),
+                        save(it.textIndent, TextIndent.Saver, this),
+                        save(it.platformStyle, PlatformParagraphStyle.Saver, this),
+                        save(it.lineHeightStyle, LineHeightStyle.Saver, this),
+                        save(it.lineBreak, LineBreak.Saver, this),
+                        save(it.hyphens, Hyphens.Saver, this),
+                        save(it.textMotion, TextMotion.Saver, this),
+                    )
+                } else {
+                    val extras = it.extras
+                    arrayListOf(
+                        it.bits,
+                        save(extras?.textIndent, TextIndentSaverInstance, this),
+                        save(extras?.platformStyle, PlatformParagraphStyle.Saver, this),
+                        save(it.lineHeightStyle, LineHeightStyleSaverInstance, this),
+                        save(extras?.textMotion, TextMotion.Saver, this),
+                    )
+                }
             },
             restore = {
                 val list = it as List<Any?>
-                ParagraphStyle(
-                    textAlign = restore(list[0], TextAlign.Saver)!!,
-                    textDirection = restore(list[1], TextDirection.Saver)!!,
-                    lineHeight = restore(list[2], TextUnit.Saver)!!,
-                    textIndent = restore(list[3], TextIndent.Saver),
-                    platformStyle = restore(list[4], PlatformParagraphStyle.Saver),
-                    lineHeightStyle = restore(list[5], LineHeightStyle.Saver),
-                    lineBreak = restore(list[6], LineBreak.Saver)!!,
-                    hyphens = restore(list[7], Hyphens.Saver)!!,
-                    textMotion = restore(list[8], TextMotion.Saver),
-                )
+                if (list.size > 5) {
+                    ParagraphStyle(
+                        textAlign = restore(list[0], TextAlign.Saver)!!,
+                        textDirection = restore(list[1], TextDirection.Saver)!!,
+                        lineHeight = restore(list[2], TextUnit.Saver)!!,
+                        textIndent = restore(list[3], TextIndent.Saver),
+                        platformStyle = restore(list[4], PlatformParagraphStyle.Saver),
+                        lineHeightStyle = restore(list[5], LineHeightStyle.Saver),
+                        lineBreak = restore(list[6], LineBreak.Saver)!!,
+                        hyphens = restore(list[7], Hyphens.Saver)!!,
+                        textMotion = restore(list[8], TextMotion.Saver),
+                    )
+                } else {
+                    ParagraphStyle(
+                            list[0] as Long,
+                            restore(list[3], LineHeightStyleSaverInstance),
+                            createParagraphStyleExtras(
+                                restore(list[1], TextIndentSaverInstance),
+                                restore(list[2], PlatformParagraphStyle.Saver),
+                                restore(list[4], TextMotion.Saver),
+                            ),
+                        )
+                        .let { if (PackedTextStylesLatch.isEnabled) it else it.copy() }
+                }
             },
         )
 

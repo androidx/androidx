@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -171,6 +172,119 @@ class SaversTest {
         val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
         assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun paragraphStyleSaver_restoresBoth5ElementAnd9ElementLists() {
+        val customPlatform =
+            PlatformParagraphStyle(
+                includeFontPadding = true,
+                emojiSupportMatch = EmojiSupportMatch.All,
+            )
+        val customMotion =
+            TextMotion(
+                linearity = TextMotion.Linearity.FontHinting,
+                subpixelTextPositioning = true,
+            )
+        val samples =
+            listOf(
+                ParagraphStyle(),
+                ParagraphStyle(
+                    textAlign = TextAlign.Justify,
+                    textDirection = TextDirection.Rtl,
+                    lineHeight = 10.sp,
+                    textIndent = TextIndent.None,
+                    platformStyle = PlatformParagraphStyle.Default,
+                    lineHeightStyle = LineHeightStyle.Default,
+                    lineBreak = LineBreak.Paragraph,
+                    hyphens = Hyphens.Auto,
+                    textMotion = TextMotion.Animated,
+                ),
+                ParagraphStyle(
+                    textAlign = TextAlign.End,
+                    textDirection = TextDirection.ContentOrLtr,
+                    lineHeight = 1.5.em,
+                    textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp),
+                    platformStyle = customPlatform,
+                    lineHeightStyle =
+                        LineHeightStyle(
+                            alignment = LineHeightStyle.Alignment.Top,
+                            trim = LineHeightStyle.Trim.FirstLineTop,
+                            mode = LineHeightStyle.Mode.Tight,
+                        ),
+                    lineBreak = LineBreak.Heading,
+                    hyphens = Hyphens.None,
+                    textMotion = customMotion,
+                ),
+            )
+
+        for (original in samples) {
+            val other =
+                ParagraphStyle(
+                    textAlign = TextAlign.Start,
+                    lineHeight = if (original.lineHeight.isEm) 2.em else 20.sp,
+                )
+
+            // 9-element legacy list
+            val legacyList =
+                arrayListOf(
+                    save(original.textAlign, TextAlign.Saver, defaultSaverScope),
+                    save(original.textDirection, TextDirection.Saver, defaultSaverScope),
+                    save(original.lineHeight, TextUnit.Saver, defaultSaverScope),
+                    save(original.textIndent, TextIndent.Saver, defaultSaverScope),
+                    save(original.platformStyle, PlatformParagraphStyle.Saver, defaultSaverScope),
+                    save(original.lineHeightStyle, LineHeightStyle.Saver, defaultSaverScope),
+                    save(original.lineBreak, LineBreak.Saver, defaultSaverScope),
+                    save(original.hyphens, Hyphens.Saver, defaultSaverScope),
+                    save(original.textMotion, TextMotion.Saver, defaultSaverScope),
+                )
+
+            // 5-element packed list
+            val packedSource =
+                ParagraphStyle(
+                    bits =
+                        packParagraphStyleBits(
+                            original.textAlign,
+                            original.textDirection,
+                            original.lineHeight,
+                            original.textIndent,
+                            original.platformStyle,
+                            original.lineBreak,
+                            original.hyphens,
+                            original.textMotion,
+                        ),
+                    lineHeightStyle = original.lineHeightStyle,
+                    extras =
+                        createParagraphStyleExtras(
+                            original.textIndent,
+                            original.platformStyle,
+                            original.textMotion,
+                        ),
+                )
+            val packedList =
+                arrayListOf(
+                    packedSource.bits,
+                    save(packedSource.extras?.textIndent, TextIndent.Saver, defaultSaverScope),
+                    save(
+                        packedSource.extras?.platformStyle,
+                        PlatformParagraphStyle.Saver,
+                        defaultSaverScope,
+                    ),
+                    save(packedSource.lineHeightStyle, LineHeightStyle.Saver, defaultSaverScope),
+                    save(packedSource.extras?.textMotion, TextMotion.Saver, defaultSaverScope),
+                )
+
+            for (payload in listOf(legacyList, packedList)) {
+                val restored = ParagraphStyleSaver.restore(payload)!!
+                assertThat(restored).isEqualTo(original)
+                assertThat(original).isEqualTo(restored)
+                assertThat(restored.hashCode()).isEqualTo(original.hashCode())
+                assertThat(restored.legacyParagraphStyle != null)
+                    .isEqualTo(!PackedTextStylesLatch.isEnabled)
+                assertThat(other.merge(restored)).isEqualTo(other.merge(original))
+                assertThat(lerp(other, restored, 0.5f)).isEqualTo(lerp(other, original, 0.5f))
+            }
+        }
     }
 
     @Test
@@ -710,6 +824,85 @@ class SaversTest {
             for (subpixel in listOf(true, false)) {
                 assertSaverRoundTrip(TextMotion.Saver, TextMotion(linearity, subpixel))
             }
+        }
+    }
+
+    @Test
+    fun paragraphStyleSaver_presetColdFields_keepExtrasNull() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        val presetStyle =
+            ParagraphStyle(
+                textAlign = TextAlign.Justify,
+                textDirection = TextDirection.ContentOrRtl,
+                lineHeight = 20.sp,
+                textIndent = TextIndent.None,
+                platformStyle = PlatformParagraphStyle.Default,
+                lineHeightStyle = LineHeightStyle.Default,
+                lineBreak = LineBreak.Heading,
+                hyphens = Hyphens.Auto,
+                textMotion = TextMotion.Static,
+            )
+        assertThat(presetStyle.extras).isNull()
+
+        val saved = with(ParagraphStyleSaver) { defaultSaverScope.save(presetStyle) }!!
+        val restored = ParagraphStyleSaver.restore(saved)!!
+
+        assertThat(restored).isEqualTo(presetStyle)
+        assertThat(restored.extras).isNull()
+        assertThat(restored.bits and 1L).isEqualTo(0L)
+        assertThat(restored.textIndent).isEqualTo(TextIndent.None)
+        assertThat(restored.platformStyle).isEqualTo(PlatformParagraphStyle.Default)
+        assertThat(restored.textMotion).isEqualTo(TextMotion.Static)
+    }
+
+    @Test
+    fun paragraphStyleSaver_nonPresetColdExtras_roundTripsEachColdField() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        val coldPlatform =
+            PlatformParagraphStyle(
+                includeFontPadding = true,
+                emojiSupportMatch = EmojiSupportMatch.All,
+            )
+        val coldMotion =
+            TextMotion(
+                linearity = TextMotion.Linearity.FontHinting,
+                subpixelTextPositioning = true,
+            )
+        val coldIndent = TextIndent(firstLine = 12.sp, restLine = 4.em)
+
+        val permutations =
+            listOf(
+                ParagraphStyle(textIndent = coldIndent),
+                ParagraphStyle(platformStyle = coldPlatform),
+                ParagraphStyle(textMotion = coldMotion),
+                ParagraphStyle(
+                    textAlign = TextAlign.End,
+                    textDirection = TextDirection.Rtl,
+                    lineHeight = 1.5.em,
+                    textIndent = coldIndent,
+                    platformStyle = coldPlatform,
+                    lineHeightStyle =
+                        LineHeightStyle(
+                            alignment = LineHeightStyle.Alignment.Top,
+                            trim = LineHeightStyle.Trim.FirstLineTop,
+                            mode = LineHeightStyle.Mode.Tight,
+                        ),
+                    lineBreak = LineBreak.Paragraph,
+                    hyphens = Hyphens.None,
+                    textMotion = coldMotion,
+                ),
+            )
+
+        for (style in permutations) {
+            assertThat(style.extras).isNotNull()
+            val saved = with(ParagraphStyleSaver) { defaultSaverScope.save(style) }!!
+            val restored = ParagraphStyleSaver.restore(saved)!!
+            assertThat(restored).isEqualTo(style)
+            assertThat(restored.extras).isNotNull()
+            assertThat(restored.bits and 1L).isEqualTo(1L)
+            assertThat(restored.textIndent).isEqualTo(style.textIndent)
+            assertThat(restored.platformStyle).isEqualTo(style.platformStyle)
+            assertThat(restored.textMotion).isEqualTo(style.textMotion)
         }
     }
 

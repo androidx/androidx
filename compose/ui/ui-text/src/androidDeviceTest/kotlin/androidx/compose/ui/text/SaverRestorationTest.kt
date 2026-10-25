@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
@@ -43,7 +42,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.collections.get
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.primaryConstructor
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +55,7 @@ class SaverRestorationTest {
     // PlatformStyle and drawStyle are not saved.
     val spanStyleParamValueMap =
         mapOf<String, Any?>(
-            "textForegroundStyle" to TextForegroundStyle.from(Color.Green),
+            "color" to Color.Green,
             "fontSize" to 16.sp,
             "fontWeight" to FontWeight(400),
             "fontStyle" to FontStyle.Italic,
@@ -96,7 +94,11 @@ class SaverRestorationTest {
             style = rememberSaveable(stateSaver = SpanStyleSaver) { mutableStateOf(SpanStyle()) }
         }
 
-        val spanStyleConstructor = SpanStyle::class.primaryConstructor!!
+        val spanStyleConstructor =
+            SpanStyle::class.constructors.single { constructor ->
+                constructor.parameters.any { it.name == "drawStyle" } &&
+                    constructor.parameters.any { it.name == "color" }
+            }
 
         val args = mutableMapOf<KParameter, Any?>()
         // Fill in necessary parameters first
@@ -138,7 +140,13 @@ class SaverRestorationTest {
                 }
         }
 
-        val paragraphStyleConstructor = ParagraphStyle::class.primaryConstructor!!
+        val paragraphStyleConstructor =
+            ParagraphStyle::class.constructors.single { constructor ->
+                constructor.parameters.any { it.name == "textMotion" } &&
+                    constructor.parameters.none {
+                        it.name == "textAlign" && it.type.isMarkedNullable
+                    }
+            }
 
         val args = mutableMapOf<KParameter, Any?>()
 

@@ -85,6 +85,12 @@ public value class TextDirection internal constructor(public val value: Int) {
             get() = TextDirection(0)
 
         /**
+         * Max valid [TextDirection.value] (`ContentOrRtl = 5`). Update
+         * [androidx.compose.ui.text.ParagraphStyle] bit pack code if you add a new value.
+         */
+        internal const val MAX_TEXT_DIRECTION_VALUE = 5
+
+        /**
          * Creates [TextDirection] from [value].
          *
          * Useful for serialization/deserialization.
@@ -94,7 +100,7 @@ public value class TextDirection internal constructor(public val value: Int) {
          * @see androidx.compose.ui.text.style.TextDirection.value
          */
         public fun valueOf(value: Int): TextDirection {
-            requirePrecondition(value in 0..5) {
+            requirePrecondition(value in 0..MAX_TEXT_DIRECTION_VALUE) {
                 "The given value=$value is not recognized by TextDirection."
             }
             return TextDirection(value)

@@ -50,7 +50,7 @@ import kotlin.jvm.JvmInline
 @Immutable
 public expect value class LineBreak
 @Suppress("KmpVisibilityMismatch")
-private constructor(internal val mask: Int) {
+internal constructor(internal val mask: Int) {
     public companion object {
         /**
          * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal text
@@ -83,3 +83,21 @@ private constructor(internal val mask: Int) {
 @Stable
 public inline val LineBreak.isSpecified: Boolean
     get() = this != LineBreak.Unspecified
+
+/**
+ * Max valid `LineBreak.Strategy` value (`Balanced = 3`). Update
+ * [androidx.compose.ui.text.ParagraphStyle] bit pack code if you add a new value.
+ */
+internal const val MAX_LINE_BREAK_STRATEGY_VALUE = 3
+
+/**
+ * Max valid `LineBreak.Strictness` value (`Strict = 4`). Update
+ * [androidx.compose.ui.text.ParagraphStyle] bit pack code if you add a new value.
+ */
+internal const val MAX_LINE_BREAK_STRICTNESS_VALUE = 4
+
+/**
+ * Max valid `LineBreak.WordBreak` value (`Phrase = 2`). Update
+ * [androidx.compose.ui.text.ParagraphStyle] bit pack code if you add a new value.
+ */
+internal const val MAX_LINE_BREAK_WORD_BREAK_VALUE = 2
