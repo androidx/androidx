@@ -3,16 +3,22 @@
 package androidx.test.backup.host {
 
   public abstract sealed nonexhaustive class BackupActionResult {
+    method @InaccessibleFromKotlin public abstract java.util.Map<java.lang.String,java.lang.String> getData();
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public final java.util.Map<java.lang.String,java.lang.String> getOrThrow() throws java.io.IOException;
     method @InaccessibleFromKotlin public final boolean isSuccess();
+    property public abstract java.util.Map<java.lang.String,java.lang.String> data;
     property public final boolean isSuccess;
   }
 
   public static final class BackupActionResult.Failure extends androidx.test.backup.host.BackupActionResult {
     ctor public BackupActionResult.Failure(String errorMessage);
     ctor public BackupActionResult.Failure(String errorMessage, optional String? stackTrace);
-    ctor @BytecodeOnly public BackupActionResult.Failure(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public BackupActionResult.Failure(String!, String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public BackupActionResult.Failure(String errorMessage, optional String? stackTrace, optional java.util.Map<java.lang.String,java.lang.String> data);
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.String> getData();
     method @InaccessibleFromKotlin public String getErrorMessage();
     method @InaccessibleFromKotlin public String? getStackTrace();
+    property public java.util.Map<java.lang.String,java.lang.String> data;
     property public String errorMessage;
     property public String? stackTrace;
   }
@@ -150,6 +156,18 @@ package androidx.test.backup.host {
     property public String path;
   }
 
+  public static final class StorageDomain.CustomData extends androidx.test.backup.host.StorageDomain {
+    ctor public StorageDomain.CustomData(String populateAction, String verifyAction);
+    ctor @BytecodeOnly public StorageDomain.CustomData(String!, String!, java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public StorageDomain.CustomData(String populateAction, String verifyAction, optional java.util.Map<java.lang.String,java.lang.String> args);
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.String> getArgs();
+    method @InaccessibleFromKotlin public String getPopulateAction();
+    method @InaccessibleFromKotlin public String getVerifyAction();
+    property public java.util.Map<java.lang.String,java.lang.String> args;
+    property public String populateAction;
+    property public String verifyAction;
+  }
+
   public static final class StorageDomain.Database extends androidx.test.backup.host.StorageDomain {
     ctor @BytecodeOnly public StorageDomain.Database(String!, String!, String!, Object!, java.util.Map!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public StorageDomain.Database(String dbName, String table, String primaryKeyCol, Object primaryKeyVal, java.util.Map<java.lang.String,? extends java.lang.Object?> columnValues);
@@ -166,6 +184,12 @@ package androidx.test.backup.host {
     property public String primaryKeyCol;
     property public Object primaryKeyVal;
     property public String table;
+  }
+
+  public static final class StorageDomain.ExcludedData extends androidx.test.backup.host.StorageDomain {
+    ctor public StorageDomain.ExcludedData(androidx.test.backup.host.StorageDomain domain);
+    method @InaccessibleFromKotlin public androidx.test.backup.host.StorageDomain getDomain();
+    property public androidx.test.backup.host.StorageDomain domain;
   }
 
   public static final class StorageDomain.Preference extends androidx.test.backup.host.StorageDomain {

@@ -336,12 +336,18 @@ class BackupRunnerReportTest {
         assertTrue(result.errorMessage.contains(ACTION), result.errorMessage)
     }
 
-    /** A failure reported by the runner is never downgraded by a payload that looks successful. */
+    /**
+     * A failure reported by the runner is never downgraded by a payload that looks successful, and
+     * keeps the payload's data without its status.
+     */
     @Test
     fun resultForKeepsTheRunnerFailureOverASuccessfulPayload() {
-        val runnerFailure = BackupActionResult.Failure("Runner said no")
+        val runnerFailure = BackupActionResult.Failure("Runner said no", "at A.kt:1")
 
-        assertEquals(runnerFailure, resultFor("""{"rows":"3"}""", runnerFailure))
+        assertEquals(
+            BackupActionResult.Failure("Runner said no", "at A.kt:1", mapOf("rows" to "3")),
+            resultFor("""{"status":"success","rows":"3"}""", runnerFailure),
+        )
     }
 
     @Test

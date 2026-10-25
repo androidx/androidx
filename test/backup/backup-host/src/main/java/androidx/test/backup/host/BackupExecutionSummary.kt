@@ -45,7 +45,7 @@ internal enum class BackupErrorCode {
     /** The restore did not complete within its timeout. */
     RESTORE_POLL_TIMEOUT,
 
-    /** On-device seeding via PopulateStorageAction failed. */
+    /** On-device seeding failed. */
     SEEDING_FAILED,
 
     /** Device backup archiving or transfer failed. */
@@ -57,7 +57,7 @@ internal enum class BackupErrorCode {
     /** Device restore extraction or package re-initialization failed. */
     RESTORE_FAILED,
 
-    /** On-device post-restore data verification via AssertStorageAction failed. */
+    /** On-device post-restore data verification failed. */
     VERIFICATION_FAILED,
 
     /** An unclassified or unexpected exception occurred during test orchestration. */

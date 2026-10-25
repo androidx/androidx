@@ -1426,6 +1426,78 @@ class BackupRestoreControllerImplTest {
         assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
     }
 
+    /**
+     * A custom domain runs its populate action before the backup and its verify action after the
+     * restore, which gets the arguments and the data that the populate action returned.
+     */
+    @Test
+    fun flowPassesTheDataOfACustomPopulateActionToItsVerifyAction() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","credential_id":"abc"}"""))
+            } else {
+                null
+            }
+        }
+
+        runBlocking {
+            controller.runBackupRestoreFlow(listOf(PREFERENCE, CUSTOM_DATA), outputDir(), LOCAL)
+        }
+
+        val populate = device.commands.indexOfFirst { it.contains(CUSTOM_POPULATE) }
+        val verify = device.commands.indexOfFirst { it.contains(CUSTOM_VERIFY) }
+        assertTrue(populate < device.commands.indexOf("bmgr backupnow $PACKAGE"))
+        assertTrue(verify > device.commands.indexOfFirst { it.startsWith("bmgr restore") })
+        assertTrue(device.commands[populate].contains("-e rp_id 'example.com'"))
+        assertTrue(device.commands[verify].contains("-e rp_id 'example.com'"))
+        assertTrue(device.commands[verify].contains("-e credential_id 'abc'"))
+        assertEquals(2, assertNotNull(controller.lastExecutionSummary).storageDomainCount)
+    }
+
+    @Test
+    fun flowFailsWhenACustomVerifyActionFails() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_VERIFY)) {
+                shellOutput(runnerStdout("""{"status":"failure","error":"No restore key"}"""))
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(CUSTOM_DATA, outputDir(), LOCAL) }
+            }
+
+        assertEquals("VerifyKeyAction failed for $CUSTOM_DATA: No restore key", e.message)
+        assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
+    }
+
+    /** The verify action can't get a key that the runner reads itself, so the flow stops early. */
+    @Test
+    fun flowFailsBeforeTheBackupWhenACustomPopulateActionReturnsARunnerKey() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","debug":"true"}"""))
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(CUSTOM_DATA, outputDir(), LOCAL) }
+            }
+
+        assertEquals(
+            "CreateKeyAction returned the keys [debug], which the runner reads itself, so " +
+                "VerifyKeyAction can't get them. Use other keys.",
+            e.message,
+        )
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
+        assertTrue(device.commands.none { it.startsWith("bmgr backupnow") }, "${device.commands}")
+    }
+
     @Test
     fun flowSucceedsWhenPublishingTelemetryFails() {
         onHealthyDevice()
@@ -1449,6 +1521,29 @@ class BackupRestoreControllerImplTest {
             runBlocking { controller.runBackupRestoreFlow(emptyList(), outputDir(), LOCAL) }
         }
 
+        assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** Absence checks alone pass even when nothing was restored, so they need a restored domain. */
+    @Test
+    fun flowRejectsOnlyExcludedDataAsAPreconditionFailure() {
+        val e =
+            assertFailsWith<IllegalArgumentException> {
+                runBlocking {
+                    controller.runBackupRestoreFlow(
+                        StorageDomain.ExcludedData(PREFERENCE),
+                        outputDir(),
+                        LOCAL,
+                    )
+                }
+            }
+
+        assertEquals(
+            "All storages are ExcludedData, so the flow can't verify that the restore happened. " +
+                "Add a domain that the restore brings back.",
+            e.message,
+        )
         assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
         assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
@@ -1646,5 +1741,13 @@ class BackupRestoreControllerImplTest {
         val CLOUD = BackupTransportMode.CLOUD_ENCRYPTED
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
         val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
+        const val CUSTOM_POPULATE = "com.example.backup.CreateKeyAction"
+        const val CUSTOM_VERIFY = "com.example.backup.VerifyKeyAction"
+        val CUSTOM_DATA =
+            StorageDomain.CustomData(
+                CUSTOM_POPULATE,
+                CUSTOM_VERIFY,
+                mapOf("rp_id" to "example.com"),
+            )
     }
 }

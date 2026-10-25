@@ -80,20 +80,23 @@ internal class BackupRestoreControllerImpl(
         val tracker = BackupExecutionTracker(mode, storages.size)
         try {
             require(storages.isNotEmpty()) { "At least one StorageDomain must be provided." }
+            require(storages.any { it !is StorageDomain.ExcludedData }) {
+                "All storages are ExcludedData, so the flow can't verify that the restore " +
+                    "happened. Add a domain that the restore brings back."
+            }
             logger.info(
                 "Executing standard backup and restore flow for $applicationId across " +
                     "${storages.size} storage domains..."
             )
-            tracker.stage(BackupExecutionStage.SEEDING) {
-                for (domain in storages) {
-                    logger.info("Seeding data on device via PopulateStorageAction for $domain...")
-                    runStorageAction(
-                        BackupRestoreController.ACTION_POPULATE_STORAGE,
-                        domain,
-                        BackupActionWireProtocol.populateArgs(domain),
-                    )
+            val verifyCalls =
+                tracker.stage(BackupExecutionStage.SEEDING) {
+                    storages.map { domain ->
+                        logger.info("Seeding data on device for $domain...")
+                        val data =
+                            runStorageAction(domain, BackupActionWireProtocol.populateCall(domain))
+                        BackupActionWireProtocol.verifyCall(domain, data)
+                    }
                 }
-            }
             val backupFile =
                 tracker.stage(BackupExecutionStage.BACKUP) {
                     // Stopping the app flushes its pending writes to disk before the backup.
@@ -110,15 +113,9 @@ internal class BackupRestoreControllerImpl(
                 performRestore(backupFile)
             }
             tracker.stage(BackupExecutionStage.VERIFICATION) {
-                for (domain in storages) {
-                    logger.info(
-                        "Verifying restored data on device via AssertStorageAction for $domain..."
-                    )
-                    runStorageAction(
-                        BackupRestoreController.ACTION_ASSERT_STORAGE,
-                        domain,
-                        BackupActionWireProtocol.assertArgs(domain),
-                    )
+                storages.zip(verifyCalls).forEach { (domain, verifyCall) ->
+                    logger.info("Verifying restored data on device for $domain...")
+                    runStorageAction(domain, verifyCall)
                 }
             }
         } catch (e: Exception) {
@@ -138,12 +135,14 @@ internal class BackupRestoreControllerImpl(
         return this
     }
 
-    /** Runs a storage action for [domain] and throws if it fails. */
+    /**
+     * Runs the action of [call] for [domain], throws if it fails, and returns the action's data.
+     */
     private suspend fun runStorageAction(
-        actionClassName: String,
         domain: StorageDomain,
-        args: Map<String, String>,
-    ) {
+        call: Pair<String, Map<String, String>>,
+    ): Map<String, String> {
+        val (actionClassName, args) = call
         val result = runOnDevice(actionClassName = actionClassName, args = args)
         if (result is BackupActionResult.Failure) {
             throw IOException(
@@ -151,6 +150,7 @@ internal class BackupRestoreControllerImpl(
                     result.errorMessage
             )
         }
+        return result.data
     }
 
     /** Stores [summary] as the latest one and publishes it; publishing never fails the flow. */

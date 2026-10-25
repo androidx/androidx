@@ -1745,6 +1745,65 @@ public class StorageActionTest {
         )
     }
 
+    /** With EXPECT_NULL, verification passes only while the file is absent, and needs no value. */
+    @Test
+    public fun testFilesExpectNullPassesOnlyWhileTheFileIsAbsent() {
+        val fileName = "absent_${System.nanoTime()}.txt"
+        val absent =
+            arrayOf(
+                BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_FILES,
+                BackupActionInputKeys.PATH to fileName,
+                BackupActionInputKeys.EXPECT_NULL to "true",
+            )
+
+        assertSucceeds(verify(*absent))
+        assertSucceeds(populate(*filesArgs(fileName, "excluded")))
+        try {
+            assertEquals(
+                "Expected file ${File(context.filesDir, fileName).absolutePath} to be absent, " +
+                    "but found it.",
+                verify(*absent).errorMessage,
+            )
+        } finally {
+            File(context.filesDir, fileName).delete()
+        }
+    }
+
+    /**
+     * With EXPECT_NULL, verification passes while the database, the table or the row is absent,
+     * needs no expected values, and doesn't create the database.
+     */
+    @Test
+    public fun testDatabaseExpectNullPassesOnlyWhileTheRowIsAbsent() {
+        val dbName = "absent_rows.db"
+        context.deleteDatabase(dbName)
+        fun verifyAbsent(table: String, id: String) =
+            verify(
+                BackupActionInputKeys.STORAGE_TYPE to BackupActionValues.STORAGE_TYPE_DATABASE,
+                BackupActionInputKeys.DB_NAME to dbName,
+                BackupActionInputKeys.TABLE to table,
+                BackupActionInputKeys.KEY_COL to "id",
+                BackupActionInputKeys.KEY_VAL to id,
+                BackupActionInputKeys.EXPECT_NULL to "true",
+            )
+
+        try {
+            assertSucceeds(verifyAbsent("notes", "row1"))
+            assertFalse(context.getDatabasePath(dbName).exists())
+
+            assertSucceeds(populateDatabase(dbName, "notes", "id=row1&text=excluded"))
+            assertSucceeds(verifyAbsent("other_notes", "row1"))
+            assertSucceeds(verifyAbsent("notes", "row2"))
+            // Table names are case-insensitive in SQLite.
+            assertEquals(
+                "Expected no row with id='row1' in table 'NOTES', but found 1.",
+                verifyAbsent("NOTES", "row1").errorMessage,
+            )
+        } finally {
+            context.deleteDatabase(dbName)
+        }
+    }
+
     private fun populate(vararg args: Pair<String, String>, context: Context = this.context) =
         PopulateStorageAction().execute(context, BackupDeviceActionArgs(mapOf(*args)))
 

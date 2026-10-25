@@ -88,15 +88,15 @@ public interface BackupRestoreController : AutoCloseable {
     /**
      * Runs a full backup and restore flow for a single storage domain.
      *
-     * Seeds test data into [storage] using [ACTION_POPULATE_STORAGE], runs a backup to [outputDir]
-     * using [mode], clears app data, restores the backup archive, and verifies data integrity using
-     * [ACTION_ASSERT_STORAGE].
+     * Seeds [storage], runs a backup to [outputDir] using [mode], then clears app data, restores
+     * the backup archive, and verifies [storage].
      *
      * @param storage storage domain to seed and verify
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
      * @return this controller instance
      * @throws IOException if any step fails
+     * @throws IllegalArgumentException if [storage] is a [StorageDomain.ExcludedData]
      */
     @Throws(IOException::class)
     public suspend fun runBackupRestoreFlow(
@@ -108,15 +108,16 @@ public interface BackupRestoreController : AutoCloseable {
     /**
      * Runs a full backup and restore flow for multiple storage domains.
      *
-     * Seeds each domain in [storages] using [ACTION_POPULATE_STORAGE], runs a backup to [outputDir]
-     * using [mode], clears app data, restores the backup archive, and verifies each domain using
-     * [ACTION_ASSERT_STORAGE].
+     * Seeds each domain in [storages], runs a backup to [outputDir] using [mode], then clears app
+     * data, restores the backup archive, and verifies each domain.
      *
      * @param storages storage domains to seed and verify
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
      * @return this controller instance
      * @throws IOException if any step fails
+     * @throws IllegalArgumentException if [storages] is empty or has only
+     *   [StorageDomain.ExcludedData]
      */
     @Throws(IOException::class)
     public suspend fun runBackupRestoreFlow(
@@ -308,7 +309,8 @@ public interface BackupRestoreController : AutoCloseable {
     /**
      * Runs a full backup and restore flow asynchronously for a single storage domain.
      *
-     * @param storage storage domain to seed and verify
+     * @param storage storage domain to seed and verify. Must not be a [StorageDomain.ExcludedData],
+     *   or the returned future fails with an [IllegalArgumentException].
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
      * @return a [ListenableFuture] with this controller instance
@@ -323,7 +325,9 @@ public interface BackupRestoreController : AutoCloseable {
     /**
      * Runs a full backup and restore flow asynchronously for multiple storage domains.
      *
-     * @param storages storage domains to seed and verify
+     * @param storages storage domains to seed and verify. Must not be empty or hold only
+     *   [StorageDomain.ExcludedData], or the returned future fails with an
+     *   [IllegalArgumentException].
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
      * @return a [ListenableFuture] with this controller instance

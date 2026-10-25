@@ -298,6 +298,100 @@ class StorageDomainTest {
         }
     }
 
+    @Test
+    fun testCustomData_equalityAndToString() {
+        val action = StorageDomain.CustomData(POPULATE, VERIFY, mapOf("rp_id" to "example.com"))
+        val sameAction = StorageDomain.CustomData(POPULATE, VERIFY, mapOf("rp_id" to "example.com"))
+
+        assertEquals(sameAction, action)
+        assertEquals(sameAction.hashCode(), action.hashCode())
+        assertNotEquals(StorageDomain.CustomData(POPULATE, VERIFY), action)
+        assertEquals(
+            "CustomData(populateAction='$POPULATE', verifyAction='$VERIFY', " +
+                "args={rp_id=example.com})",
+            action.toString(),
+        )
+    }
+
+    @Test
+    fun testCustomData_rejectsArgsThatTheRunnerReadsItself() {
+        val e =
+            assertThrows(IllegalArgumentException::class.java) {
+                StorageDomain.CustomData(POPULATE, VERIFY, mapOf("actionClass" to "x"))
+            }
+
+        assertEquals(
+            "CustomData args must not use the keys [actionClass], which the runner reads itself.",
+            e.message,
+        )
+    }
+
+    /**
+     * Custom data and a database keep their own copy of a map, so later changes don't affect it.
+     */
+    @Test
+    fun testMapsOfDomainsAreCopies() {
+        val args = mutableMapOf("rp_id" to "example.com")
+        val columns = mutableMapOf<String, Any?>("a" to "b")
+        val customData = StorageDomain.CustomData(POPULATE, VERIFY, args)
+        val database = StorageDomain.Database("db", "table", "id", 1, columns)
+
+        args["user"] = "sarah"
+        columns["c"] = "d"
+
+        assertEquals(mapOf("rp_id" to "example.com"), customData.args)
+        assertEquals(mapOf("a" to "b"), database.columnValues)
+        assertThrows(UnsupportedOperationException::class.java) {
+            (customData.args as MutableMap<String, String>)["user"] = "sarah"
+        }
+        assertThrows(UnsupportedOperationException::class.java) {
+            (database.columnValues as MutableMap<String, Any?>)["c"] = "d"
+        }
+    }
+
+    @Test
+    fun testExcludedData_acceptsDataThatCanBeSeeded() {
+        for (domain in
+            listOf(
+                StorageDomain.Preference("name", "key", "v"),
+                database(),
+                StorageDomain.TextFile("a.txt", "c"),
+                StorageDomain.BinaryFile("a.bin", byteArrayOf(1)),
+            )) {
+            val excluded = StorageDomain.ExcludedData(domain)
+
+            assertEquals(domain, excluded.domain)
+            assertEquals(StorageDomain.ExcludedData(domain), excluded)
+            assertEquals(StorageDomain.ExcludedData(domain).hashCode(), excluded.hashCode())
+            assertEquals("ExcludedData($domain)", excluded.toString())
+            assertNotEquals(domain, excluded)
+            assertNotEquals(domain.hashCode(), excluded.hashCode())
+        }
+    }
+
+    /**
+     * A preference without a value is seeded by removing it, and custom data is checked by its own
+     * action itself, so neither can be expected to be absent.
+     */
+    @Test
+    fun testExcludedData_rejectsDataThatItCannotExpectAbsent() {
+        for (domain in
+            listOf(
+                StorageDomain.Preference("name", "key"),
+                StorageDomain.CustomData(POPULATE, VERIFY),
+                StorageDomain.ExcludedData(StorageDomain.TextFile("a.txt", "c")),
+            )) {
+            assertThrows(IllegalArgumentException::class.java) {
+                StorageDomain.ExcludedData(domain)
+            }
+        }
+    }
+
     private fun database(isDeviceProtectedStorage: Boolean = false) =
         StorageDomain.Database("db", "table", "id", 1, mapOf("a" to "b"), isDeviceProtectedStorage)
+
+    private companion object {
+        const val POPULATE = "com.example.backup.CreateKeyAction"
+        const val VERIFY = "com.example.backup.VerifyKeyAction"
+    }
 }

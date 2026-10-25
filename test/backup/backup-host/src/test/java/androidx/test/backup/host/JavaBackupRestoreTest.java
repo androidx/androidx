@@ -44,6 +44,11 @@ public class JavaBackupRestoreTest {
                 new BackupActionResult.Failure("Sample failure", "at Class.method(File.java:10)");
         assertEquals("Sample failure", failureWithStack.getErrorMessage());
         assertEquals("at Class.method(File.java:10)", failureWithStack.getStackTrace());
+
+        BackupActionResult failureWithData =
+                new BackupActionResult.Failure(
+                        "Sample failure", null, Collections.singletonMap("id", "1"));
+        assertEquals("1", failureWithData.getData().get("id"));
     }
 
     @Test
@@ -52,6 +57,16 @@ public class JavaBackupRestoreTest {
         assertEquals("CLOUD_ENCRYPTED", BackupTransportMode.CLOUD_ENCRYPTED.toString());
         assertEquals("CLOUD_UNENCRYPTED", BackupTransportMode.CLOUD_UNENCRYPTED.toString());
         assertEquals("LOCAL", BackupTransportMode.LOCAL.toString());
+    }
+
+    @Test
+    public void testCustomDataDomain() {
+        StorageDomain.CustomData customData =
+                new StorageDomain.CustomData(
+                        "com.example.CreateKeyAction", "com.example.VerifyKeyAction");
+        assertEquals("com.example.CreateKeyAction", customData.getPopulateAction());
+        assertEquals("com.example.VerifyKeyAction", customData.getVerifyAction());
+        assertEquals(Collections.emptyMap(), customData.getArgs());
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
@@ -435,6 +436,109 @@ class BackupActionWireProtocolTest {
         assertEquals(
             BackupActionWireProtocol.populateArgs(binary),
             BackupActionWireProtocol.assertArgs(binary),
+        )
+    }
+
+    /** Absence is checked by row or path alone, without the values that were seeded. */
+    @Test
+    fun absenceArgsExpectTheDataToBeAbsent() {
+        val database = StorageDomain.Database("app.db", "notes", "id", 7, mapOf("text" to "hi"))
+        val file =
+            StorageDomain.TextFile("cache.txt", "x".repeat(100), isDeviceProtectedStorage = true)
+
+        assertEquals(
+            mapOf(
+                "storage_type" to "DATABASE",
+                "db_name" to "app.db",
+                "table" to "notes",
+                "key_col" to "id",
+                "key_val" to "7",
+                "expect_null" to "true",
+            ),
+            BackupActionWireProtocol.absenceArgs(database),
+        )
+        assertEquals(
+            mapOf(
+                "storage_type" to "FILES",
+                "path" to "cache.txt",
+                "is_device_protected" to "true",
+                "expect_null" to "true",
+            ),
+            BackupActionWireProtocol.absenceArgs(file),
+        )
+    }
+
+    @Test
+    fun excludedDataSeedsItsDomainAndVerifiesThatItIsAbsent() {
+        val file = StorageDomain.TextFile("no_backup.txt", "secret")
+        val excluded = StorageDomain.ExcludedData(file)
+
+        assertEquals(
+            BackupRestoreController.ACTION_POPULATE_STORAGE to
+                BackupActionWireProtocol.populateArgs(file),
+            BackupActionWireProtocol.populateCall(excluded),
+        )
+        assertEquals(
+            BackupRestoreController.ACTION_ASSERT_STORAGE to
+                BackupActionWireProtocol.absenceArgs(file),
+            BackupActionWireProtocol.verifyCall(excluded, emptyMap()),
+        )
+    }
+
+    /**
+     * Verify gets the arguments with the data of populate, whose values win, but not its status.
+     */
+    @Test
+    fun customDataPassesTheDataOfPopulateToVerify() {
+        val domain =
+            StorageDomain.CustomData(
+                populateAction = "com.example.CreateKeyAction",
+                verifyAction = "com.example.VerifyKeyAction",
+                args = mapOf("rp_id" to "example.com", "user" to "sarah", "status" to "new"),
+            )
+
+        assertEquals(
+            "com.example.CreateKeyAction" to domain.args,
+            BackupActionWireProtocol.populateCall(domain),
+        )
+        assertEquals(
+            "com.example.VerifyKeyAction" to
+                mapOf(
+                    "rp_id" to "example.com",
+                    "user" to "sarah@example.com",
+                    "status" to "new",
+                    "credential_id" to "abc",
+                ),
+            BackupActionWireProtocol.verifyCall(
+                domain,
+                mapOf(
+                    "credential_id" to "abc",
+                    "user" to "sarah@example.com",
+                    "status" to "success",
+                    "error" to "",
+                ),
+            ),
+        )
+    }
+
+    /** The flow can't pass a key that the runner reads itself, so it fails before the backup. */
+    @Test
+    fun customDataRejectsRunnerKeysThatPopulateReturns() {
+        val domain =
+            StorageDomain.CustomData("com.example.CreateKeyAction", "com.example.VerifyKeyAction")
+
+        val e =
+            assertFailsWith<IOException> {
+                BackupActionWireProtocol.verifyCall(
+                    domain,
+                    mapOf("credential_id" to "abc", "debug" to "true"),
+                )
+            }
+
+        assertEquals(
+            "CreateKeyAction returned the keys [debug], which the runner reads itself, so " +
+                "VerifyKeyAction can't get them. Use other keys.",
+            e.message,
         )
     }
 

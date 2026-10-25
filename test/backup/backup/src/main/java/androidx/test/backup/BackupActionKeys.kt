@@ -33,8 +33,9 @@ import androidx.annotation.StringDef
  * - [BackupActionValues.STORAGE_TYPE_PREFS] uses [PREF_NAME], [PREF_KEY], [VALUE], [VALUE_TYPE],
  *   [EXPECTED] and [EXPECT_NULL].
  * - [BackupActionValues.STORAGE_TYPE_DATABASE] uses [DB_NAME], [TABLE], [VALUES], [KEY_COL],
- *   [KEY_VAL], [EXPECTED_COL] and [EXPECTED_VAL].
- * - [BackupActionValues.STORAGE_TYPE_FILES] uses [PATH], [VALUE], [IS_BINARY] and [EXPECTED].
+ *   [KEY_VAL], [EXPECTED_COL], [EXPECTED_VAL] and [EXPECT_NULL].
+ * - [BackupActionValues.STORAGE_TYPE_FILES] uses [PATH], [VALUE], [IS_BINARY], [EXPECTED] and
+ *   [EXPECT_NULL].
  *
  * [IS_DEVICE_PROTECTED] applies to every storage type.
  *
@@ -124,8 +125,9 @@ public object BackupActionInputKeys {
      * Name of the column that identifies the row.
      *
      * Required for database verification, which checks that exactly one row has [KEY_VAL] in this
-     * column. Optional for population: when both this key and [KEY_VAL] are present, rows with that
-     * key are deleted before the insert, so repeating a populate leaves a single row.
+     * column, or none with [EXPECT_NULL]. Optional for population: when both this key and [KEY_VAL]
+     * are present, rows with that key are deleted before the insert, so repeating a populate leaves
+     * a single row.
      */
     public const val KEY_COL: String = "key_col"
 
@@ -170,10 +172,11 @@ public object BackupActionInputKeys {
     public const val EXPECTED_VAL: String = "expected_val"
 
     /**
-     * Whether the preference is expected to be absent.
+     * Whether the data is expected to be absent.
      *
-     * Parsed with [String.toBoolean]. When enabled, population removes the key and verification
-     * asserts that it is absent; [VALUE], [VALUE_TYPE] and [EXPECTED] are not consulted.
+     * Parsed with [String.toBoolean]. When enabled, verification asserts that the preference key,
+     * the database row or the file is absent, without consulting any expected value, and populating
+     * a preference removes its key.
      */
     public const val EXPECT_NULL: String = "expect_null"
 }
