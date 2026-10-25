@@ -88,42 +88,53 @@ public interface BackupRestoreController : AutoCloseable {
     /**
      * Runs a full backup and restore flow for a single storage domain.
      *
-     * Seeds [storage], runs a backup to [outputDir] using [mode], then clears app data, restores
-     * the backup archive, and verifies [storage].
+     * Seeds [storage] on this device, runs a backup to [outputDir] using [mode], then, on
+     * [restoreOn], clears app data, restores the backup archive, and verifies [storage].
      *
      * @param storage storage domain to seed and verify
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
-     * @return this controller instance
+     * @param restoreOn device controller on which app data is cleared, restored, and verified.
+     *   Defaults to this controller. Must have the same [applicationId] as this controller, and for
+     *   [BackupTransportMode.LOCAL], the same [serialNumber].
+     * @return this controller instance, even when the restore ran on [restoreOn]
      * @throws IOException if any step fails
-     * @throws IllegalArgumentException if [storage] is a [StorageDomain.ExcludedData]
+     * @throws IllegalArgumentException if [storage] is a [StorageDomain.ExcludedData], or if
+     *   [restoreOn] has a different [applicationId], or a different [serialNumber] with
+     *   [BackupTransportMode.LOCAL]
      */
     @Throws(IOException::class)
     public suspend fun runBackupRestoreFlow(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
+        restoreOn: BackupRestoreController = this,
     ): BackupRestoreController
 
     /**
      * Runs a full backup and restore flow for multiple storage domains.
      *
-     * Seeds each domain in [storages], runs a backup to [outputDir] using [mode], then clears app
-     * data, restores the backup archive, and verifies each domain.
+     * Seeds each domain in [storages] on this device, runs a backup to [outputDir] using [mode],
+     * then, on [restoreOn], clears app data, restores the backup archive, and verifies each domain.
      *
      * @param storages storage domains to seed and verify
      * @param outputDir directory where the generated backup file is saved
      * @param mode transport mode to test
-     * @return this controller instance
+     * @param restoreOn device controller on which app data is cleared, restored, and verified.
+     *   Defaults to this controller. Must have the same [applicationId] as this controller, and for
+     *   [BackupTransportMode.LOCAL], the same [serialNumber].
+     * @return this controller instance, even when the restore ran on [restoreOn]
      * @throws IOException if any step fails
      * @throws IllegalArgumentException if [storages] is empty or has only
-     *   [StorageDomain.ExcludedData]
+     *   [StorageDomain.ExcludedData], or if [restoreOn] has a different [applicationId], or a
+     *   different [serialNumber] with [BackupTransportMode.LOCAL]
      */
     @Throws(IOException::class)
     public suspend fun runBackupRestoreFlow(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
+        restoreOn: BackupRestoreController = this,
     ): BackupRestoreController
 
     /**
@@ -217,6 +228,17 @@ public interface BackupRestoreController : AutoCloseable {
         apkFile: Path,
         options: List<String> = DEFAULT_INSTALL_OPTIONS,
     ): BackupRestoreController
+
+    /**
+     * Uninstalls the target application from the device via `pm uninstall`, if it is installed.
+     *
+     * The test APK stays installed. Until [installApk] installs the app again, the calls that need
+     * it, such as [runOnDevice], [runBackupRestoreFlow] and [launchApp], fail.
+     *
+     * @return this controller instance
+     * @throws IOException if uninstalling the application fails
+     */
+    @Throws(IOException::class) public suspend fun uninstallApp(): BackupRestoreController
 
     /**
      * Starts the target application on the device via `am start`.
@@ -323,6 +345,28 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
+     * Runs a full backup and restore flow asynchronously for a single storage domain, restoring and
+     * verifying on [restoreOn].
+     *
+     * @param storage storage domain to seed and verify. Must not be a [StorageDomain.ExcludedData],
+     *   or the returned future fails with an [IllegalArgumentException].
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @param restoreOn device controller on which app data is cleared, restored, and verified. Must
+     *   have the same [applicationId] as this controller, and for [BackupTransportMode.LOCAL], the
+     *   same [serialNumber], or the returned future fails with an [IllegalArgumentException].
+     * @return a [ListenableFuture] with this controller instance, even when the restore ran on
+     *   [restoreOn]
+     */
+    @CheckResult
+    public fun runBackupRestoreFlowAsync(
+        storage: StorageDomain,
+        outputDir: Path,
+        mode: BackupTransportMode,
+        restoreOn: BackupRestoreController,
+    ): ListenableFuture<BackupRestoreController>
+
+    /**
      * Runs a full backup and restore flow asynchronously for multiple storage domains.
      *
      * @param storages storage domains to seed and verify. Must not be empty or hold only
@@ -337,6 +381,29 @@ public interface BackupRestoreController : AutoCloseable {
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
+    ): ListenableFuture<BackupRestoreController>
+
+    /**
+     * Runs a full backup and restore flow asynchronously for multiple storage domains, restoring
+     * and verifying on [restoreOn].
+     *
+     * @param storages storage domains to seed and verify. Must not be empty or hold only
+     *   [StorageDomain.ExcludedData], or the returned future fails with an
+     *   [IllegalArgumentException].
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @param restoreOn device controller on which app data is cleared, restored, and verified. Must
+     *   have the same [applicationId] as this controller, and for [BackupTransportMode.LOCAL], the
+     *   same [serialNumber], or the returned future fails with an [IllegalArgumentException].
+     * @return a [ListenableFuture] with this controller instance, even when the restore ran on
+     *   [restoreOn]
+     */
+    @CheckResult
+    public fun runBackupRestoreFlowAsync(
+        storages: List<StorageDomain>,
+        outputDir: Path,
+        mode: BackupTransportMode,
+        restoreOn: BackupRestoreController,
     ): ListenableFuture<BackupRestoreController>
 
     /**
@@ -465,6 +532,16 @@ public interface BackupRestoreController : AutoCloseable {
         apkFile: Path,
         options: List<String>,
     ): ListenableFuture<BackupRestoreController>
+
+    /**
+     * Uninstalls the target application asynchronously from the device, if it is installed.
+     *
+     * The test APK stays installed. Until [installApkAsync] installs the app again, the calls that
+     * need it, such as [runOnDeviceAsync], [runBackupRestoreFlowAsync] and [launchAppAsync], fail.
+     *
+     * @return a [ListenableFuture] with this controller instance
+     */
+    @CheckResult public fun uninstallAppAsync(): ListenableFuture<BackupRestoreController>
 
     /**
      * Starts the target application asynchronously on the device.

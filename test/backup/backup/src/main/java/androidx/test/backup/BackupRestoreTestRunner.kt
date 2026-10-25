@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Debug
 import android.os.ParcelFileDescriptor
+import androidx.test.platform.app.InstrumentationRegistry
 import java.io.IOException
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -32,7 +33,8 @@ import org.json.JSONObject
  * Executes on-device backup actions dispatched by host orchestrators.
  *
  * Stays dormant until the host orchestrator asks for an action, runs the requested
- * [BackupDeviceAction], and returns its result.
+ * [BackupDeviceAction], and returns its result. Actions can get this instrumentation from
+ * [InstrumentationRegistry].
  */
 /*
  * NOTE: The host wakes this runner up via `am instrument`, and the action class is loaded and
@@ -56,6 +58,7 @@ public class BackupRestoreTestRunner : Instrumentation() {
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         this.arguments = arguments
+        InstrumentationRegistry.registerInstance(this, arguments ?: Bundle())
         start()
     }
 

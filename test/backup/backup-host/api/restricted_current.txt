@@ -72,10 +72,14 @@ package androidx.test.backup.host {
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> performRestoreAsync(java.nio.file.Path backupFile, java.time.Duration timeout);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? pullFile(String devicePath, java.nio.file.Path hostDestination, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> pullFileAsync(String devicePath, java.nio.file.Path hostDestination);
-    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? runBackupRestoreFlow(androidx.test.backup.host.StorageDomain storage, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
-    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? runBackupRestoreFlow(java.util.List<? extends androidx.test.backup.host.StorageDomain> storages, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? runBackupRestoreFlow(androidx.test.backup.host.StorageDomain storage, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, optional androidx.test.backup.host.BackupRestoreController restoreOn, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? runBackupRestoreFlow(java.util.List<? extends androidx.test.backup.host.StorageDomain> storages, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, optional androidx.test.backup.host.BackupRestoreController restoreOn, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! runBackupRestoreFlow$default(androidx.test.backup.host.BackupRestoreController!, androidx.test.backup.host.StorageDomain!, java.nio.file.Path!, androidx.test.backup.host.BackupTransportMode!, androidx.test.backup.host.BackupRestoreController!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
+    method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! runBackupRestoreFlow$default(androidx.test.backup.host.BackupRestoreController!, java.util.List!, java.nio.file.Path!, androidx.test.backup.host.BackupTransportMode!, androidx.test.backup.host.BackupRestoreController!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> runBackupRestoreFlowAsync(androidx.test.backup.host.StorageDomain storage, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode);
+    method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> runBackupRestoreFlowAsync(androidx.test.backup.host.StorageDomain storage, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, androidx.test.backup.host.BackupRestoreController restoreOn);
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> runBackupRestoreFlowAsync(java.util.List<? extends androidx.test.backup.host.StorageDomain> storages, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode);
+    method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> runBackupRestoreFlowAsync(java.util.List<? extends androidx.test.backup.host.StorageDomain> storages, java.nio.file.Path outputDir, androidx.test.backup.host.BackupTransportMode mode, androidx.test.backup.host.BackupRestoreController restoreOn);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? runOnDevice(String actionClassName, optional java.util.Map<java.lang.String,java.lang.String> args, optional java.time.Duration timeout, optional boolean waitForDebugger, kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupActionResult>) throws java.io.IOException;
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! runOnDevice$default(androidx.test.backup.host.BackupRestoreController!, String!, java.util.Map!, java.time.Duration!, boolean, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupActionResult> runOnDeviceAsync(String actionClassName);
@@ -84,6 +88,8 @@ package androidx.test.backup.host {
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupActionResult> runOnDeviceAsync(String actionClassName, java.util.Map<java.lang.String,java.lang.String> args, java.time.Duration timeout, boolean waitForDebugger);
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? stopApp(kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
     method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> stopAppAsync();
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? uninstallApp(kotlin.coroutines.Continuation<? super androidx.test.backup.host.BackupRestoreController>) throws java.io.IOException;
+    method @CheckResult public com.google.common.util.concurrent.ListenableFuture<androidx.test.backup.host.BackupRestoreController> uninstallAppAsync();
     property public abstract int apiLevel;
     property public abstract String applicationId;
     property public abstract String serialNumber;
@@ -121,11 +127,15 @@ package androidx.test.backup.host {
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.VALUE_PARAMETER) public @interface Device {
-    ctor @KotlinOnly public Device(optional String role, optional int api, optional String serial);
-    method @InaccessibleFromKotlin public abstract int api() default 0;
+    ctor @KotlinOnly public Device(optional String role, optional int api, optional String serial, optional int minApi, optional int maxApi);
+    method @InaccessibleFromKotlin @IntRange(from=0L) public abstract int api() default 0;
+    method @InaccessibleFromKotlin @IntRange(from=0L) public abstract int maxApi() default java.lang.Integer.MAX_VALUE;
+    method @InaccessibleFromKotlin @IntRange(from=0L) public abstract int minApi() default 0;
     method @InaccessibleFromKotlin public abstract String role() default "";
     method @InaccessibleFromKotlin public abstract String serial() default "";
-    property public abstract int api;
+    property @IntRange(from=0L) public abstract int api;
+    property @IntRange(from=0L) public abstract int maxApi;
+    property @IntRange(from=0L) public abstract int minApi;
     property public abstract String role;
     property public abstract String serial;
   }

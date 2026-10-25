@@ -280,6 +280,25 @@ internal class BackupDeviceShell(private val adbSession: AdbSession, val serialN
         }
     }
 
+    /**
+     * Uninstalls [packageName], if it is installed.
+     *
+     * @throws IOException if the package manager does not report success
+     */
+    suspend fun uninstallPackage(packageName: String) {
+        val pkg = quoteIfNeeded(packageName)
+        if (exec("pm path $pkg").stdout.isBlank()) return
+        logger.info("Uninstalling $packageName via pm uninstall...")
+        val output = exec("pm uninstall $pkg")
+        if (!output.reportsSuccess()) {
+            throw commandFailure(
+                "Failed to uninstall $packageName (exit code ${output.exitCode})",
+                output.stderr,
+                output.stdout,
+            )
+        }
+    }
+
     /** Turns the screen on and dismisses the keyguard. */
     suspend fun wakeAndDismissKeyguard() {
         exec("input keyevent KEYCODE_WAKEUP")

@@ -70,12 +70,14 @@ internal class BackupRestoreControllerImpl(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
-    ): BackupRestoreController = runBackupRestoreFlow(listOf(storage), outputDir, mode)
+        restoreOn: BackupRestoreController,
+    ): BackupRestoreController = runBackupRestoreFlow(listOf(storage), outputDir, mode, restoreOn)
 
     override suspend fun runBackupRestoreFlow(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
+        restoreOn: BackupRestoreController,
     ): BackupRestoreController {
         val tracker = BackupExecutionTracker(mode, storages.size)
         try {
@@ -83,6 +85,15 @@ internal class BackupRestoreControllerImpl(
             require(storages.any { it !is StorageDomain.ExcludedData }) {
                 "All storages are ExcludedData, so the flow can't verify that the restore " +
                     "happened. Add a domain that the restore brings back."
+            }
+            require(restoreOn.applicationId == applicationId) {
+                "restoreOn applicationId (${restoreOn.applicationId}) must match this " +
+                    "controller's applicationId ($applicationId)."
+            }
+            require(mode != BackupTransportMode.LOCAL || restoreOn.serialNumber == serialNumber) {
+                "A LOCAL backup stays in the local transport of $serialNumber, so " +
+                    "${restoreOn.serialNumber} can't restore it. To restore on another device, use " +
+                    "a cloud or device-to-device mode."
             }
             logger.info(
                 "Executing standard backup and restore flow for $applicationId across " +
@@ -106,16 +117,16 @@ internal class BackupRestoreControllerImpl(
                 }
             tracker.stage(BackupExecutionStage.CLEAR_DATA) {
                 logger.info("Clearing app sandbox via clearAppData...")
-                clearAppData()
+                restoreOn.clearAppData()
             }
             tracker.stage(BackupExecutionStage.RESTORE) {
                 logger.info("Restoring data via performRestore...")
-                performRestore(backupFile)
+                restoreOn.performRestore(backupFile)
             }
             tracker.stage(BackupExecutionStage.VERIFICATION) {
                 storages.zip(verifyCalls).forEach { (domain, verifyCall) ->
                     logger.info("Verifying restored data on device for $domain...")
-                    runStorageAction(domain, verifyCall)
+                    restoreOn.runStorageAction(domain, verifyCall)
                 }
             }
         } catch (e: Exception) {
@@ -138,7 +149,7 @@ internal class BackupRestoreControllerImpl(
     /**
      * Runs the action of [call] for [domain], throws if it fails, and returns the action's data.
      */
-    private suspend fun runStorageAction(
+    private suspend fun BackupRestoreController.runStorageAction(
         domain: StorageDomain,
         call: Pair<String, Map<String, String>>,
     ): Map<String, String> {
@@ -522,6 +533,11 @@ internal class BackupRestoreControllerImpl(
         return this
     }
 
+    override suspend fun uninstallApp(): BackupRestoreController {
+        shell.uninstallPackage(applicationId)
+        return this
+    }
+
     /**
      * Returns the installed APK paths of the app, of the other packages whose name contains its
      * application ID, such as its test APK, and of the other packages with an instrumentation that
@@ -625,11 +641,29 @@ internal class BackupRestoreControllerImpl(
     }
 
     override fun runBackupRestoreFlowAsync(
+        storage: StorageDomain,
+        outputDir: Path,
+        mode: BackupTransportMode,
+        restoreOn: BackupRestoreController,
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        runBackupRestoreFlow(storage, outputDir, mode, restoreOn)
+    }
+
+    override fun runBackupRestoreFlowAsync(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
     ): ListenableFuture<BackupRestoreController> = asFuture {
         runBackupRestoreFlow(storages, outputDir, mode)
+    }
+
+    override fun runBackupRestoreFlowAsync(
+        storages: List<StorageDomain>,
+        outputDir: Path,
+        mode: BackupTransportMode,
+        restoreOn: BackupRestoreController,
+    ): ListenableFuture<BackupRestoreController> = asFuture {
+        runBackupRestoreFlow(storages, outputDir, mode, restoreOn)
     }
 
     override fun performBackupAsync(
@@ -688,6 +722,10 @@ internal class BackupRestoreControllerImpl(
         apkFile: Path,
         options: List<String>,
     ): ListenableFuture<BackupRestoreController> = asFuture { installApk(apkFile, options) }
+
+    override fun uninstallAppAsync(): ListenableFuture<BackupRestoreController> = asFuture {
+        uninstallApp()
+    }
 
     override fun launchAppAsync(): ListenableFuture<BackupRestoreController> = asFuture {
         launchApp()

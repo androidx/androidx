@@ -22,6 +22,7 @@ plugins {
 }
 
 dependencies {
+    api("androidx.test:monitor:1.8.0")
     implementation(libs.androidx.annotation)
 
     testImplementation(libs.junit)

@@ -70,6 +70,25 @@ class BackupRestoreExtensionTest {
         @Device(role = "target") target: BackupRestoreController,
     ) {}
 
+    @Suppress("UNUSED_PARAMETER")
+    private fun apiRangeMethod(
+        @Device(minApi = 34) newer: BackupRestoreController,
+        @Device(maxApi = 33) older: BackupRestoreController,
+    ) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun apiOutsideRangeMethod(
+        @Device(api = 33, minApi = 34) device: BackupRestoreController
+    ) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun invertedRangeMethod(
+        @Device(role = "target", minApi = 35, maxApi = 33) device: BackupRestoreController
+    ) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun negativeApiMethod(@Device(minApi = -1) device: BackupRestoreController) {}
+
     @Isolation(IsolationPolicy.MANUAL) private fun manuallyIsolatedMethod() {}
 
     @Isolation(IsolationPolicy.AUTOMATIC) class AutomaticallyIsolatedTestClass
@@ -472,6 +491,21 @@ class BackupRestoreExtensionTest {
         )
     }
 
+    /**
+     * An earlier parameter moves to another device that it matches, so a later one gets its own.
+     */
+    @Test
+    fun parametersWithOverlappingApiLevelRangesGetDevicesOfTheirOwn() {
+        assertEquals(
+            listOf(SERIAL_2, SERIAL_1),
+            BackupRestoreExtension()
+                .assignDevices(
+                    listOf(DeviceRequest("", 0, minApi = 33), DeviceRequest("", 0, minApi = 35)),
+                    listOf(OnlineDevice(SERIAL_1, 35), OnlineDevice(SERIAL_2, 34)),
+                ),
+        )
+    }
+
     @Test
     fun parametersShareTheFirstDeviceThatMatchesThemWhenTooFewDevicesMatch() {
         val extension = BackupRestoreExtension()
@@ -522,6 +556,110 @@ class BackupRestoreExtensionTest {
             "Could not find any online devices matching requirements: API=35, Serial=''. " +
                 "Available devices: [emulator-5554 (API 34), emulator-5556 (API 33)]",
             extension.noMatchingDeviceMessage(DeviceRequest("", 35), "", devices),
+        )
+        assertEquals(
+            "Could not find any online devices matching requirements: API=0, minApi=35, " +
+                "maxApi=36, Serial=''. " +
+                "Available devices: [emulator-5554 (API 34), emulator-5556 (API 33)]",
+            extension.noMatchingDeviceMessage(DeviceRequest("", 0, 35, 36), "", devices),
+        )
+    }
+
+    @Test
+    fun aParameterGetsADeviceWithinItsApiLevelRange() {
+        val extension = BackupRestoreExtension()
+        val method =
+            BackupRestoreExtensionTest::class
+                .java
+                .getDeclaredMethod(
+                    "apiRangeMethod",
+                    BackupRestoreController::class.java,
+                    BackupRestoreController::class.java,
+                )
+
+        val requests = extension.deviceRequestsOf(method)
+
+        assertEquals(
+            listOf(DeviceRequest("", 0, minApi = 34), DeviceRequest("", 0, maxApi = 33)),
+            requests,
+        )
+        assertEquals(
+            listOf(SERIAL_2, SERIAL_1),
+            extension.assignDevices(
+                requests,
+                listOf(OnlineDevice(SERIAL_1, 33), OnlineDevice(SERIAL_2, 35)),
+            ),
+        )
+        assertEquals(
+            listOf(null),
+            extension.assignDevices(
+                listOf(DeviceRequest("", 33, minApi = 34)),
+                listOf(OnlineDevice(SERIAL_1, 33), OnlineDevice(SERIAL_2, 35)),
+            ),
+        )
+    }
+
+    /**
+     * A system property replaces the API level of a parameter, within the range of the parameter.
+     */
+    @Test
+    fun anApiLevelPropertyWithinTheRangeOfAParameterReplacesItsApiLevel() =
+        withDeviceProperties("$DEVICE_PROPERTY.apis" to "35,33") {
+            assertEquals(
+                listOf(DeviceRequest("", 35, minApi = 34), DeviceRequest("", 33, maxApi = 33)),
+                BackupRestoreExtension().deviceRequestsOf(controllerMethod("apiRangeMethod", 2)),
+            )
+        }
+
+    /** CI can't silently run a parameter on a device that its range excludes. */
+    @Test
+    fun anApiLevelPropertyOutsideTheRangeOfAParameterFailsTheTest() =
+        withDeviceProperties("$DEVICE_PROPERTY.api" to "33") {
+            val e =
+                assertFailsWith<IllegalArgumentException> {
+                    BackupRestoreExtension().deviceRequestsOf(controllerMethod("apiRangeMethod", 2))
+                }
+
+            assertEquals(
+                "The system property androidx.test.backup.device.api asks for API level 33, but " +
+                    "the @Device of controller parameter 0 allows only API level 34 or higher. Use " +
+                    "an API level in that range, or androidx.test.backup.device.apis for an API " +
+                    "level per parameter.",
+                e.message,
+            )
+        }
+
+    /** As for [Device.api], 0 in an API level property means any API level in the range. */
+    @Test
+    fun anApiLevelPropertyOfZeroAsksForAnyApiLevel() =
+        withDeviceProperties("$DEVICE_PROPERTY.apis" to "0,33") {
+            assertEquals(
+                listOf(DeviceRequest("", 0, minApi = 34), DeviceRequest("", 33, maxApi = 33)),
+                BackupRestoreExtension().deviceRequestsOf(controllerMethod("apiRangeMethod", 2)),
+            )
+        }
+
+    @Test
+    fun aDeviceWithValuesThatNoDeviceCanMatchFailsTheTest() {
+        val extension = BackupRestoreExtension()
+        val messages =
+            listOf("apiOutsideRangeMethod", "invertedRangeMethod", "negativeApiMethod").map {
+                assertFailsWith<IllegalArgumentException> {
+                        extension.deviceRequestsOf(controllerMethod(it, 1))
+                    }
+                    .message
+            }
+
+        assertEquals(
+            listOf(
+                "The @Device of controller parameter 0 asks for API level 33, but its minApi and " +
+                    "maxApi allow only API level 34 or higher.",
+                "The @Device of controller parameter 0 (role 'target') sets minApi to 35, above " +
+                    "its maxApi of 33.",
+                "The @Device of controller parameter 0 sets minApi to -1, but an API level can't " +
+                    "be negative.",
+            ),
+            messages,
         )
     }
 
@@ -731,6 +869,12 @@ class BackupRestoreExtensionTest {
     }
 
     private fun controller() = BackupRestoreControllerImpl(device.session, FAKE_SERIAL, 34, PACKAGE)
+
+    /** Returns the method [name] of this class, whose [count] parameters are all controllers. */
+    private fun controllerMethod(name: String, count: Int): Method =
+        BackupRestoreExtensionTest::class
+            .java
+            .getDeclaredMethod(name, *Array(count) { BackupRestoreController::class.java })
 
     /**
      * Makes [device] install every APK, and list [installedPackages] for `pm list packages -f`.
