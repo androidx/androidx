@@ -16,10 +16,13 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
@@ -36,13 +39,16 @@ import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalTextApi::class)
 @RunWith(JUnit4::class)
 @Suppress("Deprecation")
 class SaversTest {
@@ -594,5 +600,179 @@ class SaversTest {
         val saved = save(original, AnnotatedString.Annotation.Saver, defaultSaverScope)
         val restored: StringAnnotation? = restore(saved, AnnotatedString.Annotation.Saver)
         assertThat(restored).isEqualTo(original)
+    }
+
+    private fun <Original, Saveable : Any> assertSaverRoundTrip(
+        saver: Saver<Original, Saveable>,
+        vararg values: Original,
+    ) {
+        for (original in values) {
+            val saved = with(saver) { defaultSaverScope.save(original) }!!
+            val restored = saver.restore(saved)
+            assertThat(restored).isEqualTo(original)
+        }
+    }
+
+    @Test
+    fun orphanedValueClassSavers_roundTripAllValues() {
+        assertSaverRoundTrip(
+            TextAlign.Saver,
+            TextAlign.Left,
+            TextAlign.Right,
+            TextAlign.Center,
+            TextAlign.Justify,
+            TextAlign.Start,
+            TextAlign.End,
+            TextAlign.Unspecified,
+        )
+        assertSaverRoundTrip(
+            TextDirection.Saver,
+            TextDirection.Ltr,
+            TextDirection.Rtl,
+            TextDirection.Content,
+            TextDirection.ContentOrLtr,
+            TextDirection.ContentOrRtl,
+            TextDirection.Unspecified,
+        )
+        assertSaverRoundTrip(Hyphens.Saver, Hyphens.None, Hyphens.Auto, Hyphens.Unspecified)
+        assertSaverRoundTrip(FontStyle.Saver, FontStyle.Normal, FontStyle.Italic)
+        assertSaverRoundTrip(
+            FontSynthesis.Saver,
+            FontSynthesis.None,
+            FontSynthesis.Weight,
+            FontSynthesis.Style,
+            FontSynthesis.All,
+        )
+        assertSaverRoundTrip(
+            TextRange.Saver,
+            TextRange.Zero,
+            TextRange(0, 10),
+            TextRange(7, 7),
+            TextRange(12, 3),
+        )
+        assertSaverRoundTrip(
+            EmojiSupportMatch.Saver,
+            EmojiSupportMatch.Default,
+            EmojiSupportMatch.None,
+            EmojiSupportMatch.All,
+        )
+        assertSaverRoundTrip(
+            TextUnitType.Saver,
+            TextUnitType.Unspecified,
+            TextUnitType.Sp,
+            TextUnitType.Em,
+        )
+        assertSaverRoundTrip(
+            TextUnit.Saver,
+            TextUnit.Unspecified,
+            0.sp,
+            14.5.sp,
+            2.25.em,
+            (-1.5).em,
+        )
+    }
+
+    @Test
+    fun colorLocaleListFontWeightBaselineShiftLineHeightStyleAndTextMotion_edgeCases() {
+        val p3Color = Color(0.8f, 0.2f, 0.4f, 0.9f, ColorSpaces.DisplayP3)
+        val savedP3 = with(Color.Saver) { defaultSaverScope.save(p3Color) }!!
+        assertThat(savedP3).isEqualTo(p3Color.toArgb())
+        assertThat(Color.Saver.restore(savedP3)).isEqualTo(Color(p3Color.toArgb()))
+        assertSaverRoundTrip(
+            Color.Saver,
+            Color.Unspecified,
+            Color(0xFF112233),
+        )
+        assertSaverRoundTrip(LocaleList.Saver, LocaleList.Empty)
+        assertSaverRoundTrip(FontWeight.Saver, FontWeight(345))
+        assertSaverRoundTrip(
+            LineHeightStyle.Saver,
+            LineHeightStyle(
+                alignment = LineHeightStyle.Alignment(0.25f),
+                trim = LineHeightStyle.Trim.FirstLineTop,
+                mode = LineHeightStyle.Mode.Minimum,
+            ),
+        )
+
+        for (shift in listOf(BaselineShift(-0.0f), BaselineShift(0.37f))) {
+            val savedShift = with(BaselineShift.Saver) { defaultSaverScope.save(shift) }!!
+            val restoredShift = BaselineShift.Saver.restore(savedShift)!!
+            assertThat(restoredShift.multiplier.toRawBits()).isEqualTo(shift.multiplier.toRawBits())
+        }
+
+        val linearities =
+            listOf(
+                TextMotion.Linearity.Linear,
+                TextMotion.Linearity.FontHinting,
+                TextMotion.Linearity.None,
+            )
+        for (linearity in linearities) {
+            for (subpixel in listOf(true, false)) {
+                assertSaverRoundTrip(TextMotion.Saver, TextMotion(linearity, subpixel))
+            }
+        }
+    }
+
+    @Test
+    fun annotationSaver_and_annotatedStringSaver_edgeCases() {
+        assertThrows(UnsupportedOperationException::class.java) {
+            with(AnnotatedString.Annotation.Saver) {
+                defaultSaverScope.save(Bullet.Default)
+            }
+        }
+
+        val annotatedWithBullet =
+            AnnotatedString(
+                text = "bullet item",
+                annotations = listOf(AnnotatedString.Range(Bullet.Default, 0, 6)),
+            )
+        val savedWithBullet =
+            with(AnnotatedStringSaver) { defaultSaverScope.save(annotatedWithBullet) }!!
+        assertThat(AnnotatedStringSaver.restore(savedWithBullet))
+            .isEqualTo(AnnotatedString("bullet item"))
+
+        val unsaveableDrawAnnotation = DrawAnnotation(drawBehind = {})
+        val strictScope = androidx.compose.runtime.saveable.SaverScope { false }
+        assertThrows(UnsupportedOperationException::class.java) {
+            with(AnnotatedString.Annotation.Saver) { strictScope.save(unsaveableDrawAnnotation) }
+        }
+
+        val urlWithNullStyles =
+            LinkAnnotation.Url(
+                url = "https://developer.android.com",
+                styles = null,
+                linkInteractionListener = {},
+            )
+        val clickableWithNullStyles =
+            LinkAnnotation.Clickable(
+                tag = "action_tag",
+                styles = null,
+                linkInteractionListener = {},
+            )
+
+        val savedUrl =
+            with(AnnotatedString.Annotation.Saver) { defaultSaverScope.save(urlWithNullStyles) }!!
+        val restoredUrl = AnnotatedString.Annotation.Saver.restore(savedUrl) as LinkAnnotation.Url
+        assertThat(restoredUrl.url).isEqualTo("https://developer.android.com")
+        assertThat(restoredUrl.styles).isNull()
+        assertThat(restoredUrl.linkInteractionListener).isNull()
+
+        val savedClickable =
+            with(AnnotatedString.Annotation.Saver) {
+                defaultSaverScope.save(clickableWithNullStyles)
+            }!!
+        val restoredClickable =
+            AnnotatedString.Annotation.Saver.restore(savedClickable) as LinkAnnotation.Clickable
+        assertThat(restoredClickable.tag).isEqualTo("action_tag")
+        assertThat(restoredClickable.styles).isNull()
+        assertThat(restoredClickable.linkInteractionListener).isNull()
+
+        assertSaverRoundTrip(
+            TextLinkStylesSaver,
+            TextLinkStyles(style = SpanStyle(color = Color.Red)),
+            TextLinkStyles(focusedStyle = SpanStyle(color = Color.Green)),
+            TextLinkStyles(hoveredStyle = SpanStyle(color = Color.Blue)),
+            TextLinkStyles(pressedStyle = SpanStyle(color = Color.Yellow)),
+        )
     }
 }

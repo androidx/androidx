@@ -187,6 +187,12 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.unit.TextUnit DefaultSize;
   }
 
+  @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class ComposeUiTextFlags {
+    property public boolean isPackedTextStylesEnabled;
+    field public static final androidx.compose.ui.text.ComposeUiTextFlags INSTANCE;
+    field public static boolean isPackedTextStylesEnabled;
+  }
+
   @androidx.compose.runtime.Stable public abstract class DrawAnnotation implements androidx.compose.ui.text.AnnotatedString.Annotation {
     ctor public DrawAnnotation();
     method public void drawBehind(androidx.compose.ui.text.DrawAnnotationScope);

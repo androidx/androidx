@@ -1201,7 +1201,10 @@ internal constructor(
          * handle this case manually if required (check
          * https://issuetracker.google.com/issues/332901550 for an example).
          */
-        public val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
+        // Use a custom getter with no backing field so `AnnotatedString.<clinit>` does not load
+        // `Savers.kt` early. This lets R8 tree-shake unused `Saver`s.
+        public val Saver: Saver<AnnotatedString, *>
+            get() = AnnotatedStringSaver
     }
 }
 
