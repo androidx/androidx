@@ -43,6 +43,7 @@ internal actual fun AnnotatedString.transform(
         return AnnotatedString(
             text = if (text.isNotEmpty()) transform(text, 0, text.length) else "",
             annotations = null,
+            trusted = true,
         )
     }
     val cutsSize = 2 * ranges.size + 2
@@ -68,10 +69,16 @@ internal actual fun AnnotatedString.transform(
         offsetMap?.put(cut, builder.length)
         previous = cut
     }
-    val map = offsetMap ?: return AnnotatedString(text = builder.toString(), annotations = ranges)
+    val map =
+        offsetMap
+            ?: return AnnotatedString(
+                text = builder.toString(),
+                annotations = ranges,
+                trusted = true,
+            )
     val newAnnotations = ArrayList<Range<out Annotation>>(ranges.size)
     ranges.fastForEach { newAnnotations.add(Range(it.item, map[it.start], map[it.end], it.tag)) }
-    return AnnotatedString(text = builder.toString(), annotations = newAnnotations)
+    return AnnotatedString(text = builder.toString(), annotations = newAnnotations, trusted = true)
 }
 
 /** Legacy flag-off implementation of [AnnotatedString.transform]. */
@@ -94,7 +101,7 @@ internal fun AnnotatedString.legacyTransform(
         Range(it.item, offsetMap[it.start], offsetMap[it.end], it.tag)
     }
 
-    return AnnotatedString(text = resultStr, annotations = newAnnotations)
+    return AnnotatedString(text = resultStr, annotations = newAnnotations, trusted = true)
 }
 
 /**

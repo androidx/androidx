@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1319,4 +1321,282 @@ class AnnotatedStringBuilderTest {
     private fun Int.toAnnotation() = StringAnnotation(this.toString())
 
     private fun String.toAnnotation() = StringAnnotation(this)
+
+    @Test
+    fun builder_recordRangeTag_andPackedRangeBounds_andConstructorCopy() {
+        // 1. Empty tags only -> rangeTags stays null
+        val emptyTagsOnly = buildAnnotatedString {
+            append("abcd")
+            addStyle(SpanStyle(color = Color.Red), 0, 2)
+            addStringAnnotation(tag = "", annotation = "emptyTagVal", start = 1, end = 3)
+        }
+        assertThat(emptyTagsOnly.getStringAnnotations("", 0, 4))
+            .containsExactly(Range("emptyTagVal", 1, 3, ""))
+
+        // 2. Non-empty tag at index 0, untagged at index 1, non-empty tag at index 2
+        val tagAtZeroFirst = buildAnnotatedString {
+            append("abcd")
+            addStringAnnotation(tag = "first", annotation = "v0", start = 0, end = 2)
+            addStyle(SpanStyle(color = Color.Blue), 1, 3)
+            addStringAnnotation(tag = "third", annotation = "v2", start = 2, end = 4)
+        }
+        assertThat(tagAtZeroFirst.getStringAnnotations(0, 4))
+            .containsExactly(Range("v0", 0, 2, "first"), Range("v2", 2, 4, "third"))
+            .inOrder()
+
+        // 3. Untagged prefix at indices 0..2 followed by non-empty tag at index 3 (backfills "")
+        val tagAfterUntaggedPrefix = buildAnnotatedString {
+            append("abcdef")
+            addStyle(SpanStyle(color = Color.Red), 0, 2)
+            addStyle(SpanStyle(color = Color.Green), 2, 4)
+            addTtsAnnotation(VerbatimTtsAnnotation("tts"), 0, 3)
+            addStringAnnotation(tag = "lateTag", annotation = "lateVal", start = 1, end = 5)
+        }
+        assertThat(tagAfterUntaggedPrefix.getStringAnnotations("lateTag", 0, 6))
+            .containsExactly(Range("lateVal", 1, 5, "lateTag"))
+
+        // 4. Pushed ranges at start = 0 and start = 5 (popped zero-length [5, 5) and unpopped ->
+        // text.length)
+        val builder = AnnotatedString.Builder()
+        builder.pushStyle(SpanStyle(color = Color.Red))
+        builder.append("Hello")
+        val zeroLenIdx = builder.pushStringAnnotation("zeroTag", "zeroVal")
+        builder.pop(zeroLenIdx)
+        builder.pushStyle(SpanStyle(color = Color.Blue))
+        builder.append("!")
+        builder.append('?')
+        builder.append('!')
+
+        val packedResult = builder.toAnnotatedString()
+        assertThat(packedResult.text).isEqualTo("Hello!?!")
+        assertThat(packedResult.spanStyles)
+            .containsExactly(
+                Range(SpanStyle(color = Color.Red), 0, 8),
+                Range(SpanStyle(color = Color.Blue), 5, 8),
+            )
+            .inOrder()
+        assertThat(packedResult.getStringAnnotations("zeroTag", 5, 5))
+            .containsExactly(Range("zeroVal", 5, 5, "zeroTag"))
+
+        // 5. Builder(AnnotatedString) copy, append(source, k, k) skipping filterRanges, and null
+        // CharSequence
+        val copied =
+            AnnotatedString.Builder(packedResult)
+                .apply {
+                    append(packedResult, 5, 5)
+                    append(null as CharSequence?)
+                    append(null as CharSequence?, 0, 2)
+                }
+                .toAnnotatedString()
+        assertThat(copied.text).isEqualTo("Hello!?!nullnu")
+        assertThat(copied.getStringAnnotations("zeroTag", 0, copied.length))
+            .containsExactly(Range("zeroVal", 5, 5, "zeroTag"))
+    }
+
+    @OptIn(ExperimentalTextApi::class)
+    @Suppress("DEPRECATION")
+    @Test
+    fun builder_addMethods_withAnnotationHelpers_andBulletScopeBranches() {
+        assumeTrue(PackedTextStylesLatch.isEnabled)
+        val tts1 = VerbatimTtsAnnotation("tts1")
+        val tts2 = VerbatimTtsAnnotation("tts2")
+        val url1 = UrlAnnotation("https://url1")
+        val url2 = UrlAnnotation("https://url2")
+        val linkUrl = LinkAnnotation.Url("https://link.url")
+        val linkClick = LinkAnnotation.Clickable("clickTag") {}
+        val customBullet1 = Bullet.Default.copy(padding = 0.5.em)
+        val customBullet2 = Bullet.Default.copy(padding = 0.75.em)
+
+        val result = buildAnnotatedString {
+            withAnnotation(tts1) { append("ab") }
+            withAnnotation(url1) { append("cd") }
+            withLink(linkUrl) { append("ef") }
+            withLink(linkClick) { append("gh") }
+            addTtsAnnotation(tts2, 0, 2)
+            addUrlAnnotation(url2, 2, 4)
+            addLink(linkUrl, 4, 6)
+            addLink(linkClick, 6, 8)
+            addStringAnnotation("strTag", "strVal", 1, 7)
+            addBullet(customBullet1, indentation = 12.sp, start = 0, end = 8)
+        }
+        assertThat(result.getTtsAnnotations(0, 8))
+            .containsExactly(Range(tts1, 0, 2, ""), Range(tts2, 0, 2, ""))
+            .inOrder()
+        assertThat(result.getUrlAnnotations(0, 8))
+            .containsExactly(Range(url1, 2, 4, ""), Range(url2, 2, 4, ""))
+            .inOrder()
+        assertThat(result.getLinkAnnotations(0, 8)).hasSize(4)
+        assertThat(result.paragraphStyles)
+            .containsExactly(Range(ParagraphStyle(textIndent = TextIndent(12.sp, 12.sp)), 0, 8))
+
+        // Nested Em indentation + custom bullet override + ParagraphStyle instance reuse
+        val emList = buildAnnotatedString {
+            withBulletList(indentation = 1.em, bullet = customBullet1) {
+                withBulletListItem { append("item1") }
+                withBulletList(indentation = 0.5.em) {
+                    withBulletListItem(bullet = customBullet2) { append("item2") }
+                }
+            }
+        }
+        assertThat(emList.paragraphStyles[1].item).isSameInstanceAs(emList.paragraphStyles[0].item)
+        assertThat(emList.paragraphStyles[3].item).isSameInstanceAs(emList.paragraphStyles[2].item)
+        assertThat(emList.annotations?.filter { it.item is Bullet })
+            .containsExactly(Range(customBullet1, 0, 5), Range(customBullet2, 5, 10))
+            .inOrder()
+
+        // Nested TextUnit.Unspecified indentation & standalone BulletScope fallback
+        val unspecifiedList = buildAnnotatedString {
+            withBulletList(indentation = TextUnit.Unspecified) {
+                withBulletList(indentation = TextUnit.Unspecified) {
+                    withBulletListItem { append("x") }
+                }
+            }
+        }
+        val expectedUnspecifiedStyle =
+            ParagraphStyle(textIndent = TextIndent(TextUnit.Unspecified, TextUnit.Unspecified))
+        assertThat(unspecifiedList.paragraphStyles)
+            .containsExactly(
+                Range(expectedUnspecifiedStyle, 0, 1),
+                Range(expectedUnspecifiedStyle, 0, 1),
+                Range(expectedUnspecifiedStyle, 0, 1),
+            )
+
+        val standaloneResult = buildAnnotatedString {
+            with(AnnotatedString.Builder.BulletScope(this)) {
+                withBulletListItem { append("standalone") }
+            }
+        }
+        assertThat(standaloneResult.paragraphStyles)
+            .containsExactly(
+                Range(
+                    ParagraphStyle(
+                        textIndent =
+                            TextIndent(Bullet.DefaultIndentation, Bullet.DefaultIndentation)
+                    ),
+                    0,
+                    10,
+                )
+            )
+
+        assertFailsWith<IllegalStateException> {
+            buildAnnotatedString {
+                withBulletList(indentation = 10.sp) {
+                    withBulletList(indentation = 1.em) { append("fail") }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun builder_mapAnnotations_andFlatMapAnnotations_allBranches() {
+        val emptyBuilder = AnnotatedString.Builder()
+        emptyBuilder.mapAnnotations { it }
+        emptyBuilder.flatMapAnnotations { listOf(it) }
+        assertThat(emptyBuilder.toAnnotatedString().annotations).isNull()
+
+        val mapBuilder =
+            AnnotatedString.Builder("abcdef").apply {
+                addStyle(SpanStyle(color = Color.Red), 0, 2)
+                addStyle(SpanStyle(color = Color.Green), 2, 4)
+                addStyle(SpanStyle(color = Color.Blue), 4, 6)
+            }
+        mapBuilder.mapAnnotations { range ->
+            if (range.start == 2) Range(StringAnnotation("mappedVal"), 1, 5, "mappedTag")
+            else Range(range.item, range.start, range.end, "")
+        }
+        mapBuilder.mapAnnotations { range ->
+            if (range.tag == "mappedTag") Range(range.item, range.start, range.end, "updatedTag")
+            else range
+        }
+        val mappedResult = mapBuilder.toAnnotatedString()
+        assertThat(mappedResult.spanStyles)
+            .containsExactly(
+                Range(SpanStyle(color = Color.Red), 0, 2),
+                Range(SpanStyle(color = Color.Blue), 4, 6),
+            )
+            .inOrder()
+        assertThat(mappedResult.getStringAnnotations("updatedTag", 0, 6))
+            .containsExactly(Range("mappedVal", 1, 5, "updatedTag"))
+
+        val flatMapBuilder =
+            AnnotatedString.Builder("abcdef").apply {
+                addStyle(SpanStyle(color = Color.Red), 0, 4)
+                addStringAnnotation("oldTag", "val", 4, 6)
+            }
+        flatMapBuilder.flatMapAnnotations { range ->
+            if (range.item is SpanStyle) {
+                listOf(Range(range.item, 0, 2), Range(range.item, 2, 4))
+            } else {
+                listOf(Range(range.item, range.start, range.end, "newTag"))
+            }
+        }
+        val flatMappedResult = flatMapBuilder.toAnnotatedString()
+        assertThat(flatMappedResult.spanStyles)
+            .containsExactly(
+                Range(SpanStyle(color = Color.Red), 0, 2),
+                Range(SpanStyle(color = Color.Red), 2, 4),
+            )
+            .inOrder()
+        assertThat(flatMappedResult.getStringAnnotations("newTag", 0, 6))
+            .containsExactly(Range("val", 4, 6, "newTag"))
+
+        val unpoppedBuilder =
+            AnnotatedString.Builder("abc").apply { pushStyle(SpanStyle(color = Color.Red)) }
+        assertFailsWith<IllegalStateException> { unpoppedBuilder.mapAnnotations { it } }
+        assertFailsWith<IllegalStateException> { unpoppedBuilder.flatMapAnnotations { listOf(it) } }
+    }
+
+    @Test
+    fun flatMapAnnotations_withUnclosedRange_throws() {
+        val builder = AnnotatedString.Builder("abc")
+        builder.pushStyle(SpanStyle(color = Color.Blue))
+        builder.append("a")
+        builder.pop()
+        builder.pushStyle(SpanStyle(color = Color.Red))
+        builder.append("b")
+
+        assertFailsWith<IllegalStateException> {
+            builder.flatMapAnnotations { listOf(it) }
+        }
+    }
+
+    @Test
+    fun toAnnotatedString_unannotated_equalsPlainAnnotatedStringAndMatchesHashCode() {
+        val fromTextBuilder = AnnotatedString.Builder("hello").toAnnotatedString()
+        val expectedHello = AnnotatedString("hello")
+        assertThat(fromTextBuilder.annotations).isNull()
+        assertThat(fromTextBuilder).isEqualTo(expectedHello)
+        assertThat(fromTextBuilder.hashCode()).isEqualTo(expectedHello.hashCode())
+
+        val fromEmptyBuilder = AnnotatedString.Builder().toAnnotatedString()
+        val expectedEmpty = AnnotatedString("")
+        assertThat(fromEmptyBuilder.annotations).isNull()
+        assertThat(fromEmptyBuilder).isEqualTo(expectedEmpty)
+        assertThat(fromEmptyBuilder.hashCode()).isEqualTo(expectedEmpty.hashCode())
+    }
+
+    @Test
+    fun withBulletList_toAnnotatedStringSnapshot_preservesNestedIndentation() {
+        val builder = AnnotatedString.Builder()
+        lateinit var snapshot: AnnotatedString
+        with(builder) {
+            withBulletList(indentation = 10.sp) {
+                withBulletListItem { append("outer") }
+                snapshot = toAnnotatedString()
+                withBulletList(indentation = 5.sp) { withBulletListItem { append("inner") } }
+            }
+        }
+
+        assertThat(snapshot.text).isEqualTo("outer")
+        assertThat(builder.toAnnotatedString().annotations)
+            .containsExactly(
+                Range(ParagraphStyle(textIndent = TextIndent(10.sp, 10.sp)), 0, 10),
+                Range(ParagraphStyle(textIndent = TextIndent(10.sp, 10.sp)), 0, 5),
+                Range(Bullet.Default, 0, 5),
+                Range(ParagraphStyle(textIndent = TextIndent(15.sp, 15.sp)), 5, 10),
+                Range(ParagraphStyle(textIndent = TextIndent(15.sp, 15.sp)), 5, 10),
+                Range(Bullet.Default, 5, 10),
+            )
+            .inOrder()
+    }
 }
