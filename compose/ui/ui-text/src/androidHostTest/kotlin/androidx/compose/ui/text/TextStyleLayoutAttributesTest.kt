@@ -361,4 +361,120 @@ class TextStyleLayoutAttributesTest {
     private data class Property(val name: String?, val type: KType) {
         constructor(parameter: KProperty1<*, *>) : this(parameter.name, parameter.returnType)
     }
+
+    @Test
+    fun returns_true_for_drawStyle_change() {
+        val style = TextStyle(drawStyle = androidx.compose.ui.graphics.drawscope.Fill)
+        assertThat(
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f))
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun returns_false_for_hyphens_change() {
+        val style = TextStyle(hyphens = androidx.compose.ui.text.style.Hyphens.None)
+        assertThat(
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(hyphens = androidx.compose.ui.text.style.Hyphens.Auto)
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun returns_false_for_textMotion_change() {
+        val style = TextStyle(textMotion = androidx.compose.ui.text.style.TextMotion.Static)
+        assertThat(
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(textMotion = androidx.compose.ui.text.style.TextMotion.Animated)
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun hasSameDrawAffectingAttributes_and_hashCodeLayoutAffectingAttributes_invariants() {
+        val brushA = Brush.linearGradient(listOf(Color.Black, Color.White))
+        val brushB = Brush.linearGradient(listOf(Color.Red, Color.Blue))
+        val base =
+            TextStyle(
+                color = Color.Red,
+                fontSize = 16.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                textAlign = TextAlign.Center,
+                lineHeight = 22.sp,
+            )
+
+        assertThat(base.hasSameDrawAffectingAttributes(base)).isTrue()
+        assertThat(base.hasSameDrawAffectingAttributes(base.copy())).isTrue()
+
+        // Draw-only variations: hasSameLayoutAffectingAttributes == true,
+        // hashCodeLayoutAffectingAttributes == base.hashCodeLayoutAffectingAttributes(),
+        // hasSameDrawAffectingAttributes == false
+        val drawVariants =
+            listOf(
+                base.copy(color = Color.Blue),
+                base.copy(brush = brushA, alpha = 0.5f),
+                base.copy(brush = brushB, alpha = 0.5f),
+                base.copy(textDecoration = TextDecoration.None),
+                base.copy(textDecoration = TextDecoration.Underline),
+                base.copy(shadow = Shadow.None),
+                base.copy(shadow = Shadow(color = Color.Green)),
+                base.copy(drawStyle = androidx.compose.ui.graphics.drawscope.Fill),
+                base.copy(drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)),
+            )
+        for (variant in drawVariants) {
+            assertThat(base.hasSameLayoutAffectingAttributes(variant)).isTrue()
+            assertThat(variant.hashCodeLayoutAffectingAttributes())
+                .isEqualTo(base.hashCodeLayoutAffectingAttributes())
+            assertThat(base.hasSameDrawAffectingAttributes(variant)).isFalse()
+        }
+
+        // ShaderBrush alpha change is a draw-only change
+        val brushAlpha1 = base.copy(brush = brushA, alpha = 0.3f)
+        val brushAlpha2 = base.copy(brush = brushA, alpha = 0.8f)
+        assertThat(brushAlpha1.hasSameLayoutAffectingAttributes(brushAlpha2)).isTrue()
+        assertThat(brushAlpha1.hashCodeLayoutAffectingAttributes())
+            .isEqualTo(brushAlpha2.hashCodeLayoutAffectingAttributes())
+        assertThat(brushAlpha1.hasSameDrawAffectingAttributes(brushAlpha2)).isFalse()
+
+        // Layout-only variations: hasSameDrawAffectingAttributes == true,
+        // hasSameLayoutAffectingAttributes == false
+        val layoutVariants =
+            listOf(
+                base.copy(fontSize = 20.sp),
+                base.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Light),
+                base.copy(fontStyle = FontStyle.Normal),
+                base.copy(fontSynthesis = FontSynthesis.Weight),
+                base.copy(fontFamily = FontFamily.Monospace),
+                base.copy(fontFeatureSettings = "smcp"),
+                base.copy(letterSpacing = 1.sp),
+                base.copy(baselineShift = BaselineShift.Superscript),
+                base.copy(textGeometricTransform = TextGeometricTransform(scaleX = 1.5f)),
+                base.copy(localeList = LocaleList("fr-FR")),
+                base.copy(background = Color.Yellow),
+                base.copy(textAlign = TextAlign.End),
+                base.copy(textDirection = TextDirection.Rtl),
+                base.copy(lineHeight = 28.sp),
+                base.copy(textIndent = TextIndent(firstLine = 10.sp)),
+                base.copy(platformStyle = PlatformTextStyle(includeFontPadding = true)),
+                base.copy(
+                    lineHeightStyle =
+                        LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.Both)
+                ),
+                base.copy(lineBreak = LineBreak.Heading),
+                base.copy(hyphens = androidx.compose.ui.text.style.Hyphens.Auto),
+                base.copy(textMotion = androidx.compose.ui.text.style.TextMotion.Animated),
+            )
+        for (variant in layoutVariants) {
+            assertThat(base.hasSameDrawAffectingAttributes(variant)).isTrue()
+            assertThat(base.hasSameLayoutAffectingAttributes(variant)).isFalse()
+            assertThat(variant.hashCodeLayoutAffectingAttributes())
+                .isNotEqualTo(base.hashCodeLayoutAffectingAttributes())
+        }
+    }
 }
