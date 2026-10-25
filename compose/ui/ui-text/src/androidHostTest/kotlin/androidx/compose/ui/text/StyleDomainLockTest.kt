@@ -16,12 +16,15 @@
 
 package androidx.compose.ui.text
 
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.MAX_LINE_BREAK_STRATEGY_VALUE
 import androidx.compose.ui.text.style.MAX_LINE_BREAK_STRICTNESS_VALUE
 import androidx.compose.ui.text.style.MAX_LINE_BREAK_WORD_BREAK_VALUE
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.text.style.isSpecified
@@ -174,6 +177,50 @@ class StyleDomainLockTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun fontSynthesis_domainMatchesMaxMask_andPacksLosslessly() {
+        val validValues =
+            listOf(
+                FontSynthesis.None,
+                FontSynthesis.Weight,
+                FontSynthesis.Style,
+                FontSynthesis.All,
+            )
+        val validFromToString =
+            intSweepProbes().map { FontSynthesis(it) }.filter { it.toString() != "Invalid" }
+        assertThat(validFromToString).containsExactlyElementsIn(validValues)
+
+        for (synthesis in validValues) {
+            val masked = synthesis.value and FontSynthesis.MAX_FONT_SYNTHESIS_MASK
+            assertThat(masked).isIn(0..FontSynthesis.MAX_FONT_SYNTHESIS_MASK)
+            assertThat(SpanStyle(fontSynthesis = synthesis).fontSynthesis).isEqualTo(synthesis)
+        }
+        assertThat(SpanStyle(fontSynthesis = null).fontSynthesis).isNull()
+    }
+
+    @Test
+    fun textDecoration_domainMatchesMaxMask_andPacksLosslessly() {
+        assertLockedValueDomain(
+            maxValue = TextDecoration.MAX_TEXT_DECORATION_MASK,
+            rawValueOf = { it.mask },
+            checkedValueOf = TextDecoration::valueOf,
+            roundTripInStyle = { SpanStyle(textDecoration = it).textDecoration },
+        )
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun fontStyle_valuesMatchNormalAndItalic_andPackLosslessly() {
+        assertThat(FontStyle.values()).containsExactly(FontStyle.Normal, FontStyle.Italic)
+        assertLockedValueDomain(
+            maxValue = FontStyle.MAX_FONT_STYLE_VALUE,
+            expectedValues = FontStyle.values(),
+            rawValueOf = { it.value },
+            checkedValueOf = ::FontStyle,
+            roundTripInStyle = { SpanStyle(fontStyle = it).fontStyle },
+        )
     }
 
     @Test

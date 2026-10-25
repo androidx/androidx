@@ -371,41 +371,101 @@ private object StyleSavers {
     internal val SpanStyleSaverInstance: Saver<SpanStyle, Any> =
         Saver<SpanStyle, Any>(
             save = {
-                arrayListOf(
-                    save(it.color, Color.Saver, this),
-                    save(it.fontSize, TextUnit.Saver, this),
-                    save(it.fontWeight, FontWeight.Saver, this),
-                    save(it.fontStyle, FontStyle.Saver, this),
-                    save(it.fontSynthesis, FontSynthesis.Saver, this),
-                    save(-1), // TODO save fontFamily
-                    save(it.fontFeatureSettings),
-                    save(it.letterSpacing, TextUnit.Saver, this),
-                    save(it.baselineShift, BaselineShift.Saver, this),
-                    save(it.textGeometricTransform, TextGeometricTransform.Saver, this),
-                    save(it.localeList, LocaleList.Saver, this),
-                    save(it.background, Color.Saver, this),
-                    save(it.textDecoration, TextDecoration.Saver, this),
-                    save(it.shadow, Shadow.Saver, this),
-                )
+                if (!PackedTextStylesLatch.isEnabled) {
+                    arrayListOf(
+                        save(it.color, Color.Saver, this),
+                        save(it.fontSize, TextUnit.Saver, this),
+                        save(it.fontWeight, FontWeight.Saver, this),
+                        save(it.fontStyle, FontStyle.Saver, this),
+                        save(it.fontSynthesis, FontSynthesis.Saver, this),
+                        save(-1), // TODO save fontFamily
+                        save(it.fontFeatureSettings),
+                        save(it.letterSpacing, TextUnit.Saver, this),
+                        save(it.baselineShift, BaselineShift.Saver, this),
+                        save(it.textGeometricTransform, TextGeometricTransform.Saver, this),
+                        save(it.localeList, LocaleList.Saver, this),
+                        save(it.background, Color.Saver, this),
+                        save(it.textDecoration, TextDecoration.Saver, this),
+                        save(it.shadow, Shadow.Saver, this),
+                    )
+                } else {
+                    val extras = it.extras
+                    // When background == Color.Transparent and extras == null, save writes false at
+                    // index 9 because extras == null. HAS_BACKGROUND in bits (index 1) preserves
+                    // the presence of background so restore decodes Color.Transparent.
+                    arrayListOf(
+                        if (extras?.brush != null) 0L else it.colorXor,
+                        it.bits and UNSAVED_SPAN_BITS.inv(),
+                        save(it.fontSize, TextUnitSaverInstance, this),
+                        save(it.letterSpacing, TextUnitSaverInstance, this),
+                        save(it.fontWeight, FontWeightSaverInstance, this),
+                        save(extras?.fontFeatureSettings),
+                        save(extras?.baselineShift, BaselineShiftSaverInstance, this),
+                        save(
+                            extras?.textGeometricTransform,
+                            TextGeometricTransformSaverInstance,
+                            this,
+                        ),
+                        save(extras?.localeList, LocaleListSaverInstance, this),
+                        if (extras == null) false
+                        else save(extras.background, ColorSaverInstance, this),
+                        save(extras?.shadow, ShadowSaverInstance, this),
+                    )
+                }
             },
             restore = {
                 val list = it as List<Any?>
-                SpanStyle(
-                    color = restore(list[0], Color.Saver)!!,
-                    fontSize = restore(list[1], TextUnit.Saver)!!,
-                    fontWeight = restore(list[2], FontWeight.Saver),
-                    fontStyle = restore(list[3], FontStyle.Saver),
-                    fontSynthesis = restore(list[4], FontSynthesis.Saver),
-                    // val fontFamily = list[5] // TODO restore fontFamily
-                    fontFeatureSettings = restore(list[6]),
-                    letterSpacing = restore(list[7], TextUnit.Saver)!!,
-                    baselineShift = restore(list[8], BaselineShift.Saver),
-                    textGeometricTransform = restore(list[9], TextGeometricTransform.Saver),
-                    localeList = restore(list[10], LocaleList.Saver),
-                    background = restore(list[11], Color.Saver)!!,
-                    textDecoration = restore(list[12], TextDecoration.Saver),
-                    shadow = restore(list[13], Shadow.Saver),
-                )
+                if (list.size > 11) {
+                    SpanStyle(
+                        color = restore(list[0], Color.Saver)!!,
+                        fontSize = restore(list[1], TextUnit.Saver)!!,
+                        fontWeight = restore(list[2], FontWeight.Saver),
+                        fontStyle = restore(list[3], FontStyle.Saver),
+                        fontSynthesis = restore(list[4], FontSynthesis.Saver),
+                        // val fontFamily = list[5] // TODO restore fontFamily
+                        fontFeatureSettings = restore(list[6]),
+                        letterSpacing = restore(list[7], TextUnit.Saver)!!,
+                        baselineShift = restore(list[8], BaselineShift.Saver),
+                        textGeometricTransform = restore(list[9], TextGeometricTransform.Saver),
+                        localeList = restore(list[10], LocaleList.Saver),
+                        background = restore(list[11], Color.Saver)!!,
+                        textDecoration = restore(list[12], TextDecoration.Saver),
+                        shadow = restore(list[13], Shadow.Saver),
+                    )
+                } else {
+                    val extras =
+                        createSpanStyleExtras(
+                            brush = null,
+                            alpha = Float.NaN,
+                            fontFeatureSettings = restore(list[5]),
+                            baselineShift = restore(list[6], BaselineShiftSaverInstance),
+                            textGeometricTransform =
+                                restore(list[7], TextGeometricTransformSaverInstance),
+                            localeList = restore(list[8], LocaleListSaverInstance),
+                            background = restore(list[9], ColorSaverInstance)!!,
+                            shadow = restore(list[10], ShadowSaverInstance),
+                            drawStyle = null,
+                        )
+                    val colorVal = list[0]
+                    val colorXor =
+                        when (colorVal) {
+                            is Int ->
+                                if (colorVal == 0) 0L
+                                else (Color(colorVal).value.toLong() xor 0x10L)
+                            is Long -> colorVal
+                            else -> 0L
+                        }
+                    SpanStyle(
+                            colorXor = colorXor,
+                            bits = list[1] as Int,
+                            extras = extras,
+                            fontSize = restore(list[2], TextUnitSaverInstance)!!,
+                            letterSpacing = restore(list[3], TextUnitSaverInstance)!!,
+                            fontWeight = restore(list[4], FontWeightSaverInstance),
+                            fontFamily = null,
+                        )
+                        .let { if (PackedTextStylesLatch.isEnabled) it else it.copy() }
+                }
             },
         )
 

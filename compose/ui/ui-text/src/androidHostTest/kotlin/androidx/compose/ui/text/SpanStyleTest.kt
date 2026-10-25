@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.lerp
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.platform.extensions.invokeResolveTypeface
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextForegroundStyle
@@ -52,6 +53,7 @@ import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.random.Random
+import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1080,6 +1082,9 @@ class SpanStyleTest {
             val restored = SpanStyleSaver.restore(saved)!!
             assertThat(restored).isEqualTo(style)
             assertThat(restored.fontStyle).isEqualTo(FontStyle(raw))
+        }
+        for (invalid in listOf(-1, 2, 42, Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt())) {
+            assertFailsWith<IllegalArgumentException> { FontStyle(invalid) }
         }
     }
 
@@ -3070,10 +3075,51 @@ class SpanStyleTest {
                 assertThat(result).isSameInstanceAs(expectedReturn)
                 assertThat(capturedFamily).isSameInstanceAs(FontFamily.Serif)
                 assertThat(capturedWeight).isSameInstanceAs(FontWeight.W600)
-                assertThat(capturedStyle).isEqualTo(expectedBoxedStyle)
-                assertThat(capturedSynthesis).isEqualTo(expectedBoxedSynthesis)
+                assertThat(capturedStyle).isSameInstanceAs(expectedBoxedStyle)
+                assertThat(capturedSynthesis).isSameInstanceAs(expectedBoxedSynthesis)
             }
         }
+    }
+
+    @Test
+    fun boxedStyleValues_nullableGettersReusePreBoxedSingletonsAcrossReads() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+        for ((fontStyle, expectedSingleton) in
+            listOf(
+                FontStyle.Normal to BoxedStyleValues.NormalFontStyle,
+                FontStyle.Italic to BoxedStyleValues.ItalicFontStyle,
+            )) {
+            val span = SpanStyle(fontStyle = fontStyle)
+            val firstRead: Any? = span.fontStyle
+            val secondRead: Any? = span.fontStyle
+            assertThat(firstRead === secondRead).isTrue()
+            assertThat(firstRead).isSameInstanceAs(expectedSingleton)
+        }
+
+        for ((fontSynthesis, expectedSingleton) in
+            listOf(
+                FontSynthesis.None to BoxedStyleValues.NoneFontSynthesis,
+                FontSynthesis.Weight to BoxedStyleValues.WeightFontSynthesis,
+                FontSynthesis.Style to BoxedStyleValues.StyleFontSynthesis,
+                FontSynthesis.All to BoxedStyleValues.AllFontSynthesis,
+            )) {
+            val span = SpanStyle(fontSynthesis = fontSynthesis)
+            val firstRead: Any? = span.fontSynthesis
+            val secondRead: Any? = span.fontSynthesis
+            assertThat(firstRead === secondRead).isTrue()
+            assertThat(firstRead).isSameInstanceAs(expectedSingleton)
+        }
+
+        val noneShiftSpan = SpanStyle(baselineShift = BaselineShift.None)
+        val firstNoneShift: Any? = noneShiftSpan.baselineShift
+        val secondNoneShift: Any? = noneShiftSpan.baselineShift
+        assertThat(firstNoneShift === secondNoneShift).isTrue()
+        assertThat(firstNoneShift).isSameInstanceAs(BoxedStyleValues.NoneBaselineShift)
+
+        val customShiftSpan = SpanStyle(baselineShift = BaselineShift.Superscript)
+        val firstCustomShift: Any? = customShiftSpan.baselineShift
+        val secondCustomShift: Any? = customShiftSpan.baselineShift
+        assertThat(firstCustomShift === secondCustomShift).isTrue()
     }
 
     @Test
@@ -3163,6 +3209,46 @@ class SpanStyleTest {
         assertThat(presetToPreset.textGeometricTransform).isEqualTo(TextGeometricTransform.None)
         assertThat(presetToPreset.shadow).isEqualTo(Shadow.None)
         assertThat(presetToPreset.drawStyle).isEqualTo(Fill)
+    }
+
+    @Test
+    fun lerp_unsetAndEqualShiftAndTransform_matchesLegacyParityAndReusesInstances() {
+        assumeTrue(ComposeUiTextFlags.isPackedTextStylesEnabled)
+
+        val emptyLerp = lerp(SpanStyle(), SpanStyle(), 0.5f)
+        assertThat(emptyLerp.extras).isNull()
+        assertThat(emptyLerp.baselineShift).isSameInstanceAs(BoxedStyleValues.NoneBaselineShift)
+        assertThat(emptyLerp.textGeometricTransform).isSameInstanceAs(TextGeometricTransform.None)
+
+        val presetMixedLerp =
+            lerp(
+                SpanStyle(),
+                SpanStyle(
+                    baselineShift = BaselineShift.None,
+                    textGeometricTransform = TextGeometricTransform.None,
+                ),
+                0.5f,
+            )
+        assertThat(presetMixedLerp.extras).isNull()
+        assertThat(presetMixedLerp.baselineShift)
+            .isSameInstanceAs(BoxedStyleValues.NoneBaselineShift)
+        assertThat(presetMixedLerp.textGeometricTransform)
+            .isSameInstanceAs(TextGeometricTransform.None)
+
+        val customShift = BaselineShift(0.4f)
+        val customTransform = TextGeometricTransform(scaleX = 1.5f, skewX = 0.2f)
+        val customStart =
+            SpanStyle(baselineShift = customShift, textGeometricTransform = customTransform)
+        val customStop =
+            SpanStyle(
+                baselineShift = BaselineShift(0.4f),
+                textGeometricTransform = TextGeometricTransform(scaleX = 1.5f, skewX = 0.2f),
+            )
+        val equalCustomLerp = lerp(customStart, customStop, 0.5f)
+        assertThat(equalCustomLerp.extras!!.baselineShift)
+            .isSameInstanceAs(customStart.extras!!.baselineShift)
+        assertThat(equalCustomLerp.extras!!.textGeometricTransform)
+            .isSameInstanceAs(customTransform)
     }
 
     @Test

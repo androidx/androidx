@@ -58,13 +58,13 @@ private val DefaultLetterSpacing = 0.sp
 
 /** Cached values for `FontStyle` and `FontSynthesis` getters, plus default styles. */
 internal object BoxedStyleValues {
-    val NormalFontStyle: FontStyle = FontStyle.Normal
-    val ItalicFontStyle: FontStyle = FontStyle.Italic
-    val NoneFontSynthesis: FontSynthesis = FontSynthesis.None
-    val WeightFontSynthesis: FontSynthesis = FontSynthesis.Weight
-    val StyleFontSynthesis: FontSynthesis = FontSynthesis.Style
-    val AllFontSynthesis: FontSynthesis = FontSynthesis.All
-    val NoneBaselineShift: BaselineShift = BaselineShift.None
+    val NormalFontStyle: FontStyle? = FontStyle.Normal
+    val ItalicFontStyle: FontStyle? = FontStyle.Italic
+    val NoneFontSynthesis: FontSynthesis? = FontSynthesis.None
+    val WeightFontSynthesis: FontSynthesis? = FontSynthesis.Weight
+    val StyleFontSynthesis: FontSynthesis? = FontSynthesis.Style
+    val AllFontSynthesis: FontSynthesis? = FontSynthesis.All
+    val NoneBaselineShift: BaselineShift? = BaselineShift.None
     // Pre-allocated combined Underline + LineThrough instance; TextDecoration only caches the
     // single-flag constants on its companion object.
     @JvmField
@@ -1482,37 +1482,6 @@ public class SpanStyle : AnnotatedString.Annotation {
         return SpanStyle(colorXor, bits, extras, fontSize, letterSpacing, fontWeight, fontFamily)
     }
 
-    /**
-     * Calls [resolveTypeface] with this span's font fields. Uses [FontWeight.Normal],
-     * [FontStyle.Normal], and [FontSynthesis.All] when unset, and skips boxing value classes.
-     */
-    @Suppress("UNCHECKED_CAST")
-    internal fun <R> invokeResolveTypeface(
-        resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> R
-    ): R {
-        if (legacySpanStyle != null) {
-            return resolveTypeface(
-                legacySpanStyle.fontFamily,
-                legacySpanStyle.fontWeight ?: FontWeight.Normal,
-                legacySpanStyle.fontStyle ?: FontStyle.Normal,
-                legacySpanStyle.fontSynthesis ?: FontSynthesis.All,
-            )
-        }
-        // A Kotlin lambda `(FontFamily?, FontWeight, FontStyle, FontSynthesis) -> R` compiles to
-        // `Function4<FontFamily?, FontWeight, Object, Object, R>` on the JVM because `FontStyle`
-        // and `FontSynthesis` are `@JvmInline value class`es that must be boxed when passed through
-        // generic `Function4.invoke`. Calling `resolveTypeface(...)` directly would unbox our
-        // cached `BoxedStyleValues` and immediately re-box them (`FontStyle.box-impl`) at the call
-        // site; casting to `(FontFamily?, FontWeight, Any?, Any?) -> R` passes the pre-boxed
-        // singletons from `BoxedStyleValues` directly to `Function4.invoke` with zero allocations.
-        return (resolveTypeface as (FontFamily?, FontWeight, Any?, Any?) -> R).invoke(
-            fontFamily,
-            fontWeight ?: FontWeight.Normal,
-            fontStyle ?: BoxedStyleValues.NormalFontStyle,
-            fontSynthesis ?: BoxedStyleValues.AllFontSynthesis,
-        )
-    }
-
     /** Plus operator overload that applies a [merge]. */
     @Stable public operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 
@@ -1899,6 +1868,26 @@ private const val METRIC_BITS =
 private const val UNSPECIFIED_COLOR_BITS = 0x10L
 // Color.Black is 0xFF000000 in the top 32 bits.
 private const val DEFAULT_COLOR_XOR = (0xFF00_0000L shl 32) xor UNSPECIFIED_COLOR_BITS
+
+// Fails with `Division by zero` if FontStyle.MAX_FONT_STYLE_VALUE exceeds FONT_STYLE_MAX_RAW (1).
+// Widen FONT_STYLE_VALUE_BITS and FONT_STYLE_MASK if a new FontStyle value is added.
+@Suppress("unused")
+private const val CHECK_FONT_STYLE_CAPACITY =
+    1 / (1 - ((FONT_STYLE_MAX_RAW - FontStyle.MAX_FONT_STYLE_VALUE) ushr 31))
+
+// Fails with `Division by zero` if FontSynthesis.MAX_FONT_SYNTHESIS_MASK exceeds
+// FONT_SYNTHESIS_MAX_RAW (3).
+// Widen FONT_SYNTHESIS_VALUE_BITS and FONT_SYNTHESIS_MASK if a new FontSynthesis flag is added.
+@Suppress("unused")
+private const val CHECK_FONT_SYNTHESIS_CAPACITY =
+    1 / (1 - ((FONT_SYNTHESIS_MAX_RAW - FontSynthesis.MAX_FONT_SYNTHESIS_MASK) ushr 31))
+
+// Fails with `Division by zero` if TextDecoration.MAX_TEXT_DECORATION_MASK exceeds
+// TEXT_DECORATION_MAX_RAW (3).
+// Widen TEXT_DECORATION_VALUE_BITS and TEXT_DECORATION_MASK if a new TextDecoration flag is added.
+@Suppress("unused")
+private const val CHECK_TEXT_DECORATION_CAPACITY =
+    1 / (1 - ((TEXT_DECORATION_MAX_RAW - TextDecoration.MAX_TEXT_DECORATION_MASK) ushr 31))
 
 /**
  * Maps [color] into `SpanStyle.colorXor` form (`color.value.toLong() xor UNSPECIFIED_COLOR_BITS`).
@@ -2413,6 +2402,12 @@ public fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     // Same rules as lerp(TextForegroundStyle): blend two colors, or blend the alpha of two
     // brushes, else jump from one to the other.
     val discreteStyleResolved = if (fraction < 0.5f) start else stop
+    val startWeight = start.fontWeight ?: FontWeight.Normal
+    val stopWeight = stop.fontWeight ?: FontWeight.Normal
+    val startShift = start.baselineShiftOrNone
+    val stopShift = stop.baselineShiftOrNone
+    val startTransform = start.extras?.textGeometricTransform ?: TextGeometricTransform.None
+    val stopTransform = stop.extras?.textGeometricTransform ?: TextGeometricTransform.None
     return createSpanStyle(
         color =
             if (startBrush == null && stopBrush == null) {
@@ -2429,23 +2424,24 @@ public fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
             },
         fontSize = lerpTextUnitInheritable(start.fontSize, stop.fontSize, fraction),
         fontWeight =
-            lerp(
-                start.fontWeight ?: FontWeight.Normal,
-                stop.fontWeight ?: FontWeight.Normal,
-                fraction,
-            ),
+            if (startWeight == stopWeight) startWeight else lerp(startWeight, stopWeight, fraction),
         fontStyle = discreteStyleResolved.fontStyle,
         fontSynthesis = discreteStyleResolved.fontSynthesis,
         fontFamily = discreteStyleResolved.fontFamily,
         fontFeatureSettings = discreteStyleResolved.fontFeatureSettings,
         letterSpacing = lerpTextUnitInheritable(start.letterSpacing, stop.letterSpacing, fraction),
-        baselineShift = lerp(start.baselineShiftOrNone, stop.baselineShiftOrNone, fraction),
+        baselineShift =
+            if (startShift == stopShift) {
+                start.baselineShift ?: stop.baselineShift ?: BoxedStyleValues.NoneBaselineShift
+            } else {
+                lerp(startShift, stopShift, fraction)
+            },
         textGeometricTransform =
-            lerp(
-                start.textGeometricTransform ?: TextGeometricTransform.None,
-                stop.textGeometricTransform ?: TextGeometricTransform.None,
-                fraction,
-            ),
+            if (startTransform == stopTransform) {
+                startTransform
+            } else {
+                lerp(startTransform, stopTransform, fraction)
+            },
         localeList = discreteStyleResolved.localeList,
         background = lerp(start.background, stop.background, fraction),
         textDecoration = discreteStyleResolved.textDecoration,

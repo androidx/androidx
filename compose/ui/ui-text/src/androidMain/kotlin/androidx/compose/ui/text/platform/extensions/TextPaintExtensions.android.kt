@@ -20,6 +20,7 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.BoxedStyleValues
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -49,28 +50,24 @@ internal fun AndroidTextPaint.applySpanStyle(
     defaultLocaleList: LocaleList,
     requiresLetterSpacing: Boolean = false,
 ): SpanStyle? {
-    when (style.fontSize.type) {
-        TextUnitType.Sp -> with(density) { textSize = style.fontSize.toPx() }
+    val fontSize = style.fontSize
+    when (fontSize.type) {
+        TextUnitType.Sp -> with(density) { textSize = fontSize.toPx() }
         TextUnitType.Em -> {
-            textSize *= style.fontSize.value
+            textSize *= fontSize.value
         }
         else -> {} // Do nothing
     }
 
     if (style.hasFontAttributes()) {
-        typeface =
-            resolveTypeface(
-                style.fontFamily,
-                style.fontWeight ?: FontWeight.Normal,
-                style.fontStyle ?: FontStyle.Normal,
-                style.fontSynthesis ?: FontSynthesis.All,
-            )
+        typeface = style.invokeResolveTypeface(resolveTypeface)
     }
 
     LocaleListHelperMethods.setTextLocales(this, style.localeList ?: defaultLocaleList)
 
-    if (style.fontFeatureSettings != null && style.fontFeatureSettings != "") {
-        fontFeatureSettings = style.fontFeatureSettings
+    val fontFeatureSettings = style.fontFeatureSettings
+    if (fontFeatureSettings != null && fontFeatureSettings != "") {
+        this.fontFeatureSettings = fontFeatureSettings
     }
 
     val textGeometricTransform = style.textGeometricTransform
@@ -91,22 +88,47 @@ internal fun AndroidTextPaint.applySpanStyle(
     setDrawStyle(style.drawStyle)
 
     // apply para level leterspacing
-    if (style.letterSpacing.type == TextUnitType.Sp && style.letterSpacing.value != 0.0f) {
+    val letterSpacing = style.letterSpacing
+    if (letterSpacing.type == TextUnitType.Sp && letterSpacing.value != 0.0f) {
         val emWidth = textSize * textScaleX
-        val letterSpacingPx = with(density) { style.letterSpacing.toPx() }
+        val letterSpacingPx = with(density) { letterSpacing.toPx() }
         // Do nothing if emWidth is 0.0f.
         if (emWidth != 0.0f) {
-            letterSpacing = letterSpacingPx / emWidth
+            this.letterSpacing = letterSpacingPx / emWidth
         }
-    } else if (style.letterSpacing.type == TextUnitType.Em) {
-        letterSpacing = style.letterSpacing.value
+    } else if (letterSpacing.type == TextUnitType.Em) {
+        this.letterSpacing = letterSpacing.value
     }
 
     return generateFallbackSpanStyle(
-        style.letterSpacing,
+        letterSpacing,
         requiresLetterSpacing,
         style.background,
-        style.baselineShift,
+        style.baselineShiftOrNone,
+    )
+}
+
+/**
+ * Calls [resolveTypeface] with this span's font fields. Uses [FontWeight.Normal],
+ * [FontStyle.Normal], and [FontSynthesis.All] when unset, and skips boxing value classes.
+ */
+@Suppress("UNCHECKED_CAST")
+internal fun <R> SpanStyle.invokeResolveTypeface(
+    resolveTypeface: (FontFamily?, FontWeight, FontStyle, FontSynthesis) -> R
+): R {
+    if (legacySpanStyle != null) {
+        return resolveTypeface(
+            legacySpanStyle.fontFamily,
+            legacySpanStyle.fontWeight ?: FontWeight.Normal,
+            legacySpanStyle.fontStyle ?: FontStyle.Normal,
+            legacySpanStyle.fontSynthesis ?: FontSynthesis.All,
+        )
+    }
+    return (resolveTypeface as (FontFamily?, FontWeight, Any?, Any?) -> R).invoke(
+        fontFamily,
+        fontWeight ?: FontWeight.Normal,
+        fontStyle ?: BoxedStyleValues.NormalFontStyle,
+        fontSynthesis ?: BoxedStyleValues.AllFontSynthesis,
     )
 }
 
@@ -114,7 +136,7 @@ private fun generateFallbackSpanStyle(
     letterSpacing: TextUnit,
     requiresLetterSpacing: Boolean,
     background: Color,
-    baselineShift: BaselineShift?,
+    baselineShift: BaselineShift,
 ): SpanStyle? {
     // letterSpacing needs to be reset at every metricsEffectingSpan transition - so generate
     // a span for it only if there are other spans
@@ -125,7 +147,7 @@ private fun generateFallbackSpanStyle(
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     val hasBackgroundColor = background != Color.Unspecified && background != Color.Transparent
-    val hasBaselineShift = baselineShift?.isApplicable == true
+    val hasBaselineShift = baselineShift.isApplicable
 
     return if (!hasLetterSpacing && !hasBackgroundColor && !hasBaselineShift) {
         null
@@ -180,7 +202,7 @@ internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
 
 /** Returns true if this [SpanStyle] contains any font style attributes set. */
 internal fun SpanStyle.hasFontAttributes(): Boolean {
-    return fontFamily != null || fontStyle != null || fontWeight != null
+    return fontFamily != null || hasFontStyle || fontWeight != null
 }
 
 /**

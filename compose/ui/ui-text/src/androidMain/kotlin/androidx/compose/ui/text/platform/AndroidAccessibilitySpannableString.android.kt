@@ -163,27 +163,31 @@ private fun SpannableString.setSpanStyle(
         }
     }
 
-    val textDecoration = spanStyle.textDecoration
-    if (textDecoration != null) {
-        // This doesn't match how we rendering the styles. When TextDecoration.None is set, it
-        // should remove the underline and lineThrough effect on the given range. Here we didn't
-        // remove any previously applied spans yet.
-        if (TextDecoration.Underline in textDecoration) {
-            setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
-        if (TextDecoration.LineThrough in textDecoration) {
-            setSpan(StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    if (spanStyle.hasTextDecoration) {
+        val textDecoration = spanStyle.textDecoration
+        if (textDecoration != null) {
+            // This doesn't match how we rendering the styles. When TextDecoration.None is set, it
+            // should remove the underline and lineThrough effect on the given range. Here we didn't
+            // remove any previously applied spans yet.
+            if (TextDecoration.Underline in textDecoration) {
+                setSpan(UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            if (TextDecoration.LineThrough in textDecoration) {
+                setSpan(StrikethroughSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
         }
     }
 
-    val textGeometricTransform = spanStyle.textGeometricTransform
-    if (textGeometricTransform != null) {
-        setSpan(
-            ScaleXSpan(textGeometricTransform.scaleX),
-            start,
-            end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-        )
+    if (spanStyle.hasTextGeometricTransform) {
+        val textGeometricTransform = spanStyle.textGeometricTransform
+        if (textGeometricTransform != null) {
+            setSpan(
+                ScaleXSpan(textGeometricTransform.scaleX),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+        }
     }
 
     setLocaleList(spanStyle.localeList, start, end)
