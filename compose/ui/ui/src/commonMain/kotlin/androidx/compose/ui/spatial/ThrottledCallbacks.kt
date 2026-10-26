@@ -179,6 +179,16 @@ internal class ThrottledCallbacks {
         return entry
     }
 
+    // Updates the stored rect coordinates without firing callbacks, used when a screen/window
+    // update in the same dispatch pass will immediately fire all entries via
+    // fireOnRectChangedEntries.
+    fun updateRect(id: Int, topLeft: Long, bottomRight: Long) {
+        rectChangedMap.runFor(id) { entry ->
+            entry.topLeft = topLeft
+            entry.bottomRight = bottomRight
+        }
+    }
+
     // We call this when a layout node with `semanticsId = id` changes it's global bounds. For
     // throttled callbacks this may cause the callback to get invoked, for debounced nodes it
     // updates the deadlines
@@ -332,12 +342,17 @@ internal class ThrottledCallbacks {
         val lastInvokeMillis = entry.lastInvokeMillis
         // We need to check separately for lastInvokeMillis being Long.MIN_VALUE because when it is,
         // we will end up with Long overflow.
+        // Use >= so unthrottled callbacks (throttleMillis == 0) still fire when a screen/window
+        // update occurs in the same millisecond as a layout rect update.
         val throttleOkay =
-            currentMillis - lastInvokeMillis > entry.throttleMillis ||
+            currentMillis - lastInvokeMillis >= entry.throttleMillis ||
                 lastInvokeMillis == Long.MIN_VALUE
-        val debounceOkay = entry.debounceMillis == 0L
-        entry.lastUninvokedFireMillis = currentMillis
+        // Match fireWithUpdatedRect: invoke immediately if un-debounced (debounce == 0) or if
+        // throttled (throttle > 0, where debounceMillis is also non-zero) and past the throttle
+        // deadline; only pure debounce (throttle == 0, debounce > 0) waits for the deadline.
+        val debounceOkay = entry.debounceMillis == 0L || entry.throttleMillis != 0L
         if (throttleOkay && debounceOkay) {
+            entry.lastUninvokedFireMillis = -1
             entry.lastInvokeMillis = currentMillis
             entry.fire(
                 entry.topLeft,
@@ -346,8 +361,8 @@ internal class ThrottledCallbacks {
                 screenOffset,
                 viewToWindowMatrix,
             )
-        }
-        if (!debounceOkay) {
+        } else if (entry.debounceMillis != 0L) {
+            entry.lastUninvokedFireMillis = currentMillis
             val currentMinDeadline = minDebounceDeadline
             val thisDeadline = currentMillis + entry.debounceMillis
             if (currentMinDeadline > 0 && thisDeadline < currentMinDeadline) {
