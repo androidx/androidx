@@ -32,7 +32,7 @@ import androidx.collection.MutableObjectIntMap
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.core.WidgetInstanceInfo
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +40,7 @@ import kotlinx.coroutines.withContext
 /**
  * Platform AppWidget implementation of [GlanceAdaptiveAppWidgetDelegate].
  *
- * Translates cross-surface declarative [AdaptiveGlanceTemplate] updates into concrete platform
+ * Translates cross-surface declarative [GlanceAdaptiveTemplate] updates into concrete platform
  * [android.widget.RemoteViews] updates targeting active [AppWidgetManager] widget instances and
  * widget previews.
  */
@@ -61,13 +61,13 @@ internal class BaseWidgetDelegate(
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @param currentData Declarative template data payload implementing [AdaptiveGlanceTemplate].
+     * @param currentData Declarative template data payload implementing [GlanceAdaptiveTemplate].
      * @param widgetIds Optional collection of developer target widget instance String identifiers.
      *   If an explicit empty collection is passed, no widgets will be updated.
      */
     override suspend fun pushUpdate(
         widgetName: String,
-        currentData: AdaptiveGlanceTemplate,
+        currentData: GlanceAdaptiveTemplate,
         widgetIds: Set<String>?,
     ): Unit =
         withContext(Dispatchers.IO) {
@@ -168,9 +168,9 @@ internal class BaseWidgetDelegate(
      *
      * @param widgetName Developer widget definition String identifier matching
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
-     * @param previewData Declarative template data payload implementing [AdaptiveGlanceTemplate].
+     * @param previewData Declarative template data payload implementing [GlanceAdaptiveTemplate].
      */
-    override suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate): Unit =
+    override suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate): Unit =
         withContext(Dispatchers.IO) {
             // Early return on API < 35: AppWidgetManager.setWidgetPreview is not supported.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -249,7 +249,7 @@ internal class BaseWidgetDelegate(
      *   [GlanceAdaptiveWidgetReceiver.widgetName].
      * @param widgetId Widget instance String identifier to assign to the pinned widget. If null or
      *   blank, the one in [options] is used, or one is generated if there is none.
-     * @param initialData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
+     * @param initialData Declarative template data payload implementing [GlanceAdaptiveTemplate] to
      *   render as the preview shown while the launcher asks the user to confirm, if any.
      * @param options Configuration options to store in the options of the pinned widget.
      * @param successCallback [PendingIntent] to send once the widget is pinned, if any.
@@ -258,7 +258,7 @@ internal class BaseWidgetDelegate(
     override suspend fun requestPin(
         widgetName: String,
         widgetId: String?,
-        initialData: AdaptiveGlanceTemplate?,
+        initialData: GlanceAdaptiveTemplate?,
         options: Bundle,
         successCallback: PendingIntent?,
     ): Boolean =

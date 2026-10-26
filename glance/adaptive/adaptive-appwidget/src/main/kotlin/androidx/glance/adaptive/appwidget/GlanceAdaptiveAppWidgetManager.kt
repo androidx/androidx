@@ -23,7 +23,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Creates a [GlanceAdaptiveWidgetManager] configured with the platform AppWidget delegate for phone
@@ -45,13 +45,13 @@ public fun GlanceAdaptiveWidgetManager(context: Context): GlanceAdaptiveWidgetMa
  *
  * @param widgetName Developer widget definition String identifier matching
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
- * @param previewData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
+ * @param previewData Declarative template data payload implementing [GlanceAdaptiveTemplate] to
  *   render as a preview.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun GlanceAdaptiveWidgetManager.setPreview(
     widgetName: String,
-    previewData: AdaptiveGlanceTemplate,
+    previewData: GlanceAdaptiveTemplate,
 ) {
     // A local copy, as Kotlin can't smart cast a property declared in another module.
     val delegate = delegate
@@ -85,7 +85,7 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
  *   widget. If omitted or blank, the [GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID] in [options] is
  *   used, or a unique identifier is generated if there is none.
  * @param initialData Optional declarative template data payload implementing
- *   [AdaptiveGlanceTemplate] to render as the preview shown while the launcher asks the user to
+ *   [GlanceAdaptiveTemplate] to render as the preview shown while the launcher asks the user to
  *   confirm. If omitted, the launcher shows the preview declared by the widget instead.
  * @param options Optional initial configuration options to store in the options of the pinned
  *   widget.
@@ -99,7 +99,7 @@ public suspend fun GlanceAdaptiveWidgetManager.setPreview(
 public suspend fun GlanceAdaptiveWidgetManager.requestPin(
     widgetName: String,
     widgetId: String? = null,
-    initialData: AdaptiveGlanceTemplate? = null,
+    initialData: GlanceAdaptiveTemplate? = null,
     options: Bundle = Bundle.EMPTY,
     successCallback: PendingIntent? = null,
 ): Boolean {

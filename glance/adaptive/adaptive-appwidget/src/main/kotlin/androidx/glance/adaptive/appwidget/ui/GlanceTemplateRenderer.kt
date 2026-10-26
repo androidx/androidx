@@ -24,7 +24,7 @@ import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Render output backed by a Glance `@Composable` lambda.
@@ -45,7 +45,7 @@ internal class GlanceRenderOutput(val content: @Composable () -> Unit) : AppWidg
  * A [TemplateRenderer] that produces Glance `@Composable` content for a template [T], archetype
  * [A], and surface [S].
  *
- * @param T The type of [AdaptiveGlanceTemplate] data payload this renderer consumes.
+ * @param T The type of [GlanceAdaptiveTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
@@ -53,7 +53,7 @@ internal class GlanceRenderOutput(val content: @Composable () -> Unit) : AppWidg
 //  TrackTemplateRenderer is migrated to RemoteViews / RemoteCompose. Kept internal so nothing
 //  outside this module can take a dependency on Glance-backed rendering before it is removed.
 internal fun interface GlanceTemplateRenderer<
-    in T : AdaptiveGlanceTemplate,
+    in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
 > : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {

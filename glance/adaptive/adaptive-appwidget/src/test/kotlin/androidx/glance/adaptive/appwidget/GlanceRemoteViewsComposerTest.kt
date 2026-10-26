@@ -35,12 +35,12 @@ import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.RemoteComposeTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsTemplateRenderer
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.text.Text
@@ -59,14 +59,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class GlanceRemoteViewsComposerTest {
 
-    private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateName: String = "TestTemplate"
-        override val templateId: Int = 1
-    }
+    private class TestTemplate : GlanceAdaptiveTemplate(templateId = 1)
 
     /** Selector for tests that do not exercise archetype selection. */
     private val noArchetype =
-        ArchetypeSelector<AdaptiveGlanceTemplate, AppWidgetGlanceSurface, Unit> { _, _ -> }
+        ArchetypeSelector<GlanceAdaptiveTemplate, AppWidgetSurface, Unit> { _, _ -> }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
@@ -74,7 +71,7 @@ class GlanceRemoteViewsComposerTest {
     private lateinit var composer: GlanceRemoteViewsComposer
 
     /** Every [HostConstraints] the registry handed the renderer, in composition order. */
-    private val recordedConstraints = mutableListOf<HostConstraints<AppWidgetGlanceSurface>>()
+    private val recordedConstraints = mutableListOf<HostConstraints<AppWidgetSurface>>()
     private val recordedLocalSizes = mutableListOf<DpSize>()
 
     @Before
@@ -106,9 +103,9 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
                 listOf(401, 403),
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, UNSPECIFIED),
                 listOf(402),
             )
     }
@@ -123,7 +120,7 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
                 listOf(501),
             )
     }
@@ -144,7 +141,7 @@ class GlanceRemoteViewsComposerTest {
         // regardless of how large the host had made it.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(601),
             )
     }
@@ -170,9 +167,9 @@ class GlanceRemoteViewsComposerTest {
         // composition and give one of the two instances the other's layout.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88)),
                 listOf(611),
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(612),
             )
     }
@@ -196,7 +193,7 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(621, 622),
             )
     }
@@ -211,7 +208,7 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
                 listOf(631, 632, 633),
             )
     }
@@ -231,7 +228,7 @@ class GlanceRemoteViewsComposerTest {
         // widget that can never be placed that small.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(homePreview(provider)),
             )
     }
@@ -247,9 +244,9 @@ class GlanceRemoteViewsComposerTest {
         // into one composition and advertise one provider with the other's layout.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88)),
                 listOf(homePreview(small)),
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(homePreview(wide)),
             )
     }
@@ -263,7 +260,7 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88)),
                 listOf(homePreview(first), homePreview(second)),
             )
     }
@@ -285,7 +282,7 @@ class GlanceRemoteViewsComposerTest {
         // size every archetype has to survive.
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)),
                 listOf(homePreview(provider)),
             )
     }
@@ -298,14 +295,14 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
                 listOf(homePreview(provider)),
             )
     }
 
     @Test
     fun groupPreviews_multiCategoryProvider_producesOneTargetPerSurface() {
-        // Category-to-surface resolution itself is covered by AppWidgetGlanceSurfaceTest; this
+        // Category-to-surface resolution itself is covered by AppWidgetSurfaceTest; this
         // only checks that each resolved picker entry lands in its own RenderTarget.
         val provider =
             providerInfo(
@@ -319,14 +316,14 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(groups)
             .containsExactly(
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED),
                 listOf(
                     PreviewTarget(
                         provider.provider,
                         AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
                     )
                 ),
-                RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, UNSPECIFIED),
+                RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, UNSPECIFIED),
                 listOf(
                     PreviewTarget(provider.provider, AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD)
                 ),
@@ -356,7 +353,7 @@ class GlanceRemoteViewsComposerTest {
 
         // Sized like a picker preview, at the smallest size the widget can be placed at.
         assertThat(target)
-            .isEqualTo(RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)))
+            .isEqualTo(RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(176, 88)))
     }
 
     // endregion
@@ -365,19 +362,19 @@ class GlanceRemoteViewsComposerTest {
 
     @Test
     fun compose_providesTargetToRendererAndLocalSize() = runTest {
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
+        val target = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
 
         composer.compose(TestTemplate(), target)
 
         assertThat(recordedConstraints.map { it.surface })
-            .containsExactly(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
+            .containsExactly(AppWidgetSurface.MOBILE_LOCK_SCREEN)
         assertThat(recordedConstraints.map { it.dimensions }).containsExactly(Dimensions(348, 88))
         assertThat(recordedLocalSizes).containsExactly(DpSize(Dp(348f), Dp(88f)))
     }
 
     @Test
     fun compose_unspecifiedDimensions_composesAtUnspecifiedDpSize() = runTest {
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
+        val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
 
         composer.compose(TestTemplate(), target)
 
@@ -400,8 +397,8 @@ class GlanceRemoteViewsComposerTest {
                 }
             },
         )
-        val compact = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
-        val wide = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
+        val compact = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
+        val wide = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
 
         val first = GlanceRemoteViewsComposer(context).compose(TestTemplate(), compact)
         // Re-composing the same structure via a fresh composer instance reuses the same layout ID.
@@ -420,7 +417,7 @@ class GlanceRemoteViewsComposerTest {
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
         var observedContext: Context? = null
-        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
 
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
@@ -431,7 +428,7 @@ class GlanceRemoteViewsComposerTest {
                 expectedRemoteViews
             },
         )
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
+        val target = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(348, 88))
 
         val result = composer.compose(TestTemplate(), target)
 
@@ -452,7 +449,7 @@ class GlanceRemoteViewsComposerTest {
             noArchetype,
             TemplateRenderer { _, _, _ -> RemoteViewsRenderOutput(expectedRemoteViews) },
         )
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
+        val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
 
         val result = composer.compose(TestTemplate(), target)
 
@@ -463,7 +460,7 @@ class GlanceRemoteViewsComposerTest {
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_capturesDocumentIntoRemoteViewsWithPxSize() = runTest {
         var remoteComposableInvoked = false
-        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
         var capturedDisplaySize: Size? = null
         var capturedProfile: Profile? = null
 
@@ -481,7 +478,7 @@ class GlanceRemoteViewsComposerTest {
                 }
             },
         )
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
+        val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
 
         val result = composer.compose(TestTemplate(), target)
 
@@ -516,7 +513,7 @@ class GlanceRemoteViewsComposerTest {
                 }
             },
         )
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
+        val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, UNSPECIFIED)
 
         val result = composer.compose(TestTemplate(), target)
 
@@ -536,7 +533,7 @@ class GlanceRemoteViewsComposerTest {
             noArchetype,
             RemoteComposeTemplateRenderer { _, _, _ -> {} },
         )
-        val target = RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
+        val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
 
         composer.compose(TestTemplate(), target)
     }

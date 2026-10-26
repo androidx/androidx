@@ -30,8 +30,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class WidgetInstanceInfoTest {
 
-    private val surfaceHome = GlanceSurface.of("home_screen")
-    private val surfaceLock = GlanceSurface.of("lock_screen")
+    private val surfaceHome = GlanceSurface.fromTag("home_screen")
+    private val surfaceLock = GlanceSurface.fromTag("lock_screen")
 
     @Test
     fun defaultValues_areExpected() {

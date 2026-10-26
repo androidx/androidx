@@ -16,28 +16,25 @@
 
 package androidx.glance.adaptive.core
 
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class GlanceAdaptiveWidgetManagerTest {
 
-    private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateName: String = "TestTemplate"
-        override val templateId: Int = 1
-    }
+    private class TestTemplate : GlanceAdaptiveTemplate(templateId = 1)
 
     private class FakeWidgetDelegate : GlanceAdaptiveWidgetDelegate {
         var lastWidgetName: String? = null
         var lastWidgetIds: Set<String>? = null
-        var lastData: AdaptiveGlanceTemplate? = null
+        var lastData: GlanceAdaptiveTemplate? = null
         var lastActiveInstancesWidgetName: String? = null
         var activeInstances: List<WidgetInstanceInfo> = emptyList()
 
         override suspend fun pushUpdate(
             widgetName: String,
-            currentData: AdaptiveGlanceTemplate,
+            currentData: GlanceAdaptiveTemplate,
             widgetIds: Set<String>?,
         ) {
             lastWidgetName = widgetName
@@ -72,8 +69,8 @@ class GlanceAdaptiveWidgetManagerTest {
 
         manager.pushUpdate(
             widgetName = "test_widget",
-            currentData = testTemplate,
             widgetIds = setOf("widget_123", "widget_456"),
+            currentData = testTemplate,
         )
 
         assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
@@ -89,8 +86,8 @@ class GlanceAdaptiveWidgetManagerTest {
 
         manager.pushUpdate(
             widgetName = "test_widget",
-            currentData = testTemplate,
             widgetId = "widget_123",
+            currentData = testTemplate,
         )
 
         assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")

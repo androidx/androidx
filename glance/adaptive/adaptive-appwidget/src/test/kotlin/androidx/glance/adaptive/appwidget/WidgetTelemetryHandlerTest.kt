@@ -21,9 +21,9 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -52,10 +52,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class WidgetTelemetryHandlerTest {
 
-    private class TestTemplate(
-        override val templateName: String = "TestTemplate",
-        override val templateId: Int = 1,
-    ) : AdaptiveGlanceTemplate
+    private class TestTemplate(templateId: Int = 1) :
+        GlanceAdaptiveTemplate(templateId = templateId)
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var appWidgetManager: AppWidgetManager
@@ -74,7 +72,7 @@ class WidgetTelemetryHandlerTest {
 
         handler.ensureTelemetryOptions(
             mapOf(HOME_SCREEN_TARGET to listOf(701)),
-            TestTemplate(templateName = "custom_template_v1", templateId = 7),
+            TestTemplate(templateId = 7),
         )
 
         // Platform AppWidgetServiceImpl reads these keys by literal value, so assert the strings
@@ -263,9 +261,7 @@ class WidgetTelemetryHandlerTest {
     private companion object {
         const val TEST_PROVIDER_CLASS = "androidx.glance.adaptive.appwidget.TestProvider"
 
-        val HOME_SCREEN_TARGET =
-            RenderTarget(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, Dimensions(0, 0))
-        val LOCK_SCREEN_TARGET =
-            RenderTarget(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, Dimensions(0, 0))
+        val HOME_SCREEN_TARGET = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(0, 0))
+        val LOCK_SCREEN_TARGET = RenderTarget(AppWidgetSurface.MOBILE_LOCK_SCREEN, Dimensions(0, 0))
     }
 }

@@ -18,34 +18,20 @@ package androidx.glance.adaptive.core.ui.templates
 
 import androidx.annotation.RestrictTo
 
-/** Base interface for all Glance Adaptive templates. */
+/** Base class for all Glance Adaptive templates. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface AdaptiveGlanceTemplate {
-    /**
-     * Unique semantic name of the template for human-readable identification (e.g.,
-     * "list_template_v1").
-     *
-     * Implementations must provide a stable constant string name that is unique across all
-     * templates within the application to avoid collisions under R8/ProGuard class minification.
-     */
-    // AdaptiveGlanceTemplate is only implemented by library-group templates, not by external
-    // callers. Keeping `templateName` and `templateId` restricted without default getters triggers
-    // Metalava's HiddenAbstractMethodInInterface check, which we suppress here.
-    @get:Suppress("HiddenAbstractMethodInInterface")
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val templateName: String
-
+public abstract class GlanceAdaptiveTemplate
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     /**
      * Stable integer identifier representing this template type for OS platform telemetry (e.g.,
      * `1` for [TrackTemplate], or [TEMPLATE_ID_UNKNOWN] (`0`) when unspecified).
      */
-    @get:Suppress("HiddenAbstractMethodInInterface")
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val templateId: Int
-
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val templateId: Int = TEMPLATE_ID_UNKNOWN
+) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /** Default unknown template identifier (`0`) when no template type is specified. */
-        public const val TEMPLATE_ID_UNKNOWN: Int = 0
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val TEMPLATE_ID_UNKNOWN: Int = 0
     }
 }

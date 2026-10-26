@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
  * different [WidthTier] on a home screen than on a lock screen), so passing [dimensions] without
  * its [surface] is meaningless and the two must never drift apart.
  *
- * [S] is covariant, so a `HostConstraints<AppWidgetGlanceSurface>` is usable wherever a
+ * [S] is covariant, so a `HostConstraints<AppWidgetSurface>` is usable wherever a
  * `HostConstraints<GlanceSurface>` is expected.
  *
  * @param dimensions Bounding size in DP.
