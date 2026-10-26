@@ -419,6 +419,7 @@ def includeProject(String name, filePath, List<BuildType> filter = []) {
 includeProject(":a2ui:a2ui-engine", [BuildType.COMPOSE])
 includeProject(":a2ui:a2ui-model", [BuildType.COMPOSE])
 includeProject(":a2ui:compose:compose-runtime", [BuildType.COMPOSE])
+includeProject(":a2ui:compose:compose-runtime:compose-runtime-samples", "a2ui/compose/compose-runtime/samples", [BuildType.COMPOSE])
 includeProject(":a2ui:compose:compose-ui", [BuildType.COMPOSE])
 includeProject(":a2ui:compose:compose-ui-testing", [BuildType.COMPOSE])
 includeProject(":a2ui:compose:compose-ui-testing:compose-ui-testing-samples", "a2ui/compose/compose-ui-testing/samples", [BuildType.COMPOSE])

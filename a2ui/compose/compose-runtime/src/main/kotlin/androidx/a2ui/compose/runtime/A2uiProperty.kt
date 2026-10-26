@@ -58,6 +58,16 @@ import java.lang.StringBuilder
  * The property subtypes listed above are used in the APIs provided by [A2uiComponentScope] to
  * ensure that only the allowed property types are used with each of the relevant APIs.
  *
+ * The factory functions in the companion object are named after the Kotlin type a property resolves
+ * to: [string], [number], [boolean] and [any] read a literal of that type as sent by the agent; the
+ * `dynamic` prefix ([dynamicString], [dynamicNumber], [dynamicBoolean], [dynamicAny]) marks a value
+ * the agent may also bind to the data model or compute with a function call, which is evaluated
+ * with [A2uiComponentScope.bind]; the `List` suffix ([stringList], [anyList], [dynamicStringList])
+ * marks a list of such values; [nestedObject] and [nestedObjectList] describe an object, or a list
+ * of objects, with their own typed properties; and [componentId], [childList] and [action] describe
+ * the links between components and the interactions sent to the agent.
+ *
+ * @sample androidx.a2ui.compose.runtime.samples.A2uiComponentScopeSample
  * @param T The expected type of the resolved property value at runtime.
  */
 @Immutable
@@ -73,77 +83,6 @@ public sealed class A2uiProperty<out T> {
     public abstract val isRequired: Boolean
 
     public companion object {
-
-        /**
-         * Creates a static property representing a nested property object.
-         *
-         * @param key The key for this property.
-         * @param properties A list of typed properties defining the nested object.
-         * @param required Whether the agent must provide this property.
-         * @param description An optional string explaining this property's purpose.
-         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
-         *   [properties] are allowed, defaults to true.
-         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
-         *   only applicable if [isAdditionalPropertiesAllowed] is true.
-         * @return A [StaticA2uiProperty] resolving to [A2uiComponentProperties] at runtime.
-         */
-        public fun nested(
-            key: String,
-            properties: List<A2uiProperty<*>>,
-            required: Boolean = false,
-            description: String? = null,
-            isAdditionalPropertiesAllowed: Boolean = true,
-            additionalPropertiesSchema: A2uiSchema? = null,
-        ): StaticA2uiProperty<A2uiComponentProperties> =
-            NestedProperty(
-                key,
-                required,
-                description,
-                properties,
-                isAdditionalPropertiesAllowed,
-                additionalPropertiesSchema,
-            )
-
-        /**
-         * Creates a static property representing an list of nested property objects.
-         *
-         * @param key The key for this property.
-         * @param properties A list of typed properties defining the structure of the list items.
-         * @param required Whether the agent must provide this property.
-         * @param description An optional string explaining this property's purpose.
-         * @param minItems The minimum number of items required in the list, defaults to 0.
-         * @param maxItems The maximum number of items allowed in the list, defaults to
-         *   [Int.MAX_VALUE] meaning no constraint.
-         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
-         *   [properties] are allowed, defaults to true.
-         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
-         *   only applicable if [isAdditionalPropertiesAllowed] is true.
-         * @return A [StaticA2uiProperty] resolving to a List of [A2uiComponentProperties] at
-         *   runtime.
-         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
-         *   [minItems] is greater than [maxItems].
-         */
-        public fun nestedList(
-            key: String,
-            properties: List<A2uiProperty<*>>,
-            required: Boolean = false,
-            description: String? = null,
-            @IntRange(from = 0) minItems: Int = 0,
-            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
-            isAdditionalPropertiesAllowed: Boolean = true,
-            additionalPropertiesSchema: A2uiSchema? = null,
-        ): StaticA2uiProperty<List<A2uiComponentProperties>> =
-            NestedListProperty(
-                key,
-                required,
-                description,
-                properties,
-                minItems,
-                maxItems,
-                isAdditionalPropertiesAllowed,
-                additionalPropertiesSchema,
-            )
-
         /**
          * Creates a static property expecting a literal string value.
          *
@@ -307,8 +246,15 @@ public sealed class A2uiProperty<out T> {
             )
 
         /**
-         * Creates a static property accepting an arbitrary payload without strict type enforcement.
+         * Creates a static property that accepts a value of any JSON type and resolves to it as is.
          *
+         * The payload is read verbatim, without type enforcement or evaluation: an object such as
+         * `{"path": "/user"}` is returned as a `Map`, not resolved against the data model. Use it
+         * for opaque data the component passes through, such as options forwarded to a library. For
+         * a value the agent may bind to the data model or compute with a function call, use
+         * [dynamicAny] instead; for a list of arbitrary values, use [anyList].
+         *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiPropertyAnySample
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
@@ -321,6 +267,45 @@ public sealed class A2uiProperty<out T> {
             required: Boolean = false,
             description: String? = null,
         ): StaticA2uiProperty<Any> = AnyProperty(key, required, description)
+
+        /**
+         * Creates a static property whose value is a JSON object with its own typed [properties].
+         *
+         * Use it for a structured value that belongs to the component itself, such as a `range`
+         * object with `min` and `max` fields; to point at another component, use [componentId] or
+         * [childList] instead. The agent sends the object inline in the component's payload, and
+         * the property resolves to an [A2uiComponentProperties] holding it, which the component
+         * reads with the same APIs as its own properties: [A2uiComponentProperties.get] for the
+         * nested static properties and [A2uiComponentScope.bind] for the nested dynamic ones. For a
+         * list of such objects, use [nestedObjectList].
+         *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiPropertyNestedObjectSample
+         * @param key The key for this property.
+         * @param properties A list of typed properties defining the nested object.
+         * @param required Whether the agent must provide this property.
+         * @param description An optional string explaining this property's purpose.
+         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
+         *   [properties] are allowed, defaults to true.
+         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
+         *   only applicable if [isAdditionalPropertiesAllowed] is true.
+         * @return A [StaticA2uiProperty] resolving to [A2uiComponentProperties] at runtime.
+         */
+        public fun nestedObject(
+            key: String,
+            properties: List<A2uiProperty<*>>,
+            required: Boolean = false,
+            description: String? = null,
+            isAdditionalPropertiesAllowed: Boolean = true,
+            additionalPropertiesSchema: A2uiSchema? = null,
+        ): StaticA2uiProperty<A2uiComponentProperties> =
+            NestedObjectProperty(
+                key,
+                required,
+                description,
+                properties,
+                isAdditionalPropertiesAllowed,
+                additionalPropertiesSchema,
+            )
 
         /**
          * Creates a static property expecting a list of strings.
@@ -392,7 +377,9 @@ public sealed class A2uiProperty<out T> {
             BooleanListProperty(key, required, description, minItems, maxItems)
 
         /**
-         * Creates a static property expecting a list of any values.
+         * Creates a static property expecting a list of values of any JSON type.
+         *
+         * Like [any], the items are read as sent, without type enforcement or evaluation.
          *
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
@@ -413,6 +400,55 @@ public sealed class A2uiProperty<out T> {
             @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
         ): StaticA2uiProperty<List<Any>> =
             AnyListProperty(key, required, description, minItems, maxItems)
+
+        /**
+         * Creates a static property whose value is a JSON array of objects that share the same
+         * typed [properties].
+         *
+         * This is the list counterpart of [nestedObject]: every item of the array is an object
+         * described by [properties], and the property resolves to a `List` of
+         * [A2uiComponentProperties], one per item, each read with the same APIs as the component's
+         * own properties. Use it for repeated structured values that are part of the component
+         * itself, such as the tabs of a tab bar; to render a list of child components, use
+         * [childList] instead.
+         *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiPropertyNestedObjectListSample
+         * @param key The key for this property.
+         * @param properties A list of typed properties defining the structure of the list items.
+         * @param required Whether the agent must provide this property.
+         * @param description An optional string explaining this property's purpose.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
+         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
+         *   [properties] are allowed, defaults to true.
+         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
+         *   only applicable if [isAdditionalPropertiesAllowed] is true.
+         * @return A [StaticA2uiProperty] resolving to a List of [A2uiComponentProperties] at
+         *   runtime.
+         * @throws IllegalArgumentException If [minItems] or [maxItems] is negative, or if
+         *   [minItems] is greater than [maxItems].
+         */
+        public fun nestedObjectList(
+            key: String,
+            properties: List<A2uiProperty<*>>,
+            required: Boolean = false,
+            description: String? = null,
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+            isAdditionalPropertiesAllowed: Boolean = true,
+            additionalPropertiesSchema: A2uiSchema? = null,
+        ): StaticA2uiProperty<List<A2uiComponentProperties>> =
+            NestedObjectListProperty(
+                key,
+                required,
+                description,
+                properties,
+                minItems,
+                maxItems,
+                isAdditionalPropertiesAllowed,
+                additionalPropertiesSchema,
+            )
 
         /**
          * Creates a static property expecting a string value strictly bounded to a predefined list
@@ -737,12 +773,16 @@ public sealed class A2uiProperty<out T> {
         ): DynamicA2uiProperty<Boolean> = DynamicBooleanProperty(key, required, description)
 
         /**
-         * Creates a dynamic property representing a reactive data binding that can resolve to any
-         * type.
+         * Creates a dynamic property that resolves to a value of any type.
          *
-         * The payload provided by the agent can be a literal value, a data-model JSON pointer
-         * (e.g., `{"path": "/user"}`), or a function call execution tree.
+         * This is the dynamic counterpart of [any]: the payload provided by the agent can be a
+         * literal value, a data-model JSON pointer (e.g., `{"path": "/user"}`), or a function call
+         * execution tree, and [A2uiComponentScope.bind] evaluates it against the surface's data
+         * model. The resolved value keeps the type it has in the data model (`String`, `Number`,
+         * `Boolean`, `List`, or `Map`); the component narrows it as needed. The generated schema is
+         * the protocol's `DynamicValue` common type, see [A2uiDynamicValueSchema].
          *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiPropertyAnySample
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
@@ -750,11 +790,11 @@ public sealed class A2uiProperty<out T> {
          * @return A [DynamicA2uiProperty] evaluated dynamically against the surface's data model at
          *   runtime.
          */
-        public fun dynamicValue(
+        public fun dynamicAny(
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): DynamicA2uiProperty<Any> = DynamicValueProperty(key, required, description)
+        ): DynamicA2uiProperty<Any> = DynamicAnyProperty(key, required, description)
 
         /**
          * Creates a dynamic property representing a reactive data binding mapped to a [List] of
@@ -802,8 +842,11 @@ public sealed class A2uiProperty<out T> {
          * Creates a static property storing the string ID of another component within the same
          * surface.
          *
-         * Used to link container components to singular children (e.g. a `Button`'s child).
+         * Used to link container components to singular children (e.g. a `Button`'s child). The
+         * component renders the child by observing its state with
+         * [A2uiComponentScope.observeA2uiComponentState].
          *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiObserveComponentStateSample
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
@@ -824,12 +867,17 @@ public sealed class A2uiProperty<out T> {
          * 2. An object describing a dynamic data-bound template (e.g., `{"path": "/users",
          *    "componentId": "user_card"}`).
          *
+         * The component resolves either form into a list of [A2uiComponentReference]s with
+         * [A2uiComponentScope.bindChildReferences], and renders each reference by observing its
+         * state with [observeA2uiComponentState].
+         *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiComponentReferenceSample
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
          * @return A [ChildListA2uiProperty] to be handled via
-         *   `A2uiComponentProperties.bindChildReferences()`.
+         *   [A2uiComponentScope.bindChildReferences].
          */
         public fun childList(
             key: String,
@@ -842,8 +890,10 @@ public sealed class A2uiProperty<out T> {
          * component.
          *
          * The payload dictates whether the action invokes a local UI function (e.g. `openUrl`) or
-         * queues an interaction event over the network to the server.
+         * queues an interaction event over the network to the server. The component passes the
+         * payload as is to [A2uiComponentScope.dispatchAction] when the interaction happens.
          *
+         * @sample androidx.a2ui.compose.runtime.samples.A2uiDispatchActionSample
          * @param key The key for this property.
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
@@ -889,93 +939,6 @@ public sealed class DynamicA2uiProperty<T> : A2uiProperty<T>() {
  * [A2uiComponentReference] items linked to individual data contexts.
  */
 @Immutable public sealed class ChildListA2uiProperty : A2uiProperty<List<A2uiComponentReference>>()
-
-@Immutable
-internal class NestedProperty(
-    override val key: String,
-    override val isRequired: Boolean,
-    description: String?,
-    nestedProperties: List<A2uiProperty<*>>,
-    isAdditionalPropertiesAllowed: Boolean,
-    additionalPropertiesSchema: A2uiSchema?,
-) : StaticA2uiProperty<A2uiComponentProperties>() {
-    override val schema: A2uiSchema = run {
-        val propertiesMap = mutableMapOf<String, A2uiSchema>()
-        val requiredSet = mutableSetOf<String>()
-        for (i in nestedProperties.indices) {
-            val prop = nestedProperties[i]
-            propertiesMap[prop.key] = prop.schema
-            if (prop.isRequired) {
-                requiredSet.add(prop.key)
-            }
-        }
-        A2uiObjectSchema(
-            properties = propertiesMap,
-            required = requiredSet,
-            description = description,
-            isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
-            additionalPropertiesSchema = additionalPropertiesSchema,
-        )
-    }
-
-    override fun safeCast(value: Any): A2uiComponentProperties? {
-        @Suppress("UNCHECKED_CAST") val map = value as? Map<String, Any?> ?: return null
-        return A2uiComponentProperties(map)
-    }
-}
-
-@Immutable
-internal class NestedListProperty(
-    override val key: String,
-    override val isRequired: Boolean,
-    description: String?,
-    nestedProperties: List<A2uiProperty<*>>,
-    @IntRange(from = 0) minItems: Int,
-    @IntRange(from = 0) maxItems: Int,
-    isAdditionalPropertiesAllowed: Boolean,
-    additionalPropertiesSchema: A2uiSchema?,
-) : StaticA2uiProperty<List<A2uiComponentProperties>>() {
-    init {
-        checkItemsRange(minItems, maxItems)
-    }
-
-    override val schema: A2uiSchema = run {
-        val propertiesMap = mutableMapOf<String, A2uiSchema>()
-        val requiredSet = mutableSetOf<String>()
-        for (i in nestedProperties.indices) {
-            val prop = nestedProperties[i]
-            propertiesMap[prop.key] = prop.schema
-            if (prop.isRequired) {
-                requiredSet.add(prop.key)
-            }
-        }
-        A2uiArraySchema(
-            items =
-                A2uiObjectSchema(
-                    properties = propertiesMap,
-                    required = requiredSet,
-                    isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
-                    additionalPropertiesSchema = additionalPropertiesSchema,
-                ),
-            description = description,
-            minItems = minItems,
-            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
-        )
-    }
-
-    override fun safeCast(value: Any): List<A2uiComponentProperties>? {
-        val list = value as? List<*> ?: return null
-        val result = ArrayList<A2uiComponentProperties>(list.size)
-        for (i in list.indices) {
-            val item = list[i]
-            @Suppress("UNCHECKED_CAST") val map = item as? Map<String, Any?>
-            if (map != null) {
-                result.add(A2uiComponentProperties(map))
-            }
-        }
-        return result
-    }
-}
 
 @Immutable
 internal class StringProperty(
@@ -1029,6 +992,40 @@ internal class AnyProperty(
     override val schema: A2uiSchema = A2uiAnySchema(description)
 
     override fun safeCast(value: Any): Any = value
+}
+
+@Immutable
+internal class NestedObjectProperty(
+    override val key: String,
+    override val isRequired: Boolean,
+    description: String?,
+    nestedProperties: List<A2uiProperty<*>>,
+    isAdditionalPropertiesAllowed: Boolean,
+    additionalPropertiesSchema: A2uiSchema?,
+) : StaticA2uiProperty<A2uiComponentProperties>() {
+    override val schema: A2uiSchema = run {
+        val propertiesMap = mutableMapOf<String, A2uiSchema>()
+        val requiredSet = mutableSetOf<String>()
+        for (i in nestedProperties.indices) {
+            val prop = nestedProperties[i]
+            propertiesMap[prop.key] = prop.schema
+            if (prop.isRequired) {
+                requiredSet.add(prop.key)
+            }
+        }
+        A2uiObjectSchema(
+            properties = propertiesMap,
+            required = requiredSet,
+            description = description,
+            isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
+            additionalPropertiesSchema = additionalPropertiesSchema,
+        )
+    }
+
+    override fun safeCast(value: Any): A2uiComponentProperties? {
+        @Suppress("UNCHECKED_CAST") val map = value as? Map<String, Any?> ?: return null
+        return A2uiComponentProperties(map)
+    }
 }
 
 @Immutable
@@ -1124,6 +1121,59 @@ internal class AnyListProperty(
         )
 
     @Suppress("UNCHECKED_CAST") override fun safeCast(value: Any): List<Any>? = value as? List<Any>
+}
+
+@Immutable
+internal class NestedObjectListProperty(
+    override val key: String,
+    override val isRequired: Boolean,
+    description: String?,
+    nestedProperties: List<A2uiProperty<*>>,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
+    isAdditionalPropertiesAllowed: Boolean,
+    additionalPropertiesSchema: A2uiSchema?,
+) : StaticA2uiProperty<List<A2uiComponentProperties>>() {
+    init {
+        checkItemsRange(minItems, maxItems)
+    }
+
+    override val schema: A2uiSchema = run {
+        val propertiesMap = mutableMapOf<String, A2uiSchema>()
+        val requiredSet = mutableSetOf<String>()
+        for (i in nestedProperties.indices) {
+            val prop = nestedProperties[i]
+            propertiesMap[prop.key] = prop.schema
+            if (prop.isRequired) {
+                requiredSet.add(prop.key)
+            }
+        }
+        A2uiArraySchema(
+            items =
+                A2uiObjectSchema(
+                    properties = propertiesMap,
+                    required = requiredSet,
+                    isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
+                    additionalPropertiesSchema = additionalPropertiesSchema,
+                ),
+            description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
+        )
+    }
+
+    override fun safeCast(value: Any): List<A2uiComponentProperties>? {
+        val list = value as? List<*> ?: return null
+        val result = ArrayList<A2uiComponentProperties>(list.size)
+        for (i in list.indices) {
+            val item = list[i]
+            @Suppress("UNCHECKED_CAST") val map = item as? Map<String, Any?>
+            if (map != null) {
+                result.add(A2uiComponentProperties(map))
+            }
+        }
+        return result
+    }
 }
 
 /**
@@ -1278,7 +1328,7 @@ internal class DynamicBooleanProperty(
 }
 
 @Immutable
-internal class DynamicValueProperty(
+internal class DynamicAnyProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,

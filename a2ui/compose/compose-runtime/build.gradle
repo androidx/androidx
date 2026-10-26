@@ -62,4 +62,5 @@ androidx {
     inceptionYear = "2026"
     description = "The Compose A2UI renderer runtime"
     enableRobolectric()
+    samples(project(":a2ui:compose:compose-runtime:compose-runtime-samples"))
 }
