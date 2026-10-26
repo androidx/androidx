@@ -25,6 +25,7 @@ import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
@@ -186,7 +187,8 @@ public fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollField
  *   announced for the option at the given index. It should match the text rendered by [field].
  * @param interactionSource [MutableInteractionSource] for observing and controlling the
  *   interactions with the scroll field.
- * @param field the composable used to render each item in the wheel.
+ * @param field the composable used to render each item in the wheel. Each item is centered in its
+ *   slot. Content taller than the slot isn't clipped and overlaps the neighboring items.
  *
  * @material3expressive
  */
@@ -198,6 +200,42 @@ public fun ScrollField(
     enabled: Boolean = true,
     colors: ScrollFieldColors = ScrollFieldDefaults.colors(),
     fieldAccessibilityDescription: (index: Int) -> String = { index -> index.toLocalString() },
+    interactionSource: MutableInteractionSource? = null,
+    field: @Composable (index: Int, selected: Boolean, enabled: Boolean) -> Unit =
+        { index, selected, enabled ->
+            ScrollFieldDefaults.Item(
+                index = index,
+                selected = selected,
+                enabled = enabled,
+                colors = colors,
+            )
+        },
+) {
+    ScrollFieldImpl(
+        state = state,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        fieldAccessibilityDescription = fieldAccessibilityDescription,
+        interactionSource = interactionSource,
+        field = field,
+    )
+}
+
+/**
+ * [ScrollField] implementation with a configurable [itemHeight], which is the height of each item's
+ * slot and the distance between the centers of adjacent items.
+ */
+@Composable
+internal fun ScrollFieldImpl(
+    state: ScrollFieldState,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: ScrollFieldColors = ScrollFieldDefaults.colors(),
+    fieldAccessibilityDescription: (index: Int) -> String = { index -> index.toLocalString() },
+    itemHeight: Dp = ScrollFieldDefaults.ItemHeight,
     interactionSource: MutableInteractionSource? = null,
     field: @Composable (index: Int, selected: Boolean, enabled: Boolean) -> Unit =
         { index, selected, enabled ->
@@ -258,7 +296,7 @@ public fun ScrollField(
                         }
                     }
                 },
-        pageSize = PageSize.Fixed(ScrollFieldDefaults.ScrollFieldHeight / 3),
+        pageSize = PageSize.Fixed(itemHeight),
         horizontalAlignment = Alignment.CenterHorizontally,
         snapPosition = SnapPosition.Center,
     ) { page ->
@@ -271,7 +309,12 @@ public fun ScrollField(
                     .clickable(interactionSource = null, indication = null, enabled = enabled) {
                         scope.launch { state.animateScrollToOption(index) }
                     }
-                    .semantics { selected = isSelected },
+                    .semantics { selected = isSelected }
+                    // Must be the last modifier. It lets content taller than the slot, like the
+                    // larger selected text, stay centered and overlap the neighbors instead of
+                    // being clipped. The modifiers above still use the slot height, so the click
+                    // area and semantics bounds stay one slot tall.
+                    .wrapContentHeight(unbounded = true),
             contentAlignment = Alignment.Center,
         ) {
             field(index, isSelected, enabled)
@@ -351,10 +394,17 @@ public class ScrollFieldColors(
 public object ScrollFieldDefaults {
     /**
      * The default height for a [ScrollField]. This can be used as a reference when providing a
-     * Modifier.height to the ScrollField to ensure enough vertical space is available to display
-     * the typical three-item layout.
+     * Modifier.height to the ScrollField. At this height the selected item is displayed with the
+     * items above and below it partially visible. A taller ScrollField displays more items.
      */
-    public val ScrollFieldHeight: Dp = 200.dp
+    public val ScrollFieldHeight: Dp = 120.dp
+
+    /**
+     * The default height of each item's slot in a [ScrollField], which is also the distance between
+     * the centers of adjacent items. This results in a 16dp visual gap between the default items.
+     */
+    internal val ItemHeight: Dp = 52.dp
+
     /** The default shape for the [ScrollField] container background. */
     public val shape: Shape
         @Composable get() = ShapeDefaults.Large

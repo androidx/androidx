@@ -70,7 +70,8 @@ fun ScrollFieldSample() {
     ) {
         ScrollField(
             state = state,
-            modifier = Modifier.size(width = 192.dp, height = 160.dp),
+            modifier =
+                Modifier.size(width = 192.dp, height = ScrollFieldDefaults.ScrollFieldHeight),
             contentDescription = "Select value between 1000 and 2000",
             fieldAccessibilityDescription = { index -> (minVal + index).toString() },
             field = { index, selected, enabled ->
@@ -175,7 +176,8 @@ fun UnitScrollFieldSample() {
     ) {
         ScrollField(
             state = amountState,
-            modifier = Modifier.size(width = 120.dp, height = 160.dp),
+            modifier =
+                Modifier.size(width = 120.dp, height = ScrollFieldDefaults.ScrollFieldHeight),
             contentDescription = "Select amount",
             fieldAccessibilityDescription = { index -> ((index + 1) / 10.0).toString() },
             field = { index, selected, enabled ->
@@ -203,7 +205,8 @@ fun UnitScrollFieldSample() {
 
         ScrollField(
             state = unitState,
-            modifier = Modifier.size(width = 120.dp, height = 160.dp),
+            modifier =
+                Modifier.size(width = 120.dp, height = ScrollFieldDefaults.ScrollFieldHeight),
             contentDescription = "Select unit",
             fieldAccessibilityDescription = { index -> units[index] },
             field = { index, selected, enabled ->
