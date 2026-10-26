@@ -1204,8 +1204,7 @@ package androidx.compose.ui.text.font {
     method @InaccessibleFromKotlin public void clear();
     method public operator boolean contains(androidx.compose.ui.text.font.Font element);
     method @InaccessibleFromKotlin public boolean contains(Object element);
-    method @InaccessibleFromKotlin public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
-    method @KotlinOnly public boolean containsAll(java.util.Collection<androidx.compose.ui.text.font.Font> elements);
+    method public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
     method public operator androidx.compose.ui.text.font.Font get(int index);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.text.font.Font> getFonts();
     method public int getSize();
