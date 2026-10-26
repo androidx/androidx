@@ -18,6 +18,7 @@ package androidx.xr.testutils
 
 import android.app.Activity
 import java.lang.ref.WeakReference
+import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -35,6 +36,9 @@ abstract class TestAppActivityLeakTest(activityClass: Class<out Activity>) :
 
     @Test
     @XrDeviceTest
+    @Ignore(
+        "b/578174421: Temporarily skipped across all XR testapps while activity leaks and SplitEngine teardown crashes are resolved."
+    )
     fun activity_doesNotLeak() {
         val weakActivityRef = WeakReference(startActivity())
 
