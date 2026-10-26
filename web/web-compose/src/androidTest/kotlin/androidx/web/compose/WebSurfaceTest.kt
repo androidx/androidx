@@ -18,7 +18,9 @@ package androidx.web.compose
 
 import android.graphics.Color
 import android.view.View
+import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -44,6 +46,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
@@ -59,12 +62,14 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.web.WebContent
 import androidx.web.WebContentView
 import androidx.web.WebFeature
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -72,6 +77,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -384,26 +390,29 @@ class WebSurfaceTest {
         lateinit var bridge: WebViewBridge
         val surfaceFocusRequester = FocusRequester()
         val otherFocusRequester = FocusRequester()
+        var parentHasFocus = false
         var surfaceFocused = false
         var keyReceivedByModifier = false
 
         composeTestRule.setContent {
             Column {
-                WebSurface(
-                    content = webContent,
-                    modifier =
-                        Modifier.size(150.dp)
-                            .testTag("surface")
-                            .focusRequester(surfaceFocusRequester)
-                            .onFocusChanged { surfaceFocused = it.isFocused }
-                            .onKeyEvent { event ->
-                                if (event.type == KeyEventType.KeyDown && event.key == Key.A) {
-                                    keyReceivedByModifier = true
-                                }
-                                false
-                            },
-                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
-                )
+                Box(modifier = Modifier.onFocusChanged { parentHasFocus = it.hasFocus }) {
+                    WebSurface(
+                        content = webContent,
+                        modifier =
+                            Modifier.size(150.dp)
+                                .testTag("surface")
+                                .focusRequester(surfaceFocusRequester)
+                                .onFocusChanged { surfaceFocused = it.isFocused }
+                                .onKeyEvent { event ->
+                                    if (event.type == KeyEventType.KeyDown && event.key == Key.A) {
+                                        keyReceivedByModifier = true
+                                    }
+                                    false
+                                },
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
                 Box(
                     modifier =
                         Modifier.size(50.dp)
@@ -424,6 +433,7 @@ class WebSurfaceTest {
 
         composeTestRule.runOnIdle { surfaceFocusRequester.requestFocus() }
         composeTestRule.runOnIdle {
+            assertTrue(parentHasFocus)
             assertTrue(surfaceFocused)
             assertTrue(bridge.hasFocus())
         }
@@ -435,9 +445,116 @@ class WebSurfaceTest {
 
         composeTestRule.runOnIdle { otherFocusRequester.requestFocus() }
         composeTestRule.runOnIdle {
+            assertFalse(parentHasFocus)
             assertFalse(surfaceFocused)
             assertFalse(bridge.hasFocus())
+            assertNotNull(composeTestRule.activity.currentFocus)
         }
+    }
+
+    @Test
+    fun testFocusTransferBetweenTwoWebSurfaces() {
+        val secondContent = WebContent()
+        try {
+            lateinit var bridge1: WebViewBridge
+            lateinit var bridge2: WebViewBridge
+
+            composeTestRule.setContent {
+                Column {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(100.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge1 = b } },
+                    )
+                    WebSurface(
+                        content = secondContent,
+                        modifier = Modifier.size(100.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge2 = b } },
+                    )
+                }
+            }
+
+            composeTestRule.runOnIdle {
+                bridge1.requestFocus()
+                assertTrue(bridge1.hasFocus())
+                bridge2.requestFocus()
+                assertFalse(bridge1.hasFocus())
+                assertTrue(bridge2.hasFocus())
+            }
+        } finally {
+            composeTestRule.runOnIdle { secondContent.close() }
+        }
+    }
+
+    @Test
+    fun testSwappingContentWhileFocusedPreservesViewFocus() {
+        val secondContent = WebContent()
+        try {
+            var currentContent by mutableStateOf(webContent)
+            lateinit var currentBridge: WebViewBridge
+
+            composeTestRule.setContent {
+                WebSurface(
+                    content = currentContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = { WebViewBridge(it).also { b -> currentBridge = b } },
+                )
+            }
+
+            composeTestRule.runOnIdle {
+                currentBridge.requestFocus()
+                assertTrue(currentBridge.hasFocus())
+                currentContent = secondContent
+            }
+            composeTestRule.runOnIdle { assertTrue(currentBridge.hasFocus()) }
+        } finally {
+            composeTestRule.runOnIdle { secondContent.close() }
+        }
+    }
+
+    @Test
+    fun testDetachingComposeViewRemovesFocusListener() {
+        lateinit var container: ViewGroup
+        var token: Any? = Any()
+        val tokenRef = WeakReference(token)
+        var childComposeView: ComposeView? = null
+
+        composeTestRule.setContent {
+            AndroidView(
+                factory = { ctx ->
+                    FrameLayout(ctx).also { frame ->
+                        container = frame
+                        val captured = token
+                        childComposeView =
+                            ComposeView(ctx).apply {
+                                setContent {
+                                    WebSurface(
+                                        content = webContent,
+                                        modifier = Modifier.size(100.dp),
+                                        bridgeFactory = ::WebViewBridge,
+                                        bridgeUpdate = { captured.hashCode() },
+                                    )
+                                }
+                            }
+                        frame.addView(childComposeView)
+                    }
+                }
+            )
+        }
+        token = null
+
+        composeTestRule.runOnIdle {
+            assertNotNull(tokenRef.get())
+            container.removeView(childComposeView)
+            childComposeView = null
+        }
+        composeTestRule.waitForIdle()
+
+        Runtime.getRuntime().gc()
+        System.runFinalization()
+        Runtime.getRuntime().gc()
+
+        assertNull(tokenRef.get())
     }
 
     @Test

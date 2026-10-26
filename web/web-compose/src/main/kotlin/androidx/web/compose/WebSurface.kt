@@ -35,6 +35,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -206,6 +208,11 @@ public fun <T : WebViewBridge> WebSurface(
     Layout(
         modifier =
             Modifier.onKeyEvent { state.node?.dispatchKeyEvent(it.nativeKeyEvent) == true }
+                .focusProperties {
+                    canFocus = false
+                    onExit = { state.node?.onExitFocus() }
+                }
+                .focusTarget()
                 .then(modifier)
                 .clipToBounds()
                 .then(
@@ -309,6 +316,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     private var webSurface: WebSurfaceChromium? = null
     private var size = IntSize.Zero
     private var holder: HeadlessViewHolder? = null
+    private var attachedViewTreeObserver: ViewTreeObserver? = null
 
     /** Prevents reentrant focus synchronization between Compose and the underlying View tree. */
     private var isUpdatingFocus: Boolean = false
@@ -437,22 +445,20 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
         if (!isAttached || isUpdatingFocus) return
         val isFocused = currentState.isFocused
-        if (isFocused == previousState.isFocused) return
+        if (!isFocused || isFocused == previousState.isFocused) return
         val view = holder?.view ?: return
         focusUpdate {
-            if (isFocused) {
-                if (!view.hasFocus()) {
-                    view.requestFocus()
-                }
-                if (view.hasFocus() && !focusTargetNode.focusState.isFocused) {
-                    requestFocusWithDescendantPriority()
-                }
-            } else {
-                if (view.hasFocus()) {
-                    view.clearFocus()
-                }
+            if (!view.hasFocus()) {
+                view.requestFocus()
+            }
+            if (view.hasFocus() && !focusTargetNode.focusState.isFocused) {
+                requestFocusWithDescendantPriority()
             }
         }
+    }
+
+    fun onExitFocus() {
+        currentValueOf(LocalFocusManager).clearFocus(force = true)
     }
 
     override fun onGlobalFocusChanged(oldFocus: View?, newFocus: View?) {
@@ -464,10 +470,10 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             newFocus != null && (newFocus === currentHolder || newFocus.parent === currentHolder)
         if (subViewGotFocus && !subViewLostFocus) {
             if (!focusTargetNode.focusState.isFocused) {
-                focusUpdate { requestFocusWithDescendantPriority() }
+                requestFocusWithDescendantPriority()
             }
         } else if (subViewLostFocus && !subViewGotFocus) {
-            if (focusTargetNode.focusState.isFocused) {
+            if (focusTargetNode.focusState.isFocused && !requireView().hasFocus()) {
                 currentValueOf(LocalFocusManager).clearFocus(force = false)
             }
         }
@@ -494,6 +500,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     fun onBridgeAttached(bridge: T) {
         if (!isAttached) return
         holder?.view = bridge
+        if (focusTargetNode.focusState.isFocused) bridge.requestFocus()
         createSurface()
         runUpdate()
         invalidateDraw()
@@ -501,7 +508,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
 
     fun onBridgeDetached() {
         releaseSurface()
-        holder?.view = null
+        focusUpdate { holder?.view = null }
     }
 
     fun update(
@@ -537,7 +544,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         super.onAttach()
         state.node = this
         val hostView = requireView()
-        hostView.viewTreeObserver.addOnGlobalFocusChangeListener(this)
+        attachedViewTreeObserver =
+            hostView.viewTreeObserver.also { it.addOnGlobalFocusChangeListener(this) }
         (hostView as? ViewGroup)?.let { host ->
             installHostAccessibilityDelegate(host)
             holder = HeadlessViewHolder(host.context).also(host::addView)
@@ -546,8 +554,15 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     override fun onDetach() {
-        requireView().viewTreeObserver.removeOnGlobalFocusChangeListener(this)
+        if (focusTargetNode.focusState.isFocused) {
+            onExitFocus()
+        }
+        attachedViewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalFocusChangeListener(this)
+        attachedViewTreeObserver = null
         onBridgeDetached()
+        if (state.node === this) {
+            state.node = null
+        }
         (requireView() as? ViewGroup)?.removeView(holder)
         holder = null
         super.onDetach()
