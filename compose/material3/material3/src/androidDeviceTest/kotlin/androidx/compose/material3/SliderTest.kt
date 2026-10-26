@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -65,6 +66,8 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -81,6 +84,7 @@ import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -2089,14 +2093,22 @@ class SliderTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             val widthDp = with(LocalDensity.current) { 1080.toDp() }
-            Slider(
-                state = state,
-                onValueChange = {
-                    emittedValues.add(it)
-                    state.value = it
-                },
-                modifier = Modifier.testTag(tag).requiredWidth(widthDp),
-            )
+            // Lowers the density on windows narrower than 1080px, where the ends of the slider
+            // would be outside of the window and the touches there would not be delivered.
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(widthDp, 100.dp))
+            ) {
+                Box {
+                    Slider(
+                        state = state,
+                        onValueChange = {
+                            emittedValues.add(it)
+                            state.value = it
+                        },
+                        modifier = Modifier.testTag(tag).fillMaxWidth(),
+                    )
+                }
+            }
         }
 
         rule.onNodeWithTag(tag).performTouchInput {
