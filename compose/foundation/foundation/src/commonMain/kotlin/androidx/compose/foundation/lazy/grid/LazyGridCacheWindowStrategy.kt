@@ -138,7 +138,7 @@ private class LazyGridCacheWindowScope : CacheWindowScope {
     ): List<PrefetchHandle> {
         return prefetchScope.scheduleLinePrefetch(itemIndex) {
             var tallestElement = Int.MIN_VALUE
-            repeat(lineItemCount) { tallestElement = maxOf(getMainAxisSize(it)) }
+            repeat(lineItemCount) { tallestElement = maxOf(tallestElement, getMainAxisSize(it)) }
             if (tallestElement != Int.MIN_VALUE) {
                 onItemPrefetched(tallestElement)
             }
