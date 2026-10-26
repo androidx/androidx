@@ -114,6 +114,27 @@ class FrameGraphImplTest {
     }
 
     @Test
+    fun setIsForeground_propagatesToCameraGraph() = testScope.runTest {
+        val cameraGraph = checkNotNull(frameGraph.unwrapAs(CameraGraph::class.java))
+        val cameraController = cameraPipeSimulator.fakeCameraBackend.cameraControllers.single()
+        assertThat(frameGraph.isForeground).isTrue()
+        assertThat(cameraGraph.isForeground).isTrue()
+        assertThat(cameraController.isForeground).isTrue()
+
+        frameGraph.isForeground = false
+
+        assertThat(frameGraph.isForeground).isFalse()
+        assertThat(cameraGraph.isForeground).isFalse()
+        assertThat(cameraController.isForeground).isFalse()
+
+        frameGraph.isForeground = true
+
+        assertThat(frameGraph.isForeground).isTrue()
+        assertThat(cameraGraph.isForeground).isTrue()
+        assertThat(cameraController.isForeground).isTrue()
+    }
+
+    @Test
     fun captureWithSingleStream_repeatingRequestUpdates() = testScope.runTest {
         initialize(this)
         val stream = frameGraph.streams[streamConfig1]!!.id
