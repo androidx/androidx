@@ -32,6 +32,7 @@ import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateM
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.doc.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -119,11 +120,12 @@ private val GraphicsLayerImplicitAnimationSpec =
 @Composable
 private fun rememberGraphicsLayerFloatAsState(source: Float): State<Float> {
     val state = rememberRemoteFloatAsState(source)
-    if (!Utils.isVariable(source)) {
+    val field = MaybeVariableFloat(source)
+    if (!field.isReference) {
         return state
     }
 
-    val id = Utils.idFromNan(source)
+    val id = field.id
     val document = LocalCoreDocument.current
     val componentValueStates = LocalComponentValueStateMap.current
     val shouldAnimate =

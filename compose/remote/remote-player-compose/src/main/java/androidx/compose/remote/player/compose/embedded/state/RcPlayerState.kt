@@ -189,8 +189,9 @@ internal fun expressionDependsOnAnimation(
 
 @Composable
 internal fun rememberRemoteFloatAsState(value: Float): State<Float> {
-    return if (Utils.isVariable(value)) {
-        rememberRemoteFloatAsState(Utils.idFromNan(value))
+    val field = MaybeVariableFloat(value)
+    return if (field.isReference) {
+        rememberRemoteFloatAsState(field.id)
     } else {
         rememberUpdatedState(value)
     }
