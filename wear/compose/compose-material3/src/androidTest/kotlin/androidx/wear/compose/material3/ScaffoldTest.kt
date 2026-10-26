@@ -1614,6 +1614,32 @@ class ScaffoldTest {
                 .isFalse()
         }
     }
+
+    @Test
+    fun appScaffold_fallbackTimeText_usesLocalTimeSource() {
+        var timeSourceCalled = false
+        val customTimeSource =
+            object : TimeSource {
+                @Composable
+                override fun currentTime(): String {
+                    timeSourceCalled = true
+                    return "10:10"
+                }
+            }
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides false,
+                LocalTimeSource provides customTimeSource,
+            ) {
+                AppScaffold { ScreenScaffold { Text(CONTENT_MESSAGE) } }
+            }
+        }
+
+        rule.onNodeWithText(CONTENT_MESSAGE).assertIsDisplayed()
+        rule.onNodeWithTag("time_text").assertIsDisplayed()
+        rule.runOnIdle { assertThat(timeSourceCalled).isTrue() }
+    }
 }
 
 private const val CONTENT_MESSAGE = "The Content"

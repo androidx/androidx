@@ -43,6 +43,7 @@ import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.TimeTextDefaults
 import androidx.wear.compose.material3.curvedText
 import androidx.wear.compose.material3.samples.TimeTextClockOnly
+import androidx.wear.compose.material3.samples.TimeTextOverrideTimeSourceForTesting
 import androidx.wear.compose.material3.samples.TimeTextWithStatus
 import androidx.wear.compose.material3.samples.TimeTextWithStatusEllipsized
 import androidx.wear.compose.material3.timeTextCurvedText
@@ -60,6 +61,7 @@ val TimeTextDemos =
         ComposableDemo("Clock on list") { TimeTextOnScreen() },
         ComposableDemo("Clock on white background") { TimeTextOnScreenWhiteBackground() },
         ComposableDemo("Background override") { TimeTextBackgroundOverride() },
+        ComposableDemo("TimeSource override") { TimeTextOverrideTimeSourceForTesting() },
     )
 
 @Composable
