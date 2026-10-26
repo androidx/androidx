@@ -2428,10 +2428,12 @@ package androidx.wear.compose.material3 {
   public final class TimeTextKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TimeText(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.CurvedModifier curvedModifier, optional float maxSweepAngle, optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.wear.compose.material3.TimeSource timeSource, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function2<androidx.wear.compose.foundation.CurvedScope,java.lang.String,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void TimeText-hYmLsZ8(androidx.compose.ui.Modifier?, androidx.wear.compose.foundation.CurvedModifier?, float, long, androidx.wear.compose.material3.TimeSource?, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.CurvedScope!,? super java.lang.String!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.material3.TimeSource> getLocalTimeSource();
     method public static void timeTextCurvedText(androidx.wear.compose.foundation.CurvedScope, String time, optional androidx.wear.compose.foundation.CurvedTextStyle? style);
     method @BytecodeOnly public static void timeTextCurvedText$default(androidx.wear.compose.foundation.CurvedScope!, String!, androidx.wear.compose.foundation.CurvedTextStyle!, int, Object!);
     method public static void timeTextSeparator(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedTextStyle? curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
     method @BytecodeOnly public static void timeTextSeparator$default(androidx.wear.compose.foundation.CurvedScope!, androidx.wear.compose.foundation.CurvedTextStyle!, androidx.wear.compose.foundation.ArcPaddingValues!, int, Object!);
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.material3.TimeSource> LocalTimeSource;
   }
 
   public final class TouchTargetAwareSizeKt {
