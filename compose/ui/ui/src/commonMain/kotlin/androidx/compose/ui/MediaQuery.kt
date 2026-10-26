@@ -28,12 +28,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.staticCompositionLocalWithComputedDefaultOf
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalOwner
-import androidx.compose.ui.platform.computedDefaultOf
 import androidx.compose.ui.platform.noLocalProvidedFor
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastAny
@@ -338,7 +338,7 @@ public interface UiMediaScope {
  */
 @ExperimentalMediaQueryApi
 public val LocalUiMediaScope: ProvidableCompositionLocal<UiMediaScope> =
-    computedDefaultOf("LocalUiMediaScope") {
+    staticCompositionLocalWithComputedDefaultOf {
         LocalOwner.currentValue.uiMediaScope ?: noLocalProvidedFor("LocalUiMediaScope")
     }
 

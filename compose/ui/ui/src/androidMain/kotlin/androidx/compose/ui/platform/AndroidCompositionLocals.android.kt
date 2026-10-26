@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -25,12 +24,9 @@ import android.content.res.Resources
 import android.view.View
 import android.view.Window
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalWithComputedDefaultOf
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.ImageVectorCache
 import androidx.compose.ui.res.ResourceIdCache
 import androidx.compose.ui.window.Dialog
@@ -40,45 +36,18 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
-@SuppressLint("NullAnnotationGroup", "BanInlineOptIn")
-@OptIn(ExperimentalComposeUiApi::class)
-private inline fun <T : Any> computedDefaultOf(
-    name: String,
-    crossinline compute: androidx.compose.runtime.CompositionLocalAccessorScope.() -> T,
-): ProvidableCompositionLocal<T> =
-    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
-        staticCompositionLocalWithComputedDefaultOf { compute() }
-    } else {
-        staticCompositionLocalOf { noLocalProvidedFor(name) }
-    }
-
-@SuppressLint("NullAnnotationGroup", "BanInlineOptIn")
-@OptIn(ExperimentalComposeUiApi::class)
-private inline fun <T : Any> computedNullableDefaultOf(
-    crossinline compute: androidx.compose.runtime.CompositionLocalAccessorScope.() -> T?
-): ProvidableCompositionLocal<T?> =
-    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
-        staticCompositionLocalWithComputedDefaultOf { compute() }
-    } else {
-        staticCompositionLocalOf { null }
-    }
-
 /**
  * The Android [Configuration]. The [Configuration] is useful for determining how to organize the
  * UI.
  */
-@SuppressLint("NullAnnotationGroup")
-@OptIn(ExperimentalComposeUiApi::class)
 public val LocalConfiguration: ProvidableCompositionLocal<Configuration> =
-    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
-        compositionLocalWithComputedDefaultOf { LocalContext.currentValue.resources.configuration }
-    } else {
-        compositionLocalOf { noLocalProvidedFor("LocalConfiguration") }
+    compositionLocalWithComputedDefaultOf {
+        LocalContext.currentValue.resources.configuration
     }
 
 /** Provides a [Context] that can be used by Android applications. */
 public val LocalContext: ProvidableCompositionLocal<Context> =
-    computedDefaultOf<Context>("LocalContext") {
+    staticCompositionLocalWithComputedDefaultOf {
         LocalAndroidComposeView.currentValue?.context ?: noLocalProvidedFor("LocalContext")
     }
 
@@ -124,14 +93,15 @@ public val LocalSavedStateRegistryOwner:
 
 /** The CompositionLocal containing the current Compose [View]. */
 public val LocalView: ProvidableCompositionLocal<View> =
-    computedDefaultOf<View>("LocalView") {
+    staticCompositionLocalWithComputedDefaultOf {
         LocalAndroidComposeView.currentValue ?: noLocalProvidedFor("LocalView")
     }
 
 /** The CompositionLocal containing the current [Window] if available. */
-public val LocalWindow: ProvidableCompositionLocal<Window?> = computedNullableDefaultOf {
-    LocalAndroidComposeView.currentValue?.window
-}
+public val LocalWindow: ProvidableCompositionLocal<Window?> =
+    staticCompositionLocalWithComputedDefaultOf {
+        LocalAndroidComposeView.currentValue?.window
+    }
 
 /**
  * Recursively traverses up the [View] parent hierarchy to find a containing [DialogWindowProvider].
