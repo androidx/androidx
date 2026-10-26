@@ -19,7 +19,7 @@ package androidx.glance.adaptive.appwidget
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
 import android.util.Log
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -47,7 +47,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
      */
     fun ensureTelemetryOptions(
         targetToInstances: Map<RenderTarget, List<Int>>,
-        data: AdaptiveGlanceTemplate,
+        data: GlanceAdaptiveTemplate,
     ) {
         val templateId = data.templateId
         for ((_, appWidgetIds) in targetToInstances) {
@@ -107,7 +107,7 @@ internal class WidgetTelemetryHandler(private val appWidgetManager: AppWidgetMan
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE) ||
             options.getInt(
                 OPTION_ADAPTIVE_WIDGET_TEMPLATE_TYPE,
-                AdaptiveGlanceTemplate.TEMPLATE_ID_UNKNOWN,
+                GlanceAdaptiveTemplate.TEMPLATE_ID_UNKNOWN,
             ) != templateId ||
             !options.containsKey(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE) ||
             options.getInt(OPTION_ADAPTIVE_WIDGET_SDK_VERSION_CODE, 0) != XFF_SDK_VERSION_CODE ||

@@ -38,9 +38,7 @@ public class TrackTemplate(
     @get:FloatRange(from = 0.0, to = 1.0)
     public val progress: Float? = null,
     public val statusText: String? = null,
-) : AdaptiveGlanceTemplate {
-    override val templateName: String = "TrackTemplate"
-    override val templateId: Int = TEMPLATE_ID
+) : GlanceAdaptiveTemplate(templateId = TEMPLATE_ID) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

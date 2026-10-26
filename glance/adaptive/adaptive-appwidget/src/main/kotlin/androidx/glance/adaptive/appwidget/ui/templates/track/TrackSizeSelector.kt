@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
@@ -32,8 +32,7 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
  * the container onto its breakpoints and asking [TrackSlots] what fits.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object TrackSizeSelector :
-    ArchetypeSelector<TrackTemplate, AppWidgetGlanceSurface, TrackSlots> {
+public object TrackSizeSelector : ArchetypeSelector<TrackTemplate, AppWidgetSurface, TrackSlots> {
 
     /**
      * Selects the slot plan for [template] under [constraints].
@@ -49,7 +48,7 @@ public object TrackSizeSelector :
      */
     override fun select(
         template: TrackTemplate,
-        constraints: HostConstraints<AppWidgetGlanceSurface>,
+        constraints: HostConstraints<AppWidgetSurface>,
     ): TrackSlots =
         TrackSlots.from(
             tiers = SizeTiers.from(constraints.dimensions, constraints.surface),

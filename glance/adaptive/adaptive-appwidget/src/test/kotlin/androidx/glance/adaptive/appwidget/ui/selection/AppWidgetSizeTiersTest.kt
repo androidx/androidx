@@ -27,7 +27,7 @@ class AppWidgetSizeTiersTest {
 
     @Test
     fun widthTier_fromDp_homeScreenBreakpoints() {
-        val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN
         assertThat(AppWidgetSizeTiers.resolveWidthTier(50, surface)).isEqualTo(WidthTier.W1)
         assertThat(AppWidgetSizeTiers.resolveWidthTier(131, surface)).isEqualTo(WidthTier.W1)
         assertThat(AppWidgetSizeTiers.resolveWidthTier(132, surface)).isEqualTo(WidthTier.W2)
@@ -40,27 +40,19 @@ class AppWidgetSizeTiersTest {
 
     @Test
     fun widthTier_fromDp_lockScreenBreakpoints() {
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(80, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(80, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(WidthTier.W1)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(150, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(150, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(WidthTier.W2)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(250, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(250, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(WidthTier.W3)
-        assertThat(
-                AppWidgetSizeTiers.resolveWidthTier(350, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveWidthTier(350, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(WidthTier.W4)
     }
 
     @Test
     fun heightTier_fromDp_homeScreenBreakpoints() {
-        val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN
         assertThat(AppWidgetSizeTiers.resolveHeightTier(40, surface)).isEqualTo(HeightTier.H0)
         assertThat(AppWidgetSizeTiers.resolveHeightTier(71, surface)).isEqualTo(HeightTier.H0)
         assertThat(AppWidgetSizeTiers.resolveHeightTier(72, surface)).isEqualTo(HeightTier.H1)
@@ -75,29 +67,24 @@ class AppWidgetSizeTiersTest {
 
     @Test
     fun heightTier_fromDp_lockScreenBreakpoints() {
-        assertThat(
-                AppWidgetSizeTiers.resolveHeightTier(50, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(50, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(HeightTier.H0)
-        assertThat(
-                AppWidgetSizeTiers.resolveHeightTier(200, AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN)
-            )
+        assertThat(AppWidgetSizeTiers.resolveHeightTier(200, AppWidgetSurface.MOBILE_LOCK_SCREEN))
             .isEqualTo(HeightTier.H0)
     }
 
     @Test
     fun sizeTiers_from_matchesExpectedTiersAndDestructuring() {
-        val (w, h) = AppWidgetSizeTiers.from(250, 150, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        val (w, h) = AppWidgetSizeTiers.from(250, 150, AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(w).isEqualTo(WidthTier.W3)
         assertThat(h).isEqualTo(HeightTier.H2)
 
         val sizeTiers =
-            AppWidgetSizeTiers.from(Dimensions(250, 150), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+            AppWidgetSizeTiers.from(Dimensions(250, 150), AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(sizeTiers.width).isEqualTo(WidthTier.W3)
         assertThat(sizeTiers.height).isEqualTo(HeightTier.H2)
 
-        val sizeTiersExt =
-            SizeTiers.from(Dimensions(250, 150), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        val sizeTiersExt = SizeTiers.from(Dimensions(250, 150), AppWidgetSurface.MOBILE_HOME_SCREEN)
         assertThat(sizeTiersExt).isEqualTo(sizeTiers)
     }
 }

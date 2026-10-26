@@ -28,7 +28,7 @@ import androidx.glance.adaptive.appwidget.R
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
 import androidx.glance.adaptive.appwidget.ui.components.fitMetric
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import androidx.glance.appwidget.appWidgetBackground
@@ -113,7 +113,7 @@ private val PlaceholderBadgeOutline = ColorProvider(Color(0xFFFFE347))
  * without composing, so it stays unit testable.
  */
 internal object TrackTemplateRenderer :
-    GlanceTemplateRenderer<TrackTemplate, AppWidgetGlanceSurface, TrackSlots> {
+    GlanceTemplateRenderer<TrackTemplate, AppWidgetSurface, TrackSlots> {
 
     /**
      * Returns the Glance content rendering [template] with the slot plan [archetype].
@@ -126,7 +126,7 @@ internal object TrackTemplateRenderer :
     override fun renderGlance(
         template: TrackTemplate,
         archetype: TrackSlots,
-        constraints: HostConstraints<AppWidgetGlanceSurface>,
+        constraints: HostConstraints<AppWidgetSurface>,
     ): @Composable () -> Unit = { TrackLayout(template, archetype) }
 }
 

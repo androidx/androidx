@@ -32,10 +32,9 @@ class TrackTemplateTest {
     }
 
     @Test
-    fun trackTemplate_isAdaptiveGlanceTemplate() {
+    fun trackTemplate_isGlanceAdaptiveTemplate() {
         val template = TrackTemplate(title = "Morning Run")
-        assertThat(template).isInstanceOf(AdaptiveGlanceTemplate::class.java)
-        assertThat(template.templateName).isEqualTo("TrackTemplate")
+        assertThat(template).isInstanceOf(GlanceAdaptiveTemplate::class.java)
         assertThat(template.templateId).isEqualTo(TrackTemplate.TEMPLATE_ID)
         assertThat(TrackTemplate.TEMPLATE_ID).isEqualTo(1)
     }

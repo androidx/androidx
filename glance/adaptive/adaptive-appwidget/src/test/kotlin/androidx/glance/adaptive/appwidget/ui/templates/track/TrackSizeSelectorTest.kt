@@ -16,7 +16,7 @@
 
 package androidx.glance.adaptive.appwidget.ui.templates.track
 
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
@@ -51,7 +51,7 @@ class TrackSizeSelectorTest {
     @Test
     fun select_lockScreen_atW1Boundary_switchesAt100Dp() {
         // The lock screen has its own, narrower breakpoints.
-        val surface = AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN
+        val surface = AppWidgetSurface.MOBILE_LOCK_SCREEN
 
         assertThat(select(surface, widthDp = 99, heightDp = 50).stackTitle).isTrue()
         assertThat(select(surface, widthDp = 100, heightDp = 50).stackTitle).isFalse()
@@ -78,20 +78,19 @@ class TrackSizeSelectorTest {
     fun select_isIndependentOfOptionalData() {
         // Selection may consult the payload, but must not currently depend on it.
         val sparseTemplate = TrackTemplate(title = "Morning Run")
-        val constraints =
-            HostConstraints(Dimensions(300, 200), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        val constraints = HostConstraints(Dimensions(300, 200), AppWidgetSurface.MOBILE_HOME_SCREEN)
 
         assertThat(TrackSizeSelector.select(sparseTemplate, constraints))
             .isEqualTo(TrackSizeSelector.select(template, constraints))
     }
 
     private fun select(
-        surface: AppWidgetGlanceSurface,
+        surface: AppWidgetSurface,
         widthDp: Int,
         heightDp: Int = 200,
     ): TrackSlots =
         TrackSizeSelector.select(template, HostConstraints(Dimensions(widthDp, heightDp), surface))
 
     private fun selectOnHomeScreen(widthDp: Int, heightDp: Int = 200): TrackSlots =
-        select(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, widthDp, heightDp)
+        select(AppWidgetSurface.MOBILE_HOME_SCREEN, widthDp, heightDp)
 }

@@ -19,18 +19,15 @@ package androidx.glance.adaptive.core.ui
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class TemplateRendererTest {
 
-    private class TestTemplate(val title: String) : AdaptiveGlanceTemplate {
-        override val templateName: String = "TestTemplate"
-        override val templateId: Int = 1
-    }
+    private class TestTemplate(val title: String) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private data class TestSurface(override val tag: String) : GlanceSurface
+    private class TestSurface(tag: String) : GlanceSurface(tag)
 
     private enum class TestArchetype {
         COMPACT
@@ -100,7 +97,7 @@ class TemplateRendererTest {
 
     @Test
     fun render_templateSurfaceAndArchetypeAreContravariant() {
-        val renderer: TemplateRenderer<AdaptiveGlanceTemplate, GlanceSurface, Any, String> =
+        val renderer: TemplateRenderer<GlanceAdaptiveTemplate, GlanceSurface, Any, String> =
             TemplateRenderer { _, _, hostConstraints ->
                 hostConstraints.surface.tag
             }

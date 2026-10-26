@@ -21,35 +21,34 @@ import android.appwidget.AppWidgetProviderInfo
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 
-/** Utility for detecting the target [AppWidgetGlanceSurface] from host metadata and options. */
+/** Utility for detecting the target [AppWidgetSurface] from host metadata and options. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object AppWidgetSurfaceDetector {
 
     /**
-     * Resolves the [AppWidgetGlanceSurface] from platform [AppWidgetProviderInfo.widgetCategory]
-     * integer flags.
+     * Resolves the [AppWidgetSurface] from platform [AppWidgetProviderInfo.widgetCategory] integer
+     * flags.
      *
      * @param category The widget category flag from [AppWidgetProviderInfo].
-     * @return Corresponding [AppWidgetGlanceSurface].
+     * @return Corresponding [AppWidgetSurface].
      */
-    public fun fromHostCategory(category: Int): AppWidgetGlanceSurface {
+    public fun fromHostCategory(category: Int): AppWidgetSurface {
         return when {
             (category and AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD) != 0 &&
                 (category and AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD) == 0 -> {
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN
+                AppWidgetSurface.MOBILE_LOCK_SCREEN
             }
             else -> resolveHomeScreenSurface()
         }
     }
 
     /**
-     * Resolves the [AppWidgetGlanceSurface] from runtime options bundle passed during widget
-     * updates.
+     * Resolves the [AppWidgetSurface] from runtime options bundle passed during widget updates.
      *
      * @param options The app widget options bundle passed by the host.
-     * @return Resolved [AppWidgetGlanceSurface].
+     * @return Resolved [AppWidgetSurface].
      */
-    public fun fromAppWidgetOptions(options: Bundle?): AppWidgetGlanceSurface {
+    public fun fromAppWidgetOptions(options: Bundle?): AppWidgetSurface {
         if (options == null) return resolveHomeScreenSurface()
         val category =
             options.getInt(
@@ -60,20 +59,18 @@ public object AppWidgetSurfaceDetector {
     }
 
     /**
-     * Resolves all applicable target [AppWidgetGlanceSurface]s and corresponding category bitflags
-     * for a provider's declared [widgetCategory] bitmask.
+     * Resolves all applicable target [AppWidgetSurface]s and corresponding category bitflags for a
+     * provider's declared [widgetCategory] bitmask.
      *
      * A provider can declare multiple categories (e.g. both home screen and keyguard). In addition,
      * home screen widgets are offered on the keyguard by default unless explicitly excluded with
      * [AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD]. Keyguard previews are generated only if
      * not_keyguard is false and either keyguard or home screen is supported.
      */
-    public fun resolvePreviewCategories(
-        widgetCategory: Int
-    ): List<Pair<AppWidgetGlanceSurface, Int>> {
+    public fun resolvePreviewCategories(widgetCategory: Int): List<Pair<AppWidgetSurface, Int>> {
         val categories =
             widgetCategory.takeIf { it != 0 } ?: AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
-        val results = mutableListOf<Pair<AppWidgetGlanceSurface, Int>>()
+        val results = mutableListOf<Pair<AppWidgetSurface, Int>>()
         val isNotKeyguard = (categories and AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD) != 0
         val isHomeScreen =
             (categories and AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN) != 0 ||
@@ -92,7 +89,7 @@ public object AppWidgetSurfaceDetector {
         }
         if (!isNotKeyguard && (isKeyguard || isHomeScreen)) {
             results.add(
-                AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN to
+                AppWidgetSurface.MOBILE_LOCK_SCREEN to
                     AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
             )
         }
@@ -108,9 +105,9 @@ public object AppWidgetSurfaceDetector {
         return results
     }
 
-    private fun resolveHomeScreenSurface(): AppWidgetGlanceSurface {
+    private fun resolveHomeScreenSurface(): AppWidgetSurface {
         // TODO(b/573924109): Return a legacy RemoteViews surface (homescreen_remote_views) below
         //  API 37 (CINNAMON_BUN) once RemoteCompose renderers are registered on MOBILE_HOME_SCREEN.
-        return AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+        return AppWidgetSurface.MOBILE_HOME_SCREEN
     }
 }

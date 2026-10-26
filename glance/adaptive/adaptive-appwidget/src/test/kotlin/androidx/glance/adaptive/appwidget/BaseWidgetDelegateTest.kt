@@ -32,10 +32,10 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -76,10 +76,8 @@ import org.robolectric.shadows.ShadowLog
 @RunWith(RobolectricTestRunner::class)
 class BaseWidgetDelegateTest {
 
-    private class TestTemplate(
-        override val templateName: String = "TestTemplate",
-        override val templateId: Int = 1,
-    ) : AdaptiveGlanceTemplate
+    private class TestTemplate(templateId: Int = 1) :
+        GlanceAdaptiveTemplate(templateId = templateId)
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "test_widget"
@@ -413,7 +411,7 @@ class BaseWidgetDelegateTest {
 
         assertThat(requestPin(initialData = initialData)).isTrue()
 
-        verify(mockRenderer).invoke(eq(initialData), eq(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN))
+        verify(mockRenderer).invoke(eq(initialData), eq(AppWidgetSurface.MOBILE_HOME_SCREEN))
         val extrasCaptor = argumentCaptor<Bundle>()
         verify(appWidgetManager).requestPinAppWidget(any(), extrasCaptor.capture(), anyOrNull())
         assertThat(extrasCaptor.firstValue.keySet())
@@ -813,7 +811,7 @@ class BaseWidgetDelegateTest {
             assertThat(instance.surfacePlacements.size).isEqualTo(1)
             assertThat(
                     instance.surfacePlacements.getOrDefault(
-                        AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+                        AppWidgetSurface.MOBILE_HOME_SCREEN,
                         0,
                     )
                 )
@@ -835,7 +833,7 @@ class BaseWidgetDelegateTest {
         assertThat(instance.surfacePlacements.size).isEqualTo(1)
         assertThat(
                 instance.surfacePlacements.getOrDefault(
-                    AppWidgetGlanceSurface.MOBILE_HOME_SCREEN,
+                    AppWidgetSurface.MOBILE_HOME_SCREEN,
                     0,
                 )
             )
@@ -863,9 +861,9 @@ class BaseWidgetDelegateTest {
         assertThat(instances).hasSize(1)
         val surfacePlacements = instances.single().surfacePlacements
         assertThat(surfacePlacements.size).isEqualTo(2)
-        assertThat(surfacePlacements.getOrDefault(AppWidgetGlanceSurface.MOBILE_HOME_SCREEN, 0))
+        assertThat(surfacePlacements.getOrDefault(AppWidgetSurface.MOBILE_HOME_SCREEN, 0))
             .isEqualTo(1)
-        assertThat(surfacePlacements.getOrDefault(AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN, 0))
+        assertThat(surfacePlacements.getOrDefault(AppWidgetSurface.MOBILE_LOCK_SCREEN, 0))
             .isEqualTo(1)
     }
 
@@ -963,10 +961,7 @@ class BaseWidgetDelegateTest {
         SPLIT_ROW,
     }
 
-    private class DimensionAwareTemplate : AdaptiveGlanceTemplate {
-        override val templateName: String = "dimension_template"
-        override val templateId: Int = 2
-    }
+    private class DimensionAwareTemplate : GlanceAdaptiveTemplate(templateId = 2)
 
     /**
      * Registers [DimensionAwareTemplate] with a width-based selector, reporting each rendered
@@ -974,7 +969,7 @@ class BaseWidgetDelegateTest {
      */
     private fun registerDimensionAwareTemplate(onRender: (TestArchetype) -> Unit) {
         val selector =
-            ArchetypeSelector<DimensionAwareTemplate, AppWidgetGlanceSurface, TestArchetype> {
+            ArchetypeSelector<DimensionAwareTemplate, AppWidgetSurface, TestArchetype> {
                 _,
                 constraints ->
                 if (constraints.dimensions.widthDp >= 250) TestArchetype.SPLIT_ROW
@@ -1069,7 +1064,7 @@ class BaseWidgetDelegateTest {
         val testData = TestTemplate()
         delegate().pushUpdate(widgetName = "test_widget", currentData = testData)
 
-        verify(mockRenderer).invoke(testData, AppWidgetGlanceSurface.MOBILE_HOME_SCREEN)
+        verify(mockRenderer).invoke(testData, AppWidgetSurface.MOBILE_HOME_SCREEN)
         verify(appWidgetManager).updateAppWidget(eq(intArrayOf(612)), any())
     }
 
@@ -1136,7 +1131,7 @@ class BaseWidgetDelegateTest {
     private suspend fun requestPin(
         widgetName: String = "test_widget",
         widgetId: String? = null,
-        initialData: AdaptiveGlanceTemplate? = null,
+        initialData: GlanceAdaptiveTemplate? = null,
         options: Bundle = Bundle.EMPTY,
         successCallback: PendingIntent? = null,
     ): Boolean =

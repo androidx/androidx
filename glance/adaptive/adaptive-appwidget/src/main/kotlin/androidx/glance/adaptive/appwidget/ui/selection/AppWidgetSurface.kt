@@ -18,15 +18,19 @@ package androidx.glance.adaptive.appwidget.ui.selection
 
 import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import java.util.Collections
 
 /** Standard platform AppWidget surfaces on which Glance Adaptive widgets can be placed. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public enum class AppWidgetGlanceSurface(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override val tag: String
-) : GlanceSurface {
-    /** Mobile Phone home screen launcher surface. */
-    MOBILE_HOME_SCREEN("home_screen"),
+public class AppWidgetSurface private constructor(tag: String) : GlanceSurface(tag) {
+    public companion object {
+        /** Mobile Phone home screen launcher surface. */
+        @JvmField public val MOBILE_HOME_SCREEN: AppWidgetSurface = AppWidgetSurface("home_screen")
 
-    /** Mobile Phone lockscreen surface or Keyguard glanceable surface. */
-    MOBILE_LOCK_SCREEN("keyguard"),
+        /** Mobile Phone lockscreen surface or Keyguard glanceable surface. */
+        @JvmField public val MOBILE_LOCK_SCREEN: AppWidgetSurface = AppWidgetSurface("keyguard")
+
+        internal val ALL: List<AppWidgetSurface> =
+            Collections.unmodifiableList(listOf(MOBILE_HOME_SCREEN, MOBILE_LOCK_SCREEN))
+    }
 }

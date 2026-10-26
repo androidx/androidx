@@ -25,7 +25,7 @@ import android.util.Log
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.core.WidgetInstanceInfo
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
@@ -39,12 +39,9 @@ import org.robolectric.shadows.ShadowLog
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class GlanceAdaptiveWidgetManagerAppWidgetTest {
+class GlanceAdaptiveAppWidgetManagerTest {
 
-    private class TestTemplate : AdaptiveGlanceTemplate {
-        override val templateName: String = "TestTemplate"
-        override val templateId: Int = 1
-    }
+    private class TestTemplate : GlanceAdaptiveTemplate(templateId = 1)
 
     /**
      * Delegate for a surface without AppWidgets, and therefore without dynamic previews, pinning,
@@ -55,7 +52,7 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
         override suspend fun pushUpdate(
             widgetName: String,
-            currentData: AdaptiveGlanceTemplate,
+            currentData: GlanceAdaptiveTemplate,
             widgetIds: Set<String>?,
         ) {
             callCount++
@@ -71,7 +68,7 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
     private data class RequestPinCall(
         val widgetName: String,
         val widgetId: String?,
-        val initialData: AdaptiveGlanceTemplate?,
+        val initialData: GlanceAdaptiveTemplate?,
         val options: Bundle,
         val successCallback: PendingIntent?,
     )
@@ -85,27 +82,27 @@ class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
     /** AppWidget delegate that records the previews, pin requests, and configuration results. */
     private class FakeAppWidgetDelegate : GlanceAdaptiveAppWidgetDelegate {
-        val setPreviewCalls = mutableListOf<Pair<String, AdaptiveGlanceTemplate>>()
+        val setPreviewCalls = mutableListOf<Pair<String, GlanceAdaptiveTemplate>>()
         val requestPinCalls = mutableListOf<RequestPinCall>()
         val setConfigurationResultCalls = mutableListOf<SetConfigurationResultCall>()
 
         override suspend fun pushUpdate(
             widgetName: String,
-            currentData: AdaptiveGlanceTemplate,
+            currentData: GlanceAdaptiveTemplate,
             widgetIds: Set<String>?,
         ) {}
 
         override suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =
             emptyList()
 
-        override suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
+        override suspend fun setPreview(widgetName: String, previewData: GlanceAdaptiveTemplate) {
             setPreviewCalls += widgetName to previewData
         }
 
         override suspend fun requestPin(
             widgetName: String,
             widgetId: String?,
-            initialData: AdaptiveGlanceTemplate?,
+            initialData: GlanceAdaptiveTemplate?,
             options: Bundle,
             successCallback: PendingIntent?,
         ): Boolean {
