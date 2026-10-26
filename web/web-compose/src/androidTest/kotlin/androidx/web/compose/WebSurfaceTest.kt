@@ -20,12 +20,18 @@ import android.graphics.Color
 import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +46,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -47,6 +54,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -186,6 +197,46 @@ class WebSurfaceTest {
 
         composeTestRule.waitUntil(TIMEOUT_MS) {
             abs((bridge.evaluateJs("window.innerWidth").toIntOrNull() ?: 0) - 200) <= 2
+        }
+    }
+
+    @Test
+    fun testReusedSurfaceLaysOutNewBridge() {
+        var bridge: WebViewBridge? = null
+        var key by mutableStateOf(0)
+        composeTestRule.setContent {
+            // A new key reuses the layout node: the surface is detached and attached again, at the
+            // same size, and gets a new bridge.
+            ReusableContent(key) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(150.dp),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        lateinit var firstBridge: WebViewBridge
+        var width = 0
+        var height = 0
+        composeTestRule.runOnIdle {
+            firstBridge = checkNotNull(bridge)
+            // Trigger synchronous Chromium startup so queued WebView initialization completes
+            // before WebContent is closed in tearDown.
+            firstBridge.settings
+            width = firstBridge.width
+            height = firstBridge.height
+            assertTrue(width > 0 && height > 0)
+        }
+
+        composeTestRule.runOnIdle { key++ }
+
+        composeTestRule.runOnIdle {
+            val reusedBridge = checkNotNull(bridge)
+            reusedBridge.settings
+            assertTrue(reusedBridge !== firstBridge)
+            assertEquals(width, reusedBridge.width)
+            assertEquals(height, reusedBridge.height)
         }
     }
 
@@ -390,7 +441,7 @@ class WebSurfaceTest {
     }
 
     @Test
-    fun testComposeLongClickInterop() {
+    fun testPageTakesLongPressBeforeComposeLongClick() {
         lateinit var bridge: WebViewBridge
         var longClicked = false
 
@@ -408,11 +459,310 @@ class WebSurfaceTest {
             )
         }
 
-        bridge.loadHtml("<html><body></body></html>")
+        bridge.loadHtml(
+            """
+            <html>
+            <body style='margin:0;'
+                  ontouchstart='window.touches = (window.touches || 0) + 1;'>
+                <div style='width:100vw;height:100vh;'></div>
+            </body>
+            </html>
+            """
+        )
 
+        // Like click listeners on a WebView, click handlers on the surface itself don't take the
+        // page's touches.
         composeTestRule.onNodeWithTag("surface").performTouchInput { longClick() }
-        composeTestRule.runOnIdle { assertTrue(longClicked) }
+        composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.touches") == "1" }
+        composeTestRule.runOnIdle { assertFalse(longClicked) }
     }
+
+    @Test
+    fun testPageTakesTapsBeforeClickableAncestor() {
+        lateinit var bridge: WebViewBridge
+        var ancestorClicks = 0
+
+        composeTestRule.setContent {
+            Column(modifier = Modifier.clickable { ancestorClicks++ }) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(150.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+                Box(modifier = Modifier.size(50.dp).testTag("outside"))
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+            <body style='margin:0;' onclick='window.clicks = (window.clicks || 0) + 1;'>
+                <div style='width:100vw;height:100vh;'></div>
+            </body>
+            </html>
+            """
+        )
+
+        // Like a child View, the page takes taps on the surface before click handlers around it.
+        composeTestRule.onNodeWithTag("surface", useUnmergedTree = true).performClick()
+        composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.clicks") == "1" }
+        composeTestRule.runOnIdle { assertEquals(0, ancestorClicks) }
+
+        // Taps outside the surface still reach the ancestor.
+        composeTestRule.onNodeWithTag("outside", useUnmergedTree = true).performClick()
+        composeTestRule.runOnIdle { assertEquals(1, ancestorClicks) }
+    }
+
+    @Test
+    fun testNestedScrollInLazyColumn() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 300.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        assertOverscrollReachesParent(
+            bridge = bridge,
+            listState = listState,
+            pageScrollJs = "window.scrollY",
+            swipeTowardsEnd = { swipeUp() },
+            swipeTowardsStart = { swipeDown() },
+        )
+    }
+
+    @Test
+    fun testNestedScrollDisabledKeepsGesturesThePageAsksFor() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 300.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = {
+                            WebViewBridge(it).also { b ->
+                                b.isNestedScrollingEnabled = false
+                                bridge = b
+                            }
+                        },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        // Chromium asks its parents not to intercept when it handles a touch itself, e.g. a text
+        // selection drag. Like a View child, the page then keeps the gesture.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput { down(center) }
+        composeTestRule.runOnIdle { bridge.requestDisallowInterceptTouchEvent(true) }
+        surface.performTouchInput {
+            repeat(10) { i -> moveTo(center.copy(y = center.y - 20f * (i + 1))) }
+            up()
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
+        }
+        composeTestRule.runOnIdle {
+            assertEquals(0, listState.firstVisibleItemIndex)
+            assertEquals(0, listState.firstVisibleItemScrollOffset)
+        }
+
+        // The request only lasts for that gesture, so the list takes the next drag.
+        surface.performTouchInput { swipeUp() }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }
+    }
+
+    @Test
+    fun testNestedScrollDisabledKeepsTextSelectionDrags() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 300.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = {
+                            WebViewBridge(it).also { b ->
+                                b.isNestedScrollingEnabled = false
+                                bridge = b
+                            }
+                        },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+            <body style='margin:0;font:20px/40px sans-serif;'>
+                <div>alpha</div><div>bravo</div><div>charlie</div><div>delta</div>
+            </body>
+            </html>
+            """
+        )
+
+        // Long press on "delta", then drag up to "bravo" without lifting. Chromium asks for the
+        // drag once it sees the first moves, which stay within touch slop like a real finger's,
+        // so the list doesn't get it and the selection grows.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput { down(center.copy(x = 25.dp.toPx(), y = 140.dp.toPx())) }
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("getSelection().toString()") == "\"delta\""
+        }
+        surface.performTouchInput {
+            val x = 25.dp.toPx()
+            for (dy in listOf(2, 4, 6)) moveTo(center.copy(x = x, y = (140 - dy).dp.toPx()))
+            for (i in 1..8) moveTo(center.copy(x = x, y = (134 - 9 * i).dp.toPx()))
+            up()
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("getSelection().toString()").contains("charlie")
+        }
+        composeTestRule.runOnIdle {
+            assertEquals(0, listState.firstVisibleItemIndex)
+            assertEquals(0, listState.firstVisibleItemScrollOffset)
+        }
+    }
+
+    @Test
+    fun testNestedScrollDisabledLetsParentTakeDrags() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 300.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = {
+                            WebViewBridge(it).also { b ->
+                                // On by default, unlike plain Views.
+                                assertTrue(b.isNestedScrollingEnabled)
+                                b.isNestedScrollingEnabled = false
+                                bridge = b
+                            }
+                        },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        // Even though the page could scroll, the list takes the drag, like a ScrollView taking a
+        // drag from a WebView, and the page gets a cancel.
+        composeTestRule.onNodeWithTag("surface").performTouchInput { swipeUp() }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }
+        assertEquals("0", bridge.evaluateJs("Math.round(window.scrollY)"))
+    }
+
+    @Test
+    fun testNestedScrollInLazyRow() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyRow(state = listState, modifier = Modifier.size(300.dp, 200.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "200vw", height = "100vh"))
+
+        assertOverscrollReachesParent(
+            bridge = bridge,
+            listState = listState,
+            pageScrollJs = "window.scrollX",
+            swipeTowardsEnd = { swipeLeft() },
+            swipeTowardsStart = { swipeRight() },
+        )
+    }
+
+    /**
+     * Swipes the surface past the end of the page, which should scroll the list, then swipes back
+     * and expects both at the start again.
+     */
+    private fun assertOverscrollReachesParent(
+        bridge: WebViewBridge,
+        listState: LazyListState,
+        pageScrollJs: String,
+        swipeTowardsEnd: TouchInjectionScope.() -> Unit,
+        swipeTowardsStart: TouchInjectionScope.() -> Unit,
+    ) {
+        repeat(3) { composeTestRule.onNodeWithTag("surface").performTouchInput(swipeTowardsEnd) }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round($pageScrollJs)").toIntOrNull() ?: 0) >= 150 &&
+                (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0)
+        }
+
+        repeat(3) { composeTestRule.onNodeWithTag("surface").performTouchInput(swipeTowardsStart) }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("Math.round($pageScrollJs)") == "0" &&
+                listState.firstVisibleItemIndex == 0 &&
+                listState.firstVisibleItemScrollOffset == 0
+        }
+    }
+
+    // minimum-scale stops WebView zooming out to fit content wider than the viewport, which would
+    // leave nothing to scroll horizontally.
+    private fun scrollablePageHtml(width: String, height: String) =
+        """
+        <html>
+        <head>
+            <meta name='viewport' content='width=device-width,initial-scale=1,minimum-scale=1'>
+        </head>
+        <body style='margin:0;'>
+            <div style='width:$width;height:$height;'></div>
+        </body>
+        </html>
+        """
 
     private fun findNodeByText(node: AccessibilityNodeInfo?, text: String): AccessibilityNodeInfo? {
         if (node == null) return null

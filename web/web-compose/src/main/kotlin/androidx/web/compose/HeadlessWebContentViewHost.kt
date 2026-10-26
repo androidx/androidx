@@ -107,6 +107,18 @@ internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
     // Touch input is handled directly by WebSurfaceNode.
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean = true
 
+    /**
+     * Whether [view] asked its parents not to intercept the current gesture, which Chromium does
+     * when it handles a touch itself, e.g. a text selection drag. Reset by WebSurfaceNode at the
+     * start of each gesture.
+     */
+    var disallowIntercept: Boolean = false
+
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        this.disallowIntercept = disallowIntercept
+        super.requestDisallowInterceptTouchEvent(disallowIntercept)
+    }
+
     // Key events are routed through Compose's KeyInputModifierNode on WebSurface.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean = false
 
