@@ -25,7 +25,9 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -33,6 +35,8 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -67,10 +71,9 @@ class ScrollFieldTest {
 
     @Test
     fun scrollField_selectOption() {
-        val itemCount = 10
         lateinit var state: ScrollFieldState
         rule.setContent {
-            state = rememberScrollFieldState(itemCount = itemCount, index = 0)
+            state = rememberScrollFieldState(itemCount = NonWrappingItemCount, index = 0)
             ScrollField(state = state, contentDescription = null)
         }
 
@@ -82,6 +85,32 @@ class ScrollFieldTest {
         rule
             .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "1"))
+    }
+
+    @Test
+    fun scrollField_defaultItemSpacing() {
+        rule.setContent {
+            ScrollField(
+                state = rememberScrollFieldState(itemCount = NonWrappingItemCount, index = 0),
+                contentDescription = null,
+            )
+        }
+
+        assertDistanceBetweenItemCenters(ScrollFieldDefaults.ItemHeight)
+    }
+
+    @Test
+    fun scrollField_customItemHeight() {
+        val itemHeight = 80.dp
+        rule.setContent {
+            ScrollFieldImpl(
+                state = rememberScrollFieldState(itemCount = NonWrappingItemCount, index = 0),
+                contentDescription = null,
+                itemHeight = itemHeight,
+            )
+        }
+
+        assertDistanceBetweenItemCenters(itemHeight)
     }
 
     @Test
@@ -297,4 +326,18 @@ class ScrollFieldTest {
         assertThat(stateHigh.selectedOption).isEqualTo(9)
         assertThat(stateLow.selectedOption).isEqualTo(0)
     }
+
+    private fun assertDistanceBetweenItemCenters(expected: Dp) {
+        val selectedBounds =
+            rule.onNodeWithText("00", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val nextBounds =
+            rule.onNodeWithText("01", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val selectedCenter = (selectedBounds.top + selectedBounds.bottom) / 2
+        val nextCenter = (nextBounds.top + nextBounds.bottom) / 2
+        (nextCenter - selectedCenter).assertIsEqualTo(expected, "distance between item centers")
+    }
 }
+
+// Enough items that the wheel doesn't wrap around on screen, so each item's text is shown only once
+// and onNodeWithText finds a single node.
+private const val NonWrappingItemCount = 30
