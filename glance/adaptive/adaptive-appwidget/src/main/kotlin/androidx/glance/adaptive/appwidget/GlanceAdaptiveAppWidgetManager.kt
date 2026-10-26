@@ -27,7 +27,6 @@ import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.core.ui.TemplateRenderer
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import java.lang.reflect.Modifier
 
@@ -168,8 +167,8 @@ public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
 }
 
 /**
- * Draws templates of type [T] for [widgetName] on [surface] with [selector] and [renderer] instead
- * of the library default.
+ * Draws templates of type [T] for [widgetName] on [surface] with [renderer] instead of the library
+ * default.
  *
  * - Applies to the whole process, not only to this manager. Call it from
  *   [android.app.Application.onCreate], which runs before any widget renders, even when the process
@@ -181,42 +180,34 @@ public fun GlanceAdaptiveWidgetManager.setConfigurationResult(
  * extension rather than by [GlanceAdaptiveWidgetManager] itself.
  *
  * @param T The concrete template type implementing [GlanceAdaptiveTemplate], inferred from
- *   [selector] and [renderer]. Templates are matched by their exact runtime class.
- * @param A The archetype type produced by [selector] and drawn by [renderer].
+ *   [renderer]. Templates are matched by their exact runtime class.
  * @param widgetName Developer widget definition String identifier matching
  *   [GlanceAdaptiveWidgetReceiver.widgetName].
  * @param surface The [AppWidgetSurface] to draw [T] on.
- * @param selector Resolves the layout archetype. The
+ * @param renderer Draws [T] as [AppWidgetRenderOutput]. The
  *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions] of the surface it
  *   receives may be `(0, 0)` when the host has not reported a positive size or during widget picker
  *   preview rendering, so it must handle zero dimensions.
- * @param renderer Draws the archetype chosen by [selector] as [AppWidgetRenderOutput].
  * @throws IllegalStateException if this manager is not backed by an AppWidget delegate, for example
  *   if it was created for another surface.
  * @throws IllegalArgumentException if [T] is an interface or an abstract class, as no template
  *   instance can have it as its runtime class.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public inline fun <reified T : GlanceAdaptiveTemplate, A : Any> GlanceAdaptiveWidgetManager
-    .registerRenderer(
+public inline fun <reified T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.registerRenderer(
     widgetName: String,
     surface: AppWidgetSurface,
-    // TODO(b/577977039): Take a single parameter pairing the selector and the renderer once its
-    //  shape is agreed.
-    selector: ArchetypeSelector<T, AppWidgetSurface, A>,
-    renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
-): Unit = registerRendererForClass(widgetName, surface, T::class.java, selector, renderer)
+    renderer: TemplateRenderer<T, AppWidgetSurface, AppWidgetRenderOutput>,
+): Unit = registerRendererForClass(widgetName, surface, T::class.java, renderer)
 
 /** Non-inline implementation of [registerRenderer], taking the erased [templateClass]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @PublishedApi
-internal fun <T : GlanceAdaptiveTemplate, A : Any> GlanceAdaptiveWidgetManager
-    .registerRendererForClass(
+internal fun <T : GlanceAdaptiveTemplate> GlanceAdaptiveWidgetManager.registerRendererForClass(
     widgetName: String,
     surface: AppWidgetSurface,
     templateClass: Class<T>,
-    selector: ArchetypeSelector<T, AppWidgetSurface, A>,
-    renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
+    renderer: TemplateRenderer<T, AppWidgetSurface, AppWidgetRenderOutput>,
 ) {
     // A local copy, as Kotlin can't smart cast a property declared in another module.
     val delegate = delegate
@@ -229,7 +220,6 @@ internal fun <T : GlanceAdaptiveTemplate, A : Any> GlanceAdaptiveWidgetManager
     AppWidgetTemplateRegistry.register(
         widgetName = widgetName,
         templateClass = templateClass,
-        selector = selector,
         renderer = renderer,
         surface = surface,
     )

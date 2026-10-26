@@ -25,12 +25,11 @@ import android.util.Log
 import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsRenderOutput
-import androidx.glance.adaptive.appwidget.ui.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 import androidx.glance.adaptive.core.WidgetInstanceInfo
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
+import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -296,11 +295,11 @@ class GlanceAdaptiveAppWidgetManagerTest {
         val remoteViews = RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
         val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
 
-        manager.registerRenderer<TestTemplate, Unit>(
+        manager.registerRenderer(
             widgetName = "track_widget",
             surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
-            selector = ArchetypeSelector { _, _ -> },
-            renderer = RemoteViewsTemplateRenderer { _, _, _, _ -> remoteViews },
+            renderer =
+                TemplateRenderer { _: TestTemplate, _ -> RemoteViewsRenderOutput(remoteViews) },
         )
 
         val output =
@@ -335,11 +334,10 @@ class GlanceAdaptiveAppWidgetManagerTest {
         val manager = GlanceAdaptiveWidgetManager(delegate)
 
         assertThrows(IllegalStateException::class.java) {
-            manager.registerRenderer<TestTemplate, Unit>(
+            manager.registerRenderer(
                 widgetName = "track_widget",
                 surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
-                selector = ArchetypeSelector { _, _ -> },
-                renderer = RemoteViewsTemplateRenderer { _, _, _, _ -> error("Never rendered") },
+                renderer = TemplateRenderer { _: TestTemplate, _ -> error("Never rendered") },
             )
         }
         assertThat(delegate.callCount).isEqualTo(0)
@@ -357,11 +355,11 @@ class GlanceAdaptiveAppWidgetManagerTest {
         val manager = GlanceAdaptiveWidgetManager(FakeAppWidgetDelegate())
 
         assertThrows(IllegalArgumentException::class.java) {
-            manager.registerRenderer<GlanceAdaptiveTemplate, Unit>(
+            manager.registerRenderer(
                 widgetName = "track_widget",
                 surface = AppWidgetSurface.MOBILE_HOME_SCREEN,
-                selector = ArchetypeSelector { _, _ -> },
-                renderer = RemoteViewsTemplateRenderer { _, _, _, _ -> error("Never rendered") },
+                renderer =
+                    TemplateRenderer { _: GlanceAdaptiveTemplate, _ -> error("Never rendered") },
             )
         }
     }

@@ -33,6 +33,7 @@ import android.widget.RemoteViews
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
@@ -108,10 +109,14 @@ class BaseWidgetDelegateTest {
         appWidgetManager = spy(AppWidgetManager.getInstance(context))
         GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            ArchetypeSelector { _, surface -> surface },
-            GlanceTemplateRenderer { template, _, surface -> { mockRenderer(template, surface) } },
+            TemplateRenderer(
+                ArchetypeSelector { _, surface -> surface },
+                GlanceTemplateRenderer { template, _, surface ->
+                    { mockRenderer(template, surface) }
+                },
+            ),
         )
     }
 
@@ -978,10 +983,12 @@ class BaseWidgetDelegateTest {
                 if (surface.dimensions.widthDp >= 250) TestArchetype.SPLIT_ROW
                 else TestArchetype.COMPACT_HERO
             }
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DimensionAwareTemplate::class.java,
-            selector,
-            GlanceTemplateRenderer { _, archetype, _ -> { onRender(archetype) } },
+            TemplateRenderer(
+                selector,
+                GlanceTemplateRenderer { _, archetype, _ -> { onRender(archetype) } },
+            ),
         )
     }
 
