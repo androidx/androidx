@@ -40,6 +40,11 @@ private constructor(
      */
     public val requestIndex: Int,
 ) {
+    init {
+        require(entryId.isNotBlank()) { "entryId must not be blank." }
+        require(requestIndex >= 0) { "requestIndex must be non-negative." }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OpenId4VciSelectionMetadata) return false
@@ -66,14 +71,18 @@ private constructor(
          * @param metadataJson the JSON string containing the metadata
          * @return the parsed metadata
          * @throws JSONException if the JSON is malformed or missing required keys
+         * @throws IllegalArgumentException if [entryId] is blank or [requestIndex] is negative
          */
         @Throws(JSONException::class)
         internal fun parse(metadataJson: String): OpenId4VciSelectionMetadata {
             val json = JSONObject(metadataJson)
-            return OpenId4VciSelectionMetadata(
-                entryId = json.getString(KEY_ENTRY_ID),
-                requestIndex = json.getInt(KEY_REQUEST_INDEX),
-            )
+            val entryId =
+                json.opt(KEY_ENTRY_ID) as? String
+                    ?: throw JSONException("Missing or non-string '$KEY_ENTRY_ID'")
+            val requestIndex =
+                json.opt(KEY_REQUEST_INDEX) as? Int
+                    ?: throw JSONException("Missing or non-integer '$KEY_REQUEST_INDEX'")
+            return OpenId4VciSelectionMetadata(entryId = entryId, requestIndex = requestIndex)
         }
     }
 }
