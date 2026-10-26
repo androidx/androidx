@@ -19,6 +19,7 @@ package androidx.wear.compose.material3
 import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
@@ -97,6 +98,53 @@ class TimeTextTest {
         }
         timeState.value = "Changed"
         rule.onNodeWithContentDescription("Changed").assertIsDisplayed()
+    }
+
+    @Test
+    fun localTimeSource_overrides_timeSource_by_default() {
+        val testTime = "10:10"
+        val customTimeSource =
+            object : TimeSource {
+                @Composable override fun currentTime(): String = testTime
+            }
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalTimeSource provides customTimeSource) {
+                TimeText { time ->
+                    // Use 'curvedText' instead of 'timeTextCurvedText' so that we get a content
+                    // description that can be verified.
+                    curvedText(time)
+                }
+            }
+        }
+
+        rule.onNodeWithContentDescription(testTime).assertIsDisplayed()
+    }
+
+    @Test
+    fun localTimeSource_can_be_overridden_by_explicit_parameter() {
+        val localTime = "10:10"
+        val explicitTime = "12:12"
+        val localTimeSource =
+            object : TimeSource {
+                @Composable override fun currentTime(): String = localTime
+            }
+        val explicitTimeSource =
+            object : TimeSource {
+                @Composable override fun currentTime(): String = explicitTime
+            }
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalTimeSource provides localTimeSource) {
+                TimeText(timeSource = explicitTimeSource) { time ->
+                    // Use 'curvedText' instead of 'timeTextCurvedText' so that we get a content
+                    // description that can be verified.
+                    curvedText(time)
+                }
+            }
+        }
+
+        rule.onNodeWithContentDescription(explicitTime).assertIsDisplayed()
     }
 
     @Test
@@ -200,6 +248,27 @@ class TimeTextTest {
             }
         }
         Assert.assertEquals(expectedTime, actualTime)
+    }
+
+    @Test
+    fun formats_current_time_updates_when_format_changes() {
+        val currentTimeInMillis = 1631544258000L // 2021-09-13 14:44:18
+        val format24 = "HH:mm"
+        val format12 = "h:mm"
+        val currentCalendar = Calendar.getInstance().apply { timeInMillis = currentTimeInMillis }
+        val expectedTime24 = DateFormat.format(format24, currentCalendar).toString()
+        val expectedTime12 = DateFormat.format(format12, currentCalendar).toString()
+
+        val formatState = mutableStateOf(format24)
+        var actualTime: String? = null
+        rule.setContentWithTheme {
+            actualTime = currentTime({ currentTimeInMillis }, formatState.value).value
+        }
+        rule.runOnIdle {
+            Assert.assertEquals(expectedTime24, actualTime)
+            formatState.value = format12
+        }
+        rule.runOnIdle { Assert.assertEquals(expectedTime12, actualTime) }
     }
 
     @Composable
