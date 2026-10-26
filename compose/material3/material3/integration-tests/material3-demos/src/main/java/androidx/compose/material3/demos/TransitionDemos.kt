@@ -44,6 +44,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTransitionDefaults
 import androidx.compose.material3.MaterialTransitions
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -105,7 +106,7 @@ fun HorizontalSharedAxisTransitionDemo() {
         }
     }
 
-    val scrimColor = MaterialTransitions.scrimColor
+    val scrimColor = MaterialTransitionDefaults.scrimColor
     val density = LocalDensity.current
 
     // Outer canvas frame surrounding the padded area

@@ -49,23 +49,12 @@ import kotlin.math.min
 public object MaterialTransitions {
 
     /**
-     * The recommended scrim color for navigation transitions.
+     * Provides horizontal shared axis transforms adhering to Material 3 motion specifications.
      *
-     * Uses [ColorScheme.scrim] as the base color and adjusts its opacity based on the [luminance]
-     * of [ColorScheme.surface].
-     */
-    public val scrimColor: Color
-        @Composable
-        @ReadOnlyComposable
-        get() {
-            val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
-            return MaterialTheme.colorScheme.scrim.copy(
-                alpha = if (isDark) ScrimAlphaDark else ScrimAlphaLight
-            )
-        }
-
-    /**
-     * Predefined horizontal shared axis transforms adhering to Material 3 motion specifications.
+     * Use these animations for transitions between destinations with a spatial or directional
+     * relationship, such as moving forward and backward through a screen hierarchy or sequential
+     * flow. Incoming and outgoing destinations move simultaneously along a shared horizontal (x)
+     * axis to reinforce their spatial relationship.
      *
      * These animations are consistent with the default system cross-activity navigation animations.
      * See
@@ -108,8 +97,8 @@ public object MaterialTransitions {
          * @param backEvent provider of the ongoing [NavigationEvent].
          * @param density the [Density] used to convert display bounds margins to pixels.
          * @param scrimColor color of the scrim overlay applied to the entering content. Use
-         *   [MaterialTransitions.scrimColor] for the recommended scrim color that adapts to the
-         *   theme.
+         *   [MaterialTransitionDefaults.scrimColor] for the recommended scrim color that adapts to
+         *   the theme.
          */
         public fun predictiveBackTransform(
             backEvent: () -> NavigationEvent,
@@ -257,6 +246,26 @@ public object MaterialTransitions {
         private const val InitialScale = 0.8f
         private const val TargetScale = 1.05f
     }
+}
+
+/** Contains default values for [MaterialTransitions]. */
+public object MaterialTransitionDefaults {
+
+    /**
+     * The recommended scrim color for navigation transitions.
+     *
+     * Uses [ColorScheme.scrim] as the base color and adjusts its opacity based on the [luminance]
+     * of [ColorScheme.surface].
+     */
+    public val scrimColor: Color
+        @Composable
+        @ReadOnlyComposable
+        get() {
+            val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+            return MaterialTheme.colorScheme.scrim.copy(
+                alpha = if (isDark) ScrimAlphaDark else ScrimAlphaLight
+            )
+        }
 }
 
 // -----------------------------------------------------------------------------
