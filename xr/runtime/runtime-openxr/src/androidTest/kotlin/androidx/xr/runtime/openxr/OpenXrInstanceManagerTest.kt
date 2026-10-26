@@ -56,16 +56,21 @@ class OpenXrInstanceManagerTest {
     @Test
     fun initialize_withActivityBinding_setsXrInstanceHandleAndInstanceProcAddrToNonZero() {
         val provider = OpenXrInstanceManager()
-        var unsupported: UnsatisfiedLinkError? = null
+        var unsupported: Throwable? = null
 
         activityRule.scenario.onActivity { activity ->
             try {
                 provider.initialize(activity, emptyList(), bindActivity = true)
             } catch (e: UnsatisfiedLinkError) {
+                // The prebuilt native library predates the Activity binding.
+                unsupported = e
+            } catch (e: IllegalStateException) {
+                // TODO: b/578068806 - Remove once the native library defaults to the modular
+                // OpenXR instance manager; the legacy one does not support the Activity binding.
                 unsupported = e
             }
         }
-        // Skipped while the prebuilt native library predates the Activity binding.
+        // Skipped while the native library does not support the Activity binding.
         assumeNoException(unsupported)
 
         // The values below comes from kInstance a in
