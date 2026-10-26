@@ -30,7 +30,7 @@ internal class Transformation<T>(
     container: SavedStateContainer,
     private val onUpdate: @Composable (T) -> T,
 ) {
-    private var scope: TransformScopeImpl? = null
+    private var scope: RunnableTransformScope? = null
     private val saveableStateRegistry = SaveableStateRegistry(container) { true }
 
     internal val key: Any =
@@ -53,7 +53,7 @@ internal class Transformation<T>(
         }
     }
 
-    internal fun installIn(transformScope: TransformScopeImpl) {
+    internal fun installIn(transformScope: RunnableTransformScope) {
         check(scope == null) { "Attempted to install transformation twice" }
         scope = transformScope
     }

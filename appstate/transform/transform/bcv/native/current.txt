@@ -14,7 +14,16 @@ abstract interface androidx.appstate.transform/TransformScope { // androidx.apps
     abstract fun <#A1: kotlin/Any?> launchTransform(#A1, androidx.savedstate/SavedStateContainer = ..., kotlin/Function3<#A1, androidx.compose.runtime/Composer, kotlin/Int, #A1>): androidx.appstate.transform/DisposableState<#A1> // androidx.appstate.transform/TransformScope.launchTransform|launchTransform(0:0;androidx.savedstate.SavedStateContainer;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
 }
 
+final class androidx.appstate.transform/RunnableTransformScope : androidx.appstate.transform/TransformScope { // androidx.appstate.transform/RunnableTransformScope|null[0]
+    constructor <init>() // androidx.appstate.transform/RunnableTransformScope.<init>|<init>(){}[0]
+
+    final fun <#A1: kotlin/Any?> launchTransform(#A1, androidx.savedstate/SavedStateContainer, kotlin/Function3<#A1, androidx.compose.runtime/Composer, kotlin/Int, #A1>): androidx.appstate.transform/DisposableState<#A1> // androidx.appstate.transform/RunnableTransformScope.launchTransform|launchTransform(0:0;androidx.savedstate.SavedStateContainer;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
+    final suspend fun run() // androidx.appstate.transform/RunnableTransformScope.run|run(){}[0]
+}
+
+final val androidx.appstate.transform/androidx_appstate_transform_RunnableTransformScope$stableprop // androidx.appstate.transform/androidx_appstate_transform_RunnableTransformScope$stableprop|#static{}androidx_appstate_transform_RunnableTransformScope$stableprop[0]
+
 final fun <#A: kotlin/Any?> androidx.appstate.transform/transform(#A, kotlinx.coroutines/CoroutineDispatcher?, kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, #A>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.runtime/State<#A> // androidx.appstate.transform/transform|transform(0:0;kotlinx.coroutines.CoroutineDispatcher?;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.appstate.transform/transform(#A, kotlinx.coroutines/CoroutineScope, androidx.savedstate/SavedStateContainer = ..., kotlinx.coroutines/CoroutineDispatcher = ..., kotlin/Function3<#A, androidx.compose.runtime/Composer, kotlin/Int, #A>): androidx.compose.runtime/State<#A> // androidx.appstate.transform/transform|transform(0:0;kotlinx.coroutines.CoroutineScope;androidx.savedstate.SavedStateContainer;kotlinx.coroutines.CoroutineDispatcher;kotlin.Function3<0:0,androidx.compose.runtime.Composer,kotlin.Int,0:0>){0§<kotlin.Any?>}[0]
-final fun androidx.appstate.transform/TransformScope(): androidx.appstate.transform/TransformScope // androidx.appstate.transform/TransformScope|TransformScope(){}[0]
+final fun androidx.appstate.transform/androidx_appstate_transform_RunnableTransformScope$stableprop_getter(): kotlin/Int // androidx.appstate.transform/androidx_appstate_transform_RunnableTransformScope$stableprop_getter|androidx_appstate_transform_RunnableTransformScope$stableprop_getter(){}[0]
 final suspend fun androidx.appstate.transform/listener(kotlinx.coroutines/CoroutineDispatcher = ..., kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.appstate.transform/listener|listener(kotlinx.coroutines.CoroutineDispatcher;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
