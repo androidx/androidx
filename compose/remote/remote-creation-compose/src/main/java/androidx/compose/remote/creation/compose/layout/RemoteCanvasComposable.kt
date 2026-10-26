@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.DrawWithContentModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.find
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 
@@ -31,11 +30,24 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startCanvas(recordingModifier)
 
-        val drawWithContent = modifier.find<DrawWithContentModifier>()
+        val drawModifiers =
+            modifier.foldIn(mutableListOf<DrawWithContentModifier>()) { acc, element ->
+                if (element is DrawWithContentModifier) {
+                    acc.add(element)
+                }
+                acc
+            }
 
-        if (drawWithContent != null) {
-            val drawWithContentScope = RemoteContentDrawScope(remoteCanvas, onDraw)
-            drawWithContent.onDraw(drawWithContentScope)
+        if (drawModifiers.isNotEmpty()) {
+            var currentContent: RemoteDrawScope.() -> Unit = onDraw
+            for (i in drawModifiers.lastIndex downTo 0) {
+                val drawModifier = drawModifiers[i]
+                val nextContent = currentContent
+                currentContent = {
+                    drawModifier.onDraw(RemoteContentDrawScope(remoteCanvas, nextContent))
+                }
+            }
+            RemoteDrawScope(remoteCanvas).currentContent()
         } else {
             val drawScope = RemoteDrawScope(remoteCanvas)
             drawScope.onDraw()
