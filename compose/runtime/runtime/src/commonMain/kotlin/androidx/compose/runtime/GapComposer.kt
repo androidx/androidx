@@ -1055,18 +1055,18 @@ internal class GapComposer(
         changeListWriter.sideEffect(effect)
     }
 
+    override val currentCompositionLocalMap: CompositionLocalMap
+        get() = currentCompositionLocalScope()
+
+    /**
+     * Returns the current [CompositionLocalMap] for the current group, or [providerCache] if a
+     * cached value present. [providerCache] must be reset to `null` when entering or exiting a new
+     * group to prevent a stale value from being returned.
+     */
     private fun currentCompositionLocalScope(): PersistentCompositionLocalMap {
         providerCache?.let {
             return it
         }
-        return currentCompositionLocalScope(reader.parent)
-    }
-
-    override val currentCompositionLocalMap: CompositionLocalMap
-        get() = currentCompositionLocalScope()
-
-    /** Return the current [CompositionLocal] scope which was provided by a parent group. */
-    private fun currentCompositionLocalScope(group: Int): PersistentCompositionLocalMap {
         if (inserting && writerHasAProvider) {
             var current = writer.parent
             while (current > 0) {
@@ -1081,6 +1081,14 @@ internal class GapComposer(
                 current = writer.parent(current)
             }
         }
+        return currentCompositionLocalScope(reader.parent).also { providerCache = it }
+    }
+
+    /**
+     * Resolves the current [CompositionLocalMap] for the given [group]. This does **NOT** update
+     * the [providerCache] or perform any other caching.
+     */
+    private fun currentCompositionLocalScope(group: Int): PersistentCompositionLocalMap {
         if (reader.size > 0) {
             var current = group
             while (current > 0) {
@@ -1088,16 +1096,12 @@ internal class GapComposer(
                     reader.groupKey(current) == compositionLocalMapKey &&
                         reader.groupObjectKey(current) == compositionLocalMap
                 ) {
-                    val providers =
-                        providerUpdates?.get(current)
-                            ?: reader.groupAux(current) as PersistentCompositionLocalMap
-                    providerCache = providers
-                    return providers
+                    return providerUpdates?.get(current)
+                        ?: reader.groupAux(current) as PersistentCompositionLocalMap
                 }
                 current = reader.parent(current)
             }
         }
-        providerCache = rootProvider
         return rootProvider
     }
 

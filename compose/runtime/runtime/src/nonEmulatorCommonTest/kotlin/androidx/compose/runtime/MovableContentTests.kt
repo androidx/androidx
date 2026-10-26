@@ -28,6 +28,7 @@ import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.mock.view
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.fastForEach
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -2147,6 +2148,33 @@ class MovableContentTests {
         }
 
         assertEquals(0, (composition as CompositionImpl).composer.stacksSize())
+    }
+
+    @Test // b/574059467
+    fun movableContentInvalidatesCompositionLocalCache() = compositionTest {
+        var items by mutableStateOf(listOf("A"))
+        val compositionLocal = compositionLocalOf { "default" }
+        val child = movableContentOf<String> { Text("child($it)") }
+
+        compose {
+            items.fastForEach { color ->
+                CompositionLocalProvider(compositionLocal provides color) {
+                    child(compositionLocal.current)
+                }
+            }
+            Text("outer(${compositionLocal.current})")
+        }
+
+        validate {
+            items.fastForEach {
+                Text("child($it)")
+            }
+            Text("outer(default)")
+        }
+
+        items = emptyList()
+        expectChanges()
+        revalidate()
     }
 }
 
