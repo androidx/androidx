@@ -17,6 +17,7 @@
 package androidx.web.compose
 
 import android.graphics.Color
+import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
@@ -924,6 +925,52 @@ class WebSurfaceTest {
             scope.launch { listState.scrollToItem(10) }
         }
         composeTestRule.runOnIdle { assertFalse(webContent.isAttached()) }
+    }
+
+    @Test
+    fun testRequestRectangleOnScreenBringsWebSurfaceIntoView() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 150.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp, 300.dp),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
+            }
+        }
+
+        // Scroll the WebView content and request the top of the visible viewport in content
+        // coordinates (which include scrollY). Since the top of WebSurface is already visible in
+        // the LazyColumn, the list should not scroll.
+        composeTestRule.runOnIdle {
+            (bridge as View).scrollTo(0, 500)
+            bridge.requestRectangleOnScreen(
+                Rect(0, bridge.scrollY, 100, bridge.scrollY + 10),
+                false,
+            )
+        }
+        composeTestRule.runOnIdle { assertEquals(0, listState.firstVisibleItemScrollOffset) }
+
+        // Requesting the bottom of the WebSurface viewport (also in content coordinates) should
+        // scroll the LazyColumn to reveal it.
+        composeTestRule.runOnIdle {
+            bridge.requestRectangleOnScreen(
+                Rect(
+                    0,
+                    bridge.scrollY + bridge.height - 10,
+                    100,
+                    bridge.scrollY + bridge.height,
+                ),
+                false,
+            )
+        }
+        composeTestRule.runOnIdle { assertTrue(listState.firstVisibleItemScrollOffset > 0) }
     }
 
     /**

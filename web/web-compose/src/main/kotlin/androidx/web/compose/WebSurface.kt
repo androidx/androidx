@@ -560,7 +560,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             hostView.viewTreeObserver.also { it.addOnGlobalFocusChangeListener(this) }
         (hostView as? ViewGroup)?.let { host ->
             installHostAccessibilityDelegate(host)
-            holder = HeadlessViewHolder(host.context).also(host::addView)
+            holder = HeadlessViewHolder(host.context, this).also(host::addView)
         }
         state.bridge?.let { onBridgeAttached(it) }
     }
