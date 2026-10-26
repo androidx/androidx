@@ -105,7 +105,6 @@ private constructor(
      * brush paint is not animated. If nonzero, this duration will be no greater than 2^24
      * milliseconds (about 4.66 hours).
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @get:IntRange(from = 0, to = 1 shl 24)
     // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
@@ -185,7 +184,6 @@ private constructor(
         BrushPaintNative.isCompatibleWithMeshFormat(nativePointer, meshFormat.nativePointer)
 
     /** Specifies what should happen when a brush paint animation repeats. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public class AnimationRepeatMode
     private constructor(internal val value: Int, private val name: String) {
@@ -993,7 +991,6 @@ private constructor(
          *   reverse direction. Ignored if [animationFrames] is 1 (its default value), because that
          *   indicates that animation is disabled.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         public constructor(
             clientTextureId: String,
@@ -1023,35 +1020,30 @@ private constructor(
         // Kotlin. Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be
         // applied to getters, and just applies to the backing field if there is one).
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         @get:IntRange(from = 1, to = 1 shl 24)
         public val animationFrames: Int by lazy {
             StampingTextureNative.getAnimationFrames(nativePointer)
         }
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         @get:IntRange(from = 1, to = 1 shl 12)
         public val animationRows: Int by lazy {
             StampingTextureNative.getAnimationRows(nativePointer)
         }
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         @get:IntRange(from = 1, to = 1 shl 12)
         public val animationColumns: Int by lazy {
             StampingTextureNative.getAnimationColumns(nativePointer)
         }
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         @get:IntRange(from = 0, to = 1 shl 24)
         public val animationDurationMillis: Long by lazy {
             StampingTextureNative.getAnimationDurationMillis(nativePointer)
         }
 
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         public val animationRepeatMode: AnimationRepeatMode by lazy {
             AnimationRepeatMode.fromInt(
@@ -1097,7 +1089,6 @@ private constructor(
          *
          * Java callers should use [Builder] instead.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         @Suppress("MissingJvmstatic") // no @JvmOverloads; not intended for Java callers
         public fun copy(
@@ -1202,14 +1193,12 @@ private constructor(
             }
 
             /** Sets the number of animation frames in this texture layer. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationFrames(
                 @IntRange(from = 1, to = 1 shl 24) animationFrames: Int
             ): Builder = apply { this.animationFrames = animationFrames }
 
             /** Sets the number of animation rows in this texture layer. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationRows(
                 @IntRange(from = 1, to = 1 shl 12) animationRows: Int
@@ -1218,21 +1207,18 @@ private constructor(
             }
 
             /** Sets the number of animation columns in this texture layer. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationColumns(
                 @IntRange(from = 1, to = 1 shl 12) animationColumns: Int
             ): Builder = apply { this.animationColumns = animationColumns }
 
             /** Sets the duration of the animation for this texture layer. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationDurationMillis(
                 @IntRange(from = 0, to = 1 shl 24) animationDurationMillis: Long
             ): Builder = apply { this.animationDurationMillis = animationDurationMillis }
 
             /** Sets what should happen when this texture layer's animation repeats. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationRepeatMode(animationRepeatMode: AnimationRepeatMode): Builder =
                 apply {

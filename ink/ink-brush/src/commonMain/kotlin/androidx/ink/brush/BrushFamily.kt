@@ -90,7 +90,6 @@ private constructor(
      * animated brush paints. If nonzero, this duration will be no greater than 2^24 milliseconds
      * (about 4.66 hours).
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @get:IntRange(from = 0, to = 1 shl 24)
     // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
