@@ -436,13 +436,16 @@ private fun DrawScope.executeOperationsInPass(
                 // (updateVariables ran above) into the function's parameter variables, then run its
                 // body, which writes its outputs to the context for downstream ops to read. Mirrors
                 // FloatFunctionCall.paint. FloatFunctionDefine itself has no draw effect, so it
-                // needs no case.
+                // needs no case. A call with no arguments has null args when read from the wire,
+                // but still runs the body.
                 val fn = op.function
-                val outArgs = op.outArgs
-                if (fn != null && outArgs != null) {
-                    val argIds = fn.args
-                    for (j in outArgs.indices) {
-                        if (j < argIds.size) remoteContext.loadFloat(argIds[j], outArgs[j])
+                if (fn != null) {
+                    val outArgs = op.outArgs
+                    if (outArgs != null) {
+                        val argIds = fn.args
+                        for (j in outArgs.indices) {
+                            if (j < argIds.size) remoteContext.loadFloat(argIds[j], outArgs[j])
+                        }
                     }
                     executeOperationsInPass(
                         fn.list,
