@@ -96,3 +96,92 @@ internal object MatrixDefaults {
  * The archetype a matrix selector hands to a matrix renderer.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface MatrixContent
+
+/**
+ * The main card: header, hero and action slots, top to bottom.
+ *
+ * Every slot is optional; which ones a template needs is the template's rule, not the matrix's. An
+ * absent primary component leaves its position empty, so the secondary one does not move. A
+ * selector fills a slot only when the size has room for it and the template has data for it.
+ *
+ * A card with every slot empty is valid and draws only its background, so a template with no data
+ * at a size still renders as an empty card rather than failing.
+ *
+ * The [actions] list forms the bottom row, leading to trailing, with trailing `null` entries
+ * trimmed. An absent action before a present one leaves its position empty and keeps its place, so
+ * the actions after it do not move. With no action at all, the row is hidden.
+ *
+ * @property leading Component for the leading slot, or `null` to hide it with the gap after it.
+ * @property primary Component for the primary slot, or `null` to leave it empty.
+ * @property secondary Component for the secondary slot, or `null` to hide it.
+ * @property hero Component for the hero slot, or `null` to hide it.
+ * @property actions Components for the bottom action row, leading to trailing.
+ * @property padding Padding between the widget bounds and the slots, or `null` for
+ *   [MatrixDefaults.padding].
+ * @property slotSpacing Vertical gap between the slots, or `null` for [MatrixDefaults.slotSpacing].
+ * @property cornerRadius Corner radius of the card, or `null` for [MatrixDefaults.CornerRadius].
+ */
+internal class MatrixCardContent(
+    val leading: LeadingComponent? = null,
+    val primary: PrimaryComponent? = null,
+    val secondary: SecondaryComponent? = null,
+    val hero: HeroComponent? = null,
+    actions: List<ActionComponent?> = emptyList(),
+    val padding: Dp? = null,
+    val slotSpacing: Dp? = null,
+    val cornerRadius: Dp? = null,
+) : MatrixContent {
+
+    /** The action positions of the bottom row, leading to trailing, up to the last non-null one. */
+    val actions: List<ActionComponent?> = actions.dropLastWhile { it == null }
+}
+
+/**
+ * The bulb: a single component that is the whole widget, centered in a circle, with no card.
+ *
+ * @property component Component for the bulb slot.
+ */
+internal class MatrixBulbContent(val component: BulbComponent) : MatrixContent
+
+/**
+ * A [MatrixCardContent] laid out for its container: every size and text a backend needs to draw it.
+ *
+ * Text is already what the surface shows: a sensitive text is replaced on the lock screen.
+ *
+ * @property tiers Size tiers the card was laid out at, for the components that adapt to them, such
+ *   as a graph's bar spacing.
+ * @property padding Padding between the widget bounds and the slots.
+ * @property slotSpacing Vertical gap between the slots.
+ * @property cornerRadius Corner radius of the card, or `null` for the system radius.
+ * @property stacked Whether the header slots run down rather than across.
+ * @property leading Component in the leading slot, or `null`.
+ * @property leadingSize Edge length the leading component is drawn at.
+ * @property primary Component in the primary slot, already fitted to its width budget, or `null`
+ *   when empty.
+ * @property primaryTextSize Type size of [primary].
+ * @property secondary Component in the secondary slot, or `null` when hidden.
+ * @property hero Component in the hero slot, or `null` when hidden.
+ * @property actions The action positions of the bottom row; empty when hidden.
+ */
+internal class ResolvedMatrixCard(
+    val tiers: SizeTiers,
+    val padding: Dp,
+    val slotSpacing: Dp,
+    val cornerRadius: Dp?,
+    val stacked: Boolean,
+    val leading: LeadingComponent?,
+    val leadingSize: Dp,
+    val primary: PrimaryComponent?,
+    val primaryTextSize: TextUnit,
+    val secondary: SecondaryComponent?,
+    val hero: HeroComponent?,
+    val actions: List<ActionComponent?>,
+)
+
+/**
+ * A [MatrixBulbContent] laid out for its container.
+ *
+ * @property component Component in the bulb slot.
+ * @property containerSize Diameter of the circle the component sits in.
+ */
+internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSize: Dp)
