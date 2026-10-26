@@ -1,0 +1,11 @@
+# proto-file: google3/google/corp/android/engprod/codereviewagentconfiguration/v1/agent.proto
+# proto-message: HostAgents
+
+configs: {
+  id: "code-review-agent"
+  display_name: "Code Review Agent"
+  use_default_subagents: true
+  include_filters: {
+    path_regex: ".*"
+  }
+}
