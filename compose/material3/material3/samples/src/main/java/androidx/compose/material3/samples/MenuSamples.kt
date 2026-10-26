@@ -89,7 +89,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -161,7 +165,7 @@ fun MenuSample() {
 @Composable
 fun GroupedMenuSample() {
     val groupInteractionSource = remember { MutableInteractionSource() }
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
     val groupLabels = listOf("Modification", "Navigation")
     val groupItemLabels = listOf(listOf("Edit", "Settings"), listOf("Home", "More Options"))
     val groupItemLeadingIcons =
@@ -180,9 +184,16 @@ fun GroupedMenuSample() {
         listOf(listOf(null, null), listOf(Icons.Filled.Home, Icons.Filled.MoreVert))
     val groupItemSupportingText: List<List<String?>> =
         listOf(listOf("Edit mode", null), listOf(null, "Opens menu"))
-    val checked = remember {
-        listOf(mutableStateListOf(false, false), mutableStateListOf(false, false))
-    }
+    val checked: List<SnapshotStateList<Boolean>> =
+        rememberSaveable(
+            saver =
+                listSaver(
+                    save = { groups -> groups.map { ArrayList(it) } },
+                    restore = { groups -> groups.map { it.toMutableStateList() } },
+                )
+        ) {
+            listOf(mutableStateListOf(false, false), mutableStateListOf(false, false))
+        }
 
     Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
         // Icon button should have a tooltip associated with it for a11y.
