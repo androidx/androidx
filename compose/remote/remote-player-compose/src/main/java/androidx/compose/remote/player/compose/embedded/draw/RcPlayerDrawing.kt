@@ -86,6 +86,9 @@ import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
+import androidx.compose.remote.core.operations.matrix.MatrixConstant
+import androidx.compose.remote.core.operations.matrix.MatrixExpression
+import androidx.compose.remote.core.operations.matrix.MatrixVectorMath
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.applyTrackingPathChange
@@ -407,6 +410,27 @@ private fun DrawScope.executeOperationsInPass(
             is PathExpression -> op.apply(remoteContext)
             is PathTween -> applyPathTween(op, remoteContext, read)
             is PathCombine -> applyPathCombine(op, remoteContext, read)
+            is MatrixConstant -> {
+                if (remoteContext.getObject(op.id) !== op) {
+                    op.apply(remoteContext)
+                }
+            }
+            is MatrixExpression -> {
+                if (remoteContext.getObject(op.id) !== op) {
+                    remoteContext.putObject(op.id, op)
+                }
+                // Evaluate into op.mValues via `read`: GraphContext drops putObject and the
+                // nanoTime loadFloat notification so draw does not dirty SnapshotStateMaps.
+                op.apply(read)
+            }
+            is MatrixVectorMath -> {
+                val matrix = read.getObject(op.mMatrixId)
+                if (matrix is MatrixExpression) {
+                    matrix.updateVariables(read)
+                    matrix.apply(read)
+                }
+                op.apply(remoteContext)
+            }
             is ComponentValue -> {
                 val w = this.size.width
                 val h = this.size.height

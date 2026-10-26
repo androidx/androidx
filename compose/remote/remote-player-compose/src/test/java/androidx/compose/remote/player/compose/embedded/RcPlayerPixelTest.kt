@@ -18,6 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Bitmap
 import android.graphics.Color as AndroidColor
+import android.graphics.Matrix as AndroidMatrix
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
@@ -39,18 +40,25 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.drawWithContent
+import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
+import androidx.compose.remote.creation.compose.shaders.image
+import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.testing.RemoteCaptureTestRule
@@ -60,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -532,5 +541,277 @@ class RcPlayerPixelTest {
         assertThat(AndroidColor.red(centerPixel)).isGreaterThan(200)
         assertThat(AndroidColor.green(centerPixel)).isLessThan(50)
         assertThat(AndroidColor.blue(centerPixel)).isLessThan(50)
+    }
+
+    @Test
+    fun drawWithContent_chainedModifiersWithPadding_drawsOuterAndInnerInOrder() {
+        val bmp = renderPlayerToBitmap {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp)
+                        .drawWithContent {
+                            drawRect(
+                                paint = RemotePaint { color = Color.Red.rc },
+                                topLeft = RemoteOffset.Zero,
+                                size = size,
+                            )
+                            drawContent()
+                            drawRect(
+                                paint = RemotePaint { color = Color.Green.rc },
+                                topLeft = RemoteOffset.Zero,
+                                size = RemoteSize(width, 10f.rf),
+                            )
+                        }
+                        .padding(20.rdp)
+                        .drawWithContent {
+                            drawRect(
+                                paint = RemotePaint { color = Color.Blue.rc },
+                                topLeft = RemoteOffset.Zero,
+                                size = size,
+                            )
+                            drawContent()
+                        }
+            ) {}
+        }
+
+        // Top 10px strip was drawn after drawContent() by the outer modifier -> Green
+        val topStrip = bmp.getPixel(50, 5)
+        assertThat(AndroidColor.green(topStrip)).isGreaterThan(200)
+        assertThat(AndroidColor.red(topStrip)).isLessThan(50)
+
+        // Outer padding band (outside 20..80) -> Red
+        val outerBand = bmp.getPixel(10, 50)
+        assertThat(AndroidColor.red(outerBand)).isGreaterThan(200)
+        assertThat(AndroidColor.blue(outerBand)).isLessThan(50)
+
+        // Inner padded content area (inside 20..80) -> Blue
+        val innerCenter = bmp.getPixel(50, 50)
+        assertThat(AndroidColor.blue(innerCenter)).isGreaterThan(200)
+        assertThat(AndroidColor.red(innerCenter)).isLessThan(50)
+    }
+
+    @Test
+    fun remoteCanvas_chainedDrawWithContent_drawsInOuterToInnerOrder() {
+        val bmp = renderPlayerToBitmap {
+            RemoteCanvas(
+                modifier =
+                    RemoteModifier.size(100.rdp)
+                        .drawWithContent {
+                            drawRect(
+                                paint = RemotePaint { color = Color.Red.rc },
+                                topLeft = RemoteOffset.Zero,
+                                size = RemoteSize(100f.rf, 100f.rf),
+                            )
+                            drawContent()
+                            drawRect(
+                                paint = RemotePaint { color = Color.Green.rc },
+                                topLeft = RemoteOffset.Zero,
+                                size = RemoteSize(100f.rf, 10f.rf),
+                            )
+                        }
+                        .drawWithContent {
+                            drawRect(
+                                paint = RemotePaint { color = Color.Blue.rc },
+                                topLeft = RemoteOffset(20f.rf, 20f.rf),
+                                size = RemoteSize(60f.rf, 60f.rf),
+                            )
+                            drawContent()
+                        }
+            ) {
+                drawRect(
+                    paint = RemotePaint { color = Color.Yellow.rc },
+                    topLeft = RemoteOffset(40f.rf, 40f.rf),
+                    size = RemoteSize(20f.rf, 20f.rf),
+                )
+            }
+        }
+
+        val topStrip = bmp.getPixel(50, 5)
+        assertThat(AndroidColor.green(topStrip)).isGreaterThan(200)
+        val outerPixel = bmp.getPixel(10, 50)
+        assertThat(AndroidColor.red(outerPixel)).isGreaterThan(200)
+        val midPixel = bmp.getPixel(25, 50)
+        assertThat(AndroidColor.blue(midPixel)).isGreaterThan(200)
+        val centerPixel = bmp.getPixel(50, 50)
+        assertThat(AndroidColor.red(centerPixel)).isGreaterThan(200)
+        assertThat(AndroidColor.green(centerPixel)).isGreaterThan(200)
+        assertThat(AndroidColor.blue(centerPixel)).isLessThan(50)
+    }
+
+    @Test
+    fun duplicateDrawContentOperationsOnWire_executesCanvasOperationsOnce() {
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        writer.root {
+            writer.startBox(
+                RecordingModifier()
+                    .size(100, 100)
+                    .background(AndroidColor.BLACK)
+                    .drawContent()
+                    .drawContent()
+            )
+            writer.startCanvasOperations()
+            writer.getRcPaint().setColor(0x40FFFFFF).commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+            writer.drawComponentContent()
+            writer.endCanvasOperations()
+            writer.endBox()
+        }
+        val bytes = writer.buffer()
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val center = Color(bitmap.getPixel(50, 50))
+        // Drawn once -> ~0.25f; if executed twice due to duplicate DrawContentOperation -> ~0.44f
+        assertThat(center.red).isWithin(0.06f).of(0.25f)
+    }
+
+    @Test
+    fun paintColorAlpha_dimsGradientBrushAndBitmap() {
+        val whiteBitmap =
+            Bitmap.createBitmap(50, 100, Bitmap.Config.ARGB_8888)
+                .apply { eraseColor(AndroidColor.WHITE) }
+                .asImageBitmap()
+
+        val bmp = renderPlayerToBitmap {
+            val remoteImage = remember {
+                createNamedRemoteImageBitmap("white_bitmap_alpha") { whiteBitmap }
+            }
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp).background(Color.Black.rc).drawWithContent {
+                        // Left half: drawImage with paint.color alpha = 0.25f
+                        drawImage(
+                            image = remoteImage,
+                            topLeft = RemoteOffset.Zero,
+                            paint = RemotePaint { color = Color.White.rc.copy(alpha = 0.25f.rf) },
+                        )
+
+                        // Right half: Gradient brush with paint.color alpha = 0.25f
+                        val gradPaint = RemotePaint {
+                            with(RemoteBrush.verticalGradient(listOf(Color.Red.rc, Color.Red.rc))) {
+                                applyTo(this@RemotePaint, size)
+                            }
+                            color = color.copy(alpha = 0.25f.rf)
+                        }
+                        drawRect(
+                            paint = gradPaint,
+                            topLeft = RemoteOffset(50f.rf, 0f.rf),
+                            size = RemoteSize(50f.rf, 100f.rf),
+                        )
+                        drawContent()
+                    }
+            ) {}
+        }
+
+        val leftCenter = Color(bmp.getPixel(25, 50))
+        assertThat(leftCenter.red).isWithin(0.05f).of(0.25f)
+        assertThat(leftCenter.green).isWithin(0.05f).of(0.25f)
+        assertThat(leftCenter.blue).isWithin(0.05f).of(0.25f)
+
+        val rightCenter = Color(bmp.getPixel(75, 50))
+        assertThat(rightCenter.red).isWithin(0.05f).of(0.25f)
+        assertThat(rightCenter.green).isLessThan(0.05f)
+        assertThat(rightCenter.blue).isLessThan(0.05f)
+    }
+
+    @Test
+    fun imageBrushWithContentScale_appliesMatrixExpressionAndPaintColorAlpha() {
+        // 200x100 bitmap: left/right 50px bands are BLUE, middle 100px band is WHITE.
+        // Cropped into a 100x100 square with ContentScale.Crop, the outer BLUE bands are cropped
+        // away and the center WHITE band fills the square at alpha = 0.25f.
+        val splitBitmap =
+            Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888)
+                .apply {
+                    for (y in 0 until 100) {
+                        for (x in 0 until 200) {
+                            setPixel(
+                                x,
+                                y,
+                                if (x in 50 until 150) AndroidColor.WHITE else AndroidColor.BLUE,
+                            )
+                        }
+                    }
+                }
+                .asImageBitmap()
+
+        val bmp = renderPlayerToBitmap {
+            val remoteImage = remember {
+                createNamedRemoteImageBitmap("split_shader_img") { splitBitmap }
+            }
+            RemoteBox(
+                modifier =
+                    RemoteModifier.size(100.rdp).background(Color.Black.rc).drawWithContent {
+                        val imgPaint = RemotePaint {
+                            with(RemoteBrush.image(remoteImage, contentScale = ContentScale.Crop)) {
+                                applyTo(this@RemotePaint, size)
+                            }
+                            color = color.copy(alpha = 0.25f.rf)
+                        }
+                        drawRect(paint = imgPaint, topLeft = RemoteOffset.Zero, size = size)
+                        drawContent()
+                    }
+            ) {}
+        }
+
+        // Near the left edge (x=10), ContentScale.Crop shifts x=50..150 into 0..100 -> dimmed WHITE
+        // (without MatrixExpression, x=10 would sample unshifted x=10 -> BLUE!)
+        val leftEdge = Color(bmp.getPixel(10, 50))
+        assertThat(leftEdge.red).isWithin(0.05f).of(0.25f)
+        assertThat(leftEdge.green).isWithin(0.05f).of(0.25f)
+        assertThat(leftEdge.blue).isWithin(0.05f).of(0.25f)
+    }
+
+    @Test
+    fun matrixConstant_appliesShaderMatrix() {
+        val splitAndroidBitmap =
+            Bitmap.createBitmap(200, 100, Bitmap.Config.ARGB_8888).apply {
+                for (y in 0 until 100) {
+                    for (x in 0 until 200) {
+                        setPixel(x, y, if (x >= 100) AndroidColor.GREEN else AndroidColor.BLUE)
+                    }
+                }
+            }
+        val writer = RemoteComposeWriterAndroid(100, 100, "test", AndroidxRcPlatformServices())
+        val bitmapId = writer.addBitmap(splitAndroidBitmap)
+        val matrixId = writer.addMatrixConst(AndroidMatrix().apply { setTranslate(-100f, 0f) })
+        writer.root {
+            writer
+                .getRcPaint()
+                .setTextureShader(bitmapId, 0, 0, 0, 0)
+                .setShaderMatrix(matrixId)
+                .commit()
+            writer.drawRect(0f, 0f, 100f, 100f)
+        }
+        val bytes = writer.buffer()
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes, 0, writer.bufferSize()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        val center = Color(bitmap.getPixel(50, 50))
+        assertThat(center.green).isGreaterThan(0.8f)
+        assertThat(center.blue).isLessThan(0.2f)
     }
 }

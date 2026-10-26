@@ -236,7 +236,9 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
 
     override fun updateObject(id: Int, item: Any) {
         super.updateObject(id, item)
-        objects[id] = item
+        if (objects[id] !== item) {
+            objects[id] = item
+        }
     }
 
     override fun overrideData(id: Int, item: Any) {

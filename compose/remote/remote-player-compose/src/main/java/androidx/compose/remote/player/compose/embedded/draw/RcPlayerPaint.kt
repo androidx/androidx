@@ -78,8 +78,8 @@ public class ComposeLocalPaint {
     internal var fontAxis: IntArray? = null
     internal var fontAxisValues: FloatArray? = null
     public var brush: Brush? = null
-    // The framework shader backing [brush] (SHADER/TEXTURE), kept so SHADER_MATRIX can set a local
-    // matrix on it.
+    // The framework shader backing [brush] (SHADER/TEXTURE/GRADIENT), kept so SHADER_MATRIX can set
+    // a local matrix on it.
     public var nativeShader: Shader? = null
     public var colorFilter: ColorFilter? = null
     public var blendMode: BlendMode = BlendMode.SrcOver
@@ -100,6 +100,12 @@ public class ComposeLocalPaint {
 
     /** The fill color with the paint's [alpha] folded into its alpha channel. */
     public fun effectiveColor(): Color = Color(color).let { it.copy(alpha = it.alpha * alpha) }
+
+    /**
+     * Combined paint alpha in `[0, 1]` folding the paint color's alpha channel with [alpha],
+     * matching framework `Paint` behavior when drawing shaders/brushes and bitmaps.
+     */
+    internal fun effectiveAlpha(): Float = (Color(color).alpha * alpha).coerceIn(0f, 1f)
 
     internal fun toDrawStyle(): DrawStyle =
         if (isStroke) {
@@ -190,7 +196,7 @@ public class ComposeLocalPaint {
         return if (brush != null) {
             TextStyle(
                 brush = brush,
-                alpha = alpha,
+                alpha = effectiveAlpha(),
                 fontSize = fontSizeSp,
                 fontWeight = weight,
                 fontStyle = fontStyle,
@@ -293,6 +299,7 @@ internal fun mapTileMode(mode: Int): TileMode =
     when (mode) {
         1 -> TileMode.Repeated
         2 -> TileMode.Mirror
+        3 -> TileMode.Decal
         else -> TileMode.Clamp
     }
 

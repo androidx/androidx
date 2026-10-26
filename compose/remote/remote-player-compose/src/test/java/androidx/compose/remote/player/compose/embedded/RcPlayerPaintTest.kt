@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import android.graphics.Matrix
 import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.operations.ClipPath
@@ -23,9 +24,11 @@ import androidx.compose.remote.core.operations.DrawCircle
 import androidx.compose.remote.core.operations.DrawOval
 import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.derefId
+import androidx.compose.remote.player.compose.embedded.draw.mapTileMode
 import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
 import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -33,6 +36,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.TileMode
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -334,5 +339,66 @@ class RcPlayerPaintTest {
         val filterBundle = PaintBundle().apply { setFilterBitmap(true) }
         updatePaintFromBundle(filterBundle, paintState, remoteContext)
         assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
+    }
+
+    @Test
+    fun mapTileMode_mapsDecalAndStandardModes() {
+        assertThat(mapTileMode(0)).isEqualTo(TileMode.Clamp)
+        assertThat(mapTileMode(1)).isEqualTo(TileMode.Repeated)
+        assertThat(mapTileMode(2)).isEqualTo(TileMode.Mirror)
+        assertThat(mapTileMode(3)).isEqualTo(TileMode.Decal)
+        assertThat(mapTileMode(99)).isEqualTo(TileMode.Clamp)
+    }
+
+    @Test
+    fun updatePaintFromBundle_gradientPopulatesNativeShaderForShaderMatrix() {
+        val remoteContext = AndroidRemoteContext()
+        val matrixId = 77
+        val matrixValues = floatArrayOf(2f, 0f, 15f, 0f, 3f, 25f, 0f, 0f, 1f)
+        remoteContext.putObject(matrixId, MatrixConstant(matrixId, 0, matrixValues))
+
+        val bundle =
+            PaintBundle().apply {
+                setLinearGradient(
+                    intArrayOf(0xFFFF0000.toInt(), 0xFF0000FF.toInt()),
+                    0,
+                    null,
+                    0f,
+                    0f,
+                    100f,
+                    0f,
+                    0,
+                )
+                setShaderMatrix(Utils.asNan(matrixId))
+            }
+
+        val paintState = ComposeLocalPaint()
+        updatePaintFromBundle(bundle, paintState, remoteContext)
+
+        val shader = paintState.nativeShader
+        assertThat(shader).isNotNull()
+        val localMatrix = Matrix()
+        assertThat(shader!!.getLocalMatrix(localMatrix)).isTrue()
+        val actualValues = FloatArray(9)
+        localMatrix.getValues(actualValues)
+        assertThat(actualValues).isEqualTo(matrixValues)
+
+        // Degenerate zero-length gradient falls back to SolidColor and clears nativeShader.
+        val degenerateBundle =
+            PaintBundle().apply {
+                setLinearGradient(
+                    intArrayOf(0xFF00FF00.toInt(), 0xFF0000FF.toInt()),
+                    0,
+                    null,
+                    10f,
+                    10f,
+                    10f,
+                    10f,
+                    0,
+                )
+            }
+        updatePaintFromBundle(degenerateBundle, paintState, remoteContext)
+        assertThat(paintState.nativeShader).isNull()
+        assertThat(paintState.brush).isInstanceOf(SolidColor::class.java)
     }
 }

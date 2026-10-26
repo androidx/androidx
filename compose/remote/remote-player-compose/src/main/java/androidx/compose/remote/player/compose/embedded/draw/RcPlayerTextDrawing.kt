@@ -492,7 +492,7 @@ internal fun DrawScope.drawBitmapFontTextOnPathOp(
                     }) {
                         drawImage(
                             image = glyphBitmap.asImageBitmap(),
-                            alpha = paintState.alpha,
+                            alpha = paintState.effectiveAlpha(),
                         )
                     }
                 }

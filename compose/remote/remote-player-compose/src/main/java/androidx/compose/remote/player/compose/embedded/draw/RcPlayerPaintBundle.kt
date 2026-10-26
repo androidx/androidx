@@ -30,6 +30,7 @@ import androidx.compose.remote.core.MatrixAccess
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.matrix.MatrixExpression
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintPathEffects
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
@@ -45,9 +46,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.RadialGradientShader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.SweepGradientShader
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.asImageBitmap
@@ -134,6 +138,10 @@ private fun applyShaderMatrix(paintState: ComposeLocalPaint, matrixWord: Int, re
         return
     }
     val matrix = read.getObject(id) as? MatrixAccess ?: return
+    if (matrix is MatrixExpression) {
+        matrix.updateVariables(read)
+        matrix.apply(read)
+    }
     val values = matrix.get()
     // MatrixAccess.to3x3: a 4x4 (16) collapses to the 3x3 (9) android Matrix layout; a 9 is as-is.
     val m3x3 =
@@ -360,9 +368,9 @@ public fun updatePaintFromBundle(
                         }
                     }
                 }
-                val colorStops: Array<Pair<Float, Color>>? =
+                val colorStopsList: List<Float>? =
                     if (stopsAscending) {
-                        Array(colorsList.size) { stops[it] to colorsList[it] }
+                        stops.asList()
                     } else {
                         null
                     }
@@ -385,22 +393,18 @@ public fun updatePaintFromBundle(
                                 endY.isFinite() &&
                                 (startX != endX || startY != endY)
                         ) {
-                            paintState.brush =
-                                if (colorStops != null)
-                                    Brush.linearGradient(
-                                        colorStops = colorStops,
-                                        start = start,
-                                        end = end,
-                                        tileMode = tm,
-                                    )
-                                else
-                                    Brush.linearGradient(
-                                        colors = colorsList,
-                                        start = start,
-                                        end = end,
-                                        tileMode = tm,
-                                    )
+                            val shader =
+                                LinearGradientShader(
+                                    from = start,
+                                    to = end,
+                                    colors = colorsList,
+                                    colorStops = colorStopsList,
+                                    tileMode = tm,
+                                )
+                            paintState.nativeShader = shader
+                            paintState.brush = nativeShaderBrush(shader)
                         } else if (colorsList.isNotEmpty()) {
+                            paintState.nativeShader = null
                             paintState.brush = SolidColor(colorsList[0])
                         }
                     }
@@ -418,22 +422,18 @@ public fun updatePaintFromBundle(
                                 radius.isFinite() &&
                                 radius > 0
                         ) {
-                            paintState.brush =
-                                if (colorStops != null)
-                                    Brush.radialGradient(
-                                        colorStops = colorStops,
-                                        center = center,
-                                        radius = radius,
-                                        tileMode = tm,
-                                    )
-                                else
-                                    Brush.radialGradient(
-                                        colors = colorsList,
-                                        center = center,
-                                        radius = radius,
-                                        tileMode = tm,
-                                    )
+                            val shader =
+                                RadialGradientShader(
+                                    center = center,
+                                    radius = radius,
+                                    colors = colorsList,
+                                    colorStops = colorStopsList,
+                                    tileMode = tm,
+                                )
+                            paintState.nativeShader = shader
+                            paintState.brush = nativeShaderBrush(shader)
                         } else if (colorsList.isNotEmpty()) {
+                            paintState.nativeShader = null
                             paintState.brush = SolidColor(colorsList[0])
                         }
                     }
@@ -442,11 +442,16 @@ public fun updatePaintFromBundle(
                         val centerY = resolvePaintFloat(array[i++], remoteContext)
                         val center = Offset(centerX, centerY)
                         if (colorsList.size >= 2 && centerX.isFinite() && centerY.isFinite()) {
-                            paintState.brush =
-                                if (colorStops != null)
-                                    Brush.sweepGradient(colorStops = colorStops, center = center)
-                                else Brush.sweepGradient(colors = colorsList, center = center)
+                            val shader =
+                                SweepGradientShader(
+                                    center = center,
+                                    colors = colorsList,
+                                    colorStops = colorStopsList,
+                                )
+                            paintState.nativeShader = shader
+                            paintState.brush = nativeShaderBrush(shader)
                         } else if (colorsList.isNotEmpty()) {
+                            paintState.nativeShader = null
                             paintState.brush = SolidColor(colorsList[0])
                         }
                     }
