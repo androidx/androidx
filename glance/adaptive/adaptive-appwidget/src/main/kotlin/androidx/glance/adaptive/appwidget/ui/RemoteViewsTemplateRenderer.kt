@@ -23,7 +23,7 @@ import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Render output backed directly by a [RemoteViews] instance or provider.
@@ -57,13 +57,13 @@ internal class RemoteViewsRenderOutput(val provider: (Context) -> RemoteViews) :
  * A [TemplateRenderer] that produces [RemoteViews] directly for a template [T], archetype [A], and
  * surface [S].
  *
- * @param T The type of [AdaptiveGlanceTemplate] data payload this renderer consumes.
+ * @param T The type of [GlanceAdaptiveTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface RemoteViewsTemplateRenderer<
-    in T : AdaptiveGlanceTemplate,
+    in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
 > : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {

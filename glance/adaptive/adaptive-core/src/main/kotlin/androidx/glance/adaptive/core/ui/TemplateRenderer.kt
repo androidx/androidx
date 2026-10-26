@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Rendering contract turning a template of type [T], laid out as archetype [A] under
@@ -40,14 +40,14 @@ import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
  * Implementations must be pure: [render] is expected to *produce* content rather than emit it, so
  * that resolution can be exercised in a plain unit test, outside of any host runtime.
  *
- * @param T The template type implementing [AdaptiveGlanceTemplate].
+ * @param T The template type implementing [GlanceAdaptiveTemplate].
  * @param S The surface type implementing [GlanceSurface].
  * @param A The archetype type produced by the paired [ArchetypeSelector].
  * @param R The host content type produced by [render].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface TemplateRenderer<
-    in T : AdaptiveGlanceTemplate,
+    in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
     out R,

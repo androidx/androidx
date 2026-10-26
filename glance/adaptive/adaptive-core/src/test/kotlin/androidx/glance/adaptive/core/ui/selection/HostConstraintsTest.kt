@@ -21,8 +21,8 @@ import org.junit.Test
 
 class HostConstraintsTest {
 
-    private val homeScreen = GlanceSurface.of("home_screen")
-    private val lockScreen = GlanceSurface.of("lock_screen")
+    private val homeScreen = GlanceSurface.fromTag("home_screen")
+    private val lockScreen = GlanceSurface.fromTag("lock_screen")
 
     @Test
     fun equalsHashCode_sameValues_areEqual() {
@@ -69,5 +69,5 @@ class HostConstraintsTest {
         assertThat(widened.surface.tag).isEqualTo("custom")
     }
 
-    private data class NamedSurface(override val tag: String) : GlanceSurface
+    private class NamedSurface(tag: String) : GlanceSurface(tag)
 }

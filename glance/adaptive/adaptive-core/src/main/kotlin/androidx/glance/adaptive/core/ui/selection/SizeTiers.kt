@@ -159,7 +159,7 @@ public class SizeTiers(public val width: WidthTier, public val height: HeightTie
          * Resolves the canonical baseline [SizeTiers] for given container [dimensions].
          *
          * Specific host modules provide overloaded [from] extension methods taking host surfaces
-         * (e.g. `AppWidgetGlanceSurface`, `WearGlanceSurface`) for surface-specific breakpoints.
+         * (e.g. `AppWidgetSurface`, `WearWidgetSurface`) for surface-specific breakpoints.
          *
          * @param dimensions Active container dimensions in DP.
          * @return Resolved [SizeTiers].

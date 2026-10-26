@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Internal interface abstracting the surface-specific implementations of widget operations.
@@ -39,7 +39,7 @@ public interface GlanceAdaptiveWidgetDelegate {
      */
     public suspend fun pushUpdate(
         widgetName: String,
-        currentData: AdaptiveGlanceTemplate,
+        currentData: GlanceAdaptiveTemplate,
         widgetIds: Set<String>? = null,
     )
 

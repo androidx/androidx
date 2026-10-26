@@ -23,11 +23,11 @@ import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetGlanceSurface
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.HostConstraints
-import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -41,15 +41,9 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class AppWidgetTemplateRegistryTest {
 
-    private data class DummyTemplate(val title: String) : AdaptiveGlanceTemplate {
-        override val templateName: String = "DummyTemplate"
-        override val templateId: Int = 1
-    }
+    private data class DummyTemplate(val title: String) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private data class OtherTemplate(val label: String) : AdaptiveGlanceTemplate {
-        override val templateName: String = "OtherTemplate"
-        override val templateId: Int = 2
-    }
+    private data class OtherTemplate(val label: String) : GlanceAdaptiveTemplate(templateId = 2)
 
     private enum class DummyArchetype {
         CARD,
@@ -57,9 +51,9 @@ class AppWidgetTemplateRegistryTest {
     }
 
     private val noArchetype =
-        ArchetypeSelector<AdaptiveGlanceTemplate, AppWidgetGlanceSurface, Unit> { _, _ -> }
+        ArchetypeSelector<GlanceAdaptiveTemplate, AppWidgetSurface, Unit> { _, _ -> }
 
-    private val surface = AppWidgetGlanceSurface.MOBILE_HOME_SCREEN
+    private val surface = AppWidgetSurface.MOBILE_HOME_SCREEN
 
     @Before
     fun setUp() {
@@ -69,7 +63,7 @@ class AppWidgetTemplateRegistryTest {
     @Test
     fun register_and_render_invokesRegisteredRenderer() {
         var observedTemplate: DummyTemplate? = null
-        var observedConstraints: HostConstraints<AppWidgetGlanceSurface>? = null
+        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
         var rendered = false
 
         AppWidgetTemplateRegistry.register(
@@ -212,18 +206,18 @@ class AppWidgetTemplateRegistryTest {
             DummyTemplate::class.java,
             noArchetype,
             RemoteViewsTemplateRenderer { _, _, _, _ -> lockScreenRemoteViews },
-            surface = AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN,
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
         )
 
         val homeOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_HOME_SCREEN),
             )
         val lockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
             )
 
         assertThat(homeOutput).isInstanceOf(RemoteComposeRenderOutput::class.java)
@@ -250,31 +244,31 @@ class AppWidgetTemplateRegistryTest {
             templateClass = DummyTemplate::class.java,
             selector = noArchetype,
             renderer = RemoteViewsTemplateRenderer { _, _, _, _ -> customRemoteViews },
-            surface = AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN,
+            surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
         )
 
         val customLockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
                 widgetName = "custom_widget",
             )
         val customHomeOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_HOME_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_HOME_SCREEN),
                 widgetName = "custom_widget",
             )
         val defaultWidgetLockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
                 widgetName = "other_widget",
             )
         val otherTemplateOnCustomWidgetOutput =
             AppWidgetTemplateRegistry.render(
                 OtherTemplate("Other"),
-                HostConstraints(Dimensions(200, 100), AppWidgetGlanceSurface.MOBILE_LOCK_SCREEN),
+                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
                 widgetName = "custom_widget",
             )
 

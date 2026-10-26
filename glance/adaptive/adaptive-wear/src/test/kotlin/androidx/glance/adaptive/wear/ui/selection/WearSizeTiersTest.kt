@@ -27,7 +27,7 @@ class WearSizeTiersTest {
 
     @Test
     fun widthTier_fromDp_widgetBreakpoints() {
-        val surface = WearGlanceSurface.WIDGET
+        val surface = WearWidgetSurface.WIDGET
         assertThat(WearSizeTiers.resolveWidthTier(100, surface)).isEqualTo(WidthTier.W1)
         assertThat(WearSizeTiers.resolveWidthTier(139, surface)).isEqualTo(WidthTier.W1)
         assertThat(WearSizeTiers.resolveWidthTier(140, surface)).isEqualTo(WidthTier.W2)
@@ -36,27 +36,27 @@ class WearSizeTiersTest {
 
     @Test
     fun heightTier_fromDp_widgetBreakpoints() {
-        assertThat(WearSizeTiers.resolveHeightTier(100, WearGlanceSurface.WIDGET))
+        assertThat(WearSizeTiers.resolveHeightTier(100, WearWidgetSurface.WIDGET))
             .isEqualTo(HeightTier.H1)
-        assertThat(WearSizeTiers.resolveHeightTier(139, WearGlanceSurface.WIDGET))
+        assertThat(WearSizeTiers.resolveHeightTier(139, WearWidgetSurface.WIDGET))
             .isEqualTo(HeightTier.H1)
-        assertThat(WearSizeTiers.resolveHeightTier(140, WearGlanceSurface.WIDGET))
+        assertThat(WearSizeTiers.resolveHeightTier(140, WearWidgetSurface.WIDGET))
             .isEqualTo(HeightTier.H2)
-        assertThat(WearSizeTiers.resolveHeightTier(160, WearGlanceSurface.WIDGET))
+        assertThat(WearSizeTiers.resolveHeightTier(160, WearWidgetSurface.WIDGET))
             .isEqualTo(HeightTier.H2)
     }
 
     @Test
     fun sizeTiers_from_matchesExpectedTiersAndDestructuring() {
-        val (w, h) = WearSizeTiers.from(135, 160, WearGlanceSurface.WIDGET)
+        val (w, h) = WearSizeTiers.from(135, 160, WearWidgetSurface.WIDGET)
         assertThat(w).isEqualTo(WidthTier.W1)
         assertThat(h).isEqualTo(HeightTier.H2)
 
-        val sizeTiers = WearSizeTiers.from(Dimensions(135, 160), WearGlanceSurface.WIDGET)
+        val sizeTiers = WearSizeTiers.from(Dimensions(135, 160), WearWidgetSurface.WIDGET)
         assertThat(sizeTiers.width).isEqualTo(WidthTier.W1)
         assertThat(sizeTiers.height).isEqualTo(HeightTier.H2)
 
-        val sizeTiersExt = SizeTiers.from(Dimensions(135, 160), WearGlanceSurface.WIDGET)
+        val sizeTiersExt = SizeTiers.from(Dimensions(135, 160), WearWidgetSurface.WIDGET)
         assertThat(sizeTiersExt).isEqualTo(sizeTiers)
 
         // Wear runs its own, tighter scale, so the same container resolves differently against the
