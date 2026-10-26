@@ -483,15 +483,12 @@ internal val LocalScaffoldStatusBarState: ProvidableCompositionLocal<ScaffoldSta
     }
 
 private const val TAG = "StatusBar"
-// TODO(b/548550572): Replace with WearApiVersionHelper.WEAR_CINNAMON_BUN_2 once wear-core
-// releases with it.
-private const val WEAR_CINNAMON_BUN_2 = "WEAR_CINNAMON_BUN_2"
 
 /** Checks if the global status bar is enabled for the given application [Context]. */
 internal fun isStatusBarEnabled(context: Context): Boolean =
     try {
         context.applicationInfo.targetSdkVersion >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
-            WearApiVersionHelper.isApiVersionAtLeast(WEAR_CINNAMON_BUN_2) &&
+            WearApiVersionHelper.isApiVersionAtLeast(WearApiVersionHelper.WEAR_CINNAMON_BUN_2) &&
             WearSettings.isStatusBarEnabled(context)
     } catch (e: Throwable) {
         false
