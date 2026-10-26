@@ -22,14 +22,18 @@ import androidx.compose.runtime.AbstractApplier
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
+import androidx.compose.runtime.saveable.SaveableStateRegistry
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateObject
+import androidx.savedstate.SavedStateContainer
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -88,10 +92,11 @@ internal class TransformTestScopeImpl(private val testScope: TestScope) :
 
         override fun <T> launchTransform(
             initialState: T,
-            onUpdate: @Composable (T) -> T,
+            container: SavedStateContainer,
+            onUpdate: @Composable ((T) -> T),
         ): DisposableState<T> {
             val transformation =
-                Transformation(initialState, onUpdate) { transformations.remove(it) }
+                Transformation(initialState, container, onUpdate) { transformations.remove(it) }
             transformations.add(transformation)
             return transformation.state
         }
@@ -115,7 +120,7 @@ internal class TransformTestScopeImpl(private val testScope: TestScope) :
                         // order matters here so doing a loop that preserves it
                         for (i in transformations.indices) {
                             val transform = transformations[i]
-                            key(transform) { transform() }
+                            key(transform.key) { transform() }
                         }
                     }
                 }
@@ -131,16 +136,31 @@ internal class TransformTestScopeImpl(private val testScope: TestScope) :
 @Stable
 private class Transformation<T>(
     initialValue: T,
+    container: SavedStateContainer = SavedStateContainer(),
     private val onUpdate: @Composable (T) -> T,
     onDispose: (Transformation<T>) -> Unit,
 ) {
-    val state = TransformState(initialValue) { onDispose(this) }
+    private val saveableStateRegistry = SaveableStateRegistry(container) { true }
+
+    val key: Any = (saveableStateRegistry.consumeRestored(TRANSFORM_KEY) as? Int) ?: hashCode()
+
+    private val keyEntry = saveableStateRegistry.registerProvider(TRANSFORM_KEY) { key }
+
+    val state =
+        TransformState(initialValue) {
+            keyEntry.unregister()
+            onDispose(this)
+        }
 
     @Composable
     operator fun invoke() {
-        state.value = onUpdate(Snapshot.withoutReadObservation { state.value })
+        CompositionLocalProvider(LocalSaveableStateRegistry provides saveableStateRegistry) {
+            state.value = onUpdate(Snapshot.withoutReadObservation { state.value })
+        }
     }
 }
+
+private const val TRANSFORM_KEY = "androidx.appstate.transform_TRANSFORMATION_KEY"
 
 private class TransformState<T>
 private constructor(

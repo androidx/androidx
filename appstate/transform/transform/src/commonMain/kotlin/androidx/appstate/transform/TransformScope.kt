@@ -23,6 +23,7 @@ import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
+import androidx.savedstate.SavedStateContainer
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -47,16 +48,42 @@ public interface TransformScope {
      * [transform] block is automatically recomposed whenever any Compose state it reads is updated,
      * and the newly returned value is pushed into the resulting [State].
      *
+     * By default, this function uses an unattached [SavedStateContainer]. In order for
+     * [androidx.compose.runtime.saveable.rememberSaveable] inside [onUpdate] to work properly
+     * (saving and restoring state across configuration changes or process death), developers must
+     * provide their own [SavedStateContainer], such as one obtained from
+     * `SavedStateHandle.getOrCreateContainer`:
+     * ```kotlin
+     * class MyViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+     *     private val transformScope = TransformScope()
+     *
+     *     val uiState: DisposableState<Int> = transformScope.launchTransform(
+     *         initialState = 0,
+     *         container = savedStateHandle.getOrCreateContainer("myTransform"),
+     *     ) {
+     *         var count by rememberSaveable { mutableStateOf(0) }
+     *         count
+     *     }
+     * }
+     * ```
+     *
+     * The same is also possible with a [androidx.savedstate.SavedStateRegistry] via
+     * [androidx.savedstate.SavedStateRegistry.getOrCreateContainer].
+     *
      * Calling [DisposableState.dispose] removes this transformation from the [TransformScope] so
      * that it is no longer recomposed in the shared [Composition].
      *
      * @param initialState The initial value to populate the returned [DisposableState] before the
      *   first composition completes.
+     * @param container The [SavedStateContainer] used to save and restore
+     *   [androidx.compose.runtime.saveable.rememberSaveable] state. Developers must provide their
+     *   own [SavedStateContainer] for `rememberSaveable` to persist and restore state properly.
      * @param onUpdate The [Composable] block that computes the updated value of type [T].
      * @return A [DisposableState] containing the latest result of the [onUpdate] block.
      */
     public fun <T> launchTransform(
         initialState: T,
+        container: SavedStateContainer = SavedStateContainer(),
         onUpdate: @Composable (T) -> T,
     ): DisposableState<T>
 }
@@ -67,9 +94,10 @@ internal class TransformScopeImpl : TransformScope {
 
     override fun <T> launchTransform(
         initialState: T,
+        container: SavedStateContainer,
         onUpdate: @Composable (T) -> T,
     ): DisposableState<T> {
-        val transformation = Transformation(initialState, onUpdate)
+        val transformation = Transformation(initialState, container, onUpdate)
         transformation.installIn(this)
         transformations.add(transformation)
         return transformation.state
@@ -103,7 +131,7 @@ internal class TransformScopeImpl : TransformScope {
                     // order matters here so doing a loop that preserves it
                     for (i in transformations.indices) {
                         val transform = transformations[i]
-                        key(transform) { transform() }
+                        key(transform.key) { transform() }
                     }
                 }
             }

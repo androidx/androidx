@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.savedstate.SavedStateContainer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -35,9 +36,32 @@ import kotlinx.coroutines.launch
  * automatically recomposed whenever any Compose state it reads is updated, and the newly returned
  * value is pushed into the resulting [State].
  *
+ * By default, this function uses an unattached [SavedStateContainer]. In order for
+ * [androidx.compose.runtime.saveable.rememberSaveable] inside [onUpdate] to work properly (saving
+ * and restoring state across configuration changes or process death), developers must provide their
+ * own [SavedStateContainer], such as one obtained from `SavedStateHandle.getOrCreateContainer`:
+ * ```kotlin
+ * class MyViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
+ *     val uiState: State<Int> = transform(
+ *         initialValue = 0,
+ *         scope = viewModelScope,
+ *         container = savedStateHandle.getOrCreateContainer("myTransform"),
+ *     ) {
+ *         var count by rememberSaveable { mutableStateOf(0) }
+ *         count
+ *     }
+ * }
+ * ```
+ *
+ * The same is also possible with a [androidx.savedstate.SavedStateRegistry] via
+ * [androidx.savedstate.SavedStateRegistry.getOrCreateContainer].
+ *
  * @param initialValue The initial value to populate the returned [State] before the first
  *   composition completes.
  * @param scope The [CoroutineScope] in which the recomposer and frame clock will run.
+ * @param container The [SavedStateContainer] used to save and restore
+ *   [androidx.compose.runtime.saveable.rememberSaveable] state. Developers must provide their own
+ *   [SavedStateContainer] for `rememberSaveable` to persist and restore state properly.
  * @param dispatcher The [CoroutineDispatcher] thread this transform should run on.
  * @param onUpdate The [Composable] block that computes the value of type [R].
  * @return A [State] containing the latest result of the [transform] block.
@@ -45,11 +69,12 @@ import kotlinx.coroutines.launch
 public fun <R> transform(
     initialValue: R,
     scope: CoroutineScope,
+    container: SavedStateContainer = SavedStateContainer(),
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable (R) -> R,
 ): State<R> {
     val transformScope = TransformScope() as TransformScopeImpl
-    val transformation = transformScope.launchTransform(initialValue, onUpdate)
+    val transformation = transformScope.launchTransform(initialValue, container, onUpdate)
     scope.launch(dispatcher, start = CoroutineStart.UNDISPATCHED) {
         try {
             transformScope.run()
@@ -77,5 +102,7 @@ public fun <R> transform(
     onUpdate: @Composable (R) -> R,
 ): State<R> {
     val scope = rememberCoroutineScope()
-    return remember(scope) { transform(initialValue, scope, dispatcher, onUpdate) }
+    return remember(scope) {
+        transform(initialValue, scope, dispatcher = dispatcher, onUpdate = onUpdate)
+    }
 }

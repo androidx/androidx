@@ -17,13 +17,16 @@
 package androidx.appstate.transform
 
 import androidx.appstate.transform.testing.transformTest
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.kruth.assertThat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.savedstate.SavedStateRegistry
 import kotlin.test.Test
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +34,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 
+@IgnoreAndroidHostTest // Runs on all targets EXCEPT AndroidHost; still runs on AndroidDevice.
 class TransformTest {
 
     @Test
@@ -175,5 +179,95 @@ class TransformTest {
                     currentTrackId = trackId,
                 )
             }
+    }
+
+    @Test
+    fun testRememberSaveable_withSavedStateContainer() = transformTest {
+        val registry1 = SavedStateRegistry()
+        var triggerUpdate by mutableStateOf(false)
+
+        val content: @Composable (Int) -> Int = {
+            var savedCount by rememberSaveable { mutableStateOf(10) }
+            if (triggerUpdate) {
+                savedCount = 25
+            }
+            savedCount
+        }
+
+        val state1 =
+            transform(
+                initialValue = 0,
+                scope = backgroundScope,
+                container = registry1.asContainer(),
+                dispatcher = testDispatcher,
+                onUpdate = content,
+            )
+
+        assertThat(state1.value).isEqualTo(10)
+
+        triggerUpdate = true
+        advance()
+        assertThat(state1.value).isEqualTo(25)
+
+        val savedMap = registry1.asContainer().saveState()
+        triggerUpdate = false
+
+        val registry2 = SavedStateRegistry(savedMap)
+        val state2 =
+            transform(
+                initialValue = 0,
+                scope = backgroundScope,
+                container = registry2.asContainer(),
+                dispatcher = testDispatcher,
+                onUpdate = content,
+            )
+
+        assertThat(state2.value).isEqualTo(25)
+    }
+
+    @Test
+    fun testRememberSaveable_withNestedContainer() = transformTest {
+        val registry1 = SavedStateRegistry()
+        var triggerUpdate by mutableStateOf(false)
+
+        val content: @Composable (String) -> String = {
+            var text by rememberSaveable { mutableStateOf("hello") }
+            var number by rememberSaveable { mutableStateOf(1) }
+            if (triggerUpdate) {
+                text = "world"
+                number = 42
+            }
+            "$text:$number"
+        }
+
+        val state1 =
+            transform(
+                initialValue = "",
+                scope = backgroundScope,
+                container = registry1.getOrCreateContainer("child"),
+                dispatcher = testDispatcher,
+                onUpdate = content,
+            )
+
+        assertThat(state1.value).isEqualTo("hello:1")
+
+        triggerUpdate = true
+        advance()
+        assertThat(state1.value).isEqualTo("world:42")
+
+        val savedMap = registry1.asContainer().saveState()
+        triggerUpdate = false
+
+        val registry2 = SavedStateRegistry(savedMap)
+        val state2 =
+            transform(
+                initialValue = "",
+                scope = backgroundScope,
+                container = registry2.getOrCreateContainer("child"),
+                dispatcher = testDispatcher,
+                onUpdate = content,
+            )
+
+        assertThat(state2.value).isEqualTo("world:42")
     }
 }

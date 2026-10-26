@@ -58,6 +58,31 @@ dependsOn = "androidx.compose.ui:ui-tooling-preview"
 validThroughLibraryVersion = "1.0.0-beta01"
 reason = "b/TODO - <reason>"
 
+
+[[exemption]]
+library = "androidx.appstate.transform:transform"
+dependsOn = "androidx.compose.runtime:runtime-saveable"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/559638907 - This needs the SaveableStateRegistry constructor with SavedStateContainer"
+
+[[exemption]]
+library = "androidx.appstate.transform:transform"
+dependsOn = "androidx.savedstate:savedstate"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/559638907 - we need SavedStateContainer"
+
+[[exemption]]
+library = "androidx.appstate.transform:transform-testing"
+dependsOn = "androidx.savedstate:savedstate"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/559638907 - we need SavedStateContainer"
+
+[[exemption]]
+library = "androidx.appstate.transform:transform-testing"
+dependsOn = "androidx.compose.runtime:runtime-saveable"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/559638907 - This needs the SaveableStateRegistry constructor with SavedStateContainer"
+
 [[exemption]]
 library = "androidx.camera:camera-camera2-pipe"
 dependsOn = "androidx.camera.featurecombinationquery:featurecombinationquery"
