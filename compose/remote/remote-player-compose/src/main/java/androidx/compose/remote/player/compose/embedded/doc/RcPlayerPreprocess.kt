@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.doc
 import android.util.Log
 import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.Easing as ComposeEasing
@@ -39,6 +40,7 @@ import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionDefine
@@ -114,6 +116,14 @@ internal class DocumentPreprocessResult(
      * [listensToTouchPosition], which covers operations that bind the position directly.
      */
     val readsTouchPosition: Boolean = false,
+    /**
+     * Float variables a draw stream writes in order, more than once per pass: variables assigned
+     * more than once, assigned inside a loop, conditional or float function, function parameters,
+     * loop indexes, and float expressions that read any of these. They are left out of
+     * [computedOpIndex], so a read returns the value the stream wrote last instead of re-deriving
+     * it from inputs that have since moved on.
+     */
+    val streamFloatIds: IntSet = emptyIntSet(),
 )
 
 /**
@@ -191,14 +201,32 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
     var inLoop = false
+    var inBranch = false
+    // Float ids written imperatively by a draw stream; see DocumentPreprocessResult.streamFloatIds.
+    val streamFloatIds = mutableIntSetOf()
+    // The first expression assigned to each float id; the same operation can be visited twice.
+    val firstAssignments = mutableIntObjectMapOf<Operation>()
+
+    fun collectFunctionWrites(ops: List<Operation>) {
+        ops.fastForEach { op ->
+            if (op is VariableProvider) streamFloatIds.add(op.id)
+            if (op is LoopOperation) streamFloatIds.add(op.indexVariableId)
+            if (op is Container) collectFunctionWrites(op.list)
+        }
+    }
 
     fun visitOp(op: Operation) {
         if (op is FloatFunctionDefine) {
+            // Function bodies only run when called, writing their parameters and every variable
+            // they assign once per call.
+            op.args.forEach { streamFloatIds.add(it) }
+            collectFunctionWrites(op.list)
             return
         }
         val prevLayoutComponent = currentLayoutComponent
         val prevInScroll = inScrollModifier
         val prevInLoop = inLoop
+        val prevInBranch = inBranch
         if (op is LayoutComponent) {
             currentLayoutComponent = op
         }
@@ -207,6 +235,10 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         }
         if (op is LoopOperation) {
             inLoop = true
+            streamFloatIds.add(op.indexVariableId)
+        }
+        if (op is ConditionalOperations) {
+            inBranch = true
         }
         try {
             val definedId =
@@ -348,6 +380,10 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     op !is MatrixConstant
             ) {
                 val id = op.id
+                if (op is FloatExpression) {
+                    val first = firstAssignments.getOrPut(id) { op }
+                    if (first !== op || inLoop || inBranch) streamFloatIds.add(id)
+                }
                 if (
                     id > 0 && !touchExpressionIds.contains(id) && !computedOpIndex.containsKey(id)
                 ) {
@@ -429,12 +465,31 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
             currentLayoutComponent = prevLayoutComponent
             inScrollModifier = prevInScroll
             inLoop = prevInLoop
+            inBranch = prevInBranch
         }
     }
 
     for (i in 0 until ops.size) {
         visitOp(ops[i])
     }
+
+    // An expression reading a stream-written variable is only correct where the stream evaluates
+    // it, so it is stream-written too.
+    var changed = true
+    while (changed) {
+        changed = false
+        computedOpIndex.forEach { id, op ->
+            if (
+                op is FloatExpression &&
+                    !streamFloatIds.contains(id) &&
+                    op.mSrcValue.anyScalarReference { streamFloatIds.contains(it) }
+            ) {
+                streamFloatIds.add(id)
+                changed = true
+            }
+        }
+    }
+    streamFloatIds.forEach { computedOpIndex.remove(it) }
 
     val componentValueMap = HashMap<Int, MutableList<ComponentValue>>()
     for (i in 0 until rawComponentValues.size) {
@@ -463,6 +518,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         hasDiscreteTime = hasDiscreteTime,
         discreteTimeMask = discreteTimeMask,
         readsTouchPosition = readsTouchPosition,
+        streamFloatIds = streamFloatIds,
     )
 }
 
@@ -602,6 +658,8 @@ private fun initializePlayerRemoteContextImpl(
     if (document.remoteComposeState !is SnapshotRemoteComposeState) {
         document.setRemoteComposeState(SnapshotRemoteComposeState())
     }
+    (document.remoteComposeState as SnapshotRemoteComposeState).streamFloatIds =
+        preprocessed.streamFloatIds
     ctx.withOpCountReset {
         document.initializeContext(ctx, null)
         document.recollectCollections()
