@@ -191,6 +191,9 @@ public data class RendererVersion(
                 RcWearOperations.RUN_ACTION,
                 RcWearOperations.MODIFIER_ALIGN_BY,
                 RcWearOperations.ACCESSIBILITY_SEMANTICS,
+                RcWearOperations.MODIFIER_TOUCH_DOWN,
+                RcWearOperations.MODIFIER_TOUCH_UP,
+                RcWearOperations.MODIFIER_TOUCH_CANCEL,
             )
 
         /**
