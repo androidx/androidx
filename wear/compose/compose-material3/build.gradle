@@ -47,7 +47,7 @@ dependencies {
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.graphics:graphics-shapes:1.0.1")
     implementation("androidx.compose.animation:animation-graphics:1.11.0")
-    implementation("androidx.wear:wear-core:1.1.0")
+    implementation("androidx.wear:wear-core:1.2.0-beta01")
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 
