@@ -58,6 +58,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.tracing.trace
 
 /**
  * The click action handlers for a component: each is `null` if the component has no actions for
@@ -154,18 +155,19 @@ internal fun Modifier.combinedClick(
             .fastFilter { it.clickType == MultiClickModifier.CLICK_TYPE_LONG }
             .fastMap { it.mList }
 
-    fun dispatchActionLists(actionLists: List<List<Operation>>) {
-        actionLists.fastForEach { actions ->
-            actions.fastForEach { action ->
-                applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+    fun dispatchActionLists(actionLists: List<List<Operation>>) =
+        trace("RcPlayer:executeClickActions") {
+            actionLists.fastForEach { actions ->
+                actions.fastForEach { action ->
+                    applyClickAction(action, coreDocument, remoteContext, onAction, onNamedAction)
+                }
             }
+            coreDocument.updateVariables(
+                remoteContext,
+                Theme.SYSTEM,
+                coreDocument.getOperationsList(),
+            )
         }
-        coreDocument.updateVariables(
-            remoteContext,
-            Theme.SYSTEM,
-            coreDocument.getOperationsList(),
-        )
-    }
 
     return if (doubleActionLists.isEmpty() && longActionLists.isEmpty()) {
         this.clickable(onClickLabel = contentDescription) {

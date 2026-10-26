@@ -99,6 +99,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.util.fastForEach
+import androidx.tracing.trace
 
 /** Dereference a PaintOperation image/path id (mirrors PaintOperation.getId's PTR_DEREFERENCE). */
 internal fun derefId(rawId: Int, context: RemoteContext): Int =
@@ -130,22 +131,23 @@ internal fun DrawScope.executeOperations(
     offscreenState: OffscreenDrawState = OffscreenDrawState(),
     contentLayer: GraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
-) {
-    remoteContext.withOpCountReset {
-        graph?.clearLastOpCount()
-        executeOperationsInPass(
-            operations = operations,
-            remoteContext = remoteContext,
-            textMeasurer = textMeasurer,
-            paintState = paintState,
-            onDrawContent = onDrawContent,
-            graph = graph,
-            offscreenState = offscreenState,
-            contentLayer = contentLayer,
-            contentOrigin = contentOrigin,
-        )
+): Unit =
+    trace("RcPlayer:executeOperations") {
+        remoteContext.withOpCountReset {
+            graph?.clearLastOpCount()
+            executeOperationsInPass(
+                operations = operations,
+                remoteContext = remoteContext,
+                textMeasurer = textMeasurer,
+                paintState = paintState,
+                onDrawContent = onDrawContent,
+                graph = graph,
+                offscreenState = offscreenState,
+                contentLayer = contentLayer,
+                contentOrigin = contentOrigin,
+            )
+        }
     }
-}
 
 private fun DrawScope.executeOperationsInPass(
     operations: List<Operation>,
