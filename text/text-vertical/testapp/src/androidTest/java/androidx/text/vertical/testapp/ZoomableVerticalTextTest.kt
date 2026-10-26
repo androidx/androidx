@@ -24,10 +24,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
@@ -117,15 +117,19 @@ class ZoomableVerticalTextTest {
 
     @Test
     @MediumTest
-    fun horizontalDemoTabs_renderWithTextStyle() {
-        rule.setContent { VerticalTextSampleApp(initialTabIndex = 2) }
+    fun horizontalDemos_renderWithTextStyle() {
+        rule.setContent { DemoApp(rememberDemoAppState(VerticalTextDemos)) }
+        rule.onNodeWithText("HorizontalText").performClick()
 
+        rule.onNodeWithText("Long text").performClick()
         rule.onNodeWithText("吾輩は猫である。", substring = true).assertIsDisplayed()
 
-        rule.onNodeWithText("Horizontal Multi-style Text").performScrollTo().performClick()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithText("Multi-style text").performClick()
         rule.onNodeWithText("ルビ位置：", substring = true).assertIsDisplayed()
 
-        rule.onNodeWithText("Horizontal CJK Font").performScrollTo().performClick()
+        rule.onNodeWithContentDescription("Back").performClick()
+        rule.onNodeWithText("CJK font").performClick()
         rule.onNodeWithText("ルビ位置：", substring = true).assertIsDisplayed()
     }
 
