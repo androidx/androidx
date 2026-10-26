@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Mirrors of the Glance 1.1.1 styles the Glance renderer's RemoteViews end up with, so text and
+  backgrounds match between the two renderers.
+-->
+<resources>
+    <!--
+      Theme the Glance renderer inflates under: its root layouts set Glance.AppWidget.Theme. Set on
+      the root of every matrix layout, whose slot components inherit it, so theme-derived defaults
+      match between the two renderers.
+    -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.Theme" parent="android:Theme.DeviceDefault" />
+
+    <!-- Widget card. The outline clip is added from v31, where the background is rounded. -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.Card" parent="">
+        <item name="android:background">@drawable/glance_adaptive_appwidget_remoteviews_widget_background</item>
+    </style>
+
+
+    <!--
+      Every RemoteViews text: Glance.AppWidget.Text and glance_text.xml, plus the maxLines = 1 that every
+      Text call in the Glance renderer passes.
+    -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.Text" parent="">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textDirection">locale</item>
+    </style>
+
+    <!--
+      Glance applies FontWeight through a TextAppearanceSpan of these styles. Below API 29 there is
+      no font weight attribute, so Glance falls back to bold for both.
+    -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Bold" parent="">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium" parent="">
+        <item name="android:textStyle">bold</item>
+    </style>
+    <!-- The design's 650 weight for supporting values and the badge, bold before API 29. -->
+    <style name="GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.SemiBold" parent="">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

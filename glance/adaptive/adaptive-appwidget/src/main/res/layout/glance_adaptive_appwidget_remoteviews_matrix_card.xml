@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Main card of an Information Matrix: the header, hero and supporting slots, top to bottom.
+
+  Holds no content of its own. Every slot is an empty container that the matrix builder fills with
+  slot components at runtime, so any template whose matrix follows this shape reuses this layout.
+  The host reapplies an update onto the previous hierarchy when the layout is unchanged, so the
+  builder empties every slot and sets every property that varies on every update.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    style="@style/GlanceAdaptiveAppwidgetRemoteviews.Card"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:theme="@style/GlanceAdaptiveAppwidgetRemoteviews.Theme">
+
+    <!-- Header: icon, primary and secondary, in a row or stacked. -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!--
+      Hero. Takes the slack between header and supporting; the gaps to either are its vertical
+      padding, set at runtime.
+    -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_hero"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone" />
+
+    <!-- Pins supporting to the bottom edge when there is no hero to take the slack. -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_supporting_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone" />
+
+    <!--
+      Supporting positions, separated by weighted spacers. A single position centers and more spread
+      to the edges; the builder sets the gravity to match. At least 24dp tall, but free to grow with
+      the font scale rather than clip its text.
+    -->
+    <LinearLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_supporting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+</LinearLayout>

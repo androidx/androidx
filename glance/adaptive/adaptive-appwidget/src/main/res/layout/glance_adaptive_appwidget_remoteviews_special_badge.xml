@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2026 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!--
+  Special badge slot component: the leading status dots, the outlined pill, then the trailing dots.
+
+  The dots are added to their containers at runtime. The outline is an image behind the label,
+  colored at runtime with setColorFilter, which unlike a background tint works on every API level.
+  The label's background is inset from it by the outline's 4dp width, so the outline frames the
+  label without adding to its height, as in the design.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_badge_leading_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_badge_outline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:src="@drawable/glance_adaptive_appwidget_remoteviews_pill" />
+
+        <!--
+          match_parent like the outline: a wrap_content FrameLayout only stretches its match_parent
+          children to its own size when there are at least two of them, so the label (which sizes
+          the frame) is one too, and the outline then covers it.
+        -->
+        <TextView
+            android:id="@+id/glance_adaptive_appwidget_remoteviews_badge_label"
+            style="@style/GlanceAdaptiveAppwidgetRemoteviews.Text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/glance_adaptive_appwidget_remoteviews_badge_background"
+            android:gravity="center"
+            android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.SemiBold"
+            android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_badge_trailing_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" />
+</LinearLayout>
