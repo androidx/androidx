@@ -16,12 +16,27 @@
 
 package androidx.core.locationbutton
 
+import android.app.Activity
+import android.app.Presentation
+import android.app.permissionui.LocationButtonClient
 import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.PixelFormat
+import android.hardware.display.DisplayManager
+import android.media.ImageReader
 import android.os.Build
+import android.os.IBinder
 import android.os.LocaleList
+import android.os.SystemClock
+import android.view.Display
+import android.view.SurfaceControlViewHost
+import android.view.View
 import android.view.View.MeasureSpec
 import android.widget.FrameLayout
+import android.window.InputTransferToken
+import androidx.annotation.RequiresApi
 import androidx.core.locationbutton.testing.TestLocationButtonProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,6 +44,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executor
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -645,6 +662,191 @@ public class LocationButtonTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testSessionIsOpenedForDisplayOfHostWindow() {
+        val openedDisplayIds = CopyOnWriteArrayList<Int>()
+        val openedDensityDpis = CopyOnWriteArrayList<Int>()
+        val provider =
+            object : TestLocationButtonProvider(instrumentation.targetContext) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    openedDisplayIds.add(displayId)
+                    openedDensityDpis.add(request.configuration.densityDpi)
+                    super.openSession(activity, hostToken, displayId, request, executor, client)
+                }
+            }
+        val imageReader =
+            ImageReader.newInstance(
+                VIRTUAL_DISPLAY_WIDTH,
+                VIRTUAL_DISPLAY_HEIGHT,
+                PixelFormat.RGBA_8888,
+                /* maxImages= */ 2,
+            )
+        val virtualDisplay =
+            instrumentation.targetContext
+                .getSystemService(DisplayManager::class.java)
+                .createVirtualDisplay(
+                    "LocationButtonTest",
+                    VIRTUAL_DISPLAY_WIDTH,
+                    VIRTUAL_DISPLAY_HEIGHT,
+                    VIRTUAL_DISPLAY_DENSITY_DPI,
+                    imageReader.surface,
+                    /* flags= */ 0,
+                )
+        var presentation: Presentation? = null
+        try {
+            lateinit var button: LocationButton
+            activityRule.scenario.onActivity { activity ->
+                // The button uses the presentation's context, like any view shown on another
+                // display, so it gets that display's resources. That context isn't an activity.
+                val virtualDisplayPresentation = Presentation(activity, virtualDisplay.display)
+                presentation = virtualDisplayPresentation
+                button =
+                    LocationButton(virtualDisplayPresentation.context).apply {
+                        parentActivity = activity
+                        setLocationButtonProvider(provider)
+                    }
+                virtualDisplayPresentation.setContentView(button)
+                virtualDisplayPresentation.show()
+            }
+
+            // Polls instead of waiting for idle, since a button that keeps reopening its session
+            // never lets the main thread go idle.
+            assertThat(waitUntilOnMainThread { button.isRemoteSessionActive }).isTrue()
+
+            assertThat(virtualDisplay.display.displayId).isNotEqualTo(Display.DEFAULT_DISPLAY)
+            assertThat(openedDisplayIds).containsExactly(virtualDisplay.display.displayId)
+            assertThat(openedDensityDpis).containsExactly(VIRTUAL_DISPLAY_DENSITY_DPI)
+        } finally {
+            // Doesn't wait for idle first, so that a button that keeps reopening its session is
+            // still removed.
+            instrumentation.runOnMainSync { presentation?.dismiss() }
+            instrumentation.waitForIdleSync()
+            virtualDisplay.release()
+            imageReader.close()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testSessionOpenedAfterReopeningIsClosed() {
+        var pendingClient: LocationButtonClient? = null
+        val provider =
+            object : TestLocationButtonProvider(instrumentation.targetContext) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    // The first session stays pending, as if the system were slow to open it.
+                    if (pendingClient == null) {
+                        pendingClient = client
+                        return
+                    }
+                    super.openSession(activity, hostToken, displayId, request, executor, client)
+                }
+            }
+        lateinit var button: LocationButton
+        lateinit var parent: FrameLayout
+        activityRule.scenario.onActivity { activity ->
+            button = LocationButton(activity).apply { setLocationButtonProvider(provider) }
+            parent =
+                FrameLayout(activity).apply {
+                    addView(button)
+                    activity.setContentView(this)
+                }
+        }
+        instrumentation.waitForIdleSync()
+        assertThat(pendingClient).isNotNull()
+        assertThat(button.isRemoteSessionActive).isFalse()
+
+        // Reattaching the button closes the pending session and opens a new one.
+        activityRule.scenario.onActivity { _ ->
+            parent.removeView(button)
+            parent.addView(button)
+        }
+        instrumentation.waitForIdleSync()
+        assertThat(button.isRemoteSessionActive).isTrue()
+
+        lateinit var staleSession: RecordingLocationButtonSession
+        activityRule.scenario.onActivity { activity ->
+            staleSession = RecordingLocationButtonSession(activity, checkNotNull(activity.display))
+            checkNotNull(pendingClient).onSessionOpened(staleSession)
+        }
+        instrumentation.waitForIdleSync()
+
+        assertThat(staleSession.isClosed).isTrue()
+        assertThat(staleSession.isSurfacePackageRequested).isFalse()
+        assertThat(button.isRemoteSessionActive).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testErrorForReplacedSessionIsIgnored() {
+        var pendingClient: LocationButtonClient? = null
+        val provider =
+            object : TestLocationButtonProvider(instrumentation.targetContext) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    // The first session stays pending, as if the system were slow to open it.
+                    if (pendingClient == null) {
+                        pendingClient = client
+                        return
+                    }
+                    super.openSession(activity, hostToken, displayId, request, executor, client)
+                }
+            }
+        val errors = CopyOnWriteArrayList<Throwable>()
+        lateinit var button: LocationButton
+        lateinit var parent: FrameLayout
+        activityRule.scenario.onActivity { activity ->
+            button =
+                LocationButton(activity).apply {
+                    setLocationButtonProvider(provider)
+                    setOnErrorListener { errors.add(it) }
+                }
+            parent =
+                FrameLayout(activity).apply {
+                    addView(button)
+                    activity.setContentView(this)
+                }
+        }
+        instrumentation.waitForIdleSync()
+        assertThat(pendingClient).isNotNull()
+
+        // Reattaching the button replaces the pending session with a new one.
+        activityRule.scenario.onActivity { _ ->
+            parent.removeView(button)
+            parent.addView(button)
+        }
+        instrumentation.waitForIdleSync()
+        assertThat(button.isRemoteSessionActive).isTrue()
+
+        activityRule.scenario.onActivity { _ ->
+            checkNotNull(pendingClient).onSessionError(IllegalStateException("Replaced session"))
+        }
+        instrumentation.waitForIdleSync()
+
+        assertThat(button.isRemoteSessionActive).isTrue()
+        assertThat(errors).isEmpty()
+    }
+
+    @Test
     public fun testSafePaddingEnforcesMinimum() {
         activityRule.scenario.onActivity { activity ->
             val button = LocationButton(activity)
@@ -661,4 +863,74 @@ public class LocationButtonTest {
             assertThat(button.safePaddingBottom).isEqualTo(minPaddingPx)
         }
     }
+
+    /** Polls [condition] on the main thread until it's true or the timeout passes. */
+    private fun waitUntilOnMainThread(condition: () -> Boolean): Boolean {
+        val deadline = SystemClock.uptimeMillis() + TIMEOUT_MILLIS
+        while (SystemClock.uptimeMillis() < deadline) {
+            var isConditionMet = false
+            instrumentation.runOnMainSync { isConditionMet = condition() }
+            if (isConditionMet) {
+                return true
+            }
+            SystemClock.sleep(POLL_INTERVAL_MILLIS)
+        }
+        return false
+    }
+
+    private companion object {
+        private const val VIRTUAL_DISPLAY_WIDTH = 800
+        private const val VIRTUAL_DISPLAY_HEIGHT = 600
+        private const val VIRTUAL_DISPLAY_DENSITY_DPI = 160
+        private const val TIMEOUT_MILLIS = 5_000L
+        private const val POLL_INTERVAL_MILLIS = 100L
+    }
+}
+
+/** A [LocationButtonSession] that records whether it was attached to a surface and closed. */
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+private class RecordingLocationButtonSession(context: Context, display: Display) :
+    LocationButtonSession {
+    private val host =
+        SurfaceControlViewHost(context, display, null as InputTransferToken?).apply {
+            setView(View(context), /* width= */ 1, /* height= */ 1)
+        }
+
+    var isClosed = false
+        private set
+
+    var isSurfacePackageRequested = false
+        private set
+
+    override fun close() {
+        isClosed = true
+        host.release()
+    }
+
+    override fun getSurfacePackage(): SurfaceControlViewHost.SurfacePackage {
+        isSurfacePackageRequested = true
+        return checkNotNull(host.surfacePackage)
+    }
+
+    override fun resize(width: Int, height: Int) {}
+
+    override fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {}
+
+    override fun changeConfiguration(configuration: Configuration) {}
+
+    override fun setCornerRadius(radius: Float) {}
+
+    override fun setPressedCornerRadius(radius: Float) {}
+
+    override fun setTextColor(color: Int) {}
+
+    override fun setBackgroundColor(color: Int) {}
+
+    override fun setIconTint(color: Int) {}
+
+    override fun setStrokeColor(color: Int) {}
+
+    override fun setStrokeWidth(width: Int) {}
+
+    override fun setTextType(textType: Int) {}
 }

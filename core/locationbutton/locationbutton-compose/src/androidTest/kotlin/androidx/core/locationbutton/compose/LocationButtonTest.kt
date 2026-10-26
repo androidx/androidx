@@ -16,12 +16,27 @@
 
 package androidx.core.locationbutton.compose
 
+import android.app.Activity
+import android.app.Presentation
+import android.app.permissionui.LocationButtonClient
 import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
+import android.content.Context
 import android.content.res.Configuration
+import android.graphics.PixelFormat
+import android.hardware.display.DisplayManager
+import android.media.ImageReader
 import android.os.Build
+import android.os.IBinder
 import android.os.LocaleList
 import android.view.ContextThemeWrapper
+import android.view.Display
+import android.view.SurfaceControlViewHost
+import android.view.View
+import android.window.InputTransferToken
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,9 +44,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -44,11 +63,15 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.core.locationbutton.R
 import androidx.core.locationbutton.testing.TestLocationButtonProvider
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executor
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -347,4 +370,268 @@ class LocationButtonTest {
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
             )
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testSessionIsOpenedForDisplayOfHostWindow() {
+        val openedDisplayIds = CopyOnWriteArrayList<Int>()
+        val openedDensityDpis = CopyOnWriteArrayList<Int>()
+        val provider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    openedDisplayIds.add(displayId)
+                    openedDensityDpis.add(request.configuration.densityDpi)
+                    super.openSession(activity, hostToken, displayId, request, executor, client)
+                }
+            }
+        lateinit var activity: ComponentActivity
+        composeTestRule.setContent { activity = LocalActivity.current as ComponentActivity }
+        composeTestRule.waitForIdle()
+
+        val imageReader =
+            ImageReader.newInstance(
+                VirtualDisplayWidth,
+                VirtualDisplayHeight,
+                PixelFormat.RGBA_8888,
+                /* maxImages= */ 2,
+            )
+        val virtualDisplay =
+            activity
+                .getSystemService(DisplayManager::class.java)
+                .createVirtualDisplay(
+                    "LocationButtonTest",
+                    VirtualDisplayWidth,
+                    VirtualDisplayHeight,
+                    VirtualDisplayDensityDpi,
+                    imageReader.surface,
+                    /* flags= */ 0,
+                )
+        var presentation: Presentation? = null
+        try {
+            composeTestRule.runOnUiThread {
+                // The button uses the presentation's context, like any view shown on another
+                // display, so it gets that display's resources. That context isn't an activity, so
+                // the activity is provided explicitly.
+                val virtualDisplayPresentation = Presentation(activity, virtualDisplay.display)
+                presentation = virtualDisplayPresentation
+                val composeView =
+                    ComposeView(virtualDisplayPresentation.context).apply {
+                        setViewTreeLifecycleOwner(activity)
+                        setViewTreeSavedStateRegistryOwner(activity)
+                        setContent {
+                            MaterialTheme {
+                                CompositionLocalProvider(
+                                    LocalActivity provides activity,
+                                    LocalLocationButtonProvider provides provider,
+                                ) {
+                                    LocationButton(
+                                        modifier = Modifier.size(200.dp, 50.dp),
+                                        onRequestPermissions = {},
+                                    ) {
+                                        // onPermissionResult
+                                    }
+                                }
+                            }
+                        }
+                    }
+                virtualDisplayPresentation.setContentView(composeView)
+                virtualDisplayPresentation.show()
+            }
+
+            composeTestRule.waitUntil(timeoutMillis = 5_000) { openedDisplayIds.isNotEmpty() }
+            composeTestRule.waitForIdle()
+
+            assertThat(virtualDisplay.display.displayId).isNotEqualTo(Display.DEFAULT_DISPLAY)
+            assertThat(openedDisplayIds).containsExactly(virtualDisplay.display.displayId)
+            assertThat(openedDensityDpis).containsExactly(VirtualDisplayDensityDpi)
+        } finally {
+            composeTestRule.runOnUiThread { presentation?.dismiss() }
+            composeTestRule.waitForIdle()
+            virtualDisplay.release()
+            imageReader.close()
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testSessionOpenedAfterButtonIsRemovedIsClosed() {
+        var pendingClient: LocationButtonClient? = null
+        val provider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    // The session stays pending, as if the system were slow to open it.
+                    pendingClient = client
+                }
+            }
+        var isButtonShown by mutableStateOf(true)
+        lateinit var activity: ComponentActivity
+        composeTestRule.setContent {
+            activity = LocalActivity.current as ComponentActivity
+            MaterialTheme {
+                CompositionLocalProvider(LocalLocationButtonProvider provides provider) {
+                    if (isButtonShown) {
+                        LocationButton(
+                            modifier = Modifier.size(200.dp, 50.dp),
+                            onRequestPermissions = {},
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { pendingClient != null }
+
+        // Removing the button disposes the session that it was opening.
+        isButtonShown = false
+        composeTestRule.waitForIdle()
+
+        lateinit var staleSession: RecordingLocationButtonSession
+        composeTestRule.runOnUiThread {
+            staleSession = RecordingLocationButtonSession(activity, checkNotNull(activity.display))
+            checkNotNull(pendingClient).onSessionOpened(staleSession)
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(staleSession.isClosed).isTrue()
+        assertThat(staleSession.isSurfacePackageRequested).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    fun testErrorForReplacedSessionIsIgnored() {
+        var pendingClient: LocationButtonClient? = null
+        val openedSessions = CopyOnWriteArrayList<RecordingLocationButtonSession>()
+        val provider =
+            object :
+                TestLocationButtonProvider(
+                    InstrumentationRegistry.getInstrumentation().targetContext
+                ) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    // The first session stays pending, as if the system were slow to open it.
+                    if (pendingClient == null) {
+                        pendingClient = client
+                        return
+                    }
+                    executor.execute {
+                        val session =
+                            RecordingLocationButtonSession(activity, checkNotNull(activity.display))
+                        openedSessions.add(session)
+                        client.onSessionOpened(session)
+                    }
+                }
+            }
+        val errors = CopyOnWriteArrayList<Throwable>()
+        var isButtonShown by mutableStateOf(true)
+        composeTestRule.setContent {
+            MaterialTheme {
+                CompositionLocalProvider(LocalLocationButtonProvider provides provider) {
+                    if (isButtonShown) {
+                        LocationButton(
+                            modifier = Modifier.size(200.dp, 50.dp),
+                            onRequestPermissions = {},
+                            onError = { errors.add(it) },
+                        ) {
+                            // onPermissionResult
+                        }
+                    }
+                }
+            }
+        }
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { pendingClient != null }
+
+        // Removing the button disposes the pending session, and showing it again opens a new one.
+        isButtonShown = false
+        composeTestRule.waitForIdle()
+        isButtonShown = true
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { openedSessions.size == 1 }
+
+        composeTestRule.runOnUiThread {
+            checkNotNull(pendingClient).onSessionError(IllegalStateException("Replaced session"))
+        }
+        composeTestRule.waitForIdle()
+
+        assertThat(errors).isEmpty()
+    }
+
+    private companion object {
+        private const val VirtualDisplayWidth = 800
+        private const val VirtualDisplayHeight = 600
+        private const val VirtualDisplayDensityDpi = 160
+    }
+}
+
+/** A [LocationButtonSession] that records whether it was attached to a surface and closed. */
+@RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+private class RecordingLocationButtonSession(context: Context, display: Display) :
+    LocationButtonSession {
+    private val host =
+        SurfaceControlViewHost(context, display, null as InputTransferToken?).apply {
+            setView(View(context), /* width= */ 1, /* height= */ 1)
+        }
+
+    var isClosed = false
+        private set
+
+    var isSurfacePackageRequested = false
+        private set
+
+    override fun close() {
+        isClosed = true
+        host.release()
+    }
+
+    override fun getSurfacePackage(): SurfaceControlViewHost.SurfacePackage {
+        isSurfacePackageRequested = true
+        return checkNotNull(host.surfacePackage)
+    }
+
+    override fun resize(width: Int, height: Int) {}
+
+    override fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {}
+
+    override fun changeConfiguration(configuration: Configuration) {}
+
+    override fun setCornerRadius(radius: Float) {}
+
+    override fun setPressedCornerRadius(radius: Float) {}
+
+    override fun setTextColor(color: Int) {}
+
+    override fun setBackgroundColor(color: Int) {}
+
+    override fun setIconTint(color: Int) {}
+
+    override fun setStrokeColor(color: Int) {}
+
+    override fun setStrokeWidth(width: Int) {}
+
+    override fun setTextType(textType: Int) {}
 }

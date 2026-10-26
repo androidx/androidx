@@ -25,7 +25,7 @@ import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.os.Trace
+import android.view.Display
 import android.view.SurfaceView
 import android.view.View
 import androidx.annotation.RequiresApi
@@ -37,6 +37,8 @@ internal class RemoteLocationButtonDelegateApi37(
 ) : RemoteLocationButtonDelegate {
     private var provider: LocationButtonProvider? = null
     private var session: LocationButtonSession? = null
+    private var activeClient: LocationButtonClient? = null
+    private var sessionDisplayId = Display.INVALID_DISPLAY
     private var compositionOrder = LocationButton.DEFAULT_COMPOSITION_ORDER
 
     init {
@@ -49,7 +51,19 @@ internal class RemoteLocationButtonDelegateApi37(
 
     override fun isSessionActive(): Boolean = session != null
 
+    override fun getSessionDisplayId(): Int = sessionDisplayId
+
     override fun closeSession(surfaceView: SurfaceView?) {
+        sessionDisplayId = Display.INVALID_DISPLAY
+        releaseSession(surfaceView)
+    }
+
+    /**
+     * Releases the session without forgetting its display, so that a move to another display still
+     * opens a new session.
+     */
+    private fun releaseSession(surfaceView: SurfaceView?) {
+        activeClient = null
         session?.close()
         session = null
         surfaceView?.clearChildSurfacePackage()
@@ -123,15 +137,8 @@ internal class RemoteLocationButtonDelegateApi37(
     }
 
     override fun openSession(activity: Activity, displayId: Int, surfaceView: SurfaceView) {
-        Trace.beginAsyncSection("LocationButton.openSession", 0)
-
-        @Suppress("DEPRECATION")
-        val hostToken =
-            surfaceView.hostToken
-                ?: run {
-                    Trace.endAsyncSection("LocationButton.openSession", 0)
-                    return
-                }
+        @Suppress("DEPRECATION") val hostToken = surfaceView.hostToken ?: return
+        val activeProvider = provider ?: return
 
         val request = createButtonRequest()
 
@@ -142,34 +149,35 @@ internal class RemoteLocationButtonDelegateApi37(
                 }
 
                 override fun onSessionError(t: Throwable) {
-                    closeSession(surfaceView)
+                    if (activeClient !== this) {
+                        return
+                    }
+                    releaseSession(surfaceView)
                     view.onErrorListener?.onError(t)
                 }
 
                 override fun onSessionOpened(openedSession: LocationButtonSession) {
-                    try {
-                        if (!view.isAttachedToWindow) {
-                            openedSession.close()
-                            return
-                        }
-
-                        session = openedSession
-                        surfaceView.apply {
-                            visibility = View.VISIBLE
-                            setChildSurfacePackage(openedSession.surfacePackage)
-                            setCompositionOrder(
-                                this@RemoteLocationButtonDelegateApi37.getCompositionOrder()
-                            )
-                            invalidate()
-                        }
-                        view.localButtonView.visibility = View.INVISIBLE
-                    } finally {
-                        Trace.endAsyncSection("LocationButton.openSession", 0)
+                    if (activeClient !== this || !view.isAttachedToWindow) {
+                        openedSession.close()
+                        return
                     }
+
+                    session = openedSession
+                    surfaceView.apply {
+                        visibility = View.VISIBLE
+                        setChildSurfacePackage(openedSession.surfacePackage)
+                        setCompositionOrder(
+                            this@RemoteLocationButtonDelegateApi37.getCompositionOrder()
+                        )
+                        invalidate()
+                    }
+                    view.localButtonView.visibility = View.INVISIBLE
                 }
             }
 
-        provider?.openSession(
+        activeClient = clientCallback
+        sessionDisplayId = displayId
+        activeProvider.openSession(
             activity,
             hostToken,
             displayId,

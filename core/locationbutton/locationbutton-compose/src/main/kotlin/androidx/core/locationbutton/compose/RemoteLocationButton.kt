@@ -23,13 +23,14 @@ import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
 import android.content.res.Configuration
 import android.graphics.PixelFormat
-import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.IBinder
 import android.os.LocaleList
+import android.view.Display
 import android.view.SurfaceView
 import android.view.View
 import android.view.View.OnAttachStateChangeListener
+import android.view.ViewTreeObserver
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -40,9 +41,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -133,8 +134,10 @@ internal fun RemoteLocationButton(
         }
 
     var surfaceHostToken by remember { mutableStateOf<IBinder?>(null) }
+    // The display the surface is shown on, which the session must be opened for. It isn't
+    // necessarily the default display or the display of the hosting activity.
+    var surfaceDisplayId by remember { mutableIntStateOf(Display.INVALID_DISPLAY) }
     var openedSession by remember { mutableStateOf<LocationButtonSession?>(null) }
-    var isSessionOpening by remember { mutableStateOf(false) }
     var surfaceViewRef by remember { mutableStateOf<SurfaceView?>(null) }
 
     // Holder for last applied state to avoid multiple recompositions triggering redundant calls
@@ -142,33 +145,6 @@ internal fun RemoteLocationButton(
 
     val currentOnPermissionResult by rememberUpdatedState(onPermissionResult)
     val currentOnError by rememberUpdatedState(onError)
-
-    val clientCallback = remember {
-        object : LocationButtonClient {
-            override fun onPermissionResult(granted: Boolean) {
-                currentOnPermissionResult(granted)
-            }
-
-            override fun onSessionError(throwable: Throwable) {
-                openedSession?.close()
-                openedSession = null
-                isSessionOpening = false
-                currentOnError(throwable)
-            }
-
-            override fun onSessionOpened(session: LocationButtonSession) {
-                openedSession = session
-                isSessionOpening = false
-
-                surfaceViewRef?.let { view ->
-                    view.setChildSurfacePackage(session.surfacePackage)
-                    view.setCompositionOrder(compositionOrder)
-                    sessionState.compositionOrder = compositionOrder
-                    view.invalidate()
-                }
-            }
-        }
-    }
 
     BoxWithConstraints(modifier = modifier) {
         val widthPx =
@@ -182,72 +158,99 @@ internal fun RemoteLocationButton(
                 else ButtonDefaults.MinHeight.roundToPx()
             }
 
-        LaunchedEffect(surfaceHostToken) {
-            val token = surfaceHostToken ?: return@LaunchedEffect
+        val hostToken = surfaceHostToken
+        val displayId = surfaceDisplayId
+        if (hostToken != null && displayId != Display.INVALID_DISPLAY) {
+            // This effect owns the session: it opens one once the surface is attached, and closes
+            // it when the surface or its display changes or the button leaves the composition.
+            DisposableEffect(hostToken, displayId) {
+                // Set when this effect is disposed. A session that only opens after that is closed
+                // right away, since nothing else would close it.
+                var isDisposed = false
+                val client =
+                    object : LocationButtonClient {
+                        override fun onPermissionResult(granted: Boolean) {
+                            currentOnPermissionResult(granted)
+                        }
 
-            // If surface token changes, we must close old session and open a new one
-            openedSession?.close()
-            openedSession = null
+                        override fun onSessionError(throwable: Throwable) {
+                            if (isDisposed) {
+                                return
+                            }
+                            openedSession?.close()
+                            openedSession = null
+                            currentOnError(throwable)
+                        }
 
-            if (isSessionOpening) {
-                return@LaunchedEffect
-            }
+                        override fun onSessionOpened(session: LocationButtonSession) {
+                            if (isDisposed) {
+                                session.close()
+                                return
+                            }
+                            openedSession = session
 
-            isSessionOpening = true
+                            surfaceViewRef?.let { view ->
+                                view.setChildSurfacePackage(session.surfacePackage)
+                                view.setCompositionOrder(compositionOrder)
+                                sessionState.compositionOrder = compositionOrder
+                                view.invalidate()
+                            }
+                        }
+                    }
 
-            val activity =
-                activity
-                    ?: throw IllegalStateException(
-                        "LocationButton must be hosted within an Activity context"
-                    )
-            val displayId = getDisplayId(context)
+                val activity =
+                    activity
+                        ?: throw IllegalStateException(
+                            "LocationButton must be hosted within an Activity context"
+                        )
 
-            val requestBuilder =
-                LocationButtonRequest.Builder(widthPx, heightPx, configuration)
-                    .setPaddingLeft(safePaddings.left)
-                    .setPaddingTop(safePaddings.top)
-                    .setPaddingRight(safePaddings.right)
-                    .setPaddingBottom(safePaddings.bottom)
-                    .setBackgroundColor(backgroundColor.toArgb())
-                    .setIconTint(iconTint.toArgb())
-                    .setTextType(textType)
-                    .setTextColor(textColor.toArgb())
+                val requestBuilder =
+                    LocationButtonRequest.Builder(widthPx, heightPx, configuration)
+                        .setPaddingLeft(safePaddings.left)
+                        .setPaddingTop(safePaddings.top)
+                        .setPaddingRight(safePaddings.right)
+                        .setPaddingBottom(safePaddings.bottom)
+                        .setBackgroundColor(backgroundColor.toArgb())
+                        .setIconTint(iconTint.toArgb())
+                        .setTextType(textType)
+                        .setTextColor(textColor.toArgb())
 
-            if (strokeWidth.isSpecified) {
-                val strokePx = with(density) { strokeWidth.roundToPx() }
-                requestBuilder.setStrokeWidth(strokePx)
-            }
-            if (strokeColor.isSpecified) {
-                requestBuilder.setStrokeColor(strokeColor.toArgb())
-            }
+                if (strokeWidth.isSpecified) {
+                    val strokePx = with(density) { strokeWidth.roundToPx() }
+                    requestBuilder.setStrokeWidth(strokePx)
+                }
+                if (strokeColor.isSpecified) {
+                    requestBuilder.setStrokeColor(strokeColor.toArgb())
+                }
 
-            if (cornerRadius.isSpecified) {
-                val cornerPx = with(density) { cornerRadius.toPx() }
-                requestBuilder.setCornerRadius(cornerPx)
-            }
-            if (pressedCornerRadius.isSpecified) {
-                val pressedPx = with(density) { pressedCornerRadius.toPx() }
-                requestBuilder.setPressedCornerRadius(pressedPx)
-            }
+                if (cornerRadius.isSpecified) {
+                    val cornerPx = with(density) { cornerRadius.toPx() }
+                    requestBuilder.setCornerRadius(cornerPx)
+                }
+                if (pressedCornerRadius.isSpecified) {
+                    val pressedPx = with(density) { pressedCornerRadius.toPx() }
+                    requestBuilder.setPressedCornerRadius(pressedPx)
+                }
 
-            val request = requestBuilder.build()
+                val request = requestBuilder.build()
 
-            sessionState.initialize(request, configuration)
+                sessionState.initialize(request, configuration)
 
-            provider.openSession(
-                activity,
-                token,
-                displayId,
-                request,
-                context.mainExecutor,
-                clientCallback,
-            )
-        }
+                provider.openSession(
+                    activity,
+                    hostToken,
+                    displayId,
+                    request,
+                    context.mainExecutor,
+                    client,
+                )
 
-        DisposableEffect(Unit) {
-            onDispose {
-                openedSession?.close()
-                openedSession = null
+                onDispose {
+                    isDisposed = true
+                    openedSession?.close()
+                    openedSession = null
+                    surfaceViewRef?.clearChildSurfacePackage()
+                }
             }
         }
 
@@ -259,15 +262,40 @@ internal fun RemoteLocationButton(
                     setZOrderOnTop(true)
                     surfaceViewRef = this
 
+                    // A window that moves to another display is laid out again, with or without a
+                    // configuration change, so each layout reads the display.
+                    val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+                        // A layout pass still calls a listener that was removed during the pass,
+                        // so this can run right after the surface is detached.
+                        if (!isAttachedToWindow) {
+                            return@OnGlobalLayoutListener
+                        }
+                        surfaceDisplayId =
+                            checkNotNull(display) {
+                                    "LocationButton's surface has no display while attached"
+                                }
+                                .displayId
+                    }
+
                     addOnAttachStateChangeListener(
                         object : OnAttachStateChangeListener {
                             override fun onViewAttachedToWindow(v: View) {
                                 @Suppress("DEPRECATION") val token = (v as SurfaceView).hostToken
                                 surfaceHostToken = token
+                                surfaceDisplayId =
+                                    checkNotNull(v.display) {
+                                            "LocationButton's surface has no display while attached"
+                                        }
+                                        .displayId
+                                v.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
                             }
 
                             override fun onViewDetachedFromWindow(v: View) {
+                                v.viewTreeObserver.removeOnGlobalLayoutListener(
+                                    globalLayoutListener
+                                )
                                 surfaceHostToken = null
+                                surfaceDisplayId = Display.INVALID_DISPLAY
                             }
                         }
                     )
@@ -396,11 +424,6 @@ private class SessionState(
         this.textColor = Color(request.textColor)
         this.locales = config.locales
     }
-}
-
-private fun getDisplayId(context: android.content.Context): Int {
-    val displayManager = context.getSystemService(DisplayManager::class.java)
-    return displayManager?.displays?.firstOrNull()?.displayId ?: 0
 }
 
 private data class SafePaddings(val left: Int, val top: Int, val right: Int, val bottom: Int)
