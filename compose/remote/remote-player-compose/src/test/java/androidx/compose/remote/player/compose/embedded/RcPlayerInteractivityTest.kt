@@ -285,6 +285,47 @@ class RcPlayerInteractivityTest {
         rule.onNodeWithContentDescription("exprTarget").assertDoesNotExist()
     }
 
+    // A click that sets an integer to an expression of itself (`visibility - 1`) authors a
+    // ValueIntegerExpressionChange, whose target and expression ids carry the long id offset.
+    @Test
+    fun integerExpressionClickActionUpdatesTarget() {
+        rule.setRemoteContent(
+            playComposableWrapper = {
+                Box(modifier = Modifier.size(100.dp).testTag("playerParent")) { it() }
+            }
+        ) {
+            val visibilityState = remember { MutableRemoteInt(Component.Visibility.VISIBLE) }
+
+            RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(100.rdp, 40.rdp)
+                            .background(Color(0xFF3F51B5).rc)
+                            .clickable(
+                                action = valueChange(visibilityState, visibilityState - 1.ri)
+                            )
+                )
+
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.semantics { contentDescription = "decrementTarget".rs }
+                            .visibility(visibilityState)
+                            .size(100.rdp, 40.rdp)
+                            .background(Color(0xFFFFC107).rc)
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithContentDescription("decrementTarget").assertExists()
+
+        rule.onNode(hasClickAction()).performClick()
+        rule.waitForIdle()
+
+        // VISIBLE (1) - 1 = GONE (0).
+        rule.onNodeWithContentDescription("decrementTarget").assertDoesNotExist()
+    }
+
     // A *derived value* (here derived text — `n.toRemoteString()`, a TextFromFloat op) must update
     // when its input changes. The click value-changes `n`; the embedded player recomputes the
     // derived

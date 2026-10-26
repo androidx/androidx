@@ -33,6 +33,7 @@ import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.remote.player.compose.embedded.resources.buildFontFeatureSettings
 import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
@@ -300,7 +301,8 @@ private fun resolveTextFontSizePx(paintState: ComposeLocalPaint, rawFontSize: Fl
     val resolvedFontSize by rememberRemoteFloatAsState(rawFontSize)
     return when {
         paintState.isTextSizeSet -> paintState.textSize
-        rawFontSize.isNaN() -> resolvedFontSize
+        // A referenced font size is already in px.
+        MaybeVariableFloat(rawFontSize).isReference -> resolvedFontSize
         else -> rawDimensionPx(resolvedFontSize)
     }
 }

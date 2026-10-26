@@ -23,14 +23,12 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.doc.DocumentPreprocessResult
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.state.forEachScalarReference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -173,13 +171,8 @@ private fun touchExpressionAxes(
     var usesY = false
     val visited = mutableIntSetOf()
     fun scan(values: FloatArray) {
-        for (v in values) {
-            if (
-                !v.isNaN() || AnimatedFloatExpression.isMathOperator(v) || NanMap.isDataVariable(v)
-            ) {
-                continue
-            }
-            when (val id = Utils.idFromNan(v)) {
+        values.forEachScalarReference { id ->
+            when (id) {
                 RemoteContext.ID_TOUCH_POS_X -> usesX = true
                 RemoteContext.ID_TOUCH_POS_Y -> usesY = true
                 else -> if (visited.add(id)) floatExpressions[id]?.let { scan(it.mSrcValue) }

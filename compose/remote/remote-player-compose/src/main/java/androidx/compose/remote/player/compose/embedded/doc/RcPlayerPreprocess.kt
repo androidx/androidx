@@ -63,7 +63,6 @@ import androidx.compose.remote.core.operations.TextSubtext
 import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
@@ -78,13 +77,14 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibil
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.Easing as RemoteEasing
 import androidx.compose.remote.core.types.BooleanConstant
 import androidx.compose.remote.core.types.IntegerConstant
 import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.player.compose.embedded.components.rootTouchExpressions
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
+import androidx.compose.remote.player.compose.embedded.state.anyScalarReference
+import androidx.compose.remote.player.compose.embedded.state.forEachScalarReference
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.util.fastForEach
 import androidx.tracing.trace
@@ -488,25 +488,11 @@ private fun RemoteComposeState.hasNonTouchExpressionListener(id: Int): Boolean {
 }
 
 internal fun isExpressionContinuousTimeDependent(expr: FloatExpression): Boolean {
-    val srcValues = expr.mSrcValue
-    for (j in 0 until srcValues.size) {
-        val v = srcValues[j]
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            if (isContinuousTimeVariable(Utils.idFromNan(v))) return true
-        }
-    }
-    return false
+    return expr.mSrcValue.anyScalarReference(::isContinuousTimeVariable)
 }
 
 internal fun isExpressionDiscreteTimeDependent(expr: FloatExpression): Boolean {
-    val srcValues = expr.mSrcValue
-    for (j in 0 until srcValues.size) {
-        val v = srcValues[j]
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            if (isDiscreteTimeVariable(Utils.idFromNan(v))) return true
-        }
-    }
-    return false
+    return expr.mSrcValue.anyScalarReference(::isDiscreteTimeVariable)
 }
 
 internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
@@ -528,19 +514,7 @@ internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
  */
 internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Unit) {
     when (op) {
-        is FloatExpression -> {
-            val srcValues = op.mSrcValue
-            for (i in srcValues.indices) {
-                val v = srcValues[i]
-                if (
-                    v.isNaN() &&
-                        !AnimatedFloatExpression.isMathOperator(v) &&
-                        !NanMap.isDataVariable(v)
-                ) {
-                    action(Utils.idFromNan(v))
-                }
-            }
-        }
+        is FloatExpression -> op.mSrcValue.forEachScalarReference(action)
         is IntegerExpression -> {
             val mask = op.mask
             val srcValues = op.mSrcValue
@@ -551,9 +525,8 @@ internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Un
             }
         }
         is TextFromFloat -> {
-            if (op.mValue.isNaN()) {
-                action(Utils.idFromNan(op.mValue))
-            }
+            val value = MaybeVariableFloat(op.mValue)
+            if (!value.isLiteral) action(value.id)
         }
         is TextLookupInt -> {
             action(op.mIndex)

@@ -23,16 +23,14 @@ import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.remote.core.operations.FloatExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.doc.isTimeVariable
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
+import androidx.compose.remote.player.compose.embedded.state.anyScalarReference
 import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
@@ -155,11 +153,5 @@ private fun expressionDependsOnTime(
     if (!visited.add(id)) return false
     val expr = expressions[id] ?: return false
     val src = expr.mSrcValue ?: return false
-    for (v in src) {
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            val varId = Utils.idFromNan(v)
-            if (expressionDependsOnTime(expressions, varId, visited)) return true
-        }
-    }
-    return false
+    return src.anyScalarReference { expressionDependsOnTime(expressions, it, visited) }
 }

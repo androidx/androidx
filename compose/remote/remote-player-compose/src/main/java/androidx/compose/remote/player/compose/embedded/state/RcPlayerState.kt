@@ -22,9 +22,6 @@ import android.graphics.Bitmap
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
@@ -178,13 +175,7 @@ internal fun expressionDependsOnAnimation(
     val expr = expressions[id] ?: return false
     if (expr.hasAnimation) return true
     val src = expr.mSrcValue ?: return false
-    for (v in src) {
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            val varId = Utils.idFromNan(v)
-            if (expressionDependsOnAnimation(expressions, varId, visited)) return true
-        }
-    }
-    return false
+    return src.anyScalarReference { expressionDependsOnAnimation(expressions, it, visited) }
 }
 
 @Composable

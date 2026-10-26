@@ -23,9 +23,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.remote.core.operations.FloatExpression
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
@@ -56,15 +53,7 @@ public fun rememberRemoteExpression(id: Int): State<Float> {
     val varIds =
         remember(expr) {
             val ids = mutableSetOf<Int>()
-            for (v in expr.mSrcValue) {
-                if (
-                    v.isNaN() &&
-                        !AnimatedFloatExpression.isMathOperator(v) &&
-                        !NanMap.isDataVariable(v)
-                ) {
-                    ids.add(Utils.idFromNan(v))
-                }
-            }
+            expr.mSrcValue.forEachScalarReference { ids.add(it) }
             ids.toList()
         }
 

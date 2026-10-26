@@ -80,7 +80,6 @@ import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ContainerEnd
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
@@ -94,6 +93,7 @@ import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteCompose
 import androidx.compose.remote.player.compose.embedded.doc.applyTrackingPathChange
 import androidx.compose.remote.player.compose.embedded.doc.withOpCountReset
 import androidx.compose.remote.player.compose.embedded.resources.resolveImageAttributeDimensions
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -124,7 +124,7 @@ internal fun resolveFloat(value: Float, fallback: Float, context: RemoteContext)
     // through their derivedStateOf (so a time/variable-driven value re-runs this draw when it
     // changes), and a plain leaf id through the shared snapshot store. There is no separate
     // draw-path variable map.
-    return if (value.isNaN()) context.getFloat(Utils.idFromNan(value)) else fallback
+    return MaybeVariableFloat(value).resolveOr(fallback, context)
 }
 
 internal fun DrawScope.executeOperations(

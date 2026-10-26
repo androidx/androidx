@@ -27,6 +27,7 @@ import androidx.compose.remote.player.compose.embedded.EmbeddedPlayerTypefaceRes
 import androidx.compose.remote.player.compose.embedded.RcTypefaceRequest
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
@@ -54,9 +55,12 @@ internal fun buildFontFeatureSettings(
     for (i in 0 until count) {
         val name = context.getText(fontAxis[i]) ?: continue
         if (!isFontFeatureTag(name)) continue
-        val rawValue = fontAxisValues[i]
-        if (isVariationAxisTag(name) && (rawValue.isNaN() || rawValue != floor(rawValue))) continue
-        val resolvedValue = resolveFloat(rawValue, rawValue, context)
+        val rawValue = MaybeVariableFloat(fontAxisValues[i])
+        if (
+            isVariationAxisTag(name) && (!rawValue.isLiteral || rawValue.raw != floor(rawValue.raw))
+        )
+            continue
+        val resolvedValue = rawValue.resolveOr(rawValue.raw, context)
         val sb = builder ?: StringBuilder().also { builder = it }
         if (sb.isNotEmpty()) sb.append(", ")
         sb.append('\'').append(name).append("' ").append(resolvedValue.toInt().coerceAtLeast(0))
