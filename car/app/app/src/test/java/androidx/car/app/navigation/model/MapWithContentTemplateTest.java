@@ -210,8 +210,11 @@ public class MapWithContentTemplateTest {
 
     @Test
     public void createInstance_sectionedItemTemplate_withSpotlightSection_throws() {
+        CondensedItem item = new CondensedItem.Builder().setTitle("Spotlight").build();
         SpotlightSection spotlightSection = new SpotlightSection.Builder(CarIcon.APP_ICON)
-                .addItem(new CondensedItem.Builder().setTitle("Spotlight").build())
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
                 .build();
         SectionedItemTemplate template = new SectionedItemTemplate.Builder()
                 .addSection(spotlightSection)

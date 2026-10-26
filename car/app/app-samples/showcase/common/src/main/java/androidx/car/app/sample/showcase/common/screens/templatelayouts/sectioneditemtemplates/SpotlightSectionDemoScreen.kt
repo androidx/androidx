@@ -44,7 +44,7 @@ class SpotlightSectionDemoScreen(carContext: CarContext) : Screen(carContext) {
     override fun onGetTemplate(): Template {
 
         val builder = SectionedItemTemplate.Builder()
-        for (i in 1..7) {
+        for (i in 3..7) {
             val sectionBuilder = SpotlightSection.Builder(testImage)
             sectionBuilder.setTitle("Image with $i items")
             for (j in 1..i) {
