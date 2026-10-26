@@ -18,7 +18,6 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Paint
 import androidx.compose.remote.core.operations.DrawTextAnchored
 import androidx.compose.remote.creation.dsl.*
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -74,9 +73,9 @@ fun demoImage(): ByteArray {
         }
 
         val text = count.format(5, 2, 0)
-        applyPaint {
-            setTextSize(32f)
-            setColor(Color.RED)
+        paint {
+            textSize(32f)
+            color(Color.RED)
         }
         drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, DrawTextAnchored.ANCHOR_MONOSPACE_MEASURE)
     }
@@ -150,16 +149,16 @@ fun demoImageColor(): ByteArray {
         }
 
         val text = count.format(5, 2, 0)
-        applyPaint {
-            setTextSize(32f)
-            setColor(Color.RED)
+        paint {
+            textSize(32f)
+            color(Color.RED)
         }
         drawTextAnchored(text, cx, 20f.rf, 0f.rf, 0f.rf, DrawTextAnchored.ANCHOR_MONOSPACE_MEASURE)
 
-        applyPaint {
-            setColor(Color.RED)
-            setStyle(Paint.Style.STROKE)
-            setStrokeWidth(3f)
+        paint {
+            color(Color.RED)
+            style(RcPaintStyle.Stroke)
+            strokeWidth(3f)
         }
         drawRoundRect(0f.rf, 0f.rf, w, h, 25f.rf, 25f.rf)
     }

@@ -161,7 +161,7 @@ public fun dslDemoStepProgressArc(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val goalLabel = textMerge(textMerge(remoteText("/ "), goalNumber), remoteText(" steps"))
+            val goalLabel = remoteText("/ ") + goalNumber + " steps"
             drawTextAnchored(goalLabel, cx, cy + density * 8f, 0f.rf, 0f.rf, 0)
         }
     }

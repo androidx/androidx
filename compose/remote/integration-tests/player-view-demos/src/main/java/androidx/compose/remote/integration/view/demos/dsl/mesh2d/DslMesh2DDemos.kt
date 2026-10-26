@@ -19,12 +19,12 @@ package androidx.compose.remote.integration.view.demos.dsl.mesh2d
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.Modifier
+import androidx.compose.remote.creation.dsl.RcCanvasScope
 import androidx.compose.remote.creation.dsl.RcMeshLayout
 import androidx.compose.remote.creation.dsl.RcMeshMatrix
 import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
-import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.abs
 import androidx.compose.remote.creation.dsl.background
 import androidx.compose.remote.creation.dsl.clamp
@@ -41,7 +41,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 private const val TAU = 6.2831855f
 
 @Suppress("RestrictedApiAndroidX")
-internal fun RcScope.drawMesh2DLabel(text: String, color: Int = 0xFFE2E8F0.toInt()) {
+internal fun RcCanvasScope.drawMesh2DLabel(text: String, color: Int = 0xFFE2E8F0.toInt()) {
     save()
     scale(componentWidth() / 400f, componentHeight() / 400f)
     paint {

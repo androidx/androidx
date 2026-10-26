@@ -122,7 +122,7 @@ fun RcScope.marble(w: RcFloat, h: RcFloat): Array<RcFloat> {
 
     impulse(20000.rf, 0.rf) {
         val ps = createParticles(variables, arrayOf(w / 2f, h / 2f, 0f.rf, 0f.rf), 1)
-        val (x, y, dx, dy) = RcFloats(variables)
+        val (x, y, dx, dy) = rcFloats(variables)
         returnX = x
         returnY = y
         impulseProcess() {

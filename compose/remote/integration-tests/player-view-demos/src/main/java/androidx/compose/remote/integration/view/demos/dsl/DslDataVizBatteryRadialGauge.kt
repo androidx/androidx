@@ -131,7 +131,7 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val pctLabel = textMerge(pctText, remoteText("%"))
+            val pctLabel = pctText + "%"
             drawTextAnchored(pctLabel, cx, cy, 0f.rf, 0f.rf, 0)
 
             // Hours remaining.
@@ -147,7 +147,7 @@ public fun dslDemoBatteryRadialGauge(): ByteArray {
                     1,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val hrsLabel = textMerge(hrsText, remoteText("h remaining"))
+            val hrsLabel = hrsText + "h remaining"
             drawTextAnchored(hrsLabel, cx, cy, 0f.rf, 3.5f.rf, 0)
 
             // Battery icon indicator (using same gauge color).

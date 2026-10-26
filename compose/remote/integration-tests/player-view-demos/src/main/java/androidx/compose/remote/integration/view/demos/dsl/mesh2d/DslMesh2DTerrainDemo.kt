@@ -189,7 +189,7 @@ private fun RcScope.rollingBalls(terrain: TerrainData, w: RcFloat, h: RcFloat) {
                 arrayOf(startX, startY, startVx, startVy, startAge),
                 BALL_COUNT,
             )
-        val (px, py, vx, vy, age) = RcFloats(variables)
+        val (px, py, vx, vy, age) = rcFloats(variables)
 
         // Which terrain cell the ball is over. The clamp is not optional: an out-of-range array
         // index throws rather than returning zero, and a ball sitting exactly on the far edge

@@ -125,7 +125,7 @@ public fun dslCustomViewsDemo(): ByteArray {
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 label(rcText!!)
                 val sum = slider + seconds() % 100f
-                textView3(sum.genTextId(3))
+                textView3(sum.format(3))
             }
         }
     }

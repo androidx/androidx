@@ -37,7 +37,6 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPathType
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcRowScope
-import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.RcText
 import androidx.compose.remote.creation.dsl.background
@@ -136,7 +135,12 @@ private fun RcCanvasScope.panelTitle(title: String) {
 
 /** Small caption text, anchored by its top-left corner. */
 @Suppress("RestrictedApiAndroidX")
-private fun RcScope.caption(text: String, x: RcFloat, y: RcFloat, color: Int = CAPTION_COLOR) {
+private fun RcCanvasScope.caption(
+    text: String,
+    x: RcFloat,
+    y: RcFloat,
+    color: Int = CAPTION_COLOR,
+) {
     paint {
         color(color)
         style(RcPaintStyle.Fill)

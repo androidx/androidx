@@ -134,11 +134,7 @@ public fun dslDemoSleepQualityRings(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val timeLabel =
-                textMerge(
-                    textMerge(textMerge(hrsText, remoteText("h ")), minsText),
-                    remoteText("m"),
-                )
+            val timeLabel = hrsText + "h " + minsText + "m"
             drawTextAnchored(timeLabel, cx, cy, 0f.rf, 0f.rf, 0)
 
             paint {

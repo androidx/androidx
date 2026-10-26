@@ -64,9 +64,8 @@ fun dslDemoGraphs2(): ByteArray {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val w = componentWidth()
                 val h = componentHeight()
-                beginGlobal()
 
-                val scale = abs((sin(continuousSeconds()) + 1.5f.rf) * 10f.rf).flush()
+                val scale = global { abs((sin(continuousSeconds()) + 1.5f.rf) * 10f.rf).flush() }
                 val equ = rFun { x ->
                     min(scale, 15f.rf) * sin(x * 0.3f.rf + continuousSeconds()) * sin(x * 7f.rf)
                 }

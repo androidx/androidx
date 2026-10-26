@@ -26,7 +26,6 @@ import androidx.compose.remote.core.operations.SoundExpression
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.creation.Rc
-import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.dsl.RcTextFromFloatSpec.Companion.of
 
@@ -143,14 +142,6 @@ public value class RcShader internal constructor(internal val id: Int) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun arraySpline(array: RcFloat, position: Float): RcFloat =
     RcFloat(array.writer, floatArrayOf(*array.toArray(), position, Rc.FloatExpression.A_SPLINE))
-
-/** Returns an [RcFloat] representing the current animation time. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun animationTime(): RcFloat = RcFloat(null, floatArrayOf(Rc.Time.ANIMATION_TIME))
-
-/** Returns an [RcFloat] representing the last touch event time. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun touchTime(): RcFloat = RcFloat(null, floatArrayOf(Rc.Touch.TOUCH_EVENT_TIME))
 
 /**
  * The current touch X position, as an [RcFloat] expression. This is in window/event pixels; scale
@@ -401,11 +392,6 @@ public enum class RcStrokeCap(internal val value: Int) {
     Square(2),
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcPaint.setStrokeCap(v: RcStrokeCap): RcPaint {
-    return setStrokeCap(v.value)
-}
-
 /** Stroke join styles for paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class RcStrokeJoin(internal val value: Int) {
@@ -414,21 +400,12 @@ public enum class RcStrokeJoin(internal val value: Int) {
     Bevel(2),
 }
 
-public fun RcPaint.setStrokeJoin(v: RcStrokeJoin): RcPaint {
-    return setStrokeJoin(v.value)
-}
-
 /** Paint styles for drawing shapes. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class RcPaintStyle(internal val value: Int) {
     Fill(0),
     Stroke(1),
     FillAndStroke(2),
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RcPaint.setStyle(v: RcPaintStyle): RcPaint {
-    return setStyle(v.value)
 }
 
 /** Type-safe font-weight value; the underlying [value] is the standard CSS weight (100..900). */
@@ -699,7 +676,7 @@ public infix fun RcFloat.gt(other: Float): RcCondition = gt(RcFloat(this.writer,
 public infix fun RcFloat.gte(other: Float): RcCondition = gte(RcFloat(this.writer, other))
 
 /**
- * Skip predicate for [RcScope.skip] / [RcScope.beginSkip]. Wraps `Rc.Skip.*` opcodes.
+ * Skip predicate for [RcScope.skip]. Wraps `Rc.Skip.*` opcodes.
  *
  * The companion `value` is interpreted in the player against either the runtime API level
  * (`IfApi*`) or the document profile bitmask (`IfProfile*`).
@@ -894,7 +871,7 @@ public value class RcHaptic internal constructor(internal val value: Int) {
 }
 
 /**
- * Bit-flag set for [RcScope.drawTextAnchored] `flags`. Independent flags — combine with [or].
+ * Bit-flag set for RcScope.drawTextAnchored `flags`. Independent flags — combine with [or].
  *
  * ```
  * drawTextAnchored(text, x, y, panX, panY,
@@ -930,7 +907,7 @@ public value class RcTextAnchorFlags internal constructor(internal val bits: Int
 }
 
 /**
- * Bit-flag set for [RcScope.matrixFromPath] `flags`. Independent flags — combine with [or].
+ * Bit-flag set for RcScope.matrixFromPath `flags`. Independent flags — combine with [or].
  *
  * Maps directly to the SkPathMeasure flags used by the player.
  */
@@ -1083,15 +1060,6 @@ public value class RcBool internal constructor(internal val handle: Long)
 
 /** Internal helper to extract the writer-side raw int from a [RcBool] handle. */
 internal fun RcBool.toRawInt(): Int = (handle % 0x100000000L).toInt()
-
-/**
- * Opaque token returned by [RcScope.beginSkip] and consumed by [RcScope.endSkip]. Replaces the raw
- * `Int` offset that previously had to be passed by the caller, preventing accidentally swapping
- * skip-block boundaries.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RcSkipToken internal constructor(internal val offset: Int)
 
 /**
  * Type-safe component identifier for [Modifier.componentId]. Wrapping prevents arbitrary ints from

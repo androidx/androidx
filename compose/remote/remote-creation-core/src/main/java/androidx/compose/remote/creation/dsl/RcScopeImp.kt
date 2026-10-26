@@ -22,7 +22,6 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Y
 import androidx.compose.remote.core.RemoteContext.FLOAT_ACCELERATION_Z
 import androidx.compose.remote.core.RemoteContext.FLOAT_ANIMATION_DELTA_TIME
 import androidx.compose.remote.core.RemoteContext.FLOAT_CALENDAR_MONTH
-import androidx.compose.remote.core.RemoteContext.FLOAT_CONTINUOUS_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_X
 import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_Y
 import androidx.compose.remote.core.RemoteContext.FLOAT_GYRO_ROT_Z
@@ -41,7 +40,6 @@ import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RcPaint
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.RemoteComposeWriterInterface
 import java.lang.Runnable
 
 /** Private implementation of [RcScope]. */
@@ -330,116 +328,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcBitmapFont(writer.addBitmapFont(glyphs, kerningTable))
     }
 
-    override fun drawText(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Int,
-        end: Int,
-        x: Float,
-        y: Float,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapFontTextRun(text.id, font.id, start, end, x, y, glyphSpacing)
-    }
-
-    override fun drawText(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Int,
-        end: Int,
-        x: RcFloat,
-        y: RcFloat,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapFontTextRun(
-            text.id,
-            font.id,
-            start,
-            end,
-            x.withWriter(writer).toFloat(),
-            y.withWriter(writer).toFloat(),
-            glyphSpacing,
-        )
-    }
-
-    override fun drawTextOnPath(
-        text: RcText,
-        font: RcBitmapFont,
-        path: RcPath,
-        start: Int,
-        end: Int,
-        yAdj: Float,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapFontTextRunOnPath(
-            text.id,
-            font.id,
-            path.id,
-            start,
-            end,
-            yAdj,
-            glyphSpacing,
-        )
-    }
-
-    override fun drawTextOnPath(
-        text: RcText,
-        font: RcBitmapFont,
-        path: RcPath,
-        start: Int,
-        end: Int,
-        yAdj: RcFloat,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapFontTextRunOnPath(
-            text.id,
-            font.id,
-            path.id,
-            start,
-            end,
-            yAdj.withWriter(writer).toFloat(),
-            glyphSpacing,
-        )
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        font: RcBitmapFont,
-        start: Float,
-        end: Float,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapTextAnchored(text.id, font.id, start, end, x, y, panX, panY, glyphSpacing)
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        font: RcBitmapFont,
-        start: RcFloat,
-        end: RcFloat,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        glyphSpacing: Float,
-    ) {
-        writer.drawBitmapTextAnchored(
-            text.id,
-            font.id,
-            start.withWriter(writer).toFloat(),
-            end.withWriter(writer).toFloat(),
-            x.withWriter(writer).toFloat(),
-            y.withWriter(writer).toFloat(),
-            panX.withWriter(writer).toFloat(),
-            panY.withWriter(writer).toFloat(),
-            glyphSpacing,
-        )
-    }
-
     override fun Text(
         text: String,
         modifier: Modifier,
@@ -589,11 +477,9 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endCanvas()
     }
 
-    override fun startCanvasOperations() {
+    override fun canvasOperations(block: RcCanvasScope.() -> Unit) {
         writer.startCanvasOperations()
-    }
-
-    override fun endCanvasOperations() {
+        RcCanvasScopeImpl(writer).block()
         writer.endCanvasOperations()
     }
 
@@ -627,21 +513,17 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return fid
     }
 
-    override fun applyPaint(block: RcPaint.() -> Unit) {
-        writer.rcPaint.block()
-        writer.rcPaint.commit()
-    }
-
     override fun paint(block: RcPaintScope.() -> Unit) {
         val scope = RcPaintScopeImpl(writer.rcPaint)
         scope.block()
         writer.rcPaint.commit()
     }
 
-    override fun Global(block: RcScope.() -> Unit) {
+    override fun <T> global(block: RcScope.() -> T): T {
         writer.beginGlobal()
-        this.block()
+        val result = this.block()
         writer.endGlobal()
+        return result
     }
 
     override fun beginGlobal() {
@@ -650,35 +532,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun endGlobal() {
         writer.endGlobal()
-    }
-
-    override fun save() {
-        writer.save()
-    }
-
-    override fun restore() {
-        writer.restore()
-    }
-
-    override fun scale(scaleX: Float, scaleY: Float) {
-        writer.scale(scaleX, scaleY)
-    }
-
-    override fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {
-        writer.scale(scaleX, scaleY, centerX, centerY)
-    }
-
-    override fun scale(scaleX: RcFloat, scaleY: RcFloat) {
-        writer.scale(scaleX.withWriter(writer).toFloat(), scaleY.withWriter(writer).toFloat())
-    }
-
-    override fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat) {
-        writer.scale(
-            scaleX.withWriter(writer).toFloat(),
-            scaleY.withWriter(writer).toFloat(),
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-        )
     }
 
     override fun remoteText(text: String): RcText = RcText(writer.addText(text))
@@ -697,9 +550,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun textLookup(dataSetId: RcTextList, indexId: RcInteger): RcText =
         RcText(writer.textLookup(dataSetId.id, indexId.id.toInt()))
-
-    override fun textMerge(text1: RcText, text2: RcText): RcText =
-        RcText(writer.textMerge(text1.id, text2.id))
 
     override fun remoteColor(color: Int): RcColor = RcColor(writer.addColor(color))
 
@@ -758,6 +608,13 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.setColorName(this.id, name)
         return this
     }
+
+    override fun RcText.named(name: String): RcText {
+        writer.setStringName(this.id, name)
+        return this
+    }
+
+    override operator fun RcText.plus(v: RcText): RcText = RcText(writer.textMerge(this.id, v.id))
 
     override fun animationTime(): RcFloat = RcFloat(writer, floatArrayOf(Rc.Time.ANIMATION_TIME))
 
@@ -894,8 +751,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 
     override fun windowHeight(): RcFloat = RcFloat(writer, Rc.System.WINDOW_HEIGHT)
 
-    override fun continuousSec(): RcFloat = RcFloat(writer, FLOAT_CONTINUOUS_SEC)
-
     override fun utcOffset(): RcFloat = RcFloat(writer, FLOAT_OFFSET_TO_UTC)
 
     override fun month(): RcFloat = RcFloat(writer, FLOAT_CALENDAR_MONTH)
@@ -995,345 +850,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             )
         )
 
-    override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawRect(left, top, right, bottom)
-    }
-
-    override fun drawRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
-        writer.drawRect(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawCircle(centerX: Float, centerY: Float, radius: Float) {
-        writer.drawCircle(centerX, centerY, radius)
-    }
-
-    override fun drawCircle(centerX: RcFloat, centerY: RcFloat, radius: RcFloat) {
-        writer.drawCircle(
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-            radius.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
-        writer.drawLine(x1, y1, x2, y2)
-    }
-
-    override fun drawLine(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat) {
-        writer.drawLine(
-            x1.withWriter(writer).toFloat(),
-            y1.withWriter(writer).toFloat(),
-            x2.withWriter(writer).toFloat(),
-            y2.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawArc(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    ) {
-        writer.drawArc(left, top, right, bottom, startAngle, sweepAngle)
-    }
-
-    override fun drawArc(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    ) {
-        writer.drawArc(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            sweepAngle.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawSector(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        startAngle: Float,
-        sweepAngle: Float,
-    ) {
-        writer.drawSector(left, top, right, bottom, startAngle, sweepAngle)
-    }
-
-    override fun drawSector(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        startAngle: RcFloat,
-        sweepAngle: RcFloat,
-    ) {
-        writer.drawSector(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            sweepAngle.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawOval(left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawOval(left, top, right, bottom)
-    }
-
-    override fun drawOval(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
-        writer.drawOval(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawRoundRect(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        radiusX: Float,
-        radiusY: Float,
-    ) {
-        writer.drawRoundRect(left, top, right, bottom, radiusX, radiusY)
-    }
-
-    override fun drawRoundRect(
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-        radiusX: RcFloat,
-        radiusY: RcFloat,
-    ) {
-        writer.drawRoundRect(
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            radiusX.withWriter(writer).toFloat(),
-            radiusY.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawPath(path: RcPath) {
-        writer.drawPath(path.id)
-    }
-
-    override fun drawTweenPath(
-        path1: RcPath,
-        path2: RcPath,
-        tween: Float,
-        start: Float,
-        stop: Float,
-    ) {
-        writer.drawTweenPath(path1.id, path2.id, tween, start, stop)
-    }
-
-    override fun drawTweenPath(
-        path1: RcPath,
-        path2: RcPath,
-        tween: RcFloat,
-        start: RcFloat,
-        stop: RcFloat,
-    ) {
-        writer.drawTweenPath(
-            path1.id,
-            path2.id,
-            tween.withWriter(writer).toFloat(),
-            start.withWriter(writer).toFloat(),
-            stop.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        x: Float,
-        y: Float,
-        panX: Float,
-        panY: Float,
-        flags: Int,
-    ) {
-        writer.drawTextAnchored(text.id, x, y, panX, panY, flags)
-    }
-
-    override fun drawTextAnchored(
-        text: RcText,
-        x: RcFloat,
-        y: RcFloat,
-        panX: RcFloat,
-        panY: RcFloat,
-        flags: Int,
-    ) {
-        writer.drawTextAnchored(
-            text.id,
-            x.withWriter(writer).toFloat(),
-            y.withWriter(writer).toFloat(),
-            panX.withWriter(writer).toFloat(),
-            panY.withWriter(writer).toFloat(),
-            flags,
-        )
-    }
-
-    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float) {
-        writer.drawTextOnPath(text.id, path.id, hOffset, vOffset)
-    }
-
-    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: RcFloat, vOffset: RcFloat) {
-        writer.drawTextOnPath(
-            text.id,
-            path.id,
-            hOffset.withWriter(writer).toFloat(),
-            vOffset.withWriter(writer).toFloat(),
-        )
-    }
-
-    override fun drawTextOnCircle(
-        text: RcText,
-        centerX: Float,
-        centerY: Float,
-        radius: Float,
-        startAngle: Float,
-        warpRadiusOffset: Float,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-    ) {
-        writer.drawTextOnCircle(
-            text.id,
-            centerX,
-            centerY,
-            radius,
-            startAngle,
-            warpRadiusOffset,
-            alignment,
-            placement,
-        )
-    }
-
-    override fun drawTextOnCircle(
-        text: RcText,
-        centerX: RcFloat,
-        centerY: RcFloat,
-        radius: RcFloat,
-        startAngle: RcFloat,
-        warpRadiusOffset: RcFloat,
-        alignment: DrawTextOnCircle.Alignment,
-        placement: DrawTextOnCircle.Placement,
-    ) {
-        writer.drawTextOnCircle(
-            text.id,
-            centerX.withWriter(writer).toFloat(),
-            centerY.withWriter(writer).toFloat(),
-            radius.withWriter(writer).toFloat(),
-            startAngle.withWriter(writer).toFloat(),
-            warpRadiusOffset.withWriter(writer).toFloat(),
-            alignment,
-            placement,
-        )
-    }
-
-    override fun drawBitmap(image: RcImage, left: Float, top: Float, right: Float, bottom: Float) {
-        writer.drawBitmap(image.id, left, top, right, bottom, null)
-    }
-
-    override fun drawBitmap(image: RcImage, left: Float, top: Float) {
-        writer.drawBitmap(image.id, left, top, null)
-    }
-
-    override fun drawBitmap(
-        image: RcImage,
-        left: RcFloat,
-        top: RcFloat,
-        right: RcFloat,
-        bottom: RcFloat,
-    ) {
-        writer.drawBitmap(
-            image.id,
-            left.withWriter(writer).toFloat(),
-            top.withWriter(writer).toFloat(),
-            right.withWriter(writer).toFloat(),
-            bottom.withWriter(writer).toFloat(),
-            null,
-        )
-    }
-
-    override fun drawScaledBitmap(
-        image: RcImage,
-        srcLeft: Float,
-        srcTop: Float,
-        srcRight: Float,
-        srcBottom: Float,
-        dstLeft: Float,
-        dstTop: Float,
-        dstRight: Float,
-        dstBottom: Float,
-        scaleType: RcContentScale,
-        scaleFactor: Float,
-        contentDescription: String?,
-    ) {
-        writer.drawScaledBitmap(
-            image.id,
-            srcLeft,
-            srcTop,
-            srcRight,
-            srcBottom,
-            dstLeft,
-            dstTop,
-            dstRight,
-            dstBottom,
-            scaleType.value,
-            scaleFactor,
-            contentDescription,
-        )
-    }
-
-    override fun drawScaledBitmap(
-        image: RcImage,
-        srcLeft: RcFloat,
-        srcTop: RcFloat,
-        srcRight: RcFloat,
-        srcBottom: RcFloat,
-        dstLeft: RcFloat,
-        dstTop: RcFloat,
-        dstRight: RcFloat,
-        dstBottom: RcFloat,
-        scaleType: RcContentScale,
-        scaleFactor: RcFloat,
-        contentDescription: String?,
-    ) {
-        writer.drawScaledBitmap(
-            image.id,
-            srcLeft.withWriter(writer).toFloat(),
-            srcTop.withWriter(writer).toFloat(),
-            srcRight.withWriter(writer).toFloat(),
-            srcBottom.withWriter(writer).toFloat(),
-            dstLeft.withWriter(writer).toFloat(),
-            dstTop.withWriter(writer).toFloat(),
-            dstRight.withWriter(writer).toFloat(),
-            dstBottom.withWriter(writer).toFloat(),
-            scaleType.value,
-            scaleFactor.withWriter(writer).toFloat(),
-            contentDescription,
-        )
-    }
-
     override fun createBitmap(width: Int, height: Int): RcImage {
         return RcImage(writer.createBitmap(width, height))
     }
@@ -1361,43 +877,12 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.drawOnBitmap(0)
     }
 
-    override fun createShader(
-        shaderString: String,
-        block: (androidx.compose.remote.creation.RemoteComposeShader.() -> Unit)?,
-    ): RcShader {
-        val shader = writer.createShader(shaderString)
-        if (block != null) {
-            shader.block()
-        }
-        return RcShader(shader.commit())
-    }
-
     override fun shader(shaderString: String, block: RcShaderScope.() -> Unit): RcShader {
         val shader = writer.createShader(shaderString)
         val scope = RcShaderScopeImpl(shader)
         scope.block()
         return RcShader(shader.commit())
     }
-
-    override fun Float.format(whole: Int, decimal: Int, flags: Int): RcText {
-        return RcText(writer.createTextFromFloat(this, whole, decimal, flags))
-    }
-
-    override infix fun RcText.merge(other: RcText): RcText {
-        return RcText(writer.textMerge(this.id, other.id))
-    }
-
-    override fun RcText.subtext(start: RcFloat, length: RcFloat): RcText {
-        return RcText(
-            writer.textSubtext(
-                this.id,
-                start.withWriter(writer).toFloat(),
-                length.withWriter(writer).toFloat(),
-            )
-        )
-    }
-
-    override fun RcText.subtext(start: Float, length: Float): RcText = subtext(start.rf, length.rf)
 
     override val RcText.length: RcFloat
         get() = RcFloat(writer, writer.textLength(this.id))
@@ -1469,22 +954,6 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcPath(writer.pathTween(this.id, path2.id, tween.withWriter(writer).toFloat()))
     }
 
-    override fun RcColor.setName(name: String) {
-        writer.setColorName(this.id, name)
-    }
-
-    override fun RcText.setName(name: String) {
-        writer.setStringName(this.id, name)
-    }
-
-    override fun RcFloat.setName(name: String) {
-        this@RcScopeImpl.writer.setFloatName(Utils.idFromNan(this.id), name)
-    }
-
-    override fun setFloatName(value: RcFloat, name: String) {
-        writer.setFloatName(Utils.idFromNan(value.withWriter(writer).toFloat()), name)
-    }
-
     override fun RcText.transform(
         start: RcFloat,
         len: RcFloat,
@@ -1508,31 +977,10 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcFloat(writer, writer.textMeasure(text.id, mode))
     }
 
-    override fun textLength(text: RcText): RcFloat {
-        return RcFloat(writer, writer.textLength(text.id))
-    }
-
     override fun timeAttribute(variable: RcInteger, type: Short, vararg args: Int): RcFloat {
         return RcFloat(
             writer,
             writer.timeAttribute((variable.id % 0x100000000L).toInt(), type, *args),
-        )
-    }
-
-    override fun skew(skewX: Float, skewY: Float) {
-        writer.skew(skewX, skewY)
-    }
-
-    override fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int) {
-        writer.matrixFromPath(path.id, fraction, vOffset, flags)
-    }
-
-    override fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int) {
-        writer.matrixFromPath(
-            path.id,
-            fraction.withWriter(writer).toFloat(),
-            vOffset.withWriter(writer).toFloat(),
-            flags,
         )
     }
 
@@ -1704,68 +1152,19 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             )
         )
 
-    override fun drawMesh2D(mesh: RcMesh, image: RcImage?, blend: RcMeshBlend?) {
-        // Untextured meshes have only their vertex colours; textured ones modulate by default,
-        // which is what makes a tinted bitmap the no-argument case.
-        val resolved = blend ?: if (image == null) RcMeshBlend.ColorsOnly else RcMeshBlend.Modulate
-        writer.drawMesh2D(mesh.id, resolved.value, image?.id ?: DrawMesh2D.NO_IMAGE)
-    }
-
-    override fun matrixFromMesh2D(mesh: RcMesh, u: Float, v: Float, apply: RcMeshMatrix) {
-        writer.matrixFromMesh2D(mesh.id, u, v, apply.value)
-    }
-
-    override fun matrixFromMesh2D(mesh: RcMesh, u: RcFloat, v: RcFloat, apply: RcMeshMatrix) {
-        writer.matrixFromMesh2D(
-            mesh.id,
-            u.withWriter(writer).toFloat(),
-            v.withWriter(writer).toFloat(),
-            apply.value,
-        )
-    }
-
-    override fun conditionalOperations(
+    override fun <S : RcScope> S.conditionalOperations(
         type: Byte,
         a: RcFloat,
         b: RcFloat,
-        content: RcScope.() -> Unit,
+        content: S.() -> Unit,
     ) {
-        writer.conditionalOperations(
+        this@RcScopeImpl.writer.conditionalOperations(
             type,
-            a.withWriter(writer).toFloat(),
-            b.withWriter(writer).toFloat(),
+            a.withWriter(this@RcScopeImpl.writer).toFloat(),
+            b.withWriter(this@RcScopeImpl.writer).toFloat(),
         )
         this.content()
-        writer.endConditionalOperations()
-    }
-
-    override fun rcLoop(
-        start: RcFloat,
-        step: Float,
-        end: RcFloat,
-        block: RcScope.(RcFloat) -> Unit,
-    ) {
-        val indexId = writer.textCreateId("index")
-        val from: Float = start.withWriter(writer).toFloat()
-        val until: Float = end.withWriter(writer).toFloat()
-        writer.loop(
-            indexId,
-            from,
-            step,
-            until,
-            object : RemoteComposeWriterInterface {
-                override fun run() {
-                    val v =
-                        androidx.compose.remote.creation.RFloat(
-                            writer,
-                            floatArrayOf(
-                                androidx.compose.remote.core.operations.Utils.asNan(indexId)
-                            ),
-                        )
-                    this@RcScopeImpl.block(RcFloat(writer, v.array))
-                }
-            },
-        )
+        this@RcScopeImpl.writer.endConditionalOperations()
     }
 
     override fun createParticles(
@@ -1781,7 +1180,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         id: RcFloat,
         restart: RcFloat?,
         expressions: Array<RcFloat>,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     ) {
         val restartArray = restart?.toArray()
         val exprArrays = expressions.map { it.toArray() }.toTypedArray()
@@ -1791,7 +1190,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             exprArrays,
             object : Runnable {
                 override fun run() {
-                    RcScopeImpl(writer).block()
+                    RcCanvasScopeImpl(writer).block()
                 }
             },
         )
@@ -1805,7 +1204,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         condition: RcFloat?,
         then1: Array<RcFloat>?,
         then2: Array<RcFloat>?,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     ) {
         val minVal = min.withWriter(writer).toFloat()
         val maxVal = max.withWriter(writer).toFloat()
@@ -1822,7 +1221,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             then2Arrays,
             object : Runnable {
                 override fun run() {
-                    RcScopeImpl(writer).block()
+                    RcCanvasScopeImpl(writer).block()
                 }
             },
         )
@@ -1835,7 +1234,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         max: RcFloat,
         condition: RcFloat?,
         then: Array<RcFloat>?,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     ) {
         val minVal = min.withWriter(writer).toFloat()
         val maxVal = max.withWriter(writer).toFloat()
@@ -1850,7 +1249,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
             thenArrays,
             object : Runnable {
                 override fun run() {
-                    RcScopeImpl(writer).block()
+                    RcCanvasScopeImpl(writer).block()
                 }
             },
         )
@@ -1887,21 +1286,49 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.endRunActions()
     }
 
-    override fun skip(type: Short, value: Int, block: RcScope.() -> Unit) {
-        val offset = writer.beginSkip(type, value)
+    override fun <S : RcScope> S.skip(type: Short, value: Int, block: S.() -> Unit) {
+        val offset = this@RcScopeImpl.writer.beginSkip(type, value)
         this.block()
-        writer.endSkip(offset)
+        this@RcScopeImpl.writer.endSkip(offset)
     }
 
-    override fun beginSkip(type: Short, value: Int): Int {
-        return writer.beginSkip(type, value)
+    override fun <S : RcScope> S.rcLoop(
+        start: RcFloat,
+        step: Float,
+        end: RcFloat,
+        block: S.(RcFloat) -> Unit,
+    ) {
+        val w = this@RcScopeImpl.writer
+        val indexId = w.textCreateId("index")
+        val from: Float = start.withWriter(w).toFloat()
+        val until: Float = end.withWriter(w).toFloat()
+        w.loop(indexId, from, step, until) {
+            val v = androidx.compose.remote.creation.RFloat(w, floatArrayOf(Utils.asNan(indexId)))
+            this.block(RcFloat(w, v.array))
+        }
     }
 
-    override fun endSkip(offset: Int) {
-        writer.endSkip(offset)
+    override fun <S : RcScope> S.rcLoop(
+        start: RcFloat,
+        step: RcFloat,
+        end: RcFloat,
+        block: S.(RcFloat) -> Unit,
+    ) {
+        val w = this@RcScopeImpl.writer
+        val indexId = w.textCreateId("index")
+        val from: Float = start.withWriter(w).toFloat()
+        val stepF: Float = step.withWriter(w).toFloat()
+        val until: Float = end.withWriter(w).toFloat()
+        w.loop(indexId, from, stepF, until) {
+            val v = androidx.compose.remote.creation.RFloat(w, floatArrayOf(Utils.asNan(indexId)))
+            this.block(RcFloat(w, v.array))
+        }
     }
 
     override fun deltaTime(): RcFloat = RcFloat(writer, floatArrayOf(FLOAT_ANIMATION_DELTA_TIME))
+
+    override fun remotePath(x: Float, y: Float): RcDynamicPath =
+        RcDynamicPath(writer.pathCreate(x, y))
 
     override fun RcDynamicPath.lineTo(x: Float, y: Float) {
         writer.pathAppendLineTo(id, x, y)
@@ -2182,12 +1609,12 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
 }
 
 private class RcImpulseScopeImpl(writer: RemoteComposeWriter) :
-    RcScopeImpl(writer), RcImpulseScope {
-    override fun process(block: RcScope.() -> Unit) {
+    RcCanvasScopeImpl(writer), RcImpulseScope {
+    override fun process(block: RcCanvasScope.() -> Unit) {
         writer.impulseProcess(
             object : Runnable {
                 override fun run() {
-                    RcScopeImpl(writer).block()
+                    RcCanvasScopeImpl(writer).block()
                 }
             }
         )
@@ -2223,7 +1650,8 @@ private class RcCollapsibleRowScopeImpl(writer: RemoteComposeWriter) :
         then(WeightModifier(weight, vertical = false))
 }
 
-internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writer), RcCanvasScope {
+internal open class RcCanvasScopeImpl(writer: RemoteComposeWriter) :
+    RcScopeImpl(writer), RcCanvasScope {
     override val width: RcFloat
         get() = RcFloat(writer, writer.addComponentWidthValue())
 
@@ -2233,10 +1661,525 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
     override val paint: RcPaint
         get() = writer.rcPaint
 
+    override fun save() {
+        writer.save()
+    }
+
+    override fun restore() {
+        writer.restore()
+    }
+
     override fun save(block: RcCanvasScope.() -> Unit) {
         writer.save()
         this.block()
         writer.restore()
+    }
+
+    override fun scale(scaleX: Float, scaleY: Float) {
+        writer.scale(scaleX, scaleY)
+    }
+
+    override fun scale(scaleX: Float, scaleY: Float, centerX: Float, centerY: Float) {
+        writer.scale(scaleX, scaleY, centerX, centerY)
+    }
+
+    override fun scale(scaleX: RcFloat, scaleY: RcFloat) {
+        writer.scale(scaleX.withWriter(writer).toFloat(), scaleY.withWriter(writer).toFloat())
+    }
+
+    override fun scale(scaleX: RcFloat, scaleY: RcFloat, centerX: RcFloat, centerY: RcFloat) {
+        writer.scale(
+            scaleX.withWriter(writer).toFloat(),
+            scaleY.withWriter(writer).toFloat(),
+            centerX.withWriter(writer).toFloat(),
+            centerY.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun skew(skewX: Float, skewY: Float) {
+        writer.skew(skewX, skewY)
+    }
+
+    override fun matrixFromPath(path: RcPath, fraction: Float, vOffset: Float, flags: Int) {
+        writer.matrixFromPath(path.id, fraction, vOffset, flags)
+    }
+
+    override fun matrixFromPath(path: RcPath, fraction: RcFloat, vOffset: RcFloat, flags: Int) {
+        writer.matrixFromPath(
+            path.id,
+            fraction.withWriter(writer).toFloat(),
+            vOffset.withWriter(writer).toFloat(),
+            flags,
+        )
+    }
+
+    override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {
+        writer.drawRect(left, top, right, bottom)
+    }
+
+    override fun drawRect(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
+        writer.drawRect(
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawCircle(centerX: Float, centerY: Float, radius: Float) {
+        writer.drawCircle(centerX, centerY, radius)
+    }
+
+    override fun drawCircle(centerX: RcFloat, centerY: RcFloat, radius: RcFloat) {
+        writer.drawCircle(
+            centerX.withWriter(writer).toFloat(),
+            centerY.withWriter(writer).toFloat(),
+            radius.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float) {
+        writer.drawLine(x1, y1, x2, y2)
+    }
+
+    override fun drawLine(x1: RcFloat, y1: RcFloat, x2: RcFloat, y2: RcFloat) {
+        writer.drawLine(
+            x1.withWriter(writer).toFloat(),
+            y1.withWriter(writer).toFloat(),
+            x2.withWriter(writer).toFloat(),
+            y2.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawArc(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+    ) {
+        writer.drawArc(left, top, right, bottom, startAngle, sweepAngle)
+    }
+
+    override fun drawArc(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        startAngle: RcFloat,
+        sweepAngle: RcFloat,
+    ) {
+        writer.drawArc(
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+            startAngle.withWriter(writer).toFloat(),
+            sweepAngle.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawSector(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+    ) {
+        writer.drawSector(left, top, right, bottom, startAngle, sweepAngle)
+    }
+
+    override fun drawSector(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        startAngle: RcFloat,
+        sweepAngle: RcFloat,
+    ) {
+        writer.drawSector(
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+            startAngle.withWriter(writer).toFloat(),
+            sweepAngle.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawOval(left: Float, top: Float, right: Float, bottom: Float) {
+        writer.drawOval(left, top, right, bottom)
+    }
+
+    override fun drawOval(left: RcFloat, top: RcFloat, right: RcFloat, bottom: RcFloat) {
+        writer.drawOval(
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        radiusX: Float,
+        radiusY: Float,
+    ) {
+        writer.drawRoundRect(left, top, right, bottom, radiusX, radiusY)
+    }
+
+    override fun drawRoundRect(
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+        radiusX: RcFloat,
+        radiusY: RcFloat,
+    ) {
+        writer.drawRoundRect(
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+            radiusX.withWriter(writer).toFloat(),
+            radiusY.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawPath(path: RcPath) {
+        writer.drawPath(path.id)
+    }
+
+    override fun drawTweenPath(
+        path1: RcPath,
+        path2: RcPath,
+        tween: Float,
+        start: Float,
+        stop: Float,
+    ) {
+        writer.drawTweenPath(path1.id, path2.id, tween, start, stop)
+    }
+
+    override fun drawTweenPath(
+        path1: RcPath,
+        path2: RcPath,
+        tween: RcFloat,
+        start: RcFloat,
+        stop: RcFloat,
+    ) {
+        writer.drawTweenPath(
+            path1.id,
+            path2.id,
+            tween.withWriter(writer).toFloat(),
+            start.withWriter(writer).toFloat(),
+            stop.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawTextAnchored(
+        text: RcText,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        flags: Int,
+    ) {
+        writer.drawTextAnchored(text.id, x, y, panX, panY, flags)
+    }
+
+    override fun drawTextAnchored(
+        text: RcText,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        flags: Int,
+    ) {
+        writer.drawTextAnchored(
+            text.id,
+            x.withWriter(writer).toFloat(),
+            y.withWriter(writer).toFloat(),
+            panX.withWriter(writer).toFloat(),
+            panY.withWriter(writer).toFloat(),
+            flags,
+        )
+    }
+
+    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: Float, vOffset: Float) {
+        writer.drawTextOnPath(text.id, path.id, hOffset, vOffset)
+    }
+
+    override fun drawTextOnPath(text: RcText, path: RcPath, hOffset: RcFloat, vOffset: RcFloat) {
+        writer.drawTextOnPath(
+            text.id,
+            path.id,
+            hOffset.withWriter(writer).toFloat(),
+            vOffset.withWriter(writer).toFloat(),
+        )
+    }
+
+    override fun drawTextOnCircle(
+        text: RcText,
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        startAngle: Float,
+        warpRadiusOffset: Float,
+        alignment: DrawTextOnCircle.Alignment,
+        placement: DrawTextOnCircle.Placement,
+    ) {
+        writer.drawTextOnCircle(
+            text.id,
+            centerX,
+            centerY,
+            radius,
+            startAngle,
+            warpRadiusOffset,
+            alignment,
+            placement,
+        )
+    }
+
+    override fun drawTextOnCircle(
+        text: RcText,
+        centerX: RcFloat,
+        centerY: RcFloat,
+        radius: RcFloat,
+        startAngle: RcFloat,
+        warpRadiusOffset: RcFloat,
+        alignment: DrawTextOnCircle.Alignment,
+        placement: DrawTextOnCircle.Placement,
+    ) {
+        writer.drawTextOnCircle(
+            text.id,
+            centerX.withWriter(writer).toFloat(),
+            centerY.withWriter(writer).toFloat(),
+            radius.withWriter(writer).toFloat(),
+            startAngle.withWriter(writer).toFloat(),
+            warpRadiusOffset.withWriter(writer).toFloat(),
+            alignment,
+            placement,
+        )
+    }
+
+    override fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: Float,
+        y: Float,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapFontTextRun(text.id, font.id, start, end, x, y, glyphSpacing)
+    }
+
+    override fun drawText(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Int,
+        end: Int,
+        x: RcFloat,
+        y: RcFloat,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapFontTextRun(
+            text.id,
+            font.id,
+            start,
+            end,
+            x.withWriter(writer).toFloat(),
+            y.withWriter(writer).toFloat(),
+            glyphSpacing,
+        )
+    }
+
+    override fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: Float,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapFontTextRunOnPath(
+            text.id,
+            font.id,
+            path.id,
+            start,
+            end,
+            yAdj,
+            glyphSpacing,
+        )
+    }
+
+    override fun drawTextOnPath(
+        text: RcText,
+        font: RcBitmapFont,
+        path: RcPath,
+        start: Int,
+        end: Int,
+        yAdj: RcFloat,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapFontTextRunOnPath(
+            text.id,
+            font.id,
+            path.id,
+            start,
+            end,
+            yAdj.withWriter(writer).toFloat(),
+            glyphSpacing,
+        )
+    }
+
+    override fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: Float,
+        end: Float,
+        x: Float,
+        y: Float,
+        panX: Float,
+        panY: Float,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapTextAnchored(text.id, font.id, start, end, x, y, panX, panY, glyphSpacing)
+    }
+
+    override fun drawTextAnchored(
+        text: RcText,
+        font: RcBitmapFont,
+        start: RcFloat,
+        end: RcFloat,
+        x: RcFloat,
+        y: RcFloat,
+        panX: RcFloat,
+        panY: RcFloat,
+        glyphSpacing: Float,
+    ) {
+        writer.drawBitmapTextAnchored(
+            text.id,
+            font.id,
+            start.withWriter(writer).toFloat(),
+            end.withWriter(writer).toFloat(),
+            x.withWriter(writer).toFloat(),
+            y.withWriter(writer).toFloat(),
+            panX.withWriter(writer).toFloat(),
+            panY.withWriter(writer).toFloat(),
+            glyphSpacing,
+        )
+    }
+
+    override fun drawBitmap(image: RcImage, left: Float, top: Float, right: Float, bottom: Float) {
+        writer.drawBitmap(image.id, left, top, right, bottom, null)
+    }
+
+    override fun drawBitmap(image: RcImage, left: Float, top: Float) {
+        writer.drawBitmap(image.id, left, top, null)
+    }
+
+    override fun drawBitmap(
+        image: RcImage,
+        left: RcFloat,
+        top: RcFloat,
+        right: RcFloat,
+        bottom: RcFloat,
+    ) {
+        writer.drawBitmap(
+            image.id,
+            left.withWriter(writer).toFloat(),
+            top.withWriter(writer).toFloat(),
+            right.withWriter(writer).toFloat(),
+            bottom.withWriter(writer).toFloat(),
+            null,
+        )
+    }
+
+    override fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: Float,
+        srcTop: Float,
+        srcRight: Float,
+        srcBottom: Float,
+        dstLeft: Float,
+        dstTop: Float,
+        dstRight: Float,
+        dstBottom: Float,
+        scaleType: RcContentScale,
+        scaleFactor: Float,
+        contentDescription: String?,
+    ) {
+        writer.drawScaledBitmap(
+            image.id,
+            srcLeft,
+            srcTop,
+            srcRight,
+            srcBottom,
+            dstLeft,
+            dstTop,
+            dstRight,
+            dstBottom,
+            scaleType.value,
+            scaleFactor,
+            contentDescription,
+        )
+    }
+
+    override fun drawScaledBitmap(
+        image: RcImage,
+        srcLeft: RcFloat,
+        srcTop: RcFloat,
+        srcRight: RcFloat,
+        srcBottom: RcFloat,
+        dstLeft: RcFloat,
+        dstTop: RcFloat,
+        dstRight: RcFloat,
+        dstBottom: RcFloat,
+        scaleType: RcContentScale,
+        scaleFactor: RcFloat,
+        contentDescription: String?,
+    ) {
+        writer.drawScaledBitmap(
+            image.id,
+            srcLeft.withWriter(writer).toFloat(),
+            srcTop.withWriter(writer).toFloat(),
+            srcRight.withWriter(writer).toFloat(),
+            srcBottom.withWriter(writer).toFloat(),
+            dstLeft.withWriter(writer).toFloat(),
+            dstTop.withWriter(writer).toFloat(),
+            dstRight.withWriter(writer).toFloat(),
+            dstBottom.withWriter(writer).toFloat(),
+            scaleType.value,
+            scaleFactor.withWriter(writer).toFloat(),
+            contentDescription,
+        )
+    }
+
+    override fun drawMesh2D(mesh: RcMesh, image: RcImage?, blend: RcMeshBlend?) {
+        // Untextured meshes have only their vertex colours; textured ones modulate by default,
+        // which is what makes a tinted bitmap the no-argument case.
+        val resolved = blend ?: if (image == null) RcMeshBlend.ColorsOnly else RcMeshBlend.Modulate
+        writer.drawMesh2D(mesh.id, resolved.value, image?.id ?: DrawMesh2D.NO_IMAGE)
+    }
+
+    override fun matrixFromMesh2D(mesh: RcMesh, u: Float, v: Float, apply: RcMeshMatrix) {
+        writer.matrixFromMesh2D(mesh.id, u, v, apply.value)
+    }
+
+    override fun matrixFromMesh2D(mesh: RcMesh, u: RcFloat, v: RcFloat, apply: RcMeshMatrix) {
+        writer.matrixFromMesh2D(
+            mesh.id,
+            u.withWriter(writer).toFloat(),
+            v.withWriter(writer).toFloat(),
+            apply.value,
+        )
     }
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float) {
@@ -2251,9 +2194,6 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
             bottom.withWriter(writer).toFloat(),
         )
     }
-
-    override fun remotePath(x: Float, y: Float): RcDynamicPath =
-        RcDynamicPath(writer.pathCreate(x, y))
 
     override fun rotate(angle: Float) {
         writer.rotate(angle)
@@ -2281,23 +2221,6 @@ internal class RcCanvasScopeImpl(writer: RemoteComposeWriter) : RcScopeImpl(writ
 
     override fun translate(x: RcFloat, y: RcFloat) {
         writer.translate(x.withWriter(writer).toFloat(), y.withWriter(writer).toFloat())
-    }
-
-    override fun loop(
-        start: RcFloat,
-        step: RcFloat,
-        end: RcFloat,
-        block: RcCanvasScope.(RcFloat) -> Unit,
-    ) {
-        val indexId = writer.textCreateId("index")
-        val from: Float = start.withWriter(writer).toFloat()
-        val stepF: Float = step.withWriter(writer).toFloat()
-        val until: Float = end.withWriter(writer).toFloat()
-        writer.loop(indexId, from, stepF, until) {
-            val v =
-                androidx.compose.remote.creation.RFloat(writer, floatArrayOf(Utils.asNan(indexId)))
-            this@RcCanvasScopeImpl.block(RcFloat(writer, v.array))
-        }
     }
 
     override fun clipPath(path: RcPath) {

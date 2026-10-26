@@ -116,7 +116,7 @@ public fun dslDemoWeatherForecast(): ByteArray {
                         0,
                         RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                     )
-                val tempStr = textMerge(tempLabel, remoteText("°"))
+                val tempStr = tempLabel + "°"
                 drawTextAnchored(
                     tempStr,
                     barX + barWidth / 2f,

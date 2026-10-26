@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.dsl.RcPaintStyle
 import androidx.compose.remote.creation.dsl.RcPath
 import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcScope
+import androidx.compose.remote.creation.dsl.RcShader
 import androidx.compose.remote.creation.dsl.RcSp
 import androidx.compose.remote.creation.dsl.RcVerticalPositioning
 import androidx.compose.remote.creation.dsl.background
@@ -40,7 +41,6 @@ import androidx.compose.remote.creation.dsl.height
 import androidx.compose.remote.creation.dsl.padding
 import androidx.compose.remote.creation.dsl.rdp
 import androidx.compose.remote.creation.dsl.rsp
-import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.creation.dsl.size
 import androidx.compose.remote.creation.dsl.verticalScroll
 import androidx.compose.remote.creation.dsl.widthIn
@@ -137,12 +137,12 @@ private fun RcFlowScope.Stock(name: String, price: Float, change: String) {
                         Rc.TextFromFloat.GROUPING_BY3 or
                         Rc.TextFromFloat.PAD_AFTER_ZERO
                 Text(
-                    price.format(8, 0, numFlags),
+                    price.rf.format(8, 0, numFlags),
                     color = colors.stockPrice,
                     fontSize = fontSizes.priceDollars,
                 )
                 Text(
-                    price.format(0, 2, numFlags),
+                    price.rf.format(0, 2, numFlags),
                     color = colors.stockName,
                     fontSize = fontSizes.priceCents,
                 )
@@ -170,12 +170,12 @@ private fun RcScope.BigStock(name: String, price: Float, change: String) {
                         Rc.TextFromFloat.PAD_AFTER_ZERO
                 Row(vertical = RcVerticalPositioning.Bottom) {
                     Text(
-                        price.format(8, 0, numFlags),
+                        price.rf.format(8, 0, numFlags),
                         color = colors.stockPrice,
                         fontSize = fontSizes.priceDollars,
                     )
                     Text(
-                        price.format(0, 2, numFlags),
+                        price.rf.format(0, 2, numFlags),
                         color = colors.stockName,
                         fontSize = fontSizes.priceCents,
                     )
@@ -224,8 +224,8 @@ private fun RcScope.StockGraph() {
         path.lineTo(xEnd.toFloat(), lineBottom.toFloat())
         path.close()
 
+        paint { style(RcPaintStyle.Fill) }
         paint
-            .setStyle(RcPaintStyle.Fill)
             .setLinearGradient(
                 0f,
                 0f,
@@ -245,12 +245,12 @@ private fun RcScope.StockGraph() {
             clipRect(margin + cut, margin + cut, xEnd - cut, lineBottom - cut)
             drawPath(path.getPath())
 
-            paint
-                .setShader(0)
-                .setColorId(colors.dotColor.id)
-                .setStyle(RcPaintStyle.Stroke)
-                .setStrokeWidth(6f)
-                .commit()
+            paint {
+                shader(RcShader.None)
+                color(colors.dotColor)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(6f)
+            }
             drawPath(path.getPath())
         }
     }

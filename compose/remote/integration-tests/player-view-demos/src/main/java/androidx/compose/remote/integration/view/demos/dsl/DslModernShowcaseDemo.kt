@@ -133,7 +133,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
             Spacer(Modifier.height(24.rdp))
 
             // ----------------------------------------------------------------------------
-            // Feature 3: String Manipulation DSL (`merge`, `subtext`, `length`)
+            // Feature 3: String Manipulation DSL (`+`, `substring`, `length`)
             // ----------------------------------------------------------------------------
             Row(
                 Modifier.fillMaxWidth().height(80.rdp),
@@ -142,7 +142,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
             ) {
                 val baseTxt = remoteText("DeepMind")
                 val extTxt = remoteText(" Support")
-                val merged = baseTxt merge extTxt
+                val merged = baseTxt + extTxt
                 Text(
                     text = merged,
                     fontWeight = RcFontWeight.Bold,
@@ -150,7 +150,7 @@ public fun dslModernShowcaseDemo(): ByteArray {
                     color = 0xFFF59E0B.toInt(),
                 )
 
-                val sub = baseTxt.subtext(0f, 4f)
+                val sub = baseTxt.substring(0f, 4f)
                 Text(
                     text = sub,
                     fontWeight = RcFontWeight.SemiBold,

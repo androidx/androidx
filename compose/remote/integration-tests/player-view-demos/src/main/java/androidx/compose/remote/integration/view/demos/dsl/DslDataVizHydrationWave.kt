@@ -164,7 +164,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val label = textMerge(textMerge(remoteText("of "), goalText), remoteText(" cups"))
+            val label = remoteText("of ") + goalText + " cups"
             drawTextAnchored(label, cx, h * 0.90f, 0f.rf, 0f.rf, 0)
 
             // Progress percentage inside glass.
@@ -181,7 +181,7 @@ public fun dslDemoHydrationWave(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val pctLabel = textMerge(pctText, remoteText("%"))
+            val pctLabel = pctText + "%"
             drawTextAnchored(pctLabel, cx, glassTop + glassH * 0.4f, 0f.rf, 0f.rf, 0)
 
             // Water drop icon + label.

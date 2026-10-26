@@ -150,12 +150,10 @@ fun RcScope.ball(
     val accY: RcFloat = accelerometerY() * 100f
     impulse(200000.rf, 0.rf) {
         val ps = createParticles(variables, arrayOf(w / 2f, h / 2f, 500f.rf, 500f.rf), 1)
-        val (x, y, dx, dy) = RcFloats(variables)
+        val (x, y, dx, dy) = rcFloats(variables)
         returnX = x
         returnY = y
-        beginGlobal()
-        val count = 0.rf.flush()
-        endGlobal()
+        val count = global { 0.rf.flush() }
         impulseProcess() {
             // hit the walls
             particlesComparison(

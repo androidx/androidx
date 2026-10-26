@@ -138,7 +138,7 @@ public fun dslDemoMoonPhaseDial(): ByteArray {
                     0,
                     RcTextFromFloatSpec.of(padPre = RcTextFromFloatSpec.PadPre.None),
                 )
-            val illumLabel = textMerge(illumText, remoteText("% illuminated"))
+            val illumLabel = illumText + "% illuminated"
             drawTextAnchored(illumLabel, cx, h * 0.81f, 0f.rf, 0f.rf, 0)
 
             // Decorative stars.

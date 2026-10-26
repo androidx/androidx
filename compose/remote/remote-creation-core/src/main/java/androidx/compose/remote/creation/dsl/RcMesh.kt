@@ -70,7 +70,7 @@ public enum class RcMeshBlend(internal val value: Int) {
 }
 
 /**
- * How much of a mesh's local frame [RcScope.matrixFromMesh2D] applies.
+ * How much of a mesh's local frame RcScope.matrixFromMesh2D applies.
  *
  * These are increasing levels of faithfulness rather than independent bits, which is why they are
  * an enum and not an OR-able flag set. Where the patch is degenerate - a fan's apex, a ring at

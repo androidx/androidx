@@ -218,7 +218,7 @@ fun dslGameFlappyDroid(): ByteArray {
                             val hitWall = sign(flow - current)
 
                             val scale = max(0f, (floatCount - count - 0.9f) * 10f) + 1f
-                            drawTextAnchored(scale.genTextId(3, 3), w, 0.rf, 4.rf, 2.rf, 0)
+                            drawTextAnchored(scale.format(3, 3), w, 0.rf, 4.rf, 2.rf, 0)
 
                             save()
 
@@ -230,7 +230,7 @@ fun dslGameFlappyDroid(): ByteArray {
                                 strokeWidth(8f)
                                 textSize(120f)
                             }
-                            drawTextAnchored(count.genTextId(3, 0), w, 0.rf, 3.rf, 2.rf, 0)
+                            drawTextAnchored(count.format(3, 0), w, 0.rf, 3.rf, 2.rf, 0)
 
                             restore()
                             paint {
@@ -240,7 +240,7 @@ fun dslGameFlappyDroid(): ByteArray {
                                 textSize(60f)
                             }
                             drawTextAnchored(
-                                "HIGH SCORE :".join(highScore.genTextId(3, 0)),
+                                "HIGH SCORE :".join(highScore.format(3, 0)),
                                 w,
                                 h,
                                 1.2f.rf,

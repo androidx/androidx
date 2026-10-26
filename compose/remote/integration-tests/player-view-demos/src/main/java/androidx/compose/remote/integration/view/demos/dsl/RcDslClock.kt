@@ -25,8 +25,6 @@ import androidx.compose.remote.creation.dsl.RcScope
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
-import androidx.compose.remote.creation.dsl.setStrokeCap
-import androidx.compose.remote.creation.dsl.setStyle
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
@@ -66,9 +64,9 @@ fun dslClock(): ByteArray {
                 val equ = rFun { x -> rad * (0.97f.rf + 0.03f.rf * cos(x * 12f)) }
 
                 val textSize = rad / 5f
-                applyPaint {
-                    setColor(color.background)
-                    setTextSize(textSize)
+                paint {
+                    color(color.background)
+                    textSize(textSize)
                 }
                 val path =
                     remotePolarPath(
@@ -82,10 +80,10 @@ fun dslClock(): ByteArray {
                     )
                 drawPath(path)
 
-                applyPaint {
-                    setColor(color.hourHand)
-                    setStrokeWidth(strokeWidth)
-                    setStrokeCap(RcStrokeCap.Round)
+                paint {
+                    color(color.hourHand)
+                    strokeWidth(strokeWidth)
+                    strokeCap(RcStrokeCap.Round)
                 }
 
                 val hrHand = (hour() + (minutes() % 60f) / 60f) * 30f
@@ -94,10 +92,10 @@ fun dslClock(): ByteArray {
                     drawLine(cx, cy, cx, cy - rad / 3f)
                 }
 
-                applyPaint {
-                    setColor(color.minuteHand)
-                    setStrokeWidth(strokeWidth)
-                    setStrokeCap(RcStrokeCap.Round)
+                paint {
+                    color(color.minuteHand)
+                    strokeWidth(strokeWidth)
+                    strokeCap(RcStrokeCap.Round)
                 }
                 save {
                     rotate(minutes() * 6f, cx, cy)
@@ -118,14 +116,14 @@ fun dslClock(): ByteArray {
                 save {
                     rotate(seconds() * 6f, cx, cy)
                     val radius = rad * 0.1f
-                    applyPaint {
-                        setStyle(RcPaintStyle.Fill)
-                        setColor(color.dot)
+                    paint {
+                        style(RcPaintStyle.Fill)
+                        color(color.dot)
                     }
                     drawCircle(cx, cy - rad + (2f.rf * radius), radius)
 
                     rotate(70.rf, cx, cy)
-                    applyPaint { setColor(color.text) }
+                    paint { color(color.text) }
                     drawTextOnPath(date, textPath, 0.rf, 0.rf)
                 }
 
@@ -146,7 +144,7 @@ private class RcDslClockColors(scope: RcScope) {
 
     init {
         scope.apply {
-            Global {
+            global {
                 background =
                     remoteThemedColor(
                         light = "color.system_accent2_50",
