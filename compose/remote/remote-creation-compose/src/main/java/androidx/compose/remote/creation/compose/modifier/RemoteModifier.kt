@@ -171,6 +171,7 @@ internal class CombinedRemoteModifier(
     override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
         val scope = this
         val seenNonRepeatable = EnumSet.noneOf(NonRepeatableModifier::class.java)
+        var seenDrawWithContent = false
         return foldIn(RecordingModifier()) { acc, element ->
             val nonRepeatable = element.nonRepeatableType()
             if (nonRepeatable != null && !seenNonRepeatable.add(nonRepeatable)) {
@@ -179,6 +180,17 @@ internal class CombinedRemoteModifier(
                         "only the first instance is applied (b/563261712)"
                 )
                 acc
+            } else if (element is DrawWithContentModifier) {
+                // RemoteComposeNode and RemoteCanvasNode merge all DrawWithContentModifiers into a
+                // single CanvasOperations block positioned at the outermost
+                // DrawWithContentModifier, so emit only one DrawContentOperation marker on the
+                // wire.
+                if (seenDrawWithContent) {
+                    acc
+                } else {
+                    seenDrawWithContent = true
+                    acc.then(with(element) { scope.toRecordingModifierElement() })
+                }
             } else {
                 acc.then(with(element) { scope.toRecordingModifierElement() })
             }
