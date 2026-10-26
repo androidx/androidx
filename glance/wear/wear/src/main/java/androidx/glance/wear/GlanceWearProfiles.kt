@@ -23,9 +23,6 @@ import androidx.collection.buildIntSet
 import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.profile.Profile
 import androidx.glance.wear.core.RcWearOperations.CORE_TEXT
-import androidx.glance.wear.core.RcWearOperations.MODIFIER_TOUCH_CANCEL
-import androidx.glance.wear.core.RcWearOperations.MODIFIER_TOUCH_DOWN
-import androidx.glance.wear.core.RcWearOperations.MODIFIER_TOUCH_UP
 import androidx.glance.wear.core.RendererVersion
 
 /** Defines profiles for Glance Wear. */
@@ -36,19 +33,11 @@ public object GlanceWearProfiles {
     /**
      * The set of operations that are allowed to be used on Wear Widgets. The actual support is
      * Host-dependent.
-     *
-     * Beyond the safe fallback operations, this allows [CORE_TEXT] and the touch-down, touch-up and
-     * touch-cancel modifiers, which let widgets give press feedback (e.g. a button that morphs
-     * while it is pressed). Hosts that don't support them leave them out of their supported
-     * operations, so they are only used where they can be rendered.
      */
     @VisibleForTesting
     internal val WEAR_WIDGETS_ALLOWED_OPERATIONS: IntSet = buildIntSet {
         addAll(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS)
         add(CORE_TEXT)
-        add(MODIFIER_TOUCH_DOWN)
-        add(MODIFIER_TOUCH_UP)
-        add(MODIFIER_TOUCH_CANCEL)
     }
 
     /** A profile for Wear Widgets, based on the allowed operations for widgets. */
