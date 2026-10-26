@@ -86,6 +86,7 @@ import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.player.compose.embedded.components.rootTouchExpressions
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.util.fastForEach
+import androidx.tracing.trace
 
 internal class DocumentPreprocessResult(
     val globalOps: ArrayList<Operation>,
@@ -143,7 +144,10 @@ internal fun buildComputedOpIndex(operations: Collection<Operation>): IntObjectM
     return map
 }
 
-internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult {
+internal fun preprocessDocument(document: CoreDocument): DocumentPreprocessResult =
+    trace("RcPlayer:preprocessDocument") { preprocessDocumentImpl(document) }
+
+private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessResult {
     val rootComponent = document.rootLayoutComponent
     val ops = document.operations
     val globalOps = ArrayList<Operation>()
@@ -534,6 +538,15 @@ internal fun mapEasing(type: Int): ComposeEasing {
 }
 
 internal fun initializePlayerRemoteContext(
+    document: CoreDocument,
+    clock: RemoteClock,
+    preprocessed: DocumentPreprocessResult,
+): AndroidRemoteContext =
+    trace("RcPlayer:initializeRemoteContext") {
+        initializePlayerRemoteContextImpl(document, clock, preprocessed)
+    }
+
+private fun initializePlayerRemoteContextImpl(
     document: CoreDocument,
     clock: RemoteClock,
     preprocessed: DocumentPreprocessResult,
