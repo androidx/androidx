@@ -75,7 +75,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material3.internal.Strings
 import androidx.wear.compose.material3.internal.getString
-import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitSwitchButtonTokens
 import androidx.wear.compose.material3.tokens.SwitchButtonTokens
 import androidx.wear.compose.materialcore.SelectionStage
@@ -152,6 +151,13 @@ public fun SwitchButton(
         }
     val contentColor = colors.contentColor(enabled = enabled, checked = checked).value
 
+    val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
+    val actualInteractionSource =
+        if (hasInsetFocusRing) {
+            interactionSource ?: remember { MutableInteractionSource() }
+        } else {
+            interactionSource
+        }
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         androidx.wear.compose.materialcore.ToggleButton(
             checked = checked,
@@ -230,14 +236,15 @@ public fun SwitchButton(
                         }
                     }
 
-                Modifier.surface(
-                    transformation = transformation,
-                    shape = shape,
-                    painter = colorPainter,
-                )
+                Modifier.insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
+                    .surface(
+                        transformation = transformation,
+                        shape = shape,
+                        painter = colorPainter,
+                    )
             },
             enabled = enabled,
-            interactionSource = interactionSource,
+            interactionSource = actualInteractionSource,
             contentPadding = contentPadding,
             shape = shape,
             toggleControlWidth = SWITCH_WIDTH,
@@ -245,7 +252,7 @@ public fun SwitchButton(
             labelSpacerSize = SwitchButtonDefaults.LabelSpacerSize,
             toggleControlSpacing = TOGGLE_CONTROL_SPACING,
             iconSpacing = ICON_SPACING,
-            ripple = ripple(),
+            ripple = ripple(enableFocusIndication = !hasInsetFocusRing),
         )
     }
 }
@@ -353,18 +360,20 @@ public fun SplitSwitchButton(
                         with(transformation) { applyContainerTransformation() }
                     },
         ) {
+            val startSectionShape = shape.startSection()
             Row(
                 modifier =
                     Modifier.clickable(
                             enabled = enabled,
                             onClick = onContainerClick,
-                            indication = ripple(),
+                            indication =
+                                ripple(focusRingShape = rememberDelegatingShape(startSectionShape)),
                             interactionSource = containerInteractionSource,
                             onClickLabel = containerClickLabel,
                         )
                         .semantics { role = Role.Button }
                         .fillMaxHeight()
-                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .clip(startSectionShape)
                         .drawBehind { drawRect(containerColorState.value) }
                         .padding(contentPadding)
                         .weight(1.0f),
@@ -405,6 +414,7 @@ public fun SplitSwitchButton(
 
             val splitBackgroundOverlayState = colors.splitContainerColor(enabled, checked)
             val hapticFeedback = LocalHapticFeedback.current
+            val endSectionShape = shape.endSection()
             Box(
                 contentAlignment = Alignment.Center,
                 modifier =
@@ -418,11 +428,12 @@ public fun SplitSwitchButton(
                                 )
                                 onCheckedChange(it)
                             },
-                            indication = ripple(),
+                            indication =
+                                ripple(focusRingShape = rememberDelegatingShape(endSectionShape)),
                             interactionSource = toggleInteractionSource,
                         )
                         .fillMaxHeight()
-                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .clip(endSectionShape)
                         .drawBehind {
                             val color = if (enabled) containerColorState.value else Color.Black
                             drawRect(color)
@@ -2045,7 +2056,6 @@ private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
 
 private val SPLIT_MIN_WIDTH = 48.dp
-private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color>
     @Composable get() = MaterialTheme.motionScheme.slowEffectsSpec()

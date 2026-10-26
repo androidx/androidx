@@ -2589,18 +2589,31 @@ private fun Modifier.buttonContainerModifier(
         } else {
             ColorPainter(colors.containerColor(enabled = enabled))
         }
+    val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
+    val actualInteractionSource =
+        if (hasInsetFocusRing) {
+            interactionSource ?: remember { MutableInteractionSource() }
+        } else {
+            interactionSource
+        }
     // Fill the container height but not its width as buttons have fixed size height but we
     // want them to be able to fit their content
     return this.width(intrinsicSize = IntrinsicSize.Max)
-        .surface(transformation = transformation, painter = painter, shape = shape, border = border)
+        .insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
+        .surface(
+            transformation = transformation,
+            painter = painter,
+            shape = shape,
+            border = border,
+        )
         .combinedClickable(
             enabled = enabled,
             onClick = onClick,
             onLongClick = onLongClick, // NB CombinedClickable calls LongPress haptic
             onLongClickLabel = onLongClickLabel,
             role = Role.Button,
-            indication = ripple(),
-            interactionSource = interactionSource,
+            indication = ripple(enableFocusIndication = !hasInsetFocusRing),
+            interactionSource = actualInteractionSource,
         )
         .padding(contentPadding)
 }

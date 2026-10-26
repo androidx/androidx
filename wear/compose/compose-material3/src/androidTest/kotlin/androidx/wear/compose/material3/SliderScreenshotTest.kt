@@ -26,16 +26,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.LocalRippleThemeConfiguration
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.RippleDefaults
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.Slider
 import androidx.wear.compose.material3.SliderDefaults
@@ -327,6 +335,35 @@ class SliderScreenshotTest {
                 onValueChange = {},
             )
         }
+    }
+
+    @Test
+    fun slider_inset_focus_ring() {
+        lateinit var inputModeManager: InputModeManager
+        rule.setContentWithTheme {
+            inputModeManager = LocalInputModeManager.current
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingThemeConfiguration
+            ) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    Slider(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        value = 2f,
+                        segmented = true,
+                        onValueChange = {},
+                        valueRange = 1f..4f,
+                        steps = 2,
+                    )
+                }
+            }
+        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
+        rule.onAllNodes(hasClickAction()).onFirst().requestFocus()
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     private fun verifyScreenshot(content: @Composable () -> Unit) {

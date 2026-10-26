@@ -21,7 +21,9 @@ import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -34,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
@@ -52,6 +55,135 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class RippleTest {
     @get:Rule val rule = createComposeRule()
+
+    @Test
+    fun ripple_focus_opacity_when_opacityConfiguration() {
+        val interactionSource = MutableInteractionSource()
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalRippleThemeConfiguration provides
+                        RippleDefaults.OpacityFocusThemeConfiguration
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        RippleBoxWithBackground(interactionSource, ripple())
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            // Ripple focus opacity should be showing
+            Assert.assertNotEquals(RippleBoxBackgroundColor, Color(centerPixel))
+        }
+    }
+
+    @Test
+    fun ripple_focus_disabled_when_insetRingConfiguration() {
+        val interactionSource = MutableInteractionSource()
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalRippleThemeConfiguration provides
+                        RippleDefaults.InsetFocusRingThemeConfiguration
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        RippleBoxWithBackground(interactionSource, ripple())
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            // Ripple focus opacity should NOT be showing
+            Assert.assertEquals(RippleBoxBackgroundColor, Color(centerPixel))
+        }
+    }
+
+    @OptIn(ExperimentalWearComposeMaterial3Api::class)
+    @Test
+    fun ripple_focus_opacity_when_insetRingConfiguration_flagDisabled() {
+        val originalFlag = WearComposeMaterial3Flags.isInsetFocusRingEnabled
+        WearComposeMaterial3Flags.isInsetFocusRingEnabled = false
+        try {
+            val interactionSource = MutableInteractionSource()
+            var scope: CoroutineScope? = null
+
+            rule.setContent {
+                scope = rememberCoroutineScope()
+                MaterialTheme {
+                    CompositionLocalProvider(
+                        LocalRippleThemeConfiguration provides
+                            RippleDefaults.InsetFocusRingThemeConfiguration
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            RippleBoxWithBackground(interactionSource, ripple())
+                        }
+                    }
+                }
+            }
+
+            rule.runOnIdle { scope!!.launch { interactionSource.emit(FocusInteraction.Focus()) } }
+
+            with(rule.onNodeWithTag(Tag)) {
+                val centerPixel =
+                    captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+                // Ripple focus opacity should be showing when flag is disabled
+                Assert.assertNotEquals(RippleBoxBackgroundColor, Color(centerPixel))
+            }
+        } finally {
+            WearComposeMaterial3Flags.isInsetFocusRingEnabled = originalFlag
+        }
+    }
+
+    @Test
+    fun ripple_press_enabled_when_insetRingConfiguration() {
+        val interactionSource = MutableInteractionSource()
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            MaterialTheme {
+                CompositionLocalProvider(
+                    LocalRippleThemeConfiguration provides
+                        RippleDefaults.InsetFocusRingThemeConfiguration
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        RippleBoxWithBackground(interactionSource, ripple())
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope!!.launch { interactionSource.emit(PressInteraction.Press(Offset.Zero)) }
+        }
+
+        with(rule.onNodeWithTag(Tag)) {
+            val centerPixel =
+                captureToImage().asAndroidBitmap().run { getPixel(width / 2, height / 2) }
+
+            // Press ripple should still be showing
+            Assert.assertNotEquals(RippleBoxBackgroundColor, Color(centerPixel))
+        }
+    }
 
     @Test
     fun rippleConfiguration_disabled_dragged() {
