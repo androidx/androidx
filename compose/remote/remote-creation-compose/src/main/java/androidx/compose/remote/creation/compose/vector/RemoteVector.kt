@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.compose.capture.EmptyPath
 import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -57,7 +58,10 @@ public fun RemotePathData(block: RemotePathScope.() -> Unit): List<RemotePathNod
     }
 
 internal sealed class RemoteVNode {
-    abstract fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?)
+    abstract fun RemoteDrawScope.draw(
+        colorFilter: RemoteColorFilter?,
+        viewportSize: RemoteSize,
+    )
 }
 
 internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNode() {
@@ -71,12 +75,20 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
     private var rootScaleY = 1f.rf
 
     private fun RemoteDrawScope.drawVector(tintFilter: RemoteColorFilter?) {
-        with(root) { scale(rootScaleX, rootScaleY) { draw(tintFilter) } }
+        val targetViewportSize = this@RemoteVectorComponent.viewportSize
+        with(root) { scale(rootScaleX, rootScaleY) { draw(tintFilter, targetViewportSize) } }
     }
 
-    override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
-        rootScaleX = width / viewportSize.width
-        rootScaleY = height / viewportSize.height
+    fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
+        draw(colorFilter, this@RemoteVectorComponent.viewportSize)
+    }
+
+    override fun RemoteDrawScope.draw(
+        colorFilter: RemoteColorFilter?,
+        viewportSize: RemoteSize,
+    ) {
+        rootScaleX = width / this@RemoteVectorComponent.viewportSize.width
+        rootScaleY = height / this@RemoteVectorComponent.viewportSize.height
         val targetFilter = colorFilter ?: intrinsicColorFilter
         drawVector(targetFilter)
     }
@@ -93,7 +105,7 @@ internal class RemoteVectorComponent(val root: RemoteGroupComponent) : RemoteVNo
 
 internal class RemotePathComponent : RemoteVNode() {
     var name = DefaultGroupName
-    var fill: RemoteColor? = null
+    var fill: RemoteBrush? = null
     var fillAlpha = 1.0f.rf
     var pathFillType: RemotePathFillType = RemotePathFillType.NonZero
     var pathData: List<RemotePathNode> = EmptyPath
@@ -101,7 +113,7 @@ internal class RemotePathComponent : RemoteVNode() {
     var pathTween: RemoteFloat = 0f.rf
     var strokeAlpha = 1.0f.rf
     var strokeLineWidth = DefaultStrokeLineWidth
-    var stroke: RemoteColor? = null
+    var stroke: RemoteBrush? = null
     var strokeLineCap: RemoteStrokeCap = RemoteStrokeCap.Butt
     var strokeLineJoin: RemoteStrokeJoin = RemoteStrokeJoin.Miter
     var strokeLineMiter = DefaultStrokeLineMiter
@@ -112,7 +124,10 @@ internal class RemotePathComponent : RemoteVNode() {
     private val path = RemotePath()
     private val targetPath = RemotePath()
 
-    override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
+    override fun RemoteDrawScope.draw(
+        colorFilter: RemoteColorFilter?,
+        viewportSize: RemoteSize,
+    ) {
         // The call below resets the path
         pathData.toRemotePath(path, this.remoteCanvas.creationState)
         val hasTween = targetPathData != null && targetPathData!!.isNotEmpty()
@@ -140,20 +155,14 @@ internal class RemotePathComponent : RemoteVNode() {
                 1f.rf
             }
 
-        val effectiveFillColor = fill
+        val effectiveFillBrush = fill
 
-        if (effectiveFillColor != null) {
+        if (effectiveFillBrush != null) {
             val fillPaint = RemotePaint {
                 this.colorFilter = colorFilter
                 this.remoteStyle = RemotePaintingStyle.Fill
             }
-            val paintColor =
-                if (fillAlpha.hasConstantValue && fillAlpha.constantValue == 1f) {
-                    effectiveFillColor
-                } else {
-                    effectiveFillColor.copy(alpha = effectiveFillColor.alpha * fillAlpha)
-                }
-            fillPaint.color = paintColor
+            applyBrushToPaint(fillPaint, effectiveFillBrush, fillAlpha, viewportSize)
             if (hasTween) {
                 drawTweenPath(path, targetPath, pathTween, start, stop, fillPaint)
             } else if (isTrimmed) {
@@ -163,9 +172,9 @@ internal class RemotePathComponent : RemoteVNode() {
             }
         }
 
-        val effectiveStrokeColor = stroke
+        val effectiveStrokeBrush = stroke
 
-        if (effectiveStrokeColor != null) {
+        if (effectiveStrokeBrush != null) {
             val strokePaint = RemotePaint {
                 this.colorFilter = colorFilter
                 this.remoteStyle = RemotePaintingStyle.Stroke
@@ -173,13 +182,7 @@ internal class RemotePathComponent : RemoteVNode() {
                 this.remoteStrokeCap = strokeLineCap
                 this.remoteStrokeJoin = strokeLineJoin
             }
-            val paintColor =
-                if (strokeAlpha.hasConstantValue && strokeAlpha.constantValue == 1f) {
-                    effectiveStrokeColor
-                } else {
-                    effectiveStrokeColor.copy(alpha = effectiveStrokeColor.alpha * strokeAlpha)
-                }
-            strokePaint.color = paintColor
+            applyBrushToPaint(strokePaint, effectiveStrokeBrush, strokeAlpha, viewportSize)
             if (hasTween) {
                 drawTweenPath(path, targetPath, pathTween, start, stop, strokePaint)
             } else if (isTrimmed) {
@@ -187,6 +190,23 @@ internal class RemotePathComponent : RemoteVNode() {
             } else {
                 drawPath(path, pathFillType, strokePaint)
             }
+        }
+    }
+
+    private fun RemoteDrawScope.applyBrushToPaint(
+        paint: RemotePaint,
+        brush: RemoteBrush,
+        alpha: RemoteFloat,
+        viewportSize: RemoteSize,
+    ) {
+        with(brush) { applyTo(paint, viewportSize) }
+        if (!(alpha.hasConstantValue && alpha.constantValue == 1f)) {
+            paint.color =
+                if (paint.shader != null) {
+                    RemoteColor.rgb(red = 0f.rf, green = 0f.rf, blue = 0f.rf, alpha = alpha)
+                } else {
+                    paint.color.copy(alpha = paint.color.alpha * alpha)
+                }
         }
     }
 
@@ -231,7 +251,10 @@ internal class RemoteGroupComponent : RemoteVNode() {
         }
     }
 
-    override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
+    override fun RemoteDrawScope.draw(
+        colorFilter: RemoteColorFilter?,
+        viewportSize: RemoteSize,
+    ) {
         val hasTransform =
             !(translationX.hasConstantValue &&
                 translationX.constantValue == 0f &&
@@ -261,10 +284,14 @@ internal class RemoteGroupComponent : RemoteVNode() {
                     clipPath(clipPath)
                 }
             }) {
-                children.fastForEach { node -> with(node) { this@draw.draw(colorFilter) } }
+                children.fastForEach { node ->
+                    with(node) { this@draw.draw(colorFilter, viewportSize) }
+                }
             }
         } else {
-            children.fastForEach { node -> with(node) { this@draw.draw(colorFilter) } }
+            children.fastForEach { node ->
+                with(node) { this@draw.draw(colorFilter, viewportSize) }
+            }
         }
     }
 

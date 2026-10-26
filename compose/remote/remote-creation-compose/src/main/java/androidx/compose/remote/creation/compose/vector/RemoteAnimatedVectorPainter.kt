@@ -20,6 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.painter.RemotePainter
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
@@ -426,8 +428,8 @@ private fun buildDynamicPath(
                 else -> RemoteStrokeJoin.Miter
             }
         component.strokeLineMiter = path.strokeLineMiter.rf
-        component.stroke = strokeColorDynamic
-        component.fill = fillColorDynamic
+        component.stroke = strokeColorDynamic?.let { RemoteBrush.solidColor(it) }
+        component.fill = fillColorDynamic?.let { RemoteBrush.solidColor(it) }
     }
 
     val pathAnimators = ArrayList<RemotePropertyAnimator>()

@@ -48,6 +48,8 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -64,7 +66,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -197,9 +198,9 @@ class RcPlayerScreenshotTest {
                     tintColor = Color.Unspecified.rc,
                 )
                 .path(
-                    fill = SolidColor(Color.Red),
+                    fill = RemoteBrush.solidColor(Color.Red.rc),
                     fillAlpha = 0.75f.rf,
-                    stroke = SolidColor(Color.Green),
+                    stroke = RemoteBrush.solidColor(Color.Green.rc),
                     strokeAlpha = 0.5f.rf,
                     strokeLineWidth = 6f.rf,
                 ) {
@@ -243,7 +244,7 @@ class RcPlayerScreenshotTest {
                     tintColor = Color.Unspecified.rc,
                 )
                 .path(
-                    fill = SolidColor(Color.Red),
+                    fill = RemoteBrush.solidColor(Color.Red.rc),
                     pathFillType = PathFillType.EvenOdd,
                 ) {
                     moveTo(10f.rf, 10f.rf)
@@ -290,7 +291,7 @@ class RcPlayerScreenshotTest {
                     viewportHeight = 100f.rf,
                     tintColor = Color.Unspecified.rc,
                 )
-                .path(fill = SolidColor(Color.Blue)) {
+                .path(fill = RemoteBrush.solidColor(Color.Blue.rc)) {
                     moveTo(50f.rf, 10f.rf)
                     lineTo(90f.rf, 90f.rf)
                     lineTo(10f.rf, 90f.rf)
