@@ -18,6 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
@@ -48,17 +49,21 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -400,5 +405,51 @@ class RcPlayerStateTest {
             .assertExists()
             .assertWidthIsEqualTo(60.dp)
             .assertHeightIsEqualTo(40.dp)
+    }
+
+    @Test
+    fun floatStateSetBeforeFirstFrame_reachesNamedFloatDeclaredInCanvas() {
+        val document = buildDocument {
+            root {
+                canvas(RecordingModifier().fillMaxSize()) {
+                    val width = writer.addNamedFloat("width", 10f)
+                    painter.setColor(AndroidColor.RED).commit()
+                    writer.drawRect(0f, 40f, width, 60f)
+                }
+            }
+        }
+        val state = RcPlayerState(document, defaultPrefix = null)
+        state.floatState("width").value = 80f
+
+        val bitmap = rule.renderState(state)
+
+        assertRed(bitmap, 75, 50)
+    }
+
+    @Test
+    fun floatStateSetBeforeFirstFrame_reachesNamedFloatDeclaredInFloatFunction() {
+        val document = buildDocument {
+            val function = writer.createFloatFunction(FloatArray(0))
+            val width = writer.addNamedFloat("width", 10f)
+            painter.setColor(AndroidColor.RED).commit()
+            writer.drawRect(0f, 40f, width, 60f)
+            writer.endFloatFunction()
+            writer.callFloatFunction(function)
+        }
+        val state = RcPlayerState(document, defaultPrefix = null)
+        state.floatState("width").value = 80f
+
+        val bitmap = rule.renderState(state)
+
+        assertRed(bitmap, 75, 50)
+    }
+
+    private fun RcPlayerTestRule.renderState(state: RcPlayerState): Bitmap {
+        setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+            }
+        }
+        return captureRootBitmap()
     }
 }

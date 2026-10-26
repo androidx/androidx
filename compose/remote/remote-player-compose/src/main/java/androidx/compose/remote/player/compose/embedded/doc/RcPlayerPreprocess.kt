@@ -209,6 +209,9 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
 
     fun collectFunctionWrites(ops: List<Operation>) {
         ops.fastForEach { op ->
+            // Register names declared in the body at setup, so a host can set them before the
+            // function first runs.
+            if (op is NamedVariable) constantOps.add(op)
             if (op is VariableProvider) streamFloatIds.add(op.id)
             if (op is LoopOperation) streamFloatIds.add(op.indexVariableId)
             if (op is Container) collectFunctionWrites(op.list)
