@@ -644,10 +644,6 @@ internal class LinkComposer(
         }
     }
 
-    /** See [Composer.currentCompositionLocalMap] */
-    override val currentCompositionLocalMap: CompositionLocalMap
-        get() = currentCompositionLocalScope()
-
     /** See [Composer.currentMarker] */
     override val currentMarker: GroupAddress
         get() = if (inserting) -builder.parentGroup else reader.parentGroup
@@ -1793,15 +1789,19 @@ internal class LinkComposer(
         cleanUpCompose()
     }
 
+    /** See [Composer.currentCompositionLocalMap] */
+    override val currentCompositionLocalMap: CompositionLocalMap
+        get() = currentCompositionLocalScope()
+
+    /**
+     * Returns the current [CompositionLocalMap] for the current group, or [providerCache] if a
+     * cached value present. [providerCache] must be reset to `null` when entering or exiting a new
+     * group to prevent a stale value from being returned.
+     */
     private fun currentCompositionLocalScope(): PersistentCompositionLocalMap {
         providerCache?.let {
             return it
         }
-        return currentCompositionLocalScope(reader.parentGroup)
-    }
-
-    /** Return the current [CompositionLocal] scope which was provided by a parent group. */
-    private fun currentCompositionLocalScope(group: GroupAddress): PersistentCompositionLocalMap {
         if (inserting && builderHasAProvider) {
             var current = builder.parentGroup
             while (current >= 0) {
@@ -1816,6 +1816,14 @@ internal class LinkComposer(
                 current = builder.parent(current)
             }
         }
+        return currentCompositionLocalScope(reader.parentGroup).also { providerCache = it }
+    }
+
+    /**
+     * Resolves the current [CompositionLocalMap] for the given [group]. This does **NOT** update
+     * the [providerCache] or perform any other caching.
+     */
+    private fun currentCompositionLocalScope(group: GroupAddress): PersistentCompositionLocalMap {
         if (!reader.isEmpty) {
             var current = group
             while (current >= 0) {
@@ -1823,16 +1831,12 @@ internal class LinkComposer(
                     reader.groupKey(current) == compositionLocalMapKey &&
                         reader.groupObjectKey(current) == compositionLocalMap
                 ) {
-                    val providers =
-                        providerUpdates?.get(current)
-                            ?: reader.groupAux(current) as PersistentCompositionLocalMap
-                    providerCache = providers
-                    return providers
+                    return providerUpdates?.get(current)
+                        ?: reader.groupAux(current) as PersistentCompositionLocalMap
                 }
                 current = reader.parentOf(current)
             }
         }
-        providerCache = rootProvider
         return rootProvider
     }
 
