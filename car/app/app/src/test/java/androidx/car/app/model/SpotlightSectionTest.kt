@@ -30,7 +30,8 @@ class SpotlightSectionTest {
         val image = CarIcon.APP_ICON
         val item = CondensedItem.Builder().setTitle("Title").build()
 
-        val section = SpotlightSection.Builder(image).addItem(item).build()
+        val section =
+            SpotlightSection.Builder(image).addItem(item).addItem(item).addItem(item).build()
 
         assertThat(section.image).isEqualTo(image)
         assertThat(section.title).isNull()
@@ -44,7 +45,13 @@ class SpotlightSectionTest {
         val image = CarIcon.APP_ICON
         val item = CondensedItem.Builder().setTitle("Item Title").build()
 
-        val section = SpotlightSection.Builder(image).setTitle(title).addItem(item).build()
+        val section =
+            SpotlightSection.Builder(image)
+                .setTitle(title)
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
 
         assertThat(section.title?.toString()).isEqualTo(title)
         assertThat(section.image).isEqualTo(image)
@@ -58,10 +65,30 @@ class SpotlightSectionTest {
     }
 
     @Test
+    fun build_withFewerThanThreeItems_throwsException() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+
+        // 1 item
+        assertThrows(IllegalStateException::class.java) {
+            SpotlightSection.Builder(CarIcon.APP_ICON).addItem(item).build()
+        }
+
+        // 2 items
+        assertThrows(IllegalStateException::class.java) {
+            SpotlightSection.Builder(CarIcon.APP_ICON).addItem(item).addItem(item).build()
+        }
+    }
+
+    @Test
     fun getIncompleteLastColumnStrategy_default() {
         val item = CondensedItem.Builder().setTitle("Title").build()
 
-        val section = SpotlightSection.Builder(CarIcon.APP_ICON).addItem(item).build()
+        val section =
+            SpotlightSection.Builder(CarIcon.APP_ICON)
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
 
         assertThat(section.incompleteLastColumnStrategy)
             .isEqualTo(GridSection.INCOMPLETE_LAST_ROW_AS_IS)
@@ -73,6 +100,8 @@ class SpotlightSectionTest {
 
         val section =
             SpotlightSection.Builder(CarIcon.APP_ICON)
+                .addItem(item)
+                .addItem(item)
                 .addItem(item)
                 .setIncompleteLastColumnStrategy(SpotlightSection.INCOMPLETE_LAST_COLUMN_TRUNCATE)
                 .build()
@@ -86,9 +115,21 @@ class SpotlightSectionTest {
         val image = CarIcon.APP_ICON
         val item = CondensedItem.Builder().setTitle("Item").build()
 
-        val section1 = SpotlightSection.Builder(image).setTitle("Title").addItem(item).build()
+        val section1 =
+            SpotlightSection.Builder(image)
+                .setTitle("Title")
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
 
-        val section2 = SpotlightSection.Builder(image).setTitle("Title").addItem(item).build()
+        val section2 =
+            SpotlightSection.Builder(image)
+                .setTitle("Title")
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
 
         assertThat(section1).isEqualTo(section2)
         assertThat(section1.hashCode()).isEqualTo(section2.hashCode())
@@ -100,8 +141,10 @@ class SpotlightSectionTest {
         val image2 = CarIcon.ERROR
         val item = CondensedItem.Builder().setTitle("Title").build()
 
-        val section1 = SpotlightSection.Builder(image1).addItem(item).build()
-        val section2 = SpotlightSection.Builder(image2).addItem(item).build()
+        val section1 =
+            SpotlightSection.Builder(image1).addItem(item).addItem(item).addItem(item).build()
+        val section2 =
+            SpotlightSection.Builder(image2).addItem(item).addItem(item).addItem(item).build()
 
         assertThat(section1).isNotEqualTo(section2)
     }
@@ -111,8 +154,20 @@ class SpotlightSectionTest {
         val image = CarIcon.APP_ICON
         val item = CondensedItem.Builder().setTitle("Title").build()
 
-        val section1 = SpotlightSection.Builder(image).setTitle("Title 1").addItem(item).build()
-        val section2 = SpotlightSection.Builder(image).setTitle("Title 2").addItem(item).build()
+        val section1 =
+            SpotlightSection.Builder(image)
+                .setTitle("Title 1")
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
+        val section2 =
+            SpotlightSection.Builder(image)
+                .setTitle("Title 2")
+                .addItem(item)
+                .addItem(item)
+                .addItem(item)
+                .build()
 
         assertThat(section1).isNotEqualTo(section2)
     }
@@ -123,8 +178,10 @@ class SpotlightSectionTest {
         val item1 = CondensedItem.Builder().setTitle("Title 1").build()
         val item2 = CondensedItem.Builder().setTitle("Title 2").build()
 
-        val section1 = SpotlightSection.Builder(image).addItem(item1).build()
-        val section2 = SpotlightSection.Builder(image).addItem(item2).build()
+        val section1 =
+            SpotlightSection.Builder(image).addItem(item1).addItem(item1).addItem(item1).build()
+        val section2 =
+            SpotlightSection.Builder(image).addItem(item2).addItem(item2).addItem(item2).build()
 
         assertThat(section1).isNotEqualTo(section2)
     }

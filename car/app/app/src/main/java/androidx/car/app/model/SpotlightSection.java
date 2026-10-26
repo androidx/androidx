@@ -36,8 +36,10 @@ import java.util.Objects;
 
 /**
  * A section within the {@link SectionedItemTemplate} that contains a single image and multiple
- * {@link CondensedItem}s. The items are rendered next to the image. Depending on the screen
- * size, only some of the leading items may be placed.
+ * {@link CondensedItem}s arranged in columns next to the image.
+ *
+ * <p>A {@link SpotlightSection} must contain at least 3 {@link CondensedItem}s. Depending on the
+ * screen size, only some of the leading items may be placed.
  */
 @CarProtocol
 @KeepFields
@@ -129,8 +131,15 @@ public final class SpotlightSection extends Section<CondensedItem> {
                 + super.toString() + " }";
     }
 
-    /** A builder of {@link SpotlightSection}. */
+    /**
+     * A builder of {@link SpotlightSection}.
+     *
+     * <p>Upon building, this class validates that at least 3 {@link CondensedItem}s have been
+     * added to the section via {@link #addItem} or {@link #setItems}.
+     */
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
+        private static final int MIN_ITEMS = 3;
+
         @NonNull CarIcon mImage;
 
         @IncompleteLastColumnStrategy
@@ -157,13 +166,19 @@ public final class SpotlightSection extends Section<CondensedItem> {
         }
 
         /**
-         * Constructs a new {@link SpotlightSection} from the current state of this builder.
+         * Constructs a new {@link SpotlightSection} from the current state of this builder,
+         * throwing exceptions for any invalid state.
          *
-         * @throws IllegalStateException if there are no items.
+         * <p>Upon building, this class validates that at least 3 {@link CondensedItem}s are
+         * present.
+         *
+         * @throws IllegalStateException if the section contains fewer than 3
+         *     {@link CondensedItem}s.
          */
         public @NonNull SpotlightSection build() {
-            if (mItems.isEmpty()) {
-                throw new IllegalStateException("A spotlight section must contain at least 1 item");
+            if (mItems.size() < MIN_ITEMS) {
+                throw new IllegalStateException(
+                        "A spotlight section must contain at least " + MIN_ITEMS + " items");
             }
 
             return new SpotlightSection(this);
