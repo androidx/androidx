@@ -201,9 +201,7 @@ class GlanceWearWidgetTest {
         verify(mockUpdateClient)
             .pushUpdate(
                 eq(context),
-                argThat {
-                    instanceId == TEST_INSTANCE_ID && creationUptimeMillis == 12345L
-                },
+                argThat { instanceId == TEST_INSTANCE_ID },
                 argThat {
                     extras.getLong(WearWidgetCapture.CREATION_UPTIME_MILLIS_KEY) == 12345L
                 },
