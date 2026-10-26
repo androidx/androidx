@@ -1628,8 +1628,8 @@ public class A2uiBasicCatalogV1(
      * * `weight` (Number, optional): The relative weight of this component within a Row or Column.
      *   This is similar to the CSS 'flex-grow' property. May only be set when the component is a
      *   direct descendant of a Row or Column. See [WeightProperty].
-     * * `tabs` (NestedList, required): An array of objects, where each object defines a tab with a
-     *   `title` (Dynamic String) and a `child` (ComponentId) component ID.
+     * * `tabs` (NestedObjectList, required): An array of objects, where each object defines a tab
+     *   with a `title` (Dynamic String) and a `child` (ComponentId) component ID.
      */
     public interface Tabs : A2uiComponent {
         override val name: String
@@ -1689,7 +1689,7 @@ public class A2uiBasicCatalogV1(
             /** The [A2uiProperty] for the `"tabs"` property of a [Tabs]. */
             public val TabsProperty:
                 StaticA2uiProperty<kotlin.collections.List<A2uiComponentProperties>> =
-                A2uiProperty.nestedList(
+                A2uiProperty.nestedObjectList(
                     key = "tabs",
                     properties = listOf(TitleProperty, ChildProperty),
                     required = true,
@@ -2393,8 +2393,8 @@ public class A2uiBasicCatalogV1(
      * * `variant` (String Enum, optional): A hint for how the choice picker should be displayed and
      *   behave. Valid options: `"multipleSelection"`, `"mutuallyExclusive"`. Defaults to
      *   `"mutuallyExclusive"`.
-     * * `options` (NestedList, required): The list of available options to choose from. Each item
-     *   defines `label` (Dynamic String, required) and `value` (String, required).
+     * * `options` (NestedObjectList, required): The list of available options to choose from. Each
+     *   item defines `label` (Dynamic String, required) and `value` (String, required).
      * * `value` (Dynamic String List, required): The list of currently selected values. This should
      *   be bound to a string array in the data model.
      * * `displayStyle` (String Enum, optional): The display style of the component. Valid options:

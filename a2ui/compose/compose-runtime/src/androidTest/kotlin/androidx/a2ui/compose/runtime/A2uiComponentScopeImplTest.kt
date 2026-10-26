@@ -688,7 +688,7 @@ class A2uiComponentScopeImplTest {
             A2uiComponentProperties(
                 mapOf("data" to mapOf("nested" to mapOf("path" to "user/name")))
             )
-        val propDef = A2uiProperty.dynamicValue("data")
+        val propDef = A2uiProperty.dynamicAny("data")
 
         setContent {
             val scope = rememberComponentScope(path = "/base")
