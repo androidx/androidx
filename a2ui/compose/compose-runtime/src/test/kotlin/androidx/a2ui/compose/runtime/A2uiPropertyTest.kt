@@ -46,16 +46,16 @@ import org.junit.runners.JUnit4
 class A2uiPropertyTest {
 
     // ========================================================================
-    // NestedProperty tests
+    // NestedObjectProperty tests
     // ========================================================================
 
     @Test
-    fun nestedProperty_initialization_setsCorrectFieldsAndSchema() {
+    fun nestedObjectProperty_initialization_setsCorrectFieldsAndSchema() {
         val child1 = A2uiProperty.string("name", required = true)
         val child2 = A2uiProperty.number("age", required = false)
 
         val prop =
-            A2uiProperty.nested(
+            A2uiProperty.nestedObject(
                 key = "user",
                 properties = listOf(child1, child2),
                 required = true,
@@ -75,11 +75,11 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
+    fun nestedObjectProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
         val child = A2uiProperty.string("name")
 
         val prop =
-            A2uiProperty.nested(
+            A2uiProperty.nestedObject(
                 key = "user",
                 properties = listOf(child),
                 isAdditionalPropertiesAllowed = false,
@@ -98,9 +98,9 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedProperty_safeCast_wrapsMapInA2uiComponentProperties() {
+    fun nestedObjectProperty_safeCast_wrapsMapInA2uiComponentProperties() {
         val childProp = A2uiProperty.string("name")
-        val prop = A2uiProperty.nested("user", listOf(childProp))
+        val prop = A2uiProperty.nestedObject("user", listOf(childProp))
         val inputMap = mapOf("name" to "Alice", "extra" to 123)
 
         val result = prop.safeCast(inputMap)
@@ -111,8 +111,8 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedProperty_safeCast_returnsNullForInvalidTypes() {
-        val prop = A2uiProperty.nested("user", emptyList())
+    fun nestedObjectProperty_safeCast_returnsNullForInvalidTypes() {
+        val prop = A2uiProperty.nestedObject("user", emptyList())
 
         assertThat(prop.safeCast("not a map")).isNull()
         assertThat(prop.safeCast(listOf("a", "b"))).isNull()
@@ -120,8 +120,8 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedProperty_safeCast_acceptsEmptyMaps() {
-        val prop = A2uiProperty.nested("obj", emptyList())
+    fun nestedObjectProperty_safeCast_acceptsEmptyMaps() {
+        val prop = A2uiProperty.nestedObject("obj", emptyList())
 
         val result = prop.safeCast(emptyMap<String, Any?>())
 
@@ -130,16 +130,16 @@ class A2uiPropertyTest {
     }
 
     // ========================================================================
-    // NestedListProperty tests
+    // NestedObjectListProperty tests
     // ========================================================================
 
     @Test
-    fun nestedListProperty_initialization_setsCorrectFieldsAndSchema() {
+    fun nestedObjectListProperty_initialization_setsCorrectFieldsAndSchema() {
         val child1 = A2uiProperty.string("title", required = true)
         val child2 = A2uiProperty.boolean("isActive", required = false)
 
         val prop =
-            A2uiProperty.nestedList(
+            A2uiProperty.nestedObjectList(
                 key = "tabs",
                 properties = listOf(child1, child2),
                 required = true,
@@ -170,9 +170,9 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_initialization_defaultMinMaxItems() {
+    fun nestedObjectListProperty_initialization_defaultMinMaxItems() {
         val child = A2uiProperty.string("title")
-        val prop = A2uiProperty.nestedList("tabs", listOf(child))
+        val prop = A2uiProperty.nestedObjectList("tabs", listOf(child))
 
         assertThat(prop.schema)
             .isEqualTo(
@@ -185,11 +185,11 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
+    fun nestedObjectListProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
         val child = A2uiProperty.string("title")
 
         val prop =
-            A2uiProperty.nestedList(
+            A2uiProperty.nestedObjectList(
                 key = "tabs",
                 properties = listOf(child),
                 isAdditionalPropertiesAllowed = false,
@@ -213,9 +213,9 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_safeCast_wrapsListOfMaps() {
+    fun nestedObjectListProperty_safeCast_wrapsListOfMaps() {
         val titleProp = A2uiProperty.string("title")
-        val prop = A2uiProperty.nestedList("tabs", listOf(titleProp))
+        val prop = A2uiProperty.nestedObjectList("tabs", listOf(titleProp))
 
         val result = prop.safeCast(listOf(mapOf("title" to "Tab 1"), mapOf("title" to "Tab 2")))
 
@@ -226,9 +226,9 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_safeCast_filtersOutInvalidItems() {
+    fun nestedObjectListProperty_safeCast_filtersOutInvalidItems() {
         val titleProp = A2uiProperty.string("title")
-        val prop = A2uiProperty.nestedList("tabs", listOf(titleProp))
+        val prop = A2uiProperty.nestedObjectList("tabs", listOf(titleProp))
         val inputList =
             listOf(
                 mapOf("title" to "Valid Tab"),
@@ -246,8 +246,8 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_safeCast_returnsNullForNonList() {
-        val prop = A2uiProperty.nestedList("tabs", emptyList())
+    fun nestedObjectListProperty_safeCast_returnsNullForNonList() {
+        val prop = A2uiProperty.nestedObjectList("tabs", emptyList())
 
         assertThat(prop.safeCast("not a list")).isNull()
         assertThat(prop.safeCast(mapOf("title" to "Tab 1"))).isNull()
@@ -255,8 +255,8 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_safeCast_acceptsEmptyLists() {
-        val prop = A2uiProperty.nestedList("tabs", emptyList())
+    fun nestedObjectListProperty_safeCast_acceptsEmptyLists() {
+        val prop = A2uiProperty.nestedObjectList("tabs", emptyList())
 
         val result = prop.safeCast(emptyList<Any>())
 
@@ -265,8 +265,8 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
-        val prop = A2uiProperty.nestedList("tabs", emptyList(), minItems = 3, maxItems = 3)
+    fun nestedObjectListProperty_initialization_withEqualMinMaxItems_setsCorrectSchema() {
+        val prop = A2uiProperty.nestedObjectList("tabs", emptyList(), minItems = 3, maxItems = 3)
 
         assertThat(prop.schema)
             .isEqualTo(
@@ -279,19 +279,19 @@ class A2uiPropertyTest {
     }
 
     @Test
-    fun nestedListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
+    fun nestedObjectListProperty_initialization_withMinItemsGreaterThanMaxItems_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            A2uiProperty.nestedList("tabs", emptyList(), minItems = 5, maxItems = 2)
+            A2uiProperty.nestedObjectList("tabs", emptyList(), minItems = 5, maxItems = 2)
         }
     }
 
     @Test
-    fun nestedListProperty_initialization_withNegativeItemsBounds_throwsException() {
+    fun nestedObjectListProperty_initialization_withNegativeItemsBounds_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            A2uiProperty.nestedList("tabs", emptyList(), minItems = -1)
+            A2uiProperty.nestedObjectList("tabs", emptyList(), minItems = -1)
         }
         assertFailsWith<IllegalArgumentException> {
-            A2uiProperty.nestedList("tabs", emptyList(), maxItems = -1)
+            A2uiProperty.nestedObjectList("tabs", emptyList(), maxItems = -1)
         }
     }
 
@@ -1363,22 +1363,22 @@ class A2uiPropertyTest {
     }
 
     // ========================================================================
-    // DynamicValueProperty tests
+    // DynamicAnyProperty tests
     // ========================================================================
 
     @Test
-    fun dynamicValueProperty_initialization_setsCorrectFieldsAndSchema() {
+    fun dynamicAnyProperty_initialization_setsCorrectFieldsAndSchema() {
         val prop =
-            A2uiProperty.dynamicValue("test", required = true, description = "Test dynamic value")
+            A2uiProperty.dynamicAny("test", required = true, description = "Test dynamic any")
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
-        assertThat(prop.schema).isEqualTo(A2uiDynamicValueSchema("Test dynamic value"))
+        assertThat(prop.schema).isEqualTo(A2uiDynamicValueSchema("Test dynamic any"))
     }
 
     @Test
-    fun dynamicValueProperty_safeCast_returnsValueUnmodified() {
-        val prop = A2uiProperty.dynamicValue("test")
+    fun dynamicAnyProperty_safeCast_returnsValueUnmodified() {
+        val prop = A2uiProperty.dynamicAny("test")
 
         assertThat(prop.safeCast("string")).isEqualTo("string")
         assertThat(prop.safeCast(123)).isEqualTo(123)
