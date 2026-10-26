@@ -1664,8 +1664,7 @@ package androidx.compose.foundation.lazy.layout {
     method @InaccessibleFromKotlin public void clear();
     method public operator boolean contains(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
     method @InaccessibleFromKotlin public boolean contains(Object element);
-    method @InaccessibleFromKotlin public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
-    method @KotlinOnly public boolean containsAll(java.util.Collection<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> elements);
+    method public boolean containsAll(java.util.Collection<? extends java.lang.Object?> elements);
     method public operator androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem get(int index);
     method public int getSize();
     method public int indexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);

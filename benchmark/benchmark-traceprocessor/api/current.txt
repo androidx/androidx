@@ -64,8 +64,7 @@ package androidx.benchmark.traceprocessor {
     method @BytecodeOnly public Object! computeIfPresent(String!, java.util.function.BiFunction<? super java.lang.String!,? super java.lang.Object!,? extends java.lang.Object!>!);
     method @InaccessibleFromKotlin public boolean containsKey(Object key);
     method public boolean containsKey(String key);
-    method @InaccessibleFromKotlin public boolean containsValue(Object? value);
-    method @KotlinOnly public boolean containsValue(Object? value);
+    method public boolean containsValue(Object? value);
     method public double double(String columnName);
     method @InaccessibleFromKotlin public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!>! entrySet();
     method @InaccessibleFromKotlin public Object? get(Object key);
