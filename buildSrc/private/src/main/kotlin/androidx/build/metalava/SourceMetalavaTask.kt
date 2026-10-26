@@ -328,10 +328,6 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
                         "HiddenSuperclass",
                         "--hide",
                         "HiddenAbstractMethod",
-                        "--hide",
-                        "HiddenTypeParameter",
-                        "--hide",
-                        "UnavailableSymbol",
                     )
                 )
             }
