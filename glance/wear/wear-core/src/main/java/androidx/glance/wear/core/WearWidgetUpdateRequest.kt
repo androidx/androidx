@@ -20,28 +20,15 @@ import androidx.annotation.RestrictTo
 import androidx.glance.wear.parcel.WearWidgetUpdateRequestParcel
 import androidx.glance.wear.proto.WearWidgetUpdateRequestProto
 
-/**
- * Describes the necessary information to request or push an update to the Host.
- *
- * @property instanceId The ID of the widget instance for which an update is being requested.
- * @property creationUptimeMillis The [android.os.SystemClock.uptimeMillis] when the update request
- *   was created, or `null` if not set.
- */
+/** Describes the necessary information to request or push an update to the Host. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WearWidgetUpdateRequest(
-    public val instanceId: WidgetInstanceId,
-    public val creationUptimeMillis: Long? = null,
-) {
+public class WearWidgetUpdateRequest(public val instanceId: WidgetInstanceId) {
 
     /** Convert to the parcelable [androidx.glance.wear.parcel.WearWidgetUpdateRequestParcel]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toParcel(): WearWidgetUpdateRequestParcel {
         val requestProto =
-            WearWidgetUpdateRequestProto(
-                id = instanceId.id,
-                id_namespace = instanceId.namespace,
-                creation_uptime_millis = creationUptimeMillis,
-            )
+            WearWidgetUpdateRequestProto(id = instanceId.id, id_namespace = instanceId.namespace)
         return WearWidgetUpdateRequestParcel().apply { payload = requestProto.encode() }
     }
 
@@ -54,8 +41,7 @@ public class WearWidgetUpdateRequest(
                 WearWidgetUpdateRequestProto.Companion.ADAPTER.decode(contentParcel.payload)
             return WearWidgetUpdateRequest(
                 instanceId =
-                    WidgetInstanceId(namespace = requestProto.id_namespace, id = requestProto.id),
-                creationUptimeMillis = requestProto.creation_uptime_millis,
+                    WidgetInstanceId(namespace = requestProto.id_namespace, id = requestProto.id)
             )
         }
     }

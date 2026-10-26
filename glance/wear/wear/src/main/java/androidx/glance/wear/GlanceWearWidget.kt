@@ -279,11 +279,7 @@ internal constructor(
             }
         rawContent.extras.addCreationUptimeMillis(creationUptimeMillis)
 
-        updateClient.pushUpdate(
-            context,
-            WearWidgetUpdateRequest(instanceId, creationUptimeMillis),
-            rawContent,
-        )
+        updateClient.pushUpdate(context, WearWidgetUpdateRequest(instanceId), rawContent)
     }
 
     @VisibleForTesting
