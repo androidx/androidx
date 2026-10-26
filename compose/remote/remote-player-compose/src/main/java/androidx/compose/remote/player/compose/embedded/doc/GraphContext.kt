@@ -149,8 +149,12 @@ internal class GraphContext(
         textMeasurePaints[id] = paintState
     }
 
-    @Suppress("BanConcurrentHashMap")
-    internal val particlesInitialized: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+    /**
+     * IDs (`ParticlesCreate.getId()`) of `ParticlesCreate` ops that have seeded their particles at
+     * least once, so a `ParticlesLoop` only falls back to seeding a source the draw stream never
+     * painted.
+     */
+    internal val particlesInitialized: MutableIntSet = MutableIntSet()
 
     /**
      * Fire state of each impulse whose window is open, keyed by the operation (identity: operations
