@@ -99,6 +99,8 @@ com.google.android.gms.maps
 com.google.android.gms.maps.model
 com.google.android.gms.measurement
 com.google.android.gms.measurement
+com.google.android.gms.media.effect.enhancement
+com.google.android.gms.media.effect.studiosound
 com.google.android.gms.nearby
 com.google.android.gms.nearby.connection
 com.google.android.gms.nearby.exposurenotification
