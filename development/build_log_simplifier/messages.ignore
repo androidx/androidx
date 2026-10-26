@@ -51,8 +51,6 @@ Note: Recompile with \-Xlint\:deprecation for details\.
 # > Task :startup:integration-tests:first-library:processDebugManifest
 \$SUPPORT/startup/integration\-tests/first\-library/src/main/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 meta\-data\#androidx\.work\.WorkManagerInitializer was tagged at AndroidManifest\.xml\:[0-9]+ to remove other declarations but no other declaration present
-# > Task :support-slices-demos:compileDebugJavaWithJavac
-Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/slice/demos/SliceBrowser\.java uses unchecked or unsafe operations\.
 # > Task :activity:integration-tests:testapp:processDebugAndroidTestManifest
 # b/166471969
 \$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -255,17 +253,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/RemoteViewsCompat\.kt:[0-9
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `horizontalGravity` in DFunction setLinearLayoutHorizontalGravity
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/RemoteViewsCompat\.kt:[0-9]+ Missing @param tag for parameter `verticalGravity` in DFunction setLinearLayoutVerticalGravity
 WARN: .*\/unzippedJvmSources\/androidx\/emoji2\/text\/EmojiCompat\.java:[0-9]+ Missing @param tag for parameter `useEmojiAsDefaultStyle` in DFunction setUseEmojiAsDefaultStyle
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/GridRowBuilder\.java:[0-9]+ Missing @param tag for parameter `text` in DFunction addText
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/GridRowBuilder\.java:[0-9]+ Missing @param tag for parameter `text` in DFunction addTitleText
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/GridRowBuilder\.java:[0-9]+ Missing @param tag for parameter `text` in DFunction addOverlayText
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `action` in DFunction addEndItem
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction ListBuilder
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `summary` in DFunction setSummary
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `action` in DFunction setTitleItem
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `title` in DFunction setTitle
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/builders\/ListBuilder\.java:[0-9]+ Missing @param tag for parameter `subtitle` in DFunction setSubtitle
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/SliceUtils\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction parseSlice
-WARN: .*\/unzippedJvmSources\/androidx\/slice\/SliceViewManager\.java:[0-9]+ Missing @param tag for parameter `executor` in DFunction registerSliceCallback
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/constraintlayout\/compose\/MotionCarousel\.kt:[0-9]+ Missing @param tag for parameter `motionScene` in DFunction MotionCarousel
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material\/TextFieldDefaults\.kt:[0-9]+ Missing @param tag for parameter `shape` in DFunction BorderBox
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/material3\/Card\.kt:[0-9]+ Missing @param tag for parameter `disabledElevation` in DFunction outlinedCardElevation
@@ -482,17 +469,6 @@ public abstract void jvmDelete\(T t\);
 public abstract void jvmInsert\(@org\.jetbrains\.annotations\.NotNull.*
 public abstract java\.util\.List<androidx\.room3\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameEntity> jvmQuery\(\);
 public abstract androidx\.room3\.integration\.kotlintestapp\.test\.JvmNameInDaoTest\.JvmNameDao jvmDao\(\);
-# > Task :slice:slice-builders-ktx:compileDebugKotlin
-w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/main/java/androidx/slice/builders/ListBuilder\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
-# > Task :slice:slice-builders-ktx:compileDebugAndroidTestKotlin
-w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'SliceProvider' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'SliceSpecs' is deprecated\. Deprecated in Java
-w: file://\$SUPPORT/slice/slice\-builders\-ktx/src/androidTest/java/androidx/slice/builders/SliceBuildersKtxTest\.kt:[0-9]+:[0-9]+ 'ListBuilder' is deprecated\. Deprecated in Java
-# > Task :slice:slice-benchmark:compileReleaseAndroidTestJavaWithJavac
-\$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceSerializeMetrics\.java:[0-9]+: warning: \[deprecation\] SliceHints in androidx\.slice\.core has been deprecated
-import androidx\.slice\.core\.SliceHints;
-\$SUPPORT/slice/slice\-benchmark/src/androidTest/java/androidx/slice/SliceViewMetrics\.java:[0-9]+: warning: \[deprecation\] SliceView in androidx\.slice\.widget has been deprecated
-import androidx\.slice\.widget\.SliceView;
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
 .*Downloading dependency[:]? file:.*/prebuilts/androidx/konan/.*
