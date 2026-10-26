@@ -66,7 +66,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.RadioButtonTokens
-import androidx.wear.compose.material3.tokens.ShapeTokens
 import androidx.wear.compose.material3.tokens.SplitRadioButtonTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
@@ -153,6 +152,13 @@ public fun RadioButton(
 
     val contentColor = colors.contentColor(enabled = enabled, selected = selected).value
 
+    val hasInsetFocusRing = LocalRippleThemeConfiguration.current.insetFocusRing != null
+    val actualInteractionSource =
+        if (hasInsetFocusRing) {
+            interactionSource ?: remember { MutableInteractionSource() }
+        } else {
+            interactionSource
+        }
     // Stadium/Pill shaped toggle button
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
@@ -160,6 +166,7 @@ public fun RadioButton(
                 modifier
                     .defaultMinSize(minHeight = MIN_HEIGHT)
                     .width(IntrinsicSize.Max)
+                    .insetFocusRing(interactionSource = actualInteractionSource, shape = shape)
                     .surface(painter = colorPainter, shape = shape, transformation = transformation)
                     .selectable(
                         enabled = enabled,
@@ -168,8 +175,8 @@ public fun RadioButton(
                             hapticFeedback.performHapticFeedback(HapticFeedbackType.ContextClick)
                             onSelect()
                         },
-                        indication = ripple(),
-                        interactionSource = interactionSource,
+                        indication = ripple(enableFocusIndication = !hasInsetFocusRing),
+                        interactionSource = actualInteractionSource,
                     )
                     .padding(contentPadding)
                     .semantics {
@@ -331,18 +338,20 @@ public fun SplitRadioButton(
                         with(transformation) { applyContainerTransformation() }
                     },
         ) {
+            val startSectionShape = shape.startSection()
             Row(
                 modifier =
                     Modifier.clickable(
                             enabled = enabled,
                             onClick = onContainerClick,
-                            indication = ripple(),
+                            indication =
+                                ripple(focusRingShape = rememberDelegatingShape(startSectionShape)),
                             interactionSource = containerInteractionSource,
                             onClickLabel = containerClickLabel,
                         )
                         .semantics { role = Role.Button }
                         .fillMaxHeight()
-                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .clip(startSectionShape)
                         .drawBehind { drawRect(containerColorState.value) }
                         .padding(contentPadding)
                         .weight(1.0f),
@@ -385,6 +394,7 @@ public fun SplitRadioButton(
 
             val splitBackgroundOverlayState = colors.splitContainerColor(enabled, selected)
             val hapticFeedback = LocalHapticFeedback.current
+            val endSectionShape = shape.endSection()
 
             Box(
                 contentAlignment = Alignment.Center,
@@ -398,11 +408,12 @@ public fun SplitRadioButton(
                                 )
                                 onSelectionClick()
                             },
-                            indication = ripple(),
+                            indication =
+                                ripple(focusRingShape = rememberDelegatingShape(endSectionShape)),
                             interactionSource = selectionInteractionSource,
                         )
                         .fillMaxHeight()
-                        .clip(SPLIT_SECTIONS_SHAPE)
+                        .clip(endSectionShape)
                         .drawBehind {
                             drawRect(
                                 splitBackgroundOverlayState.value.compositeOver(
@@ -1506,4 +1517,3 @@ private val MIN_HEIGHT = 52.dp
 private val SPLIT_MIN_WIDTH = 48.dp
 private val CONTROL_WIDTH = 24.dp
 private val CONTROL_HEIGHT = 24.dp
-private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall

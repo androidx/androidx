@@ -17,8 +17,13 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.FocusInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -135,6 +140,96 @@ class RadioButtonScreenshotTest {
     @Test
     fun split_radio_button_customized_horizontal_padding_24dp() = verifyScreenshot {
         sampleSplitRadioButton(contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp))
+    }
+
+    @Test
+    fun radio_button_inset_focus_ring() {
+        val selectedInteractionSource = MutableInteractionSource()
+        val unselectedInteractionSource = MutableInteractionSource()
+        rule.setContentWithTheme {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingThemeConfiguration
+            ) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    Column(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        RadioButton(
+                            icon = { TestIcon() },
+                            label = { Text("RadioButton") },
+                            secondaryLabel = { Text("Secondary label") },
+                            selected = true,
+                            onSelect = {},
+                            interactionSource = selectedInteractionSource,
+                        )
+                        RadioButton(
+                            icon = { TestIcon() },
+                            label = { Text("RadioButton") },
+                            secondaryLabel = { Text("Secondary label") },
+                            selected = false,
+                            onSelect = {},
+                            interactionSource = unselectedInteractionSource,
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            selectedInteractionSource.tryEmit(FocusInteraction.Focus())
+            unselectedInteractionSource.tryEmit(FocusInteraction.Focus())
+        }
+        rule.verifyScreenshot(testName, screenshotRule)
+    }
+
+    @Test
+    fun split_radio_button_inset_focus_ring() {
+        val containerInteractionSource = MutableInteractionSource()
+        val selectionInteractionSource = MutableInteractionSource()
+        rule.setContentWithTheme {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingThemeConfiguration
+            ) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    Column(
+                        modifier = Modifier.testTag(TEST_TAG),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        SplitRadioButton(
+                            label = { Text("SplitRadioButton") },
+                            secondaryLabel = { Text("Secondary label") },
+                            selected = true,
+                            onSelectionClick = {},
+                            onContainerClick = {},
+                            selectionContentDescription = null,
+                            containerInteractionSource = containerInteractionSource,
+                        )
+                        SplitRadioButton(
+                            label = { Text("SplitRadioButton") },
+                            secondaryLabel = { Text("Secondary label") },
+                            selected = false,
+                            onSelectionClick = {},
+                            onContainerClick = {},
+                            selectionContentDescription = null,
+                            selectionInteractionSource = selectionInteractionSource,
+                        )
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            containerInteractionSource.tryEmit(FocusInteraction.Focus())
+            selectionInteractionSource.tryEmit(FocusInteraction.Focus())
+        }
+        rule.verifyScreenshot(testName, screenshotRule)
     }
 
     @Composable

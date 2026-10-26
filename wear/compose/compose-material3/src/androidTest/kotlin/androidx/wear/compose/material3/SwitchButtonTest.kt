@@ -44,6 +44,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -787,6 +788,35 @@ class SwitchButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switch_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
+            SwitchButton(
+                checked = false,
+                onCheckedChange = {},
+                modifier = modifier,
+                interactionSource = interactionSource,
+                label = {},
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun split_switch_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterRequestFocus(hasClickAction()) { modifier ->
+            SplitSwitchButton(
+                checked = false,
+                onCheckedChange = {},
+                toggleContentDescription = null,
+                onContainerClick = {},
+                modifier = modifier,
+                label = { Text("Label") },
+            )
+        }
     }
 }
 

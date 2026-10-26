@@ -142,7 +142,7 @@ public fun TextToggleButton(
             toggleButtonSize = TextToggleButtonDefaults.Size,
             interactionSource = finalInteractionSource,
             shape = finalShape,
-            ripple = ripple(),
+            ripple = ripple(focusRingShape = rememberDelegatingShape(finalShape)),
             content = content,
         )
     }
