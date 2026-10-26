@@ -44,7 +44,7 @@ public class EventManagerTest {
     @Test
     public void noRouterNoHandler() {
         // Arrange.
-        Event event = new Event(TYPE1, 0, new float[0]);
+        Event event = new TestEvent(TYPE1, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -57,7 +57,7 @@ public class EventManagerTest {
     public void noHandler() {
         // Arrange.
         mEventManager.registerRouter(TYPE1, new TestEventRouter());
-        Event event = new Event(TYPE1, 0, new float[0]);
+        Event event = new TestEvent(TYPE1, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -70,7 +70,7 @@ public class EventManagerTest {
     public void noRouter() {
         // Arrange.
         mEventManager.registerHandler(new TestHandler(TYPE1));
-        Event event = new Event(TYPE1, 0, new float[0]);
+        Event event = new TestEvent(TYPE1, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -86,7 +86,7 @@ public class EventManagerTest {
         TestHandler handler = new TestHandler(TYPE2);
         mEventManager.registerRouter(TYPE1, router);
         mEventManager.registerHandler(handler);
-        Event event = new Event(TYPE2, 0, new float[0]);
+        Event event = new TestEvent(TYPE2, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -105,7 +105,7 @@ public class EventManagerTest {
         TestHandler handler = new TestHandler(TYPE1);
         mEventManager.registerRouter(TYPE1, router);
         mEventManager.registerHandler(handler);
-        Event event = new Event(TYPE1, 0, new float[0]);
+        Event event = new TestEvent(TYPE1, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -124,7 +124,7 @@ public class EventManagerTest {
         TestHandler handler = new TestHandler(TYPE1);
         mEventManager.registerRouter(TYPE1, router);
         mEventManager.registerHandler(handler);
-        Event event = new Event(TYPE2, 0, new float[0]);
+        Event event = new TestEvent(TYPE2, 0, new float[0]);
 
         // Act.
         int result = mEventManager.dispatchEvent(mContext, mDoc, event);
@@ -143,8 +143,8 @@ public class EventManagerTest {
         TestHandler handler = new TestHandler(TYPE1);
         mEventManager.registerRouter(TYPE1, router);
         mEventManager.registerHandler(handler);
-        Event event1 = new Event(TYPE1, 0, new float[0]);
-        Event event2 = new Event(TYPE1, 0, new float[0]);
+        Event event1 = new TestEvent(TYPE1, 0, new float[0]);
+        Event event2 = new TestEvent(TYPE1, 0, new float[0]);
 
         // Act.
         int result1 = mEventManager.dispatchEvent(mContext, mDoc, event1);
@@ -168,12 +168,12 @@ public class EventManagerTest {
         mEventManager.registerHandler(new TestHandler(TYPE1));
         mEventManager.registerHandler(new TestHandler(TYPE2));
         mEventManager.registerHandler(new TestHandler(TYPE3));
-        Event event1 = new Event(TYPE1, 0, new float[0]);
-        Event event2 = new Event(TYPE1, 0, new float[0]);
-        Event event3 = new Event(TYPE2, 0, new float[0]);
-        Event event4 = new Event(TYPE2, 0, new float[0]);
-        Event event5 = new Event(TYPE3, 0, new float[0]);
-        Event event6 = new Event(TYPE3, 0, new float[0]);
+        Event event1 = new TestEvent(TYPE1, 0, new float[0]);
+        Event event2 = new TestEvent(TYPE1, 0, new float[0]);
+        Event event3 = new TestEvent(TYPE2, 0, new float[0]);
+        Event event4 = new TestEvent(TYPE2, 0, new float[0]);
+        Event event5 = new TestEvent(TYPE3, 0, new float[0]);
+        Event event6 = new TestEvent(TYPE3, 0, new float[0]);
 
         // Act.
         int result1 = mEventManager.dispatchEvent(mContext, mDoc, event1);
