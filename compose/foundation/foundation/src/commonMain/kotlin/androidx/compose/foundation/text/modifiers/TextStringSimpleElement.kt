@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyleScope
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,9 +31,11 @@ import androidx.compose.ui.text.style.TextOverflow
  *
  * This is faster than [TextAnnotatedStringElement]
  */
-internal class TextStringSimpleElement(
+internal class TextStringSimpleElement
+private constructor(
     private val text: String,
-    private val style: TextStyle,
+    private val style: TextStyle?,
+    private val styleProvider: (TextStyleScope.() -> Unit)?,
     private val fontFamilyResolver: FontFamily.Resolver,
     private val defaultLocaleList: LocaleList,
     private val overflow: TextOverflow = TextOverflow.Clip,
@@ -42,34 +45,114 @@ internal class TextStringSimpleElement(
     private val color: ColorProducer? = null,
 ) : ModifierNodeElement<TextStringSimpleNode>() {
 
+    constructor(
+        text: String,
+        style: TextStyle,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+        color: ColorProducer? = null,
+    ) : this(
+        text = text,
+        style = style,
+        styleProvider = null,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        color = color,
+    )
+
+    constructor(
+        text: String,
+        styleProvider: (TextStyleScope.() -> Unit)?,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+    ) : this(
+        text = text,
+        style = null,
+        styleProvider = styleProvider,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        color = null,
+    )
+
     override fun create(): TextStringSimpleNode =
-        TextStringSimpleNode(
-            text,
-            style,
-            fontFamilyResolver,
-            defaultLocaleList,
-            overflow,
-            softWrap,
-            maxLines,
-            minLines,
-            color,
-        )
+        if (style != null) {
+            TextStringSimpleNode(
+                text = text,
+                style = style,
+                fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                overrideColor = color,
+            )
+        } else {
+            TextStringSimpleNode(
+                text = text,
+                styleProvider = styleProvider,
+                fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+            )
+        }
 
     override fun update(node: TextStringSimpleNode) {
-        node.doInvalidations(
-            drawChanged = node.updateDraw(color, style),
-            textChanged = node.updateText(text = text),
-            layoutChanged =
+        if (style != null) {
+            node.doInvalidations(
+                drawChanged = node.updateDraw(color, style),
+                textChanged = node.updateText(text = text),
+                layoutChanged =
+                    node.updateLayoutRelatedArgs(
+                        style = style,
+                        minLines = minLines,
+                        maxLines = maxLines,
+                        softWrap = softWrap,
+                        fontFamilyResolver = fontFamilyResolver,
+                        defaultLocaleList = defaultLocaleList,
+                        overflow = overflow,
+                    ),
+                styleChanged = false,
+            )
+        } else {
+            val styleChanged = node.updateStyle(styleProvider)
+            val drawChanged = node.updateDraw(color)
+            val textChanged = node.updateText(text = text)
+            val layoutChanged =
                 node.updateLayoutRelatedArgs(
-                    style = style,
                     minLines = minLines,
                     maxLines = maxLines,
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
                     defaultLocaleList = defaultLocaleList,
                     overflow = overflow,
-                ),
-        )
+                )
+            node.doInvalidations(
+                drawChanged = drawChanged,
+                textChanged = textChanged,
+                layoutChanged = layoutChanged,
+                styleChanged = styleChanged,
+            )
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -81,6 +164,7 @@ internal class TextStringSimpleElement(
         if (color != other.color) return false
         if (text != other.text) return false /* expensive to check, do after color */
         if (style != other.style) return false
+        if (styleProvider !== other.styleProvider) return false
 
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
@@ -95,7 +179,7 @@ internal class TextStringSimpleElement(
 
     override fun hashCode(): Int {
         var result = text.hashCode()
-        result = 31 * result + style.hashCode()
+        result = 31 * result + (style?.hashCode() ?: styleProvider?.hashCode() ?: 0)
         result = 31 * result + fontFamilyResolver.hashCode()
         result = 31 * result + defaultLocaleList.hashCode()
         result = 31 * result + overflow.hashCode()

@@ -45,6 +45,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyleScope
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,9 +56,11 @@ import androidx.compose.ui.unit.Constraints
  *
  * This adds [GlobalPositionAwareModifierNode].
  */
-internal class SelectableTextAnnotatedStringNode(
+internal class SelectableTextAnnotatedStringNode
+private constructor(
     text: AnnotatedString,
-    style: TextStyle,
+    style: TextStyle?,
+    styleProvider: (TextStyleScope.() -> Unit)?,
     fontFamilyResolver: FontFamily.Resolver,
     defaultLocaleList: LocaleList,
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
@@ -81,28 +84,117 @@ internal class SelectableTextAnnotatedStringNode(
     ObserverModifierNode,
     LayoutAwareModifierNode,
     UnplacedAwareModifierNode {
+
+    constructor(
+        text: AnnotatedString,
+        style: TextStyle,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+        placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
+        onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
+        selectionController: SelectionController? = null,
+        overrideColor: ColorProducer? = null,
+        autoSize: TextAutoSize? = null,
+        onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
+    ) : this(
+        text = text,
+        style = style,
+        styleProvider = null,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        placeholders = placeholders,
+        onPlaceholderLayout = onPlaceholderLayout,
+        selectionController = selectionController,
+        overrideColor = overrideColor,
+        autoSize = autoSize,
+        onShowTranslation = onShowTranslation,
+    )
+
+    constructor(
+        text: AnnotatedString,
+        styleProvider: (TextStyleScope.() -> Unit)?,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+        placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
+        onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
+        selectionController: SelectionController? = null,
+        autoSize: TextAutoSize? = null,
+        onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
+    ) : this(
+        text = text,
+        style = null,
+        styleProvider = styleProvider,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        placeholders = placeholders,
+        onPlaceholderLayout = onPlaceholderLayout,
+        selectionController = selectionController,
+        overrideColor = null,
+        autoSize = autoSize,
+        onShowTranslation = onShowTranslation,
+    )
+
     override val shouldAutoInvalidate: Boolean
         get() = false
 
     private val textAnnotatedStringNode =
         delegate(
-            TextAnnotatedStringNode(
-                text = text,
-                style = style,
-                fontFamilyResolver = fontFamilyResolver,
-                defaultLocaleList = defaultLocaleList,
-                onTextLayout = onTextLayout,
-                overflow = overflow,
-                softWrap = softWrap,
-                maxLines = maxLines,
-                minLines = minLines,
-                placeholders = placeholders,
-                onPlaceholderLayout = onPlaceholderLayout,
-                selectionController = selectionController,
-                overrideColor = overrideColor,
-                autoSize = autoSize,
-                onShowTranslation = onShowTranslation,
-            )
+            if (style != null) {
+                TextAnnotatedStringNode(
+                    text = text,
+                    style = style,
+                    fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
+                    onTextLayout = onTextLayout,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    placeholders = placeholders,
+                    onPlaceholderLayout = onPlaceholderLayout,
+                    selectionController = selectionController,
+                    overrideColor = overrideColor,
+                    autoSize = autoSize,
+                    onShowTranslation = onShowTranslation,
+                )
+            } else {
+                TextAnnotatedStringNode(
+                    text = text,
+                    styleProvider = styleProvider,
+                    fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
+                    onTextLayout = onTextLayout,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    placeholders = placeholders,
+                    onPlaceholderLayout = onPlaceholderLayout,
+                    selectionController = selectionController,
+                    autoSize = autoSize,
+                    onShowTranslation = onShowTranslation,
+                )
+            }
         )
 
     init {
@@ -212,6 +304,61 @@ internal class SelectableTextAnnotatedStringNode(
                     selectionController = selectionController,
                     onShowTranslation = onShowTranslation,
                 ),
+            styleChanged = false,
+        )
+        if (isPlaced && (selectionController != this.selectionController)) {
+            this.selectionController?.onUnplaced()
+            selectionController?.onPlaced()
+        }
+        selectionController?.updatePinnableContainer(retrievePinnableContainer())
+
+        this.selectionController = selectionController
+
+        // we always relayout when we're selectable
+        invalidateMeasurement()
+    }
+
+    fun update(
+        text: AnnotatedString,
+        styleProvider: (TextStyleScope.() -> Unit)?,
+        placeholders: List<AnnotatedString.Range<Placeholder>>?,
+        minLines: Int,
+        maxLines: Int,
+        softWrap: Boolean,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        overflow: TextOverflow,
+        onTextLayout: ((TextLayoutResult) -> Unit)?,
+        onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
+        selectionController: SelectionController?,
+        color: ColorProducer?,
+        autoSize: TextAutoSize?,
+    ) {
+        val styleChanged = textAnnotatedStringNode.updateStyle(styleProvider)
+        val drawChanged = textAnnotatedStringNode.updateDraw(color, text)
+        val layoutChanged =
+            textAnnotatedStringNode.updateLayoutRelatedArgs(
+                placeholders = placeholders,
+                minLines = minLines,
+                maxLines = maxLines,
+                softWrap = softWrap,
+                fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
+                overflow = overflow,
+                autoSize = autoSize,
+            )
+        textAnnotatedStringNode.doInvalidations(
+            drawChanged = drawChanged,
+            textChanged = textAnnotatedStringNode.updateText(text = text),
+            layoutChanged = layoutChanged,
+            callbacksChanged =
+                textAnnotatedStringNode.updateCallbacks(
+                    onTextLayout = onTextLayout,
+                    onPlaceholderLayout = onPlaceholderLayout,
+                    selectionController = selectionController,
+                    onShowTranslation = onShowTranslation,
+                ),
+            styleChanged = styleChanged,
         )
         if (isPlaced && (selectionController != this.selectionController)) {
             this.selectionController?.onUnplaced()

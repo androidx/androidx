@@ -608,6 +608,107 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.text.PlatformSpanStyle? spanStyle;
   }
 
+  public final class ReusableTextStyleScope implements androidx.compose.ui.text.TextStyleScope {
+    ctor public ReusableTextStyleScope();
+    method public void copyFrom(androidx.compose.ui.text.ReusableTextStyleScope other);
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @BytecodeOnly public long getBackground-0d7_KjU();
+    method @BytecodeOnly public float getBaselineShift-y9eOQZs();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Brush? getBrush();
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.drawscope.DrawStyle? getDrawStyle();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontFamily? getFontFamily();
+    method @InaccessibleFromKotlin public String? getFontFeatureSettings();
+    method @BytecodeOnly public long getFontSize-XSAIIZE();
+    method @BytecodeOnly public androidx.compose.ui.text.font.FontStyle? getFontStyle-4Lr2A7w();
+    method @BytecodeOnly public androidx.compose.ui.text.font.FontSynthesis? getFontSynthesis-ZQGJjVo();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontWeight? getFontWeight();
+    method @BytecodeOnly public int getHyphens-vmbZdU8();
+    method @BytecodeOnly public long getLetterSpacing-XSAIIZE();
+    method @BytecodeOnly public int getLineBreak-rAG3T2k();
+    method @BytecodeOnly public long getLineHeight-XSAIIZE();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.LineHeightStyle? getLineHeightStyle();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.intl.LocaleList? getLocaleList();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.PlatformTextStyle? getPlatformStyle();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shadow? getShadow();
+    method @BytecodeOnly public int getTextAlign-e0LSkKk();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.TextDecoration? getTextDecoration();
+    method @BytecodeOnly public int getTextDirection-s_7X-co();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.TextIndent? getTextIndent();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.TextMotion? getTextMotion();
+    method public boolean hasSameDrawAffectingAttributes(androidx.compose.ui.text.ReusableTextStyleScope other);
+    method public boolean hasSameDrawAffectingAttributes(androidx.compose.ui.text.TextStyle style);
+    method public boolean hasSameLayoutAffectingAttributes(androidx.compose.ui.text.ReusableTextStyleScope other);
+    method public boolean hasSameLayoutAffectingAttributes(androidx.compose.ui.text.TextStyle style);
+    method public void reset();
+    method public void setAlpha(float alpha);
+    method @KotlinOnly public void setBackground(androidx.compose.ui.graphics.Color background);
+    method @BytecodeOnly public void setBackground-8_81llA(long);
+    method @KotlinOnly public void setBaselineShift(androidx.compose.ui.text.style.BaselineShift baselineShift);
+    method @BytecodeOnly public void setBaselineShift-4Dl_Bck(float);
+    method public void setBrush(androidx.compose.ui.graphics.Brush brush);
+    method @KotlinOnly public void setColor(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public void setColor-8_81llA(long);
+    method public void setDrawStyle(androidx.compose.ui.graphics.drawscope.DrawStyle drawStyle);
+    method public void setFontFamily(androidx.compose.ui.text.font.FontFamily fontFamily);
+    method public void setFontFeatureSettings(String fontFeatureSettings);
+    method @KotlinOnly public void setFontSize(androidx.compose.ui.unit.TextUnit fontSize);
+    method @BytecodeOnly public void setFontSize--R2X_6o(long);
+    method @KotlinOnly public void setFontStyle(androidx.compose.ui.text.font.FontStyle fontStyle);
+    method @BytecodeOnly public void setFontStyle-nzbMABs(int);
+    method @KotlinOnly public void setFontSynthesis(androidx.compose.ui.text.font.FontSynthesis fontSynthesis);
+    method @BytecodeOnly public void setFontSynthesis-6p3vJLY(int);
+    method public void setFontWeight(androidx.compose.ui.text.font.FontWeight fontWeight);
+    method @KotlinOnly public void setHyphens(androidx.compose.ui.text.style.Hyphens hyphens);
+    method @BytecodeOnly public void setHyphens--3fSNIE(int);
+    method @KotlinOnly public void setLetterSpacing(androidx.compose.ui.unit.TextUnit letterSpacing);
+    method @BytecodeOnly public void setLetterSpacing--R2X_6o(long);
+    method @KotlinOnly public void setLineBreak(androidx.compose.ui.text.style.LineBreak lineBreak);
+    method @BytecodeOnly public void setLineBreak-CZqVlQI(int);
+    method @KotlinOnly public void setLineHeight(androidx.compose.ui.unit.TextUnit lineHeight);
+    method @BytecodeOnly public void setLineHeight--R2X_6o(long);
+    method public void setLineHeightStyle(androidx.compose.ui.text.style.LineHeightStyle lineHeightStyle);
+    method public void setLocaleList(androidx.compose.ui.text.intl.LocaleList localeList);
+    method public void setPlatformStyle(androidx.compose.ui.text.PlatformTextStyle platformStyle);
+    method public void setShadow(androidx.compose.ui.graphics.Shadow shadow);
+    method @KotlinOnly public void setTextAlign(androidx.compose.ui.text.style.TextAlign textAlign);
+    method @BytecodeOnly public void setTextAlign-aXe7zB0(int);
+    method public void setTextDecoration(androidx.compose.ui.text.style.TextDecoration textDecoration);
+    method @KotlinOnly public void setTextDirection(androidx.compose.ui.text.style.TextDirection textDirection);
+    method @BytecodeOnly public void setTextDirection-Hejc4pk(int);
+    method public void setTextGeometricTransform(androidx.compose.ui.text.style.TextGeometricTransform textGeometricTransform);
+    method public void setTextIndent(androidx.compose.ui.text.style.TextIndent textIndent);
+    method public void setTextMotion(androidx.compose.ui.text.style.TextMotion textMotion);
+    method public void setTextStyle(androidx.compose.ui.text.TextStyle style);
+    property public float alpha;
+    property public androidx.compose.ui.graphics.Color background;
+    property public androidx.compose.ui.text.style.BaselineShift baselineShift;
+    property public androidx.compose.ui.graphics.Brush? brush;
+    property public androidx.compose.ui.graphics.Color color;
+    property public androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle;
+    property public androidx.compose.ui.text.font.FontFamily? fontFamily;
+    property public String? fontFeatureSettings;
+    property public androidx.compose.ui.unit.TextUnit fontSize;
+    property public androidx.compose.ui.text.font.FontStyle? fontStyle;
+    property public androidx.compose.ui.text.font.FontSynthesis? fontSynthesis;
+    property public androidx.compose.ui.text.font.FontWeight? fontWeight;
+    property public androidx.compose.ui.text.style.Hyphens hyphens;
+    property public androidx.compose.ui.unit.TextUnit letterSpacing;
+    property public androidx.compose.ui.text.style.LineBreak lineBreak;
+    property public androidx.compose.ui.unit.TextUnit lineHeight;
+    property public androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle;
+    property public androidx.compose.ui.text.intl.LocaleList? localeList;
+    property public androidx.compose.ui.text.PlatformTextStyle? platformStyle;
+    property public androidx.compose.ui.graphics.Shadow? shadow;
+    property public androidx.compose.ui.text.style.TextAlign textAlign;
+    property public androidx.compose.ui.text.style.TextDecoration? textDecoration;
+    property public androidx.compose.ui.text.style.TextDirection textDirection;
+    property public androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform;
+    property public androidx.compose.ui.text.style.TextIndent? textIndent;
+    property public androidx.compose.ui.text.style.TextMotion? textMotion;
+  }
+
   @androidx.compose.runtime.Immutable public final class SpanStyle implements androidx.compose.ui.text.AnnotatedString.Annotation {
     ctor @KotlinOnly public SpanStyle(androidx.compose.ui.graphics.Brush? brush, optional float alpha, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional String? fontFeatureSettings, optional androidx.compose.ui.unit.TextUnit letterSpacing, optional androidx.compose.ui.text.style.BaselineShift? baselineShift, optional androidx.compose.ui.text.style.TextGeometricTransform? textGeometricTransform, optional androidx.compose.ui.text.intl.LocaleList? localeList, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.graphics.Shadow? shadow, optional androidx.compose.ui.text.PlatformSpanStyle? platformStyle, optional androidx.compose.ui.graphics.drawscope.DrawStyle? drawStyle);
     ctor @BytecodeOnly public SpanStyle(androidx.compose.ui.graphics.Brush!, float, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.style.BaselineShift!, androidx.compose.ui.text.style.TextGeometricTransform!, androidx.compose.ui.text.intl.LocaleList!, long, androidx.compose.ui.text.style.TextDecoration!, androidx.compose.ui.graphics.Shadow!, androidx.compose.ui.text.PlatformSpanStyle!, androidx.compose.ui.graphics.drawscope.DrawStyle!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1024,6 +1125,48 @@ package androidx.compose.ui.text {
   public final class TextStyleKt {
     method public static androidx.compose.ui.text.TextStyle lerp(androidx.compose.ui.text.TextStyle start, androidx.compose.ui.text.TextStyle stop, float fraction);
     method public static androidx.compose.ui.text.TextStyle resolveDefaults(androidx.compose.ui.text.TextStyle style, androidx.compose.ui.unit.LayoutDirection direction);
+  }
+
+  public sealed nonexhaustive interface TextStyleScope {
+    method public void setAlpha(float alpha);
+    method @KotlinOnly public void setBackground(androidx.compose.ui.graphics.Color background);
+    method @BytecodeOnly public void setBackground-8_81llA(long);
+    method @KotlinOnly public void setBaselineShift(androidx.compose.ui.text.style.BaselineShift baselineShift);
+    method @BytecodeOnly public void setBaselineShift-4Dl_Bck(float);
+    method public void setBrush(androidx.compose.ui.graphics.Brush brush);
+    method @KotlinOnly public void setColor(androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public void setColor-8_81llA(long);
+    method public void setDrawStyle(androidx.compose.ui.graphics.drawscope.DrawStyle drawStyle);
+    method public void setFontFamily(androidx.compose.ui.text.font.FontFamily fontFamily);
+    method public void setFontFeatureSettings(String fontFeatureSettings);
+    method @KotlinOnly public void setFontSize(androidx.compose.ui.unit.TextUnit fontSize);
+    method @BytecodeOnly public void setFontSize--R2X_6o(long);
+    method @KotlinOnly public void setFontStyle(androidx.compose.ui.text.font.FontStyle fontStyle);
+    method @BytecodeOnly public void setFontStyle-nzbMABs(int);
+    method @KotlinOnly public void setFontSynthesis(androidx.compose.ui.text.font.FontSynthesis fontSynthesis);
+    method @BytecodeOnly public void setFontSynthesis-6p3vJLY(int);
+    method public void setFontWeight(androidx.compose.ui.text.font.FontWeight fontWeight);
+    method @KotlinOnly public void setHyphens(androidx.compose.ui.text.style.Hyphens hyphens);
+    method @BytecodeOnly public void setHyphens--3fSNIE(int);
+    method @KotlinOnly public void setLetterSpacing(androidx.compose.ui.unit.TextUnit letterSpacing);
+    method @BytecodeOnly public void setLetterSpacing--R2X_6o(long);
+    method @KotlinOnly public void setLineBreak(androidx.compose.ui.text.style.LineBreak lineBreak);
+    method @BytecodeOnly public void setLineBreak-CZqVlQI(int);
+    method @KotlinOnly public void setLineHeight(androidx.compose.ui.unit.TextUnit lineHeight);
+    method @BytecodeOnly public void setLineHeight--R2X_6o(long);
+    method public void setLineHeightStyle(androidx.compose.ui.text.style.LineHeightStyle lineHeightStyle);
+    method public void setLocaleList(androidx.compose.ui.text.intl.LocaleList localeList);
+    method public void setPlatformStyle(androidx.compose.ui.text.PlatformTextStyle platformStyle);
+    method public void setShadow(androidx.compose.ui.graphics.Shadow shadow);
+    method @KotlinOnly public void setTextAlign(androidx.compose.ui.text.style.TextAlign textAlign);
+    method @BytecodeOnly public void setTextAlign-aXe7zB0(int);
+    method public void setTextDecoration(androidx.compose.ui.text.style.TextDecoration textDecoration);
+    method @KotlinOnly public void setTextDirection(androidx.compose.ui.text.style.TextDirection textDirection);
+    method @BytecodeOnly public void setTextDirection-Hejc4pk(int);
+    method public void setTextGeometricTransform(androidx.compose.ui.text.style.TextGeometricTransform textGeometricTransform);
+    method public void setTextIndent(androidx.compose.ui.text.style.TextIndent textIndent);
+    method public void setTextMotion(androidx.compose.ui.text.style.TextMotion textMotion);
+    method public void setTextStyle(androidx.compose.ui.text.TextStyle style);
   }
 
   public abstract sealed exhaustive class TtsAnnotation implements androidx.compose.ui.text.AnnotatedString.Annotation {

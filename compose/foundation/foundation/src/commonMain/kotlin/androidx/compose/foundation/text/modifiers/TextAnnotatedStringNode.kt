@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.toTextStyle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -56,9 +57,11 @@ import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.DrawAnnotationScope
 import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.ReusableTextStyleScope
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextStyleScope
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.TextDecoration
@@ -72,9 +75,11 @@ import androidx.compose.ui.util.trace
 import kotlin.jvm.JvmName
 
 /** Node that implements Text for [AnnotatedString] or [onTextLayout] parameters. */
-internal class TextAnnotatedStringNode(
+internal class TextAnnotatedStringNode
+private constructor(
     private var text: AnnotatedString,
-    private var style: TextStyle,
+    private var style: TextStyle?,
+    private var styleProvider: (TextStyleScope.() -> Unit)?,
     private var fontFamilyResolver: FontFamily.Resolver,
     private var defaultLocaleList: LocaleList,
     private var onTextLayout: ((TextLayoutResult) -> Unit)? = null,
@@ -89,6 +94,195 @@ internal class TextAnnotatedStringNode(
     private var autoSize: TextAutoSize? = null,
     private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null,
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
+
+    constructor(
+        text: AnnotatedString,
+        style: TextStyle,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+        placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
+        onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
+        selectionController: SelectionController? = null,
+        overrideColor: ColorProducer? = null,
+        autoSize: TextAutoSize? = null,
+        onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null,
+    ) : this(
+        text = text,
+        style = style,
+        styleProvider = null,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        placeholders = placeholders,
+        onPlaceholderLayout = onPlaceholderLayout,
+        selectionController = selectionController,
+        overrideColor = overrideColor,
+        autoSize = autoSize,
+        onShowTranslation = onShowTranslation,
+    )
+
+    constructor(
+        text: AnnotatedString,
+        styleProvider: (TextStyleScope.() -> Unit)?,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+        overflow: TextOverflow = TextOverflow.Clip,
+        softWrap: Boolean = true,
+        maxLines: Int = Int.MAX_VALUE,
+        minLines: Int = DefaultMinLines,
+        placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
+        onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
+        selectionController: SelectionController? = null,
+        autoSize: TextAutoSize? = null,
+        onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null,
+    ) : this(
+        text = text,
+        style = null,
+        styleProvider = styleProvider,
+        fontFamilyResolver = fontFamilyResolver,
+        defaultLocaleList = defaultLocaleList,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        placeholders = placeholders,
+        onPlaceholderLayout = onPlaceholderLayout,
+        selectionController = selectionController,
+        overrideColor = null,
+        autoSize = autoSize,
+        onShowTranslation = onShowTranslation,
+    )
+
+    private var cachesInitialized = false
+
+    private var reusableStyleScope: ReusableTextStyleScope? = null
+    private var evaluationStyleScope: ReusableTextStyleScope? = null
+    private var lastResolvedStyle: TextStyle = TextStyle.Default
+
+    private fun evaluateStyleProvider(): PhaseInvalidations {
+        val currentStyleProvider = styleProvider ?: return PhaseInvalidations.None
+        val prevScope = reusableStyleScope
+        if (prevScope == null) {
+            val newScope = ReusableTextStyleScope()
+            reusableStyleScope = newScope
+            currentStyleProvider(newScope)
+            lastResolvedStyle = newScope.toTextStyle()
+            return PhaseInvalidations.Layout or PhaseInvalidations.Draw
+        }
+        val evalScope =
+            evaluationStyleScope?.also { it.reset() }
+                ?: ReusableTextStyleScope().also { evaluationStyleScope = it }
+        currentStyleProvider(evalScope)
+        var result = PhaseInvalidations.None
+        if (!evalScope.hasSameLayoutAffectingAttributes(prevScope)) {
+            result = result or PhaseInvalidations.Layout
+        }
+        if (!evalScope.hasSameDrawAffectingAttributes(prevScope)) {
+            result = result or PhaseInvalidations.Draw
+        }
+        if (result != PhaseInvalidations.None) {
+            prevScope.copyFrom(evalScope)
+            lastResolvedStyle = prevScope.toTextStyle()
+        }
+        return result
+    }
+
+    private fun applyLayoutStyleChange() {
+        if (!cachesInitialized) return
+        val newStyle = lastResolvedStyle
+        layoutCache.update(
+            text = text,
+            style = newStyle,
+            fontFamilyResolver = fontFamilyResolver,
+            defaultLocaleList = defaultLocaleList,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines,
+            placeholders = placeholders,
+            autoSize = autoSize,
+        )
+        textSubstitution?.let {
+            it.layoutCache?.update(
+                text = it.substitution,
+                style = newStyle,
+                fontFamilyResolver = fontFamilyResolver,
+                defaultLocaleList = defaultLocaleList,
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                placeholders = emptyList(),
+                autoSize = autoSize,
+            )
+        }
+    }
+
+    private fun updateDynamicStyle() {
+        if (style != null || styleProvider == null) return
+        val hadPreviousStyle = reusableStyleScope != null || cachesInitialized
+        val invalidations = evaluateStyleProvider()
+        if (invalidations.layoutChanged) {
+            applyLayoutStyleChange()
+        }
+        if (hadPreviousStyle) {
+            if (invalidations.drawChanged && semanticsTextLayoutResult != null) {
+                invalidateSemantics()
+            }
+            if (invalidations.drawChanged || invalidations.layoutChanged) {
+                invalidateDraw()
+            }
+        }
+    }
+
+    private fun initializeCachesIfNeeded() {
+        if (!isAttached) return
+        if (!cachesInitialized) {
+            val initialStyle = style ?: lastResolvedStyle
+            val cache = _layoutCache
+            if (cache != null) {
+                cache.update(
+                    text = text,
+                    style = initialStyle,
+                    fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    placeholders = placeholders,
+                    autoSize = autoSize,
+                )
+            } else {
+                _layoutCache =
+                    MultiParagraphLayoutCache(
+                        text = text,
+                        style = initialStyle,
+                        fontFamilyResolver = fontFamilyResolver,
+                        defaultLocaleList = defaultLocaleList,
+                        overflow = overflow,
+                        softWrap = softWrap,
+                        maxLines = maxLines,
+                        minLines = minLines,
+                        placeholders = placeholders,
+                        autoSize = autoSize,
+                    )
+            }
+            cachesInitialized = true
+        }
+    }
+
     override val shouldAutoInvalidate: Boolean
         get() = false
 
@@ -104,30 +298,10 @@ internal class TextAnnotatedStringNode(
     private var _layoutCache: MultiParagraphLayoutCache? = null
     private val layoutCache: MultiParagraphLayoutCache
         get() {
-            if (_layoutCache == null) {
-                _layoutCache =
-                    MultiParagraphLayoutCache(
-                        text,
-                        style,
-                        fontFamilyResolver,
-                        defaultLocaleList,
-                        overflow,
-                        softWrap,
-                        maxLines,
-                        minLines,
-                        placeholders,
-                        autoSize,
-                    )
-            }
+            initializeCachesIfNeeded()
             return _layoutCache!!
         }
 
-    /**
-     * Get the layout cache for the current state of the node.
-     *
-     * If text substitution is active, this will return the layout cache for the substitution.
-     * Otherwise, it will return the layout cache for the original text.
-     */
     private fun getLayoutCache(density: Density): MultiParagraphLayoutCache {
         return getLayoutCache().also { it.density = density }
     }
@@ -140,6 +314,7 @@ internal class TextAnnotatedStringNode(
      */
     @JvmName("getLayoutCacheOrSubstitute")
     private fun getLayoutCache(): MultiParagraphLayoutCache {
+        initializeCachesIfNeeded()
         textSubstitution?.let { textSubstitutionValue ->
             if (textSubstitutionValue.isShowingSubstitution) {
                 textSubstitutionValue.layoutCache?.let { cache ->
@@ -147,7 +322,25 @@ internal class TextAnnotatedStringNode(
                 }
             }
         }
-        return layoutCache
+        return _layoutCache!!
+    }
+
+    private fun getLayoutCacheForMeasure(density: Density): MultiParagraphLayoutCache {
+        updateDynamicStyle()
+        return getLayoutCache(density)
+    }
+
+    fun updateStyle(styleProvider: (TextStyleScope.() -> Unit)?): Boolean {
+        var changed = false
+        if (this.style != null) {
+            this.style = null
+            changed = true
+        }
+        if (this.styleProvider !== styleProvider) {
+            this.styleProvider = styleProvider
+            changed = true
+        }
+        return changed
     }
 
     /** Element has draw parameters to update */
@@ -161,10 +354,26 @@ internal class TextAnnotatedStringNode(
             changed = true
         }
         overrideColor = color
+        val currStyle = this.style
         changed =
             changed ||
-                !style.hasSameDrawAffectingAttributes(this.style) ||
+                currStyle == null ||
+                !style.hasSameDrawAffectingAttributes(currStyle) ||
                 !text.hasSameDrawAffectingAnnotations(this.text)
+        return changed
+    }
+
+    /** Element has draw parameters to update */
+    fun updateDraw(
+        color: ColorProducer?,
+        text: AnnotatedString = this.text,
+    ): Boolean {
+        var changed = false
+        if (color != this.overrideColor) {
+            changed = true
+        }
+        overrideColor = color
+        changed = changed || !text.hasSameDrawAffectingAnnotations(this.text)
         return changed
     }
 
@@ -193,10 +402,39 @@ internal class TextAnnotatedStringNode(
         overflow: TextOverflow,
         autoSize: TextAutoSize?,
     ): Boolean {
-        var changed: Boolean
-
-        changed = !this.style.hasSameLayoutAffectingAttributes(style)
+        val currStyle = this.style
+        val changed =
+            currStyle == null ||
+                !currStyle.hasSameLayoutAffectingAttributes(style) ||
+                this.styleProvider != null
         this.style = style
+        this.styleProvider = null
+        this.reusableStyleScope = null
+
+        return updateLayoutRelatedArgs(
+            placeholders = placeholders,
+            minLines = minLines,
+            maxLines = maxLines,
+            softWrap = softWrap,
+            fontFamilyResolver = fontFamilyResolver,
+            defaultLocaleList = defaultLocaleList,
+            overflow = overflow,
+            autoSize = autoSize,
+        ) || changed
+    }
+
+    /** Element has layout parameters to update */
+    fun updateLayoutRelatedArgs(
+        placeholders: List<AnnotatedString.Range<Placeholder>>?,
+        minLines: Int,
+        maxLines: Int,
+        softWrap: Boolean,
+        fontFamilyResolver: FontFamily.Resolver,
+        defaultLocaleList: LocaleList,
+        overflow: TextOverflow,
+        autoSize: TextAutoSize?,
+    ): Boolean {
+        var changed = false
 
         if (this.placeholders != placeholders) {
             this.placeholders = placeholders
@@ -278,12 +516,14 @@ internal class TextAnnotatedStringNode(
         textChanged: Boolean,
         layoutChanged: Boolean,
         callbacksChanged: Boolean,
+        styleChanged: Boolean,
     ) {
         // bring caches up to date even if the node is detached in case it is used again later
-        if (textChanged || layoutChanged || callbacksChanged) {
+        if (cachesInitialized && (textChanged || layoutChanged || callbacksChanged)) {
+            val currentStyle = style ?: lastResolvedStyle
             layoutCache.update(
                 text = text,
-                style = style,
+                style = currentStyle,
                 fontFamilyResolver = fontFamilyResolver,
                 defaultLocaleList = defaultLocaleList,
                 overflow = overflow,
@@ -293,6 +533,20 @@ internal class TextAnnotatedStringNode(
                 placeholders = placeholders,
                 autoSize = autoSize,
             )
+            textSubstitution?.let {
+                it.layoutCache?.update(
+                    text = it.substitution,
+                    style = currentStyle,
+                    fontFamilyResolver = fontFamilyResolver,
+                    defaultLocaleList = defaultLocaleList,
+                    overflow = overflow,
+                    softWrap = softWrap,
+                    maxLines = maxLines,
+                    minLines = minLines,
+                    placeholders = emptyList(),
+                    autoSize = autoSize,
+                )
+            }
         }
 
         if (!isAttached) {
@@ -303,9 +557,11 @@ internal class TextAnnotatedStringNode(
             invalidateSemantics()
         }
 
-        if (textChanged || layoutChanged || callbacksChanged) {
+        if (textChanged || layoutChanged || callbacksChanged || styleChanged) {
             invalidateMeasurement()
-            invalidateDraw()
+            if (textChanged || layoutChanged || callbacksChanged) {
+                invalidateDraw()
+            }
         }
         if (drawChanged) {
             invalidateDraw()
@@ -326,6 +582,7 @@ internal class TextAnnotatedStringNode(
 
     private fun setSubstitution(updatedText: AnnotatedString): Boolean {
         val currentTextSubstitution = textSubstitution
+        val currentStyle = style ?: lastResolvedStyle
         // updatedText is currently always returned as a plain text so we ignore inline content
         // which is represented by placeholders. If translation ever supports annotations, we
         // would need to recalculate the placeholders
@@ -336,7 +593,7 @@ internal class TextAnnotatedStringNode(
             currentTextSubstitution.substitution = updatedText
             currentTextSubstitution.layoutCache?.update(
                 updatedText,
-                style,
+                currentStyle,
                 fontFamilyResolver,
                 defaultLocaleList,
                 overflow,
@@ -351,7 +608,7 @@ internal class TextAnnotatedStringNode(
             val substitutionLayoutCache =
                 MultiParagraphLayoutCache(
                     updatedText,
-                    style,
+                    currentStyle,
                     fontFamilyResolver,
                     defaultLocaleList,
                     overflow,
@@ -384,27 +641,37 @@ internal class TextAnnotatedStringNode(
         if (localSemanticsTextLayoutResult == null) {
             localSemanticsTextLayoutResult = { textLayoutResult ->
                 val inputLayout = getLayoutCache().layoutOrNull
+                val staticStyle = style
                 val layout =
-                    inputLayout
-                        ?.copy(
-                            layoutInput =
-                                TextLayoutInput(
-                                    text = inputLayout.layoutInput.text,
-                                    style =
-                                        this@TextAnnotatedStringNode.style.merge(
-                                            color = overrideColor?.invoke() ?: Color.Unspecified
-                                        ),
-                                    placeholders = inputLayout.layoutInput.placeholders,
-                                    maxLines = inputLayout.layoutInput.maxLines,
-                                    softWrap = inputLayout.layoutInput.softWrap,
-                                    overflow = inputLayout.layoutInput.overflow,
-                                    density = inputLayout.layoutInput.density,
-                                    layoutDirection = inputLayout.layoutInput.layoutDirection,
-                                    fontFamilyResolver = inputLayout.layoutInput.fontFamilyResolver,
-                                    defaultLocaleList = inputLayout.layoutInput.defaultLocaleList,
-                                    constraints = inputLayout.layoutInput.constraints,
-                                )
-                        )
+                    if (staticStyle != null) {
+                            inputLayout?.copy(
+                                layoutInput =
+                                    TextLayoutInput(
+                                        text = inputLayout.layoutInput.text,
+                                        style =
+                                            staticStyle.merge(
+                                                color = overrideColor?.invoke() ?: Color.Unspecified
+                                            ),
+                                        placeholders = inputLayout.layoutInput.placeholders,
+                                        maxLines = inputLayout.layoutInput.maxLines,
+                                        softWrap = inputLayout.layoutInput.softWrap,
+                                        overflow = inputLayout.layoutInput.overflow,
+                                        density = inputLayout.layoutInput.density,
+                                        layoutDirection = inputLayout.layoutInput.layoutDirection,
+                                        fontFamilyResolver =
+                                            inputLayout.layoutInput.fontFamilyResolver,
+                                        defaultLocaleList =
+                                            inputLayout.layoutInput.defaultLocaleList,
+                                        constraints = inputLayout.layoutInput.constraints,
+                                    )
+                            )
+                        } else {
+                            // When using styleProvider, inputLayout is the TextLayoutResult
+                            // from the last layout pass whose layoutInput.style contains the
+                            // layout-affecting attributes from styleProvider (matching
+                            // onTextLayout).
+                            inputLayout
+                        }
                         ?.also { textLayoutResult.add(it) }
                 layout != null
             }
@@ -461,7 +728,7 @@ internal class TextAnnotatedStringNode(
         constraints: Constraints,
     ): MeasureResult {
         trace("TextAnnotatedStringNode:measure") {
-            val layoutCache = getLayoutCache(this)
+            val layoutCache = getLayoutCacheForMeasure(this)
 
             val didChangeLayout = layoutCache.layoutWithConstraints(constraints, layoutDirection)
             val textLayoutResult = layoutCache.textLayoutResult
@@ -516,7 +783,7 @@ internal class TextAnnotatedStringNode(
         measurable: IntrinsicMeasurable,
         height: Int,
     ): Int {
-        return getLayoutCache(this).minIntrinsicWidth(layoutDirection)
+        return getLayoutCacheForMeasure(this).minIntrinsicWidth(layoutDirection)
     }
 
     fun minIntrinsicHeightNonExtension(
@@ -530,7 +797,9 @@ internal class TextAnnotatedStringNode(
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int,
-    ): Int = getLayoutCache(this).intrinsicHeight(width, layoutDirection)
+    ): Int {
+        return getLayoutCacheForMeasure(this).intrinsicHeight(width, layoutDirection)
+    }
 
     fun maxIntrinsicWidthNonExtension(
         intrinsicMeasureScope: IntrinsicMeasureScope,
@@ -541,7 +810,9 @@ internal class TextAnnotatedStringNode(
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: Int,
-    ): Int = getLayoutCache(this).maxIntrinsicWidth(layoutDirection)
+    ): Int {
+        return getLayoutCacheForMeasure(this).maxIntrinsicWidth(layoutDirection)
+    }
 
     fun maxIntrinsicHeightNonExtension(
         intrinsicMeasureScope: IntrinsicMeasureScope,
@@ -552,7 +823,9 @@ internal class TextAnnotatedStringNode(
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: Int,
-    ): Int = getLayoutCache(this).intrinsicHeight(width, layoutDirection)
+    ): Int {
+        return getLayoutCacheForMeasure(this).intrinsicHeight(width, layoutDirection)
+    }
 
     fun drawNonExtension(contentDrawScope: ContentDrawScope) {
         return contentDrawScope.draw()
@@ -597,7 +870,7 @@ internal class TextAnnotatedStringNode(
             } else {
                 text
             }
-        val scope = getDrawAnnotationScope(activeText, textLayoutResult)
+        val drawAnnotationScope = getDrawAnnotationScope(activeText, textLayoutResult)
         drawIntoCanvas { canvas ->
             if (willClip) {
                 val width = textLayoutResult.size.width.toFloat()
@@ -607,15 +880,25 @@ internal class TextAnnotatedStringNode(
                 canvas.clipRect(bounds)
             }
             try {
-                if (scope != null) {
-                    drawDrawAnnotations(activeText, textLayoutResult, scope, isBehind = true)
+                if (drawAnnotationScope != null) {
+                    drawDrawAnnotations(
+                        activeText,
+                        textLayoutResult,
+                        drawAnnotationScope,
+                        isBehind = true,
+                    )
                 }
-                val textDecoration = style.textDecoration ?: TextDecoration.None
-                val shadow = style.shadow ?: Shadow.None
-                val drawStyle = style.drawStyle ?: Fill
-                val brush = style.brush
+                val staticStyle = style
+                val scope = reusableStyleScope
+                val textDecoration =
+                    scope?.textDecoration ?: staticStyle?.textDecoration ?: TextDecoration.None
+                val shadow = scope?.shadow ?: staticStyle?.shadow ?: Shadow.None
+                val drawStyle = scope?.drawStyle ?: staticStyle?.drawStyle ?: Fill
+                val brush = scope?.brush ?: staticStyle?.brush
                 if (brush != null) {
-                    val alpha = style.alpha
+                    val alpha =
+                        if (scope != null && !scope.alpha.isNaN()) scope.alpha
+                        else staticStyle?.alpha ?: Float.NaN
                     localParagraph.paint(
                         canvas = canvas,
                         brush = brush,
@@ -629,8 +912,10 @@ internal class TextAnnotatedStringNode(
                     val color =
                         if (overrideColorVal.isSpecified) {
                             overrideColorVal
-                        } else if (style.color.isSpecified) {
-                            style.color
+                        } else if (scope != null && scope.color.isSpecified) {
+                            scope.color
+                        } else if (staticStyle != null && staticStyle.color.isSpecified) {
+                            staticStyle.color
                         } else {
                             Color.Black
                         }
@@ -642,8 +927,13 @@ internal class TextAnnotatedStringNode(
                         decoration = textDecoration,
                     )
                 }
-                if (scope != null) {
-                    drawDrawAnnotations(activeText, textLayoutResult, scope, isBehind = false)
+                if (drawAnnotationScope != null) {
+                    drawDrawAnnotations(
+                        activeText,
+                        textLayoutResult,
+                        drawAnnotationScope,
+                        isBehind = false,
+                    )
                 }
             } finally {
                 if (willClip) {

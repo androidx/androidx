@@ -38,7 +38,12 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
 
     override fun Any.invalidateAll() {
         this as TextStringSimpleNode
-        doInvalidations(drawChanged = true, textChanged = true, layoutChanged = true)
+        doInvalidations(
+            drawChanged = true,
+            textChanged = true,
+            layoutChanged = true,
+            styleChanged = false,
+        )
     }
 
     override fun createSubject(params: Params): Any {
