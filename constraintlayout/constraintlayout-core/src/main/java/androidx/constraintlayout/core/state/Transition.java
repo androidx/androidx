@@ -77,7 +77,6 @@ public class Transition implements TypedValues {
     }
 
     // @TODO: add description
-    @SuppressWarnings("HiddenTypeParameter")
     OnSwipe createOnSwipe() {
         return mOnSwipe = new OnSwipe();
     }
@@ -573,7 +572,6 @@ public class Transition implements TypedValues {
     }
 
     // @TODO: add description
-    @SuppressWarnings("HiddenTypeParameter")
     public KeyPosition findPreviousPosition(String target, int frameNumber) {
         while (frameNumber >= 0) {
             HashMap<String, KeyPosition> map = mKeyPositions.get(frameNumber);
@@ -589,7 +587,6 @@ public class Transition implements TypedValues {
     }
 
     // @TODO: add description
-    @SuppressWarnings("HiddenTypeParameter")
     public KeyPosition findNextPosition(String target, int frameNumber) {
         while (frameNumber <= 100) {
             HashMap<String, KeyPosition> map = mKeyPositions.get(frameNumber);

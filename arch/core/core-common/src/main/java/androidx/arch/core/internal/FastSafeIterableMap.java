@@ -39,7 +39,6 @@ public class FastSafeIterableMap<K, V> extends SafeIterableMap<K, V> {
 
     private final HashMap<K, Entry<K, V>> mHashMap = new HashMap<>();
 
-    @SuppressWarnings("HiddenTypeParameter")
     @Override
     protected @Nullable Entry<K, V> get(K k) {
         return mHashMap.get(k);

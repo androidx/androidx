@@ -765,7 +765,6 @@ public class MotionScene {
          *
          * @return
          */
-        @SuppressWarnings("HiddenTypeParameter")
         public TouchResponse getTouchResponse() {
             return mTouchResponse;
         }

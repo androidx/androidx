@@ -65,7 +65,6 @@ public interface CarHardwareManager extends Manager {
      * car hardware.
      */
     @ExperimentalCarApi
-    @SuppressWarnings({"HiddenTypeParameter", "UnavailableSymbol"})
     default @NonNull CarClimate getCarClimate() {
         throw new UnsupportedOperationException();
     }

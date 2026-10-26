@@ -737,7 +737,7 @@ public class ArrayRow implements LinearSystem.Row {
      * Used to initiate a goal from a given row (to see if we can remove an extra var)
      */
     @Override
-    public void initFromRow(@SuppressWarnings("HiddenTypeParameter") LinearSystem.Row row) {
+    public void initFromRow(LinearSystem.Row row) {
         if (row instanceof ArrayRow) {
             ArrayRow copiedRow = (ArrayRow) row;
             mVariable = null;

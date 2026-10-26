@@ -77,13 +77,12 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         root.measure(Optimizer.OPTIMIZATION_NONE, 0, 0, 0, 0, 0, 0, 0, 0)
     }
 
-    @Suppress("UnavailableSymbol")
     fun performInterpolationMeasure(
         constraints: Constraints,
         layoutDirection: LayoutDirection,
         constraintSetStart: ConstraintSet,
         constraintSetEnd: ConstraintSet,
-        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
+        transition: TransitionImpl,
         measurables: List<Measurable>,
         placeableMap: MutableMap<Measurable, Placeable>, // Initialized by caller, filled by us
         optimizationLevel: Int,
@@ -545,12 +544,11 @@ internal class MotionMeasurer(density: Density) : Measurer2(density) {
         frameCache.clear()
     }
 
-    @Suppress("UnavailableSymbol")
     fun initWith(
         start: ConstraintSet,
         end: ConstraintSet,
         layoutDirection: LayoutDirection,
-        @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
+        transition: TransitionImpl,
         progress: Float,
     ) {
         clearConstraintSets()

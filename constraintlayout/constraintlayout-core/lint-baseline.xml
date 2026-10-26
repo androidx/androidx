@@ -1054,8 +1054,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void initFromRow(@SuppressWarnings(&quot;HiddenTypeParameter&quot;) LinearSystem.Row row) {"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~">
+        errorLine1="    public void initFromRow(LinearSystem.Row row) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/ArrayRow.java"/>
     </issue>
@@ -2629,8 +2629,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            @SuppressWarnings(&quot;HiddenTypeParameter&quot;) ChainMode verticalChainStyle) {"
-        errorLine2="                                                     ~~~~~~~~~">
+        errorLine1="            ChainMode verticalChainStyle) {"
+        errorLine2="            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/dsl/Constraint.java"/>
     </issue>
@@ -7750,8 +7750,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void add(@SuppressWarnings(&quot;HiddenTypeParameter&quot;) Keys keyFrame) {"
-        errorLine2="                                                             ~~~~">
+        errorLine1="    public void add(Keys keyFrame) {"
+        errorLine2="                    ~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/dsl/KeyFrames.java"/>
     </issue>
@@ -11584,8 +11584,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setKeyFrames(@SuppressWarnings(&quot;HiddenTypeParameter&quot;) Keys keyFrames) {"
-        errorLine2="                                                                      ~~~~">
+        errorLine1="    public void setKeyFrames(Keys keyFrames) {"
+        errorLine2="                             ~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/dsl/Transition.java"/>
     </issue>
@@ -13420,8 +13420,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            @SuppressWarnings(&quot;HiddenTypeParameter&quot;) DimensionDependency"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            DimensionDependency dimensionDependency) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/core/widgets/analyzer/WidgetRun.java"/>
     </issue>

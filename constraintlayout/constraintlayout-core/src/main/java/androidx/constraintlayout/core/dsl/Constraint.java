@@ -439,7 +439,6 @@ public class Constraint {
      *
      * @return verticalChainStyle
      */
-    @SuppressWarnings("HiddenTypeParameter")
     public ChainMode getVerticalChainStyle() {
         return mVerticalChainStyle;
     }
@@ -450,7 +449,7 @@ public class Constraint {
      * @param verticalChainStyle
      */
     public void setVerticalChainStyle(
-            @SuppressWarnings("HiddenTypeParameter") ChainMode verticalChainStyle) {
+            ChainMode verticalChainStyle) {
         this.mVerticalChainStyle = verticalChainStyle;
     }
 
@@ -459,7 +458,6 @@ public class Constraint {
      *
      * @return widthDefault
      */
-    @SuppressWarnings("HiddenTypeParameter")
     public Behaviour getWidthDefault() {
         return mWidthDefault;
     }
@@ -469,8 +467,7 @@ public class Constraint {
      *
      * @param widthDefault
      */
-    public void setWidthDefault(@SuppressWarnings("HiddenTypeParameter")
-            Behaviour widthDefault) {
+    public void setWidthDefault(Behaviour widthDefault) {
         this.mWidthDefault = widthDefault;
     }
 
@@ -479,7 +476,6 @@ public class Constraint {
      *
      * @return heightDefault
      */
-    @SuppressWarnings("HiddenTypeParameter")
     public Behaviour getHeightDefault() {
         return mHeightDefault;
     }
@@ -489,8 +485,7 @@ public class Constraint {
      *
      * @param heightDefault
      */
-    public void setHeightDefault(@SuppressWarnings("HiddenTypeParameter")
-            Behaviour heightDefault) {
+    public void setHeightDefault(Behaviour heightDefault) {
         this.mHeightDefault = heightDefault;
     }
 

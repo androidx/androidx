@@ -23,8 +23,7 @@ public actual data class PointerEvent
 internal actual constructor(
     actual val changes: List<PointerInputChange>,
     // The generated `copy` is public but uses an internal type
-    @Suppress("HiddenTypeParameter", "ReferencesHidden")
-    internal val internalPointerEvent: InternalPointerEvent?,
+    @Suppress("ReferencesHidden") internal val internalPointerEvent: InternalPointerEvent?,
 ) {
     actual val buttons: PointerButtons
         get() = implementedInJetBrainsFork()
