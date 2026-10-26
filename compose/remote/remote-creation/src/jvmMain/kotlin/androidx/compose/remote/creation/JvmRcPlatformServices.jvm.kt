@@ -15,12 +15,14 @@
  */
 package androidx.compose.remote.creation
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
 /** Implementation of [RcPlatformServices] intended for multi-platform use on the JVM. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class JvmRcPlatformServices : RcPlatformServices {
     @Suppress("NullableCollection")
     override fun imageToByteArray(image: Any): ByteArray? {
