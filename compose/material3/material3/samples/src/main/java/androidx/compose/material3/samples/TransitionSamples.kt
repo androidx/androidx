@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTransitionDefaults
 import androidx.compose.material3.MaterialTransitions
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,6 +50,8 @@ fun HorizontalSharedAxisTransitionSample() {
     var isGestureInProgress by remember { mutableStateOf(false) }
     var backEvent by remember { mutableStateOf(NavigationEvent()) }
 
+    // TODO(b/561731740): Replace this manual navigation setup with NavDisplay once it adopts
+    //  MutableContentTransform, which provides built-in transition and back gesture handling.
     val transitionState = remember { DeferredTransitionState(targetScreen) }
     val transition = rememberDeferredTransition(transitionState)
 
@@ -60,7 +63,7 @@ fun HorizontalSharedAxisTransitionSample() {
         }
     }
 
-    val scrimColor = MaterialTransitions.scrimColor
+    val scrimColor = MaterialTransitionDefaults.scrimColor
     val density = LocalDensity.current
 
     transition.DeferredAnimatedContent(
@@ -107,6 +110,8 @@ fun FadeThroughTransitionSample() {
     var isGestureInProgress by remember { mutableStateOf(false) }
     var backEvent by remember { mutableStateOf(NavigationEvent()) }
 
+    // TODO(b/561731740): Replace this manual navigation setup with NavDisplay once it adopts
+    //  MutableContentTransform, which provides built-in transition and back gesture handling.
     val transitionState = remember { DeferredTransitionState(targetTab) }
     val transition = rememberDeferredTransition(transitionState)
 
