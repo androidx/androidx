@@ -16,6 +16,7 @@
 
 package androidx.glance.wear
 
+import androidx.collection.intSetOf
 import androidx.compose.remote.core.Operations.CLIP_PATH
 import androidx.compose.remote.core.Operations.COLOR_THEME
 import androidx.compose.remote.core.Operations.DATA_BITMAP_FONT
@@ -25,8 +26,10 @@ import androidx.compose.remote.core.Operations.DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_CIRCLE
 import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TO_BITMAP
+import androidx.compose.remote.core.Operations.HEADER
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_COLUMN
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_ROW
+import androidx.compose.remote.core.Operations.MODIFIER_CLICK
 import androidx.compose.remote.core.Operations.MODIFIER_COLLAPSIBLE_PRIORITY
 import androidx.compose.remote.core.Operations.MODIFIER_SCROLL
 import androidx.compose.remote.core.Operations.MODIFIER_TOUCH_CANCEL
@@ -99,13 +102,20 @@ class WearWidgetsProfileTest {
     fun testTouchOperations() {
         val touchOperations = listOf(MODIFIER_TOUCH_DOWN, MODIFIER_TOUCH_UP, MODIFIER_TOUCH_CANCEL)
 
+        assertThat(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it })
+            .containsAtLeastElementsIn(touchOperations)
         assertThat(GlanceWearProfiles.createWearWidgetsProfile().supportedOperations)
             .containsAtLeastElementsIn(touchOperations)
-        // Hosts that don't support them, e.g. the safe fallback renderer, don't get them.
         assertThat(
                 GlanceWearProfiles.createWearWidgetsProfile(
                         RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
                     )
+                    .supportedOperations
+            )
+            .containsAtLeastElementsIn(touchOperations)
+        // Hosts that report supported operations without them don't get them.
+        assertThat(
+                GlanceWearProfiles.createWearWidgetsProfile(intSetOf(HEADER, MODIFIER_CLICK))
                     .supportedOperations
                     .intersect(touchOperations.toSet())
             )
