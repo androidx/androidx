@@ -38,6 +38,7 @@ import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.glance.wear.core.WearWidgetUpdateRequest
 import androidx.glance.wear.core.WidgetInstanceId
+import androidx.glance.wear.parcel.WearWidgetCapture.addCreationUptimeMillis
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.glance.wear.parcel.WidgetUpdateClientImpl
 import kotlinx.coroutines.Dispatchers
@@ -276,6 +277,7 @@ internal constructor(
             withContext(Dispatchers.Main.immediate) {
                 provideWidgetDataAsRawContentInternal(context, params)
             }
+        rawContent.extras.addCreationUptimeMillis(creationUptimeMillis)
 
         updateClient.pushUpdate(
             context,
