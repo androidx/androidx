@@ -19,11 +19,23 @@ package androidx.a2ui.compose.runtime
 import androidx.compose.runtime.Immutable
 
 /**
- * Represents a pointer to an A2UI component with its optional data scope override.
+ * Identifies a child component to render, together with the data context it renders in.
  *
- * @property id The unique ID of the component.
- * @property baseDataPath An optional relative or absolute data path to override the component's
- *   data context.
+ * A reference pairs the [id] of a component in the surface with an optional [baseDataPath] that
+ * scopes the component's data bindings, so that a single component definition can be rendered once
+ * per item of a list. [A2uiComponentScope.bindChildReferences] produces references from a
+ * [ChildListA2uiProperty]: a static list of component IDs yields one reference per ID with no
+ * [baseDataPath], while a template bound to a data-model array (e.g. `{"path": "/items",
+ * "componentId": "item"}`) yields one reference per array element, each scoped to that element
+ * (`/items/0`, `/items/1`, …). A component renders a reference by observing its state with
+ * [observeA2uiComponentState], and can construct one itself to render a component in a specific
+ * data context.
+ *
+ * @sample androidx.a2ui.compose.runtime.samples.A2uiComponentReferenceSample
+ * @property id The unique ID of the referenced component within the surface.
+ * @property baseDataPath The data path against which the referenced component resolves its
+ *   bindings, relative to the data context of the component that renders it, or absolute when it
+ *   starts with `/`. `null` inherits the rendering component's data context.
  */
 @Immutable
 public class A2uiComponentReference(

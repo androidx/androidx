@@ -70,7 +70,7 @@ class A2uiComponentPropertiesTest {
         val anyProp = A2uiProperty.any("anyProp")
         val enumProp = A2uiProperty.stringEnum("enumProp", listOf("optionA", "optionB"))
         val listProp = A2uiProperty.stringList("listProp")
-        val nestedProp = A2uiProperty.nested("nestedProp", emptyList())
+        val nestedProp = A2uiProperty.nestedObject("nestedProp", emptyList())
 
         assertThat(properties[booleanProp]).isTrue()
         assertThat(properties[anyProp]).isEqualTo(mapOf("a" to 1))
