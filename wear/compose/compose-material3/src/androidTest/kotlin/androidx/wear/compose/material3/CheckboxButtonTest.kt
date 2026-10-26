@@ -24,12 +24,14 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -44,6 +46,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -54,6 +57,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.material3.samples.CheckboxButtonSample
@@ -767,6 +771,52 @@ class CheckboxButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun checkbox_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterFocusInteraction { modifier, interactionSource ->
+            CheckboxButton(
+                checked = false,
+                onCheckedChange = {},
+                modifier = modifier,
+                interactionSource = interactionSource,
+                label = {},
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun split_checkbox_button_draws_focus_ring_when_focused() {
+        rule.verifyFocusRingDrawnAfterRequestFocus(hasClickAction()) { modifier ->
+            SplitCheckboxButton(
+                checked = false,
+                onCheckedChange = {},
+                toggleContentDescription = null,
+                onContainerClick = {},
+                modifier = modifier,
+                label = { Text("Label") },
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun split_checkbox_button_draws_focus_ring_when_focused_in_rtl() {
+        rule.verifyFocusRingDrawnAfterRequestFocus(hasClickAction()) { modifier ->
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                SplitCheckboxButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    toggleContentDescription = null,
+                    onContainerClick = {},
+                    modifier = modifier,
+                    label = { Text("Label") },
+                )
+            }
+        }
     }
 }
 

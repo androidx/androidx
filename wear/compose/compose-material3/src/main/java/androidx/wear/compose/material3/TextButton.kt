@@ -145,7 +145,7 @@ public fun TextButton(
             interactionSource = finalInteractionSource,
             shape = finalShape,
             border = { border },
-            ripple = ripple(),
+            ripple = ripple(focusRingShape = rememberDelegatingShape(finalShape)),
             content = content,
         )
     }
