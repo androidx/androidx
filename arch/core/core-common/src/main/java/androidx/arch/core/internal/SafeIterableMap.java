@@ -45,7 +45,6 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
     private final WeakHashMap<SupportRemove<K, V>, Boolean> mIterators = new WeakHashMap<>();
     private int mSize = 0;
 
-    @SuppressWarnings("HiddenTypeParameter")
     protected @Nullable Entry<K, V> get(K k) {
         Entry<K, V> currentNode = mStart;
         while (currentNode != null) {

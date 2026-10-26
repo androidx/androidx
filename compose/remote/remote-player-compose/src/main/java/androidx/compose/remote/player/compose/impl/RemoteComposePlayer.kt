@@ -68,7 +68,6 @@ import kotlin.coroutines.cancellation.CancellationException
 @Composable
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("UnavailableSymbol", "HiddenTypeParameter")
 public fun RemoteComposePlayer(
     document: RemoteDocument,
     modifier: Modifier = Modifier,

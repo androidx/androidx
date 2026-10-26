@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore
 
-import android.annotation.SuppressLint
 import android.view.Surface
 import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
@@ -943,7 +942,6 @@ private constructor(
             return field
         }
         @MainThread
-        @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             rtSurfaceEntity.setPrimaryAlphaMaskTexture(value?.texture)
@@ -964,7 +962,6 @@ private constructor(
             return field
         }
         @MainThread
-        @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             rtSurfaceEntity.setAuxiliaryAlphaMaskTexture(value?.texture)
@@ -1033,7 +1030,6 @@ private constructor(
             }
         }
         @MainThread
-        @SuppressLint("HiddenTypeParameter")
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         set(value) {
             if (value == null) {

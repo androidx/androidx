@@ -76,10 +76,7 @@ public fun MaterialTheme(
 public object MaterialTheme {
     /** Retrieves the current [ColorScheme] at the call site's position in the hierarchy. */
     public val colorScheme: ColorScheme
-        @Composable
-        @ReadOnlyComposable
-        @SuppressWarnings("HiddenTypeParameter", "UnavailableSymbol")
-        get() = LocalColorScheme.current
+        @Composable @ReadOnlyComposable get() = LocalColorScheme.current
 
     /** Retrieves the current [Typography] at the call site's position in the hierarchy. */
     public val typography: Typography
