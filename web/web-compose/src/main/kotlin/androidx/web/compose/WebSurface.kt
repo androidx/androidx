@@ -50,6 +50,8 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
@@ -316,6 +318,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     private var webSurface: WebSurfaceChromium? = null
     private var size = IntSize.Zero
     private var holder: HeadlessViewHolder? = null
+    private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var attachedViewTreeObserver: ViewTreeObserver? = null
 
     /** Prevents reentrant focus synchronization between Compose and the underlying View tree. */
@@ -443,9 +446,16 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
-        if (!isAttached || isUpdatingFocus) return
+        if (!isAttached) return
         val isFocused = currentState.isFocused
-        if (!isFocused || isFocused == previousState.isFocused) return
+        if (isFocused == previousState.isFocused) return
+        // Pin this item in lazy layouts (e.g. LazyColumn) while focused, matching
+        // Modifier.focusable(). Unfocused WebSurfaces are disposed offscreen as normal, but
+        // disposing a focused WebSurface would detach HeadlessViewHolder from the window, which
+        // tears down any active IME InputConnection, closes the soft keyboard, and drops focus.
+        pinnedHandle?.release()
+        pinnedHandle = if (isFocused) currentValueOf(LocalPinnableContainer)?.pin() else null
+        if (isUpdatingFocus || !isFocused) return
         val view = holder?.view ?: return
         focusUpdate {
             if (!view.hasFocus()) {
@@ -507,6 +517,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     fun onBridgeDetached() {
+        pinnedHandle?.release()
+        pinnedHandle = null
         releaseSurface()
         focusUpdate { holder?.view = null }
     }

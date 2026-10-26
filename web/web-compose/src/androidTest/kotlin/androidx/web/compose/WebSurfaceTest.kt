@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -73,6 +74,8 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -838,6 +841,89 @@ class WebSurfaceTest {
             swipeTowardsEnd = { swipeLeft() },
             swipeTowardsStart = { swipeRight() },
         )
+    }
+
+    @Test
+    fun testFocusedWebSurfaceInLazyColumnStaysPinnedWhenScrolledOffscreen() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+        lateinit var scope: CoroutineScope
+        val otherFocusRequester = FocusRequester()
+
+        composeTestRule.setContent {
+            scope = rememberCoroutineScope()
+            Column {
+                listState = rememberLazyListState()
+                LazyColumn(state = listState, modifier = Modifier.size(200.dp, 150.dp)) {
+                    item {
+                        WebSurface(
+                            content = webContent,
+                            modifier = Modifier.size(200.dp, 150.dp),
+                            bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                        )
+                    }
+                    items(10) { Box(modifier = Modifier.size(200.dp, 150.dp)) }
+                }
+                Box(modifier = Modifier.size(50.dp).focusRequester(otherFocusRequester).focusable())
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            bridge.requestFocus()
+            scope.launch { listState.scrollToItem(10) }
+        }
+        composeTestRule.runOnIdle {
+            assertTrue(webContent.isAttached())
+            assertTrue(bridge.hasFocus())
+            otherFocusRequester.requestFocus()
+        }
+        composeTestRule.runOnIdle { assertFalse(webContent.isAttached()) }
+    }
+
+    @Test
+    fun testWebSurfaceInLazyColumnUnpinsIfFocusLostDuringFocusUpdate() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+        lateinit var scope: CoroutineScope
+        val surfaceFocusRequester = FocusRequester()
+        val otherFocusRequester = FocusRequester()
+
+        composeTestRule.setContent {
+            scope = rememberCoroutineScope()
+            Column {
+                listState = rememberLazyListState()
+                LazyColumn(state = listState, modifier = Modifier.size(200.dp, 150.dp)) {
+                    item {
+                        WebSurface(
+                            content = webContent,
+                            modifier =
+                                Modifier.size(200.dp, 150.dp).focusRequester(surfaceFocusRequester),
+                            bridgeFactory = {
+                                WebViewBridge(it)
+                                    .apply {
+                                        viewTreeObserver.addOnGlobalFocusChangeListener {
+                                            _,
+                                            newFocus ->
+                                            if (newFocus === this) (this as View).clearFocus()
+                                        }
+                                    }
+                                    .also { b -> bridge = b }
+                            },
+                        )
+                    }
+                    items(10) { Box(modifier = Modifier.size(200.dp, 150.dp)) }
+                }
+                Box(modifier = Modifier.size(50.dp).focusRequester(otherFocusRequester).focusable())
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            otherFocusRequester.requestFocus()
+            surfaceFocusRequester.requestFocus()
+            assertFalse(bridge.hasFocus())
+            scope.launch { listState.scrollToItem(10) }
+        }
+        composeTestRule.runOnIdle { assertFalse(webContent.isAttached()) }
     }
 
     /**
