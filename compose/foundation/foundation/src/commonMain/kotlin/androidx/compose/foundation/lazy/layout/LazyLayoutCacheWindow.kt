@@ -98,12 +98,17 @@ private class DpLazyLayoutCacheWindow(
     override fun Density.calculateBehindWindow(viewport: Int): Int = behind.roundToPx()
 
     override fun hashCode(): Int {
-        return 31 * ahead.hashCode() + behind.hashCode()
+        var result = ahead.hashCode()
+        result = 31 * result + behind.hashCode()
+        result = 31 * result + isNonScrollCachingEnabled.hashCode()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
         return if (other is DpLazyLayoutCacheWindow) {
-            other.ahead == this.ahead && other.behind == this.behind
+            other.ahead == this.ahead &&
+                other.behind == this.behind &&
+                other.isNonScrollCachingEnabled == this.isNonScrollCachingEnabled
         } else {
             false
         }
@@ -145,12 +150,17 @@ private class FractionLazyLayoutCacheWindow(
         (viewport * behindFraction).roundToInt()
 
     override fun hashCode(): Int {
-        return 31 * aheadFraction.hashCode() + behindFraction.hashCode()
+        var result = aheadFraction.hashCode()
+        result = 31 * result + behindFraction.hashCode()
+        result = 31 * result + isNonScrollCachingEnabled.hashCode()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
         return if (other is FractionLazyLayoutCacheWindow) {
-            other.aheadFraction == this.aheadFraction && other.behindFraction == this.behindFraction
+            other.aheadFraction == this.aheadFraction &&
+                other.behindFraction == this.behindFraction &&
+                other.isNonScrollCachingEnabled == this.isNonScrollCachingEnabled
         } else {
             false
         }
