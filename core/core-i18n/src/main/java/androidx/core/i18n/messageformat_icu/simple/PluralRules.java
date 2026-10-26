@@ -7,8 +7,6 @@
 
 package androidx.core.i18n.messageformat_icu.simple;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.RestrictTo;
 import androidx.core.i18n.messageformat_icu.util.Output;
 
@@ -714,7 +712,7 @@ public class PluralRules implements Serializable {
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
-        public double get(@SuppressLint("HiddenTypeParameter") Operand operand) {
+        public double get(Operand operand) {
             switch(operand) {
             default: return source;
             case i: return integerValue;
@@ -730,7 +728,6 @@ public class PluralRules implements Serializable {
          * This API is ICU internal only.
          */
         // @Deprecated: in fact internal ICU
-        @SuppressLint("HiddenTypeParameter")
         public static Operand getOperand(String t) {
             return Operand.valueOf(t);
         }

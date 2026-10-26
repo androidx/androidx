@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class KeyFrames {
     ArrayList<Keys> mKeys = new ArrayList<>();
 
-    public void add(@SuppressWarnings("HiddenTypeParameter") Keys keyFrame) {
+    public void add(Keys keyFrame) {
         mKeys.add(keyFrame);
     }
 

@@ -136,7 +136,6 @@ import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
  */
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-@Suppress("UnavailableSymbol")
 public fun MotionCarousel(
     motionScene: MotionScene,
     initialSlotIndex: Int,
@@ -288,10 +287,8 @@ public interface MotionCarouselScope {
     public fun items(count: Int, itemContent: @Composable (index: Int) -> Unit)
 
     @OptIn(ExperimentalMotionApi::class)
-    @Suppress("UnavailableSymbol")
     public fun itemsWithProperties(
         count: Int,
-        @Suppress("HiddenTypeParameter")
         itemContent:
             @Composable
             (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit,
@@ -299,10 +296,8 @@ public interface MotionCarouselScope {
 }
 
 @OptIn(ExperimentalMotionApi::class)
-@Suppress("UnavailableSymbol")
 public inline fun <T> MotionCarouselScope.itemsWithProperties(
     items: List<T>,
-    @Suppress("HiddenTypeParameter")
     crossinline itemContent:
         @Composable
         (item: T, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit,
@@ -319,13 +314,10 @@ private fun rememberStateOfItemsProvider(
 
 @OptIn(ExperimentalMotionApi::class)
 public interface MotionItemsProvider {
-    @SuppressWarnings("UnavailableSymbol")
     public fun getContent(index: Int): @Composable() () -> Unit
 
-    @SuppressWarnings("UnavailableSymbol")
     public fun getContent(
         index: Int,
-        @SuppressWarnings("HiddenTypeParameter")
         properties: androidx.compose.runtime.State<MotionProperties>,
     ): @Composable() () -> Unit
 

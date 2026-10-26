@@ -16,7 +16,6 @@
 
 package androidx.xr.arcore.testing
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
@@ -66,18 +65,14 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     override val leftHand: Hand? = FakeRuntimeHand()
     override val rightHand: Hand? = FakeRuntimeHand()
 
-    @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val arDevice: FakeRuntimeArDevice = FakeRuntimeArDevice()
 
-    @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val leftRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(1f, 0f, 0f), Quaternion.Companion.Identity))
 
-    @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val rightRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(0f, 1f, 0f), Quaternion.Companion.Identity))
 
-    @get:SuppressLint("HiddenTypeParameter", "UnavailableSymbol")
     override val monoRenderViewpoint: FakeRuntimeRenderViewpoint? =
         FakeRuntimeRenderViewpoint(Pose(Vector3(0f, 0f, 1f), Quaternion.Companion.Identity))
 
