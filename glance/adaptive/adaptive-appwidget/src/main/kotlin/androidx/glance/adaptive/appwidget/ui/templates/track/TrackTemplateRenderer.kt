@@ -53,24 +53,20 @@ private val FallbackCornerRadius = 28.dp
 private val SupportingRowHeight = 24.dp
 
 /**
- * Hero chart columns.
+ * Hero chart columns, derived from [TrackPlaceholderData].
  *
  * [TrackTemplate] carries no time series, so the hero renders this fixed week until the payload
  * grows one. Everything else on screen is driven by real template data.
  */
 private val PlaceholderBars =
-    listOf(
-        TrackBar(label = "T", value = 0.17f),
-        TrackBar(label = "F", value = 0.30f),
-        TrackBar(label = "S", value = 0.46f),
-        TrackBar(label = "S", value = 1.00f, emphasized = true),
-        TrackBar(label = "M", value = 0.34f),
-        TrackBar(label = "T", value = 0.91f),
-        TrackBar(label = "W", value = 1.00f, emphasized = true),
-    )
-
-/** Hero chart caption. Placeholder for the same reason as [PlaceholderBars]. */
-private val PlaceholderChartDescription = "7 Day Avg" to "13,843 steps"
+    List(TrackPlaceholderData.GraphValues.size) { index ->
+        val value = TrackPlaceholderData.GraphValues[index]
+        TrackBar(
+            label = TrackPlaceholderData.GraphLabels[index],
+            value = value / TrackPlaceholderData.GRAPH_GOAL,
+            emphasized = value >= TrackPlaceholderData.GRAPH_GOAL,
+        )
+    }
 
 /**
  * Glyph drawn inside the progress ring. Placeholder for the same reason as [PlaceholderBars].
@@ -85,24 +81,14 @@ private val PlaceholderChartDescription = "7 Day Avg" to "13,843 steps"
 private val PlaceholderGlyph: Int
     get() = R.drawable.glance_adaptive_appwidget_track_placeholder_steps_glyph
 
-/** Second supporting value. Placeholder for the same reason as [PlaceholderBars]. */
-private const val PLACEHOLDER_SECONDARY_STATUS = "3,118 to go"
-
-/**
- * Badge label in the third supporting slot. Placeholder for the same reason as [PlaceholderBars].
- */
-private const val PLACEHOLDER_BADGE_LABEL = "Z2"
-
-/** Status dot colors flanking the badge. Placeholder for the same reason as [PlaceholderBars]. */
+/** Status dot colors flanking the badge, derived from [TrackPlaceholderData.BadgeDotColors]. */
 private val PlaceholderBadgeDots =
-    listOf(
-        ColorProvider(Color(0xFFFFA4A4)),
-        ColorProvider(Color(0xFFA0FF47)),
-        ColorProvider(Color(0xFF47A6FF)),
-    )
+    List(TrackPlaceholderData.BadgeDotColors.size) { index ->
+        ColorProvider(Color(TrackPlaceholderData.BadgeDotColors[index]))
+    }
 
-/** Badge outline color. Placeholder for the same reason as [PlaceholderBars]. */
-private val PlaceholderBadgeOutline = ColorProvider(Color(0xFFFFE347))
+/** Badge outline color, derived from [TrackPlaceholderData.BADGE_OUTLINE_COLOR]. */
+private val PlaceholderBadgeOutline = ColorProvider(Color(TrackPlaceholderData.BADGE_OUTLINE_COLOR))
 
 /**
  * Glance renderer for [TrackTemplate] on platform AppWidget surfaces.
@@ -176,7 +162,8 @@ internal fun TrackLayout(template: TrackTemplate, slots: TrackSlots) {
                 barMaxHeight = slots.barMaxHeight,
                 barSpacing = slots.barSpacing,
                 showLabels = true,
-                description = if (slots.showHeroDescription) PlaceholderChartDescription else null,
+                description =
+                    if (slots.showHeroDescription) TrackPlaceholderData.GraphDescription else null,
                 modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
             )
         }
@@ -317,14 +304,14 @@ private fun SupportingSlot(template: TrackTemplate, slots: TrackSlots) {
         if (slots.supportingCount >= 2) {
             Spacer(GlanceModifier.defaultWeight())
             SupportingValueBlock(
-                value = PLACEHOLDER_SECONDARY_STATUS,
+                value = TrackPlaceholderData.SECONDARY_STATUS,
                 color = GlanceTheme.colors.primary,
             )
         }
         if (slots.supportingCount >= 3) {
             Spacer(GlanceModifier.defaultWeight())
             SpecialBadgeBlock(
-                label = PLACEHOLDER_BADGE_LABEL,
+                label = TrackPlaceholderData.BADGE_LABEL,
                 outlineColor = PlaceholderBadgeOutline,
                 dotColors = PlaceholderBadgeDots,
             )
