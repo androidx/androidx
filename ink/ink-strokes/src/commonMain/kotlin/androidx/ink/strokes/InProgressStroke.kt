@@ -111,7 +111,6 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      * method must be called at least once after construction before making any calls to
      * [enqueueInputs] or [updateShape].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun start(
         brush: Brush,
@@ -320,7 +319,6 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      * arbitrary zero clock state, so that different strokes can be animated correctly relative to
      * each other.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
     public fun getBasePaintAnimationPhase(): Float =

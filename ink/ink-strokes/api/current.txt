@@ -18,6 +18,7 @@ package androidx.ink.strokes {
     method public void clear();
     method public void enqueueInputs(androidx.ink.strokes.StrokeInputBatch realInputs, androidx.ink.strokes.StrokeInputBatch predictedInputs);
     method public void finishInput();
+    method @SuppressCompatibility @FloatRange(from=0.0, to=1.0, toInclusive=false) public float getBasePaintAnimationPhase();
     method @InaccessibleFromKotlin public androidx.ink.brush.Brush? getBrush();
     method @IntRange(from=0L) public int getBrushCoatCount();
     method @IntRange(from=0L) public int getInputCount();
@@ -38,6 +39,7 @@ package androidx.ink.strokes {
     method public void resetUpdatedRegion();
     method public void start(androidx.ink.brush.Brush brush);
     method public void start(androidx.ink.brush.Brush brush, optional int noiseSeed);
+    method @SuppressCompatibility public void start(androidx.ink.brush.Brush brush, int noiseSeed, @FloatRange(from=0.0, to=1.0, toInclusive=false) float basePaintAnimationPhase);
     method @BytecodeOnly public static void start$default(androidx.ink.strokes.InProgressStroke!, androidx.ink.brush.Brush!, int, int, Object!);
     method public androidx.ink.strokes.Stroke toImmutable();
     method public void updateShape();
@@ -148,6 +150,7 @@ package androidx.ink.strokes {
 
   public abstract class StrokeInputBatch {
     method public final operator androidx.ink.strokes.StrokeInput get(int index);
+    method @SuppressCompatibility @FloatRange(from=0.0, to=1.0, toInclusive=false) public final float getBasePaintAnimationPhase();
     method public final long getDurationMillis();
     method public final int getNoiseSeed();
     method @InaccessibleFromKotlin public final int getSize();
@@ -165,6 +168,20 @@ package androidx.ink.strokes {
   }
 
   public static final class StrokeInputBatch.Companion {
+  }
+
+  @SuppressCompatibility public fun interface StrokePaintAnimationClock {
+    method @FloatRange(from=0.0, to=1.0, toInclusive=false) public static float calculateBasePaintAnimationPhaseForNewStroke(long clockStateMillis, @IntRange(from=0L) long brushFamilyLoopDurationMillis);
+    method @FloatRange(from=0.0, to=1.0, toInclusive=false) public static float calculateCurrentAnimationPhaseForBrushPaint(long clockStateMillis, @IntRange(from=0L) long brushFamilyLoopDurationMillis, @IntRange(from=0L) long brushPaintLoopDurationMillis, @FloatRange(from=0.0, to=1.0, toInclusive=false) float strokeBasePaintAnimationPhase);
+    method @AnyThread public long getClockStateMillis();
+    field @SuppressCompatibility public static final androidx.ink.strokes.StrokePaintAnimationClock.Companion Companion;
+    field public static final androidx.ink.strokes.StrokePaintAnimationClock STOPPED_CLOCK;
+  }
+
+  @SuppressCompatibility public static final class StrokePaintAnimationClock.Companion {
+    method @FloatRange(from=0.0, to=1.0, toInclusive=false) public float calculateBasePaintAnimationPhaseForNewStroke(long clockStateMillis, @IntRange(from=0L) long brushFamilyLoopDurationMillis);
+    method @FloatRange(from=0.0, to=1.0, toInclusive=false) public float calculateCurrentAnimationPhaseForBrushPaint(long clockStateMillis, @IntRange(from=0L) long brushFamilyLoopDurationMillis, @IntRange(from=0L) long brushPaintLoopDurationMillis, @FloatRange(from=0.0, to=1.0, toInclusive=false) float strokeBasePaintAnimationPhase);
+    property public androidx.ink.strokes.StrokePaintAnimationClock STOPPED_CLOCK;
   }
 
 }

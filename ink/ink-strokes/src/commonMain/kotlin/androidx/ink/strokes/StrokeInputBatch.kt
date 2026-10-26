@@ -116,7 +116,6 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
      * some arbitrary zero clock state, so that different strokes can be animated correctly relative
      * to each other.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
     public fun getBasePaintAnimationPhase(): Float =

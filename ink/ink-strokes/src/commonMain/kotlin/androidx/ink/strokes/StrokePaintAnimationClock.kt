@@ -19,7 +19,6 @@ package androidx.ink.strokes
 import androidx.annotation.AnyThread
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
@@ -29,7 +28,6 @@ import kotlin.math.roundToLong
  * Controls animated paint textures for rendered strokes. Typically a single
  * [StrokePaintAnimationClock] object is used for all strokes in a document.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkAnimationApi
 public fun interface StrokePaintAnimationClock {
 
