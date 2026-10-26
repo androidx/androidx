@@ -39,9 +39,11 @@ package androidx.xr.projected {
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedDeviceController implements java.lang.AutoCloseable {
-    method public void addBatteryStateChangedListener(kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
+    method @Deprecated public void addBatteryStateChangedListener(kotlin.coroutines.CoroutineContext context, kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
+    method public void addBatteryStateChangedListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
     method public void close();
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
     method @InaccessibleFromKotlin public java.util.List<android.media.AudioDeviceInfo> getAudioDevices();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.projected.ProjectedDeviceController.Capability> getCapabilities();
     method public void removeBatteryStateChangedListener(kotlin.jvm.functions.Function1<? super androidx.xr.projected.BatteryState,kotlin.Unit> listener);
@@ -61,6 +63,8 @@ package androidx.xr.projected {
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedDeviceController.Companion {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.content.Context context, optional kotlin.coroutines.CoroutineContext coroutineContext, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedDeviceController>);
+    method @BytecodeOnly @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static Object! create$default(androidx.xr.projected.ProjectedDeviceController.Companion!, android.content.Context!, kotlin.coroutines.CoroutineContext!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
   public final class ProjectedDisplayController implements java.lang.AutoCloseable {
