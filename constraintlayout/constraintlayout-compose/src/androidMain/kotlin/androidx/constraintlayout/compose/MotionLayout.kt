@@ -371,7 +371,6 @@ public inline fun MotionLayout(
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     invalidationStrategy: InvalidationStrategy = InvalidationStrategy.DefaultInvalidationStrategy,
-    @Suppress("HiddenTypeParameter")
     crossinline content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     /**
@@ -431,7 +430,7 @@ internal fun MotionLayoutCore(
     contentTracker: MutableState<Unit>,
     compositionSource: Ref<CompositionSource>,
     invalidationStrategy: InvalidationStrategy,
-    @Suppress("HiddenTypeParameter") content: @Composable (MotionLayoutScope.() -> Unit),
+    content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     val needsUpdate = remember { mutableLongStateOf(0L) }
 
@@ -512,7 +511,7 @@ internal fun MotionLayoutCore(
 @PublishedApi
 @Composable
 internal fun MotionLayoutCore(
-    @Suppress("HiddenTypeParameter") motionScene: MotionScene,
+    motionScene: MotionScene,
     progress: Float,
     transitionName: String,
     optimizationLevel: Int,
@@ -521,7 +520,7 @@ internal fun MotionLayoutCore(
     contentTracker: MutableState<Unit>,
     compositionSource: Ref<CompositionSource>,
     invalidationStrategy: InvalidationStrategy,
-    @Suppress("HiddenTypeParameter") content: @Composable MotionLayoutScope.() -> Unit,
+    content: @Composable MotionLayoutScope.() -> Unit,
 ) {
     val transition =
         remember(motionScene, transitionName) { motionScene.getTransitionInstance(transitionName) }
@@ -575,7 +574,7 @@ internal fun MotionLayoutCore(
     contentTracker: MutableState<Unit>,
     compositionSource: Ref<CompositionSource>,
     invalidationStrategy: InvalidationStrategy,
-    @Suppress("HiddenTypeParameter") content: @Composable MotionLayoutScope.() -> Unit,
+    content: @Composable MotionLayoutScope.() -> Unit,
 ) {
     val motionProgress = createAndUpdateMotionProgress(progress = progress)
     val transitionImpl = (transition as? TransitionImpl) ?: TransitionImpl.EMPTY
@@ -975,7 +974,7 @@ internal fun motionLayoutMeasurePolicy(
     compositionSource: Ref<CompositionSource>,
     constraintSetStart: ConstraintSet,
     constraintSetEnd: ConstraintSet,
-    @SuppressWarnings("HiddenTypeParameter") transition: TransitionImpl,
+    transition: TransitionImpl,
     motionProgress: MutableFloatState,
     measurer: MotionMeasurer,
     optimizationLevel: Int,

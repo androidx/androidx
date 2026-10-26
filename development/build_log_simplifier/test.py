@@ -263,12 +263,12 @@ def test_remove_control_characters():
     print("test_remove_control_characters")
     given = [
         # a line starting with several color codes in it
-        "[1msrc/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: [33mwarning: [0mMethod androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [HiddenTypeParameter]",
+        "[1msrc/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: [33mwarning: [0mMethod androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [ReferencesHidden]",
         # a line with a variety of characters, none of which are color codes
         "space tab\tCAPITAL underscore_ slash/ colon: number 1 newline\n",
     ]
     expected = [
-        "src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: warning: Method androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [HiddenTypeParameter]",
+        "src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java:39: warning: Method androidx.arch.core.internal.FastSafeIterableMap.get(K) references hidden type androidx.arch.core.internal.SafeIterableMap.Entry<K,V>. [ReferencesHidden]",
         "space tab\tCAPITAL underscore_ slash/ colon: number 1 newline\n",
     ]
     actual = [remove_control_characters(line) for line in given]

@@ -38,7 +38,6 @@ public abstract class WidgetRun implements Dependency {
     public DependencyNode start = new DependencyNode(this);
     public DependencyNode end = new DependencyNode(this);
 
-    @SuppressWarnings("HiddenTypeParameter")
     protected RunType mRunType = RunType.NONE;
 
     public WidgetRun(ConstraintWidget widget) {
@@ -320,8 +319,7 @@ public abstract class WidgetRun implements Dependency {
     protected final void addTarget(DependencyNode node,
             DependencyNode target,
             int marginFactor,
-            @SuppressWarnings("HiddenTypeParameter") DimensionDependency
-                    dimensionDependency) {
+            DimensionDependency dimensionDependency) {
         node.mTargets.add(target);
         node.mTargets.add(mDimension);
         node.mMarginFactor = marginFactor;

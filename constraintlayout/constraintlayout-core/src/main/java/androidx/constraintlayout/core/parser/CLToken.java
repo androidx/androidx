@@ -70,7 +70,6 @@ public class CLToken extends CLElement {
         return json.toString();
     }
 
-    @SuppressWarnings("HiddenTypeParameter")
     public Type getType() {
         return mType;
     }
