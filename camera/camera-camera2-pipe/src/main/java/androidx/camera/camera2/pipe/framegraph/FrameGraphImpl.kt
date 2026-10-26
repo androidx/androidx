@@ -79,7 +79,11 @@ constructor(
     override val latestFrameNumber: Flow<CameraFrameNumber> = cameraGraph.latestFrameNumber
     override val latestFrameInfo: Flow<FrameInfo> = cameraGraph.latestFrameInfo
 
-    override var isForeground: Boolean = cameraGraph.isForeground
+    override var isForeground: Boolean
+        get() = cameraGraph.isForeground
+        set(value) {
+            cameraGraph.isForeground = value
+        }
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         cameraGraph.setSurface(stream, surface)
