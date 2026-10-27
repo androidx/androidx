@@ -76,6 +76,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -796,6 +797,40 @@ public class ImageAnalysisTest {
 
         assertThat(recreatedReader.isClosed()).isTrue();
         assertThat(recreatedReader.getOutstandingImages()).isEqualTo(0);
+    }
+
+    @Test
+    public void recreateImageAnalysisAbstractAnalyzer_detachesPreviousAnalyzer() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setOutputImageRotationEnabled(true)
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
+                })
+                .setCaptureOptionUnpacker((config, builder) -> {
+                })
+                .build();
+
+        imageAnalysis.setTargetRotation(Surface.ROTATION_0);
+        CameraInternal camera = new FakeCamera();
+        imageAnalysis.bindToCamera(camera, null, null, null);
+        imageAnalysis.onSuggestedStreamSpecUpdated(
+                StreamSpec.builder(new Size(800, 600)).build(), null);
+        imageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(), ImageProxy::close);
+
+        ImageAnalysisAbstractAnalyzer firstAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+        firstAnalyzer.mYRotatedBuffer = ByteBuffer.allocateDirect(8);
+        SafeCloseImageReaderProxy firstReader = firstAnalyzer.getProcessedImageReaderProxy();
+        assertThat(firstReader).isNotNull();
+        assertThat(firstReader.isClosed()).isFalse();
+
+        // Trigger recreateImageAnalysisAbstractAnalyzer via onSuggestedStreamSpecUpdated
+        imageAnalysis.onSuggestedStreamSpecUpdated(
+                StreamSpec.builder(new Size(640, 480)).build(), null);
+
+        assertThat(firstAnalyzer.mIsAttached).isFalse();
+        assertThat(firstAnalyzer.mYRotatedBuffer).isNull();
+        assertThat(firstReader.isClosed()).isTrue();
+        imageAnalysis.unbindFromCamera(camera);
     }
 
     /**

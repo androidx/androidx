@@ -387,4 +387,46 @@ class CaptureNodeTest {
         assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(JPEG)
         node.release()
     }
+
+    @Test
+    fun imagePropagated_trackedBySafeCloseImageReaderProxy() {
+        val captureNode = CaptureNode()
+        val imageReaderProxy = FakeImageReaderProxy(2)
+        captureNodeIn =
+            CaptureNode.In.of(
+                Size(10, 10),
+                JPEG,
+                listOf(JPEG),
+                /* isVirtualCamera */ true,
+                { _, _, _, _, _ -> imageReaderProxy },
+            )
+        captureNodeOut = captureNode.transform(captureNodeIn)
+        captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
+
+        val captureBundle = createCaptureBundle(intArrayOf(1))
+        val takePictureCallback = FakeTakePictureCallback()
+        val request =
+            FakeProcessingRequest(captureBundle, takePictureCallback, Futures.immediateFuture(null))
+        val tagBundle =
+            TagBundle.create(Pair(captureBundle.hashCode().toString(), /* stage id */ 1))
+
+        assertThat(captureNode.capacity).isEqualTo(2)
+
+        captureNodeIn.requestEdge.accept(request)
+        imageReaderProxy.triggerImageAvailableSync(tagBundle)
+
+        // While the propagated ImageProxy is still open, capacity decreases by 1
+        assertThat(imagePropagated).hasSize(1)
+        assertThat(captureNode.capacity).isEqualTo(1)
+
+        // Releasing CaptureNode defers closing the underlying ImageReader until the image is closed
+        captureNode.release()
+        shadowOf(getMainLooper()).idle()
+        assertThat(imageReaderProxy.isClosed).isFalse()
+
+        // Closing the propagated ImageProxy restores capacity and closes the underlying ImageReader
+        imagePropagated[0].close()
+        assertThat(captureNode.capacity).isEqualTo(2)
+        assertThat(imageReaderProxy.isClosed).isTrue()
+    }
 }
