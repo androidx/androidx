@@ -26,7 +26,6 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
-import androidx.annotation.RestrictTo
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -41,12 +40,21 @@ private const val TAG = "GlanceAdaptiveReceiver"
 /**
  * [AppWidgetProvider] using Glance Adaptive to process widget lifecycle events and updates.
  *
+ * Subclass this receiver to associate a widget declared in `AndroidManifest.xml` with a
+ * [widgetName]. Rather than providing a custom `GlanceAppWidget` composable layout, applications
+ * push [androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate] data via
+ * [androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate], and the library adapts
+ * and renders the layout for each target surface.
+ *
  * This should typically be used as:
  * ```kotlin
  * class MyGlanceAdaptiveWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
- *     override val widgetName: String = "profile_widget"
+ *     override val widgetName: String = "my_widget"
  *     override suspend fun onUpdate(context: Context) {
- *         // Provide or push updated template data
+ *         GlanceAdaptiveWidgetManager(context).pushUpdate(
+ *             widgetName = widgetName,
+ *             currentData = ...
+ *         )
  *     }
  * }
  * ```
@@ -67,19 +75,14 @@ private const val TAG = "GlanceAdaptiveReceiver"
  * [AppWidgetProvider.goAsync] manually, as broadcast lifecycle completion is handled by the
  * superclass implementation.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
 
     /**
      * Unique developer-defined identifier used to associate this receiver with a specific widget
-     * definition (e.g., "profile_widget").
+     * definition (e.g., "my_widget").
      *
      * This identifier should correspond to the widget template definition or layout configuration
      * registered with the adaptive widget framework.
-     *
-     * This is the single source of truth for the widget name of this receiver. It is read from an
-     * instance created with the receiver's no-argument constructor, so it must return a constant
-     * value.
      */
     public abstract val widgetName: String
 
@@ -93,17 +96,16 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     public open val coroutineContext: CoroutineContext = Dispatchers.Default
 
     /**
-     * Asynchronous lifecycle hook implemented by developers to provide fresh data for active widget
-     * instances.
+     * Called on a background coroutine when the system requests an update for this widget (such as
+     * on initial placement from the widget picker, device boot, locale or size changes, or periodic
+     * update alarms).
      *
-     * Invoked on a background coroutine in response to widget updates (such as initial placement or
-     * periodic update alarms).
+     * Implement this method to fetch your widget data and call
+     * [androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager.pushUpdate].
      *
      * @param context The application Context.
      */
-    public open suspend fun onUpdate(context: Context) {
-        // Default no-op. Overridden by developers to provide initial or refreshed data.
-    }
+    public abstract suspend fun onUpdate(context: Context)
 
     // AppWidgetProvider in the platform SDK leaves these parameters unannotated for
     // backwards source-compatibility with existing Kotlin subclasses that override them
@@ -259,8 +261,8 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
             "androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE"
 
         /**
-         * Key for storing the developer String instance identifier in [AppWidgetManager] widget
-         * options bundle.
+         * Key for storing the widget instance identifier in the [AppWidgetManager] widget options
+         * bundle.
          */
         public const val EXTRA_WIDGET_ID: String =
             "androidx.glance.adaptive.appwidget.extra.WIDGET_ID"

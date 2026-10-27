@@ -1,2 +1,23 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.glance.adaptive.appwidget {
+
+  public abstract class GlanceAdaptiveWidgetReceiver extends android.appwidget.AppWidgetProvider {
+    ctor public GlanceAdaptiveWidgetReceiver();
+    method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getCoroutineContext();
+    method @InaccessibleFromKotlin public abstract String getWidgetName();
+    method public abstract suspend Object? onUpdate(android.content.Context context, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlin.coroutines.CoroutineContext coroutineContext;
+    property public abstract String widgetName;
+    field public static final String ACTION_DEBUG_UPDATE = "androidx.glance.adaptive.appwidget.action.DEBUG_UPDATE";
+    field public static final androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.Companion Companion;
+    field public static final String EXTRA_WIDGET_ID = "androidx.glance.adaptive.appwidget.extra.WIDGET_ID";
+  }
+
+  public static final class GlanceAdaptiveWidgetReceiver.Companion {
+    property public static String ACTION_DEBUG_UPDATE;
+    property public static String EXTRA_WIDGET_ID;
+  }
+
+}
+

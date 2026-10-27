@@ -231,6 +231,8 @@ class WidgetTelemetryHandlerTest {
             object : GlanceAdaptiveWidgetReceiver() {
                 override val widgetName: String = "test_widget"
 
+                override suspend fun onUpdate(context: Context) {}
+
                 override fun onUpdate(
                     context: Context,
                     appWidgetManager: AppWidgetManager,
