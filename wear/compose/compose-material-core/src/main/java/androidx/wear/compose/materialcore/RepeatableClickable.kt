@@ -25,13 +25,13 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import kotlinx.coroutines.coroutineScope
@@ -66,6 +66,7 @@ import kotlinx.coroutines.launch
  *   each call until the touch is released
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
 public fun Modifier.repeatableClickable(
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
@@ -76,7 +77,7 @@ public fun Modifier.repeatableClickable(
     incrementalDelay: Long = 60L,
     onClick: () -> Unit,
     onRepeatableClick: () -> Unit = onClick,
-): Modifier = composed {
+): Modifier {
     val currentOnRepeatableClick by rememberUpdatedState(onRepeatableClick)
     val currentOnClick by rememberUpdatedState(onClick)
     // This flag is used for checking whether the onClick should be ignored or not.
@@ -86,7 +87,7 @@ public fun Modifier.repeatableClickable(
 
     // Repeatable logic should always follow the clickable, as the lowest modifier finishes first,
     // and we have to be sure that repeatable goes before clickable.
-    clickable(
+    return clickable(
             interactionSource = interactionSource,
             indication = indication,
             enabled = enabled,
