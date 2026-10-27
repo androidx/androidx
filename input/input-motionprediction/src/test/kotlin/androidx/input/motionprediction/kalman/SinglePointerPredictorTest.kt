@@ -123,6 +123,48 @@ class SinglePointerPredictorTest {
             }
         }
     }
+
+    @Test
+    fun orientationTiltAndAxisRzArePredicted() {
+        val predictor = constructPredictor()
+        val coordGenerator = { delta: Long -> delta.toFloat() }
+        val orientationGenerator = { delta: Long -> (delta % 3f) - 1f }
+        val tiltGenerator = { delta: Long -> (delta % 1.5f) }
+        val axisRzGenerator = { delta: Long -> ((delta % 2f) - 1f) }
+        val motionGenerator =
+            MotionEventGenerator(
+                firstXGenerator = coordGenerator,
+                firstYGenerator = coordGenerator,
+                firstOrientationGenerator = orientationGenerator,
+                firstTiltGenerator = tiltGenerator,
+                firstAxisRzGenerator = axisRzGenerator,
+            )
+        var lastEvent: MotionEvent? = null
+        for (i in 1..INITIAL_FEED) {
+            lastEvent = motionGenerator.next()
+            predictor.onTouchEvent(lastEvent)
+            predictor.predict(motionGenerator.getRateMs().toInt())
+        }
+        for (i in 1..PREDICT_LENGTH) {
+            val predicted = predictor.predict(motionGenerator.getRateMs().toInt() * 3)!!
+            assertThat(predicted.historySize).isGreaterThan(0)
+            for (h in 0 until predicted.historySize) {
+                assertThat(predicted.getHistoricalOrientation(h)).isEqualTo(lastEvent!!.orientation)
+                assertThat(predicted.getHistoricalAxisValue(MotionEvent.AXIS_TILT, h))
+                    .isEqualTo(lastEvent.getAxisValue(MotionEvent.AXIS_TILT))
+                assertThat(predicted.getHistoricalAxisValue(MotionEvent.AXIS_RZ, h))
+                    .isEqualTo(lastEvent.getAxisValue(MotionEvent.AXIS_RZ))
+            }
+            assertThat(predicted.orientation).isEqualTo(lastEvent!!.orientation)
+            assertThat(predicted.getAxisValue(MotionEvent.AXIS_TILT))
+                .isEqualTo(lastEvent.getAxisValue(MotionEvent.AXIS_TILT))
+            assertThat(predicted.getAxisValue(MotionEvent.AXIS_RZ))
+                .isEqualTo(lastEvent.getAxisValue(MotionEvent.AXIS_RZ))
+
+            lastEvent = motionGenerator.next()
+            predictor.onTouchEvent(lastEvent)
+        }
+    }
 }
 
 private fun constructPredictor(): SinglePointerPredictor =

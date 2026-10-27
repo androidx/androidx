@@ -22,10 +22,16 @@ import androidx.test.core.view.MotionEventBuilder
 class MotionEventGenerator(
     val firstXGenerator: (Long) -> Float,
     val firstYGenerator: (Long) -> Float,
-    val firstPressureGenerator: ((Long) -> Float)?,
-    val secondXGenerator: ((Long) -> Float)?,
-    val secondYGenerator: ((Long) -> Float)?,
-    val secondPressureGenerator: ((Long) -> Float)?,
+    val firstPressureGenerator: ((Long) -> Float)? = null,
+    val secondXGenerator: ((Long) -> Float)? = null,
+    val secondYGenerator: ((Long) -> Float)? = null,
+    val secondPressureGenerator: ((Long) -> Float)? = null,
+    val firstOrientationGenerator: ((Long) -> Float)? = null,
+    val firstTiltGenerator: ((Long) -> Float)? = null,
+    val firstAxisRzGenerator: ((Long) -> Float)? = null,
+    val secondOrientationGenerator: ((Long) -> Float)? = null,
+    val secondTiltGenerator: ((Long) -> Float)? = null,
+    val secondAxisRzGenerator: ((Long) -> Float)? = null,
 ) {
     constructor(
         firstXGenerator: (Long) -> Float,
@@ -75,6 +81,15 @@ class MotionEventGenerator(
         } else {
             coords.pressure = firstPressureGenerator.invoke(currentEventTime - downEventTime)
         }
+        firstOrientationGenerator?.let {
+            coords.orientation = it.invoke(currentEventTime - downEventTime)
+        }
+        firstTiltGenerator?.let {
+            coords.setAxisValue(MotionEvent.AXIS_TILT, it.invoke(currentEventTime - downEventTime))
+        }
+        firstAxisRzGenerator?.let {
+            coords.setAxisValue(MotionEvent.AXIS_RZ, it.invoke(currentEventTime - downEventTime))
+        }
 
         motionEventBuilder.setPointer(pointerProperties, coords)
 
@@ -93,6 +108,21 @@ class MotionEventGenerator(
             } else {
                 secondCoords.pressure =
                     secondPressureGenerator.invoke(currentEventTime - downEventTime)
+            }
+            secondOrientationGenerator?.let {
+                secondCoords.orientation = it.invoke(currentEventTime - downEventTime)
+            }
+            secondTiltGenerator?.let {
+                secondCoords.setAxisValue(
+                    MotionEvent.AXIS_TILT,
+                    it.invoke(currentEventTime - downEventTime),
+                )
+            }
+            secondAxisRzGenerator?.let {
+                secondCoords.setAxisValue(
+                    MotionEvent.AXIS_RZ,
+                    it.invoke(currentEventTime - downEventTime),
+                )
             }
 
             motionEventBuilder.setPointer(secondPointerProperties, secondCoords)
