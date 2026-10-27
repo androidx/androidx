@@ -43,6 +43,7 @@ import dagger.Provides
 import dagger.Subcomponent
 import javax.inject.Provider
 import javax.inject.Scope
+import kotlinx.coroutines.CancellationException
 
 @Scope public annotation class UseCaseCameraScope
 
@@ -203,6 +204,10 @@ public class UseCaseCameraContext(
 ) {
     private val _graph = lazy { cameraGraphProvider.get() }
 
+    @Volatile
+    public var isGraphClosed: Boolean = false
+        private set
+
     public val graph: CameraGraph by _graph
 
     public val surfaceToStreamMap: Map<DeferrableSurface, StreamId> by lazy {
@@ -216,7 +221,12 @@ public class UseCaseCameraContext(
             }
     }
 
+    public fun onClose() {
+        isGraphClosed = true
+    }
+
     public fun closeGraph() {
+        isGraphClosed = true
         if (_graph.isInitialized()) {
             val initializedGraph = graph
             initializedGraph.close()
@@ -239,8 +249,20 @@ public class UseCaseCameraContext(
         cameraStateAdapter.onGraphUpdated(graph)
     }
 
+    public suspend fun acquireSession(): CameraGraph.Session {
+        if (isGraphClosed) {
+            throw CancellationException("UseCaseCameraContext is closed")
+        }
+        val session = graph.acquireSession()
+        if (isGraphClosed) {
+            session.close()
+            throw CancellationException("UseCaseCameraContext is closed")
+        }
+        return session
+    }
+
     public suspend inline fun <T> useGraphSession(block: (CameraGraph.Session) -> T): T {
-        return graph.acquireSession().use { block(it) }
+        return acquireSession().use { block(it) }
     }
 }
 

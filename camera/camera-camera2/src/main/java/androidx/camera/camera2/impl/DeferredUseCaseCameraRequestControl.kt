@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
@@ -52,6 +54,8 @@ constructor(
     private val threads: UseCaseThreads,
 ) : UseCaseCameraRequestControl {
 
+    private val lock = Any()
+
     @Volatile private var impl: UseCaseCameraRequestControlImpl? = null
 
     private val isClosed = AtomicBoolean(false)
@@ -60,35 +64,46 @@ constructor(
      * Internal helper to initialize the implementation if needed. Must be called within the
      * sequential scope or a lock.
      */
-    private fun getOrCreateImpl(): UseCaseCameraRequestControlImpl {
-        if (isClosed.get()) {
-            throw CancellationException("UseCaseCameraRequestControl is closed")
+    private fun getOrCreateImpl(): UseCaseCameraRequestControlImpl =
+        synchronized(lock) {
+            if (isClosed.get()) {
+                throw CancellationException("UseCaseCameraRequestControl is closed")
+            }
+
+            impl?.let {
+                return it
+            }
+            val instance = implProvider.get()
+            if (isClosed.get()) {
+                // Re-check closed state in case close() was called during get()
+                instance.close()
+                throw CancellationException(
+                    "UseCaseCameraRequestControl closed during initialization"
+                )
+            }
+            impl = instance
+            instance
         }
 
-        impl?.let {
-            return it
-        }
-        val instance = implProvider.get()
-        if (isClosed.get()) {
-            // Re-check closed state in case close() was called during get()
-            instance.close()
-            throw CancellationException("UseCaseCameraRequestControl closed during initialization")
-        }
-        impl = instance
-        return instance
-    }
-
-    /** Standard utility for methods returning Deferred<T>. */
+    /**
+     * Standard utility for methods returning Deferred<T>.
+     *
+     * When a non-null [session] is provided, the slow path starts with
+     * [CoroutineStart.UNDISPATCHED] so that synchronous operations on [session] execute immediately
+     * before the caller closes the session.
+     */
     private inline fun <T> runOnSequential(
-        crossinline action: UseCaseCameraRequestControl.() -> Deferred<T>
+        session: CameraGraph.Session? = null,
+        crossinline action: UseCaseCameraRequestControl.() -> Deferred<T>,
     ): Deferred<T> {
         // Fast path: if initialized, run immediately
         impl?.let {
             return it.action()
         }
 
-        // Slow path: initialize on background thread
-        return threads.sequentialScope.async { getOrCreateImpl().action().await() }
+        // Slow path: initialize on background thread (or undispatched if holding an active session)
+        val start = if (session != null) CoroutineStart.UNDISPATCHED else CoroutineStart.DEFAULT
+        return threads.sequentialScope.async(start = start) { getOrCreateImpl().action().await() }
     }
 
     /** Utility for methods returning List<Deferred<T>> (e.g. issueSingleCaptureAsync). */
@@ -140,11 +155,27 @@ constructor(
         optionPriority: Config.OptionPriority,
     ): Deferred<Unit> = runOnSequential { setParametersAsync(values, type, optionPriority) }
 
+    override fun setParametersAsync(
+        values: Map<CaptureRequest.Key<*>, Any>,
+        type: UseCaseCameraRequestControl.Type,
+        optionPriority: Config.OptionPriority,
+        session: CameraGraph.Session?,
+    ): Deferred<Unit> =
+        runOnSequential(session) { setParametersAsync(values, type, optionPriority, session) }
+
     override fun submitParameters(
         values: Map<CaptureRequest.Key<*>, Any>,
         type: UseCaseCameraRequestControl.Type,
         optionPriority: Config.OptionPriority,
     ): Deferred<Unit> = runOnSequential { submitParameters(values, type, optionPriority) }
+
+    override fun submitParameters(
+        values: Map<CaptureRequest.Key<*>, Any>,
+        type: UseCaseCameraRequestControl.Type,
+        optionPriority: Config.OptionPriority,
+        session: CameraGraph.Session?,
+    ): Deferred<Unit> =
+        runOnSequential(session) { submitParameters(values, type, optionPriority, session) }
 
     override fun removeParametersAsync(
         keys: List<CaptureRequest.Key<*>>,
@@ -163,9 +194,17 @@ constructor(
 
     override fun setTorchOnAsync(): Deferred<Result3A> = runOnSequential { setTorchOnAsync() }
 
+    override fun setTorchOnAsync(session: CameraGraph.Session?): Deferred<Result3A> =
+        runOnSequential(session) { setTorchOnAsync(session) }
+
     override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> = runOnSequential {
         setTorchOffAsync(aeMode)
     }
+
+    override fun setTorchOffAsync(
+        aeMode: AeMode,
+        session: CameraGraph.Session?,
+    ): Deferred<Result3A> = runOnSequential(session) { setTorchOffAsync(aeMode, session) }
 
     override fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>?,
