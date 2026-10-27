@@ -16,7 +16,6 @@
 
 package androidx.glance.adaptive.appwidget.ui
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackSizeSelector
@@ -47,8 +46,7 @@ private fun interface TemplateAssembler {
  * the last registration for a `(templateClass, surface)` pair wins, so register for all surfaces
  * first and for specific surfaces after.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object AppWidgetTemplateRegistry {
+internal object AppWidgetTemplateRegistry {
     private val lock = Any()
 
     private data class Key(
@@ -71,8 +69,7 @@ public object AppWidgetTemplateRegistry {
     }
 
     @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun resetForTesting() {
+    fun resetForTesting() {
         synchronized(lock) {
             overrideMap.clear()
             defaultMap.clear()
@@ -97,7 +94,8 @@ public object AppWidgetTemplateRegistry {
     /**
      * Registers a [selector] and [renderer] override for [widgetName], taking precedence over the
      * built-in default for [templateClass] on [surface], or on every [AppWidgetSurface] when
-     * [surface] is `null`.
+     * [surface] is `null`. Apps reach it through
+     * [androidx.glance.adaptive.appwidget.registerRenderer].
      *
      * @param T The template type implementing [GlanceAdaptiveTemplate].
      * @param A The archetype type produced by [selector] and drawn by [renderer].
@@ -111,8 +109,7 @@ public object AppWidgetTemplateRegistry {
      * @param renderer Draws the archetype chosen by [selector] as [AppWidgetRenderOutput].
      * @param surface Optional [AppWidgetSurface] to target, or `null` for all surfaces.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : GlanceAdaptiveTemplate, A : Any> register(
+    fun <T : GlanceAdaptiveTemplate, A : Any> register(
         widgetName: String,
         templateClass: Class<T>,
         selector: ArchetypeSelector<T, AppWidgetSurface, A>,
@@ -159,7 +156,7 @@ public object AppWidgetTemplateRegistry {
      * @throws IllegalArgumentException if no renderer is registered for the type of [data] on
      *   [surface].
      */
-    public fun <T : GlanceAdaptiveTemplate> render(
+    fun <T : GlanceAdaptiveTemplate> render(
         data: T,
         surface: AppWidgetSurface,
         widgetName: String? = null,
