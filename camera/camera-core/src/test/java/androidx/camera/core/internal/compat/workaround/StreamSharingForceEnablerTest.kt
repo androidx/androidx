@@ -120,6 +120,42 @@ class StreamSharingForceEnablerTest(
                     )
                 )
                 add(arrayOf("Google", "Pixel 5a", "1", PREVIEW or IMAGE_CAPTURE, false))
+                add(
+                    arrayOf(
+                        "docomo",
+                        "SO-52B",
+                        "0",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true,
+                    )
+                )
+                add(
+                    arrayOf(
+                        "docomo",
+                        "SO-52B",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        false,
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Sony",
+                        "SO-52B",
+                        "0",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true,
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Sony",
+                        "SO-52B",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        false,
+                    )
+                )
             }
     }
 
