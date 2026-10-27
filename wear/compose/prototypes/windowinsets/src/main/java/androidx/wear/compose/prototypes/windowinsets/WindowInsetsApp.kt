@@ -75,6 +75,10 @@ sealed interface Screen : NavKey {
     @Serializable data object CustomSuppressStatusBarOutOfScaffold : Screen
 
     @Serializable data object PagerWithSuppression : Screen
+
+    @Serializable data object StaticColumnInsetsComparison : Screen
+
+    @Serializable data object NestedInsetsDoublePaddingDemo : Screen
 }
 
 val Screen.title: String
@@ -101,6 +105,8 @@ val Screen.title: String
             Screen.SuppressStatusBarLeaf -> "SuppressStatusBar (Component Leaf)"
             Screen.CustomSuppressStatusBarOutOfScaffold -> "SuppressStatusBar (Out of Scaffold)"
             Screen.PagerWithSuppression -> "Pager With Suppression"
+            Screen.StaticColumnInsetsComparison -> "Static Column Insets Comparison"
+            Screen.NestedInsetsDoublePaddingDemo -> "Nested Insets Double-Padding Demo"
         }
 
 class RecentsHandler(context: Context) {
@@ -255,6 +261,18 @@ fun WindowInsetsApp() {
 
                 entry<Screen.PagerWithSuppression> {
                     PagerWithSuppressionScreen(onBack = { backStack.removeAt(backStack.lastIndex) })
+                }
+
+                entry<Screen.StaticColumnInsetsComparison> {
+                    StaticColumnInsetsComparisonScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
+                }
+
+                entry<Screen.NestedInsetsDoublePaddingDemo> {
+                    NestedInsetsDoublePaddingDemoScreen(
+                        onBack = { backStack.removeAt(backStack.lastIndex) }
+                    )
                 }
             },
     )
