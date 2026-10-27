@@ -180,9 +180,10 @@ private fun captureRemoteDocumentImpl(
 
     // One time source for pacing frames and throttling documents, so a test clock drives both.
     val timeSource = RemoteClockTimeSource(clock)
+    val parentContext = currentCoroutineContext() + coroutineContext.minusKey(Job)
     val session =
         HeadlessSession(
-            parentContext = currentCoroutineContext() + coroutineContext.minusKey(Job),
+            parentContext = parentContext,
             name = traceName,
             nanoTime = clock::nanoTime,
             timeSource = timeSource,
@@ -213,7 +214,12 @@ private fun captureRemoteDocumentImpl(
             // rather than between frames; only while that throttle is holding documents back are
             // the pump's frames paced too (see the loop).
             val frameClock = session.frameClock
-            val writeMonitor = if (isSingleDocument) null else SnapshotWriteMonitor.acquire()
+            val writeMonitor =
+                if (isSingleDocument) {
+                    null
+                } else {
+                    SnapshotWriteMonitor.acquireForSession(parentContext)
+                }
             try {
                 session.start(this)
                 // Set the content only once the Recomposer is running. A Recomposer invalidates
