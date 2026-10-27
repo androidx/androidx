@@ -364,21 +364,27 @@ public class SupportedSurfaceCombination(
      * @param cameraMode the working camera mode.
      * @param imageFormat the image format info for the surface configuration object
      * @param size the size info for the surface configuration object
+     * @param streamUseCase the stream use case for the surface configuration object
+     * @param featureSettings the feature settings used to determine the configuration table source.
      * @return new [SurfaceConfig] object
      */
+    @JvmOverloads
     public fun transformSurfaceConfig(
         cameraMode: Int,
         imageFormat: Int,
         size: Size,
         streamUseCase: StreamUseCase,
+        featureSettings: FeatureSettings? = null,
     ): SurfaceConfig {
+        val configSource =
+            featureSettings?.let { getSurfaceCombinationTable(it).configSource }
+                ?: CAPTURE_SESSION_TABLES
         return SurfaceConfig.transformSurfaceConfig(
             imageFormat = imageFormat,
             size = size,
             surfaceSizeDefinition = getUpdatedSurfaceSizeDefinitionByFormat(imageFormat),
             cameraMode = cameraMode,
-            // FEATURE_COMBINATION_TABLE N/A for the code flows leading to this call
-            configSource = CAPTURE_SESSION_TABLES,
+            configSource = configSource,
             streamUseCase = streamUseCase,
         )
     }
