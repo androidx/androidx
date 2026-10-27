@@ -253,6 +253,8 @@ internal class SharedMutableTransformState {
                     }
                 scaleVelocityTracker?.resetTracking()
                 offsetVelocityTracker?.resetTracking()
+                lastScaleTrackMillis = Long.MIN_VALUE
+                lastSlideTrackMillis = Long.MIN_VALUE
                 scaleHandoffVelocity = null
                 slideHandoffVelocity = null
             }
@@ -415,6 +417,8 @@ internal class SharedMutableTransformState {
 
     private var scaleVelocityTracker: VelocityTracker? = null
     private var offsetVelocityTracker: VelocityTracker? = null
+    private var lastScaleTrackMillis: Long = Long.MIN_VALUE
+    private var lastSlideTrackMillis: Long = Long.MIN_VALUE
 
     var scaleHandoffVelocity: AnimationVector1D? = null
         private set
@@ -442,6 +446,9 @@ internal class SharedMutableTransformState {
     val slideHandoffOffset: (IntSize) -> IntOffset = { lastSlide }
 
     private fun trackScaleVelocity(value: Float) {
+        val now = currentMillis
+        if (now <= lastScaleTrackMillis) return
+        lastScaleTrackMillis = now
         if (scaleVelocityTracker == null) {
             // The 2D VelocityTracker is used here because its Lsq2/Framework implementations better
             // smooth out the phase jitter introduced by using TimeSource.Monotonic instead of vsync
@@ -449,17 +456,17 @@ internal class SharedMutableTransformState {
             // jitter.
             scaleVelocityTracker = VelocityTracker()
         }
-        scaleVelocityTracker?.addPosition(currentMillis, Offset(value, 0f))
+        scaleVelocityTracker?.addPosition(now, Offset(value, 0f))
     }
 
     private fun trackSlideVelocity(value: IntOffset) {
+        val now = currentMillis
+        if (now <= lastSlideTrackMillis) return
+        lastSlideTrackMillis = now
         if (offsetVelocityTracker == null) {
             offsetVelocityTracker = VelocityTracker()
         }
-        offsetVelocityTracker?.addPosition(
-            currentMillis,
-            Offset(value.x.toFloat(), value.y.toFloat()),
-        )
+        offsetVelocityTracker?.addPosition(now, Offset(value.x.toFloat(), value.y.toFloat()))
     }
 
     fun evaluateTransformBlock(fullSize: IntSize) {
@@ -587,11 +594,13 @@ internal class SharedMutableTransformState {
         lastAlpha = 1f
         lastScale = 1f
         scaleVelocityTracker?.resetTracking()
+        lastScaleTrackMillis = Long.MIN_VALUE
         lastTransformOrigin = TransformOrigin.Center
         lastSlide = IntOffset.Zero
         lastManualScale = 1f
         lastManualSlide = IntOffset.Zero
         offsetVelocityTracker?.resetTracking()
+        lastSlideTrackMillis = Long.MIN_VALUE
         scaleHandoffVelocity = null
         slideHandoffVelocity = null
         lastMutableData = null
