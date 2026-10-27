@@ -49,6 +49,12 @@ public class DeviceQuirksLoader {
             quirks.add(new SurfaceViewNotCroppedByParentQuirk());
         }
 
+        if (quirkSettings.shouldEnableQuirk(
+                SurfaceViewNotSupportedInExtensionSessionQuirk.class,
+                SurfaceViewNotSupportedInExtensionSessionQuirk.load())) {
+            quirks.add(new SurfaceViewNotSupportedInExtensionSessionQuirk());
+        }
+
         return quirks;
     }
 }
