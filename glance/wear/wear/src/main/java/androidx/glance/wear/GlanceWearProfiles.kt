@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.profile.Profile
 import androidx.glance.wear.core.RcWearOperations.CORE_TEXT
 import androidx.glance.wear.core.RendererVersion
+import androidx.glance.wear.core.WearWidgetParams
 
 /** Defines profiles for Glance Wear. */
 public object GlanceWearProfiles {
@@ -45,6 +46,15 @@ public object GlanceWearProfiles {
         lazy(mode = LazyThreadSafetyMode.PUBLICATION) {
             createWearWidgetsProfile(supportedOperations = null)
         }
+
+    /**
+     * Creates a [Profile] for Wear Widgets using the host-supported operations from [params].
+     *
+     * @param params the [WearWidgetParams] for the widget request
+     * @return a [Profile] configured for the host's supported operations
+     */
+    public fun createWearWidgetsProfile(params: WearWidgetParams): Profile =
+        createWearWidgetsProfile(params.rendererVersion.supportedOperations)
 
     /**
      * Creates a Profile for Wear Widgets, based on the allowed operations for widgets using only

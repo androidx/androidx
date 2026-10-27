@@ -27,6 +27,7 @@ import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_CIRCLE
 import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TO_BITMAP
 import androidx.compose.remote.core.Operations.HEADER
+import androidx.compose.remote.core.Operations.LAYOUT_BOX
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_COLUMN
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_ROW
 import androidx.compose.remote.core.Operations.MODIFIER_CLICK
@@ -45,7 +46,10 @@ import androidx.compose.remote.core.Operations.THEME
 import androidx.compose.remote.core.Operations.TOUCH_EXPRESSION
 import androidx.compose.remote.core.Operations.WAKE_IN
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.RendererVersion
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.core.mapToList
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -135,5 +139,30 @@ class WearWidgetsProfileTest {
             .containsAtLeastElementsIn(
                 RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it }
             )
+    }
+
+    @Test
+    fun createWearWidgetsProfile_withParams_usesHostSupportedOperations() {
+        val params =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("ns", 1),
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 100f,
+                horizontalPaddingDp = 8f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+                rendererVersion =
+                    RendererVersion(
+                        major = 1,
+                        minor = 7,
+                        revision = 0,
+                        supportedOperations = intSetOf(LAYOUT_BOX, WAKE_IN),
+                    ),
+            )
+
+        val profile = GlanceWearProfiles.createWearWidgetsProfile(params)
+
+        assertThat(profile.supportedOperations).containsExactly(LAYOUT_BOX)
     }
 }

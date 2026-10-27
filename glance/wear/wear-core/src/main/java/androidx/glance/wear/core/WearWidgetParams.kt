@@ -31,6 +31,11 @@ import java.util.Objects
  * @property containerType The container type being requested. See [ContainerInfo].
  * @property widthDp The width in dp of the content for this widget.
  * @property heightDp The height in dp of the content for this widget.
+ * @property horizontalPaddingDp The horizontal padding in dp inside the widget container, applied
+ *   to both sides within [widthDp] to define the available content area.
+ * @property verticalPaddingDp The vertical padding in dp inside the widget container, applied to
+ *   top and bottom within [heightDp] to define the available content area.
+ * @property cornerRadiusDp The corner radius in dp of the widget container.
  */
 public class WearWidgetParams
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -45,15 +50,12 @@ public constructor(
     @param:Dimension(unit = Dimension.DP)
     @get:Dimension(unit = Dimension.DP)
     public val heightDp: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @param:Dimension(unit = Dimension.DP)
     @get:Dimension(unit = Dimension.DP)
     public val horizontalPaddingDp: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @param:Dimension(unit = Dimension.DP)
     @get:Dimension(unit = Dimension.DP)
     public val verticalPaddingDp: Float,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @param:Dimension(unit = Dimension.DP)
     @get:Dimension(unit = Dimension.DP)
     public val cornerRadiusDp: Float,
