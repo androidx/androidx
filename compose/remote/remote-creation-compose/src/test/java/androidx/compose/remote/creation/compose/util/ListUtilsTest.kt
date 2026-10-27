@@ -63,4 +63,21 @@ class ListUtilsTest {
         assertThat(listOf(1, 3, 4, 6).fastFirstOrNull { it % 2 == 0 }).isEqualTo(4)
         assertThat(listOf(1, 3, 5).fastFirstOrNull { it % 2 == 0 }).isNull()
     }
+
+    @Test
+    fun fastForEachIndexed_iteratesWithIndices() {
+        val result = mutableListOf<String>()
+        listOf("a", "b", "c").fastForEachIndexed { index, item -> result.add("$index:$item") }
+        assertThat(result).containsExactly("0:a", "1:b", "2:c").inOrder()
+    }
+
+    @Test
+    fun fastJoinToString_formatsElements() {
+        assertThat(listOf(1, 2, 3).fastJoinToString(separator = "-", prefix = "[", postfix = "]"))
+            .isEqualTo("[1-2-3]")
+        assertThat(listOf("a" to 1, "b" to 2).fastJoinToString(separator = ":") { it.first })
+            .isEqualTo("a:b")
+        assertThat(listOf(1, 2, 3, 4).fastJoinToString(limit = 2, truncated = ".."))
+            .isEqualTo("1, 2, ..")
+    }
 }
