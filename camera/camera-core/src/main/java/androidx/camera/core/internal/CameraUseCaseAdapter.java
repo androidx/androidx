@@ -903,8 +903,12 @@ public final class CameraUseCaseAdapter implements Camera {
                     return null;
                 }
             }
-            if (mStreamSharing != null && mStreamSharing.getChildren().equals(newChildren)) {
-                // Returns the current instance if the new children equals the old.
+            String physicalCameraId = resolvePhysicalCameraIdForUseCases(newChildren);
+            if (mStreamSharing != null
+                    && mStreamSharing.getChildren().equals(newChildren)
+                    && Objects.equals(mStreamSharing.getPhysicalCameraId(), physicalCameraId)) {
+                // Returns the current instance if the new children and physical camera ID equal
+                // the old.
                 mStreamSharing.updateFeatureGroup(newChildren);
                 return requireNonNull(mStreamSharing);
             }
@@ -913,13 +917,37 @@ public final class CameraUseCaseAdapter implements Camera {
                 return null;
             }
 
-            return new StreamSharing(mCameraInternal,
+            StreamSharing streamSharing = new StreamSharing(mCameraInternal,
                     mSecondaryCameraInternal,
                     mCompositionSettings,
                     mSecondaryCompositionSettings,
                     newChildren,
                     mUseCaseConfigFactory);
+            if (physicalCameraId != null) {
+                streamSharing.setPhysicalCameraId(physicalCameraId);
+            }
+            return streamSharing;
         }
+    }
+
+    private @Nullable String resolvePhysicalCameraIdForUseCases(
+            @NonNull Collection<UseCase> useCases) {
+        if (mSecondaryCameraInternal != null) {
+            return null;
+        }
+        String commonPhysicalCameraId = null;
+        for (UseCase useCase : useCases) {
+            String id = useCase.getPhysicalCameraId();
+            if (id == null) {
+                return null;
+            }
+            if (commonPhysicalCameraId == null) {
+                commonPhysicalCameraId = id;
+            } else if (!commonPhysicalCameraId.equals(id)) {
+                return null;
+            }
+        }
+        return commonPhysicalCameraId;
     }
 
     /**

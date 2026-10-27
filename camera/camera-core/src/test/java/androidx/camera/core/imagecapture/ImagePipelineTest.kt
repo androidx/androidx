@@ -366,6 +366,39 @@ class ImagePipelineTest {
     }
 
     @Test
+    fun createSessionConfigBuilder_withPhysicalCameraId_setsPhysicalCameraIdOnAllOutputs() {
+        // Arrange: enable simultaneous capture (RAW + JPEG) and postview with a physicalCameraId.
+        val physicalCameraId = "2"
+        val postviewSettings = PostviewSettings.create(Size(640, 480), YUV_420_888)
+        imageCaptureConfig =
+            createImageCaptureConfig(
+                inputFormat = ImageFormat.RAW_SENSOR,
+                secondaryInputFormat = JPEG,
+            )
+        imagePipeline =
+            ImagePipeline(
+                imageCaptureConfig,
+                SIZE,
+                cameraCharacteristics,
+                /* cameraEffect= */ null,
+                /* isVirtualCamera= */ false,
+                postviewSettings,
+                physicalCameraId,
+            )
+
+        // Act.
+        val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
+
+        // Assert: primary, secondary, and postview OutputConfigs all carry physicalCameraId.
+        assertThat(sessionConfig.outputConfigs).hasSize(2)
+        assertThat(sessionConfig.outputConfigs.map { it.physicalCameraId })
+            .containsExactly(physicalCameraId, physicalCameraId)
+        assertThat(sessionConfig.postviewOutputConfig).isNotNull()
+        assertThat(sessionConfig.postviewOutputConfig!!.physicalCameraId)
+            .isEqualTo(physicalCameraId)
+    }
+
+    @Test
     fun createCameraRequestWithPostviewEnabled() {
         // Arrange.
         val postviewSettings = PostviewSettings.create(Size(640, 480), YUV_420_888)

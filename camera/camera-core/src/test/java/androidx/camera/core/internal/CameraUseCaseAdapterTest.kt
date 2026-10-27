@@ -1761,4 +1761,103 @@ class CameraUseCaseAdapterTest {
             )
             .isEqualTo(false)
     }
+
+    @Test
+    fun addUseCases_withPhysicalCameraId_propagatesToPreviewImageAnalysisImageCapture() {
+        val physicalCameraId = "2"
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        preview.setSurfaceProvider { it.willNotProvideSurface() }
+        preview.setPhysicalCameraId(physicalCameraId)
+        analysis.setPhysicalCameraId(physicalCameraId)
+        image.setPhysicalCameraId(physicalCameraId)
+
+        adapter.addUseCases(listOf(preview, analysis, image))
+
+        assertThat(preview.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(analysis.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(image.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(preview.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+        assertThat(analysis.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+        assertThat(image.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+    }
+
+    @Test
+    fun addUseCases_withStreamSharingAndPhysicalCameraId_propagatesToStreamSharingOutputConfig() {
+        val physicalCameraId = "2"
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        preview.setPhysicalCameraId(physicalCameraId)
+        video.setPhysicalCameraId(physicalCameraId)
+        image.setPhysicalCameraId(physicalCameraId)
+
+        adapter.addUseCases(setOf(preview, video, image))
+
+        val streamSharing = adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        assertThat(streamSharing.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(streamSharing.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+        assertThat(preview.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(video.physicalCameraId).isEqualTo(physicalCameraId)
+    }
+
+    @Test
+    fun addUseCases_withStreamSharingMismatchedOrClearedPhysicalCameraId_preserves() {
+        val physicalCameraId = "2"
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        preview.setPhysicalCameraId(physicalCameraId)
+        video.setPhysicalCameraId("3")
+        image.setPhysicalCameraId(physicalCameraId)
+
+        // Act 1: mismatched physicalCameraIds across children -> StreamSharing physicalCameraId is
+        // null
+        adapter.addUseCases(setOf(preview, video, image))
+
+        val streamSharingWithMismatch =
+            adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        assertThat(streamSharingWithMismatch.physicalCameraId).isNull()
+        assertThat(streamSharingWithMismatch.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isNull()
+
+        // Act 2: align all children to physicalCameraId "2" -> StreamSharing gets "2"
+        adapter.removeUseCases(setOf(preview, video, image))
+        preview.setPhysicalCameraId(physicalCameraId)
+        video.setPhysicalCameraId(physicalCameraId)
+        image.setPhysicalCameraId(physicalCameraId)
+        adapter.addUseCases(setOf(preview, video, image))
+
+        val streamSharingWithMatch =
+            adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        assertThat(streamSharingWithMatch.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(streamSharingWithMatch.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+
+        // Act 3: remove and re-add without physicalCameraId -> StreamSharing physicalCameraId is
+        // null
+        adapter.removeUseCases(setOf(preview, video, image))
+        adapter.addUseCases(setOf(preview, video, image))
+
+        val streamSharingAfterClear =
+            adapter.cameraUseCases.filterIsInstance<StreamSharing>().single()
+        assertThat(streamSharingAfterClear.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(streamSharingAfterClear.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+    }
+
+    @Test
+    fun removeUseCases_preservesUseCasePhysicalCameraId() {
+        val physicalCameraId = "2"
+        val adapter = createCameraUseCaseAdapter(fakeCamera)
+        preview.setPhysicalCameraId(physicalCameraId)
+        image.setPhysicalCameraId(physicalCameraId)
+        adapter.addUseCases(listOf(preview, image))
+        assertThat(preview.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(image.physicalCameraId).isEqualTo(physicalCameraId)
+
+        adapter.removeUseCases(listOf(preview))
+
+        assertThat(preview.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(image.physicalCameraId).isEqualTo(physicalCameraId)
+    }
 }
