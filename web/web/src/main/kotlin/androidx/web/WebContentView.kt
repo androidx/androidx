@@ -19,8 +19,6 @@ package androidx.web
 import android.content.Context
 import android.util.AttributeSet
 import android.webkit.WebView
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import androidx.annotation.UiThread
 
 /**
@@ -31,16 +29,13 @@ import androidx.annotation.UiThread
  * when [WebFeature.WEB_CONTENT] feature checks fail.
  */
 public open class WebContentView : WebView {
-    public constructor(@NonNull context: Context) : super(context)
+    public constructor(context: Context) : super(context)
+
+    public constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     public constructor(
-        @NonNull context: Context,
-        @Nullable attrs: AttributeSet?,
-    ) : super(context, attrs)
-
-    public constructor(
-        @NonNull context: Context,
-        @Nullable attrs: AttributeSet?,
+        context: Context,
+        attrs: AttributeSet?,
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
 
@@ -52,7 +47,7 @@ public open class WebContentView : WebView {
      * [WebContent].
      */
     @UiThread
-    internal open fun transferViewState(@NonNull nextView: WebContentView) {
+    internal open fun transferViewState(nextView: WebContentView) {
         if (scrollX != 0 || scrollY != 0) {
             nextView.scrollTo(scrollX, scrollY)
         }

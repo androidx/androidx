@@ -17,13 +17,12 @@
 package androidx.web
 
 import android.content.Context
-import androidx.annotation.NonNull
 
 /**
  * A specialized [WebContentView] that represents a [WebContent] session which has been temporarily
  * detached from the view hierarchy. This state is triggered by calling [WebContent.detach].
  */
-public class DetachedWebContentView internal constructor(@NonNull context: Context) :
+public class DetachedWebContentView internal constructor(context: Context) :
     WebContentView(context) {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

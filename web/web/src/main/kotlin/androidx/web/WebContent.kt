@@ -19,7 +19,6 @@ package androidx.web
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -38,7 +37,6 @@ import org.chromium.support_lib_boundary.web.WebContentConfig
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
 @Suppress("MissingJvmstatic")
-@NonNull
 public fun WebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
     return WebContent.Builder().apply(block).build()
 }
@@ -96,11 +94,7 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
      *   closed.
      */
     @UiThread
-    @NonNull
-    public fun <T : WebContentView> attach(
-        @NonNull context: Context,
-        @NonNull factory: Function<Context, T>,
-    ): T {
+    public fun <T : WebContentView> attach(context: Context, factory: Function<Context, T>): T {
         check(!isDestroyed) { "Cannot attach to a destroyed WebContent." }
         require(unwrapActivity(context) != null) {
             "WebContent must be attached with an Activity context."
@@ -169,7 +163,6 @@ internal constructor(private val boundaryInterface: WebContentBoundaryInterface)
         }
 
         /** Builds a [WebContent] instance. */
-        @NonNull
         public fun build(): WebContent {
             val contentBoundary =
                 WebGlueCommunicator.factory
