@@ -107,7 +107,12 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
         frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ) {
-        for ((callback, executor) in callbacks) {
+        val currentCallbacks = callbacks
+        if (currentCallbacks.isEmpty()) return
+
+        var captureResult: CaptureResultAdapter? = null
+        var captureConfigId: Int? = null
+        for ((callback, executor) in currentCallbacks) {
             if (callback is CameraUseCaseAdapter.CaptureCallbackContainer) {
                 val session: CameraCaptureSession? = getCameraCaptureSession(requestMetadata)
                 val request: CaptureRequest? = requestMetadata.unwrapAs<CaptureRequest>()
@@ -122,10 +127,15 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
                     }
                 }
             } else {
-                val captureResult = CaptureResultAdapter(requestMetadata, frameNumber, result)
-                executor.execute {
-                    callback.onCaptureCompleted(requestMetadata.getCaptureConfigId(), captureResult)
-                }
+                val adapter =
+                    captureResult
+                        ?: CaptureResultAdapter(requestMetadata, frameNumber, result).also {
+                            captureResult = it
+                        }
+                val configId =
+                    captureConfigId
+                        ?: requestMetadata.getCaptureConfigId().also { captureConfigId = it }
+                executor.execute { callback.onCaptureCompleted(configId, adapter) }
             }
         }
     }

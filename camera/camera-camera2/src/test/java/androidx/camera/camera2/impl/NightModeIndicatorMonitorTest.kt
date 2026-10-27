@@ -119,6 +119,31 @@ class NightModeIndicatorMonitorTest {
             .isEqualTo(NightModeIndicator.UNKNOWN)
     }
 
+    @Test
+    fun backgroundFrameBeforeMainThreadSessionInactive_doesNotOverwriteUnknownState() {
+        nightModeIndicatorMonitor.requestControl = FakeUseCaseCameraRequestControl()
+        val observer = Observer<Int> {}
+        try {
+            nightModeIndicatorMonitor.nightModeIndicatorLiveData.observeForever(observer)
+            // Simulate a capture result arriving on a background callback thread while the main
+            // looper has not yet run the posted runnable
+            val backgroundThread = Thread {
+                simulateNightModeIndicatorUpdate(EXTENSION_NIGHT_MODE_INDICATOR_ON)
+            }
+            backgroundThread.start()
+            backgroundThread.join()
+
+            // Main thread deactivates the control before the queued main-looper runnable executes
+            nightModeIndicatorMonitor.requestControl = null
+            shadowOf(getMainLooper()).idle()
+
+            Truth.assertThat(nightModeIndicatorMonitor.nightModeIndicatorLiveData.value)
+                .isEqualTo(NightModeIndicator.UNKNOWN)
+        } finally {
+            nightModeIndicatorMonitor.nightModeIndicatorLiveData.removeObserver(observer)
+        }
+    }
+
     private fun simulateAndMonitorIndicator(camera2Indicator: Int): Unit = runBlocking {
         val deferred: CompletableDeferred<Int> = CompletableDeferred()
         val observer = Observer<Int> { indicator -> deferred.complete(indicator) }
