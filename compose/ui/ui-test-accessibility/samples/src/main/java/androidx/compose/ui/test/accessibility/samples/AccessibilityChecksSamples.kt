@@ -17,6 +17,7 @@
 package androidx.compose.ui.test.accessibility.samples
 
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.annotation.Sampled
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.accessibility.disableAccessibilityChecks
@@ -39,6 +40,7 @@ import org.junit.Test
  * runComposeUiTest {}.
  */
 @Sampled
+@RequiresApi(34)
 fun accessibilityChecks_withComposeUiTest_sample() {
     @Test
     @OptIn(ExperimentalTestApi::class)
@@ -65,6 +67,7 @@ fun accessibilityChecks_withComposeUiTest_sample() {
  * ComponentActivity> {} and custom validator.
  */
 @Sampled
+@RequiresApi(34)
 fun accessibilityChecks_withAndroidComposeUiTest_sample() {
     @Test
     @OptIn(ExperimentalTestApi::class)
@@ -86,6 +89,7 @@ fun accessibilityChecks_withAndroidComposeUiTest_sample() {
  * runComposeUiTest {}.
  */
 @Sampled
+@RequiresApi(34)
 fun accessibilityChecks_interopWithEspresso_withTestFunction() {
     @Test
     @OptIn(ExperimentalTestApi::class)
