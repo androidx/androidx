@@ -109,11 +109,13 @@ internal fun rememberRemoteIntAsState(id: Int): State<Int> {
     }
 
     if (id == RemoteContext.ID_EPOCH_SECOND && graph != null) {
-        return graph.epochSecondState
+        return graph.timeState.epochSecondState
     }
 
     if (isTimeVariable(id) && graph != null) {
-        return remember(graph, id) { derivedStateOf { graph.timeFloatState(id).value.toInt() } }
+        return remember(graph, id) {
+            derivedStateOf { graph.timeState.timeFloatState(id).value.toInt() }
+        }
     }
 
     // Plain variable: reactive read of the snapshot-backed integer store.
@@ -159,7 +161,7 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
     }
 
     if (isTimeVariable(id) && graph != null) {
-        return graph.timeFloatState(id)
+        return graph.timeState.timeFloatState(id)
     }
 
     // Plain variable: reactive read of the snapshot-backed scalar store (no listener bridge).

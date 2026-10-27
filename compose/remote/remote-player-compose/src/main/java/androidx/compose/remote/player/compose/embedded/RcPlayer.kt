@@ -58,7 +58,6 @@ import androidx.compose.remote.player.compose.embedded.inspectable.rcPlayerRootI
 import androidx.compose.remote.player.compose.embedded.resources.AndroidColorThemeResolver
 import androidx.compose.remote.player.compose.embedded.resources.EmbeddedRcImageLoader
 import androidx.compose.remote.player.compose.embedded.resources.resolveThemeMode
-import androidx.compose.remote.player.compose.embedded.resources.typefaceCache
 import androidx.compose.remote.player.compose.embedded.state.hasAnimation
 import androidx.compose.remote.player.compose.embedded.state.rememberAnimatedRemoteFloat
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -191,7 +190,7 @@ public fun RcPlayer(
     val textMeasurer = rememberTextMeasurer()
     val graphContext =
         state.graphContext.also { gc ->
-            gc.setTypefaceResolver(typefaceResolver)
+            gc.typefaceResolver = typefaceResolver
             gc.textMeasurer = textMeasurer
         }
     DisposableEffect(graphContext, typefaceResolver) {

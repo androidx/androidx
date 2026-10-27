@@ -40,9 +40,8 @@ import kotlinx.coroutines.channels.Channel
  * active composition, layout and draw passes actually read (see [ClockScheduler]).
  */
 internal class GraphTimeState(
-    private val baseClock: RemoteClock = RemoteClock.SYSTEM,
-    initialTimeMillis: Float = 0f,
-    internal val reads: TimeReadTracker = TimeReadTracker(),
+    internal val baseClock: RemoteClock,
+    internal val reads: TimeReadTracker,
 ) {
     internal val startClockMillis: Long = baseClock.millis()
     private val startClockNanoTime: Long = baseClock.nanoTime()
@@ -89,7 +88,11 @@ internal class GraphTimeState(
         }
 
     init {
-        updateTime(initialTimeMillis)
+        // Seed every field for frame time 0 (startClockMillis), so the calendar and wall-clock
+        // fields hold real values before the first frame instead of 0. lastEpochSecond starts at
+        // Long.MIN_VALUE, so this always counts as a new second and fills the discrete fields.
+        // Must stay after the state declarations above, which updateTime writes.
+        updateTime(0f)
     }
 
     private fun currentMillis(): Long {

@@ -31,7 +31,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
@@ -640,19 +639,17 @@ internal fun mapEasing(type: Int): ComposeEasing {
 
 internal fun initializePlayerRemoteContext(
     document: CoreDocument,
-    clock: RemoteClock,
     preprocessed: DocumentPreprocessResult,
 ): AndroidRemoteContext =
     trace("RcPlayer:initializeRemoteContext") {
-        initializePlayerRemoteContextImpl(document, clock, preprocessed)
+        initializePlayerRemoteContextImpl(document, preprocessed)
     }
 
 private fun initializePlayerRemoteContextImpl(
     document: CoreDocument,
-    clock: RemoteClock,
     preprocessed: DocumentPreprocessResult,
 ): AndroidRemoteContext {
-    val ctx = AndroidRemoteContext(clock)
+    val ctx = AndroidRemoteContext(document.clock)
     ctx.useChoreographer = true
     val touchVersion = document.featureIntValue(Header.FEATURE_TOUCH_VERSION)
     if (touchVersion != -1) {

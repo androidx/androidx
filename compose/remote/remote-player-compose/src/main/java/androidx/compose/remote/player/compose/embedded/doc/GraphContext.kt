@@ -26,7 +26,6 @@ import androidx.collection.MutableLongObjectMap
 import androidx.collection.emptyIntSet
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintOperation
-import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
@@ -41,11 +40,8 @@ import androidx.compose.remote.player.compose.embedded.draw.GraphPaintContext
 import androidx.compose.remote.player.compose.embedded.draw.derefId
 import androidx.compose.remote.player.compose.embedded.resources.RcTypefaceCache
 import androidx.compose.remote.player.compose.embedded.resources.resolveImageAttributeDimensions
-import androidx.compose.remote.player.compose.embedded.resources.typefaceCache
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.runtime.IntState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.text.TextMeasurer
 import java.util.concurrent.ConcurrentHashMap
 
@@ -75,13 +71,12 @@ import java.util.concurrent.ConcurrentHashMap
 internal class GraphContext(
     private val realState: SnapshotRemoteComposeState,
     private val computedOps: IntObjectMap<Operation>,
-    timeMillis: State<Float> = mutableFloatStateOf(0f),
-    clock: RemoteClock = RemoteClock.SYSTEM,
+    /** Reactive time fields and clock that time reads in this context resolve against. */
+    internal val timeState: GraphTimeState,
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
     private val touchExpressionIds: IntSet = emptyIntSet(),
     internal var animatedFloatStates: Map<Int, State<Float>> = emptyMap(),
-    timeReads: TimeReadTracker = TimeReadTracker(),
-) : StoreBackedRemoteContext(clock) {
+) : StoreBackedRemoteContext(timeState.baseClock) {
 
     internal val typefaceCache = RcTypefaceCache()
 
@@ -107,34 +102,15 @@ internal class GraphContext(
             )
         }
 
-    fun setTypefaceResolver(resolver: RcTypefaceResolver?) {
-        this.typefaceResolver = resolver
-    }
-
-    private var _timeState: GraphTimeState? = null
-
-    internal val timeState: GraphTimeState
-        get() = _timeState!!
-
     init {
         // Share the leaf store so collections/objects/paths and plain variables resolve against the
         // same (snapshot-backed) data the rest of the player uses.
         mRemoteComposeState = realState
-        _timeState = GraphTimeState(clock, timeMillis.value, timeReads)
+        // The base clock goes to the super constructor, which reads the clock (for the document
+        // load time) before this class's properties are initialised. Switch to the reactive clock
+        // afterwards, so operations that read time through getClock() record a time read.
+        setClock(timeState.reactiveClock)
     }
-
-    internal val startClockMillis: Long
-        get() = timeState.startClockMillis
-
-    internal val epochSecondState: IntState
-        get() = timeState.epochSecondState
-
-    internal fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean =
-        timeState.updateTime(frameMillis, updateContinuous)
-
-    internal fun timeFloatState(id: Int): State<Float> = timeState.timeFloatState(id)
-
-    override fun getClock(): RemoteClock = _timeState?.reactiveClock ?: super.getClock()
 
     private val graphPaintContext = GraphPaintContext(this)
     private val textMeasurePaints = MutableIntObjectMap<ComposeLocalPaint>()
@@ -164,7 +140,6 @@ internal class GraphContext(
      * Entries are dropped when the window closes or is pending, so the map stays bounded by the
      * impulses currently in their window.
      */
-    @Suppress("BanConcurrentHashMap")
     internal val impulseWindows: MutableMap<Any, MutableLongObjectMap<ImpulseWindowState>> =
         ConcurrentHashMap()
 
@@ -268,7 +243,7 @@ internal class GraphContext(
             realState.isFloatOverridden(id) -> super.getFloat(id)
             animVal != null -> animVal.value
             isComputed(id) -> (computedValue(id) as? Number)?.toFloat() ?: 0f
-            isTimeVariable(id) -> timeFloatState(id).value
+            isTimeVariable(id) -> timeState.timeFloatState(id).value
             else -> super.getFloat(id)
         }
     }
@@ -277,8 +252,8 @@ internal class GraphContext(
         when {
             realState.isIntegerOverridden(id) -> super.getInteger(id)
             isComputed(id) -> (computedValue(id) as? Number)?.toInt() ?: 0
-            id == RemoteContext.ID_EPOCH_SECOND -> epochSecondState.intValue
-            isTimeVariable(id) -> timeFloatState(id).value.toInt()
+            id == RemoteContext.ID_EPOCH_SECOND -> timeState.epochSecondState.intValue
+            isTimeVariable(id) -> timeState.timeFloatState(id).value.toInt()
             else -> super.getInteger(id)
         }
 
