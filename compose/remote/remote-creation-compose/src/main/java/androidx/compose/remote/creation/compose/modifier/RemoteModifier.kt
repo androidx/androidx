@@ -22,7 +22,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Stable
-import java.util.EnumSet
 
 /**
  * An ordered, immutable collection of modifier elements for Remote Compose.
@@ -172,14 +171,14 @@ internal class CombinedRemoteModifier(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
         val scope = this
-        val seenNonRepeatable = EnumSet.noneOf(NonRepeatableModifier::class.java)
+        val seenNonRepeatable = mutableSetOf<NonRepeatableModifier>()
         var seenDrawWithContent = false
         return foldIn(RecordingModifier()) { acc, element ->
             val nonRepeatable = element.nonRepeatableType()
             if (nonRepeatable != null && !seenNonRepeatable.add(nonRepeatable)) {
                 scope.creationState.platform.log(
                     LogCategory.WARN,
-                    "Ignoring duplicate ${element.javaClass.simpleName} ($element); " +
+                    "Ignoring duplicate ${nonRepeatable.name}Modifier ($element); " +
                         "only the first instance is applied (b/563261712)",
                 )
                 acc
