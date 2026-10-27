@@ -20,6 +20,7 @@ import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.FrameInfo
@@ -152,6 +153,87 @@ class CameraMetadataTest {
     }
 
     @Test
+    fun verifyHighEndDeviceTemplate_providesMultiResolutionStreamConfigurationMap() {
+        val backMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("0"),
+                lensFacing = CameraCharacteristics.LENS_FACING_BACK,
+            )
+        val frontMetadata =
+            FakeCameraMetadata.fromTemplate(
+                template = HighEndDeviceTemplate,
+                cameraId = CameraId("1"),
+                lensFacing = CameraCharacteristics.LENS_FACING_FRONT,
+            )
+
+        assertThat(frontMetadata[CameraMetadata.CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP])
+            .isNull()
+
+        val multiResolutionStreamMap =
+            backMetadata[CameraMetadata.CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP]
+        if (Build.VERSION.SDK_INT >= 31) {
+            assertThat(multiResolutionStreamMap).isNotNull()
+            assertThat(multiResolutionStreamMap!!.getOutputFormats())
+                .containsExactly(StreamFormat.RAW_SENSOR, StreamFormat.RAW10)
+            assertThat(multiResolutionStreamMap.getInputFormats()).isEmpty()
+            assertThat(multiResolutionStreamMap.getOutputInfo(StreamFormat.RAW_SENSOR))
+                .containsExactly(
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4080,
+                        /* streamHeight= */ 3072,
+                        /* physicalCameraId= */ "2",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4032,
+                        /* streamHeight= */ 3024,
+                        /* physicalCameraId= */ "3",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4032,
+                        /* streamHeight= */ 3024,
+                        /* physicalCameraId= */ "4",
+                    ),
+                )
+            assertThat(multiResolutionStreamMap.getOutputInfo(StreamFormat.RAW10))
+                .containsExactly(
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4080,
+                        /* streamHeight= */ 3072,
+                        /* physicalCameraId= */ "2",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 8160,
+                        /* streamHeight= */ 6144,
+                        /* physicalCameraId= */ "2",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4032,
+                        /* streamHeight= */ 3024,
+                        /* physicalCameraId= */ "3",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 4032,
+                        /* streamHeight= */ 3024,
+                        /* physicalCameraId= */ "4",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 8064,
+                        /* streamHeight= */ 6048,
+                        /* physicalCameraId= */ "6",
+                    ),
+                    MultiResolutionStreamInfo(
+                        /* streamWidth= */ 8064,
+                        /* streamHeight= */ 6048,
+                        /* physicalCameraId= */ "9",
+                    ),
+                )
+        } else {
+            assertThat(multiResolutionStreamMap).isNull()
+        }
+    }
+
+    @Test
     fun verifyHighEndDeviceTemplate_providesAdvancedControlRanges() {
         val metadata =
             FakeCameraMetadata.fromTemplate(
@@ -229,6 +311,8 @@ class CameraMetadataTest {
 
         assertThat(metadata.physicalCameraIds).isEmpty()
         assertThat(metadata.physicalRequestKeys).isEmpty()
+        assertThat(metadata[CameraMetadata.CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP])
+            .isNull()
     }
 
     @Test
