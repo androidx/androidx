@@ -41,6 +41,7 @@ import kotlin.time.Duration
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
@@ -158,7 +159,6 @@ internal class ConnectionPoolImpl : ConnectionPool {
                             .markAcquired(currentContext),
                     isReadOnly = readers !== writers && isReadOnly,
                 )
-            requireNotNull(connection)
             result = withContext(createConnectionContext(connection)) { block.invoke(connection) }
         } catch (ex: Throwable) {
             exception = ex
@@ -232,6 +232,9 @@ private class Pool(
 
     suspend fun acquireWithTimeout(timeout: Duration, onTimeout: () -> Unit): ConnectionWrapper {
         while (true) {
+            // Check if coroutine is not canceled between retries to avoid relying on permit
+            // acquire cancellation check.
+            currentCoroutineContext().ensureActive()
             // Following async timeout with resources recommendation:
             // https://kotlinlang.org/docs/cancellation-and-timeouts.html#asynchronous-timeout-and-resources
             var connection: ConnectionWrapper? = null
@@ -246,7 +249,9 @@ private class Pool(
                     onTimeout.invoke() // might throw
                 } else if (exceptionThrown != null) {
                     throw exceptionThrown
-                } else if (connection != null) {
+                }
+                // If a connection was acquired even if timeout triggered, return it.
+                if (connection != null) {
                     return connection
                 }
             } catch (ex: Throwable) {
@@ -458,8 +463,12 @@ private class PooledConnectionImpl(
             isRecycled = true
             // Perform a rollback in case there is an active transaction so that the connection
             // is in a clean state when it is recycled.
-            if (delegate.inTransaction()) {
-                delegate.executeSQL("ROLLBACK TRANSACTION")
+            try {
+                if (delegate.inTransaction()) {
+                    delegate.executeSQL("ROLLBACK TRANSACTION")
+                }
+            } catch (_: Throwable) {
+                // Ignore exception during ROLLBACK, the connection is being recycled.
             }
         }
     }

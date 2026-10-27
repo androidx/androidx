@@ -31,7 +31,6 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.async.executeSQL
 import androidx.sqlite.execSQL
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
@@ -41,6 +40,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -59,6 +59,7 @@ import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -481,7 +482,7 @@ abstract class BaseConnectionPoolTest {
         val job =
             launch(singleThreadContext) {
                 while (leakedContext == null && leakedConnection == null) {
-                    delay(20)
+                    delay(20.milliseconds)
                 }
                 withContext(leakedContext!!) {
                     assertThrows<SQLiteException> {
@@ -527,8 +528,8 @@ abstract class BaseConnectionPoolTest {
                 }
                 launch(multiThreadContext) {
                     assertThrows<TimeoutCancellationException> {
-                        withTimeout(200) {
-                            delay(50) // to let statement above be used first
+                        withTimeout(200.milliseconds) {
+                            delay(50.milliseconds) // to let statement above be used first
                             connection.usePrepared("SELECT * FROM Pet") {
                                 fail("Statement should never prepare")
                             }
@@ -605,7 +606,16 @@ abstract class BaseConnectionPoolTest {
     }
 
     @Test
-    fun cancelCoroutineWaitingForConnection() = runTest {
+    fun cancelCoroutineWaitingForConnection_beforeTimeout() = runTest {
+        cancelCoroutineWaitingForConnection(DEFAULT_CONNECTION_POOL_TIMEOUT)
+    }
+
+    @Test
+    fun cancelCoroutineWaitingForConnection_afterTimeout() = runTest {
+        cancelCoroutineWaitingForConnection(50.milliseconds)
+    }
+
+    private suspend fun TestScope.cancelCoroutineWaitingForConnection(timeout: Duration) {
         val multiThreadContext = newFixedThreadPoolContext(2, "Test-Threads")
         val driver = setupDriver()
         val pool =
@@ -614,6 +624,7 @@ abstract class BaseConnectionPoolTest {
                 fileName = fileName,
                 maxNumOfReaders = 1,
                 maxNumOfWriters = 1,
+                timeout = timeout,
             )
         val coroutineStartedMutex = Mutex(locked = true)
         var acquiredSecondConnection = false
@@ -624,7 +635,7 @@ abstract class BaseConnectionPoolTest {
                     pool.useWriterConnection { acquiredSecondConnection = true }
                 }
             coroutineStartedMutex.withLock {
-                delay(300)
+                delay(200.milliseconds)
                 job.cancelAndJoin()
             }
         }
@@ -691,16 +702,16 @@ abstract class BaseConnectionPoolTest {
         repeat(1000) {
             val jobToCancel =
                 launch(multiThreadContext + CoroutineName("TheOneWhichIsCancelled")) {
-                    pool.useWriterConnection { delay(Random.nextLong(5)) }
+                    pool.useWriterConnection { delay(Random.nextLong(5).milliseconds) }
                 }
             jobsToWaitFor.add(
                 launch(multiThreadContext + CoroutineName("TheExtraOne")) {
-                    pool.useWriterConnection { delay(Random.nextLong(5)) }
+                    pool.useWriterConnection { delay(Random.nextLong(5).milliseconds) }
                 }
             )
             jobsToWaitFor.add(
                 launch(multiThreadContext + CoroutineName("TheOneWhoCancels")) {
-                    delay(Random.nextLong(5))
+                    delay(Random.nextLong(5).milliseconds)
                     jobToCancel.cancel()
                 }
             )
@@ -742,7 +753,7 @@ abstract class BaseConnectionPoolTest {
                             )
                     }
                 coroutineStartedMutex.withLock {
-                    delay(300)
+                    delay(300.milliseconds)
                     job.join()
                 }
             }
@@ -822,7 +833,7 @@ abstract class BaseConnectionPoolTest {
             launch(multiThreadContext) {
                 pool.useReaderConnection {
                     busyBarrier.complete(Unit)
-                    delay(200)
+                    delay(200.milliseconds)
                     items.add("BusyJob")
                 }
             }
@@ -837,7 +848,16 @@ abstract class BaseConnectionPoolTest {
     }
 
     @Test
-    fun timeoutCoroutineWithResource() = runBlocking {
+    fun timeoutCoroutineWithResource_throwingTimeout() = runBlocking {
+        timeoutCoroutineWithResource(THROW_TIMEOUT_EXCEPTION)
+    }
+
+    @Test
+    fun timeoutCoroutineWithResource_loggingTimeout() = runBlocking {
+        timeoutCoroutineWithResource(LOG_TIMEOUT_EXCEPTION)
+    }
+
+    private suspend fun CoroutineScope.timeoutCoroutineWithResource(timeoutMode: Int) {
         val openedConnections = AtomicInt(0)
         val driver =
             object : SQLiteDriver {
@@ -888,15 +908,23 @@ abstract class BaseConnectionPoolTest {
         // with resources correctly as recommended in
         // https://kotlinlang.org/docs/cancellation-and-timeouts.html#asynchronous-timeout-and-resources
         check(pool is ConnectionPoolImpl)
-        pool.onTimeout = THROW_TIMEOUT_EXCEPTION
+        pool.onTimeout = timeoutMode
         pool.timeout = 20.milliseconds
         coroutineScope {
-            repeat(10_000) {
+            // For throw on timeout, use lots of coroutines to stress test onTimeout since
+            // they are quick due to throwing. For log on timeout, use a smaller amount of
+            // coroutines since they keep trying to acquire a connection.
+            val repeatAmount =
+                when (timeoutMode) {
+                    THROW_TIMEOUT_EXCEPTION -> 10_000
+                    else -> 200
+                }
+            repeat(repeatAmount) {
                 launch(Dispatchers.IO) {
                     try {
-                        pool.useReaderConnection { delay(10) }
-                    } catch (_: SQLiteException) {
-                        // Timeout
+                        pool.useReaderConnection { delay(10.milliseconds) }
+                    } catch (th: SQLiteException) {
+                        if (timeoutMode != THROW_TIMEOUT_EXCEPTION) throw th
                     }
                 }
             }
@@ -905,6 +933,7 @@ abstract class BaseConnectionPoolTest {
         // at the end of various acquire with timeouts all 100 connections should be back in the
         // pool along with the permits
         pool.timeout = 0.milliseconds
+        pool.onTimeout = THROW_TIMEOUT_EXCEPTION
         assertThrows<SQLiteException> { pool.useReaderConnection {} }
             .hasMessageThat()
             .apply {
@@ -929,7 +958,7 @@ abstract class BaseConnectionPoolTest {
             )
         assertThrows<TimeoutCancellationException> {
             pool.useWriterConnection {
-                withTimeout(0) { fail("withTimeout body should never run") }
+                withTimeout(0.milliseconds) { fail("withTimeout body should never run") }
             }
         }
         pool.useWriterConnection { connection ->
