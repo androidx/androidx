@@ -24,46 +24,32 @@ class ArchetypeSelectorTest {
 
     private class TestTemplate(val hasDetails: Boolean) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private class TestSurface(tag: String) : GlanceSurface(tag)
+    private class TestSurface(tag: String, dimensions: Dimensions) : GlanceSurface(tag, dimensions)
 
     private enum class TestArchetype {
         COMPACT,
         FULL,
     }
 
-    private val surface = TestSurface("test_surface")
+    private fun placedSurface(widthDp: Int, heightDp: Int) =
+        TestSurface("test_surface", Dimensions(widthDp, heightDp))
 
     @Test
     fun select_resolvesFromDimensionsAndData() {
         val selector =
-            ArchetypeSelector<TestTemplate, TestSurface, TestArchetype> { template, constraints ->
-                if (template.hasDetails && constraints.dimensions.widthDp >= 200) {
+            ArchetypeSelector<TestTemplate, TestSurface, TestArchetype> { template, surface ->
+                if (template.hasDetails && surface.dimensions.widthDp >= 200) {
                     TestArchetype.FULL
                 } else {
                     TestArchetype.COMPACT
                 }
             }
 
-        assertThat(
-                selector.select(
-                    TestTemplate(hasDetails = true),
-                    HostConstraints(Dimensions(200, 100), surface),
-                )
-            )
+        assertThat(selector.select(TestTemplate(hasDetails = true), placedSurface(200, 100)))
             .isEqualTo(TestArchetype.FULL)
-        assertThat(
-                selector.select(
-                    TestTemplate(hasDetails = true),
-                    HostConstraints(Dimensions(120, 100), surface),
-                )
-            )
+        assertThat(selector.select(TestTemplate(hasDetails = true), placedSurface(120, 100)))
             .isEqualTo(TestArchetype.COMPACT)
-        assertThat(
-                selector.select(
-                    TestTemplate(hasDetails = false),
-                    HostConstraints(Dimensions(200, 100), surface),
-                )
-            )
+        assertThat(selector.select(TestTemplate(hasDetails = false), placedSurface(200, 100)))
             .isEqualTo(TestArchetype.COMPACT)
     }
 
@@ -77,9 +63,7 @@ class ArchetypeSelectorTest {
         // Compiles only because A is declared `out`.
         val widened: ArchetypeSelector<TestTemplate, TestSurface, Any> = selector
 
-        assertThat(
-                widened.select(TestTemplate(true), HostConstraints(Dimensions(200, 100), surface))
-            )
+        assertThat(widened.select(TestTemplate(true), placedSurface(200, 100)))
             .isEqualTo(TestArchetype.FULL)
     }
 }

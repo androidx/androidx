@@ -21,6 +21,9 @@ import org.junit.Test
 
 class GlanceSurfaceTest {
 
+    private class TestSurface(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
+        GlanceSurface(tag, dimensions)
+
     @Test
     fun glanceSurface_fromTag_createsInstanceWithTag() {
         val surface1 = GlanceSurface.fromTag("test_surface")
@@ -31,5 +34,22 @@ class GlanceSurfaceTest {
         assertThat(surface1).isEqualTo(surface2)
         assertThat(surface1.hashCode()).isEqualTo(surface2.hashCode())
         assertThat(surface1).isNotEqualTo(surface3)
+    }
+
+    @Test
+    fun glanceSurface_dimensions_defaultToZero() {
+        assertThat(GlanceSurface.fromTag("test_surface").dimensions).isEqualTo(Dimensions(0, 0))
+        assertThat(TestSurface("test_surface").dimensions).isEqualTo(Dimensions(0, 0))
+    }
+
+    @Test
+    fun glanceSurface_placedSurface_equalsSurfaceWithSameTag() {
+        val surface = TestSurface("test_surface")
+        val placed = TestSurface("test_surface", Dimensions(200, 100))
+
+        assertThat(placed.dimensions).isEqualTo(Dimensions(200, 100))
+        assertThat(placed).isEqualTo(surface)
+        assertThat(placed.hashCode()).isEqualTo(surface.hashCode())
+        assertThat(placed).isNotEqualTo(TestSurface("different_surface", Dimensions(200, 100)))
     }
 }

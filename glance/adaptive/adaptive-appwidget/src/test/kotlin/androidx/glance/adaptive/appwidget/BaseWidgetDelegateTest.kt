@@ -104,10 +104,8 @@ class BaseWidgetDelegateTest {
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
-            ArchetypeSelector { _, constraints -> constraints.surface },
-            GlanceTemplateRenderer { template, _, constraints ->
-                { mockRenderer(template, constraints.surface) }
-            },
+            ArchetypeSelector { _, surface -> surface },
+            GlanceTemplateRenderer { template, _, surface -> { mockRenderer(template, surface) } },
         )
     }
 
@@ -969,10 +967,9 @@ class BaseWidgetDelegateTest {
      */
     private fun registerDimensionAwareTemplate(onRender: (TestArchetype) -> Unit) {
         val selector =
-            ArchetypeSelector<DimensionAwareTemplate, AppWidgetSurface, TestArchetype> {
-                _,
-                constraints ->
-                if (constraints.dimensions.widthDp >= 250) TestArchetype.SPLIT_ROW
+            ArchetypeSelector<DimensionAwareTemplate, AppWidgetSurface, TestArchetype> { _, surface
+                ->
+                if (surface.dimensions.widthDp >= 250) TestArchetype.SPLIT_ROW
                 else TestArchetype.COMPACT_HERO
             }
         AppWidgetTemplateRegistry.register(

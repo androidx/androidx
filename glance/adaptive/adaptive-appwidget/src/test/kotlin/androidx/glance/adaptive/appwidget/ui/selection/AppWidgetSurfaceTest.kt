@@ -19,6 +19,7 @@ package androidx.glance.adaptive.appwidget.ui.selection
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.os.Bundle
+import androidx.glance.adaptive.core.ui.selection.Dimensions
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -194,8 +195,29 @@ class AppWidgetSurfaceTest {
     }
 
     @Test
-    fun appWidgetGlanceSurface_tags_resolveCorrectly() {
+    fun appWidgetSurface_tags_resolveCorrectly() {
         assertThat(AppWidgetSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
         assertThat(AppWidgetSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
+    }
+
+    @Test
+    fun appWidgetSurface_constants_haveUnspecifiedDimensions() {
+        val surfaces = AppWidgetSurface.ALL
+        for (i in surfaces.indices) {
+            assertThat(surfaces[i].dimensions).isEqualTo(Dimensions(0, 0))
+        }
+    }
+
+    @Test
+    fun appWidgetSurface_withDimensions_carriesDimensionsAndKeepsIdentity() {
+        val placed = AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(348, 88))
+
+        assertThat(placed.dimensions).isEqualTo(Dimensions(348, 88))
+        assertThat(placed.tag).isEqualTo(AppWidgetSurface.MOBILE_LOCK_SCREEN.tag)
+        assertThat(placed).isEqualTo(AppWidgetSurface.MOBILE_LOCK_SCREEN)
+        assertThat(placed.hashCode()).isEqualTo(AppWidgetSurface.MOBILE_LOCK_SCREEN.hashCode())
+        assertThat(placed).isNotEqualTo(AppWidgetSurface.MOBILE_HOME_SCREEN)
+        // The constant itself is left untouched.
+        assertThat(AppWidgetSurface.MOBILE_LOCK_SCREEN.dimensions).isEqualTo(Dimensions(0, 0))
     }
 }

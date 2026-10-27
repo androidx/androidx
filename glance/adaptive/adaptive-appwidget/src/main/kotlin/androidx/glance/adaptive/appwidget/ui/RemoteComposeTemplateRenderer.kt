@@ -31,7 +31,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
@@ -82,8 +81,8 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
         /**
          * Describes the virtual display [captureSingleRemoteDocument] lays the content out on.
          *
-         * Sized to the host-reported container [dimensions] (the same ones the renderer received
-         * through [HostConstraints]), converted from dp to px. Density and font scale come from
+         * Sized to the host-reported container [dimensions] (the same ones the renderer received as
+         * [GlanceSurface.dimensions]), converted from dp to px. Density and font scale come from
          * [context] because the host renders on the same device. When the host has not reported a
          * size, falls back to the library default, which is the full display.
          */
@@ -120,24 +119,21 @@ public fun interface RemoteComposeTemplateRenderer<
 
     /**
      * Produces the [@RemoteComposable][RemoteComposable] `@Composable` content representation of
-     * [template] for [archetype] and [constraints].
+     * [template] for [archetype] on [surface].
      *
      * @param template The declarative data payload describing the widget's content.
-     * @param archetype The layout archetype resolved for [template] under [constraints].
-     * @param constraints The layout constraints and target surface provided by the host.
+     * @param archetype The layout archetype resolved for [template] on [surface].
+     * @param surface The target surface, carrying the container size of the placement as
+     *   [GlanceSurface.dimensions].
      * @return The `@RemoteComposable @Composable` content lambda to capture into a RemoteCompose
      *   document.
      */
     public fun renderRemoteCompose(
         template: T,
         archetype: A,
-        constraints: HostConstraints<S>,
+        surface: S,
     ): @RemoteComposable @Composable () -> Unit
 
-    override fun render(
-        template: T,
-        archetype: A,
-        constraints: HostConstraints<S>,
-    ): AppWidgetRenderOutput =
-        RemoteComposeRenderOutput(renderRemoteCompose(template, archetype, constraints))
+    override fun render(template: T, archetype: A, surface: S): AppWidgetRenderOutput =
+        RemoteComposeRenderOutput(renderRemoteCompose(template, archetype, surface))
 }
