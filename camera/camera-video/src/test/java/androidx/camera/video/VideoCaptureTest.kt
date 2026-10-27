@@ -2602,6 +2602,30 @@ class VideoCaptureTest {
         assertThat(cameraControl.isInVideoUsage).isFalse()
     }
 
+    @Test
+    fun sessionConfigOutputConfig_propagatesPhysicalCameraId_forActiveAndInactiveStream() {
+        setupCamera()
+        createCameraUseCaseAdapter()
+        val physicalCameraId = "2"
+        val videoOutput =
+            createVideoOutput(streamInfo = createStreamInfo(streamState = StreamState.ACTIVE))
+        val videoCapture =
+            createVideoCapture(videoOutput = videoOutput).apply {
+                setPhysicalCameraId(physicalCameraId)
+            }
+
+        addAndAttachUseCases(videoCapture)
+
+        assertThat(videoCapture.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+
+        videoOutput.updateStreamInfo(createStreamInfo(streamState = StreamState.INACTIVE))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(videoCapture.sessionConfig.outputConfigs.single().physicalCameraId)
+            .isEqualTo(physicalCameraId)
+    }
+
     private fun assertCustomOrderedResolutions(
         videoCapture: VideoCapture<out VideoOutput>,
         vararg expectedResolutions: Size,

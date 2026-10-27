@@ -1481,7 +1481,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mImagePipeline = new ImagePipeline(config, resolution, cameraCharacteristics, getEffect(),
-                isVirtualCamera, postviewSettings);
+                isVirtualCamera, postviewSettings, getPhysicalCameraId());
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
