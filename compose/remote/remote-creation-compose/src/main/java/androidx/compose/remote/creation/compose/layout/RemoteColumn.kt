@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 /** Receiver scope used by [RemoteColumn] for its content. */
+@RemoteLayoutScopeMarker
 public class RemoteColumnScope {
     /**
      * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].

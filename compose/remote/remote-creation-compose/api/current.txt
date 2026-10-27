@@ -290,7 +290,7 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCollapsibleColumn(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical?, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal?, kotlin.jvm.functions.Function3<? super androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleColumnScope {
+  @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleColumnScope {
     ctor public RemoteCollapsibleColumnScope();
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier collapsiblePriority(androidx.compose.remote.creation.compose.modifier.RemoteModifier, float priority);
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
@@ -302,7 +302,7 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCollapsibleRow(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal?, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical?, kotlin.jvm.functions.Function3<? super androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleRowScope {
+  @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker @androidx.compose.runtime.Immutable public final class RemoteCollapsibleRowScope {
     ctor public RemoteCollapsibleRowScope();
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier collapsiblePriority(androidx.compose.remote.creation.compose.modifier.RemoteModifier, float priority);
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
@@ -314,7 +314,7 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteColumn(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical?, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal?, kotlin.jvm.functions.Function3<? super androidx.compose.remote.creation.compose.layout.RemoteColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class RemoteColumnScope {
+  @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker public final class RemoteColumnScope {
     ctor public RemoteColumnScope();
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
   }
@@ -385,6 +385,9 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteImage(androidx.compose.remote.creation.compose.state.RemoteImageBitmap, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.ui.layout.ContentScale?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.runtime.Composer?, int, int);
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface RemoteLayoutScopeMarker {
+  }
+
   public final class RemoteOffset {
     ctor public RemoteOffset(androidx.compose.remote.creation.compose.state.RemoteFloat x, androidx.compose.remote.creation.compose.state.RemoteFloat y);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getMinDimension();
@@ -423,7 +426,7 @@ package androidx.compose.remote.creation.compose.layout {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteRow(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal?, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical?, kotlin.jvm.functions.Function3<? super androidx.compose.remote.creation.compose.layout.RemoteRowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class RemoteRowScope {
+  @androidx.compose.remote.creation.compose.layout.RemoteLayoutScopeMarker public final class RemoteRowScope {
     ctor public RemoteRowScope();
     method public androidx.compose.remote.creation.compose.modifier.RemoteModifier weight(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteFloat weight);
   }
