@@ -67,9 +67,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -971,6 +978,112 @@ public class ExifInterfaceTest {
         assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME))
                 .isEqualTo(modifiedNewDateTimeStringValue);
         assertThat(exif.getDateTime()).isEqualTo(newDateTimeLongValue);
+    }
+
+    @Test
+    @SmallTest
+    public void testGetSetDateTimeConcurrent() throws Exception {
+        final int numThreads = 8;
+        final int numIterations = 100;
+        final long baseTimestamp = 1577836800000L; // 2020-01-01T00:00:00.000Z
+        final long secondaryExpectedDatetime =
+                1454027547000L /* "2016-01-29 18:32:27" */
+                + 100L /* "100000" */
+                + 32400000L /* "+09:00" */;
+        final File secondaryFormatFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_datetime_tag_secondary_format,
+                        "jpeg_with_datetime_tag_secondary_format_concurrent.jpg");
+
+        final List<ExifInterface> primaryExifs = new ArrayList<>(numThreads);
+        final List<ExifInterface> secondaryExifs = new ArrayList<>(numThreads);
+        for (int i = 0; i < numThreads; i++) {
+            primaryExifs.add(createTestExifInterface());
+            secondaryExifs.add(new ExifInterface(secondaryFormatFile.getAbsolutePath()));
+        }
+
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        final CountDownLatch startLatch = new CountDownLatch(1);
+        final List<Future<Void>> futures = new ArrayList<>(numThreads);
+
+        try {
+            for (int t = 0; t < numThreads; t++) {
+                final int threadIndex = t;
+                final ExifInterface exif = primaryExifs.get(t);
+                final ExifInterface secondaryExif = secondaryExifs.get(t);
+                futures.add(
+                        executor.submit(
+                                new Callable<Void>() {
+                                    @Override
+                                    public Void call() throws Exception {
+                                        startLatch.await();
+                                        for (int i = 0; i < numIterations; i++) {
+                                            long timestamp =
+                                                    baseTimestamp
+                                                            + (threadIndex * 86400000L)
+                                                            + (i * 61000L)
+                                                            + (threadIndex * 100L + (i % 100));
+                                            exif.setDateTime(timestamp);
+                                            assertThat(exif.getDateTime()).isEqualTo(timestamp);
+
+                                            String formattedDateTime =
+                                                    exif.getAttribute(ExifInterface.TAG_DATETIME);
+                                            String formattedSubsec =
+                                                    exif.getAttribute(
+                                                            ExifInterface.TAG_SUBSEC_TIME);
+                                            exif.setAttribute(
+                                                    ExifInterface.TAG_DATETIME_ORIGINAL,
+                                                    formattedDateTime);
+                                            exif.setAttribute(
+                                                    ExifInterface.TAG_SUBSEC_TIME_ORIGINAL,
+                                                    formattedSubsec);
+                                            exif.setAttribute(
+                                                    ExifInterface.TAG_DATETIME_DIGITIZED,
+                                                    formattedDateTime);
+                                            exif.setAttribute(
+                                                    ExifInterface.TAG_SUBSEC_TIME_DIGITIZED,
+                                                    formattedSubsec);
+                                            assertThat(exif.getDateTimeOriginal())
+                                                    .isEqualTo(timestamp);
+                                            assertThat(exif.getDateTimeDigitized())
+                                                    .isEqualTo(timestamp);
+
+                                            long gpsTimestamp = (timestamp / 1000L) * 1000L;
+                                            Location location = new Location("ExifInterfaceTest");
+                                            location.setLatitude(37.4219999);
+                                            location.setLongitude(-122.0840575);
+                                            location.setAltitude(10.0);
+                                            location.setSpeed(5.0f);
+                                            location.setTime(gpsTimestamp);
+                                            exif.setGpsInfo(location);
+                                            assertThat(exif.getGpsDateTime())
+                                                    .isEqualTo(gpsTimestamp);
+
+                                            // Also exercise secondary formatter parsing.
+                                            assertThat(secondaryExif.getDateTime())
+                                                    .isEqualTo(secondaryExpectedDatetime);
+                                            assertThat(secondaryExif.getDateTimeOriginal())
+                                                    .isEqualTo(secondaryExpectedDatetime);
+                                            assertThat(secondaryExif.getDateTimeDigitized())
+                                                    .isEqualTo(secondaryExpectedDatetime);
+                                            secondaryExif.setAttribute(
+                                                    ExifInterface.TAG_GPS_DATESTAMP, "2020-01-01");
+                                            secondaryExif.setAttribute(
+                                                    ExifInterface.TAG_GPS_TIMESTAMP, "00:00:00");
+                                            assertThat(secondaryExif.getGpsDateTime())
+                                                    .isEqualTo(baseTimestamp);
+                                        }
+                                        return null;
+                                    }
+                                }));
+            }
+            startLatch.countDown();
+            for (Future<Void> future : futures) {
+                future.get(30, TimeUnit.SECONDS);
+            }
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
