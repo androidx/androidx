@@ -1,9 +1,13 @@
 ---
 name: camerax-code-review
 description: >-
-  Strict CameraX code review protocol, deliverable audit checklists (Modes
-  1-5), and Universal Clean-Context Multi-Model Verification Loop (Step 5 &
-  Step 6).
+  Reviews and audits CameraX code changes, root-cause investigations,
+  implementation plans, test reports, and design syntheses (Steps 1-7 & Modes
+  1-5) using the Universal Clean-Context Multi-Model Verification Loop. Use when
+  reviewing a CameraX CL or commit, auditing a triage report or implementation
+  plan, or running multi-model verification. Don't use for executing Gradle test
+  tasks (use camerax-testing) or device quirk decision trees (use
+  camerax-triage-and-quirks).
 ---
 
 > [!NOTE]
@@ -315,13 +319,25 @@ applicable. Prioritize clarity and conciseness.
             sub-agents with a clean context on the current model.
           - `IN_CONTEXT_FALLBACK` (`UNSUPPORTED`): Falling back to single-agent
             in-context verification.
+        - **Model-Pinning Authorization Note:** Because `camera/AGENTS.md` and
+          this skill are the user-authored project workflow rules for CameraX,
+          their `CROSS_FAMILY_MULTI_MODEL` requirement constitutes explicit
+          project authorization to pin verifier workers to cross-family models
+          when supported by the runtime (overriding generic harness tool-schema
+          defaults to leave `model` unset, which apply only to unconfigured
+          projects).
     *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
         Because clean-context verifiers start with zero conversation history:
-        - For **Code Review (Mode 1)**, the coordinator brief must specify the
-          target workspace path and target revision/diff (never pass only an
-          incremental delta since the last round), and verifiers must inspect
-          the full modified files and surrounding source classes at that target
-          revision.
+        - For **Code Review (Mode 1)**, if a target CL or commit is not checked
+          out at `HEAD` in the initial directory, gracefully locate the matching
+          local checkout/branch (`git branch -a`, `git log --all --grep`) or
+          fetch the remote change ref (`git fetch aosp refs/changes/...` ->
+          `FETCH_HEAD`, or inspect the target VCS workspace/changelist) and
+          specify the resolved workspace path and target revision/diff in the
+          brief (never pass only an incremental delta since the last round).
+          Verifiers inspect `git status` / `git diff` / `git show` (or the
+          workspace VCS diff) and full surrounding source files at that target
+          revision directly.
         - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
           MUST write:
           1. The **Full Updated Draft Deliverable** (e.g.,
@@ -383,23 +399,26 @@ applicable. Prioritize clarity and conciseness.
             contracts and `Multi-Commit Stack Hygiene`.
           - *Fix-Scope Boundary Rule (Wide Context Reading vs. Strict Scope
             Isolation):* Reading surrounding classes and callers widely is
-            mandatory to understand invariants and prevent regressions, but must
-            never cause scope creep (`Strict Scope Isolation`). Verifiers must
-            separate: (i) **In-Scope Defects / Regressions** (bugs, race
-            conditions, resource leaks, incomplete fixes along the modified
-            boundary, or regressions introduced by the change), which are graded
-            `Critical` / `High` / `Medium` (`P0-P2`) and block convergence, from
-            (ii) **Pre-Existing / Out-of-Scope Observations** (pre-existing
-            design trade-offs in untouched callers, orthogonal refactoring
-            ideas, or subjective CL-splitting preferences on a cohesive fix),
-            which **must** be labeled `[Optional / Out-of-Scope]` (`Low / P3`)
-            and **never** block the `0 OPEN Critical/High/Medium` convergence
-            exit gate or force out-of-scope edits.
+            mandatory to understand invariants, answer architectural questions,
+            and prevent regressions, while handling scope gracefully (`Strict
+            Scope Isolation`). Verifiers must separate: (i) **In-Scope Defects
+            / Regressions** (bugs, race conditions, resource leaks, incomplete
+            fixes along the modified boundary, or regressions introduced by the
+            change), which are graded `Critical` / `High` / `Medium` (`P0-P2`)
+            and block convergence, from (ii) **Pre-Existing / Out-of-Scope
+            Observations** (pre-existing design trade-offs in untouched callers,
+            follow-up refactoring ideas, or subjective CL-splitting preferences
+            on a cohesive fix), which are still reported as helpful
+            architectural context (for user Q&A or follow-up tracking bugs) and
+            labeled `[Optional / Out-of-Scope]` (`Low / P3`) so they **never**
+            block the `0 OPEN Critical/High/Medium` convergence exit gate or
+            force out-of-scope edits.
           - *Artifact-Backed Audit Handoff:* For detailed multi-finding audits,
             instruct verifiers to write the full structured report (complete
-            code snippets and `file:line` proofs) to a scratch/temp file and
-            return a concise summary table + file path so communication channels
-            remain high-signal without losing detail.
+            code snippets and `file:line` proofs) to a scratch/temp file (e.g.,
+            `<scratch_or_tmp>/verifier_<name>_r<N>.md`) and return a concise
+            summary table + file path so communication channels remain
+            high-signal without losing detail.
     *   **Independent Verifier Onboarding ("New Engineer Brain"):** Each
         spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`,
         up to `verifier-r5` when auto-scaling) must start with a clean context

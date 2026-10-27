@@ -1,8 +1,12 @@
 ---
 name: camerax-guidelines-governance
 description: >-
-  CameraX standards hierarchy, recursive guideline traversal, development &
-  refactoring workflow, and long-term AGENTS.md/SKILL.md governance rules.
+  Enforces CameraX coding standards hierarchy, recursive guideline traversal,
+  CameraPipe lifecycle scope invariants, pre-upload verification gates, and
+  long-term prompt/skill governance rules. Use when writing or refactoring
+  CameraX code, preparing a commit for upload, or updating AGENTS.md and
+  SKILL.md files. Don't use for device-specific failure triage (use
+  camerax-triage-and-quirks) or test writing mechanics (use camerax-testing).
 ---
 
 # Project: CameraX
@@ -97,16 +101,28 @@ When directed to an index page, directory list, or guide linking to sub-guides
 
 ## Development Workflow & Refactoring:
 
+- **Parent AndroidX Baseline (`frameworks/support/AGENTS.md`) & Workspace Modes
+  (`repo` vs. CoG)**:
+  - When operating in an AndroidX checkout where the repository-root `AGENTS.md`
+    and the repo-wide `manage_commits` and `manage_cl_workspaces` skills are
+    auto-discovered by upward directory traversal, use the parent AndroidX
+    workflow definitions as the baseline (including `gob_vcs` in CoG
+    `/google/cog/cloud/...` workspaces where `repo` is not used, grepping
+    `settings.gradle` instead of `./gradlew projects`, `<project>:javaFormat`,
+    and `Relnote: N/A` for internal `src/main/` or `src/commonMain/` changes),
+    while applying CameraX's stricter commit limits (`<= 50` char title) and
+    Stage 1 + Stage 2 Pre-Upload Gate below. If operating standalone without
+    parent skills, use the standard `repo` defaults below.
 - **Pre-Flight Upstream Sync & AOSP Feature Branch Creation (`repo start` vs.
-  `git branch`)**:
-  - Before starting root-cause analysis or creating a feature branch, fetch the
-    latest upstream manifest branch (`git fetch aosp androidx-main`) and check
-    recent CameraX commits
+  `git branch` in Standard `repo` Checkouts)**:
+  - In standard `repo`/Git checkouts, before starting root-cause analysis or
+    creating a feature branch, fetch the latest upstream manifest branch
+    (`git fetch aosp androidx-main`) and check recent CameraX commits
     (`git log --oneline HEAD..aosp/androidx-main -- camera/`). If upstream
     commits recently touched the target files or bug, sync first
     (`repo sync -c -j8 .`) to avoid duplicate fixes or rebase conflicts.
   - Prefer using `repo start <branch_name> .` when creating a new feature
-    branch in the AOSP repository. `repo start` automatically establishes
+    branch in a standard `repo` checkout. `repo start` automatically establishes
     upstream tracking against the manifest remote (`aosp/androidx-main`),
     ensuring seamless integration with `repo upload`.
   - If creating a branch via `git checkout -b <branch_name>`, always explicitly
@@ -300,9 +316,15 @@ When directed to an index page, directory list, or guide linking to sub-guides
   - **Stage 2: Pre-Upload Full Verification & Tooling Gate**:
     Before committing or uploading a CL (`repo upload`), you **MUST** execute:
     1. **Kotlin Formatting**:
-       `./gradlew :ktCheckFile --format --file <modified_file.kt>`.
-    2. **Checkstyle & Import Order**: Java imports must follow strict
-       alphabetical ordering without unused imports or unused static imports.
+       `./gradlew :ktCheckFile --format --file <modified_file.kt>` (or
+       `:camera:camera-<module>:ktFormat`).
+    2. **Java Formatting, Checkstyle & Import Order**: Format modified Java
+       files via `./gradlew :camera:camera-<module>:javaFormat` (revert any
+       unrelated file formatting in `git diff`), and verify strict alphabetical
+       Java import ordering without unused imports via the pre-upload
+       `checkstyle_hook` (`repo upload --dry-run --verify`; if `./gradlew` hits
+       host `inotify` file-watcher limits across multiple checkouts, append
+       `--no-watch-fs` to `./gradlew` commands).
     3. **ErrorProne Release Variant Compilation**:
        ```bash
        ./gradlew :camera:camera-core:runErrorProneRelease \
@@ -367,6 +389,33 @@ When directed to an index page, directory list, or guide linking to sub-guides
 - The user requests to update agent guidelines based on recent findings.
 
 ### Workflow & Long-Term Governance:
+
+#### 0. Prompt Update Precedence: Google-Wide -> Parent Repo -> CameraX
+When updating any prompt (`AGENTS.md`, `SKILL.md`) or helper script, prioritize
+standards in this strict order:
+1. **Prompt Update Precedence — 1st: Google-Wide Skill, Customization &
+   Readability Standards**:
+   - **Automatic Discovery & Canonical Referencing (No Manual `../` Links /
+     DRY)**: Rely on upward directory traversal (`AGENTS.md`, `.agents/skills/`,
+     `skills.json`, `rules.json`) and reference shared skills by their
+     registered skill name (`manage_commits`, `run_tests`) or repo-root /
+     canonical URLs. Never write fragile `../` parent-traversal links, `file://`
+     URLs, or hardcoded workstation paths, and never duplicate parent rules or
+     leave `< 50`-line redirect stubs.
+   - **YAML Frontmatter & Progressive Disclosure**: Use `description: >-` in
+     third person (`< 1024` chars) with explicit `"Use when..."` and `"Don't use
+     for..."` trigger contracts; never expose executable binary paths, CLI
+     subcommands, or flag syntax (`--flag`) in frontmatter descriptions so
+     agents do not bypass reading `SKILL.md`.
+   - **Theory of Mind & Generalization**: Explain the *why* behind non-obvious
+     rules instead of relying on bare ALL-CAPS directives, generalize from
+     specific incidents with open-ended examples (`e.g.`), and follow Google
+     Python/Bash/Markdown readability standards for helper scripts and docs.
+2. **Prompt Update Precedence — 2nd: Parent Repository (`AndroidX`) Baseline**:
+   - Defer to repo-wide `AGENTS.md` and `.agents/skills/` when present,
+     recording only the CameraX-specific delta/overrides.
+3. **Prompt Update Precedence — 3rd: CameraX Project Prompt Governance (Sections
+   1–5 Below)**.
 
 #### 1. The 3-Tier Signal Filter (Signal vs. Noise)
 Before proposing documentation updates, filter session findings through three
