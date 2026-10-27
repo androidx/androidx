@@ -36,6 +36,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.headless.HeadlessLifecycleOwner
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -53,6 +54,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -152,7 +154,7 @@ public suspend fun captureSingleRemoteDocument(
         captureSingleRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
             remoteDensity = remoteDensity,
-            layoutDirection = layoutDirection,
+            layoutDirection = layoutDirection.toRemoteLayoutDirection(),
             clock = clock,
             profile = profile,
             writerCallback = writerEvents,
@@ -169,6 +171,7 @@ public suspend fun captureSingleRemoteDocument(
                 withAndroidLocals(
                     context = context,
                     creationDisplayInfo = creationDisplayInfo,
+                    layoutDirection = layoutDirection,
                     lifecycleOwner = lifecycleOwner,
                     saveableStateRegistry = saveableStateRegistry,
                     retainedValuesStore = retainedValuesStore,
@@ -280,7 +283,7 @@ public fun captureRemoteDocument(
             creationDisplayInfo = creationDisplayInfo,
             updateThrottle = updateThrottle,
             remoteDensity = remoteDensity,
-            layoutDirection = resolvedLayoutDirection,
+            layoutDirection = resolvedLayoutDirection.toRemoteLayoutDirection(),
             clock = clock,
             profile = profile,
             writerCallback = writerEvents,
@@ -298,6 +301,7 @@ public fun captureRemoteDocument(
                 withAndroidLocals(
                     context = context,
                     creationDisplayInfo = creationDisplayInfo,
+                    layoutDirection = resolvedLayoutDirection,
                     lifecycleOwner = lifecycleOwner,
                     saveableStateRegistry = saveableStateRegistry,
                     retainedValuesStore = retainedValuesStore,
@@ -315,6 +319,7 @@ public fun captureRemoteDocument(
 private fun withAndroidLocals(
     context: Context,
     creationDisplayInfo: RemoteCreationDisplayInfo,
+    layoutDirection: LayoutDirection,
     lifecycleOwner: HeadlessLifecycleOwner,
     saveableStateRegistry: SaveableStateRegistry?,
     retainedValuesStore: RetainedValuesStore?,
@@ -331,6 +336,11 @@ private fun withAndroidLocals(
                     creationDisplayInfo.density.density,
                     creationDisplayInfo.density.fontScale,
                 ),
+            LocalLayoutDirection provides layoutDirection,
+            LocalRemoteLayoutDirection providesComputed
+                {
+                    LocalLayoutDirection.currentValue.toRemoteLayoutDirection()
+                },
             LocalLifecycleOwner provides lifecycleOwner,
             LocalSavedStateRegistryOwner provides lifecycleOwner,
             LocalSaveableStateRegistry provides saveableStateRegistry,

@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -31,8 +32,6 @@ import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRul
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -127,12 +126,16 @@ class LayoutDirectionTest {
     @RemoteComposable
     private fun ComplexContent(modifier: RemoteModifier = RemoteModifier) {
         RemoteBox(modifier = modifier.fillMaxSize(), contentAlignment = RemoteAlignment.CenterEnd) {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            CompositionLocalProvider(
+                LocalRemoteLayoutDirection provides RemoteLayoutDirection.Rtl
+            ) {
                 RemoteBox(
                     modifier = RemoteModifier.size(300.rdp).background(Color.Red.rc),
                     contentAlignment = RemoteAlignment.CenterStart,
                 ) {
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    CompositionLocalProvider(
+                        LocalRemoteLayoutDirection provides RemoteLayoutDirection.Ltr
+                    ) {
                         RemoteBox(
                             modifier = RemoteModifier.size(200.rdp).background(Color.Green.rc),
                             contentAlignment = RemoteAlignment.CenterEnd,

@@ -19,11 +19,13 @@ package androidx.compose.remote.testing
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -173,12 +175,16 @@ class RemoteContentTestRuleLayoutDirectionTest {
     @RemoteComposable
     private fun ComplexContent(modifier: RemoteModifier = RemoteModifier) {
         RemoteBox(modifier = modifier.fillMaxSize(), contentAlignment = RemoteAlignment.CenterEnd) {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            CompositionLocalProvider(
+                LocalRemoteLayoutDirection provides RemoteLayoutDirection.Rtl
+            ) {
                 RemoteBox(
                     modifier = RemoteModifier.size(300.rdp).background(Color.Red.rc),
                     contentAlignment = RemoteAlignment.CenterStart,
                 ) {
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    CompositionLocalProvider(
+                        LocalRemoteLayoutDirection provides RemoteLayoutDirection.Ltr
+                    ) {
                         RemoteBox(
                             modifier = RemoteModifier.size(200.rdp).background(Color.Green.rc),
                             contentAlignment = RemoteAlignment.CenterEnd,

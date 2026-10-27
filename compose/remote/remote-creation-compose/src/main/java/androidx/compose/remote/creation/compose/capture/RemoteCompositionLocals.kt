@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -25,6 +26,13 @@ import androidx.compose.runtime.staticCompositionLocalOf
 public val LocalRemoteDensity: ProvidableCompositionLocal<RemoteDensity> =
     staticCompositionLocalOf {
         RemoteDensity.Host
+    }
+
+/** Composition local for [RemoteLayoutDirection]. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val LocalRemoteLayoutDirection: ProvidableCompositionLocal<RemoteLayoutDirection> =
+    staticCompositionLocalOf {
+        RemoteLayoutDirection.Ltr
     }
 
 /** Composition local for font weight adjustment (e.g. system bold text setting). */

@@ -32,12 +32,11 @@ import androidx.compose.remote.creation.compose.capture.headless.toSingleThreade
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeApplier
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteRootNode
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.tracing.Trace
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -65,7 +64,7 @@ import kotlinx.coroutines.flow.flow
 public suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile,
     writerCallback: Any? = null,
@@ -102,7 +101,7 @@ public fun captureRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     updateThrottle: CaptureUpdateThrottle = CaptureUpdateThrottle.Default,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+    layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr,
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile,
     writerCallback: Any? = null,
@@ -145,7 +144,7 @@ private fun captureRemoteDocumentImpl(
     updateThrottle: CaptureUpdateThrottle,
     maxDocuments: Int,
     remoteDensity: RemoteDensity,
-    layoutDirection: LayoutDirection,
+    layoutDirection: RemoteLayoutDirection,
     clock: RemoteClock,
     profile: Profile,
     writerCallback: Any?,
@@ -200,7 +199,7 @@ private fun captureRemoteDocumentImpl(
                 CompositionLocalProvider(
                     LocalRemoteComposeCreationState provides creationState,
                     LocalRemoteDensity provides remoteDensity,
-                    LocalLayoutDirection provides layoutDirection,
+                    LocalRemoteLayoutDirection provides layoutDirection,
                     content = content,
                 )
             },
