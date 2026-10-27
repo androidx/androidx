@@ -12,6 +12,7 @@ package androidx.glance.wear {
   }
 
   public final class GlanceWearProfiles {
+    method public androidx.compose.remote.creation.profile.Profile createWearWidgetsProfile(androidx.glance.wear.core.WearWidgetParams params);
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.profile.Profile getWearWidgets();
     property public androidx.compose.remote.creation.profile.Profile wearWidgets;
     field public static final androidx.glance.wear.GlanceWearProfiles INSTANCE;
