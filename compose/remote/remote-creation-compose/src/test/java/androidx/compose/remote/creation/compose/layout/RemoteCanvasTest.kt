@@ -951,7 +951,7 @@ class RemoteCanvasTest {
         val scope =
             RemoteCustomPropertiesScope().apply {
                 property(0, 42)
-                property(1, Color.Red)
+                property(1, Color.Red.rc)
                 property(2, 3.14f)
                 property(3, "test")
                 property(4, true)

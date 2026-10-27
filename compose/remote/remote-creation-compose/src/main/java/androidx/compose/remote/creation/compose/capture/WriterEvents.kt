@@ -20,7 +20,7 @@ import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
-import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.remote.creation.compose.util.fastForEachIndexed
 
 /**
  * A callback interface used during the capture process to write out the captured composable
