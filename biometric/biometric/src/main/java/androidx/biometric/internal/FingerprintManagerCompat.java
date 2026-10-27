@@ -18,7 +18,6 @@ package androidx.biometric.internal;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 
@@ -36,7 +35,7 @@ import javax.crypto.Mac;
 /**
  * A class that coordinates access to the fingerprint hardware.
  * <p>
- * On platforms before {@link Build.VERSION_CODES#M}, this class behaves as there would
+ * On platforms before {@link android.os.Build.VERSION_CODES#M}, this class behaves as there would
  * be no fingerprint hardware available.
  * <p>
  *
@@ -298,8 +297,7 @@ public class FingerprintManagerCompat {
 
         private static android.hardware.fingerprint.FingerprintManager getFingerprintManagerOrNull(
                 Context context) {
-            if (Build.VERSION.SDK_INT == 23
-                    || context.getPackageManager().hasSystemFeature(
+            if (context.getPackageManager().hasSystemFeature(
                     PackageManager.FEATURE_FINGERPRINT)) {
                 return context.getSystemService(
                         android.hardware.fingerprint.FingerprintManager.class);

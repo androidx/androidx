@@ -10,13 +10,4 @@
             file="src/test/java/androidx/biometric/internal/AuthenticationManagerTest.kt"/>
     </issue>
 
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 24"
-        errorLine1="            if (Build.VERSION.SDK_INT == 23"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/biometric/internal/FingerprintManagerCompat.java"/>
-    </issue>
-
 </issues>

@@ -36,6 +36,10 @@ dependencies {
     implementation("androidx.interpolator:interpolator:1.0.0")
     implementation("androidx.tracing:tracing:1.2.0")
 
+    // This has stub APIs for access to legacy Android APIs, so we don't want
+    // any dependency on this module.
+    compileOnly(project(":biometric:biometric-stubs"))
+
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
