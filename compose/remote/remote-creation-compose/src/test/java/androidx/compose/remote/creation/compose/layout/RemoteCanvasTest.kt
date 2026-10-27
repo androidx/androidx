@@ -19,8 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.Color as AndroidColor
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
@@ -42,11 +41,11 @@ import androidx.compose.remote.creation.compose.capture.PaintTrackerTest.TestPai
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -64,7 +63,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
-import androidx.compose.remote.creation.compose.state.asRemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
@@ -79,7 +78,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.TestPlayer
 import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
@@ -430,7 +429,7 @@ class RemoteCanvasTest {
         remoteCanvas.save()
         remoteCanvas.scale(2f.rf, 2f.rf)
 
-        remoteCanvas.drawToOffscreenBitmap(offscreenBitmap, Color.TRANSPARENT) {
+        remoteCanvas.drawToOffscreenBitmap(offscreenBitmap, AndroidColor.TRANSPARENT) {
             remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, null)
         }
 
@@ -629,8 +628,8 @@ class RemoteCanvasTest {
 
     @Test
     fun testOperationsAreBuffered() {
-        val paint = Paint()
-        remoteCanvas.drawRect(1f, 2f, 3f, 4f, paint)
+        val paint = RemotePaint()
+        remoteCanvas.drawRect(1f.rf, 2f.rf, 3f.rf, 4f.rf, paint)
 
         assertThat(fakeBuffer.calls).isEmpty()
 
@@ -641,8 +640,8 @@ class RemoteCanvasTest {
 
     @Test
     fun testExecuteOperations() {
-        val paint = Paint()
-        remoteCanvas.drawRect(5f, 6f, 7f, 8f, paint)
+        val paint = RemotePaint()
+        remoteCanvas.drawRect(5f.rf, 6f.rf, 7f.rf, 8f.rf, paint)
 
         assertThat(fakeBuffer.calls).isEmpty()
 
@@ -660,7 +659,7 @@ class RemoteCanvasTest {
         val condition = createNamedRemoteBoolean("cond", true)
 
         remoteCanvas.drawConditionally(condition) {
-            remoteCanvas.drawRect(9f, 10f, 11f, 12f, Paint())
+            remoteCanvas.drawRect(9f.rf, 10f.rf, 11f.rf, 12f.rf, RemotePaint())
         }
 
         assertThat(fakeBuffer.calls).isEmpty()
@@ -685,11 +684,11 @@ class RemoteCanvasTest {
         val sub = x + y // Common subexpression
 
         remoteCanvas.drawConditionally(RemoteBoolean(true)) {
-            remoteCanvas.drawRect(sub, 13f.rf, 14f.rf, 15f.rf, Paint())
+            remoteCanvas.drawRect(sub, 13f.rf, 14f.rf, 15f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(RemoteBoolean(false)) {
-            remoteCanvas.drawRect(sub, 20f.rf, 16f.rf, 17f.rf, Paint())
+            remoteCanvas.drawRect(sub, 20f.rf, 16f.rf, 17f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -715,12 +714,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             remoteCanvas.drawConditionally(condition2) {
-                remoteCanvas.drawRect(sub, 18f.rf, 19f.rf, 20f.rf, Paint())
+                remoteCanvas.drawRect(sub, 18f.rf, 19f.rf, 20f.rf, RemotePaint())
             }
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(sub, 21f.rf, 22f.rf, 23f.rf, Paint())
+            remoteCanvas.drawRect(sub, 21f.rf, 22f.rf, 23f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -761,7 +760,7 @@ class RemoteCanvasTest {
         remoteCanvas.custom("testConfig") {
             property(0, sub)
         }
-        remoteCanvas.drawRect(sub, 1f.rf, 2f.rf, 3f.rf, Paint())
+        remoteCanvas.drawRect(sub, 1f.rf, 2f.rf, 3f.rf, RemotePaint())
 
         remoteCanvas.flush()
 
@@ -787,7 +786,7 @@ class RemoteCanvasTest {
         val intState = 42.ri
         val stringState = "hello".rs
         val dpState = 16.rdp
-        val colorState = RemoteColor(Color.RED)
+        val colorState = Color.Red.rc
         val boolState = RemoteBoolean(true)
 
         remoteCanvas.custom("multiTypeConfig") {
@@ -913,7 +912,7 @@ class RemoteCanvasTest {
         val scope =
             RemoteCustomPropertiesScope().apply {
                 property(0, 42)
-                property(1, ComposeColor(Color.RED))
+                property(1, Color.Red)
                 property(2, 3.14f)
                 property(3, "test")
                 property(4, true)
@@ -921,13 +920,13 @@ class RemoteCanvasTest {
                 property(6, 16.rdp)
                 property(7, "remoteString".rs)
                 property(8, 99.ri)
-                property(9, RemoteColor(Color.BLUE))
+                property(9, Color.Blue.rc)
                 property(10, RemoteBoolean(false))
                 bindReturn(11, MutableRemoteFloat(1f))
                 bindReturn(12, MutableRemoteString("ret"))
                 bindReturn(13, MutableRemoteInt(7))
                 bindReturn(14, MutableRemoteBoolean(true))
-                bindReturn(15, RemoteColor(Color.GREEN))
+                bindReturn(15, Color.Green.rc)
             }
 
         val properties = scope.entries.map { it.toCustomProperty(creationState) }
@@ -959,11 +958,11 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", false)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(sub.toRemoteFloat(), 24f.rf, 25f.rf, 26f.rf, Paint())
+            remoteCanvas.drawRect(sub.toRemoteFloat(), 24f.rf, 25f.rf, 26f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(sub.toRemoteFloat(), 27f.rf, 28f.rf, 29f.rf, Paint())
+            remoteCanvas.drawRect(sub.toRemoteFloat(), 27f.rf, 28f.rf, 29f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1000,10 +999,10 @@ class RemoteCanvasTest {
         val condition1 = createNamedRemoteBoolean("cond1", true)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(sub, 30f.rf, 31f.rf, 32f.rf, Paint())
+            remoteCanvas.drawRect(sub, 30f.rf, 31f.rf, 32f.rf, RemotePaint())
         }
 
-        remoteCanvas.drawRect(sub, 33f.rf, 34f.rf, 35f.rf, Paint()) // Top level usage
+        remoteCanvas.drawRect(sub, 33f.rf, 34f.rf, 35f.rf, RemotePaint()) // Top level usage
 
         remoteCanvas.flush()
 
@@ -1037,11 +1036,11 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", false)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(sub, 36f.rf, 37f.rf, 38f.rf, Paint())
+            remoteCanvas.drawRect(sub, 36f.rf, 37f.rf, 38f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(sub, 39f.rf, 40f.rf, 41f.rf, Paint())
+            remoteCanvas.drawRect(sub, 39f.rf, 40f.rf, 41f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1090,16 +1089,16 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", false)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(root3, 42f.rf, 43f.rf, 44f.rf, Paint())
+            remoteCanvas.drawRect(root3, 42f.rf, 43f.rf, 44f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(root4, 45f.rf, 46f.rf, 47f.rf, Paint())
+            remoteCanvas.drawRect(root4, 45f.rf, 46f.rf, 47f.rf, RemotePaint())
         }
 
-        remoteCanvas.drawRect(root1, 48f.rf, 49f.rf, 50f.rf, Paint())
-        remoteCanvas.drawRect(root2, 51f.rf, 52f.rf, 53f.rf, Paint())
-        remoteCanvas.drawRect(root5, 54f.rf, 55f.rf, 56f.rf, Paint())
+        remoteCanvas.drawRect(root1, 48f.rf, 49f.rf, 50f.rf, RemotePaint())
+        remoteCanvas.drawRect(root2, 51f.rf, 52f.rf, 53f.rf, RemotePaint())
+        remoteCanvas.drawRect(root5, 54f.rf, 55f.rf, 56f.rf, RemotePaint())
 
         remoteCanvas.flush()
 
@@ -1153,8 +1152,8 @@ class RemoteCanvasTest {
         val sub = x + y // Common subexpression
         val sub2 = x + y // Common subexpression
 
-        remoteCanvas.drawRect(sub, 57f.rf, 58f.rf, 59f.rf, Paint())
-        remoteCanvas.drawRect(sub2, 60f.rf, 61f.rf, 62f.rf, Paint())
+        remoteCanvas.drawRect(sub, 57f.rf, 58f.rf, 59f.rf, RemotePaint())
+        remoteCanvas.drawRect(sub2, 60f.rf, 61f.rf, 62f.rf, RemotePaint())
 
         remoteCanvas.flush()
 
@@ -1179,7 +1178,7 @@ class RemoteCanvasTest {
         val step = 1f.rf
 
         remoteCanvas.loop(from, until, step) { index ->
-            remoteCanvas.drawRect(index, 63f.rf, 64f.rf, 65f.rf, Paint())
+            remoteCanvas.drawRect(index, 63f.rf, 64f.rf, 65f.rf, RemotePaint())
         }
 
         assertThat(fakeBuffer.calls).isEmpty()
@@ -1202,7 +1201,7 @@ class RemoteCanvasTest {
             val until = 10f.rf
             val step = 1f.rf
             canvas.loop(from, until, step) { index ->
-                canvas.drawRect(index, 63f.rf, 64f.rf, 65f.rf, Paint())
+                canvas.drawRect(index, 63f.rf, 64f.rf, 65f.rf, RemotePaint())
             }
 
             canvas.flush()
@@ -1234,7 +1233,7 @@ class RemoteCanvasTest {
             }
 
         remoteCanvas.drawToOffscreenBitmap(dummyBitmap) {
-            remoteCanvas.drawRect(66f, 67f, 68f, 69f, Paint())
+            remoteCanvas.drawRect(66f.rf, 67f.rf, 68f.rf, 69f.rf, RemotePaint())
         }
 
         assertThat(fakeBuffer.calls).isEmpty()
@@ -1283,11 +1282,11 @@ class RemoteCanvasTest {
             remoteCanvas.translate(1f.rf, 1f.rf)
 
             remoteCanvas.drawToOffscreenBitmap(innerBitmap, android.graphics.Color.TRANSPARENT) {
-                remoteCanvas.drawRect(0f, 0f, 10f, 10f, Paint())
+                remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             }
 
             remoteCanvas.restore()
-            remoteCanvas.drawRect(0f, 0f, 1f, 1f, Paint())
+            remoteCanvas.drawRect(0f.rf, 0f.rf, 1f.rf, 1f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1325,7 +1324,7 @@ class RemoteCanvasTest {
                 // Simulate offscreen drawing that pushes/pops canvas transforms
                 canvas.save()
                 canvas.translate(5f.rf, 5f.rf)
-                canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
                 canvas.restore()
             }
 
@@ -1355,7 +1354,7 @@ class RemoteCanvasTest {
     @Test
     fun testEliminateRedundantSavesAndRestoresAcrossOffscreenBitmaps() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val paint = Paint()
+            val paint = RemotePaint()
 
             // 1. Push multiple saves where only one actually translates
             canvas.save() // Identity save 1 (should be pruned/collapsed)
@@ -1376,7 +1375,7 @@ class RemoteCanvasTest {
                 canvas.save()
                 canvas.save()
                 canvas.translate(4f.rf, 4f.rf)
-                canvas.drawLine(10f, 10f, 20f, 20f, paint)
+                canvas.drawLine(10f.rf, 10f.rf, 20f.rf, 20f.rf, paint)
                 canvas.restore()
                 canvas.restore()
                 canvas.restore()
@@ -1390,7 +1389,7 @@ class RemoteCanvasTest {
             canvas.restore()
             canvas.restore()
             canvas.restore()
-            canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, paint.asRemotePaint())
+            canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, paint)
 
             // 4. Reinstate parent transforms and draw
             canvas.save()
@@ -1398,7 +1397,7 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate(100f.rf, 100f.rf)
             canvas.save()
-            canvas.drawLine(10f, 10f, 100f, 100f, paint)
+            canvas.drawLine(10f.rf, 10f.rf, 100f.rf, 100f.rf, paint)
             canvas.restore()
             canvas.restore()
             canvas.restore()
@@ -1448,23 +1447,21 @@ class RemoteCanvasTest {
             canvas.drawToOffscreenBitmap(remoteBitmap42, android.graphics.Color.TRANSPARENT) {
                 canvas.save()
                 canvas.translate((-12f).rf, (-11f).rf)
-                canvas.drawBitmap(sourceBitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
+                canvas.drawBitmap(sourceBitmap, 0f.rf, 0f.rf, RemotePaint())
                 canvas.restore()
 
                 canvas.drawToOffscreenBitmap(remoteBitmap43, android.graphics.Color.TRANSPARENT) {
                     canvas.save()
                     canvas.translate((-17f).rf, 0f.rf)
-                    canvas.drawRect(0f, 0f, 190f, 190f, Paint())
+                    canvas.drawRect(0f.rf, 0f.rf, 190f.rf, 190f.rf, RemotePaint())
                     canvas.restore()
                 }
 
-                val maskPaint = Paint().apply { blendMode = android.graphics.BlendMode.DST_IN }
-                val rect = android.graphics.Rect(0, 0, 450, 450)
-                canvas.drawBitmap(remoteBitmap43, rect, rect, maskPaint)
+                val maskPaint = RemotePaint { remoteBlendMode = RemoteBlendMode.DstIn }
+                canvas.drawBitmap(remoteBitmap43, 0f.rf, 0f.rf, 450f.rf, 450f.rf, maskPaint)
             }
 
-            val rect = android.graphics.Rect(0, 0, 450, 450)
-            canvas.drawBitmap(remoteBitmap42, rect, rect, Paint())
+            canvas.drawBitmap(remoteBitmap42, 0f.rf, 0f.rf, 450f.rf, 450f.rf, RemotePaint())
             canvas.restore()
 
             canvas.flush()
@@ -1512,11 +1509,11 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", false)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(length.toRemoteFloat(), 70f.rf, 71f.rf, 72f.rf, Paint())
+            remoteCanvas.drawRect(length.toRemoteFloat(), 70f.rf, 71f.rf, 72f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(length.toRemoteFloat(), 73f.rf, 74f.rf, 75f.rf, Paint())
+            remoteCanvas.drawRect(length.toRemoteFloat(), 73f.rf, 74f.rf, 75f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1552,11 +1549,11 @@ class RemoteCanvasTest {
         val condition2 = createNamedRemoteBoolean("cond2", false)
 
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(length.toRemoteFloat(), 76f.rf, 77f.rf, 78f.rf, Paint())
+            remoteCanvas.drawRect(length.toRemoteFloat(), 76f.rf, 77f.rf, 78f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(length.toRemoteFloat(), 79f.rf, 80f.rf, 81f.rf, Paint())
+            remoteCanvas.drawRect(length.toRemoteFloat(), 79f.rf, 80f.rf, 81f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1592,12 +1589,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val str = createNamedRemoteString("a", "123") + RemoteString("456")
-            remoteCanvas.drawText(str, 3, 0f.rf, 0f.rf, Paint())
+            remoteCanvas.drawText(str, 0f.rf, 0f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val str = createNamedRemoteString("a", "123") + RemoteString("456")
-            remoteCanvas.drawText(str, 3, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1626,10 +1623,10 @@ class RemoteCanvasTest {
     @Test
     fun testSpanTreeStructure() {
         remoteCanvas.drawConditionally(RemoteBoolean(true)) {
-            remoteCanvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
         }
         remoteCanvas.drawConditionally(RemoteBoolean(false)) {
-            remoteCanvas.drawRect(82f, 83f, 84f, 85f, Paint())
+            remoteCanvas.drawRect(82f.rf, 83f.rf, 84f.rf, 85f.rf, RemotePaint())
         }
 
         val mSpanTreeRoot = remoteCanvas.buffer.spanTreeRoot
@@ -1654,13 +1651,13 @@ class RemoteCanvasTest {
         // Child Span C (via condition1)
         remoteCanvas.drawConditionally(condition1) {
             // Record cseB in child span C
-            remoteCanvas.drawRect(cseB, 86f.rf, 87f.rf, 88f.rf, Paint())
+            remoteCanvas.drawRect(cseB, 86f.rf, 87f.rf, 88f.rf, RemotePaint())
         }
 
         // Parent Span (Root)
         // Record operation using cseB at root (or in another branch that hoists it to root)
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(cseB, 89f.rf, 90f.rf, 91f.rf, Paint())
+            remoteCanvas.drawRect(cseB, 89f.rf, 90f.rf, 91f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1698,11 +1695,11 @@ class RemoteCanvasTest {
 
         // Use cseA in two branches to make it common
         remoteCanvas.drawConditionally(condition1) {
-            remoteCanvas.drawRect(cseA, 92f.rf, 93f.rf, 94f.rf, Paint())
+            remoteCanvas.drawRect(cseA, 92f.rf, 93f.rf, 94f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
-            remoteCanvas.drawRect(cseA, 95f.rf, 96f.rf, 97f.rf, Paint())
+            remoteCanvas.drawRect(cseA, 95f.rf, 96f.rf, 97f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1740,14 +1737,14 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             // Use cseB directly in child 1.
-            remoteCanvas.drawRect(cseB, 0f.rf, 100f.rf, 100f.rf, Paint())
+            remoteCanvas.drawRect(cseB, 0f.rf, 100f.rf, 100f.rf, RemotePaint())
             // And use cseA.
-            remoteCanvas.drawRect(cseA, 10f.rf, 110f.rf, 120f.rf, Paint())
+            remoteCanvas.drawRect(cseA, 10f.rf, 110f.rf, 120f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             // Use cseA in another branch to make it common.
-            remoteCanvas.drawRect(cseA, 20f.rf, 130f.rf, 140f.rf, Paint())
+            remoteCanvas.drawRect(cseA, 20f.rf, 130f.rf, 140f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1786,12 +1783,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             // Use nonCommonB in branch 1.
-            remoteCanvas.drawRect(nonCommonB, 0f.rf, 100f.rf, 100f.rf, Paint())
+            remoteCanvas.drawRect(nonCommonB, 0f.rf, 100f.rf, 100f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             // Use cseA directly in branch 2 to make it common!
-            remoteCanvas.drawRect(cseA, 20f.rf, 130f.rf, 140f.rf, Paint())
+            remoteCanvas.drawRect(cseA, 20f.rf, 130f.rf, 140f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1846,12 +1843,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
-            remoteCanvas.drawText(str, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(str, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
-            remoteCanvas.drawText(str, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1884,12 +1881,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
-            remoteCanvas.drawText(str, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(str, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
-            remoteCanvas.drawText(str, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1924,12 +1921,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val selected = cond.select(str1, str2)
-            remoteCanvas.drawText(selected, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(selected, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val selected = cond.select(str1, str2)
-            remoteCanvas.drawText(selected, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(selected, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -1965,12 +1962,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val sub = str.substring(6)
-            remoteCanvas.drawText(sub, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(sub, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val sub = str.substring(6)
-            remoteCanvas.drawText(sub, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(sub, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -2003,12 +2000,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val upper = str.uppercase()
-            remoteCanvas.drawText(upper, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(upper, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val upper = str.uppercase()
-            remoteCanvas.drawText(upper, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(upper, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -2041,12 +2038,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val trimmed = str.trim()
-            remoteCanvas.drawText(trimmed, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(trimmed, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val trimmed = str.trim()
-            remoteCanvas.drawText(trimmed, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(trimmed, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -2082,12 +2079,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val selected = selectIfLt(x, y, str1, str2)
-            remoteCanvas.drawText(selected, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(selected, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val selected = selectIfLt(x, y, str1, str2)
-            remoteCanvas.drawText(selected, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(selected, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -2128,12 +2125,12 @@ class RemoteCanvasTest {
 
         remoteCanvas.drawConditionally(condition1) {
             val selected = selectIfGt(x, y, str1, str2)
-            remoteCanvas.drawText(selected, 5, 10f.rf, 10f.rf, Paint())
+            remoteCanvas.drawText(selected, 10f.rf, 10f.rf, RemotePaint())
         }
 
         remoteCanvas.drawConditionally(condition2) {
             val selected = selectIfGt(x, y, str1, str2)
-            remoteCanvas.drawText(selected, 5, 20f.rf, 20f.rf, Paint())
+            remoteCanvas.drawText(selected, 20f.rf, 20f.rf, RemotePaint())
         }
 
         remoteCanvas.flush()
@@ -2164,9 +2161,9 @@ class RemoteCanvasTest {
 
     @Test
     fun testOrderingChain_ClipRect() {
-        remoteCanvas.drawRect(0f, 0f, 10f, 10f, Paint())
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
         remoteCanvas.clipRect(0f.rf, 0f.rf, 5f.rf, 5f.rf)
-        remoteCanvas.drawRect(0f, 0f, 10f, 10f, Paint())
+        remoteCanvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
         remoteCanvas.flush()
 
@@ -2252,7 +2249,7 @@ class RemoteCanvasTest {
             canvas.drawConditionally(condition) {
                 canvas.save()
                 canvas.translate(20f.rf, 20f.rf)
-                canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+                canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
                 canvas.restore()
             }
 
@@ -2269,11 +2266,11 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate(10f.rf, 10f.rf)
             canvas.translate(20f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
 
             // Subsequent drawing forces the above save/restore scope to PRESERVE its boundaries.
-            canvas.drawRect(10f, 10f, 20f, 20f, Paint())
+            canvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2296,7 +2293,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.translate(10f.rf, 20f.rf)
             canvas.translate((-10f).rf, (-20f).rf)
-            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2311,7 +2308,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.scale(2f.rf, 4f.rf)
             canvas.scale(0.5f.rf, 0.25f.rf)
-            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2326,7 +2323,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.rotate(45f.rf)
             canvas.rotate((-45f).rf)
-            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2341,7 +2338,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.skew(0.5f.rf, 0f.rf)
             canvas.skew((-0.5f).rf, 0f.rf)
-            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2357,7 +2354,7 @@ class RemoteCanvasTest {
             canvas.translate(10f.rf, 20f.rf)
             val t1SpanOp = canvas.buffer.lastRenderingOp!!
             canvas.translate(30f.rf, 40f.rf)
-            canvas.drawRect(0f, 0f, 50f, 50f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             // Simulate another operation in the span that directly depended on intermediate T1
             val extraOp = CanvasOperationBuffer.SpanOp(canvas.buffer.spanTreeRoot, CanvasOp.Clip {})
@@ -2384,7 +2381,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.translate(10f.rf, 20f.rf)
             canvas.translate(30f.rf, 40f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2404,7 +2401,7 @@ class RemoteCanvasTest {
             canvas.translate(10f.rf, 20f.rf)
             canvas.scale(2f.rf, 3f.rf)
             canvas.translate(5f.rf, 10f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2424,7 +2421,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.rotate(90f.rf)
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2444,7 +2441,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.save()
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
 
             canvas.flush()
@@ -2464,9 +2461,9 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.save()
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2491,11 +2488,11 @@ class RemoteCanvasTest {
 
             canvas.save()
             canvas.translate(30f.rf, 40f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
 
             canvas.restore()
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2518,11 +2515,11 @@ class RemoteCanvasTest {
             canvas.save() // Save A (No direct transforms, but contains B)
             canvas.save() // Save B (Has transforms, Has draws)
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore() // Restore B
             canvas.restore() // Restore A
 
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint()) // Draw C
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint()) // Draw C
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2544,7 +2541,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.rotate(45f.rf)
             canvas.rotate(90f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2578,7 +2575,7 @@ class RemoteCanvasTest {
             canvas.translate(10f.rf, 20f.rf)
             canvas.clipRect(0f.rf, 0f.rf, 50f.rf, 50f.rf)
             canvas.translate(30f.rf, 40f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2602,7 +2599,7 @@ class RemoteCanvasTest {
 
             canvas.translate(10f.rf, 20f.rf)
             canvas.translate(varA, varB)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2627,7 +2624,7 @@ class RemoteCanvasTest {
 
             canvas.rotate(10f.rf)
             canvas.rotate(varAngle)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2652,7 +2649,7 @@ class RemoteCanvasTest {
 
             canvas.scale(2f.rf, 3f.rf)
             canvas.scale(varSx, varSy)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2690,7 +2687,9 @@ class RemoteCanvasTest {
     fun testDrawConditionally_preservedWhenHasChildCommands() {
         runWithOptimizingCanvas { canvas, buffer ->
             val condition = createNamedRemoteBoolean("cond", true)
-            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.drawConditionally(condition) {
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
+            }
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2734,8 +2733,12 @@ class RemoteCanvasTest {
             val cond2 = createNamedRemoteBoolean("cond2", true)
             val expr = cond1 and cond2
 
-            canvas.drawConditionally(expr) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
-            canvas.drawConditionally(expr) { canvas.drawRect(10f, 10f, 20f, 20f, Paint()) }
+            canvas.drawConditionally(expr) {
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
+            }
+            canvas.drawConditionally(expr) {
+                canvas.drawRect(10f.rf, 10f.rf, 20f.rf, 20f.rf, RemotePaint())
+            }
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2766,7 +2769,7 @@ class RemoteCanvasTest {
 
             // First: convert expr to RemoteString and drawText (preserves expr)
             val str = expr.select(RemoteString("true"), RemoteString("false"))
-            canvas.drawText(str, 5, 10f.rf, 10f.rf, Paint())
+            canvas.drawText(str, 10f.rf, 10f.rf, RemotePaint())
 
             // Second: empty conditional block using expr (elided)
             canvas.drawConditionally(expr) {
@@ -2805,7 +2808,7 @@ class RemoteCanvasTest {
 
             // Second: convert expr to RemoteString and drawText (preserves expr)
             val str = expr.select(RemoteString("true"), RemoteString("false"))
-            canvas.drawText(str, 5, 20f.rf, 20f.rf, Paint())
+            canvas.drawText(str, 20f.rf, 20f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2875,7 +2878,9 @@ class RemoteCanvasTest {
                 canvas.restore()
             }
             // Child span 2: preserved
-            canvas.drawConditionally(cond2) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.drawConditionally(cond2) {
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
+            }
             // Child span 3: elided
             canvas.drawConditionally(cond3) {
                 // Empty block
@@ -2910,10 +2915,12 @@ class RemoteCanvasTest {
             // Save block with transforms right before a conditional draw
             canvas.save()
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(1f, 1f, 2f, 2f, Paint())
+            canvas.drawRect(1f.rf, 1f.rf, 2f.rf, 2f.rf, RemotePaint())
             canvas.restore()
 
-            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.drawConditionally(condition) {
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
+            }
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2939,7 +2946,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.scale(2f.rf, 3f.rf, 5f.rf, 5f.rf)
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2960,7 +2967,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.rotate(90f.rf, 10f.rf, 10f.rf)
             canvas.rotate(90f.rf, 20f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -2983,7 +2990,7 @@ class RemoteCanvasTest {
             val varPy = createNamedRemoteFloat("varPy", 5f)
 
             canvas.scale(2f.rf, 3f.rf, varPx, varPy)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -3007,7 +3014,7 @@ class RemoteCanvasTest {
     fun testDoubleEncodeDoesNotDuplicate() {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
 
             canvas.flush()
 
@@ -3047,7 +3054,7 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate(10f.rf, 10f.rf)
             canvas.restore()
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -3064,7 +3071,7 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate(10f.rf, 10f.rf)
             canvas.clipRect(0f.rf, 0f.rf, 10f.rf, 10f.rf)
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
             canvas.restore()
             // No drawing after it, so it will be inlined.
 
@@ -3088,12 +3095,12 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.save()
             canvas.translate(10f.rf, 10f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
 
             canvas.save()
             canvas.translate(20f.rf, 20f.rf)
-            canvas.drawRect(0f, 0f, 20f, 20f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 20f.rf, 20f.rf, RemotePaint())
             canvas.restore()
 
             canvas.flush()
@@ -3120,7 +3127,9 @@ class RemoteCanvasTest {
             val condition = createNamedRemoteBoolean("cond", true)
             canvas.save()
             canvas.translate(10f.rf, 20f.rf)
-            canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
+            canvas.drawConditionally(condition) {
+                canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
+            }
             canvas.restore()
 
             canvas.flush()
@@ -3148,7 +3157,7 @@ class RemoteCanvasTest {
             canvas.translate(5f.rf, 5f.rf)
             canvas.save()
             canvas.translate(10f.rf, 10f.rf)
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.restore()
 
             canvas.flush()
@@ -3169,7 +3178,7 @@ class RemoteCanvasTest {
         runWithOptimizingCanvas { canvas, buffer ->
             canvas.skew(1f.rf, 0f.rf)
             canvas.skew(0f.rf, 1f.rf)
-            canvas.drawRect(0f, 0f, 5f, 5f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, RemotePaint())
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -3188,12 +3197,12 @@ class RemoteCanvasTest {
     @Test
     fun testSaveRestoreWithoutTransformsInlinedEvenWithDrawingAfter() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val paint1 = Paint().apply { color = android.graphics.Color.RED }
-            val paint2 = Paint().apply { color = android.graphics.Color.BLUE }
+            val paint1 = RemotePaint { color = Color.Red.rc }
+            val paint2 = RemotePaint { color = Color.Blue.rc }
             canvas.save()
-            canvas.drawRect(0f, 0f, 5f, 5f, paint1)
+            canvas.drawRect(0f.rf, 0f.rf, 5f.rf, 5f.rf, paint1)
             canvas.restore()
-            canvas.drawRect(10f, 10f, 15f, 15f, paint2) // Drawing after!
+            canvas.drawRect(10f.rf, 10f.rf, 15f.rf, 15f.rf, paint2) // Drawing after!
 
             canvas.flush()
             canvas.document.encodeToByteArray()
@@ -3257,7 +3266,7 @@ class RemoteCanvasTest {
         val condition = createNamedRemoteBoolean("cond", true)
         val bitmap = RemoteImageBitmap.createForId(42)
         remoteCanvas.drawConditionally(condition) {
-            remoteCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
+            remoteCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, RemotePaint())
         }
         assertThat(remoteCanvas.saveCount).isEqualTo(0)
 
@@ -3308,7 +3317,7 @@ class RemoteCanvasTest {
             val condition = createNamedRemoteBoolean("cond", true)
             val bitmap = RemoteImageBitmap.createForId(42)
             canvas.drawConditionally(condition) {
-                canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint().asRemotePaint())
+                canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, RemotePaint())
             }
             assertThat(canvas.saveCount).isEqualTo(0)
 
@@ -3379,7 +3388,7 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate((-87f).rf, (-87f).rf)
             // Add a draw call so optimizing canvas preserves this transform block
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             assertThat(canvas.saveCount).isEqualTo(1)
 
             // Step 2: Temporarily pop transforms before drawing span
@@ -3397,13 +3406,13 @@ class RemoteCanvasTest {
             canvas.save()
             canvas.translate((-87f).rf, (-87f).rf)
             // Add a draw call so optimizing canvas preserves this reinstated transform block
-            canvas.drawRect(20f, 20f, 30f, 30f, Paint())
+            canvas.drawRect(20f.rf, 20f.rf, 30f.rf, 30f.rf, RemotePaint())
             canvas.restore()
             assertThat(canvas.saveCount).isEqualTo(0)
 
             // Step 4b: Draw something after the reinstated transform so the save block is preserved
             // by elision pass
-            canvas.drawRect(40f, 40f, 50f, 50f, Paint())
+            canvas.drawRect(40f.rf, 40f.rf, 50f.rf, 50f.rf, RemotePaint())
 
             // Step 5: Flush buffer and inspect wire command ordering after optimization and
             // topological sort
@@ -3576,10 +3585,10 @@ class RemoteCanvasTest {
 
         canvas.drawConditionally(RemoteBoolean(true)) {
             canvas.restore()
-            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.drawRect(0f.rf, 0f.rf, 10f.rf, 10f.rf, RemotePaint())
             canvas.save()
             canvas.translate(20f.rf, 30f.rf)
-            canvas.drawRect(5f, 5f, 15f, 15f, Paint())
+            canvas.drawRect(5f.rf, 5f.rf, 15f.rf, 15f.rf, RemotePaint())
         }
 
         canvas.restore()
@@ -3601,14 +3610,14 @@ class RemoteCanvasTest {
                 y,
                 x + 50f.rf,
                 y + 50f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = c },
+                RemotePaint { color = c },
             )
         }
 
-        macro(10f.rf, 10f.rf, RemoteColor(Color.RED), null)
-        macro(10f.rf, 100f.rf, RemoteColor(Color.GREEN), null)
-        macro(100f.rf, 10f.rf, RemoteColor(Color.BLUE), null)
-        macro(100f.rf, 100f.rf, RemoteColor(Color.YELLOW), null)
+        macro(10f.rf, 10f.rf, Color.Red.rc, null)
+        macro(10f.rf, 100f.rf, Color.Green.rc, null)
+        macro(100f.rf, 10f.rf, Color.Blue.rc, null)
+        macro(100f.rf, 100f.rf, Color.Yellow.rc, null)
 
         remoteCanvas.flush()
 
@@ -3644,14 +3653,14 @@ class RemoteCanvasTest {
                         y,
                         x + w,
                         y + h,
-                        CompatAndroidRemotePaint().apply { remoteColor = c },
+                        RemotePaint { color = c },
                     )
                 }
             }
 
-        macro(10f.rf, 10f.rf, 50f.rf, 50f.rf, RemoteColor(Color.RED), RemoteBoolean(true), null)
+        macro(10f.rf, 10f.rf, 50f.rf, 50f.rf, Color.Red.rc, RemoteBoolean(true), null)
         // Note this will get elided due to the condition being false.
-        macro(20f.rf, 20f.rf, 60f.rf, 60f.rf, RemoteColor(Color.GREEN), RemoteBoolean(false), null)
+        macro(20f.rf, 20f.rf, 60f.rf, 60f.rf, Color.Green.rc, RemoteBoolean(false), null)
 
         remoteCanvas.flush()
 
@@ -3672,7 +3681,7 @@ class RemoteCanvasTest {
                 cx,
                 50f.rf,
                 10f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) },
+                RemotePaint { color = Color.Blue.rc },
             )
         }
 
@@ -3700,14 +3709,14 @@ class RemoteCanvasTest {
         remoteCanvas.forEach(
             listOf(10f.rf, 40f.rf),
             listOf(15f.rf, 45f.rf),
-            listOf(RemoteColor(Color.RED), RemoteColor(Color.GREEN)),
+            listOf(Color.Red.rc, Color.Green.rc),
         ) { x, y, color ->
             remoteCanvas.drawRect(
                 x,
                 y,
                 x + 20f.rf,
                 y + 20f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = color },
+                RemotePaint { this.color = color },
             )
         }
 
@@ -3727,7 +3736,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_floatArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.RED) }
+        val paint = RemotePaint { color = Color.Red.rc }
         val array = RemoteFloatArray(listOf(100f.rf, 200f.rf))
 
         remoteCanvas.forEach(array) { x -> remoteCanvas.drawCircle(x, 50f.rf, 10f.rf, paint) }
@@ -3750,7 +3759,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_intArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) }
+        val paint = RemotePaint { color = Color.Blue.rc }
         val intArray = RemoteIntArray(10, 20, 30)
 
         remoteCanvas.forEach(intArray) { intVal ->
@@ -3777,7 +3786,7 @@ class RemoteCanvasTest {
 
     @Test
     fun testDefinePattern_withRemoteIntArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.GREEN) }
+        val paint = RemotePaint { color = Color.Green.rc }
         val listPattern = remoteCanvas.definePattern { offsets: RemoteIntArray ->
             remoteCanvas.forEach(offsets) { offset ->
                 remoteCanvas.drawCircle(offset.toRemoteFloat(), 25f.rf, 5f.rf, paint)
@@ -3804,11 +3813,11 @@ class RemoteCanvasTest {
 
     @Test
     fun testRemoteCanvas_forEach_stringArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLACK) }
+        val paint = RemotePaint { color = Color.Black.rc }
         val stringArray = RemoteStringArray(listOf("One".rs, "Two".rs))
 
         remoteCanvas.forEach(stringArray) { str ->
-            remoteCanvas.drawText(str, 3, 0f.rf, 10f.rf, paint)
+            remoteCanvas.drawText(str, 0f.rf, 10f.rf, paint)
         }
 
         remoteCanvas.flush()
@@ -3820,9 +3829,9 @@ class RemoteCanvasTest {
         assertThat(drawAndPaintCommands)
             .containsExactly(
                 "  paint.setColor(0xFF000000)",
-                "drawTextRun(text=\"One\", start=0, end=3, x=0.000000, y=10.000000)",
+                "drawTextRun(text=\"One\", start=0, end=-1, x=0.000000, y=10.000000)",
                 "  paint.setColor(0xFF000000)",
-                "drawTextRun(text=\"Two\", start=0, end=3, x=0.000000, y=10.000000)",
+                "drawTextRun(text=\"Two\", start=0, end=-1, x=0.000000, y=10.000000)",
             )
             .inOrder()
     }
@@ -3834,7 +3843,7 @@ class RemoteCanvasTest {
                 cx,
                 50f.rf,
                 10f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLUE) },
+                RemotePaint { color = Color.Blue.rc },
             )
         }
 
@@ -3861,7 +3870,7 @@ class RemoteCanvasTest {
                 cx.toRemoteFloat(),
                 50f.rf,
                 10f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.GREEN) },
+                RemotePaint { color = Color.Green.rc },
             )
         }
 
@@ -3886,10 +3895,9 @@ class RemoteCanvasTest {
         remoteCanvas.forEach(RemoteStringArray(listOf("Hello".rs, "World".rs))) { text ->
             remoteCanvas.drawText(
                 text,
-                5,
                 0f.rf,
                 10f.rf,
-                CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.BLACK) },
+                RemotePaint { color = Color.Black.rc },
             )
         }
 
@@ -3902,19 +3910,19 @@ class RemoteCanvasTest {
         assertThat(drawAndPaintCommands)
             .containsExactly(
                 "  paint.setColor(0xFF000000)",
-                "drawTextRun(text=\"Hello\", start=0, end=5, x=0.000000, y=10.000000)",
+                "drawTextRun(text=\"Hello\", start=0, end=-1, x=0.000000, y=10.000000)",
                 "  paint.setColor(0xFF000000)",
-                "drawTextRun(text=\"World\", start=0, end=5, x=0.000000, y=10.000000)",
+                "drawTextRun(text=\"World\", start=0, end=-1, x=0.000000, y=10.000000)",
             )
             .inOrder()
     }
 
     @Test
     fun testDefinePattern_withRemoteStringArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.MAGENTA) }
+        val paint = RemotePaint { color = Color.Magenta.rc }
         val listPattern = remoteCanvas.definePattern { texts: RemoteStringArray ->
             remoteCanvas.forEach(texts) { text ->
-                remoteCanvas.drawText(text, 5, 0f.rf, 20f.rf, paint)
+                remoteCanvas.drawText(text, 0f.rf, 20f.rf, paint)
             }
         }
 
@@ -3929,16 +3937,16 @@ class RemoteCanvasTest {
         assertThat(drawAndPaintCommands)
             .containsExactly(
                 "  paint.setColor(0xFFFF00FF)",
-                "drawTextRun(text=\"Alpha\", start=0, end=5, x=0.000000, y=20.000000)",
+                "drawTextRun(text=\"Alpha\", start=0, end=-1, x=0.000000, y=20.000000)",
                 "  paint.setColor(0xFFFF00FF)",
-                "drawTextRun(text=\"Omega\", start=0, end=5, x=0.000000, y=20.000000)",
+                "drawTextRun(text=\"Omega\", start=0, end=-1, x=0.000000, y=20.000000)",
             )
             .inOrder()
     }
 
     @Test
     fun testDefinePattern_withRemoteFloatArray() {
-        val paint = CompatAndroidRemotePaint().apply { remoteColor = RemoteColor(Color.RED) }
+        val paint = RemotePaint { color = Color.Red.rc }
         val listPattern = remoteCanvas.definePattern { offsets: RemoteFloatArray ->
             remoteCanvas.forEach(offsets) { offset ->
                 remoteCanvas.drawCircle(offset, 25f.rf, 5f.rf, paint)
@@ -3966,7 +3974,7 @@ class RemoteCanvasTest {
     @Test
     fun testDefinePattern_unsupportedType_throwsIllegalArgumentException() {
         val pattern = remoteCanvas.definePattern { dp: RemoteDp ->
-            remoteCanvas.drawCircle(dp.value, 25f.rf, 5f.rf, CompatAndroidRemotePaint())
+            remoteCanvas.drawCircle(dp.value, 25f.rf, 5f.rf, RemotePaint())
         }
 
         assertThrows(IllegalArgumentException::class.java) { pattern(10.rdp) }
