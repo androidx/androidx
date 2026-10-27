@@ -17,8 +17,11 @@
 package androidx.xr.scenecore.integration.tests
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.scenecore.GltfModel
@@ -58,6 +61,8 @@ import org.junit.runner.RunWith
  * spf_cpm`, parsed by [SpatialSceneHelper]): the attached geometry appears as an
  * [ENVIRONMENT_GEOMETRY_NODE] node under the [ENVIRONMENT_ROOT_NODE] node. The system environment
  * may use the same node name, so tests compare node ids rather than names.
+ *
+ * Skybox rendering is checked by sampling the colors of a screenshot region.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -191,6 +196,40 @@ class SpatialEnvironmentTest {
                 env.setPreferredEnvironmentAndSettle(null)
             }
         }
+
+    @Test
+    @XrDeviceTest
+    fun appEnvironment_setBlueSkybox_turnsScreenBlue() = runTestWithSession { session ->
+        session.scene.requestFullSpaceAndAwait()
+        val env = session.scene.spatialEnvironment
+        assertThat(session.scene.spatialCapabilities).contains(SpatialCapability.APP_ENVIRONMENT)
+
+        val blueIbl =
+            ImageBasedLightingAsset.createFromZip(session, Paths.get("skyboxes", "BlueSkybox.zip"))
+
+        try {
+            session.scene.mainPanelEntity.setEnabled(false)
+            env.preferredPassthroughOpacity = 0.0f
+
+            // Start from a black void so that the baseline does not depend on the system
+            // environment, which may itself contain blue.
+            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(null, null))
+            env.awaitPreferredEnvironmentActive(expected = true)
+            pollScreenshot("top half to not be blue", ::topHalfBlueFraction) {
+                it <= MAX_NOT_BLUE_FRACTION
+            }
+
+            env.setPreferredEnvironmentAndSettle(SpatialEnvironmentPreference(blueIbl, null))
+            pollScreenshot("top half to turn blue", ::topHalfBlueFraction) {
+                it >= MIN_BLUE_FRACTION
+            }
+        } finally {
+            session.scene.mainPanelEntity.setEnabled(true)
+            env.preferredPassthroughOpacity = SpatialEnvironment.NO_PASSTHROUGH_OPACITY_PREFERENCE
+            env.setPreferredEnvironmentAndSettle(null)
+            blueIbl.close()
+        }
+    }
 
     @Test
     @XrDeviceTest
@@ -438,12 +477,117 @@ class SpatialEnvironmentTest {
         until: (SpatialNode?) -> Boolean,
     ): SpatialNode? = pollSpatialScene(description, ::environmentGeometryNode, until)
 
+    /**
+     * Repeatedly takes screenshots until [until] holds for the value returned by [select]. Taking a
+     * screenshot blocks, so the loop runs on [Dispatchers.IO], and [select] and [until] are also
+     * evaluated off the main thread. The [Bitmap] passed to [select] is recycled after each call.
+     *
+     * @throws AssertionError if [until] does not hold within [SCREENSHOT_TIMEOUT], including when
+     *   no screenshot could be taken.
+     */
+    private suspend fun <T> pollScreenshot(
+        description: String,
+        select: (Bitmap) -> T,
+        until: (T) -> Boolean,
+    ): T =
+        withContext(Dispatchers.IO) {
+            val start = TimeSource.Monotonic.markNow()
+            var screenshotCount = 0
+            var lastValue: T? = null
+            while (true) {
+                val screenshot =
+                    InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+                if (screenshot != null) {
+                    screenshotCount++
+                    val value =
+                        try {
+                            select(screenshot)
+                        } finally {
+                            screenshot.recycle()
+                        }
+                    if (until(value)) return@withContext value
+                    lastValue = value
+                }
+                if (start.elapsedNow() >= SCREENSHOT_TIMEOUT) {
+                    break
+                }
+                delay(SCREENSHOT_POLL_INTERVAL)
+            }
+            throw AssertionError(
+                if (screenshotCount == 0) {
+                    "Timed out waiting for $description: takeScreenshot() kept returning null"
+                } else {
+                    "Timed out waiting for $description after $screenshotCount screenshots, " +
+                        "last value: $lastValue"
+                }
+            )
+        }
+
+    /**
+     * Returns the fraction of blue pixels in the top half of [screenshot] (the sky hemisphere). The
+     * screenshot is downscaled to [SAMPLE_WIDTH] pixels wide, keeping its aspect ratio, so that
+     * only a few pixels need to be classified.
+     */
+    private fun topHalfBlueFraction(screenshot: Bitmap): Float {
+        // Pixel access is not supported on hardware bitmaps.
+        val source =
+            if (screenshot.config == Bitmap.Config.HARDWARE) {
+                checkNotNull(screenshot.copy(Bitmap.Config.ARGB_8888, false))
+            } else {
+                screenshot
+            }
+        try {
+            val sampleHeight = (SAMPLE_WIDTH * source.height / source.width).coerceAtLeast(1)
+            val sample = Bitmap.createScaledBitmap(source, SAMPLE_WIDTH, sampleHeight, true)
+            val regionWidth = sample.width
+            val regionHeight = (sample.height / 2).coerceAtLeast(1)
+            val pixels = IntArray(regionWidth * regionHeight)
+            try {
+                sample.getPixels(pixels, 0, regionWidth, 0, 0, regionWidth, regionHeight)
+            } finally {
+                if (sample !== source) {
+                    sample.recycle()
+                }
+            }
+            val hsv = FloatArray(3)
+            val bluePixels = pixels.count { pixel ->
+                Color.colorToHSV(pixel, hsv)
+                hsv[0] in BLUE_HUE_RANGE &&
+                    hsv[1] >= MIN_BLUE_SATURATION &&
+                    hsv[2] >= MIN_BLUE_BRIGHTNESS
+            }
+            return bluePixels.toFloat() / pixels.size
+        } finally {
+            if (source !== screenshot) {
+                source.recycle()
+            }
+        }
+    }
+
     private companion object {
         val CALLBACK_TIMEOUT = 5.seconds
         const val OPACITY_TOLERANCE = 1e-4f
 
         val SCENE_TIMEOUT = 5.seconds
         val SCENE_POLL_INTERVAL = 100.milliseconds
+
+        val SCREENSHOT_TIMEOUT = 8.seconds
+        val SCREENSHOT_POLL_INTERVAL = 200.milliseconds
+
+        /** Width that screenshots are downscaled to before their colors are sampled. */
+        const val SAMPLE_WIDTH = 32
+
+        /**
+         * A pixel is blue when its hue is in [BLUE_HUE_RANGE] and it is saturated and bright enough
+         * to rule out white, grey, and black.
+         */
+        val BLUE_HUE_RANGE = 190f..250f
+        const val MIN_BLUE_SATURATION = 0.25f
+        const val MIN_BLUE_BRIGHTNESS = 0.25f
+
+        /** Fractions of blue pixels for a screenshot region to count as blue or as not blue. */
+        const val MIN_BLUE_FRACTION = 0.5f
+        const val MAX_NOT_BLUE_FRACTION = 0.1f
 
         /** Scene graph node that parents the active environment. */
         const val ENVIRONMENT_ROOT_NODE = "Environment Root"
