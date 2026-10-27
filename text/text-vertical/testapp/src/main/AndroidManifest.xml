@@ -16,8 +16,13 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="Vertical Text Demo">
-        <activity android:name=".VerticalTextSampleActivity" android:exported="true">
+        android:label="Vertical Text Demo"
+        android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true">
+        <activity
+            android:name=".DemoActivity"
+            android:configChanges="uiMode"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
