@@ -744,6 +744,46 @@ private class FillNode(var direction: Direction, var fraction: Float) :
 
         return layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
     }
+
+    private fun childMaxHeight(height: Int): Int =
+        if (
+            height != Constraints.Infinity &&
+                (direction == Direction.Vertical || direction == Direction.Both)
+        ) {
+            (height * fraction).fastRoundToInt().fastCoerceIn(0, height)
+        } else {
+            height
+        }
+
+    private fun childMaxWidth(width: Int): Int =
+        if (
+            width != Constraints.Infinity &&
+                (direction == Direction.Horizontal || direction == Direction.Both)
+        ) {
+            (width * fraction).fastRoundToInt().fastCoerceIn(0, width)
+        } else {
+            width
+        }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(childMaxHeight(height)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(childMaxHeight(height)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(childMaxWidth(width)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(childMaxWidth(width)).fastCoerceAtLeast(0)
 }
 
 private class SizeElement(
@@ -1059,6 +1099,40 @@ private class WrapContentNode(
             placeable.place(position)
         }
     }
+
+    private fun childMaxHeight(height: Int): Int =
+        if ((direction == Direction.Vertical || direction == Direction.Both) && unbounded) {
+            Constraints.Infinity
+        } else {
+            height
+        }
+
+    private fun childMaxWidth(width: Int): Int =
+        if ((direction == Direction.Horizontal || direction == Direction.Both) && unbounded) {
+            Constraints.Infinity
+        } else {
+            width
+        }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(childMaxHeight(height)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(childMaxHeight(height)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(childMaxWidth(width)).fastCoerceAtLeast(0)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(childMaxWidth(width)).fastCoerceAtLeast(0)
 }
 
 private class UnspecifiedConstraintsElement(

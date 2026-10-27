@@ -23,6 +23,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.max
 
@@ -200,6 +203,58 @@ private data class BoxMeasurePolicy(
             }
         }
     }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int,
+    ): Int {
+        var maxWidth = 0
+        measurables.fastForEach { measurable ->
+            if (!measurable.matchesParentSize) {
+                maxWidth = max(maxWidth, measurable.minIntrinsicWidth(height))
+            }
+        }
+        return maxWidth
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int,
+    ): Int {
+        var maxHeight = 0
+        measurables.fastForEach { measurable ->
+            if (!measurable.matchesParentSize) {
+                maxHeight = max(maxHeight, measurable.minIntrinsicHeight(width))
+            }
+        }
+        return maxHeight
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int,
+    ): Int {
+        var maxWidth = 0
+        measurables.fastForEach { measurable ->
+            if (!measurable.matchesParentSize) {
+                maxWidth = max(maxWidth, measurable.maxIntrinsicWidth(height))
+            }
+        }
+        return maxWidth
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurables: List<IntrinsicMeasurable>,
+        width: Int,
+    ): Int {
+        var maxHeight = 0
+        measurables.fastForEach { measurable ->
+            if (!measurable.matchesParentSize) {
+                maxHeight = max(maxHeight, measurable.maxIntrinsicHeight(width))
+            }
+        }
+        return maxHeight
+    }
 }
 
 private fun Placeable.PlacementScope.placeInBox(
@@ -234,9 +289,33 @@ public fun Box(modifier: Modifier) {
     Layout(measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
 }
 
-internal val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
-    layout(constraints.minWidth, constraints.minHeight) {}
-}
+internal val EmptyBoxMeasurePolicy: MeasurePolicy =
+    object : MeasurePolicy {
+        override fun MeasureScope.measure(
+            measurables: List<Measurable>,
+            constraints: Constraints,
+        ): MeasureResult = layout(constraints.minWidth, constraints.minHeight) {}
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int,
+        ): Int = 0
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int,
+        ): Int = 0
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurables: List<IntrinsicMeasurable>,
+            height: Int,
+        ): Int = 0
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurables: List<IntrinsicMeasurable>,
+            width: Int,
+        ): Int = 0
+    }
 
 /** A BoxScope provides a scope for the children of [Box] and [BoxWithConstraints]. */
 @LayoutScopeMarker
@@ -289,9 +368,9 @@ internal object BoxScopeInstance : BoxScope {
         )
 }
 
-private val Measurable.boxChildDataNode: BoxChildDataNode?
+private val IntrinsicMeasurable.boxChildDataNode: BoxChildDataNode?
     get() = parentData as? BoxChildDataNode
-private val Measurable.matchesParentSize: Boolean
+private val IntrinsicMeasurable.matchesParentSize: Boolean
     get() = boxChildDataNode?.matchParentSize ?: false
 
 private class BoxChildDataElement(

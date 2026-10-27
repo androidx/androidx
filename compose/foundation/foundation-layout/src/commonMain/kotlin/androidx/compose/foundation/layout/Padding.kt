@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastCoerceAtLeast
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end] and
@@ -468,6 +471,50 @@ private class PaddingNode(
             }
         }
     }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int {
+        val horizontal = start.roundToPx() + end.roundToPx()
+        val vertical = top.roundToPx() + bottom.roundToPx()
+        val childHeight =
+            if (height == Constraints.Infinity) height else (height - vertical).fastCoerceAtLeast(0)
+        return (measurable.minIntrinsicWidth(childHeight) + horizontal).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        val horizontal = start.roundToPx() + end.roundToPx()
+        val vertical = top.roundToPx() + bottom.roundToPx()
+        val childWidth =
+            if (width == Constraints.Infinity) width else (width - horizontal).fastCoerceAtLeast(0)
+        return (measurable.minIntrinsicHeight(childWidth) + vertical).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int {
+        val horizontal = start.roundToPx() + end.roundToPx()
+        val vertical = top.roundToPx() + bottom.roundToPx()
+        val childHeight =
+            if (height == Constraints.Infinity) height else (height - vertical).fastCoerceAtLeast(0)
+        return (measurable.maxIntrinsicWidth(childHeight) + horizontal).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        val horizontal = start.roundToPx() + end.roundToPx()
+        val vertical = top.roundToPx() + bottom.roundToPx()
+        val childWidth =
+            if (width == Constraints.Infinity) width else (width - horizontal).fastCoerceAtLeast(0)
+        return (measurable.maxIntrinsicHeight(childWidth) + vertical).fastCoerceAtLeast(0)
+    }
 }
 
 private class PaddingValuesElement(
@@ -525,5 +572,65 @@ private class PaddingValuesModifier(var paddingValues: PaddingValues) :
         val width = constraints.constrainWidth(placeable.width + horizontal)
         val height = constraints.constrainHeight(placeable.height + vertical)
         return layout(width, height) { placeable.place(roundedLeftPadding, roundedTopPadding) }
+    }
+
+    private fun IntrinsicMeasureScope.checkAndCalculateHorizontalVerticalPadding(): Pair<Int, Int> {
+        val leftPadding = paddingValues.calculateLeftPadding(layoutDirection)
+        val topPadding = paddingValues.calculateTopPadding()
+        val rightPadding = paddingValues.calculateRightPadding(layoutDirection)
+        val bottomPadding = paddingValues.calculateBottomPadding()
+
+        requirePrecondition(
+            (leftPadding >= 0.dp) and
+                (topPadding >= 0.dp) and
+                (rightPadding >= 0.dp) and
+                (bottomPadding >= 0.dp)
+        ) {
+            "Padding must be non-negative"
+        }
+
+        val horizontal = leftPadding.roundToPx() + rightPadding.roundToPx()
+        val vertical = topPadding.roundToPx() + bottomPadding.roundToPx()
+        return horizontal to vertical
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int {
+        val (horizontal, vertical) = checkAndCalculateHorizontalVerticalPadding()
+        val childHeight =
+            if (height == Constraints.Infinity) height else (height - vertical).fastCoerceAtLeast(0)
+        return (measurable.minIntrinsicWidth(childHeight) + horizontal).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        val (horizontal, vertical) = checkAndCalculateHorizontalVerticalPadding()
+        val childWidth =
+            if (width == Constraints.Infinity) width else (width - horizontal).fastCoerceAtLeast(0)
+        return (measurable.minIntrinsicHeight(childWidth) + vertical).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int {
+        val (horizontal, vertical) = checkAndCalculateHorizontalVerticalPadding()
+        val childHeight =
+            if (height == Constraints.Infinity) height else (height - vertical).fastCoerceAtLeast(0)
+        return (measurable.maxIntrinsicWidth(childHeight) + horizontal).fastCoerceAtLeast(0)
+    }
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int {
+        val (horizontal, vertical) = checkAndCalculateHorizontalVerticalPadding()
+        val childWidth =
+            if (width == Constraints.Infinity) width else (width - horizontal).fastCoerceAtLeast(0)
+        return (measurable.maxIntrinsicHeight(childWidth) + vertical).fastCoerceAtLeast(0)
     }
 }
