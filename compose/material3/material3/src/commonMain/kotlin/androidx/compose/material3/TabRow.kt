@@ -60,8 +60,10 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -1090,6 +1092,7 @@ public object TabRowDefaults {
      * @param currentTabPosition [TabPosition] of the currently selected tab. This is used to
      *   calculate the offset of the indicator this modifier is applied to, as well as its width.
      */
+    @OptIn(ExperimentalMaterial3Api::class)
     @Deprecated(
         level = DeprecationLevel.WARNING,
         message =
@@ -1098,29 +1101,118 @@ public object TabRowDefaults {
                 "TabIndicatorScope.tabIndicatorOffset method.",
     )
     public fun Modifier.tabIndicatorOffset(currentTabPosition: TabPosition): Modifier =
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "tabIndicatorOffset"
-                    value = currentTabPosition
-                }
-        ) {
-            // TODO Load the motionScheme tokens from the component tokens file
-            val currentTabWidth by
-                animateDpAsState(
-                    targetValue = currentTabPosition.width,
-                    animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
-                )
-            val indicatorOffset by
-                animateDpAsState(
-                    targetValue = currentTabPosition.left,
-                    animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
-                )
-            fillMaxWidth()
+        if (ComposeMaterial3Flags.isTabIndicatorOffsetNodeEnabled) {
+            this.fillMaxWidth()
                 .wrapContentSize(Alignment.BottomStart)
-                .offset { IntOffset(x = indicatorOffset.roundToPx(), y = 0) }
-                .width(currentTabWidth)
+                .then(TabIndicatorOffsetByPositionElement(currentTabPosition))
+        } else {
+            legacyTabIndicatorOffset(currentTabPosition)
         }
+}
+
+private fun Modifier.legacyTabIndicatorOffset(currentTabPosition: TabPosition): Modifier =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "tabIndicatorOffset"
+                value = currentTabPosition
+            }
+    ) {
+        // TODO Load the motionScheme tokens from the component tokens file
+        val currentTabWidth by
+            animateDpAsState(
+                targetValue = currentTabPosition.width,
+                animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            )
+        val indicatorOffset by
+            animateDpAsState(
+                targetValue = currentTabPosition.left,
+                animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            )
+        fillMaxWidth()
+            .wrapContentSize(Alignment.BottomStart)
+            .offset { IntOffset(x = indicatorOffset.roundToPx(), y = 0) }
+            .width(currentTabWidth)
+    }
+
+private class TabIndicatorOffsetByPositionElement(private val currentTabPosition: TabPosition) :
+    ModifierNodeElement<TabIndicatorOffsetByPositionNode>() {
+    override fun create(): TabIndicatorOffsetByPositionNode =
+        TabIndicatorOffsetByPositionNode(currentTabPosition)
+
+    override fun update(node: TabIndicatorOffsetByPositionNode) {
+        node.currentTabPosition = currentTabPosition
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "tabIndicatorOffset"
+        value = currentTabPosition
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TabIndicatorOffsetByPositionElement) return false
+        return currentTabPosition == other.currentTabPosition
+    }
+
+    override fun hashCode(): Int = currentTabPosition.hashCode()
+}
+
+private class TabIndicatorOffsetByPositionNode(var currentTabPosition: TabPosition) :
+    Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
+    private var offsetAnimatable: Animatable<Dp, AnimationVector1D>? = null
+    private var widthAnimatable: Animatable<Dp, AnimationVector1D>? = null
+    private var initialOffset: Dp? = null
+    private var initialWidth: Dp? = null
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        // TODO Load the motionScheme tokens from the component tokens file
+        val animationSpec: FiniteAnimationSpec<Dp> =
+            currentValueOf(MaterialTheme.LocalMaterialTheme)
+                .motionScheme
+                .fromToken(MotionSchemeKeyTokens.DefaultSpatial)
+
+        val currentTabWidth = currentTabPosition.width
+        if (initialWidth != null) {
+            val widthAnim =
+                widthAnimatable
+                    ?: Animatable(initialWidth!!, Dp.VectorConverter).also { widthAnimatable = it }
+            if (currentTabWidth != widthAnim.targetValue) {
+                coroutineScope.launch { widthAnim.animateTo(currentTabWidth, animationSpec) }
+            }
+        } else {
+            initialWidth = currentTabWidth
+        }
+
+        val indicatorOffset = currentTabPosition.left
+        if (initialOffset != null) {
+            val offsetAnim =
+                offsetAnimatable
+                    ?: Animatable(initialOffset!!, Dp.VectorConverter).also {
+                        offsetAnimatable = it
+                    }
+            if (indicatorOffset != offsetAnim.targetValue) {
+                coroutineScope.launch { offsetAnim.animateTo(indicatorOffset, animationSpec) }
+            }
+        } else {
+            initialOffset = indicatorOffset
+        }
+
+        val offset = offsetAnimatable?.value ?: indicatorOffset
+        val width = widthAnimatable?.value ?: currentTabWidth
+
+        val placeable =
+            measurable.measure(
+                constraints.copy(minWidth = width.roundToPx(), maxWidth = width.roundToPx())
+            )
+
+        return layout(placeable.width, placeable.height) {
+            placeable.placeRelative(offset.roundToPx(), 0)
+        }
+    }
 }
 
 private enum class TabSlots {
