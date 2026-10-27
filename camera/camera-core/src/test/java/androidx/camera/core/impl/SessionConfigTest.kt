@@ -176,6 +176,27 @@ class SessionConfigTest {
     }
 
     @Test
+    fun closeableErrorListener_close_stopsForwardingAndReleasesDelegate() {
+        var invokedCount = 0
+        val listener = SessionConfig.ErrorListener { _, _ -> invokedCount++ }
+        val closeableListener = SessionConfig.CloseableErrorListener(listener)
+
+        val sessionConfig = SessionConfig.defaultEmptySessionConfig()
+        closeableListener.onError(
+            sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
+        )
+        assertThat(invokedCount).isEqualTo(1)
+
+        closeableListener.close()
+        closeableListener.onError(
+            sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
+        )
+        assertThat(invokedCount).isEqualTo(1)
+    }
+
+    @Test
     fun builderAddOption() {
         val builder = SessionConfig.Builder()
 

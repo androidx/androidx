@@ -372,7 +372,7 @@ public final class SessionConfig {
      */
     public static final class CloseableErrorListener implements ErrorListener {
         private final AtomicBoolean mIsClosed = new AtomicBoolean(false);
-        private final ErrorListener mErrorListener;
+        private volatile @Nullable ErrorListener mErrorListener;
 
         public CloseableErrorListener(@NonNull ErrorListener errorListener) {
             mErrorListener = errorListener;
@@ -381,7 +381,10 @@ public final class SessionConfig {
         @Override
         public void onError(@NonNull SessionConfig sessionConfig, @NonNull SessionError error) {
             if (!mIsClosed.get()) {
-                mErrorListener.onError(sessionConfig, error);
+                ErrorListener listener = mErrorListener;
+                if (listener != null) {
+                    listener.onError(sessionConfig, error);
+                }
             }
         }
 
@@ -390,6 +393,7 @@ public final class SessionConfig {
          */
         public void close() {
             mIsClosed.set(true);
+            mErrorListener = null;
         }
     }
 

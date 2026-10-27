@@ -176,7 +176,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(wrappedImageReader);
 
         // Listen to the input edges.
-        setOnImageAvailableListener(wrappedImageReader);
+        setOnImageAvailableListener(mSafeCloseImageReaderProxy);
 
         // Postview
         PostviewSettings postviewSettings = inputEdge.getPostviewSettings();
@@ -186,7 +186,8 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                             postviewSettings.getResolution().getWidth(),
                             postviewSettings.getResolution().getHeight(),
                             postviewSettings.getInputFormat());
-            postviewImageReader.setOnImageAvailableListener(imageReader -> {
+            mSafeCloseImageReaderForPostview = new SafeCloseImageReaderProxy(postviewImageReader);
+            mSafeCloseImageReaderForPostview.setOnImageAvailableListener(imageReader -> {
                 try {
                     ImageProxy image = imageReader.acquireLatestImage();
                     if (image != null) {
@@ -197,7 +198,6 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                 }
             }, mainThreadExecutor());
 
-            mSafeCloseImageReaderForPostview = new SafeCloseImageReaderProxy(postviewImageReader);
             inputEdge.setPostviewSurface(postviewImageReader.getSurface(),
                     postviewSettings.getResolution(), postviewSettings.getInputFormat());
         }
@@ -209,7 +209,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                     secondaryFormat);
             mSecondarySafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(
                     secondaryWrappedImageReader);
-            setOnImageAvailableListener(secondaryWrappedImageReader);
+            setOnImageAvailableListener(mSecondarySafeCloseImageReaderProxy);
         }
 
         inputEdge.getRequestEdge().setListener(requestConsumer);
