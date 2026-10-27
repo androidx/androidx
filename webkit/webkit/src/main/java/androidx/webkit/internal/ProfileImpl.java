@@ -425,6 +425,28 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    @ExperimentalSelectedSiteIsolation
+    public void configureIsolatedSites(@NonNull Set<@NonNull String> sites) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_SELECTED_SITE_ISOLATION_V1;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.configureIsolatedSites(sites);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    @ExperimentalSelectedSiteIsolation
+    public boolean canConfigureIsolatedSites() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_SELECTED_SITE_ISOLATION_V1;
+        if (feature.isSupportedByWebView()) {
+            return mProfileImpl.canConfigureIsolatedSites();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;

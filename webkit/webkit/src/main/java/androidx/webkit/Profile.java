@@ -820,4 +820,112 @@ public interface Profile {
                 + "not implemented.");
     }
 
+    /**
+     * Denotes that the selected site isolation API surface is experimental.
+     * It may change without warning.
+     */
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
+    @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @interface ExperimentalSelectedSiteIsolation {
+    }
+
+    /**
+     * Configures a set of sites to be isolated from all other web content in this profile by
+     * running them in a separate renderer process to the default used by other sites.
+     * <p>
+     * Sites in the supplied Set will never share a renderer process with sites outside of this Set,
+     * though sites within the Set may still share a renderer process with each other. This can be
+     * used, for example, to ensure privileged first-party content does not run in the same renderer
+     * process as untrusted third-party content.
+     * <p>
+     * Each entry in {@code sites} must be a valid HTTP or HTTPS <a
+     * href="https://html.spec.whatwg.org/multipage/browsers.html#site">site</a> (scheme +
+     * registrable domain or host) in canonical form (for example, {@code "https://example.com"},
+     * with no port, trailing slash, path, query, or fragment).
+     * <p>
+     * Note that this API does not accept wildcards, and does not need to: specifying a site such as
+     * {@code "https://google.com"} automatically includes subdomain origins under it (such as
+     * {@code "https://mail.google.com"}), provided that no subdomain is itself a distinct site on
+     * the <a href="https://publicsuffix.org/">Public Suffix List</a>. Conversely, specifying a
+     * public suffix itself (such as {@code "https://github.io"}) only covers that exact origin and
+     * not its subdomains (such as {@code "https://foo.github.io"}), which are distinct sites.
+     * <p>
+     * Note that because what constitutes a site depends on the Public Suffix List, updates to the
+     * Public Suffix List between WebView versions may change whether a given domain is considered a
+     * valid site.
+     * <p>
+     * You should specifically supply higher trust or first-party sites to this API, rather than
+     * lower trust or third-party sites, as it is trivial for content in the selected sites'
+     * renderer to spin off controlled secondary content to run in the default renderer.
+     * <p>
+     * Avoid including sites that use plaintext HTTP ({@code "http://..."}) unless necessary, as
+     * unencrypted traffic may allow network attackers to compromise the renderer process used
+     * specifically for isolated sites and thus weaken the security of the sites running within it.
+     * <p>
+     * If using this API, use caution when using evaluateJavascript on an unnavigated WebView, as
+     * this may potentially execute code in either renderer process. This may either leak sensitive
+     * information to a less-trusted process, or execute untrusted code in a more-trusted process.
+     * If you need to call evaluateJavascript, consider first navigating to an appropriate site in
+     * order to ensure a specific renderer process is used for the evaluation, though be aware of
+     * the consequences of evaluating such code within the security context of a specific origin.
+     * <p>
+     * You must check the result of {@link #canConfigureIsolatedSites()} before calling this method
+     * in order to check for the required runtime support and to ensure the profile is in an
+     * appropriate state. You may only configure isolated sites once per profile, and it must be
+     * done before any renderer process has been used by this profile.
+     *
+     * @param sites A non-empty set of HTTP or HTTPS sites in canonical form to isolate.
+     * @throws IllegalArgumentException if {@code sites} is empty, or if any entry in {@code sites}
+     *                                  is malformed, not HTTP/HTTPS, not a site, or not in
+     *                                  canonical form.
+     * @throws IllegalStateException if isolated sites have already been configured for this
+     *                               profile, or if a renderer process has already been used by this
+     *                               profile.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalSelectedSiteIsolation
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    default void configureIsolatedSites(@NonNull Set<@NonNull String> sites) {
+        throw new UnsupportedOperationException(
+                "Profile#configureIsolatedSites is not implemented.");
+    }
+
+    /**
+     * Returns whether {@link #configureIsolatedSites(Set)} can be called on this profile.
+     * <p>
+     * Isolated sites may only be configured once per profile, and must be configured before any
+     * renderer process has been used by this profile. This generally means you should configure
+     * this before performing any action that loads web content, such as loading a page into a
+     * WebView or performing a pre-render.
+     * <p>
+     * This method also checks for runtime support that isn't implied by the presence of the
+     * {@link WebViewFeature#PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1} feature. As such, you
+     * should always call this method before calling {@link #configureIsolatedSites(Set)}, even if
+     * you know this configuration is the first action being performed on the profile.
+     *
+     * @return {@code true} if {@link #configureIsolatedSites(Set)} can be called on this profile,
+     *     {@code false} otherwise.
+     * @throws UnsupportedOperationException if the
+     *     {@link WebViewFeature#PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1} feature is not
+     *     supported. This should be checked before use with
+     *     {@link WebViewFeature#isFeatureSupported}.
+     */
+    @RequiresFeature(name = WebViewFeature.PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @ExperimentalSelectedSiteIsolation
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @UiThread
+    default boolean canConfigureIsolatedSites() {
+        throw new UnsupportedOperationException(
+                "Profile#canConfigureIsolatedSites is not implemented.");
+    }
+
 }
