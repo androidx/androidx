@@ -224,15 +224,17 @@ public object RemoteCardDefaults {
         timeColor: RemoteColor? = null,
         titleColor: RemoteColor? = null,
         subtitleColor: RemoteColor? = null,
-    ): RemoteCardColors =
-        RemoteMaterialTheme.colorScheme.defaultCardColors.copy(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            appNameColor = appNameColor,
-            timeColor = timeColor,
-            titleColor = titleColor,
-            subtitleColor = subtitleColor,
+    ): RemoteCardColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultCardColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            contentColor = contentColor ?: default.contentColor,
+            appNameColor = appNameColor ?: default.appNameColor,
+            timeColor = timeColor ?: default.timeColor,
+            titleColor = titleColor ?: default.titleColor,
+            subtitleColor = subtitleColor ?: default.subtitleColor,
         )
+    }
 
     /**
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
@@ -261,15 +263,17 @@ public object RemoteCardDefaults {
         timeColor: RemoteColor? = null,
         titleColor: RemoteColor? = null,
         subtitleColor: RemoteColor? = null,
-    ): RemoteCardColors =
-        RemoteMaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
+    ): RemoteCardColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultOutlinedCardColors
+        return default.copy(
             containerColor = RemoteColor(Color.Transparent),
-            contentColor = contentColor,
-            appNameColor = appNameColor,
-            timeColor = timeColor,
-            titleColor = titleColor,
-            subtitleColor = subtitleColor,
+            contentColor = contentColor ?: default.contentColor,
+            appNameColor = appNameColor ?: default.appNameColor,
+            timeColor = timeColor ?: default.timeColor,
+            titleColor = titleColor ?: default.titleColor,
+            subtitleColor = subtitleColor ?: default.subtitleColor,
         )
+    }
 
     /** The default border color used for outlined cards. */
     public val outlinedCardBorderColor: RemoteColor
@@ -386,15 +390,17 @@ public object RemoteCardDefaults {
         timeColor: RemoteColor? = null,
         titleColor: RemoteColor? = null,
         subtitleColor: RemoteColor? = null,
-    ): RemoteCardColors =
-        RemoteMaterialTheme.colorScheme.defaultCardWithContainerPainterColors.copy(
+    ): RemoteCardColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultCardWithContainerPainterColors
+        return default.copy(
             containerColor = RemoteColor(Color.Transparent),
-            contentColor = contentColor,
-            appNameColor = appNameColor,
-            timeColor = timeColor,
-            titleColor = titleColor,
-            subtitleColor = subtitleColor,
+            contentColor = contentColor ?: default.contentColor,
+            appNameColor = appNameColor ?: default.appNameColor,
+            timeColor = timeColor ?: default.timeColor,
+            titleColor = titleColor ?: default.titleColor,
+            subtitleColor = subtitleColor ?: default.subtitleColor,
         )
+    }
 
     /** The default size of the app icon/image when used inside a [RemoteAppCard]. */
     public val AppImageSize: RemoteDp = 18.rdp
@@ -485,20 +491,20 @@ public class RemoteCardColors(
      * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard]
      */
     public fun copy(
-        containerColor: RemoteColor? = null,
-        contentColor: RemoteColor? = null,
-        appNameColor: RemoteColor? = null,
-        timeColor: RemoteColor? = null,
-        titleColor: RemoteColor? = null,
-        subtitleColor: RemoteColor? = null,
+        containerColor: RemoteColor = this.containerColor,
+        contentColor: RemoteColor = this.contentColor,
+        appNameColor: RemoteColor = this.appNameColor,
+        timeColor: RemoteColor = this.timeColor,
+        titleColor: RemoteColor = this.titleColor,
+        subtitleColor: RemoteColor = this.subtitleColor,
     ): RemoteCardColors =
         RemoteCardColors(
-            containerColor = containerColor ?: this.containerColor,
-            contentColor = contentColor ?: this.contentColor,
-            appNameColor = appNameColor ?: this.appNameColor,
-            timeColor = timeColor ?: this.timeColor,
-            titleColor = titleColor ?: this.titleColor,
-            subtitleColor = subtitleColor ?: this.subtitleColor,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            appNameColor = appNameColor,
+            timeColor = timeColor,
+            titleColor = titleColor,
+            subtitleColor = subtitleColor,
         )
 }
 
