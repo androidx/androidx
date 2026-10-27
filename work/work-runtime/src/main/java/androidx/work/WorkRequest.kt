@@ -118,6 +118,23 @@ internal constructor(
         }
 
         /**
+         * Sets the backoff policy and backoff delay for the work. The default values are
+         * [BackoffPolicy.EXPONENTIAL] and [WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS], respectively.
+         * `duration` will be clamped between [WorkRequest.MIN_BACKOFF_MILLIS] and
+         * [WorkRequest.MAX_BACKOFF_MILLIS]. Sub-millisecond precision is truncated.
+         *
+         * @param backoffPolicy The [BackoffPolicy] to use when increasing backoff time
+         * @param duration Time to wait before retrying the work
+         * @return The current [Builder]
+         */
+        @Suppress("MissingGetterMatchingBuilder", "ValueClassUsageWithoutJvmName")
+        public fun setBackoffCriteria(
+            backoffPolicy: BackoffPolicy,
+            duration: kotlin.time.Duration,
+        ): B =
+            setBackoffCriteria(backoffPolicy, duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+
+        /**
          * Adds constraints to the [WorkRequest].
          *
          * @param constraints The constraints for the work
@@ -231,6 +248,24 @@ internal constructor(
         }
 
         /**
+         * Specifies that the results of this work should be kept for at least the specified amount
+         * of time. After this time has elapsed, the results may be pruned at the discretion of
+         * WorkManager when this WorkRequest has reached a finished state (see
+         * [WorkInfo.State.isFinished]) and there are no pending dependent jobs.
+         *
+         * When the results of a work are pruned, it becomes impossible to query for its [WorkInfo].
+         *
+         * Specifying a long duration here may adversely affect performance in terms of app storage
+         * and database query time. Sub-millisecond precision is truncated.
+         *
+         * @param duration The minimum duration of time to keep the results of this work
+         * @return The current [Builder]
+         */
+        @Suppress("BuilderSetStyle", "ValueClassUsageWithoutJvmName")
+        public fun keepResultsForAtLeast(duration: kotlin.time.Duration): B =
+            keepResultsForAtLeast(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+
+        /**
          * Sets an initial delay for the [WorkRequest].
          *
          * @param duration The length of the delay in `timeUnit` units
@@ -263,6 +298,18 @@ internal constructor(
             }
             return thisObject
         }
+
+        /**
+         * Sets an initial delay for the [WorkRequest]. Sub-millisecond precision is truncated.
+         *
+         * @param duration The length of the delay
+         * @return The current [Builder]
+         * @throws IllegalArgumentException if the given initial delay will push the execution time
+         *   past `Long.MAX_VALUE` and cause an overflow
+         */
+        @Suppress("MissingGetterMatchingBuilder", "ValueClassUsageWithoutJvmName")
+        public fun setInitialDelay(duration: kotlin.time.Duration): B =
+            setInitialDelay(duration.inWholeMilliseconds, TimeUnit.MILLISECONDS)
 
         /**
          * Marks the [WorkRequest] as important to the user. In this case, WorkManager provides an
