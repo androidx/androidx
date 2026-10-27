@@ -574,3 +574,14 @@ internal object Api35Compat {
         return extensionCharacteristics.get(extension, key)
     }
 }
+
+@RequiresApi(37)
+internal object Api37Compat {
+    @JvmStatic
+    fun isExtensionSupported(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+    ): Boolean {
+        return extensionCharacteristics.isExtensionSupported(extension)
+    }
+}

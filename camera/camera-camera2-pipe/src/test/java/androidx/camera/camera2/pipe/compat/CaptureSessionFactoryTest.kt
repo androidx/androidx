@@ -445,5 +445,9 @@ class FakeCamera2Module {
             override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
                 throw UnsupportedOperationException("Unused for internal tests")
             }
+
+            override fun isExtensionSupported(cameraId: CameraId, extension: Int): Boolean {
+                return awaitCameraMetadata(cameraId).isExtensionSupported(extension)
+            }
         }
 }

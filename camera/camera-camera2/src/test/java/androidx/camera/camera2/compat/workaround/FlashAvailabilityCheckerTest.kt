@@ -127,6 +127,8 @@ class FlashAvailabilityCheckerTest(
         override val metadataKeys: Set<Metadata.Key<*>>
             get() = emptySet()
 
+        override fun isExtensionSupported(extension: Int): Boolean = false
+
         override fun <T : Any> unwrapAs(type: Class<T>): T? {
             TODO("Not yet implemented")
         }

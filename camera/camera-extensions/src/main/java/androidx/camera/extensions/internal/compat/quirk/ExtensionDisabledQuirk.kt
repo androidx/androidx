@@ -42,7 +42,7 @@ public class ExtensionDisabledQuirk : Quirk {
     /** Returns true if the extension mode should be disabled for the given camera ID. */
     public fun shouldDisableExtension(
         cameraId: String,
-        @ExtensionMode.Mode extensionMode: Int,
+        extensionMode: Int,
     ): Boolean {
         if (cameraId == "0") {
             return extensionMode == ExtensionMode.BOKEH ||

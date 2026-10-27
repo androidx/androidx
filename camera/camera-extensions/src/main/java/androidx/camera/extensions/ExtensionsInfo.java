@@ -84,7 +84,7 @@ final class ExtensionsInfo {
      */
     @NonNull CameraSelector getExtensionCameraSelectorAndInjectCameraConfig(
             @NonNull CameraSelector baseCameraSelector,
-            @ExtensionMode.Mode int mode) {
+            int mode) {
         if (!isExtensionAvailable(baseCameraSelector, mode)) {
             throw new IllegalArgumentException("No camera can be found to support the specified "
                     + "extensions mode! isExtensionAvailable should be checked first before "
@@ -123,7 +123,7 @@ final class ExtensionsInfo {
      */
     boolean isExtensionAvailable(
             @NonNull CameraSelector baseCameraSelector,
-            @ExtensionMode.Mode int mode) {
+            int mode) {
         CameraSelector.Builder builder = CameraSelector.Builder.fromSelector(baseCameraSelector);
         builder.addCameraFilter(getCameraFilter(mode));
 
@@ -150,7 +150,7 @@ final class ExtensionsInfo {
      */
     @Nullable Range<Long> getEstimatedCaptureLatencyRangeMillis(
             @NonNull CameraSelector cameraSelector,
-            @ExtensionMode.Mode int mode, @Nullable Size resolution) {
+            int mode, @Nullable Size resolution) {
         // Adds the filter to find a CameraInfo of the Camera which supports the specified
         // extension mode. Checks this first so that the API behavior will be the same no matter
         // the vendor library is above version 1.2 or not.
@@ -177,7 +177,7 @@ final class ExtensionsInfo {
     }
 
     boolean isImageAnalysisSupported(@NonNull CameraSelector cameraSelector,
-            @ExtensionMode.Mode int mode) {
+            int mode) {
         CameraSelector newCameraSelector = CameraSelector.Builder.fromSelector(
                 cameraSelector).addCameraFilter(getCameraFilter(mode)).build();
         CameraInfo extensionsCameraInfo;
@@ -199,7 +199,7 @@ final class ExtensionsInfo {
      * Obtains the extension camera filter for the given extension mode.
      */
     @NonNull
-    CameraFilter getCameraFilter(@ExtensionMode.Mode int mode) {
+    CameraFilter getCameraFilter(int mode) {
         CameraFilter filter;
         String id = getExtendedCameraConfigProviderId(mode);
 
@@ -212,7 +212,7 @@ final class ExtensionsInfo {
      * Injects {@link CameraConfigProvider} for specified extension mode to the
      * {@link ExtendedCameraConfigProviderStore}.
      */
-    void injectExtensionCameraConfig(@ExtensionMode.Mode int mode) {
+    void injectExtensionCameraConfig(int mode) {
         Identifier id = Identifier.create(getExtendedCameraConfigProviderId(mode));
 
         if (ExtendedCameraConfigProviderStore.getConfigProvider(id) == CameraConfigProvider.EMPTY) {
@@ -247,7 +247,7 @@ final class ExtensionsInfo {
     }
 
     @NonNull
-    VendorExtender getVendorExtenderAndInit(@ExtensionMode.Mode int mode,
+    VendorExtender getVendorExtenderAndInit(int mode,
             @NonNull CameraInfo cameraInfo) {
         String cameraId = ((CameraInfoInternal) cameraInfo).getCameraId();
         String cacheKey = mode + ":" + cameraId;
@@ -264,7 +264,7 @@ final class ExtensionsInfo {
     }
 
     @NonNull
-    VendorExtender getVendorExtender(@ExtensionMode.Mode int mode) {
+    VendorExtender getVendorExtender(int mode) {
         VendorExtender vendorExtender;
         // Returns Camera2ExtensionsVendorExtender only when API level is 33 or above.
         // CameraExtensionCharacteristics#getAvailableCaptureRequestKeys(int) is supported since
@@ -279,7 +279,7 @@ final class ExtensionsInfo {
     }
 
     @VisibleForTesting
-    static String getExtendedCameraConfigProviderId(@ExtensionMode.Mode int mode) {
+    static String getExtendedCameraConfigProviderId(int mode) {
         String id;
 
         switch (mode) {
@@ -302,7 +302,8 @@ final class ExtensionsInfo {
                 id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "EXTENSION_MODE_NONE";
                 break;
             default:
-                throw new IllegalArgumentException("Invalid extension mode!");
+                id = EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX + "VENDOR_DEFINED_MODE_" + mode;
+                break;
         }
         return id;
     }

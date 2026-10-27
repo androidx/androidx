@@ -350,4 +350,20 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     public @NonNull Set<Integer> getAvailableCapabilities() {
         return mCameraInfoInternal.getAvailableCapabilities();
     }
+
+    @Override
+    public @NonNull Set<Integer> getSupportedExtensions() {
+        return mCameraInfoInternal.getSupportedExtensions();
+    }
+
+    @Override
+    public boolean isExtensionSupported(int extensionMode) {
+        return mCameraInfoInternal.isExtensionSupported(extensionMode);
+    }
+
+    @Override
+    public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
+            int extensionMode) {
+        return mCameraInfoInternal.getCameraExtensionCapabilities(extensionMode);
+    }
 }
