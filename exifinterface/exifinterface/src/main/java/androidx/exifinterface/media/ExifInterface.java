@@ -74,6 +74,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -7854,9 +7855,23 @@ public class ExifInterface {
                 // Write entry count
                 dataOutputStream.writeUnsignedShort(mAttributes[ifdType].size());
 
+                // Sort entries in ascending order by tag number as required by TIFF 6.0 Section 2
+                // and JEITA CP-3451C Section 4.6.2.
+                final int currentIfdType = ifdType;
+                List<Map.Entry<String, ExifAttribute>> entries =
+                        new ArrayList<>(mAttributes[ifdType].entrySet());
+                Collections.sort(
+                        entries,
+                        (e1, e2) ->
+                                Integer.compare(
+                                        sExifTagMapsForWriting[currentIfdType]
+                                                .get(e1.getKey()).number,
+                                        sExifTagMapsForWriting[currentIfdType]
+                                                .get(e2.getKey()).number));
+
                 // Write entry info
                 int dataOffset = ifdOffsets[ifdType] + 2 + mAttributes[ifdType].size() * 12 + 4;
-                for (Map.Entry<String, ExifAttribute> entry : mAttributes[ifdType].entrySet()) {
+                for (Map.Entry<String, ExifAttribute> entry : entries) {
                     // Convert tag name to tag number.
                     final ExifTag tag = sExifTagMapsForWriting[ifdType].get(entry.getKey());
                     final int tagNumber = tag.number;
@@ -7890,7 +7905,7 @@ public class ExifInterface {
                 }
 
                 // Write values of data field exceeding 4 bytes after the next offset.
-                for (Map.Entry<String, ExifAttribute> entry : mAttributes[ifdType].entrySet()) {
+                for (Map.Entry<String, ExifAttribute> entry : entries) {
                     ExifAttribute attribute = entry.getValue();
 
                     if (attribute.bytes.length > 4) {
