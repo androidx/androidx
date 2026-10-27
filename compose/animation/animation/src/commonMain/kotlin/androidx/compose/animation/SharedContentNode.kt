@@ -524,7 +524,20 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
         if (!sharedElementEntry.shouldApplyContainerTransform) {
             if (sharedElementEntry.shouldSeekDuringDeferredTransition) {
                 forcedHandoffBounds = currentBounds.translate(-mfrDelta)
-                forcedHandoffVelocity = null
+                val progressVelocity = mutableState.sharedElementProgressHandoffVelocity
+                val baseBounds = boundsAnimation.value?.translate(mfrDelta)
+                val targetBounds = sharedElement.pendingTargetBounds
+                forcedHandoffVelocity =
+                    if (baseBounds != null && targetBounds != null && progressVelocity != 0f) {
+                        AnimationVector4D(
+                            (targetBounds.left - baseBounds.left) * progressVelocity,
+                            (targetBounds.top - baseBounds.top) * progressVelocity,
+                            (targetBounds.right - baseBounds.right) * progressVelocity,
+                            (targetBounds.bottom - baseBounds.bottom) * progressVelocity,
+                        )
+                    } else {
+                        null
+                    }
                 sharedElementEntry.hasHandoffOccurred = true
             }
             return

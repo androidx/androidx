@@ -159,4 +159,23 @@ class SharedMutableTransformStateTest {
         assertEquals(0f, state.slideHandoffVelocity?.v1 ?: Float.NaN, 0f)
         assertEquals(0f, state.slideHandoffVelocity?.v2 ?: Float.NaN, 0f)
     }
+
+    @Test
+    fun resolveSharedElementProgress_constantValueWithDuplicateTimestamps_handoffVelocityIsZero() {
+        var now = 0L
+        testTimeSource = { now }
+        val state = SharedMutableTransformState()
+        state.mutableData = MutableTransform().apply { sharedElementProgress(progress = { 0.5f }) }
+        state.updateMutationState(isMutating = true, isSettled = true)
+
+        now = 0L
+        state.resolveSharedElementProgress()
+        now = 30L
+        state.resolveSharedElementProgress()
+        state.resolveSharedElementProgress()
+
+        state.updateMutationState(isMutating = false, isSettled = true)
+
+        assertEquals(0f, state.sharedElementProgressHandoffVelocity, 0f)
+    }
 }

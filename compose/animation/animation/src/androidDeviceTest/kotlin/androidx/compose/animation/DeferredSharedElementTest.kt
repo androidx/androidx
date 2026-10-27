@@ -2228,4 +2228,116 @@ class DeferredSharedElementTest {
         rule.waitForIdle()
         assertEquals(IntRect(100, 100, 200, 200), getBounds())
     }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testDetachedSeekingHandoffVelocity() {
+        var myState: DeferredTransitionState<String>? = null
+        var previewProgress by mutableFloatStateOf(0f)
+
+        try {
+            rule.setContent {
+                val px0 = with(LocalDensity.current) { 0.toDp() }
+                val px50 = with(LocalDensity.current) { 50.toDp() }
+                val px100 = with(LocalDensity.current) { 100.toDp() }
+                val px200 = with(LocalDensity.current) { 200.toDp() }
+                val px300 = with(LocalDensity.current) { 300.toDp() }
+
+                SharedTransitionLayout(
+                    Modifier.size(px300).testTag("scope").background(Color.White)
+                ) {
+                    val state = remember { DeferredTransitionState("B") }
+                    myState = state
+                    val transition = rememberDeferredTransition(state)
+                    val mutableTransform = remember {
+                        MutableContentTransform { sharedElementProgress { previewProgress } }
+                    }
+                    transition.DeferredAnimatedContent(
+                        mutableTransformSpec = { mutableTransform },
+                        transitionSpec = {
+                            fadeIn(tween(1000)) togetherWith
+                                fadeOut(
+                                    spring(
+                                        stiffness = Spring.StiffnessVeryLow,
+                                        visibilityThreshold = null,
+                                    )
+                                )
+                        },
+                    ) { target ->
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                Modifier.offset(
+                                        x = if (target == "A") px50 else px0,
+                                        y = if (target == "A") px50 else px0,
+                                    )
+                                    .sharedBounds(
+                                        rememberSharedContentState(
+                                            "shared",
+                                            SharedContentConfig(
+                                                deferredTransitionBehavior =
+                                                    DeferredTransitionBehavior.SeekToTarget
+                                            ),
+                                        ),
+                                        animatedVisibilityScope = this@DeferredAnimatedContent,
+                                    )
+                                    .size(if (target == "A") px100 else px200)
+                                    .background(Color.Red)
+                            )
+                        }
+                    }
+                }
+            }
+            rule.waitForIdle()
+            rule.mainClock.autoAdvance = false
+
+            fun simulateSeekGesture(isFast: Boolean): IntRect {
+                rule.runOnIdle { myState?.defer("A") }
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+
+                val steps =
+                    if (isFast) {
+                        listOf(0.1f, 0.3f, 0.5f)
+                    } else {
+                        listOf(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)
+                    }
+                for (p in steps) {
+                    previewProgress = p
+                    rule.mainClock.advanceTimeByFrame()
+                    rule.waitForIdle()
+                }
+
+                rule.runOnIdle { myState!!.animateTo("A") }
+                repeat(3) { rule.mainClock.advanceTimeByFrame() }
+                rule.waitForIdle()
+
+                return getBounds()
+            }
+
+            // Scenario 1: Slow seek gesture from B (0, 0, 200, 200) toward A (50, 50, 150, 150)
+            val boundsSlow = simulateSeekGesture(isFast = false)
+
+            // Reset state back to B
+            rule.mainClock.autoAdvance = true
+            rule.runOnIdle { myState!!.animateTo("B") }
+            rule.waitForIdle()
+            rule.mainClock.autoAdvance = false
+            previewProgress = 0f
+
+            // Scenario 2: Fast seek gesture
+            val boundsFast = simulateSeekGesture(isFast = true)
+
+            // With higher progress velocity toward A (50, 50, 150, 150), all four edges
+            // should have moved further toward A's bounds at t+3 frames.
+            assertTrue(
+                "Expected $boundsFast to be further toward (50, 50, 150, 150) than $boundsSlow",
+                boundsFast.left > boundsSlow.left &&
+                    boundsFast.top > boundsSlow.top &&
+                    boundsFast.right < boundsSlow.right &&
+                    boundsFast.bottom < boundsSlow.bottom,
+            )
+        } finally {
+            rule.mainClock.autoAdvance = true
+        }
+    }
 }

@@ -259,10 +259,13 @@ internal class SharedMutableTransformState {
                     }
                 scaleVelocityTracker?.resetTracking()
                 offsetVelocityTracker?.resetTracking()
+                sharedElementProgressVelocityTracker?.resetTracking()
                 lastScaleTrackMillis = Long.MIN_VALUE
                 lastSlideTrackMillis = Long.MIN_VALUE
+                lastProgressTrackMillis = Long.MIN_VALUE
                 scaleHandoffVelocity = null
                 slideHandoffVelocity = null
+                sharedElementProgressHandoffVelocity = 0f
             }
         } else {
             if (
@@ -301,7 +304,11 @@ internal class SharedMutableTransformState {
 
     internal fun resolveSharedElementProgress(): Float {
         val provider = mutableData?.sharedElementProgressProvider ?: return 0f
-        return provider().coerceIn(0f, 1f)
+        val progress = provider().coerceIn(0f, 1f)
+        if (isMutating) {
+            trackSharedElementProgressVelocity(progress)
+        }
+        return progress
     }
 
     private val timeSource = TimeSource.Monotonic
@@ -428,13 +435,18 @@ internal class SharedMutableTransformState {
 
     private var scaleVelocityTracker: VelocityTracker? = null
     private var offsetVelocityTracker: VelocityTracker? = null
+    private var sharedElementProgressVelocityTracker: VelocityTracker? = null
     private var lastScaleTrackMillis: Long = Long.MIN_VALUE
     private var lastSlideTrackMillis: Long = Long.MIN_VALUE
+    private var lastProgressTrackMillis: Long = Long.MIN_VALUE
 
     var scaleHandoffVelocity: AnimationVector1D? = null
         private set
 
     var slideHandoffVelocity: AnimationVector2D? = null
+        private set
+
+    var sharedElementProgressHandoffVelocity: Float = 0f
         private set
 
     private fun calculateHandoffVelocities() {
@@ -452,6 +464,10 @@ internal class SharedMutableTransformState {
                     vel.y.takeUnless { it.isNaN() } ?: 0f,
                 )
             }
+
+        sharedElementProgressHandoffVelocity =
+            sharedElementProgressVelocityTracker?.calculateVelocity()?.x?.takeUnless { it.isNaN() }
+                ?: 0f
     }
 
     val slideHandoffOffset: (IntSize) -> IntOffset = { lastSlide }
@@ -478,6 +494,16 @@ internal class SharedMutableTransformState {
             offsetVelocityTracker = VelocityTracker()
         }
         offsetVelocityTracker?.addPosition(now, Offset(value.x.toFloat(), value.y.toFloat()))
+    }
+
+    private fun trackSharedElementProgressVelocity(value: Float) {
+        val now = currentMillis
+        if (now <= lastProgressTrackMillis) return
+        lastProgressTrackMillis = now
+        if (sharedElementProgressVelocityTracker == null) {
+            sharedElementProgressVelocityTracker = VelocityTracker()
+        }
+        sharedElementProgressVelocityTracker?.addPosition(now, Offset(value, 0f))
     }
 
     fun evaluateTransformBlock(fullSize: IntSize) {
@@ -612,8 +638,11 @@ internal class SharedMutableTransformState {
         lastManualSlide = IntOffset.Zero
         offsetVelocityTracker?.resetTracking()
         lastSlideTrackMillis = Long.MIN_VALUE
+        sharedElementProgressVelocityTracker?.resetTracking()
+        lastProgressTrackMillis = Long.MIN_VALUE
         scaleHandoffVelocity = null
         slideHandoffVelocity = null
+        sharedElementProgressHandoffVelocity = 0f
         lastMutableData = null
         mutableData = null
     }
