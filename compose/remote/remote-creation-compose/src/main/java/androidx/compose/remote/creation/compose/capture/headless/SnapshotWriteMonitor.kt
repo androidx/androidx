@@ -20,9 +20,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.snapshots.ObserverHandle
 import androidx.compose.runtime.snapshots.Snapshot
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -86,6 +88,22 @@ internal object SnapshotWriteMonitor {
         get() = synchronized(lock) { monitors.isNotEmpty() }
 
     /**
+     * Acquires a monitor for a capture session running in [sessionContext]: uses [DefaultContext]
+     * when [sessionContext] has no [ContinuationInterceptor] or uses [Dispatchers.Default] so
+     * default sessions share one monitor, and otherwise runs on [sessionContext]'s interceptor so
+     * caller-supplied dispatchers (such as a `TestDispatcher` or main dispatcher) receive apply
+     * notifications on that same dispatcher.
+     */
+    fun acquireForSession(sessionContext: CoroutineContext): AutoCloseable {
+        val interceptor = sessionContext[ContinuationInterceptor]
+        return if (interceptor == null || interceptor == Dispatchers.Default) {
+            acquire()
+        } else {
+            acquire(interceptor)
+        }
+    }
+
+    /**
      * Starts a monitor on [context] if no other session holds one there. Close the returned handle
      * (once) when the session ends; the monitor stops when the last handle for its context is
      * closed.
@@ -94,11 +112,12 @@ internal object SnapshotWriteMonitor {
      *   single-threaded slice of [Dispatchers.Default].
      */
     fun acquire(context: CoroutineContext = DefaultContext): AutoCloseable {
+        val monitorContext = context.minusKey(Job)
         synchronized(lock) {
-            val monitor = monitors.getOrPut(context) { startMonitor(context) }
+            val monitor = monitors.getOrPut(monitorContext) { startMonitor(monitorContext) }
             monitor.refCount++
         }
-        return Handle(context)
+        return Handle(monitorContext)
     }
 
     private fun startMonitor(context: CoroutineContext): Monitor {
