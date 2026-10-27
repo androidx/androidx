@@ -48,17 +48,4 @@ package androidx.compose.ui.text
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalTextApi
-public object AndroidComposeUiTextFlags {
-
-    /**
-     * When `true`, a text with non-default [TextStyle.lineHeight] will be optimized so that a
-     * LineHeightStyleSpan is not applied, and the line height is calculated manually inside
-     * Compose. This prevents the text from being measured by StaticLayout only due to a line
-     * height. This will only be applied for single line text (softwrap == false)
-     */
-    // TODO(b/512676269) remove the flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isSingleLineLineHeightOptimizationEnabled: Boolean = true
-}
+@ExperimentalTextApi public object AndroidComposeUiTextFlags

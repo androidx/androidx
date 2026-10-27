@@ -3,9 +3,7 @@
 package androidx.compose.ui.text {
 
   @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class AndroidComposeUiTextFlags {
-    property public boolean isSingleLineLineHeightOptimizationEnabled;
     field public static final androidx.compose.ui.text.AndroidComposeUiTextFlags INSTANCE;
-    field public static boolean isSingleLineLineHeightOptimizationEnabled;
   }
 
   public final class AndroidTextStyle_androidKt {

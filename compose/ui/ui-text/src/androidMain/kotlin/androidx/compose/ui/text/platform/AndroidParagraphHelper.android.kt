@@ -22,11 +22,9 @@ import android.text.SpannableString
 import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.style.CharacterStyle
-import androidx.compose.ui.text.AndroidComposeUiTextFlags
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.DefaultIncludeFontPadding
 import androidx.compose.ui.text.EmojiSupportMatch
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
@@ -55,7 +53,6 @@ import androidx.emoji2.text.EmojiCompat
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_ALL
 import androidx.emoji2.text.EmojiCompat.REPLACE_STRATEGY_DEFAULT
 
-@OptIn(ExperimentalTextApi::class)
 @Suppress("UNCHECKED_CAST")
 internal fun createCharSequence(
     text: String,
@@ -148,8 +145,7 @@ internal fun createCharSequence(
         //    or layout width under BoringLayout, so they do not require StaticLayout.
         // 9. IncludeFontPadding is enabled.
         if (
-            !AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled ||
-                softWrap ||
+            softWrap ||
                 mayHaveNewLine ||
                 placeholders.isNotEmpty() ||
                 (contextTextStyle.textIndent ?: TextIndent.None) != TextIndent.None ||
