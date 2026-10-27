@@ -129,13 +129,16 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
 
         /**
          * Operations of the built-in profiles that the draw loop leaves to features, so an app that
-         * doesn't need them can leave them out, see [MatrixFeature].
+         * doesn't need them can leave them out, see [MatrixFeature] and [ParticlesFeature].
          */
         internal val FeatureOpcodes: IntSet =
             intSetOf(
                 Operations.MATRIX_EXPRESSION,
                 Operations.MATRIX_VECTOR_MATH,
                 Operations.MATRIX_FROM_PATH,
+                Operations.PARTICLE_DEFINE,
+                Operations.PARTICLE_LOOP,
+                Operations.PARTICLE_COMPARE,
             )
 
         private const val MAX_OPCODE = 255
@@ -151,7 +154,14 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
 public object RcPlayerFeatures {
     /** All features the library provides. */
     public val All: List<RcPlayerFeature>
-        get() = listOf(MatrixFeature, MeshFeature, SoundFeature.Default, SensorFeature)
+        get() =
+            listOf(
+                MatrixFeature,
+                ParticlesFeature,
+                MeshFeature,
+                SoundFeature.Default,
+                SensorFeature,
+            )
 
     /**
      * The features for documents with [profileMask]: those whose [RcPlayerFeature.profiles] the

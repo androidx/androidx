@@ -22,8 +22,10 @@ import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ import org.robolectric.annotation.Config
  * force draw passes (Robolectric doesn't draw otherwise); the assertions are on the particle
  * *state* the core simulation advances.
  */
+@OptIn(ExperimentalRemotePlayerApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class RcPlayerParticlesTest {
@@ -447,6 +450,60 @@ class RcPlayerParticlesTest {
         }
 
         assertRed(bitmap, 30, 60)
+    }
+
+    @Test
+    fun explicitFeatureSetWithoutParticlesFeatureSkipsParticles() {
+        val bitmap = rule.renderDocument(redParticleDocument(), RcPlayerFeatureSet.Empty)
+
+        assertNotRed(bitmap, 30, 60)
+    }
+
+    @Test
+    fun explicitFeatureSetWithParticlesFeatureRunsParticles() {
+        val bitmap =
+            rule.renderDocument(redParticleDocument(), RcPlayerFeatureSet(ParticlesFeature))
+
+        assertRed(bitmap, 30, 60)
+    }
+
+    @Test
+    fun defaultFeaturesIncludeParticlesForEveryProfile() {
+        assertThat(RcPlayerFeatures.forProfiles(RcProfiles.PROFILE_BASELINE).features)
+            .contains(ParticlesFeature)
+        assertThat(RcPlayerFeatures.forProfiles(RcProfiles.PROFILE_ANDROIDX).features)
+            .contains(ParticlesFeature)
+    }
+
+    @Test
+    fun particleOpcodesAreUnsupportedWithoutParticlesFeature() {
+        val unsupported = RcPlayerFeatureSet.Empty.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX)
+
+        ParticlesFeature.opcodes.forEach { assertThat(it in unsupported).isTrue() }
+        assertThat(
+                RcPlayerFeatureSet(ParticlesFeature)
+                    .unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX)
+                    .any { it in ParticlesFeature.opcodes }
+            )
+            .isFalse()
+    }
+
+    /** One red particle drawn at (30, 60). */
+    private fun redParticleDocument(): CoreDocument {
+        val vars = FloatArray(2)
+        rule.mainClock.autoAdvance = false
+        return buildDocument {
+            painter.setColor(AndroidColor.RED).commit()
+            val particles =
+                writer.createParticles(vars, arrayOf(floatArrayOf(30f), floatArrayOf(60f)), 1)
+            writer.particlesLoop(
+                particles,
+                null,
+                arrayOf(floatArrayOf(vars[0]), floatArrayOf(vars[1])),
+            ) {
+                writer.drawCircle(vars[0], vars[1], 6f)
+            }
+        }
     }
 
     private fun findParticlesCreate(document: CoreDocument): ParticlesCreate? =
