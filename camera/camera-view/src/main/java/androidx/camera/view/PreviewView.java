@@ -78,6 +78,7 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.internal.ScreenFlashUiInfo;
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk;
+import androidx.camera.view.internal.compat.quirk.SurfaceViewNotSupportedInExtensionSessionQuirk;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 import androidx.camera.view.transform.CoordinateTransform;
 import androidx.camera.view.transform.OutputTransform;
@@ -430,8 +431,10 @@ public final class PreviewView extends FrameLayout {
      * <p> {@link PreviewView} displays the preview with a {@link TextureView} when the
      * mode is {@link ImplementationMode#COMPATIBLE}, and tries to use a {@link SurfaceView} if
      * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
-     * attributes (e.g. API level, camera hardware support level). If not set, the default mode
-     * is {@link ImplementationMode#PERFORMANCE}.
+     * attributes (e.g. API level, camera hardware support level) and the camera configuration
+     * (e.g. whether Extensions are enabled, since {@link SurfaceView} is not supported with
+     * Extensions on API level 33 and below). If not set, the default mode is
+     * {@link ImplementationMode#PERFORMANCE}.
      *
      * <p> This method needs to be called before the {@link Preview.SurfaceProvider} is set on
      * {@link Preview}. Once changed, {@link Preview.SurfaceProvider} needs to be set again. e.g.
@@ -723,9 +726,16 @@ public final class PreviewView extends FrameLayout {
                 .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         boolean hasSurfaceViewQuirk = DeviceQuirks.get(SurfaceViewStretchedQuirk.class) != null
                 || DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk.class) != null;
-        if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk) {
+        SurfaceViewNotSupportedInExtensionSessionQuirk extensionQuirk =
+                DeviceQuirks.get(SurfaceViewNotSupportedInExtensionSessionQuirk.class);
+        boolean isSurfaceViewUnsupportedForExtension = extensionQuirk != null
+                && extensionQuirk.isSurfaceViewNotSupported(
+                        surfaceRequest.getCamera().getExtendedConfig());
+        if (Build.VERSION.SDK_INT <= 24 || isLegacyDevice || hasSurfaceViewQuirk
+                || isSurfaceViewUnsupportedForExtension) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
-            // level or SurfaceView has quirks.
+            // level, SurfaceView has quirks, or SurfaceView is not supported by the Camera2
+            // Extensions session of the camera.
             return true;
         }
         switch (implementationMode) {
@@ -804,9 +814,9 @@ public final class PreviewView extends FrameLayout {
          *
          * <p>{@link PreviewView} falls back to {@link TextureView} when the API level is 24 or
          * lower, the camera hardware support level is
-         * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}, or
+         * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY},
          * {@link Preview#getTargetRotation()} is different from {@link PreviewView}'s display
-         * rotation.
+         * rotation, or Extensions are enabled on API level 33 or lower.
          *
          * <p>Do not use this mode if {@link Preview.Builder#setTargetRotation(int)} is set
          * to a value different than the display's rotation, because {@link SurfaceView} does not

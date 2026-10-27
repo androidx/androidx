@@ -16,6 +16,9 @@
 
 package androidx.camera.compose
 
+import androidx.camera.compose.internal.compat.quirk.DeviceQuirks
+import androidx.camera.compose.internal.compat.quirk.SurfaceViewNotSupportedInExtensionSessionQuirk
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.ViewfinderDefaults
@@ -24,37 +27,45 @@ import androidx.camera.viewfinder.core.ViewfinderDefaults
  * Utility class for determining the appropriate [ImplementationMode] for [CameraXViewfinder].
  *
  * This class extends the compatibility logic from `viewfinder-core` by incorporating
- * camera-specific information, such as the hardware level.
+ * camera-specific information, such as the hardware level and extended configuration.
  */
 internal class CameraImplementationModeCompat {
     companion object {
         /**
          * Chooses a compatible [ImplementationMode] for the viewfinder based on the camera's
-         * capabilities.
+         * capabilities and configuration.
          *
          * In general, this method returns [ImplementationMode.EXTERNAL] as it typically offers
          * higher performance. However, it returns [ImplementationMode.EMBEDDED] under the following
          * conditions:
-         * - If the camera device associated with the [cameraInfo] has a
+         * - If the [camera] has a
          *   [LEGACY][android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY]
          *   hardware level.
-         * - If the device is not LEGACY, it falls back to checking for other compatibility issues,
-         *   including:
+         * - If Camera2 Extensions are enabled (the [camera]'s extended configuration has a
+         *   [androidx.camera.core.impl.SessionProcessor] of type
+         *   [androidx.camera.core.impl.SessionProcessor.TYPE_CAMERA2_EXTENSION]) on a device with
+         *   [SurfaceViewNotSupportedInExtensionSessionQuirk] (API level 33 and below).
+         * - Otherwise, it falls back to checking for other compatibility issues, including:
          *     - Being on API level 24 (Android N) or below.
          *     - Being on a device with known surface-related quirks.
          *
-         * @param cameraInfo The [CameraInfo] used to determine the camera's hardware level.
+         * @param camera The [Camera] used to determine the camera's hardware level and extended
+         *   configuration.
          * @return The chosen [ImplementationMode].
          */
-        fun chooseCompatibleMode(cameraInfo: CameraInfo): ImplementationMode {
+        fun chooseCompatibleMode(camera: Camera): ImplementationMode {
             val isLegacyDevice =
-                cameraInfo.getImplementationType() == CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+                camera.cameraInfo.implementationType ==
+                    CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+            val isSurfaceViewUnsupportedForExtension =
+                DeviceQuirks.get(SurfaceViewNotSupportedInExtensionSessionQuirk::class.java)
+                    ?.isSurfaceViewNotSupported(camera.extendedConfig) == true
 
-            return if (isLegacyDevice) {
+            return if (isLegacyDevice || isSurfaceViewUnsupportedForExtension) {
                 ImplementationMode.EMBEDDED
             } else {
                 // Fall back to the duplicated device-specific compatibility logic.
-                return ViewfinderDefaults.implementationMode
+                ViewfinderDefaults.implementationMode
             }
         }
     }

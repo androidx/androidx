@@ -22,20 +22,32 @@ import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.os.Build
+import android.view.SurfaceView
+import android.view.TextureView
+import android.view.View
+import android.view.ViewGroup
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionSessionConfig
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
@@ -45,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -530,6 +543,46 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         assertThat(isScreenFlashReady).isTrue()
     }
 
+    @Test
+    fun viewfinderCanEnterStreamingState_withExtensionSessionConfig() = runViewfinderTest {
+        Assume.assumeTrue(!Build.MODEL.contains("Cuttlefish", true))
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        ExtensionsUtil.assumePcsSupportedForImageCapture(context)
+
+        var hostView: View? = null
+        composeTest.setContent {
+            val view = LocalView.current
+            SideEffect { hostView = view }
+            val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
+            currentSurfaceRequest?.let { surfaceRequest ->
+                CameraXViewfinder(
+                    surfaceRequest = surfaceRequest,
+                    onStreamStateChanged = { currentStreamState.set(it) },
+                    modifier = Modifier.testTag(CAMERAX_VIEWFINDER_TEST_TAG),
+                )
+            }
+        }
+
+        composeTest.awaitIdle()
+        assertThat(currentStreamState.get()).isEqualTo(Preview.STREAM_STATE_IDLE)
+
+        startCameraWithExtension()
+
+        composeTest.waitUntil(timeoutMillis = 10000) {
+            currentStreamState.get() == Preview.STREAM_STATE_STREAMING
+        }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+            // Assert: SurfaceView isn't supported by Camera2 Extensions on API 33 and below, so the
+            // default implementation mode should fall back to EMBEDDED (TextureView).
+            composeTest.runOnIdle {
+                val rootView = checkNotNull(hostView)
+                assertThat(rootView.containsViewOfType(SurfaceView::class.java)).isFalse()
+                assertThat(rootView.containsViewOfType(TextureView::class.java)).isTrue()
+            }
+        }
+    }
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -537,6 +590,15 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
 
         private const val CAMERAX_VIEWFINDER_TEST_TAG = "CameraXViewfinderTestTag"
         private const val NUM_FRAMES_TO_WAIT_FOR = 10
+
+        private val EXTENSION_MODES =
+            listOf(
+                ExtensionMode.BOKEH,
+                ExtensionMode.HDR,
+                ExtensionMode.NIGHT,
+                ExtensionMode.FACE_RETOUCH,
+                ExtensionMode.AUTO,
+            )
     }
 
     private inline fun runViewfinderTest(crossinline block: suspend PreviewTestScope.() -> Unit) =
@@ -549,6 +611,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                 }
 
             var fakeLifecycleOwner: FakeLifecycleOwner? = null
+            var extensionsManager: ExtensionsManager? = null
             try {
                 val deliveredFrameCount = AtomicLong(0)
                 val preview =
@@ -599,6 +662,46 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                             lifecycleOwner,
                             firstAvailableCameraSelector,
                             preview,
+                        )
+                    }
+                }
+
+                val startCameraWithExtension = suspend {
+                    val manager =
+                        ExtensionsManager.getInstance(context, cameraProvider).also {
+                            extensionsManager = it
+                        }
+                    // Prefers the back camera since Extensions are usually best supported on it.
+                    val selectorAndMode =
+                        listOf(
+                                CameraSelector.DEFAULT_BACK_CAMERA,
+                                CameraSelector.DEFAULT_FRONT_CAMERA,
+                            )
+                            .filter { cameraProvider.hasCamera(it) }
+                            .firstNotNullOfOrNull { selector ->
+                                EXTENSION_MODES.firstOrNull {
+                                        manager.isExtensionAvailable(selector, it)
+                                    }
+                                    ?.let { mode -> selector to mode }
+                            }
+                    Assume.assumeTrue(
+                        "No camera supports any Extension mode.",
+                        selectorAndMode != null,
+                    )
+                    val (cameraSelector, extensionMode) = checkNotNull(selectorAndMode)
+                    val imageCapture = ImageCapture.Builder().build()
+                    val extensionSessionConfig =
+                        ExtensionSessionConfig(extensionMode, manager, preview, imageCapture)
+                    withContext(Dispatchers.Main) {
+                        val lifecycleOwner =
+                            FakeLifecycleOwner().apply {
+                                startAndResume()
+                                fakeLifecycleOwner = this
+                            }
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            extensionSessionConfig,
                         )
                     }
                 }
@@ -655,6 +758,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                         setSurfaceRequest = { surfaceRequests.value = it },
                         resetPreviewSurfaceProvider = resetPreviewSurfaceProvider,
                         startCamera = startCamera,
+                        startCameraWithExtension = startCameraWithExtension,
                         stopCamera = stopCamera,
                         pauseLifecycle = pauseLifecycle,
                         resumeLifecycle = resumeLifecycle,
@@ -678,6 +782,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                         }
                     }
                 }
+                extensionsManager?.let { withTimeout(10.seconds) { it.shutdown().await() } }
                 withTimeout(30.seconds) { cameraProvider.shutdownAsync().await() }
             }
         }
@@ -700,6 +805,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         val setSurfaceRequest: (SurfaceRequest?) -> Unit,
         val resetPreviewSurfaceProvider: suspend () -> Unit,
         val startCamera: suspend () -> Camera,
+        val startCameraWithExtension: suspend () -> Camera,
         val stopCamera: suspend () -> Unit,
         val pauseLifecycle: suspend () -> Unit,
         val resumeLifecycle: suspend () -> Unit,
@@ -715,6 +821,10 @@ private fun ImplementationMode.swapMode(): ImplementationMode {
         ImplementationMode.EMBEDDED -> ImplementationMode.EXTERNAL
     }
 }
+
+private fun View.containsViewOfType(type: Class<out View>): Boolean =
+    type.isInstance(this) ||
+        (this is ViewGroup && (0 until childCount).any { getChildAt(it).containsViewOfType(type) })
 
 private fun SemanticsMatcher.Companion.hasChild() =
     SemanticsMatcher("Has child") { node -> node.children.isNotEmpty() }
