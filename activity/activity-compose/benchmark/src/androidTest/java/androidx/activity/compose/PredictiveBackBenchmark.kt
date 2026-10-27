@@ -19,6 +19,7 @@ package androidx.activity.compose
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,8 +30,10 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.testutils.recomposeAssertHadChanges
 import androidx.compose.ui.Modifier
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import kotlin.test.Test
-import org.junit.Ignore
 import org.junit.Rule
 
 class PredictiveBackBenchmark {
@@ -40,7 +43,6 @@ class PredictiveBackBenchmark {
     fun benchmarkEnableSwitch() =
         rule.toggleStateBenchmarkRecompose({ PredictiveBackTestCase(initial = true) })
 
-    @Ignore("b/558194923")
     @Test
     fun benchmarkDisableSwitch() =
         rule.toggleStateBenchmarkRecompose({ PredictiveBackTestCase(initial = false) })
@@ -74,11 +76,16 @@ class PredictiveBackBenchmark {
         ComposeTestCase, ToggleableTestCase {
         var enabled by mutableStateOf(initial)
 
+        // No-Op: Prevent IPC Binder calls to system_server
+        private val dispatcherOwner = NavigationEventDispatcherOwner(NavigationEventDispatcher())
+
         @Composable
         override fun Content() {
-            PredictiveBackHandler(enabled) { it.collect {} }
+            CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides dispatcherOwner) {
+                PredictiveBackHandler(enabled) { it.collect {} }
 
-            Box(Modifier.fillMaxSize())
+                Box(Modifier.fillMaxSize())
+            }
         }
 
         override fun toggleState() {
