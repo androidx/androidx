@@ -1372,6 +1372,51 @@ public class ExifInterfaceTest {
     }
 
     @Test
+    @SmallTest
+    public void testSetUndefinedFormatAttribute() throws Exception {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+
+        exifInterface.setAttribute(ExifInterface.TAG_EXIF_VERSION, "0232");
+        exifInterface.setAttribute(ExifInterface.TAG_FLASHPIX_VERSION, "0101");
+
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXIF_VERSION)).isEqualTo("0232");
+        assertThat(exifInterface.getAttributeBytes(ExifInterface.TAG_EXIF_VERSION))
+                .isEqualTo(new byte[] {'0', '2', '3', '2'});
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_FLASHPIX_VERSION))
+                .isEqualTo("0101");
+        assertThat(exifInterface.getAttributeBytes(ExifInterface.TAG_FLASHPIX_VERSION))
+                .isEqualTo(new byte[] {'0', '1', '0', '1'});
+
+        exifInterface.saveAttributes();
+
+        // Verify the raw little-endian TIFF IFD entries use format 7 (IFD_FORMAT_UNDEFINED)
+        // and component count 4 (with no trailing NUL byte).
+        byte[] imageBytes = Files.toByteArray(imageFile);
+        byte[] expectedExifVersionEntry =
+                new byte[] {
+                    0x00, (byte) 0x90, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00, '0', '2', '3', '2'
+                };
+        byte[] expectedFlashpixVersionEntry =
+                new byte[] {
+                    0x00, (byte) 0xA0, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00, '0', '1', '0', '1'
+                };
+        assertThat(countOccurrences(imageBytes, expectedExifVersionEntry)).isEqualTo(1);
+        assertThat(countOccurrences(imageBytes, expectedFlashpixVersionEntry)).isEqualTo(1);
+
+        exifInterface = new ExifInterface(imageFile);
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXIF_VERSION)).isEqualTo("0232");
+        assertThat(exifInterface.getAttributeBytes(ExifInterface.TAG_EXIF_VERSION))
+                .isEqualTo(new byte[] {'0', '2', '3', '2'});
+        assertThat(exifInterface.getAttribute(ExifInterface.TAG_FLASHPIX_VERSION))
+                .isEqualTo("0101");
+        assertThat(exifInterface.getAttributeBytes(ExifInterface.TAG_FLASHPIX_VERSION))
+                .isEqualTo(new byte[] {'0', '1', '0', '1'});
+    }
+
+    @Test
     @LargeTest
     public void testAddDefaultValuesForCompatibility() throws Exception {
         File imageFile =
