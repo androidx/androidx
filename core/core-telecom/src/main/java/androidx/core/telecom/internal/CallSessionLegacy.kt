@@ -35,7 +35,9 @@ import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallException
+import androidx.core.telecom.internal.utils.AudioManagerUtil.Companion.getAvailableAudioDevices
 import androidx.core.telecom.internal.utils.EndpointUtils
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getEndpointsFromAudioDeviceInfo
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getMaskedMacAddress
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
@@ -51,6 +53,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -58,7 +61,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
 @RequiresApi(VERSION_CODES.O)
 internal class CallSessionLegacy(
@@ -105,6 +110,8 @@ internal class CallSessionLegacy(
     // Stores the job responsible for disarming the preferred starting endpoint guard after
     // the initial call setup stabilization window has elapsed.
     private var mStartingEndpointStabilizationJob: Job? = null
+    private val mIsCallAudioStateReceived = CompletableDeferred<Unit>()
+    private var mFallbackEndpointSeedJob: Job? = null
 
     init {
         if (isBuildAtLeastP()) {
@@ -128,6 +135,16 @@ internal class CallSessionLegacy(
             mCallType = initialCallType
             callChannels.callTypeChannel.trySend(initialCallType)
         }
+        mFallbackEndpointSeedJob =
+            CoroutineScope(coroutineContext).launch {
+                if (
+                    withTimeoutOrNull(INITIAL_ENDPOINT_SEED_DELAY_MS) {
+                        mIsCallAudioStateReceived.await()
+                    } == null
+                ) {
+                    withContext(Dispatchers.Main) { seedInitialEndpointsFromAudioManagerIfNeeded() }
+                }
+            }
     }
 
     fun getCurrentCallEndpointForSession(): CallEndpointCompat? {
@@ -151,6 +168,7 @@ internal class CallSessionLegacy(
     }
 
     companion object {
+        private const val INITIAL_ENDPOINT_SEED_DELAY_MS: Long = 250L
         private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 2000L
         private const val INITIAL_ENDPOINT_SWITCH_TIMEOUT: Long =
             DELAY_INITIAL_ENDPOINT_SWITCH + 1000L
@@ -234,6 +252,62 @@ internal class CallSessionLegacy(
         callChannels.currentEndpointChannel.trySend(mCurrentCallEndpoint!!).getOrThrow()
     }
 
+    /**
+     * Seeds [CallControlScope.availableEndpoints] from [AudioManager] output devices when Telecom
+     * has not yet delivered a [CallAudioState]. Only the available list is seeded: the current
+     * route cannot be reliably inferred (e.g. another call may own the route, or a video call may
+     * be moved off a wearable), so [CallControlScope.currentCallEndpoint] is left for Telecom to
+     * provide.
+     */
+    @VisibleForTesting
+    internal fun seedInitialEndpointsFromAudioManagerIfNeeded() {
+        if (mIsCallAudioStateReceived.isCompleted || mAvailableCallEndpoints.isNotEmpty()) {
+            return
+        }
+        try {
+            val audioManager =
+                mContext.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
+            val audioDevices = getAvailableAudioDevices(audioManager)
+            val seededEndpoints =
+                normalizeSeededEndpoints(
+                    getEndpointsFromAudioDeviceInfo(mContext, mCallSessionLegacyId, audioDevices)
+                )
+            if (seededEndpoints.isEmpty() || mIsCallAudioStateReceived.isCompleted) {
+                return
+            }
+            // Emit first so local state is only updated once the send has succeeded.
+            callChannels.availableEndpointChannel.trySend(seededEndpoints).getOrThrow()
+            mAvailableCallEndpoints = seededEndpoints.toMutableList()
+            Log.d(
+                TAG,
+                "seedInitialEndpointsFromAudioManagerIfNeeded: " +
+                    "seeded available=[$mAvailableCallEndpoints]",
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "seedInitialEndpointsFromAudioManagerIfNeeded: failed to seed endpoints", e)
+        }
+    }
+
+    @VisibleForTesting
+    internal fun normalizeSeededEndpoints(
+        endpoints: List<CallEndpointCompat>
+    ): List<CallEndpointCompat> {
+        return endpoints
+            .map { endpoint ->
+                if (endpoint.isBluetoothType()) {
+                    endpoint
+                } else {
+                    CallEndpointCompat(
+                        EndpointUtils.endpointTypeToString(endpoint.type),
+                        endpoint.type,
+                        endpoint.identifier,
+                    )
+                }
+            }
+            .distinct()
+            .sorted()
+    }
+
     @VisibleForTesting
     internal fun setAvailableCallEndpoints(state: CallAudioState) {
         val availableEndpoints =
@@ -253,6 +327,8 @@ internal class CallSessionLegacy(
 
     @Suppress("OVERRIDE_DEPRECATION") // b/407498327
     override fun onCallAudioStateChanged(state: CallAudioState) {
+        mIsCallAudioStateReceived.complete(Unit)
+        mFallbackEndpointSeedJob?.cancel()
         if (VERSION.SDK_INT >= VERSION_CODES.P) {
             Api28PlusImpl.refreshBluetoothDeviceCache(mCachedBluetoothDevices, state)
         }
@@ -636,6 +712,10 @@ internal class CallSessionLegacy(
             btCache: ArrayList<BluetoothDevice>,
         ): CallControlResult {
             if (callEndpoint.type == CallEndpointCompat.TYPE_BLUETOOTH) {
+                if (btCache.isEmpty()) {
+                    connection.setAudioRoute(CallAudioState.ROUTE_BLUETOOTH)
+                    return CallControlResult.Success()
+                }
                 val btDevice = getBluetoothDeviceFromEndpoint(btCache, callEndpoint)
                 if (btDevice != null) {
                     connection.requestBluetoothAudio(btDevice)
@@ -886,6 +966,7 @@ internal class CallSessionLegacy(
 
     override fun close() {
         Log.i(TAG, "close: CallSessionLegacyId=[$mCallSessionLegacyId]")
+        mFallbackEndpointSeedJob?.cancel()
         mStartingEndpointStabilizationJob?.cancel()
         CallEndpointUuidTracker.endSession(mCallSessionLegacyId)
         if (isBuildAtLeastP() && mGlobalMuteStateReceiver != null) {
