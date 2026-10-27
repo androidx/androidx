@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
+import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.DrawWithContentModifier
@@ -37,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
-import androidx.compose.ui.platform.LocalLayoutDirection
 
 internal abstract class RemoteComposeNode {
     val children = mutableListOf<RemoteComposeNode>()
@@ -229,7 +229,7 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
 ) {
     val remoteDensity = LocalRemoteDensity.current
-    val layoutDirection = LocalLayoutDirection.current.toRemoteLayoutDirection()
+    val layoutDirection = LocalRemoteLayoutDirection.current
     ComposeNode<T, RemoteComposeApplier>(factory) {
         update()
         set(remoteDensity) { this.remoteDensity = it }
@@ -245,7 +245,7 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val remoteDensity = LocalRemoteDensity.current
-    val layoutDirection = LocalLayoutDirection.current.toRemoteLayoutDirection()
+    val layoutDirection = LocalRemoteLayoutDirection.current
     ComposeNode<T, RemoteComposeApplier>(
         factory,
         {

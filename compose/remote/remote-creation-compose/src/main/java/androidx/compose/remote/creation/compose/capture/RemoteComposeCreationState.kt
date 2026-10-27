@@ -26,7 +26,6 @@ import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
-import androidx.compose.remote.creation.compose.layout.toRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.nanIdContentEquals
@@ -149,22 +148,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         this.densityBehavior = creationDisplayInfo.densityBehavior
         this.platformImageProvider = platformImageProvider
     }
-
-    public constructor(
-        creationDisplayInfo: RemoteCreationDisplayInfo,
-        profile: Profile,
-        writerCallback: Any?,
-        remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-        layoutDirection: LayoutDirection,
-        platformImageProvider: PlatformImageProvider,
-    ) : this(
-        creationDisplayInfo = creationDisplayInfo,
-        profile = profile,
-        writerCallback = writerCallback,
-        remoteDensity = remoteDensity,
-        layoutDirection = layoutDirection.toRemoteLayoutDirection(),
-        platformImageProvider = platformImageProvider,
-    )
 
     public constructor(
         creationDisplayInfo: RemoteCreationDisplayInfo,
