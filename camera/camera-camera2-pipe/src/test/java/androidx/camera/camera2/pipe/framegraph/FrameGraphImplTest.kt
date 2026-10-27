@@ -831,6 +831,45 @@ class FrameGraphImplTest {
         buffer3.close()
     }
 
+    @Test
+    fun capture_withSubsetOfStreams_onlyBuffersMatchingFrameBuffers() = testScope.runTest {
+        initialize(this)
+        val stream1 = frameGraph.streams[streamConfig1]!!.id
+        val stream2 = frameGraph.streams[streamConfig2]!!.id
+
+        val buffer1 = frameGraph.captureWith(setOf(stream1), capacity = 2)
+        val buffer2 = frameGraph.captureWith(setOf(stream2), capacity = 2)
+
+        val f1 = frameGraph.simulateNextFrame()
+        val f2 = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+
+        assertThat(buffer1.peekAllReferences().map { it.frameNumber })
+            .containsExactly(f1.frameNumber, f2.frameNumber)
+            .inOrder()
+        assertThat(buffer2.peekAllReferences().map { it.frameNumber })
+            .containsExactly(f1.frameNumber, f2.frameNumber)
+            .inOrder()
+
+        // Submit a single capture requesting only stream2.
+        val capture = frameGraph.capture(Request(streams = listOf(stream2)))
+        val f3 = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+
+        // buffer1 (stream1) should ignore f3 and preserve [f1, f2].
+        assertThat(buffer1.peekAllReferences().map { it.frameNumber })
+            .containsExactly(f1.frameNumber, f2.frameNumber)
+            .inOrder()
+        // buffer2 (stream2) should buffer f3 and evict f1 -> [f2, f3].
+        assertThat(buffer2.peekAllReferences().map { it.frameNumber })
+            .containsExactly(f2.frameNumber, f3.frameNumber)
+            .inOrder()
+
+        capture.close()
+        buffer1.close()
+        buffer2.close()
+    }
+
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
         private val TEST_NULLABLE_KEY = CaptureRequest.BLACK_LEVEL_LOCK

@@ -103,7 +103,10 @@ class FrameBufferImplTest {
         frameBuffer = createFrameBuffer()
     }
 
-    private fun createTestFrame(frameNumberValue: Long): Frame {
+    private fun createTestFrame(
+        frameNumberValue: Long,
+        streams: Set<StreamId> = defaultStreams,
+    ): Frame {
         val frameNumber = CameraFrameNumber(frameNumberValue)
         val frameTimestamp = CameraTimestamp(101L)
         val cameraId = CameraId("0")
@@ -123,28 +126,29 @@ class FrameBufferImplTest {
             )
         val stream1 = CameraStream(stream1Id, listOf(output1)).apply { output1.stream = this }
         val stream2 = CameraStream(stream2Id, listOf(output2)).apply { output2.stream = this }
+        val allStreams = mapOf(stream1Id to stream1, stream2Id to stream2)
+        val activeImageStreams = streams.mapNotNull { allStreams[it] }.toSet()
+        val streamToSurfaces = streams.associateWith {
+            fakeSurfaces.createFakeSurface(Size(200, 100))
+        }
         val frameState =
             FrameState(
                 requestMetadata =
                     FakeRequestMetadata.from(
-                        request = Request(streams = listOf(stream1Id, stream2Id)),
-                        streamToSurfaces =
-                            mapOf(
-                                stream1Id to fakeSurfaces.createFakeSurface(Size(200, 100)),
-                                stream2Id to fakeSurfaces.createFakeSurface(Size(200, 100)),
-                            ),
+                        request = Request(streams = streams.toList()),
+                        streamToSurfaces = streamToSurfaces,
                     ),
                 frameNumber = frameNumber,
                 frameTimestamp = frameTimestamp,
-                imageStreams = setOf(stream1, stream2),
+                imageStreams = activeImageStreams,
                 concurrentImageStreams = emptySet(),
             )
 
         val frame = FrameImpl(frameState)
 
         frameState.imageOutputs
-            .first { it.streamId == stream1Id }
-            .onOutputComplete(
+            .firstOrNull { it.streamId == stream1Id }
+            ?.onOutputComplete(
                 frameNumber,
                 frameTimestamp,
                 42,
@@ -158,8 +162,8 @@ class FrameBufferImplTest {
                 ),
             )
         frameState.imageOutputs
-            .first { it.streamId == stream2Id }
-            .onOutputComplete(
+            .firstOrNull { it.streamId == stream2Id }
+            ?.onOutputComplete(
                 frameNumber,
                 frameTimestamp,
                 42,
@@ -256,6 +260,61 @@ class FrameBufferImplTest {
         assertThat(frameBuffer.size.value).isEqualTo(0)
         assertThat(frameBuffer.peekFirstReference()).isNull()
         assertThat(frameBuffer.peekAllReferences()).isEmpty()
+    }
+
+    @Test
+    fun onFrameStarted_whenFrameDoesNotContainAllBufferStreams_ignoresFrame() = testScope.runTest {
+        val partialFrameRef = createTestFrame(1, streams = setOf(stream1Id))
+
+        frameBuffer.onFrameStarted(partialFrameRef)
+        advanceUntilIdle()
+
+        assertThat(frameBuffer.size.value).isEqualTo(0)
+        assertThat(frameBuffer.peekFirstReference()).isNull()
+        assertThat(frameBuffer.peekAllReferences()).isEmpty()
+        partialFrameRef.close()
+    }
+
+    @Test
+    fun onFrameStarted_zeroCapacity_whenFrameDoesNotContainAllBufferStreams_doesNotEmitToFlow() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+            val partialFrameRef = createTestFrame(1, streams = setOf(stream1Id))
+            val matchingFrameRef = createTestFrame(2, streams = setOf(stream1Id, stream2Id))
+            val ready = CompletableDeferred<Unit>()
+            val resultsChannel = Channel<FrameReference>(Channel.UNLIMITED)
+
+            val job = backgroundScope.launch {
+                frameBuffer.frameFlow
+                    .onStart { ready.complete(Unit) }
+                    .collect { frame -> resultsChannel.send(frame) }
+            }
+
+            ready.await()
+            frameBuffer.onFrameStarted(partialFrameRef)
+            frameBuffer.onFrameStarted(matchingFrameRef)
+            advanceUntilIdle()
+
+            assertThat(resultsChannel.receive().frameNumber).isEqualTo(matchingFrameRef.frameNumber)
+            assertThat(resultsChannel.tryReceive().isSuccess).isFalse()
+            partialFrameRef.close()
+            matchingFrameRef.close()
+            job.cancel()
+        }
+
+    @Test
+    fun onFrameStarted_whenFrameContainsSupersetOfBufferStreams_addsFrame() = testScope.runTest {
+        val singleStreamBuffer = createFrameBuffer(streams = setOf(stream1Id))
+        val supersetFrameRef = createTestFrame(1, streams = setOf(stream1Id, stream2Id))
+
+        singleStreamBuffer.onFrameStarted(supersetFrameRef)
+        advanceUntilIdle()
+
+        assertThat(singleStreamBuffer.size.value).isEqualTo(1)
+        assertThat(singleStreamBuffer.peekFirstReference()!!.frameNumber)
+            .isEqualTo(supersetFrameRef.frameNumber)
+        supersetFrameRef.close()
+        singleStreamBuffer.close()
     }
 
     @Test

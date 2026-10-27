@@ -846,8 +846,9 @@ class ResourceTrimmerTest {
 
         // The largeBuffer should NOT have been trimmed because its stream has plenty of
         // capacity
-        // and the global memory budget wasnt breached. It should successfully hold 3 frames.
-        assertThat(largeBuffer.size.value).isEqualTo(3)
+        // and the global memory budget wasnt breached. It should still hold its 2 frames
+        // (f3 is ignored by largeBuffer because it only requests viewfinderStreamId).
+        assertThat(largeBuffer.size.value).isEqualTo(2)
 
         capture.close()
         largeBuffer.close()
