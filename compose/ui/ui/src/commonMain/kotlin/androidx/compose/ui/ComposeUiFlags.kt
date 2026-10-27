@@ -132,16 +132,6 @@ public object ComposeUiFlags {
     public var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
 
     /**
-     * Reduce provided CompositionLocals by letting them pull from LocalOwner /
-     * LocalAndroidComposeView dynamically when unprovided, instead of eagerly providing all of
-     * them.
-     */
-    // TODO: b/523295932 - Cleanup feature flag
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isMinimalistLocalsEnabled: Boolean = true
-
-    /**
      * If enabled, [androidx.compose.ui.graphics.vector.VectorPainter] will use a shared cache to
      * reuse [androidx.compose.ui.graphics.vector.DrawCache] instances across different painters
      * using the same [androidx.compose.ui.graphics.vector.ImageVector].
