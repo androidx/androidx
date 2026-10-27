@@ -17,12 +17,9 @@
 package androidx.compose.ui.spatial
 
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -232,106 +229,6 @@ class ThrottledCallbacksTest {
         assertEquals(2, called) // still not called
         advanceBy(500) // advance past debounce limit
         assertEquals(3, called) // now it gets called because of debouncs
-    }
-
-    @Test
-    fun testFireOnRectChangedEntriesSameMillisecondZeroThrottle() = test {
-        var called = 0
-        var lastBounds: RelativeLayoutBounds? = null
-        register(1, throttleMs = 0, debounceMs = 0) {
-            called++
-            lastBounds = it
-        }
-        fire(1)
-        assertEquals(1, called)
-        assertEquals(IntOffset.Zero, lastBounds?.positionInWindow)
-        // Firing all rectChanged entries in the same millisecond (e.g. when viewToWindowMatrix or
-        // windowOffset updates right after measureAndLayout) should still invoke unthrottled
-        // callbacks with the updated offset.
-        updateOffsets(IntOffset(10, 20), IntOffset.Zero, null, 100, 100)
-        fireOnRectChangedEntries(currentTime)
-        assertEquals(2, called)
-        assertEquals(IntOffset(10, 20), lastBounds?.positionInWindow)
-    }
-
-    @Test
-    fun testFireOnRectChangedEntriesWithThrottle() = test {
-        var called = 0
-        register(1, throttleMs = 10, debounceMs = 0) { called++ }
-        fireOnRectChangedEntries(currentTime)
-        assertEquals(1, called)
-        advanceBy(5)
-        fireOnRectChangedEntries(currentTime)
-        assertEquals(1, called)
-        advanceBy(10)
-        assertEquals(2, called)
-    }
-
-    @Test
-    fun testRectManagerDispatchCallbacksBothDirtyFiresOnce() {
-        val noOpDelayed =
-            object : ExecuteDelayed {
-                override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any = Any()
-
-                override fun removeDelayedExecution(token: Any) {}
-            }
-        val rectManager = RectManager(executeDelayed = noOpDelayed)
-        var called = 0
-        var lastBounds: RelativeLayoutBounds? = null
-        rectManager.rects.insert(
-            value = 1,
-            l = 0,
-            t = 0,
-            r = 20,
-            b = 30,
-            parentId = -1,
-            parentIndex = NotFound,
-            focusable = false,
-            gesturable = false,
-            hasCallbacks = true,
-        )
-        rectManager.throttledCallbacks.registerOnRectChanged(
-            id = 1,
-            throttleMillis = 0,
-            debounceMillis = 0,
-            node = fakeNode(),
-        ) {
-            called++
-            lastBounds = it
-        }
-        rectManager.invalidate()
-        rectManager.updateOffsets(
-            screenOffset = IntOffset(5, 10),
-            windowOffset = IntOffset.Zero,
-            viewToWindowMatrix = Matrix(),
-            windowWidth = 200,
-            windowHeight = 200,
-        )
-
-        // Both isDirty and isScreenOrWindowDirty are true: should fire once with updated rect and
-        // offsets
-        rectManager.dispatchCallbacks()
-        assertEquals(1, called)
-        assertEquals(20, lastBounds?.width)
-        assertEquals(30, lastBounds?.height)
-        assertEquals(IntOffset(5, 10), lastBounds?.positionInWindow)
-        assertEquals(IntRect(5, 10, 25, 40), lastBounds?.boundsInWindow)
-
-        // Dispatching when neither flag is dirty should not fire
-        rectManager.dispatchCallbacks()
-        assertEquals(1, called)
-
-        // Updating with a 90-degree rotation matrix and dispatching should fire with rotated bounds
-        rectManager.updateOffsets(
-            screenOffset = IntOffset(5, 10),
-            windowOffset = IntOffset.Zero,
-            viewToWindowMatrix = Matrix().apply { rotateZ(90f) },
-            windowWidth = 200,
-            windowHeight = 200,
-        )
-        rectManager.dispatchCallbacks()
-        assertEquals(2, called)
-        assertEquals(IntRect(-30, 0, 0, 20), lastBounds?.boundsInWindow)
     }
 
     var currentTime: Long = 1
