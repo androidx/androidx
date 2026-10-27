@@ -48,6 +48,8 @@ internal class Camera2CameraMetadata(
     @GuardedBy("extensionCache")
     private val extensionCache = ArrayMap<Int, CameraExtensionMetadata>()
 
+    @GuardedBy("extensionSupportCache") private val extensionSupportCache = ArrayMap<Int, Boolean>()
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
@@ -127,6 +129,25 @@ internal class Camera2CameraMetadata(
 
     override val supportedExtensions: Set<Int>
         get() = _supportedExtensions.value
+
+    override fun isExtensionSupported(extension: Int): Boolean {
+        synchronized(extensionSupportCache) {
+            val cached = extensionSupportCache[extension]
+            if (cached != null) {
+                return cached
+            }
+        }
+
+        val supported =
+            if (Build.VERSION.SDK_INT >= 37) {
+                metadataProvider.isExtensionSupported(camera, extension)
+            } else {
+                supportedExtensions.contains(extension)
+            }
+
+        synchronized(extensionSupportCache) { extensionSupportCache[extension] = supported }
+        return supported
+    }
 
     override suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata {
         check(physicalCameraIds.contains(cameraId)) {

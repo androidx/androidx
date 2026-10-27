@@ -135,7 +135,7 @@ public class ExtensionsTestUtil {
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
     public static boolean isTargetDeviceAvailableForExtensions(
-            @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
+            @CameraSelector.LensFacing int lensFacing, int mode) {
         return CameraUtil.hasCameraWithLensFacing(lensFacing) && isLimitedAboveDevice(lensFacing)
                 && !isSpecificSkippedDevice() && !isSpecificSkippedDeviceWithExtensionMode(mode);
     }
@@ -149,7 +149,7 @@ public class ExtensionsTestUtil {
      * @return the corresponding {@link VendorExtender} instance.
      */
     public static @NonNull VendorExtender createVendorExtender(@NonNull Context applicationContext,
-            @ExtensionMode.Mode int mode) {
+            int mode) {
         // Returns Camera2ExtensionsVendorExtender only when API level is 33 or above.
         // CameraExtensionCharacteristics#getAvailableCaptureRequestKeys(int) is supported since
         // API level 33 that allows app to clearly know whether features like tap-to-focus or zoom
@@ -214,7 +214,7 @@ public class ExtensionsTestUtil {
     /**
      * Returns that whether the device with specific extension mode should be skipped for the test.
      */
-    private static boolean isSpecificSkippedDeviceWithExtensionMode(@ExtensionMode.Mode int mode) {
+    private static boolean isSpecificSkippedDeviceWithExtensionMode(int mode) {
         return "tecno".equalsIgnoreCase(Build.BRAND) && "tecno-ke5".equalsIgnoreCase(Build.DEVICE)
                 && (mode == ExtensionMode.HDR || mode == ExtensionMode.NIGHT);
     }

@@ -65,6 +65,9 @@ constructor(
     @GuardedBy("extensionCharacteristicsCache")
     private val extensionCharacteristicsCache = ArrayMap<String, CameraExtensionCharacteristics>()
 
+    @GuardedBy("supportedExtensionsCache")
+    private val supportedExtensionsCache = ArrayMap<String, Set<Int>>()
+
     override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
             val existing = cache[cameraId.value]
@@ -143,10 +146,26 @@ constructor(
 
     override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val extensionCharacteristics = getCameraExtensionCharacteristics(cameraId)
-            return Api31Compat.getSupportedExtensions(extensionCharacteristics).toSet()
+            synchronized(supportedExtensionsCache) {
+                val existing = supportedExtensionsCache[cameraId.value]
+                if (existing != null) {
+                    return existing
+                }
+                val extensionCharacteristics = getCameraExtensionCharacteristics(cameraId)
+                val supported = Api31Compat.getSupportedExtensions(extensionCharacteristics).toSet()
+                supportedExtensionsCache[cameraId.value] = supported
+                return supported
+            }
         }
         return emptySet()
+    }
+
+    override fun isExtensionSupported(cameraId: CameraId, extension: Int): Boolean {
+        if (Build.VERSION.SDK_INT >= 37) {
+            val extensionCharacteristics = getCameraExtensionCharacteristics(cameraId)
+            return Api37Compat.isExtensionSupported(extensionCharacteristics, extension)
+        }
+        return getSupportedCameraExtensions(cameraId).contains(extension)
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {

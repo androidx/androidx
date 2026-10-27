@@ -46,6 +46,23 @@ class AdapterCameraInfoTest {
 
     @Test
     @Config(minSdk = 31)
+    fun isExtensionSupported_delegatesToCameraInfo() {
+        val extensionMode = 1
+        val vendorMode = 100
+        val cameraInfo =
+            FakeCameraInfoInternal().apply {
+                setSupportedExtensions(setOf(extensionMode))
+                setVendorDefinedModes(setOf(vendorMode))
+            }
+        val adapterCameraInfo = AdapterCameraInfo(cameraInfo, FakeCameraConfig())
+
+        assertThat(adapterCameraInfo.isExtensionSupported(extensionMode)).isTrue()
+        assertThat(adapterCameraInfo.isExtensionSupported(vendorMode)).isTrue()
+        assertThat(adapterCameraInfo.supportedExtensions).containsExactly(extensionMode)
+    }
+
+    @Test
+    @Config(minSdk = 31)
     fun getCameraExtensionCapabilities_delegatesToCameraInfo() {
         val extensionMode = 1
         val capabilities = FakeCameraExtensionCapabilities()

@@ -659,6 +659,53 @@ class CameraInfoAdapterTest {
 
     @Test
     @Config(minSdk = 31)
+    fun isExtensionSupported_returnsCorrectValue() {
+        val extensions = setOf(100)
+        val cameraInfo: CameraInfoInternal =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    FakeCameraProperties(
+                        FakeCameraMetadata.fromTemplate(
+                            template = HighEndDeviceTemplate,
+                            extensionMetadata =
+                                extensions.associateWith {
+                                    FakeCameraExtensionMetadata(
+                                        camera = CameraId("0"),
+                                        cameraExtension = it,
+                                    )
+                                },
+                        )
+                    )
+            )
+
+        assertThat(cameraInfo.isExtensionSupported(100)).isTrue()
+        assertThat(cameraInfo.isExtensionSupported(101)).isFalse()
+    }
+
+    @Test
+    @Config(minSdk = 31)
+    fun isExtensionSupported_returnsTrueForHiddenMode() {
+        val extensionMode = 100
+        val cameraInfo: CameraInfoInternal =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    FakeCameraProperties(
+                        object : CameraMetadata by FakeCameraMetadata() {
+                            override val supportedExtensions: Set<Int>
+                                get() = emptySet()
+
+                            override fun isExtensionSupported(extension: Int): Boolean =
+                                extension == extensionMode
+                        }
+                    )
+            )
+
+        assertThat(cameraInfo.isExtensionSupported(extensionMode)).isTrue()
+        assertThat(cameraInfo.supportedExtensions).doesNotContain(extensionMode)
+    }
+
+    @Test
+    @Config(minSdk = 31)
     fun getCameraExtensionCapabilities_returnsCorrectValue() {
         val extensions = setOf(CameraExtensionCharacteristics.EXTENSION_BOKEH)
         val cameraInfo: CameraInfoInternal =

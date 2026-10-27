@@ -36,7 +36,6 @@ import androidx.camera.core.impl.SessionProcessor.CaptureSessionRequestProcessor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.CameraExtensionsControl
 import androidx.camera.extensions.CameraExtensionsInfo
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.internal.Camera2ExtensionsUtil.convertCamera2ModeToCameraXMode
 import androidx.camera.extensions.internal.Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode
 import androidx.camera.extensions.internal.ExtensionsUtils
@@ -48,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger
 @RequiresApi(31)
 public class Camera2ExtensionsSessionProcessor(
     private val availableCaptureRequestKeys: List<CaptureRequest.Key<*>>,
-    @ExtensionMode.Mode private val mode: Int,
+    private val mode: Int,
     private val vendorExtender: VendorExtender,
 ) : SessionProcessor, CameraExtensionsInfo, CameraExtensionsControl {
 
@@ -99,12 +98,9 @@ public class Camera2ExtensionsSessionProcessor(
                         cameraCaptureResult.captureResult
                             ?.get(CaptureResult.EXTENSION_CURRENT_TYPE)
                             ?.let { camera2Mode ->
-                                convertCamera2ModeToCameraXMode(camera2Mode)?.let { cameraXMode ->
-                                    if (
-                                        currentExtensionType.getAndSet(cameraXMode) != cameraXMode
-                                    ) {
-                                        currentExtensionTypeLiveData?.postValue(cameraXMode)
-                                    }
+                                val cameraXMode = convertCamera2ModeToCameraXMode(camera2Mode)
+                                if (currentExtensionType.getAndSet(cameraXMode) != cameraXMode) {
+                                    currentExtensionTypeLiveData?.postValue(cameraXMode)
                                 }
                             }
                     }
