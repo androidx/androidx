@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 /**
  * Fake test. The module is actually tested inside
- * [androidx.compose.integration.macrobenchmark.TrivialTracingBenchmark].
+ * [androidx.compose.integration.macrobenchmark.CompositionTracingBenchmark].
  */
 class ComposeTracingInitializerTest {
     @Test
