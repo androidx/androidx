@@ -3747,7 +3747,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    override fun dispatchOnScrollChanged(delta: Offset) {
+    override fun dispatchOnScrollChanged(node: LayoutNode, delta: Offset) {
+        composeAccessibilityDelegate.onScrollChanged(node, delta)
         if (SDK_INT >= BAKLAVA && Build.VERSION.SDK_INT_FULL >= BAKLAVA_1) {
             Api36_1Impl.dispatchOnScrollChanged(viewTreeObserver)
         } else {

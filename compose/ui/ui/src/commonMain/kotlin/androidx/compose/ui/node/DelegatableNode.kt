@@ -477,12 +477,14 @@ public fun DelegatableNode.invalidateDrawForSubtree() {
  * is attached to to let the underlying platform know that a scroll event happened in this
  * [LayoutNode].
  *
- * On Android this will trigger a ViewTreeObserver onScrollChanged callback.
+ * On Android, this triggers a `ViewTreeObserver` `onScrollChanged` callback. It also reports the
+ * pixel delta on `TYPE_VIEW_SCROLLED` accessibility events.
  *
- * @param delta The scroll delta that was consumed by this node.
+ * @param delta the scroll delta this node consumed, in pointer coordinates. Positive x or y means
+ *   the content moved right or down on screen.
  */
 public fun DelegatableNode.dispatchOnScrollChanged(delta: Offset): Unit =
-    requireOwner().dispatchOnScrollChanged(delta)
+    requireOwner().dispatchOnScrollChanged(requireLayoutNode(), delta)
 
 /** Call this function to find the nearest [BeyondBoundsLayout] to the current node. */
 @Suppress("DEPRECATION")

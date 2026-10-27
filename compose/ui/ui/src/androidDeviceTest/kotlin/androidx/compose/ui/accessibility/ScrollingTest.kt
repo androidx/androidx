@@ -26,11 +26,16 @@ import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -56,17 +62,20 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUSED
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -154,6 +163,10 @@ class ScrollingTest {
                         eventType = TYPE_VIEW_SCROLLED
                         scrollX = 2
                         maxScrollX = 100
+                        if (SDK_INT >= P) {
+                            scrollDeltaX = 0
+                            scrollDeltaY = 0
+                        }
                     },
                 )
         }
@@ -206,8 +219,76 @@ class ScrollingTest {
                         eventType = TYPE_VIEW_SCROLLED
                         scrollY = 2
                         maxScrollY = 100
+                        if (SDK_INT >= P) {
+                            scrollDeltaX = 0
+                            scrollDeltaY = 0
+                        }
                     },
                 )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = P)
+    @Test
+    fun scrollEvent_lazyRowWideItem_reportsConsumedPixelScrollDeltaX() {
+        val state = LazyListState()
+        assertLazyScrollDeltas(state, itemSizePx = 300) {
+            LazyRow(Modifier.size(100.toDp(), 50.toDp()).testTag(tag), state) {
+                items(2) { Box(Modifier.size(300.toDp(), 50.toDp())) }
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = P)
+    @Test
+    fun scrollEvent_lazyRowWideItemRtl_reportsPositiveScrollDeltaX() {
+        val state = LazyListState()
+        // A forward scroll reports a positive delta in RTL too.
+        assertLazyScrollDeltas(state, itemSizePx = 300) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                LazyRow(Modifier.size(100.toDp(), 50.toDp()).testTag(tag), state) {
+                    items(2) { Box(Modifier.size(300.toDp(), 50.toDp())) }
+                }
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = P)
+    @Test
+    fun scrollEvent_lazyRowNarrowItems_reportsPixelsNotPseudoIndex() {
+        val state = LazyListState()
+        // Deltas sum to the consumed pixels across item boundaries, not 500 per item.
+        assertLazyScrollDeltas(state, itemSizePx = 60, expectedFirstVisibleItemIndex = 1) {
+            LazyRow(Modifier.size(100.toDp(), 50.toDp()).testTag(tag), state) {
+                items(20) { Box(Modifier.size(60.toDp(), 50.toDp())) }
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = P)
+    @Test
+    fun scrollEvent_lazyColumnTallItem_reportsConsumedPixelScrollDeltaY() {
+        val state = LazyListState()
+        assertLazyScrollDeltas(state, itemSizePx = 300, isVertical = true) {
+            LazyColumn(Modifier.size(50.toDp(), 100.toDp()).testTag(tag), state) {
+                items(2) { Box(Modifier.size(50.toDp(), 300.toDp())) }
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = P)
+    @Test
+    fun scrollEvent_lazyColumnReverseLayoutTallItem_deltaSignFollowsScrollAction() {
+        val state = LazyListState()
+        // reverseLayout starts at the bottom, so the first scroll goes backward (up).
+        assertLazyScrollDeltas(state, itemSizePx = 300, isVertical = true, reverseActions = true) {
+            LazyColumn(
+                Modifier.size(50.toDp(), 100.toDp()).testTag(tag),
+                state,
+                reverseLayout = true,
+            ) {
+                items(2) { Box(Modifier.size(50.toDp(), 300.toDp())) }
+            }
         }
     }
 
@@ -537,6 +618,101 @@ class ScrollingTest {
             assertThat(androidComposeView.canScrollHorizontally(-1)).isFalse()
         }
     }
+
+    /**
+     * Scrolls the lazy list away from its start and back, and checks every [TYPE_VIEW_SCROLLED]
+     * delta. Each event must report the scroll direction on the scroll axis only, and the deltas
+     * must sum to the pixels the list consumed.
+     *
+     * @param itemSizePx item size along the scroll axis, used to turn the first visible item into
+     *   consumed pixels
+     * @param isVertical whether the scroll axis is vertical
+     * @param reverseActions whether to scroll backward first, for a list that starts at its end
+     * @param expectedFirstVisibleItemIndex the first visible item after the first scroll
+     */
+    @RequiresApi(P)
+    private fun assertLazyScrollDeltas(
+        state: LazyListState,
+        itemSizePx: Int,
+        isVertical: Boolean = false,
+        reverseActions: Boolean = false,
+        expectedFirstVisibleItemIndex: Int = 0,
+        content: @Composable () -> Unit,
+    ) {
+        // Arrange.
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled(content)
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val awayAction = if (reverseActions) ACTION_SCROLL_BACKWARD else ACTION_SCROLL_FORWARD
+        val backAction = if (reverseActions) ACTION_SCROLL_FORWARD else ACTION_SCROLL_BACKWARD
+
+        try {
+            androidComposeView.snapshotObserver.startObserving()
+            // Act: scroll away from the start.
+            performScrollActionAndAdvanceClock(virtualViewId, awayAction)
+
+            // Assert.
+            val awayPixels = rule.runOnIdle {
+                val scrollEvents = dispatchedScrollEvents()
+                assertThat(scrollEvents).isNotEmpty()
+                scrollEvents.forEach {
+                    if (reverseActions) assertThat(it.scrollDelta(isVertical)).isLessThan(0)
+                    else assertThat(it.scrollDelta(isVertical)).isGreaterThan(0)
+                    assertThat(it.scrollDelta(!isVertical)).isEqualTo(0)
+                }
+                assertThat(state.firstVisibleItemIndex).isEqualTo(expectedFirstVisibleItemIndex)
+                val consumedPixels =
+                    state.firstVisibleItemIndex * itemSizePx + state.firstVisibleItemScrollOffset
+                assertThat(consumedPixels).isGreaterThan(0)
+                val awayPixels = if (reverseActions) -consumedPixels else consumedPixels
+                // Each event rounds the pixels of one 100ms batch, so allow 1px per event.
+                assertThat(abs(scrollEvents.sumOf { it.scrollDelta(isVertical) } - awayPixels))
+                    .isAtMost(scrollEvents.size)
+                awayPixels
+            }
+
+            // Act: scroll back to the start.
+            rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
+            performScrollActionAndAdvanceClock(virtualViewId, backAction)
+
+            // Assert: the way back reports the opposite sign and the same pixel count.
+            rule.runOnIdle {
+                val scrollEvents = dispatchedScrollEvents()
+                assertThat(scrollEvents).isNotEmpty()
+                scrollEvents.forEach {
+                    if (reverseActions) assertThat(it.scrollDelta(isVertical)).isGreaterThan(0)
+                    else assertThat(it.scrollDelta(isVertical)).isLessThan(0)
+                    assertThat(it.scrollDelta(!isVertical)).isEqualTo(0)
+                }
+                assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+                assertThat(abs(scrollEvents.sumOf { it.scrollDelta(isVertical) } + awayPixels))
+                    .isAtMost(scrollEvents.size)
+            }
+        } finally {
+            androidComposeView.snapshotObserver.stopObserving()
+        }
+    }
+
+    @RequiresApi(P)
+    private fun AccessibilityEvent.scrollDelta(vertical: Boolean): Int =
+        if (vertical) scrollDeltaY else scrollDeltaX
+
+    /**
+     * Runs an accessibility scroll action and advances the clock through its animation. Callers
+     * keep [AndroidComposeView.snapshotObserver] observing across every call in one test.
+     */
+    private fun performScrollActionAndAdvanceClock(virtualViewId: Int, action: Int) {
+        rule.runOnIdle {
+            androidComposeView.accessibilityNodeProvider.performAction(virtualViewId, action, null)
+        }
+        rule.mainClock.advanceTimeBy(5000)
+    }
+
+    private fun dispatchedScrollEvents(): List<AccessibilityEvent> =
+        dispatchedAccessibilityEvents.filter {
+            it.eventType == TYPE_VIEW_SCROLLED
+        }
 
     private fun Int.toDp(): Dp = with(rule.density) { this@toDp.toDp() }
 
