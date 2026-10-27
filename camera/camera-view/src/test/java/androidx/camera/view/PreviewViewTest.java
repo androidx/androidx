@@ -37,9 +37,13 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.Identifier;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.testing.impl.fakes.FakeCameraConfig;
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor;
 import androidx.camera.view.internal.compat.quirk.QuirkInjector;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
@@ -54,6 +58,8 @@ import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowWindow;
+
+import java.util.Collections;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Config.ALL_SDKS})
@@ -102,6 +108,36 @@ public class PreviewViewTest {
         assertThat(PreviewView.shouldUseTextureView(
                 createSurfaceRequestCompatibleWithSurfaceView(),
                 PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    @Config(sdk = {Build.VERSION_CODES.TIRAMISU})
+    public void surfaceViewExtensionSessionQuirk_withExtension_useTextureView() {
+        // Assert: TextureView is used when Extension is enabled on API 33 where
+        // SurfaceViewNotSupportedInExtensionSessionQuirk is loaded.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestCompatibleWithSurfaceView(/* isExtensionEnabled= */ true),
+                PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    @Config(sdk = {Build.VERSION_CODES.TIRAMISU})
+    public void surfaceViewExtensionSessionQuirk_withoutExtension_useSurfaceView() {
+        // Assert: SurfaceView is still used when Extension is not enabled even if
+        // SurfaceViewNotSupportedInExtensionSessionQuirk is loaded on API 33.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestCompatibleWithSurfaceView(/* isExtensionEnabled= */ false),
+                PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void surfaceViewNoExtensionSessionQuirk_withExtension_useSurfaceView() {
+        // Assert: SurfaceView is used on API 34+ where the quirk is not loaded even when
+        // Extension is enabled.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestCompatibleWithSurfaceView(/* isExtensionEnabled= */ true),
+                PreviewView.ImplementationMode.PERFORMANCE)).isFalse();
     }
 
     @Test
@@ -247,10 +283,25 @@ public class PreviewViewTest {
     }
 
     private SurfaceRequest createSurfaceRequestCompatibleWithSurfaceView() {
+        return createSurfaceRequestCompatibleWithSurfaceView(/* isExtensionEnabled= */ false);
+    }
+
+    private SurfaceRequest createSurfaceRequestCompatibleWithSurfaceView(
+            boolean isExtensionEnabled) {
         FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
         cameraInfoInternal.setImplementationType(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-        return new SurfaceRequest(new Size(800, 600),
-                new FakeCamera(null, cameraInfoInternal), () -> {});
+        FakeCamera fakeCamera = new FakeCamera(null, cameraInfoInternal);
+        if (isExtensionEnabled) {
+            FakeSessionProcessor sessionProcessor = new FakeSessionProcessor(
+                    /* postviewSupportedSizes= */ null,
+                    /* supportedCameraOperations= */ Collections.emptySet(),
+                    /* extensionSpecificChars= */ Collections.emptyList(),
+                    SessionProcessor.TYPE_CAMERA2_EXTENSION);
+            fakeCamera.setExtendedConfig(new FakeCameraConfig(sessionProcessor,
+                    /* postviewSupported= */ false, /* captureProcessProgressSupported= */ false,
+                    Identifier.create(new Object())));
+        }
+        return new SurfaceRequest(new Size(800, 600), fakeCamera, () -> {});
     }
 
     private ScreenFlash createScreenFlash(boolean assumeNoFailure) {
