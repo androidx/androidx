@@ -1311,7 +1311,7 @@ private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remot
  * Modifier to be applied to a [RemoteButton] to ensure that its size meets the recommended
  * minimums.
  */
-public fun RemoteModifier.buttonSizeModifier(): RemoteModifier =
+internal fun RemoteModifier.buttonSizeModifier(): RemoteModifier =
     this.defaultMinSize(
         minWidth = RemoteButtonDefaults.Width,
         minHeight = RemoteButtonDefaults.Height,
