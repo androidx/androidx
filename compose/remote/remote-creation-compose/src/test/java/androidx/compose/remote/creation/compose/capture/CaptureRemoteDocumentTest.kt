@@ -42,6 +42,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -242,6 +243,9 @@ class CaptureRemoteDocumentTest {
                     .bytes
 
             assertTrue(document.isNotEmpty())
+            val remoteComposeDocument = document.toCoreDocument(customProfile)
+            assertDocumentContainsText(remoteComposeDocument, "10:09")
+            assertTrue(remoteComposeDocument.toNestedString().contains("DrawTextOnCircle"))
         }
 
     @Test
@@ -1264,11 +1268,19 @@ class CaptureRemoteDocumentTest {
             assertDocumentContainsText(doc, "HeadlessNoContext")
         }
 
-    private fun ByteArray.toCoreDocument(): CoreDocument {
+    private fun ByteArray.toCoreDocument(profile: Profile? = null): CoreDocument {
         val bytes = this
         return CoreDocument().apply {
             ByteArrayInputStream(bytes).use { stream ->
-                initFromBuffer(RemoteComposeBuffer.fromInputStream(stream))
+                val buffer = RemoteComposeBuffer.fromInputStream(stream)
+                if (profile != null) {
+                    buffer.setVersion(
+                        profile.apiLevel,
+                        profile.operationsProfiles,
+                        profile.supportedOperations,
+                    )
+                }
+                initFromBuffer(buffer)
             }
         }
     }

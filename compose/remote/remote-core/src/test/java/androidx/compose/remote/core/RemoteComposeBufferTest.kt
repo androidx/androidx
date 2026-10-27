@@ -18,6 +18,7 @@ package androidx.compose.remote.core
 
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.layout.ComponentStart
@@ -34,6 +35,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.io.ByteArrayInputStream
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -465,5 +467,65 @@ class RemoteComposeBufferTest {
         assertThat(widgetsV7.get(Operations.DRAW_TO_BITMAP)).isNotNull()
         assertThat(androidxV7.get(Operations.MATRIX_FROM_PATH)).isNotNull()
         assertThat(widgetsV7.get(Operations.MATRIX_FROM_PATH)).isNotNull()
+
+        // DRAW_TEXT_ON_CIRCLE is registered in V7 known operations for profile opt-in,
+        // not in V6 or default AndroidX/Widgets maps.
+        assertThat(Operations.getOperation(6, Operations.DRAW_TEXT_ON_CIRCLE)).isNull()
+        assertThat(Operations.getOperation(7, Operations.DRAW_TEXT_ON_CIRCLE)).isNotNull()
+        assertThat(androidxV7.get(Operations.DRAW_TEXT_ON_CIRCLE)).isNull()
+        assertThat(widgetsV7.get(Operations.DRAW_TEXT_ON_CIRCLE)).isNull()
+    }
+
+    @Test
+    fun testDrawTextOnCircleInBuffer() {
+        val supportedOps =
+            requireNotNull(Operations.getOperations(7, RcProfiles.PROFILE_ANDROIDX)).keySet() +
+                setOf(Operations.DRAW_TEXT_ON_CIRCLE)
+        val circularTextProfile =
+            Profile(
+                7,
+                RcProfiles.PROFILE_ANDROID_NATIVE,
+                rcPlatform,
+                { supportedOps },
+                { creationDisplayInfo, profile, _ ->
+                    RemoteComposeWriter(creationDisplayInfo, null, profile)
+                },
+            )
+        val writer =
+            RemoteComposeWriter(
+                circularTextProfile,
+                RemoteComposeBuffer(circularTextProfile.apiLevel),
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, 200),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 200),
+                RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROID_NATIVE),
+            )
+
+        val textId = writer.textCreateId("Hello Circle")
+        writer.drawTextOnCircle(
+            textId,
+            100f,
+            100f,
+            80f,
+            270f,
+            4f,
+            DrawTextOnCircle.Alignment.CENTER,
+            DrawTextOnCircle.Placement.OUTSIDE,
+        )
+
+        val readBuffer =
+            RemoteComposeBuffer.fromInputStream(
+                ByteArrayInputStream(writer.buffer.getBuffer().cloneBytes())
+            )
+        readBuffer.setVersion(7, RcProfiles.PROFILE_ANDROID_NATIVE, supportedOps)
+        val coreDoc = CoreDocument().apply { initFromBuffer(readBuffer) }
+        val op = coreDoc.mOperations.filterIsInstance<DrawTextOnCircle>().single()
+        assertThat(op.mTextId).isEqualTo(textId)
+        assertThat(op.centerX).isEqualTo(100f)
+        assertThat(op.centerY).isEqualTo(100f)
+        assertThat(op.radius).isEqualTo(80f)
+        assertThat(op.startAngle).isEqualTo(270f)
+        assertThat(op.warpRadiusOffset).isEqualTo(4f)
+        assertThat(op.alignment).isEqualTo(DrawTextOnCircle.Alignment.CENTER)
+        assertThat(op.placement).isEqualTo(DrawTextOnCircle.Placement.OUTSIDE)
     }
 }
