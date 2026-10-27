@@ -20,6 +20,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -852,6 +854,26 @@ internal class BlockGraphicsLayerModifier(var layerBlock: GraphicsLayerScope.() 
         }
     }
 
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(width)
+
     override fun toString(): String = "BlockGraphicsLayerModifier(" + "block=$layerBlock)"
 
     override fun SemanticsPropertyReceiver.applySemantics() {
@@ -968,6 +990,26 @@ private class SimpleGraphicsLayerModifier(
             placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
         }
     }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.minIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.minIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int,
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int,
+    ): Int = measurable.maxIntrinsicHeight(width)
 
     override fun toString(): String =
         "SimpleGraphicsLayerModifier(" +
