@@ -92,7 +92,72 @@ class A2uiOpenUrlFunctionTest {
         assertThat(callCount).isEqualTo(0)
     }
 
+    @Test
+    fun execute_allowedSchemes_opensUrl() {
+        val allowedUrls =
+            listOf(
+                "https://example.com/path?query=1#fragment",
+                "https://example.com/a b?q={x}|y",
+                "HTTP://example.com",
+                "mailto:someone@example.com?subject=hi there",
+                "tel:+1 555 555 0123",
+            )
+        val openedUrls = mutableListOf<String>()
+        val openUrlMock = A2uiOpenUrlFunction { url -> openedUrls.add(url) }
+
+        for (url in allowedUrls) {
+            openUrlMock.execute(mapOf(ARG_URL to url))
+        }
+
+        assertThat(openedUrls).containsExactlyElementsIn(allowedUrls).inOrder()
+    }
+
+    @Test
+    fun execute_disallowedOrMissingScheme_throwsRuntimeExceptionAndDoesNotOpen() {
+        var callCount = 0
+        val openUrlMock = A2uiOpenUrlFunction { _ -> callCount++ }
+
+        for (url in DISALLOWED_URLS) {
+            assertThrows("url=$url", A2uiException.A2uiRuntimeException::class.java) {
+                openUrlMock.execute(mapOf(ARG_URL to url))
+            }
+        }
+        assertThat(callCount).isEqualTo(0)
+    }
+
+    @Test
+    fun typedExecute_disallowedScheme_throwsRuntimeExceptionAndDoesNotOpen() {
+        var callCount = 0
+        val openUrlMock = A2uiOpenUrlFunction { _ -> callCount++ }
+
+        for (url in DISALLOWED_URLS) {
+            assertThrows("url=$url", A2uiException.A2uiRuntimeException::class.java) {
+                openUrlMock.typedExecute(url = url)
+            }
+        }
+        assertThat(callCount).isEqualTo(0)
+    }
+
     private companion object {
         private const val ARG_URL = "url"
+
+        private val DISALLOWED_URLS =
+            listOf(
+                "javascript:alert(1)",
+                "intent://scan/#Intent;scheme=zxing;end",
+                "file:///sdcard/Download/page.html",
+                "content://com.example.provider/item/1",
+                "exampleapp://open?item=1",
+                "data:text/html,hello",
+                "/relative/path",
+                "example.com",
+                " https://example.com",
+                "java script:alert(1)",
+                "https://example.com\n",
+                "tel:\njavascript:alert(1)",
+                ":https://example.com",
+                "http\u017F://example.com",
+                "ma\u0131lto:someone@example.com",
+            )
     }
 }
