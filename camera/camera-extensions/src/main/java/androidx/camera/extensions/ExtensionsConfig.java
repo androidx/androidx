@@ -46,7 +46,6 @@ class ExtensionsConfig implements CameraConfig {
         return mConfig;
     }
 
-    @ExtensionMode.Mode
     public int getExtensionMode() {
         return retrieveOption(OPTION_EXTENSION_MODE);
     }
@@ -63,7 +62,7 @@ class ExtensionsConfig implements CameraConfig {
             return new ExtensionsConfig(mConfig);
         }
 
-        public Builder setExtensionMode(@ExtensionMode.Mode int mode) {
+        public Builder setExtensionMode(int mode) {
             mConfig.insertOption(OPTION_EXTENSION_MODE, mode);
             return this;
         }

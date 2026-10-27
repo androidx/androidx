@@ -156,7 +156,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private @Nullable Recording mActiveRecording = null;
 
-    @ExtensionMode.Mode
     private int mCurrentExtensionMode = ExtensionMode.BOKEH;
 
     // Espresso testing variables
@@ -252,7 +251,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     @VisibleForTesting
-    boolean switchToExtensionMode(@ExtensionMode.Mode int extensionMode) {
+    boolean switchToExtensionMode(int extensionMode) {
         if (mCamera == null || mExtensionsManager == null) {
             return false;
         }
@@ -881,8 +880,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPermissionCompleter.set(allPermissionGranted);
     }
 
-    @ExtensionMode.Mode
-    private int getNextExtensionMode(@ExtensionMode.Mode int extensionMode) {
+    private int getNextExtensionMode(int extensionMode) {
         switch (extensionMode) {
             case ExtensionMode.NONE:
                 return ExtensionMode.BOKEH;
@@ -902,7 +900,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     @VisibleForTesting
-    boolean isExtensionModeSupported(@NonNull String cameraId, @ExtensionMode.Mode int mode) {
+    boolean isExtensionModeSupported(@NonNull String cameraId, int mode) {
         CameraSelector cameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
 
         return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
@@ -910,12 +908,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     @VisibleForTesting
     boolean isExtensionModeSupported(@NonNull CameraSelector cameraSelector,
-            @ExtensionMode.Mode int mode) {
+            int mode) {
         return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
     }
 
     @VisibleForTesting
-    @ExtensionMode.Mode
     public int getCurrentExtensionMode() {
         return mCurrentExtensionMode;
     }

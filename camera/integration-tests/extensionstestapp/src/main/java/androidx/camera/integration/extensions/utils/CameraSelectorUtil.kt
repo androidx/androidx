@@ -24,7 +24,6 @@ import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 
 object CameraSelectorUtil {
@@ -51,7 +50,7 @@ object CameraSelectorUtil {
         context: Context,
         extensionsManager: ExtensionsManager,
         currentCameraId: String,
-        @ExtensionMode.Mode extensionsMode: Int,
+        extensionsMode: Int,
     ): String? {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {

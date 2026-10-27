@@ -416,18 +416,6 @@ public class AdapterCameraInfo extends ForwardingCameraInfo implements UnsafeWra
         return mCameraInfo.isUseCaseCombinationSupported(useCases, cameraMode,
                 isFeatureComboInvocation, mCameraConfig);
     }
-
-    @Override
-    public @NonNull Set<Integer> getSupportedExtensions() {
-        return mCameraInfo.getSupportedExtensions();
-    }
-
-    @Override
-    public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
-            int extensionMode) {
-        return mCameraInfo.getCameraExtensionCapabilities(extensionMode);
-    }
-
     @Override
     public <T> @Nullable T unwrapAs(@NonNull Class<T> type) {
         if (mPhysicalCameraInfo != null) {

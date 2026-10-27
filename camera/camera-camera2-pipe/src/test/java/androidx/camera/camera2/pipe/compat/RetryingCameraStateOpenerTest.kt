@@ -102,6 +102,10 @@ class RetryingCameraStateOpenerTest {
             override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
                 throw UnsupportedOperationException("Not supported for this test")
             }
+
+            override fun isExtensionSupported(cameraId: CameraId, extension: Int): Boolean {
+                return awaitCameraMetadata(cameraId).isExtensionSupported(extension)
+            }
         }
 
     // TODO(lnishan): Consider mocking this object when Mockito works well with value classes.

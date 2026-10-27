@@ -23,6 +23,7 @@ import static android.media.MediaRecorder.AudioEncoder.AMR_WB;
 import static android.media.MediaRecorder.AudioEncoder.HE_AAC;
 import static android.media.MediaRecorder.AudioEncoder.OPUS;
 import static android.media.MediaRecorder.AudioEncoder.VORBIS;
+import static android.media.MediaRecorder.VideoEncoder.APV;
 import static android.media.MediaRecorder.VideoEncoder.AV1;
 import static android.media.MediaRecorder.VideoEncoder.DOLBY_VISION;
 import static android.media.MediaRecorder.VideoEncoder.H263;
@@ -89,7 +90,7 @@ public interface EncoderProfilesProxy {
         public static final int BIT_DEPTH_10 = 10;
 
         @Retention(RetentionPolicy.SOURCE)
-        @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, VP9, DOLBY_VISION, AV1,
+        @IntDef({H263, H264, HEVC, VP8, MPEG_4_SP, VP9, DOLBY_VISION, APV, AV1,
                 MediaRecorder.VideoEncoder.DEFAULT})
         public @interface VideoEncoder {
         }
@@ -259,6 +260,8 @@ public interface EncoderProfilesProxy {
                 return MediaFormat.MIMETYPE_VIDEO_VP9;
             case DOLBY_VISION:
                 return MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION;
+            case APV:
+                return MediaFormat.MIMETYPE_VIDEO_APV;
             case AV1:
                 return MediaFormat.MIMETYPE_VIDEO_AV1;
             case MediaRecorder.VideoEncoder.DEFAULT:

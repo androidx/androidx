@@ -54,7 +54,7 @@ dependencies {
     androidTestImplementation(libs.testMonitor)
 }
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
     namespace = "androidx.camera.effects"
 }
 androidx {

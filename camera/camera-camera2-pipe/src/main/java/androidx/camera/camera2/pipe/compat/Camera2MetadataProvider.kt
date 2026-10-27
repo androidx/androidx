@@ -48,4 +48,7 @@ internal interface Camera2MetadataProvider {
 
     /** Retrieve the set of supported Camera2 Extensions for the given camera. */
     fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int>
+
+    /** Check if the given Camera2 Extension is supported for the given camera. */
+    fun isExtensionSupported(cameraId: CameraId, extension: Int): Boolean
 }

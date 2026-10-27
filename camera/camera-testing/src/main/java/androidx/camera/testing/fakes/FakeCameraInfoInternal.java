@@ -102,7 +102,9 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final Set<DynamicRange> mSupportedDynamicRanges = new HashSet<>(DEFAULT_DYNAMIC_RANGES);
     private final Set<Integer> mAvailableCapabilities = new HashSet<>();
+    private final Object mExtensionsLock = new Object();
     private final Set<Integer> mSupportedExtensions = new HashSet<>();
+    private final Set<Integer> mVendorDefinedModes = new HashSet<>();
     private final Map<Integer, CameraExtensionCapabilities> mExtensionCapabilitiesMap =
             new HashMap<>();
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
@@ -620,28 +622,54 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     /** Sets the supported extensions for testing. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setSupportedExtensions(@NonNull Set<Integer> supportedExtensions) {
-        mSupportedExtensions.clear();
-        mSupportedExtensions.addAll(supportedExtensions);
+        synchronized (mExtensionsLock) {
+            mSupportedExtensions.clear();
+            mSupportedExtensions.addAll(supportedExtensions);
+        }
+    }
+
+    /** Sets the vendor-defined extensions for testing. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setVendorDefinedModes(@NonNull Set<Integer> vendorDefinedModes) {
+        synchronized (mExtensionsLock) {
+            mVendorDefinedModes.clear();
+            mVendorDefinedModes.addAll(vendorDefinedModes);
+        }
     }
 
     /** Sets the camera extension capabilities for testing. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setCameraExtensionCapabilities(int extensionMode,
             @Nullable CameraExtensionCapabilities capabilities) {
-        mExtensionCapabilitiesMap.put(extensionMode, capabilities);
+        synchronized (mExtensionsLock) {
+            mExtensionCapabilitiesMap.put(extensionMode, capabilities);
+        }
     }
 
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Set<Integer> getSupportedExtensions() {
-        return new HashSet<>(mSupportedExtensions);
+        synchronized (mExtensionsLock) {
+            return new HashSet<>(mSupportedExtensions);
+        }
+    }
+
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isExtensionSupported(int extensionMode) {
+        synchronized (mExtensionsLock) {
+            return mSupportedExtensions.contains(extensionMode)
+                    || mVendorDefinedModes.contains(extensionMode);
+        }
     }
 
     @Override
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
             int extensionMode) {
-        return mExtensionCapabilitiesMap.get(extensionMode);
+        synchronized (mExtensionsLock) {
+            return mExtensionCapabilitiesMap.get(extensionMode);
+        }
     }
 
     static final class FakeExposureState implements ExposureState {

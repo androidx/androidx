@@ -93,7 +93,7 @@ dependencies {
 }
 
 android {
-    compileSdk { version = release(36) }
+    compileSdk { version = release(37) }
 
     lint {
         enable.add("CameraXQuirksClassDetector")

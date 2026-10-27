@@ -458,6 +458,17 @@ public interface CameraInfoInternal extends CameraInfo {
     }
 
     /**
+     * Returns true if the extension mode is supported by the camera device.
+     *
+     * <p>This method can return true for modes not included in {@link #getSupportedExtensions()}
+     * (e.g. vendor-defined hidden modes). Implementations with hidden modes must override this
+     * default implementation.
+     */
+    default boolean isExtensionSupported(int extensionMode) {
+        return getSupportedExtensions().contains(extensionMode);
+    }
+
+    /**
      * Returns the camera extension capabilities for the specified extension mode.
      *
      * @param extensionMode the extension mode
