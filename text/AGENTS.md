@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | `:text:text-vertical` | `text/text-vertical/` | `VerticalTextLayout`, `TextOrientation`, `TextOrientationSpan`, `FontShearSpan`, and vertical/horizontal `RubySpan` and `EmphasisSpan`. |
 | `:text:text-vertical-compose` | `text/text-vertical-compose/` | `VerticalText`, `VerticalTextStyle`, and `buildVerticalText` / `VerticalTextScope` DSL. |
-| `:text:text-vertical-testapp` | `text/text-vertical/testapp/` | Demo and test app (`VerticalTextSampleActivity`; outputs in `../../out/androidx/text/text-vertical-testapp/`). Update for user-visible changes. |
+| `:text:text-vertical-testapp` | `text/text-vertical/testapp/` | Demo and test app (`DemoActivity` shows the `Demos.kt` registry; register new demos there; outputs in `../../out/androidx/text/text-vertical-testapp/`). Update for user-visible changes. |
 
 ## Build & Workflow Rules
 
@@ -19,10 +19,9 @@
   PROJECT_PREFIX=:text,:annotation ./gradlew <tasks>
   ```
 - **Commits:** Follow
-  [`manage_commits`](../.agents/skills/manage_commits/SKILL.md) with subject
-  prefix `[Tate] `, ask the user if `Bug:` is unknown, and list
-  `:connectedCheck` for affected modules in `Test:` (`./gradlew buildOnServer`
-  for version-config-only CLs).
+  [`manage_commits`](../.agents/skills/manage_commits/SKILL.md), ask the user if
+  `Bug:` is unknown, and list the test suites you ran in `Test:`
+  (`./gradlew buildOnServer` for version-config-only CLs).
 
 ## Architecture & Testing
 
