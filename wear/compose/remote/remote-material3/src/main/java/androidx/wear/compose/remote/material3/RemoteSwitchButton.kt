@@ -149,8 +149,7 @@ public object RemoteSwitchButtonDefaults {
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
     /** The default shape for [RemoteSwitchButton]. */
-    public val switchButtonShape: RemoteRoundedCornerShape
-        @Composable get() = RemoteShapeDefaults.Large
+    public val switchButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
     /** The width of the switch control track. */
     public val SwitchWidth: RemoteDp = 32.rdp
@@ -520,82 +519,68 @@ public class RemoteSwitchButtonColors(
 
     /** Returns a copy of this [RemoteSwitchButtonColors] optionally overriding some values. */
     public fun copy(
-        checkedContainerColor: RemoteColor? = this.checkedContainerColor,
-        checkedContentColor: RemoteColor? = this.checkedContentColor,
-        checkedSecondaryContentColor: RemoteColor? = this.checkedSecondaryContentColor,
-        checkedIconColor: RemoteColor? = this.checkedIconColor,
-        checkedThumbColor: RemoteColor? = this.checkedThumbColor,
-        checkedThumbIconColor: RemoteColor? = this.checkedThumbIconColor,
-        checkedTrackColor: RemoteColor? = this.checkedTrackColor,
-        checkedTrackBorderColor: RemoteColor? = this.checkedTrackBorderColor,
-        uncheckedContainerColor: RemoteColor? = this.uncheckedContainerColor,
-        uncheckedContentColor: RemoteColor? = this.uncheckedContentColor,
-        uncheckedSecondaryContentColor: RemoteColor? = this.uncheckedSecondaryContentColor,
-        uncheckedIconColor: RemoteColor? = this.uncheckedIconColor,
-        uncheckedThumbColor: RemoteColor? = this.uncheckedThumbColor,
-        uncheckedTrackColor: RemoteColor? = this.uncheckedTrackColor,
-        uncheckedTrackBorderColor: RemoteColor? = this.uncheckedTrackBorderColor,
-        disabledCheckedContainerColor: RemoteColor? = this.disabledCheckedContainerColor,
-        disabledCheckedContentColor: RemoteColor? = this.disabledCheckedContentColor,
-        disabledCheckedSecondaryContentColor: RemoteColor? =
+        checkedContainerColor: RemoteColor = this.checkedContainerColor,
+        checkedContentColor: RemoteColor = this.checkedContentColor,
+        checkedSecondaryContentColor: RemoteColor = this.checkedSecondaryContentColor,
+        checkedIconColor: RemoteColor = this.checkedIconColor,
+        checkedThumbColor: RemoteColor = this.checkedThumbColor,
+        checkedThumbIconColor: RemoteColor = this.checkedThumbIconColor,
+        checkedTrackColor: RemoteColor = this.checkedTrackColor,
+        checkedTrackBorderColor: RemoteColor = this.checkedTrackBorderColor,
+        uncheckedContainerColor: RemoteColor = this.uncheckedContainerColor,
+        uncheckedContentColor: RemoteColor = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: RemoteColor = this.uncheckedSecondaryContentColor,
+        uncheckedIconColor: RemoteColor = this.uncheckedIconColor,
+        uncheckedThumbColor: RemoteColor = this.uncheckedThumbColor,
+        uncheckedTrackColor: RemoteColor = this.uncheckedTrackColor,
+        uncheckedTrackBorderColor: RemoteColor = this.uncheckedTrackBorderColor,
+        disabledCheckedContainerColor: RemoteColor = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: RemoteColor = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: RemoteColor =
             this.disabledCheckedSecondaryContentColor,
-        disabledCheckedIconColor: RemoteColor? = this.disabledCheckedIconColor,
-        disabledCheckedThumbColor: RemoteColor? = this.disabledCheckedThumbColor,
-        disabledCheckedThumbIconColor: RemoteColor? = this.disabledCheckedThumbIconColor,
-        disabledCheckedTrackColor: RemoteColor? = this.disabledCheckedTrackColor,
-        disabledCheckedTrackBorderColor: RemoteColor? = this.disabledCheckedTrackBorderColor,
-        disabledUncheckedContainerColor: RemoteColor? = this.disabledUncheckedContainerColor,
-        disabledUncheckedContentColor: RemoteColor? = this.disabledUncheckedContentColor,
-        disabledUncheckedSecondaryContentColor: RemoteColor? =
+        disabledCheckedIconColor: RemoteColor = this.disabledCheckedIconColor,
+        disabledCheckedThumbColor: RemoteColor = this.disabledCheckedThumbColor,
+        disabledCheckedThumbIconColor: RemoteColor = this.disabledCheckedThumbIconColor,
+        disabledCheckedTrackColor: RemoteColor = this.disabledCheckedTrackColor,
+        disabledCheckedTrackBorderColor: RemoteColor = this.disabledCheckedTrackBorderColor,
+        disabledUncheckedContainerColor: RemoteColor = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: RemoteColor = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: RemoteColor =
             this.disabledUncheckedSecondaryContentColor,
-        disabledUncheckedIconColor: RemoteColor? = this.disabledUncheckedIconColor,
-        disabledUncheckedThumbColor: RemoteColor? = this.disabledUncheckedThumbColor,
-        disabledUncheckedTrackBorderColor: RemoteColor? = this.disabledUncheckedTrackBorderColor,
+        disabledUncheckedIconColor: RemoteColor = this.disabledUncheckedIconColor,
+        disabledUncheckedThumbColor: RemoteColor = this.disabledUncheckedThumbColor,
+        disabledUncheckedTrackBorderColor: RemoteColor = this.disabledUncheckedTrackBorderColor,
     ): RemoteSwitchButtonColors =
         RemoteSwitchButtonColors(
-            checkedContainerColor = checkedContainerColor ?: this.checkedContainerColor,
-            checkedContentColor = checkedContentColor ?: this.checkedContentColor,
-            checkedSecondaryContentColor =
-                checkedSecondaryContentColor ?: this.checkedSecondaryContentColor,
-            checkedIconColor = checkedIconColor ?: this.checkedIconColor,
-            checkedThumbColor = checkedThumbColor ?: this.checkedThumbColor,
-            checkedThumbIconColor = checkedThumbIconColor ?: this.checkedThumbIconColor,
-            checkedTrackColor = checkedTrackColor ?: this.checkedTrackColor,
-            checkedTrackBorderColor = checkedTrackBorderColor ?: this.checkedTrackBorderColor,
-            uncheckedContainerColor = uncheckedContainerColor ?: this.uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor ?: this.uncheckedContentColor,
-            uncheckedSecondaryContentColor =
-                uncheckedSecondaryContentColor ?: this.uncheckedSecondaryContentColor,
-            uncheckedIconColor = uncheckedIconColor ?: this.uncheckedIconColor,
-            uncheckedThumbColor = uncheckedThumbColor ?: this.uncheckedThumbColor,
-            uncheckedTrackColor = uncheckedTrackColor ?: this.uncheckedTrackColor,
-            uncheckedTrackBorderColor = uncheckedTrackBorderColor ?: this.uncheckedTrackBorderColor,
-            disabledCheckedContainerColor =
-                disabledCheckedContainerColor ?: this.disabledCheckedContainerColor,
-            disabledCheckedContentColor =
-                disabledCheckedContentColor ?: this.disabledCheckedContentColor,
-            disabledCheckedSecondaryContentColor =
-                disabledCheckedSecondaryContentColor ?: this.disabledCheckedSecondaryContentColor,
-            disabledCheckedIconColor = disabledCheckedIconColor ?: this.disabledCheckedIconColor,
-            disabledCheckedThumbColor = disabledCheckedThumbColor ?: this.disabledCheckedThumbColor,
-            disabledCheckedThumbIconColor =
-                disabledCheckedThumbIconColor ?: this.disabledCheckedThumbIconColor,
-            disabledCheckedTrackColor = disabledCheckedTrackColor ?: this.disabledCheckedTrackColor,
-            disabledCheckedTrackBorderColor =
-                disabledCheckedTrackBorderColor ?: this.disabledCheckedTrackBorderColor,
-            disabledUncheckedContainerColor =
-                disabledUncheckedContainerColor ?: this.disabledUncheckedContainerColor,
-            disabledUncheckedContentColor =
-                disabledUncheckedContentColor ?: this.disabledUncheckedContentColor,
-            disabledUncheckedSecondaryContentColor =
-                disabledUncheckedSecondaryContentColor
-                    ?: this.disabledUncheckedSecondaryContentColor,
-            disabledUncheckedIconColor =
-                disabledUncheckedIconColor ?: this.disabledUncheckedIconColor,
-            disabledUncheckedThumbColor =
-                disabledUncheckedThumbColor ?: this.disabledUncheckedThumbColor,
-            disabledUncheckedTrackBorderColor =
-                disabledUncheckedTrackBorderColor ?: this.disabledUncheckedTrackBorderColor,
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            checkedSecondaryContentColor = checkedSecondaryContentColor,
+            checkedIconColor = checkedIconColor,
+            checkedThumbColor = checkedThumbColor,
+            checkedThumbIconColor = checkedThumbIconColor,
+            checkedTrackColor = checkedTrackColor,
+            checkedTrackBorderColor = checkedTrackBorderColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
+            uncheckedIconColor = uncheckedIconColor,
+            uncheckedThumbColor = uncheckedThumbColor,
+            uncheckedTrackColor = uncheckedTrackColor,
+            uncheckedTrackBorderColor = uncheckedTrackBorderColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledCheckedSecondaryContentColor = disabledCheckedSecondaryContentColor,
+            disabledCheckedIconColor = disabledCheckedIconColor,
+            disabledCheckedThumbColor = disabledCheckedThumbColor,
+            disabledCheckedThumbIconColor = disabledCheckedThumbIconColor,
+            disabledCheckedTrackColor = disabledCheckedTrackColor,
+            disabledCheckedTrackBorderColor = disabledCheckedTrackBorderColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+            disabledUncheckedSecondaryContentColor = disabledUncheckedSecondaryContentColor,
+            disabledUncheckedIconColor = disabledUncheckedIconColor,
+            disabledUncheckedThumbColor = disabledUncheckedThumbColor,
+            disabledUncheckedTrackBorderColor = disabledUncheckedTrackBorderColor,
         )
 
     override fun equals(other: Any?): Boolean {

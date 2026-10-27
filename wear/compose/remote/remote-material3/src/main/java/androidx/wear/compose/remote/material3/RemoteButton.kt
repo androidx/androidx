@@ -604,12 +604,10 @@ private fun RemoteButtonImpl(
 /** Contains the default values used by [RemoteButton] */
 public object RemoteButtonDefaults {
     /** Recommended [RemoteRoundedCornerShape] for [RemoteButton]. */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(26.rdp)
+    public val shape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(26.rdp)
 
     /** Recommended [RemoteRoundedCornerShape] for [RemoteCompactButton]. */
-    public val compactButtonShape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(18.rdp)
+    public val compactButtonShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(18.rdp)
 
     /**
      * Creates a [RemoteButtonColors] that represents the default background and content colors used
@@ -1202,25 +1200,24 @@ public class RemoteButtonColors(
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     public fun copy(
-        containerColor: RemoteColor? = this.containerColor,
-        contentColor: RemoteColor? = this.contentColor,
-        secondaryContentColor: RemoteColor? = this.secondaryContentColor,
-        iconColor: RemoteColor? = this.iconColor,
-        disabledContainerColor: RemoteColor? = this.disabledContainerColor,
-        disabledContentColor: RemoteColor? = this.disabledContentColor,
-        disabledSecondaryContentColor: RemoteColor? = this.disabledSecondaryContentColor,
-        disabledIconColor: RemoteColor? = this.disabledIconColor,
+        containerColor: RemoteColor = this.containerColor,
+        contentColor: RemoteColor = this.contentColor,
+        secondaryContentColor: RemoteColor = this.secondaryContentColor,
+        iconColor: RemoteColor = this.iconColor,
+        disabledContainerColor: RemoteColor = this.disabledContainerColor,
+        disabledContentColor: RemoteColor = this.disabledContentColor,
+        disabledSecondaryContentColor: RemoteColor = this.disabledSecondaryContentColor,
+        disabledIconColor: RemoteColor = this.disabledIconColor,
     ): RemoteButtonColors =
         RemoteButtonColors(
-            containerColor = containerColor ?: this.containerColor,
-            contentColor = contentColor ?: this.contentColor,
-            secondaryContentColor = secondaryContentColor ?: this.secondaryContentColor,
-            iconColor = iconColor ?: this.iconColor,
-            disabledContainerColor = disabledContainerColor ?: this.disabledContainerColor,
-            disabledContentColor = disabledContentColor ?: this.disabledContentColor,
-            disabledSecondaryContentColor =
-                disabledSecondaryContentColor ?: this.disabledSecondaryContentColor,
-            disabledIconColor = disabledIconColor ?: this.disabledIconColor,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            secondaryContentColor = secondaryContentColor,
+            iconColor = iconColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor,
         )
 }
 

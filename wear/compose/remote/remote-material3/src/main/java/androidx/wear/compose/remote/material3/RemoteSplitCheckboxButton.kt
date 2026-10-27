@@ -228,12 +228,10 @@ public object RemoteSplitCheckboxButtonDefaults {
      * Recommended [RemoteRoundedCornerShape] for the outer container of
      * [RemoteSplitCheckboxButton].
      */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(26.rdp)
+    public val shape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(26.rdp)
 
     /** Recommended [RemoteRoundedCornerShape] for the split sections. */
-    public val splitSectionsShape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(4.rdp)
+    public val splitSectionsShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(4.rdp)
 
     /** The default minimum height applied for the [RemoteSplitCheckboxButton]. */
     public val Height: RemoteDp = 52.rdp
@@ -480,66 +478,55 @@ public class RemoteSplitCheckboxButtonColors(
      * Returns a copy of this [RemoteSplitCheckboxButtonColors] optionally overriding some values.
      */
     public fun copy(
-        checkedContainerColor: RemoteColor? = null,
-        checkedContentColor: RemoteColor? = null,
-        checkedSecondaryContentColor: RemoteColor? = null,
-        checkedSplitContainerColor: RemoteColor? = null,
-        checkedBoxColor: RemoteColor? = null,
-        checkedCheckmarkColor: RemoteColor? = null,
-        uncheckedContainerColor: RemoteColor? = null,
-        uncheckedContentColor: RemoteColor? = null,
-        uncheckedSecondaryContentColor: RemoteColor? = null,
-        uncheckedSplitContainerColor: RemoteColor? = null,
-        uncheckedBoxColor: RemoteColor? = null,
-        disabledCheckedContainerColor: RemoteColor? = null,
-        disabledCheckedContentColor: RemoteColor? = null,
-        disabledCheckedSecondaryContentColor: RemoteColor? = null,
-        disabledCheckedSplitContainerColor: RemoteColor? = null,
-        disabledCheckedBoxColor: RemoteColor? = null,
-        disabledCheckedCheckmarkColor: RemoteColor? = null,
-        disabledUncheckedContainerColor: RemoteColor? = null,
-        disabledUncheckedContentColor: RemoteColor? = null,
-        disabledUncheckedSecondaryContentColor: RemoteColor? = null,
-        disabledUncheckedSplitContainerColor: RemoteColor? = null,
-        disabledUncheckedBoxColor: RemoteColor? = null,
+        checkedContainerColor: RemoteColor = this.checkedContainerColor,
+        checkedContentColor: RemoteColor = this.checkedContentColor,
+        checkedSecondaryContentColor: RemoteColor = this.checkedSecondaryContentColor,
+        checkedSplitContainerColor: RemoteColor = this.checkedSplitContainerColor,
+        checkedBoxColor: RemoteColor = this.checkedBoxColor,
+        checkedCheckmarkColor: RemoteColor = this.checkedCheckmarkColor,
+        uncheckedContainerColor: RemoteColor = this.uncheckedContainerColor,
+        uncheckedContentColor: RemoteColor = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: RemoteColor = this.uncheckedSecondaryContentColor,
+        uncheckedSplitContainerColor: RemoteColor = this.uncheckedSplitContainerColor,
+        uncheckedBoxColor: RemoteColor = this.uncheckedBoxColor,
+        disabledCheckedContainerColor: RemoteColor = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: RemoteColor = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: RemoteColor =
+            this.disabledCheckedSecondaryContentColor,
+        disabledCheckedSplitContainerColor: RemoteColor = this.disabledCheckedSplitContainerColor,
+        disabledCheckedBoxColor: RemoteColor = this.disabledCheckedBoxColor,
+        disabledCheckedCheckmarkColor: RemoteColor = this.disabledCheckedCheckmarkColor,
+        disabledUncheckedContainerColor: RemoteColor = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: RemoteColor = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: RemoteColor =
+            this.disabledUncheckedSecondaryContentColor,
+        disabledUncheckedSplitContainerColor: RemoteColor =
+            this.disabledUncheckedSplitContainerColor,
+        disabledUncheckedBoxColor: RemoteColor = this.disabledUncheckedBoxColor,
     ): RemoteSplitCheckboxButtonColors =
         RemoteSplitCheckboxButtonColors(
-            checkedContainerColor = checkedContainerColor ?: this.checkedContainerColor,
-            checkedContentColor = checkedContentColor ?: this.checkedContentColor,
-            checkedSecondaryContentColor =
-                checkedSecondaryContentColor ?: this.checkedSecondaryContentColor,
-            checkedSplitContainerColor =
-                checkedSplitContainerColor ?: this.checkedSplitContainerColor,
-            checkedBoxColor = checkedBoxColor ?: this.checkedBoxColor,
-            checkedCheckmarkColor = checkedCheckmarkColor ?: this.checkedCheckmarkColor,
-            uncheckedContainerColor = uncheckedContainerColor ?: this.uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor ?: this.uncheckedContentColor,
-            uncheckedSecondaryContentColor =
-                uncheckedSecondaryContentColor ?: this.uncheckedSecondaryContentColor,
-            uncheckedSplitContainerColor =
-                uncheckedSplitContainerColor ?: this.uncheckedSplitContainerColor,
-            uncheckedBoxColor = uncheckedBoxColor ?: this.uncheckedBoxColor,
-            disabledCheckedContainerColor =
-                disabledCheckedContainerColor ?: this.disabledCheckedContainerColor,
-            disabledCheckedContentColor =
-                disabledCheckedContentColor ?: this.disabledCheckedContentColor,
-            disabledCheckedSecondaryContentColor =
-                disabledCheckedSecondaryContentColor ?: this.disabledCheckedSecondaryContentColor,
-            disabledCheckedSplitContainerColor =
-                disabledCheckedSplitContainerColor ?: this.disabledCheckedSplitContainerColor,
-            disabledCheckedBoxColor = disabledCheckedBoxColor ?: this.disabledCheckedBoxColor,
-            disabledCheckedCheckmarkColor =
-                disabledCheckedCheckmarkColor ?: this.disabledCheckedCheckmarkColor,
-            disabledUncheckedContainerColor =
-                disabledUncheckedContainerColor ?: this.disabledUncheckedContainerColor,
-            disabledUncheckedContentColor =
-                disabledUncheckedContentColor ?: this.disabledUncheckedContentColor,
-            disabledUncheckedSecondaryContentColor =
-                disabledUncheckedSecondaryContentColor
-                    ?: this.disabledUncheckedSecondaryContentColor,
-            disabledUncheckedSplitContainerColor =
-                disabledUncheckedSplitContainerColor ?: this.disabledUncheckedSplitContainerColor,
-            disabledUncheckedBoxColor = disabledUncheckedBoxColor ?: this.disabledUncheckedBoxColor,
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            checkedSecondaryContentColor = checkedSecondaryContentColor,
+            checkedSplitContainerColor = checkedSplitContainerColor,
+            checkedBoxColor = checkedBoxColor,
+            checkedCheckmarkColor = checkedCheckmarkColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
+            uncheckedSplitContainerColor = uncheckedSplitContainerColor,
+            uncheckedBoxColor = uncheckedBoxColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledCheckedSecondaryContentColor = disabledCheckedSecondaryContentColor,
+            disabledCheckedSplitContainerColor = disabledCheckedSplitContainerColor,
+            disabledCheckedBoxColor = disabledCheckedBoxColor,
+            disabledCheckedCheckmarkColor = disabledCheckedCheckmarkColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+            disabledUncheckedSecondaryContentColor = disabledUncheckedSecondaryContentColor,
+            disabledUncheckedSplitContainerColor = disabledUncheckedSplitContainerColor,
+            disabledUncheckedBoxColor = disabledUncheckedBoxColor,
         )
 
     @Stable

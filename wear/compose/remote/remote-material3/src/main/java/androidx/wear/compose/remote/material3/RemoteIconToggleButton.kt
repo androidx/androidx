@@ -355,17 +355,23 @@ public object RemoteIconToggleButtonDefaults {
         disabledCheckedContentColor: RemoteColor? = null,
         disabledUncheckedContainerColor: RemoteColor? = null,
         disabledUncheckedContentColor: RemoteColor? = null,
-    ): RemoteIconToggleButtonColors =
-        RemoteMaterialTheme.colorScheme.defaultIconToggleButtonColors.copy(
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-            uncheckedContainerColor = uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor,
-            disabledCheckedContainerColor = disabledCheckedContainerColor,
-            disabledCheckedContentColor = disabledCheckedContentColor,
-            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
-            disabledUncheckedContentColor = disabledUncheckedContentColor,
+    ): RemoteIconToggleButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultIconToggleButtonColors
+        return default.copy(
+            checkedContainerColor = checkedContainerColor ?: default.checkedContainerColor,
+            checkedContentColor = checkedContentColor ?: default.checkedContentColor,
+            uncheckedContainerColor = uncheckedContainerColor ?: default.uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor ?: default.uncheckedContentColor,
+            disabledCheckedContainerColor =
+                disabledCheckedContainerColor ?: default.disabledCheckedContainerColor,
+            disabledCheckedContentColor =
+                disabledCheckedContentColor ?: default.disabledCheckedContentColor,
+            disabledUncheckedContainerColor =
+                disabledUncheckedContainerColor ?: default.disabledUncheckedContainerColor,
+            disabledUncheckedContentColor =
+                disabledUncheckedContentColor ?: default.disabledUncheckedContentColor,
         )
+    }
 
     private val RemoteColorScheme.defaultIconToggleButtonColors: RemoteIconToggleButtonColors
         @Composable
@@ -417,31 +423,27 @@ public class RemoteIconToggleButtonColors(
 ) {
     /**
      * Returns a copy of this [RemoteIconToggleButtonColors] optionally overriding some of the
-     * values. A `null` value keeps the existing color.
+     * values.
      */
     public fun copy(
-        checkedContainerColor: RemoteColor? = this.checkedContainerColor,
-        checkedContentColor: RemoteColor? = this.checkedContentColor,
-        uncheckedContainerColor: RemoteColor? = this.uncheckedContainerColor,
-        uncheckedContentColor: RemoteColor? = this.uncheckedContentColor,
-        disabledCheckedContainerColor: RemoteColor? = this.disabledCheckedContainerColor,
-        disabledCheckedContentColor: RemoteColor? = this.disabledCheckedContentColor,
-        disabledUncheckedContainerColor: RemoteColor? = this.disabledUncheckedContainerColor,
-        disabledUncheckedContentColor: RemoteColor? = this.disabledUncheckedContentColor,
+        checkedContainerColor: RemoteColor = this.checkedContainerColor,
+        checkedContentColor: RemoteColor = this.checkedContentColor,
+        uncheckedContainerColor: RemoteColor = this.uncheckedContainerColor,
+        uncheckedContentColor: RemoteColor = this.uncheckedContentColor,
+        disabledCheckedContainerColor: RemoteColor = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: RemoteColor = this.disabledCheckedContentColor,
+        disabledUncheckedContainerColor: RemoteColor = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: RemoteColor = this.disabledUncheckedContentColor,
     ): RemoteIconToggleButtonColors =
         RemoteIconToggleButtonColors(
-            checkedContainerColor = checkedContainerColor ?: this.checkedContainerColor,
-            checkedContentColor = checkedContentColor ?: this.checkedContentColor,
-            uncheckedContainerColor = uncheckedContainerColor ?: this.uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor ?: this.uncheckedContentColor,
-            disabledCheckedContainerColor =
-                disabledCheckedContainerColor ?: this.disabledCheckedContainerColor,
-            disabledCheckedContentColor =
-                disabledCheckedContentColor ?: this.disabledCheckedContentColor,
-            disabledUncheckedContainerColor =
-                disabledUncheckedContainerColor ?: this.disabledUncheckedContainerColor,
-            disabledUncheckedContentColor =
-                disabledUncheckedContentColor ?: this.disabledUncheckedContentColor,
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
         )
 
     /**
@@ -549,19 +551,19 @@ public class RemoteIconToggleButtonShapes(
 ) {
     /**
      * Returns a copy of this [RemoteIconToggleButtonShapes] optionally overriding some of the
-     * values. A `null` value keeps the existing shape.
+     * values.
      */
     public fun copy(
-        uncheckedShape: RemoteShape? = this.uncheckedShape,
-        checkedShape: RemoteShape? = this.checkedShape,
-        uncheckedPressedShape: RemoteShape? = this.uncheckedPressedShape,
-        checkedPressedShape: RemoteShape? = this.checkedPressedShape,
+        uncheckedShape: RemoteShape = this.uncheckedShape,
+        checkedShape: RemoteShape = this.checkedShape,
+        uncheckedPressedShape: RemoteShape = this.uncheckedPressedShape,
+        checkedPressedShape: RemoteShape = this.checkedPressedShape,
     ): RemoteIconToggleButtonShapes =
         RemoteIconToggleButtonShapes(
-            uncheckedShape = uncheckedShape ?: this.uncheckedShape,
-            checkedShape = checkedShape ?: this.checkedShape,
-            uncheckedPressedShape = uncheckedPressedShape ?: this.uncheckedPressedShape,
-            checkedPressedShape = checkedPressedShape ?: this.checkedPressedShape,
+            uncheckedShape = uncheckedShape,
+            checkedShape = checkedShape,
+            uncheckedPressedShape = uncheckedPressedShape,
+            checkedPressedShape = checkedPressedShape,
         )
 
     override fun equals(other: Any?): Boolean {

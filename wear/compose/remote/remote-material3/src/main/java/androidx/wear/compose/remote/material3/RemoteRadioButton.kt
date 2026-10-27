@@ -137,8 +137,7 @@ public object RemoteRadioButtonDefaults {
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
     /** The default shape for [RemoteRadioButton]. */
-    public val radioButtonShape: RemoteRoundedCornerShape
-        @Composable get() = RemoteShapeDefaults.Large
+    public val radioButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
     /** The outer radius of the radio button ring. */
     public val CircleRadius: RemoteDp = 9.rdp
@@ -405,62 +404,50 @@ public class RemoteRadioButtonColors(
 
     /** Returns a copy of this [RemoteRadioButtonColors] optionally overriding some values. */
     public fun copy(
-        selectedContainerColor: RemoteColor? = this.selectedContainerColor,
-        selectedContentColor: RemoteColor? = this.selectedContentColor,
-        selectedSecondaryContentColor: RemoteColor? = this.selectedSecondaryContentColor,
-        selectedIconColor: RemoteColor? = this.selectedIconColor,
-        selectedControlColor: RemoteColor? = this.selectedControlColor,
-        unselectedContainerColor: RemoteColor? = this.unselectedContainerColor,
-        unselectedContentColor: RemoteColor? = this.unselectedContentColor,
-        unselectedSecondaryContentColor: RemoteColor? = this.unselectedSecondaryContentColor,
-        unselectedIconColor: RemoteColor? = this.unselectedIconColor,
-        unselectedControlColor: RemoteColor? = this.unselectedControlColor,
-        disabledSelectedContainerColor: RemoteColor? = this.disabledSelectedContainerColor,
-        disabledSelectedContentColor: RemoteColor? = this.disabledSelectedContentColor,
-        disabledSelectedSecondaryContentColor: RemoteColor? =
+        selectedContainerColor: RemoteColor = this.selectedContainerColor,
+        selectedContentColor: RemoteColor = this.selectedContentColor,
+        selectedSecondaryContentColor: RemoteColor = this.selectedSecondaryContentColor,
+        selectedIconColor: RemoteColor = this.selectedIconColor,
+        selectedControlColor: RemoteColor = this.selectedControlColor,
+        unselectedContainerColor: RemoteColor = this.unselectedContainerColor,
+        unselectedContentColor: RemoteColor = this.unselectedContentColor,
+        unselectedSecondaryContentColor: RemoteColor = this.unselectedSecondaryContentColor,
+        unselectedIconColor: RemoteColor = this.unselectedIconColor,
+        unselectedControlColor: RemoteColor = this.unselectedControlColor,
+        disabledSelectedContainerColor: RemoteColor = this.disabledSelectedContainerColor,
+        disabledSelectedContentColor: RemoteColor = this.disabledSelectedContentColor,
+        disabledSelectedSecondaryContentColor: RemoteColor =
             this.disabledSelectedSecondaryContentColor,
-        disabledSelectedIconColor: RemoteColor? = this.disabledSelectedIconColor,
-        disabledSelectedControlColor: RemoteColor? = this.disabledSelectedControlColor,
-        disabledUnselectedContainerColor: RemoteColor? = this.disabledUnselectedContainerColor,
-        disabledUnselectedContentColor: RemoteColor? = this.disabledUnselectedContentColor,
-        disabledUnselectedSecondaryContentColor: RemoteColor? =
+        disabledSelectedIconColor: RemoteColor = this.disabledSelectedIconColor,
+        disabledSelectedControlColor: RemoteColor = this.disabledSelectedControlColor,
+        disabledUnselectedContainerColor: RemoteColor = this.disabledUnselectedContainerColor,
+        disabledUnselectedContentColor: RemoteColor = this.disabledUnselectedContentColor,
+        disabledUnselectedSecondaryContentColor: RemoteColor =
             this.disabledUnselectedSecondaryContentColor,
-        disabledUnselectedIconColor: RemoteColor? = this.disabledUnselectedIconColor,
-        disabledUnselectedControlColor: RemoteColor? = this.disabledUnselectedControlColor,
+        disabledUnselectedIconColor: RemoteColor = this.disabledUnselectedIconColor,
+        disabledUnselectedControlColor: RemoteColor = this.disabledUnselectedControlColor,
     ): RemoteRadioButtonColors =
         RemoteRadioButtonColors(
-            selectedContainerColor = selectedContainerColor ?: this.selectedContainerColor,
-            selectedContentColor = selectedContentColor ?: this.selectedContentColor,
-            selectedSecondaryContentColor =
-                selectedSecondaryContentColor ?: this.selectedSecondaryContentColor,
-            selectedIconColor = selectedIconColor ?: this.selectedIconColor,
-            selectedControlColor = selectedControlColor ?: this.selectedControlColor,
-            unselectedContainerColor = unselectedContainerColor ?: this.unselectedContainerColor,
-            unselectedContentColor = unselectedContentColor ?: this.unselectedContentColor,
-            unselectedSecondaryContentColor =
-                unselectedSecondaryContentColor ?: this.unselectedSecondaryContentColor,
-            unselectedIconColor = unselectedIconColor ?: this.unselectedIconColor,
-            unselectedControlColor = unselectedControlColor ?: this.unselectedControlColor,
-            disabledSelectedContainerColor =
-                disabledSelectedContainerColor ?: this.disabledSelectedContainerColor,
-            disabledSelectedContentColor =
-                disabledSelectedContentColor ?: this.disabledSelectedContentColor,
-            disabledSelectedSecondaryContentColor =
-                disabledSelectedSecondaryContentColor ?: this.disabledSelectedSecondaryContentColor,
-            disabledSelectedIconColor = disabledSelectedIconColor ?: this.disabledSelectedIconColor,
-            disabledSelectedControlColor =
-                disabledSelectedControlColor ?: this.disabledSelectedControlColor,
-            disabledUnselectedContainerColor =
-                disabledUnselectedContainerColor ?: this.disabledUnselectedContainerColor,
-            disabledUnselectedContentColor =
-                disabledUnselectedContentColor ?: this.disabledUnselectedContentColor,
-            disabledUnselectedSecondaryContentColor =
-                disabledUnselectedSecondaryContentColor
-                    ?: this.disabledUnselectedSecondaryContentColor,
-            disabledUnselectedIconColor =
-                disabledUnselectedIconColor ?: this.disabledUnselectedIconColor,
-            disabledUnselectedControlColor =
-                disabledUnselectedControlColor ?: this.disabledUnselectedControlColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            selectedSecondaryContentColor = selectedSecondaryContentColor,
+            selectedIconColor = selectedIconColor,
+            selectedControlColor = selectedControlColor,
+            unselectedContainerColor = unselectedContainerColor,
+            unselectedContentColor = unselectedContentColor,
+            unselectedSecondaryContentColor = unselectedSecondaryContentColor,
+            unselectedIconColor = unselectedIconColor,
+            unselectedControlColor = unselectedControlColor,
+            disabledSelectedContainerColor = disabledSelectedContainerColor,
+            disabledSelectedContentColor = disabledSelectedContentColor,
+            disabledSelectedSecondaryContentColor = disabledSelectedSecondaryContentColor,
+            disabledSelectedIconColor = disabledSelectedIconColor,
+            disabledSelectedControlColor = disabledSelectedControlColor,
+            disabledUnselectedContainerColor = disabledUnselectedContainerColor,
+            disabledUnselectedContentColor = disabledUnselectedContentColor,
+            disabledUnselectedSecondaryContentColor = disabledUnselectedSecondaryContentColor,
+            disabledUnselectedIconColor = disabledUnselectedIconColor,
+            disabledUnselectedControlColor = disabledUnselectedControlColor,
         )
 
     override fun equals(other: Any?): Boolean {

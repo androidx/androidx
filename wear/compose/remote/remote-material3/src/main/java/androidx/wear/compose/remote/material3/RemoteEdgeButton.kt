@@ -250,9 +250,6 @@ public object RemoteEdgeButtonDefaults {
             else -> MediumIconSize
         }
 
-    /** The default shape for [RemoteEdgeButton]. */
-    public val shape: RemoteShape = RemoteEdgeButtonShape(RemoteEdgeButtonSize.Small)
-
     /**
      * The recommended shape for [RemoteEdgeButton] of a given [buttonSize].
      *

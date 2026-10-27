@@ -96,8 +96,7 @@ public fun RemoteIconButton(
 /** Contains the default values used by [RemoteIconButton]. */
 public object RemoteIconButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteIconButton]. */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteCircleShape
+    public val shape: RemoteRoundedCornerShape = RemoteCircleShape
 
     /** Recommended alpha to apply to a [RemoteIconButton] with Image content when disabled */
     public val DisabledImageOpacity: RemoteFloat = DisabledContentAlpha.rf
@@ -396,15 +395,15 @@ public class RemoteIconButtonColors(
      * @param disabledContentColor the content color of this icon button when not enabled.
      */
     public fun copy(
-        containerColor: RemoteColor? = this.containerColor,
-        contentColor: RemoteColor? = this.contentColor,
-        disabledContainerColor: RemoteColor? = this.disabledContainerColor,
-        disabledContentColor: RemoteColor? = this.disabledContentColor,
+        containerColor: RemoteColor = this.containerColor,
+        contentColor: RemoteColor = this.contentColor,
+        disabledContainerColor: RemoteColor = this.disabledContainerColor,
+        disabledContentColor: RemoteColor = this.disabledContentColor,
     ): RemoteIconButtonColors =
         RemoteIconButtonColors(
-            containerColor = containerColor ?: this.containerColor,
-            contentColor = contentColor ?: this.contentColor,
-            disabledContainerColor = disabledContainerColor ?: this.disabledContainerColor,
-            disabledContentColor = disabledContentColor ?: this.disabledContentColor,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
         )
 }
