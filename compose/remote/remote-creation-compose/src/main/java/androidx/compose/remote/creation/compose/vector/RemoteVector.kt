@@ -48,11 +48,8 @@ import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastForEach
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.graphics.isUnspecified
 
 /** DSL for building a vector with [RemotePathScope]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -239,89 +236,6 @@ internal class RemotePathComponent : RemoteVNode() {
 internal class RemoteGroupComponent : RemoteVNode() {
     private val children = mutableListOf<RemoteVNode>()
 
-    /**
-     * Flag to determine if the contents of this group can be rendered with a single color This is
-     * true if all the paths and groups within this group can be rendered with the same color
-     */
-    var isTintable: Boolean = true
-        private set
-
-    /**
-     * Tint color to render all the contents of this group. This is configured only if all the
-     * contents within the group are the same color
-     */
-    var tintColor: Color = Color.Unspecified
-        private set
-
-    /**
-     * Helper method to inspect whether the provided brush matches the current color of paths within
-     * the group in order to help determine if only an alpha channel bitmap can be allocated and
-     * tinted in order to save on memory overhead.
-     */
-    private fun markTintForBrush(brush: Brush?) {
-        if (!isTintable) {
-            return
-        }
-        if (brush != null) {
-            if (brush is SolidColor) {
-                markTintForColor(brush.value)
-            } else {
-                // If the brush is not a solid color then we require a explicit ARGB channels in the
-                // cached bitmap
-                markNotTintable()
-            }
-        }
-    }
-
-    /**
-     * Helper method to inspect whether the provided color matches the current color of paths within
-     * the group in order to help determine if only an alpha channel bitmap can be allocated and
-     * tinted in order to save on memory overhead.
-     */
-    private fun markTintForColor(color: Color) {
-        if (!isTintable) {
-            return
-        }
-
-        if (color.isSpecified) {
-            if (tintColor.isUnspecified) {
-                // Initial color has not been specified, initialize the target color to the
-                // one provided
-                tintColor = color
-            } else if (!tintColor.rgbEqual(color)) {
-                // The given color does not match the rgb channels if our previous color
-                // Therefore we require explicit ARGB channels in the cached bitmap
-                markNotTintable()
-            }
-        }
-    }
-
-    private fun markTintForVNode(node: RemoteVNode) {
-        if (node is RemotePathComponent) {
-            markTintForBrush(node.fill)
-            markTintForBrush(node.stroke)
-            if (node.remoteFillColor != null) {
-                node.remoteFillColor?.constantValueOrNull?.let { markTintForColor(it) }
-                    ?: markNotTintable()
-            }
-            if (node.remoteStrokeColor != null) {
-                node.remoteStrokeColor?.constantValueOrNull?.let { markTintForColor(it) }
-                    ?: markNotTintable()
-            }
-        } else if (node is RemoteGroupComponent) {
-            if (node.isTintable && isTintable) {
-                markTintForColor(node.tintColor)
-            } else {
-                markNotTintable()
-            }
-        }
-    }
-
-    private fun markNotTintable() {
-        isTintable = false
-        tintColor = Color.Unspecified
-    }
-
     // If the name changes we should re-draw as individual nodes could
     // be modified based off of this name parameter.
     var name: String = DefaultGroupName
@@ -355,8 +269,6 @@ internal class RemoteGroupComponent : RemoteVNode() {
         } else {
             children.add(instance)
         }
-
-        markTintForVNode(instance)
     }
 
     override fun RemoteDrawScope.draw(colorFilter: RemoteColorFilter?) {
@@ -402,9 +314,3 @@ internal class RemoteGroupComponent : RemoteVNode() {
         return sb.toString()
     }
 }
-
-/**
- * helper method to verify if the rgb channels are equal excluding comparison of the alpha channel
- */
-internal fun Color.rgbEqual(other: Color) =
-    this.red == other.red && this.green == other.green && this.blue == other.blue
