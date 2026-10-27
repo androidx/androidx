@@ -17,13 +17,15 @@ this.
 | `RenderInvalidationTracker.kt` | Decides when a post-composition render phase must run again, using `SnapshotStateObserver` for the states it read; `withRenderSnapshot` isolates the render's writes. |
 | `HeadlessSession.kt` | Wires dispatcher, recomposer, write tracker and frame clock together; `start()`, `awaitRunning()`, `awaitQuiescence()`, `invalidations`, `close()`. |
 | `RenderLoop.kt` | `renderLoop`: settle, render through `renderIfChanged` (skips unchanged output, observes render reads), wait for the next apply notification; the streaming driver shared by hosts. |
+| `HeadlessRenderFlow.kt` | `headlessRenderFlow`: the whole lifecycle of a host that turns a composition into a `Flow` of outputs (session, setting content, settling, re-rendering on change, rate limiting, skipping equal outputs, teardown). A host supplies its `Applier`, its content and a render step. |
+| `UpdateRateLimiter.kt` | Token bucket limiting how often outputs are emitted, with a rate-limited report hook for logging. |
 | `HeadlessLifecycleOwner.kt` | Thread-agnostic `LifecycleOwner` + `SavedStateRegistryOwner` for compositions that run off the main thread. |
 
 The pieces that stay RemoteCompose-specific live in the parent `capture` package: the public
-`captureRemoteDocument` / `captureSingleRemoteDocument` functions, the `RemoteComposeApplier` and
-`RemoteRootNode`, the RemoteCompose `CompositionLocal`s, the document render and encode, and
-`CaptureUpdateThrottle` (a public API; its `UpdateRateLimiter` is a generic token bucket and a
-candidate to move here once the throttle API settles).
+`captureRemoteDocument` / `captureSingleRemoteDocument` functions, which call `headlessRenderFlow`
+with the `RemoteComposeApplier` and `RemoteRootNode`, the RemoteCompose `CompositionLocal`s and the
+document render and encode; the single-capture failure messages; and `CaptureUpdateThrottle` (a
+public API that creates an `UpdateRateLimiter` and owns its log message).
 
 Android-only pieces (`HeadlessLifecycleOwner`, `SavedState`) would become a separate `-android`
 layer in an extracted multiplatform library; `ThreadLocal` and `java.util.concurrent` usages would

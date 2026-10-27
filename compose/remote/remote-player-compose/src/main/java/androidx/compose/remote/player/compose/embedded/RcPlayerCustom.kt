@@ -20,10 +20,10 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerComponent
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
@@ -246,7 +246,7 @@ internal constructor(
     override fun returnFloatHandler(property: FloatReturnProperty): (Float) -> Unit = { value ->
         val prop = findProperty(property)
         if (prop != null && prop.mDataType == Custom.CustomProperty.FLOAT_RETURN) {
-            val targetId = Utils.idFromNan(prop.mFloatValue)
+            val targetId = MaybeVariableFloat(prop.mFloatValue).id
             remoteContext.overrideFloat(targetId, value)
         }
     }
@@ -290,14 +290,8 @@ internal constructor(
             for (i in 0 until rawProperties.size) {
                 val it = rawProperties[i]
                 if (it.isFloat()) {
-                    val value = it.mFloatValue
-                    val resolved =
-                        if (value.isNaN()) {
-                            remoteContext.getFloat(Utils.idFromNan(value))
-                        } else {
-                            value
-                        }
-                    map[it.mType.toInt()] = resolved
+                    map[it.mType.toInt()] =
+                        MaybeVariableFloat(it.mFloatValue).resolveOr(it.mFloatValue, remoteContext)
                 }
             }
             return map

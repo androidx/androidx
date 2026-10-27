@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.doc
 import android.util.Log
 import androidx.collection.IntObjectMap
 import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.compose.animation.core.Easing as ComposeEasing
@@ -30,7 +31,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
-import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableProvider
@@ -39,6 +39,7 @@ import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorTheme
 import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.FloatFunctionDefine
@@ -63,11 +64,11 @@ import androidx.compose.remote.core.operations.TextSubtext
 import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.CanvasContent
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
@@ -77,13 +78,14 @@ import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibil
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.Easing as RemoteEasing
 import androidx.compose.remote.core.types.BooleanConstant
 import androidx.compose.remote.core.types.IntegerConstant
 import androidx.compose.remote.core.types.LongConstant
 import androidx.compose.remote.player.compose.embedded.components.rootTouchExpressions
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
+import androidx.compose.remote.player.compose.embedded.state.anyScalarReference
+import androidx.compose.remote.player.compose.embedded.state.forEachScalarReference
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.util.fastForEach
 import androidx.tracing.trace
@@ -101,6 +103,26 @@ internal class DocumentPreprocessResult(
     val hasWakeIn: Boolean,
     val hasContinuousTime: Boolean,
     val hasDiscreteTime: Boolean,
+    /**
+     * Bitmask of the discrete time variables (indexed as in [DISCRETE_TIME_VARIABLES]) the document
+     * refers to. All bits are set when the document reads the clock in a way the scan can't
+     * attribute to specific fields.
+     */
+    val discreteTimeMask: Int = 0,
+    /**
+     * Whether an operation other than a [TouchExpression] reads `ID_TOUCH_POS_X`/`Y` through an
+     * expression, so the root pointer handler has to publish the touch position. See also
+     * [listensToTouchPosition], which covers operations that bind the position directly.
+     */
+    val readsTouchPosition: Boolean = false,
+    /**
+     * Float variables a draw stream writes in order, more than once per pass: variables assigned
+     * more than once, assigned inside a loop, conditional or float function, function parameters,
+     * loop indexes, and float expressions that read any of these. They are left out of
+     * [computedOpIndex], so a read returns the value the stream wrote last instead of re-deriving
+     * it from inputs that have since moved on.
+     */
+    val streamFloatIds: IntSet = emptyIntSet(),
 )
 
 /**
@@ -173,17 +195,40 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
     var hasWakeIn = false
     var hasContinuousTime = false
     var hasDiscreteTime = false
+    var discreteTimeMask = 0
+    var readsTouchPosition = false
     var currentLayoutComponent: LayoutComponent? = null
     var inScrollModifier = false
     var inLoop = false
+    var inBranch = false
+    // Float ids written imperatively by a draw stream; see DocumentPreprocessResult.streamFloatIds.
+    val streamFloatIds = mutableIntSetOf()
+    // The first expression assigned to each float id; the same operation can be visited twice.
+    val firstAssignments = mutableIntObjectMapOf<Operation>()
+
+    fun collectFunctionWrites(ops: List<Operation>) {
+        ops.fastForEach { op ->
+            // Register names declared in the body at setup, so a host can set them before the
+            // function first runs.
+            if (op is NamedVariable) constantOps.add(op)
+            if (op is VariableProvider) streamFloatIds.add(op.id)
+            if (op is LoopOperation) streamFloatIds.add(op.indexVariableId)
+            if (op is Container) collectFunctionWrites(op.list)
+        }
+    }
 
     fun visitOp(op: Operation) {
         if (op is FloatFunctionDefine) {
+            // Function bodies only run when called, writing their parameters and every variable
+            // they assign once per call.
+            op.args.forEach { streamFloatIds.add(it) }
+            collectFunctionWrites(op.list)
             return
         }
         val prevLayoutComponent = currentLayoutComponent
         val prevInScroll = inScrollModifier
         val prevInLoop = inLoop
+        val prevInBranch = inBranch
         if (op is LayoutComponent) {
             currentLayoutComponent = op
         }
@@ -192,6 +237,10 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         }
         if (op is LoopOperation) {
             inLoop = true
+            streamFloatIds.add(op.indexVariableId)
+        }
+        if (op is ConditionalOperations) {
+            inBranch = true
         }
         try {
             val definedId =
@@ -223,13 +272,17 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     hasContinuousTime = true
                 } else if (isDiscreteTimeVariable(id)) {
                     hasDiscreteTime = true
+                    discreteTimeMask = discreteTimeMask or (1 shl discreteTimeIndex(id))
                 }
             } else {
                 forEachListenedVariableId(op) { id ->
-                    if (isContinuousTimeVariable(id)) {
+                    if (isTouchPositionVariable(id)) {
+                        readsTouchPosition = true
+                    } else if (isContinuousTimeVariable(id)) {
                         hasContinuousTime = true
                     } else if (isDiscreteTimeVariable(id)) {
                         hasDiscreteTime = true
+                        discreteTimeMask = discreteTimeMask or (1 shl discreteTimeIndex(id))
                     }
                 }
             }
@@ -245,6 +298,7 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     hasContinuousTime = true
                 } else {
                     hasDiscreteTime = true
+                    discreteTimeMask = ALL_DISCRETE_TIME_MASK
                 }
             }
 
@@ -268,6 +322,20 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
 
             if (op is WakeIn) {
                 hasWakeIn = true
+            }
+
+            if (op is ImpulseOperation) {
+                // Core's ImpulseOperation.paint schedules a wakeIn until its window opens, and its
+                // process runs every frame inside the window, so the document needs the frame
+                // loop. The impulse draw reads the animation time only before and inside its
+                // window, so unlike WakeIn it lets the loop idle once the window has closed.
+                hasContinuousTime = true
+                // registerListening may already have moved the trailing ImpulseProcess out of the
+                // impulse's list; visit it here so its contents are still scanned.
+                val process = op.process
+                if (process != null && !op.list.contains(process)) {
+                    visitOp(process)
+                }
             }
 
             if (op is TouchExpression) {
@@ -314,6 +382,10 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
                     op !is MatrixConstant
             ) {
                 val id = op.id
+                if (op is FloatExpression) {
+                    val first = firstAssignments.getOrPut(id) { op }
+                    if (first !== op || inLoop || inBranch) streamFloatIds.add(id)
+                }
                 if (
                     id > 0 && !touchExpressionIds.contains(id) && !computedOpIndex.containsKey(id)
                 ) {
@@ -395,12 +467,31 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
             currentLayoutComponent = prevLayoutComponent
             inScrollModifier = prevInScroll
             inLoop = prevInLoop
+            inBranch = prevInBranch
         }
     }
 
     for (i in 0 until ops.size) {
         visitOp(ops[i])
     }
+
+    // An expression reading a stream-written variable is only correct where the stream evaluates
+    // it, so it is stream-written too.
+    var changed = true
+    while (changed) {
+        changed = false
+        computedOpIndex.forEach { id, op ->
+            if (
+                op is FloatExpression &&
+                    !streamFloatIds.contains(id) &&
+                    op.mSrcValue.anyScalarReference { streamFloatIds.contains(it) }
+            ) {
+                streamFloatIds.add(id)
+                changed = true
+            }
+        }
+    }
+    streamFloatIds.forEach { computedOpIndex.remove(it) }
 
     val componentValueMap = HashMap<Int, MutableList<ComponentValue>>()
     for (i in 0 until rawComponentValues.size) {
@@ -427,29 +518,39 @@ private fun preprocessDocumentImpl(document: CoreDocument): DocumentPreprocessRe
         hasWakeIn = hasWakeIn,
         hasContinuousTime = hasContinuousTime,
         hasDiscreteTime = hasDiscreteTime,
+        discreteTimeMask = discreteTimeMask,
+        readsTouchPosition = readsTouchPosition,
+        streamFloatIds = streamFloatIds,
     )
 }
 
-internal fun isExpressionContinuousTimeDependent(expr: FloatExpression): Boolean {
-    val srcValues = expr.mSrcValue
-    for (j in 0 until srcValues.size) {
-        val v = srcValues[j]
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            if (isContinuousTimeVariable(Utils.idFromNan(v))) return true
-        }
+private fun isTouchPositionVariable(id: Int): Boolean =
+    id == RemoteContext.ID_TOUCH_POS_X || id == RemoteContext.ID_TOUCH_POS_Y
+
+/**
+ * Whether an operation other than a [TouchExpression] registered a listener for `ID_TOUCH_POS_X` or
+ * `ID_TOUCH_POS_Y` while the document was set up, i.e. reads the touch position directly (such as a
+ * draw positioned at the touch point). TouchExpressions read the position the touch handlers
+ * publish right before evaluating them, so they don't need it published otherwise.
+ */
+internal fun RemoteComposeState.listensToTouchPosition(): Boolean =
+    hasNonTouchExpressionListener(RemoteContext.ID_TOUCH_POS_X) ||
+        hasNonTouchExpressionListener(RemoteContext.ID_TOUCH_POS_Y)
+
+private fun RemoteComposeState.hasNonTouchExpressionListener(id: Int): Boolean {
+    val listeners = getListeners(id) ?: return false
+    for (i in 0 until listeners.size) {
+        if (listeners[i] !is TouchExpression) return true
     }
     return false
 }
 
+internal fun isExpressionContinuousTimeDependent(expr: FloatExpression): Boolean {
+    return expr.mSrcValue.anyScalarReference(::isContinuousTimeVariable)
+}
+
 internal fun isExpressionDiscreteTimeDependent(expr: FloatExpression): Boolean {
-    val srcValues = expr.mSrcValue
-    for (j in 0 until srcValues.size) {
-        val v = srcValues[j]
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            if (isDiscreteTimeVariable(Utils.idFromNan(v))) return true
-        }
-    }
-    return false
+    return expr.mSrcValue.anyScalarReference(::isDiscreteTimeVariable)
 }
 
 internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
@@ -471,19 +572,7 @@ internal fun isExpressionTimeDependent(expr: FloatExpression): Boolean =
  */
 internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Unit) {
     when (op) {
-        is FloatExpression -> {
-            val srcValues = op.mSrcValue
-            for (i in srcValues.indices) {
-                val v = srcValues[i]
-                if (
-                    v.isNaN() &&
-                        !AnimatedFloatExpression.isMathOperator(v) &&
-                        !NanMap.isDataVariable(v)
-                ) {
-                    action(Utils.idFromNan(v))
-                }
-            }
-        }
+        is FloatExpression -> op.mSrcValue.forEachScalarReference(action)
         is IntegerExpression -> {
             val mask = op.mask
             val srcValues = op.mSrcValue
@@ -494,9 +583,8 @@ internal inline fun forEachListenedVariableId(op: Operation, action: (Int) -> Un
             }
         }
         is TextFromFloat -> {
-            if (op.mValue.isNaN()) {
-                action(Utils.idFromNan(op.mValue))
-            }
+            val value = MaybeVariableFloat(op.mValue)
+            if (!value.isLiteral) action(value.id)
         }
         is TextLookupInt -> {
             action(op.mIndex)
@@ -527,6 +615,18 @@ internal fun RemoteComposeState.listensToDiscreteTime(): Boolean = DISCRETE_TIME
     hasListener(it)
 }
 
+/**
+ * Bitmask (indexed as in [DISCRETE_TIME_VARIABLES]) of the discrete time variables that some
+ * operation registered a listener for while the document was set up. See [listensToDiscreteTime].
+ */
+internal fun RemoteComposeState.discreteTimeListenerMask(): Int {
+    var mask = 0
+    DISCRETE_TIME_VARIABLES.forEachIndexed { index, id ->
+        if (hasListener(id)) mask = mask or (1 shl index)
+    }
+    return mask
+}
+
 internal fun mapEasing(type: Int): ComposeEasing {
     return when (type) {
         RemoteEasing.CUBIC_LINEAR -> LinearEasing
@@ -539,19 +639,17 @@ internal fun mapEasing(type: Int): ComposeEasing {
 
 internal fun initializePlayerRemoteContext(
     document: CoreDocument,
-    clock: RemoteClock,
     preprocessed: DocumentPreprocessResult,
 ): AndroidRemoteContext =
     trace("RcPlayer:initializeRemoteContext") {
-        initializePlayerRemoteContextImpl(document, clock, preprocessed)
+        initializePlayerRemoteContextImpl(document, preprocessed)
     }
 
 private fun initializePlayerRemoteContextImpl(
     document: CoreDocument,
-    clock: RemoteClock,
     preprocessed: DocumentPreprocessResult,
 ): AndroidRemoteContext {
-    val ctx = AndroidRemoteContext(clock)
+    val ctx = AndroidRemoteContext(document.clock)
     ctx.useChoreographer = true
     val touchVersion = document.featureIntValue(Header.FEATURE_TOUCH_VERSION)
     if (touchVersion != -1) {
@@ -560,6 +658,8 @@ private fun initializePlayerRemoteContextImpl(
     if (document.remoteComposeState !is SnapshotRemoteComposeState) {
         document.setRemoteComposeState(SnapshotRemoteComposeState())
     }
+    (document.remoteComposeState as SnapshotRemoteComposeState).streamFloatIds =
+        preprocessed.streamFloatIds
     ctx.withOpCountReset {
         document.initializeContext(ctx, null)
         document.recollectCollections()

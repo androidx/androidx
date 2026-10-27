@@ -19,10 +19,8 @@
 package androidx.compose.remote.player.compose.embedded.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.CubicEasing
 import androidx.compose.runtime.State
 import androidx.compose.ui.platform.InspectableValue
@@ -283,9 +281,8 @@ private val IMPERATIVE_OPCODES: Set<Int> =
  * [ImperativeRpnOp] instead of building the tree.
  */
 private fun needsImperativeEval(exp: FloatArray): Boolean = exp.any { v ->
-    v.isNaN() &&
-        ((AnimatedFloatExpression.isMathOperator(v) &&
-            AnimatedFloatExpression.fromNaN(v) in IMPERATIVE_OPCODES) || NanMap.isDataVariable(v))
+    val token = MaybeVariableFloat(v)
+    (token.isOperator && AnimatedFloatExpression.fromNaN(v) in IMPERATIVE_OPCODES) || token.isArray
 }
 
 /**
@@ -313,14 +310,12 @@ public class ImperativeRpnOp(
     override fun eval(): Float {
         for (i in exp.indices) {
             val v = exp[i]
-            val scalar =
-                v.isNaN() &&
-                    !AnimatedFloatExpression.isMathOperator(v) &&
-                    varStates.containsKey(Utils.idFromNan(v))
+            val token = MaybeVariableFloat(v)
             // Resolve known reactive scalar variables from their live state (matching the core's
             // updateVariables pass); pass operators, constants, and data-variable/array ids through
             // verbatim for the core evaluator to interpret.
-            buffer[i] = if (scalar) varStates.getValue(Utils.idFromNan(v)).value else v
+            val state = if (token.isScalarReference) varStates[token.id] else null
+            buffer[i] = state?.value ?: v
         }
         return if (collections != null) {
             core.eval(collections, buffer, buffer.size)
@@ -359,8 +354,9 @@ public fun parseRpn(
         stack.add(TernaryOp(name, a, b, c, fn))
     }
     for (v in exp) {
-        if (v.isNaN()) {
-            if (AnimatedFloatExpression.isMathOperator(v)) {
+        val token = MaybeVariableFloat(v)
+        if (!token.isLiteral) {
+            if (token.isOperator) {
                 val opCode = AnimatedFloatExpression.fromNaN(v)
                 when (opCode) {
                     AnimatedFloatExpression.fromNaN(AnimatedFloatExpression.ADD) -> {
@@ -528,7 +524,7 @@ public fun parseRpn(
                     }
                 }
             } else {
-                val id = Utils.idFromNan(v)
+                val id = token.id
                 val state =
                     varStates[id] ?: throw IllegalArgumentException("State not found for id $id")
                 stack.add(VarOp(id, state))

@@ -27,7 +27,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Theme
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
 import androidx.compose.remote.core.operations.layout.TouchCancelModifierOperation
@@ -296,9 +295,14 @@ private fun applyClickAction(
         is ValueStringChangeActionOperation ->
             remoteContext.overrideText(action.targetValueId, action.valueId)
         is ValueIntegerExpressionChangeActionOperation -> {
-            val targetId = Utils.idFromLong(action.targetValueId).toInt()
-            val expressionId = Utils.idFromLong(action.valueExpressionId)
-            coreDocument.evaluateIntExpression(expressionId, targetId, remoteContext)
+            // Both ids may carry the long variable-id offset (Utils.idFromLong). As in the
+            // operation's own runAction, the target keeps its low 32 bits, and
+            // evaluateIntExpression looks the expression up with and without the offset.
+            coreDocument.evaluateIntExpression(
+                action.valueExpressionId,
+                action.targetValueId.toInt(),
+                remoteContext,
+            )
         }
         is ValueFloatExpressionChangeActionOperation -> {
             val targetId = action.targetValueId

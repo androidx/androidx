@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -33,11 +35,9 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
-import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -48,10 +48,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /** Shader verification under Robolectric. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerShaderTest {
 
     @get:Rule val rule = RcPlayerTestRule()
@@ -59,58 +61,60 @@ class RcPlayerShaderTest {
     @Test
     fun runtimeShaderDisabledByDefaultWhenTrustedContentIsFalse() {
         var shaderId = 0
-        lateinit var remoteContext: RemoteContext
         val document = buildDocument {
             shaderId = writer.createShader(AGSL_SOLID_RED).commit()
-            writer.drawCircle(1f, 1f, 1f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF0000FF.toInt())
+                    setShader(shaderId)
+                }
+            )
+            writer.drawRect(0f, 0f, 100f, 100f)
         }
 
         rule.setContent {
-            val state = rememberRcPlayerState(document)
-            remoteContext = state.remoteContext
-            Box(modifier = Modifier.size(100.dp).testTag("player")) { RcPlayer(state = state) }
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document)
+            }
         }
         rule.waitForIdle()
-        rule.onNodeWithTag("player").captureToImage()
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
 
-        val bundle = PaintBundle().apply { setShader(shaderId) }
-        val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext)
-
-        assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNull()
-        assertThat(paintState.brush).isNull()
-        assertThat(paintState.nativeShader).isNull()
+        assertThat(document.remoteComposeState.getFromId(shaderId)).isNull()
+        val pixel = bitmap.getPixel(50, 50)
+        assertThat(AndroidColor.blue(pixel)).isGreaterThan(200)
+        assertThat(AndroidColor.red(pixel)).isLessThan(60)
     }
 
     @Test
     fun runtimeShaderEnabledWhenTrustedContentIsTrue() {
         var shaderId = 0
-        lateinit var remoteContext: RemoteContext
         val document = buildDocument {
             shaderId = writer.createShader(AGSL_SOLID_RED).commit()
-            writer.drawCircle(1f, 1f, 1f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFF0000FF.toInt())
+                    setShader(shaderId)
+                }
+            )
+            writer.drawRect(0f, 0f, 100f, 100f)
         }
 
         rule.setContent {
-            val state = rememberRcPlayerState(document)
-            remoteContext = state.remoteContext
-            Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state, trustedContent = true) }
+            Box(modifier = Modifier.size(100.dp).testTag("player")) {
+                RcPlayer(document = document, trustedContent = true)
+            }
         }
         rule.waitForIdle()
+        val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
 
-        val bundle = PaintBundle().apply { setShader(shaderId) }
-        val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext)
-
-        assertThat(remoteContext.mRemoteComposeState.getFromId(shaderId)).isNotNull()
-        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
-        assertThat(paintState.nativeShader).isNotNull()
+        assertThat(document.remoteComposeState.getFromId(shaderId)).isNotNull()
+        assertRed(bitmap, 50, 50)
     }
 
     /**
      * The embedded player should ingest a shader/gradient document and run its draw path without
-     * throwing (it constructs a Compose gradient `Brush` in RcPlayerDrawing). Pixel output isn't
-     * checkable here (see class doc), so this asserts the player composes and lays out the node.
+     * throwing (it constructs a Compose gradient `Brush` in RcPlayerDrawing).
      */
     @Test
     fun embeddedPlayerComposesGradientDocument() {
@@ -146,10 +150,9 @@ class RcPlayerShaderTest {
     }
 
     /**
-     * Exercises the CLIP_RECT draw op (now dispatched via drawContext.canvas.clipRect): a canvas
-     * that clips to a sub-rectangle and then draws a full-size rect must compose/lay out without
-     * throwing. Pixel correctness of the clip isn't checkable here (see class doc), so this asserts
-     * the path runs end to end.
+     * Exercises the CLIP_RECT draw op (dispatched via drawContext.canvas.clipRect): a canvas that
+     * clips to a sub-rectangle and then draws a full-size rect must compose/lay out without
+     * throwing.
      */
     @Test
     fun embeddedPlayerComposesClippedCanvas() {
@@ -174,9 +177,8 @@ class RcPlayerShaderTest {
     }
 
     /**
-     * Exercises the DRAW_TEXT (canvas text run) op, newly dispatched via the native canvas. A
-     * canvas that draws a text run must compose/lay out without throwing. (Pixel correctness isn't
-     * checkable here — see class doc. Layout `Text` is the separately-verified path.)
+     * Exercises the DRAW_TEXT (canvas text run) op, dispatched via the native canvas. A canvas that
+     * draws a text run must compose/lay out without throwing.
      */
     @Test
     fun embeddedPlayerComposesCanvasText() {
@@ -195,8 +197,7 @@ class RcPlayerShaderTest {
 
     /**
      * Exercises the DRAW_TEXT_ON_PATH op (native `Canvas.drawTextOnPath`): a canvas that lays text
-     * along a path must compose/lay out without throwing. (Curved text isn't pixel-assertable here
-     * — see class doc.)
+     * along a path must compose/lay out without throwing.
      */
     @Test
     fun embeddedPlayerComposesTextOnPath() {
@@ -222,8 +223,7 @@ class RcPlayerShaderTest {
 
     /**
      * Exercises the DRAW_TEXT_ANCHOR op (anchored text via measured bounds): a canvas that draws
-     * text centered about an anchor point must compose/lay out without throwing. (Anchor placement
-     * isn't pixel-assertable here — see class doc.)
+     * text centered about an anchor point must compose/lay out without throwing.
      */
     @Test
     fun embeddedPlayerComposesAnchoredText() {
@@ -250,8 +250,7 @@ class RcPlayerShaderTest {
 
     /**
      * Exercises the DRAW_TWEEN_PATH op: a canvas that draws an interpolated path between two paths
-     * must compose/lay out without throwing. (Path shape isn't pixel-assertable here — see class
-     * doc.)
+     * must compose/lay out without throwing.
      */
     @Test
     fun embeddedPlayerComposesTweenPath() {

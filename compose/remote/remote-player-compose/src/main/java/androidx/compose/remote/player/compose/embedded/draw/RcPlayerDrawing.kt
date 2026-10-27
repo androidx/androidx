@@ -66,6 +66,7 @@ import androidx.compose.remote.core.operations.MatrixTranslate
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.ParticlesCompare
+import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.PathAppend
 import androidx.compose.remote.core.operations.PathCombine
@@ -73,14 +74,13 @@ import androidx.compose.remote.core.operations.PathCreate
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathExpression
 import androidx.compose.remote.core.operations.PathTween
+import androidx.compose.remote.core.operations.PlaySound
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextAttribute
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.ContainerEnd
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
@@ -94,6 +94,7 @@ import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteCompose
 import androidx.compose.remote.player.compose.embedded.doc.applyTrackingPathChange
 import androidx.compose.remote.player.compose.embedded.doc.withOpCountReset
 import androidx.compose.remote.player.compose.embedded.resources.resolveImageAttributeDimensions
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -112,13 +113,19 @@ internal fun derefId(rawId: Int, context: RemoteContext): Int =
 /** Backstop on [LoopOperation] iterations so a malformed bound can't hang the draw thread. */
 private const val MAX_LOOP_ITERATIONS = 100_000
 
+/**
+ * Encodes the iteration ordinals of the enclosing [LoopOperation]s into one `loopScope` key, so an
+ * impulse keeps separate fire state per iteration. Unique for up to three nested loops.
+ */
+private const val LOOP_SCOPE_RADIX = MAX_LOOP_ITERATIONS + 1L
+
 internal fun resolveFloat(value: Float, fallback: Float, context: RemoteContext): Float {
     // A NaN-encoded value is a variable reference. [context] is the draw read context — normally
     // the GraphContext, which resolves time ids from the Compose frame clock and computed ids
     // through their derivedStateOf (so a time/variable-driven value re-runs this draw when it
     // changes), and a plain leaf id through the shared snapshot store. There is no separate
     // draw-path variable map.
-    return if (value.isNaN()) context.getFloat(Utils.idFromNan(value)) else fallback
+    return MaybeVariableFloat(value).resolveOr(fallback, context)
 }
 
 internal fun DrawScope.executeOperations(
@@ -159,6 +166,7 @@ private fun DrawScope.executeOperationsInPass(
     offscreenState: OffscreenDrawState,
     contentLayer: GraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
+    loopScope: Long = 0L,
 ) {
     // Reads route through the GraphContext when present: it resolves time ids from the Compose
     // frame clock and computed ids via per-pass DAG memoization over reactive leaf states, and a
@@ -187,7 +195,10 @@ private fun DrawScope.executeOperationsInPass(
             op is VariableSupport &&
                 op !is TouchExpression &&
                 op !is LoopOperation &&
-                op !is ConditionalOperations
+                op !is ConditionalOperations &&
+                // Impulses resolve their own window below; their children update only when run.
+                op !is ImpulseOperation &&
+                op !is ImpulseProcess
         ) {
             op.updateVariables(read)
         }
@@ -256,6 +267,8 @@ private fun DrawScope.executeOperationsInPass(
                 )
                 op.apply(remoteContext)
             }
+            // Re-seeds on every paint, as in the View player; wrap it in an impulse to seed once.
+            is ParticlesCreate -> drawParticlesCreate(op, evalPaintContext(), graph)
             is ParticlesLoop -> {
                 // Particle system: bridged to the core (View player) implementation. Needs the
                 // graph for seed state + frame-clock observation; without it skip.
@@ -266,24 +279,86 @@ private fun DrawScope.executeOperationsInPass(
                 // ParticlesLoop.
                 if (graph != null) drawParticlesCompare(op, remoteContext, paintState, graph)
             }
-            is ImpulseProcess,
             is ImpulseOperation -> {
-                // Impulse containers wrap their children (commonly the particle loop). The trigger
-                // / duration gating isn't modelled here — the children always run — so
-                // impulse-driven content (e.g. particles) renders continuously rather than on
-                // event.
-                executeOperationsInPass(
-                    (op as Container).list,
-                    remoteContext,
-                    textMeasurer,
-                    paintState,
-                    onDrawContent,
-                    graph,
-                    offscreenState,
-                    contentLayer,
-                    contentOrigin,
-                )
+                // Impulse: the body only runs inside the [startAt, startAt + duration] window
+                // (seconds of animation time). The first pass in a window runs the setup list once
+                // (e.g. a haptic, sound or particle reset); later passes in the window run the
+                // trailing ImpulseProcess. Mirrors ImpulseOperation.paint. Reading the animation
+                // time through the graph re-runs this draw on each frame tick and keeps the frame
+                // loop ticking. Once the window has closed the time is only peeked, so the loop can
+                // idle; a change of startAt or duration still re-runs this draw, and a window that
+                // reopens reads the time again, which wakes the loop.
+                val startAt = resolveFloat(op.startAt, op.startAt, read)
+                val duration = resolveFloat(op.duration, op.duration, read)
+                val peeked = graph?.timeState?.peekAnimationTime()
+                val now =
+                    if (peeked != null && peeked > startAt + duration) {
+                        peeked
+                    } else {
+                        read.getFloat(RemoteContext.ID_ANIMATION_TIME)
+                    }
+                // registerListening moves a trailing ImpulseProcess out of the list; until it has
+                // run, the process is still the last child.
+                val process = op.process ?: (op.list.lastOrNull() as? ImpulseProcess)
+                if (now >= startAt && now <= startAt + duration) {
+                    // Fire state is per loop iteration, so every iteration of an impulse inside a
+                    // canvas loop runs its own initial pass. Unlike core, moving startAt while the
+                    // window is open (a re-trigger, or a start rescheduled ahead) re-runs the
+                    // initial pass, as long as the previous start held across a frame; a start that
+                    // follows the clock keeps core's "initial pass once, then process" behaviour
+                    // instead of re-running the setup on every frame.
+                    val state = graph?.impulseWindow(op, loopScope)
+                    val initialPass =
+                        when {
+                            graph == null || state == null -> true
+                            startAt != state.startAt ->
+                                state.isStartStable.also { if (!it) state.restart(startAt, now) }
+                            else -> {
+                                state.seen(now)
+                                false
+                            }
+                        }
+                    if (initialPass) {
+                        graph?.openImpulseWindow(op, loopScope, startAt, now)
+                        executeOperationsInPass(
+                            if (process != null && op.list.lastOrNull() === process) {
+                                op.list.subList(0, op.list.size - 1)
+                            } else {
+                                op.list
+                            },
+                            remoteContext,
+                            textMeasurer,
+                            paintState,
+                            onDrawContent,
+                            graph,
+                            offscreenState,
+                            contentLayer,
+                            contentOrigin,
+                            loopScope = loopScope,
+                        )
+                    } else if (process != null) {
+                        executeOperationsInPass(
+                            process.list,
+                            remoteContext,
+                            textMeasurer,
+                            paintState,
+                            onDrawContent,
+                            graph,
+                            offscreenState,
+                            contentLayer,
+                            contentOrigin,
+                            loopScope = loopScope,
+                        )
+                    }
+                } else {
+                    // Window closed or not yet open: the next window starts with a fresh initial
+                    // pass. Core only resets once the window has closed, so a start rescheduled
+                    // ahead while its window was open would skip the setup when it reopens.
+                    graph?.clearImpulseWindow(op, loopScope)
+                }
             }
+            // Only runs through its enclosing ImpulseOperation.
+            is ImpulseProcess -> {}
             is ConditionalOperations -> {
                 // Conditional draw: resolve the two operands, compare per type, and draw the child
                 // ops only when the condition holds. Mirrors ConditionalOperations.paint.
@@ -309,20 +384,33 @@ private fun DrawScope.executeOperationsInPass(
                         offscreenState,
                         contentLayer,
                         contentOrigin,
+                        loopScope = loopScope,
                     )
             }
             is LoopOperation -> {
                 // Loop: resolve from/until/step (NaN-id bounds → variables), then run the child
                 // list once per iteration, loading the index variable each pass. Mirrors
                 // LoopOperation.paint, with a hard iteration cap as an infinite-loop backstop.
+                // LoopOperation.read accepts a negative step counting down from `from` to an
+                // exclusive `until` below it, so a countdown runs while the index is above `until`.
+                // NaN or zero steps and bounds that run away from `until` draw nothing.
                 val from = resolveFloat(op.from, op.from, read)
                 val until = resolveFloat(op.until, op.until, read)
                 val step = resolveFloat(op.step, op.step, read)
                 val indexId = op.indexVariableId
-                if (step != 0f && (step > 0f) == (from < until)) {
+                val ascending = step > 0f
+                if (
+                    !from.isNaN() &&
+                        !until.isNaN() &&
+                        !step.isNaN() &&
+                        step != 0f &&
+                        (if (ascending) from < until else from > until)
+                ) {
                     var i = from
                     var guard = 0
-                    while (i < until && guard < MAX_LOOP_ITERATIONS) {
+                    while (
+                        (if (ascending) i < until else i > until) && guard < MAX_LOOP_ITERATIONS
+                    ) {
                         remoteContext.incrementOpCount()
                         if (indexId != 0) remoteContext.loadFloat(indexId, i)
                         executeOperationsInPass(
@@ -335,6 +423,8 @@ private fun DrawScope.executeOperationsInPass(
                             offscreenState,
                             contentLayer,
                             contentOrigin,
+                            // Iteration path for per-iteration impulse fire state.
+                            loopScope = loopScope * LOOP_SCOPE_RADIX + guard + 1,
                         )
                         i += step
                         guard++
@@ -346,13 +436,16 @@ private fun DrawScope.executeOperationsInPass(
                 // (updateVariables ran above) into the function's parameter variables, then run its
                 // body, which writes its outputs to the context for downstream ops to read. Mirrors
                 // FloatFunctionCall.paint. FloatFunctionDefine itself has no draw effect, so it
-                // needs no case.
+                // needs no case. A call with no arguments has null args when read from the wire,
+                // but still runs the body.
                 val fn = op.function
-                val outArgs = op.outArgs
-                if (fn != null && outArgs != null) {
-                    val argIds = fn.args
-                    for (j in outArgs.indices) {
-                        if (j < argIds.size) remoteContext.loadFloat(argIds[j], outArgs[j])
+                if (fn != null) {
+                    val outArgs = op.outArgs
+                    if (outArgs != null) {
+                        val argIds = fn.args
+                        for (j in outArgs.indices) {
+                            if (j < argIds.size) remoteContext.loadFloat(argIds[j], outArgs[j])
+                        }
                     }
                     executeOperationsInPass(
                         fn.list,
@@ -364,6 +457,7 @@ private fun DrawScope.executeOperationsInPass(
                         offscreenState,
                         contentLayer,
                         contentOrigin,
+                        loopScope = loopScope,
                     )
                 }
             }
@@ -445,6 +539,10 @@ private fun DrawScope.executeOperationsInPass(
             // RcPlayerHapticEffect). It fires each time the stream runs it, so documents gate it
             // with an impulse or conditional.
             is HapticFeedback -> op.apply(remoteContext)
+            // Played through the document's sound engine, if the host installed one. Like haptics,
+            // it plays each time the stream runs it, so documents gate it with an impulse.
+            // SoundExpression / SoundData are registered once at setup, not per draw.
+            is PlaySound -> op.apply(remoteContext)
         }
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore

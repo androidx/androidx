@@ -22,9 +22,6 @@ import android.graphics.Bitmap
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.player.compose.embedded.LocalComponentValueStateMap
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
@@ -112,11 +109,13 @@ internal fun rememberRemoteIntAsState(id: Int): State<Int> {
     }
 
     if (id == RemoteContext.ID_EPOCH_SECOND && graph != null) {
-        return graph.epochSecondState
+        return graph.timeState.epochSecondState
     }
 
     if (isTimeVariable(id) && graph != null) {
-        return remember(graph, id) { derivedStateOf { graph.timeFloatState(id).value.toInt() } }
+        return remember(graph, id) {
+            derivedStateOf { graph.timeState.timeFloatState(id).value.toInt() }
+        }
     }
 
     // Plain variable: reactive read of the snapshot-backed integer store.
@@ -162,7 +161,7 @@ internal fun rememberRemoteFloatAsState(id: Int): State<Float> {
     }
 
     if (isTimeVariable(id) && graph != null) {
-        return graph.timeFloatState(id)
+        return graph.timeState.timeFloatState(id)
     }
 
     // Plain variable: reactive read of the snapshot-backed scalar store (no listener bridge).
@@ -178,19 +177,14 @@ internal fun expressionDependsOnAnimation(
     val expr = expressions[id] ?: return false
     if (expr.hasAnimation) return true
     val src = expr.mSrcValue ?: return false
-    for (v in src) {
-        if (v.isNaN() && !AnimatedFloatExpression.isMathOperator(v) && !NanMap.isDataVariable(v)) {
-            val varId = Utils.idFromNan(v)
-            if (expressionDependsOnAnimation(expressions, varId, visited)) return true
-        }
-    }
-    return false
+    return src.anyScalarReference { expressionDependsOnAnimation(expressions, it, visited) }
 }
 
 @Composable
 internal fun rememberRemoteFloatAsState(value: Float): State<Float> {
-    return if (Utils.isVariable(value)) {
-        rememberRemoteFloatAsState(Utils.idFromNan(value))
+    val field = MaybeVariableFloat(value)
+    return if (field.isReference) {
+        rememberRemoteFloatAsState(field.id)
     } else {
         rememberUpdatedState(value)
     }

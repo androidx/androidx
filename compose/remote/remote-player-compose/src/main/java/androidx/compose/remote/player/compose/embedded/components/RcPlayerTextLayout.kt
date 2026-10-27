@@ -33,6 +33,7 @@ import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
 import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
 import androidx.compose.remote.player.compose.embedded.resources.buildFontFeatureSettings
 import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
@@ -197,7 +198,12 @@ internal fun resolveCoreTextLineHeight(
 ): TextUnit =
     when {
         lineHeightMultiplier == 1f && lineHeightAdd == 0f -> TextUnit.Unspecified
-        autosize && lineHeightAdd == 0f -> lineHeightMultiplier.em
+        // Autosized text keeps Compose's TextAutoSize, which picks the font size at layout time, so
+        // the line height must scale with that size: a multiplier in em does. Compose can't express
+        // "autosized size * multiplier + px", so the additive px is dropped here; core and the View
+        // player add it to the selected size, so their line spacing is lineHeightAdd px larger.
+        autosize ->
+            if (lineHeightMultiplier == 1f) TextUnit.Unspecified else lineHeightMultiplier.em
         else -> with(density) { (fontSize * lineHeightMultiplier + lineHeightAdd).toSp() }
     }
 
@@ -295,7 +301,8 @@ private fun resolveTextFontSizePx(paintState: ComposeLocalPaint, rawFontSize: Fl
     val resolvedFontSize by rememberRemoteFloatAsState(rawFontSize)
     return when {
         paintState.isTextSizeSet -> paintState.textSize
-        rawFontSize.isNaN() -> resolvedFontSize
+        // A referenced font size is already in px.
+        MaybeVariableFloat(rawFontSize).isReference -> resolvedFontSize
         else -> rawDimensionPx(resolvedFontSize)
     }
 }

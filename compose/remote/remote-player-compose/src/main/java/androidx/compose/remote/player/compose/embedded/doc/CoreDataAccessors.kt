@@ -29,9 +29,12 @@ import androidx.compose.remote.core.operations.ComponentData
 import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.FontData
 import androidx.compose.remote.core.operations.PathData
+import androidx.compose.remote.core.operations.SoundData
+import androidx.compose.remote.core.operations.SoundExpression
 import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -81,7 +84,16 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
             if (op is FloatFunctionDefine) {
                 op.registerListening(context)
             }
-            registerNestedBitmapMetadata(context, (op as Container).list)
+            registerNestedResources(context, (op as Container).list)
+            continue
+        }
+        if (op is ImpulseOperation) {
+            // An impulse body only runs inside its trigger window, on the draw pass. Applying it
+            // here would fire its haptics and sounds when the document loads, so only register the
+            // resources it holds.
+            op.markNotDirty()
+            context.incrementOpCount()
+            registerImpulseResources(context, op)
             continue
         }
         if (op is VariableSupport) {
@@ -117,16 +129,36 @@ internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Op
     }
 }
 
-private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Operation>) {
+/**
+ * Registers the static resources nested in a function or loop body without running the body: bitmap
+ * metadata (decoded lazily) and text, font, bitmap font and sound data. The draw pass reads these
+ * from the store but never applies them itself, so a resource defined in a body would otherwise
+ * never be found. Each is applied once per document, however many times the loop would iterate;
+ * computed operations (expressions, text formatted from the loop index, sound expressions) are left
+ * to the draw pass.
+ */
+private fun registerNestedResources(context: RemoteContext, list: List<Operation>) {
     for (i in list.indices) {
         val op = list[i]
-        if (op is BitmapData) {
-            context.putObject(op.mImageId, op)
-        } else if (op is Container) {
-            registerNestedBitmapMetadata(context, op.list)
-            if (op is LayoutComponent) {
-                op.drawContentOperations?.list?.let { canvasOps ->
-                    registerNestedBitmapMetadata(context, canvasOps)
+        when (op) {
+            is BitmapData -> context.putObject(op.mImageId, op)
+            is TextData,
+            is FontData,
+            is BitmapFontData,
+            is SoundData -> op.apply(context)
+            is ImpulseOperation -> {
+                registerNestedResources(context, op.list)
+                val process = op.process
+                if (process != null && !op.list.contains(process)) {
+                    registerNestedResources(context, process.list)
+                }
+            }
+            is Container -> {
+                registerNestedResources(context, op.list)
+                if (op is LayoutComponent) {
+                    op.drawContentOperations?.list?.let { canvasOps ->
+                        registerNestedResources(context, canvasOps)
+                    }
                 }
             }
         }
@@ -135,9 +167,9 @@ private fun registerNestedBitmapMetadata(context: RemoteContext, list: List<Oper
 
 /**
  * Registers the resources of a component's canvas draw stream during document setup without
- * evaluating the stream: bitmap metadata (decoded lazily) and text/font data, which the draw pass
- * reads from the store but does not apply itself. Expressions, paint, touch, haptic and particle
- * operations are left for the draw pass, which runs after layout.
+ * evaluating the stream: bitmap metadata (decoded lazily), text/font data and sound data, which the
+ * draw pass reads from the store but does not apply itself. Expressions, paint, touch, haptic and
+ * particle operations are left for the draw pass, which runs after layout.
  */
 private fun registerCanvasResources(context: RemoteContext, list: List<Operation>) {
     for (i in list.indices) {
@@ -147,12 +179,29 @@ private fun registerCanvasResources(context: RemoteContext, list: List<Operation
             is TextData,
             is FontData,
             is BitmapFontData -> op.apply(context)
+            // Sound resources load once into the document's sound engine (or its preload cache);
+            // the draw pass only plays them, so a tone isn't re-synthesized on every frame.
+            is SoundData,
+            is SoundExpression -> op.apply(context)
             // Function and loop bodies only run when invoked or iterated; see
             // applyOperationsWithoutBitmaps.
             is FloatFunctionDefine,
-            is LoopOperation -> registerNestedBitmapMetadata(context, (op as Container).list)
+            is LoopOperation -> registerNestedResources(context, (op as Container).list)
+            is ImpulseOperation -> registerImpulseResources(context, op)
             is Container -> registerCanvasResources(context, op.list)
         }
+    }
+}
+
+/**
+ * Registers the resources of an impulse's body, including a trailing ImpulseProcess that
+ * registerListening may already have moved out of the impulse's list.
+ */
+private fun registerImpulseResources(context: RemoteContext, op: ImpulseOperation) {
+    registerCanvasResources(context, op.list)
+    val process = op.process
+    if (process != null && !op.list.contains(process)) {
+        registerCanvasResources(context, process.list)
     }
 }
 

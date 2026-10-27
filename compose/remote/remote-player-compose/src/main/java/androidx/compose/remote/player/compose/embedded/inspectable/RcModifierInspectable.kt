@@ -21,7 +21,6 @@ package androidx.compose.remote.player.compose.embedded.inspectable
 import android.graphics.Color as AndroidColor
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
@@ -44,6 +43,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOpe
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
@@ -165,18 +165,13 @@ internal data class RcWidthModifierInspectable(
         get() = RcPlayerInspector.resolveFloatOrRaw(operation.rawValue, remoteContext)
 
     val variableId: Int?
-        get() {
-            val raw = operation.rawValue
-            return if (Utils.isVariable(raw)) Utils.idFromNan(raw) else null
-        }
+        get() = MaybeVariableFloat(operation.rawValue).takeIf { it.isReference }?.id
 
     override fun InspectorInfo.modifierProperties() {
         val raw = operation.rawValue
         properties["dimensionType"] = operation.type
         properties["value"] = RcPlayerInspector.resolveFloatOrRaw(raw, remoteContext)
-        if (Utils.isVariable(raw)) {
-            properties["variableId"] = Utils.idFromNan(raw)
-        }
+        variableId?.let { properties["variableId"] = it }
     }
 }
 
@@ -197,18 +192,13 @@ internal data class RcHeightModifierInspectable(
         get() = RcPlayerInspector.resolveFloatOrRaw(operation.rawValue, remoteContext)
 
     val variableId: Int?
-        get() {
-            val raw = operation.rawValue
-            return if (Utils.isVariable(raw)) Utils.idFromNan(raw) else null
-        }
+        get() = MaybeVariableFloat(operation.rawValue).takeIf { it.isReference }?.id
 
     override fun InspectorInfo.modifierProperties() {
         val raw = operation.rawValue
         properties["dimensionType"] = operation.type
         properties["value"] = RcPlayerInspector.resolveFloatOrRaw(raw, remoteContext)
-        if (Utils.isVariable(raw)) {
-            properties["variableId"] = Utils.idFromNan(raw)
-        }
+        variableId?.let { properties["variableId"] = it }
     }
 }
 

@@ -27,12 +27,22 @@ import androidx.compose.remote.player.compose.embedded.EmbeddedPlayerTypefaceRes
 import androidx.compose.remote.player.compose.embedded.RcTypefaceRequest
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.Typeface as ComposeTypeface
+import kotlin.math.floor
 
+/**
+ * Builds the OpenType feature settings string for the feature tags in [fontAxis].
+ *
+ * `ital` and uppercase tags are both variation axes and features. They are only applied as features
+ * when their value is a constant whole number (as written by `fontFeatureSettings`); a fractional
+ * or variable value is an axis (for example an animated italic or grade axis), and forwarding it as
+ * a truncated feature value would switch the feature off below 1 and produce a new string, and so a
+ * new text style, at every whole step.
+ */
 internal fun buildFontFeatureSettings(
     fontAxis: IntArray?,
     fontAxisValues: FloatArray?,
@@ -45,7 +55,12 @@ internal fun buildFontFeatureSettings(
     for (i in 0 until count) {
         val name = context.getText(fontAxis[i]) ?: continue
         if (!isFontFeatureTag(name)) continue
-        val resolvedValue = resolveFloat(fontAxisValues[i], fontAxisValues[i], context)
+        val rawValue = MaybeVariableFloat(fontAxisValues[i])
+        if (
+            isVariationAxisTag(name) && (!rawValue.isLiteral || rawValue.raw != floor(rawValue.raw))
+        )
+            continue
+        val resolvedValue = rawValue.resolveOr(rawValue.raw, context)
         val sb = builder ?: StringBuilder().also { builder = it }
         if (sb.isNotEmpty()) sb.append(", ")
         sb.append('\'').append(name).append("' ").append(resolvedValue.toInt().coerceAtLeast(0))
@@ -173,14 +188,15 @@ internal fun resolveFontFamily(
     // A font embedded in the document (FontData) has an id > 3 in the object table and no text
     // entry (custom font family names are stored as strings via loadText, so fontName != null).
     if (fontName == null && fontFamilyType > 3) {
-        documentFontTypeface(
+        documentFontFamily(
                 context,
                 fontFamilyType,
                 fontWeight.weight,
                 fontStyle == FontStyle.Italic,
+                buildFontVariationSettingsString(fontAxis, fontAxisValues, context),
             )
             ?.let {
-                return FontFamily(ComposeTypeface(it))
+                return it
             }
     }
     // When a custom RcTypefaceResolver (such as GmsFontTypefaceResolver or a host/test resolver)

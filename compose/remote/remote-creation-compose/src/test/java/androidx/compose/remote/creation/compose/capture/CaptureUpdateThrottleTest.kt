@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
+import androidx.compose.remote.creation.compose.capture.headless.UpdateRateLimiter
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
@@ -38,7 +39,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -79,11 +79,9 @@ class CaptureUpdateThrottleTest {
     }
 
     private fun TestScope.limiter(burst: Int, intervalMillis: Long): UpdateRateLimiter =
-        UpdateRateLimiter(
-            burst,
-            intervalMillis.milliseconds,
-            testScheduler.timeSource,
-            AndroidxRcPlatformServices(),
+        checkNotNull(
+            CaptureUpdateThrottle.rateLimited(burst, intervalMillis)
+                .newLimiter(testScheduler.timeSource, AndroidxRcPlatformServices())
         )
 
     private suspend fun UpdateRateLimiter.emit() {

@@ -23,19 +23,23 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.remote.core.operations.FloatExpression
-import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.core.operations.utilities.NanMap
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
+import androidx.compose.remote.player.compose.embedded.doc.TimeReadTracker
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.Snapshot
 import kotlin.math.sqrt
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -49,15 +53,7 @@ public fun rememberRemoteExpression(id: Int): State<Float> {
     val varIds =
         remember(expr) {
             val ids = mutableSetOf<Int>()
-            for (v in expr.mSrcValue) {
-                if (
-                    v.isNaN() &&
-                        !AnimatedFloatExpression.isMathOperator(v) &&
-                        !NanMap.isDataVariable(v)
-                ) {
-                    ids.add(Utils.idFromNan(v))
-                }
-            }
+            expr.mSrcValue.forEachScalarReference { ids.add(it) }
             ids.toList()
         }
 
@@ -113,6 +109,13 @@ private sealed interface FloatAnimationSpec {
  * The spec is parsed fresh from the immutable `mSrcAnimation` array rather than read off the live
  * `mFloatAnimation`, whose initial value the core overwrites with the target during its first
  * `updateVariables` pass.
+ *
+ * The player creates these states at its root for every animated expression, so the target must not
+ * be read in the composition that creates them. Reading the returned state evaluates the target in
+ * the reader's own snapshot scope. A target that reads no time is also watched from a coroutine, so
+ * it starts animating as soon as it changes. Once the target is seen reading a time field it is
+ * only evaluated by readers: an expression on a clock that only an inactive state branch (or
+ * nothing) reads is then never evaluated, so it doesn't keep the clock loop ticking.
  */
 @Composable
 internal fun rememberAnimatedRemoteFloat(id: Int): State<Float> {
@@ -156,40 +159,118 @@ internal fun rememberAnimatedRemoteFloat(id: Int): State<Float> {
             }
         }
 
-    val animatable =
-        remember(id) {
-            Animatable(if (spec.initialValue.isNaN()) targetState.value else spec.initialValue)
+    val timeReads = LocalGraphContext.current?.timeState?.reads
+    val animated = remember(id, targetState, spec) { AnimatedRemoteFloat(targetState, spec) }
+    // Like animate*AsState, hand target changes to the animation from composition, so an animation
+    // starts on the frame after the change is composed. A target that reads time is left to its
+    // readers (see AnimatedRemoteFloat.value): reading it here would recompose the root on every
+    // clock tick and keep the clock running for an animation in an inactive branch.
+    val composedTarget = composedTargetUnlessTimed(targetState, timeReads)
+    SideEffect {
+        animated.targetReadsTime = composedTarget == null
+        if (composedTarget != null) animated.request(composedTarget)
+    }
+    LaunchedEffect(animated) { animated.animateToTargets() }
+    return animated
+}
+
+/**
+ * Reads [target] in the composition, subscribing to it, unless evaluating it reads a time field (as
+ * counted by [timeReads]), in which case it returns `null` without subscribing.
+ */
+private fun composedTargetUnlessTimed(target: State<Float>, timeReads: TimeReadTracker?): Float? {
+    if (timeReads == null) return target.value
+    val readsBefore = timeReads.totalReads
+    Snapshot.withoutReadObservation { target.value }
+    return if (timeReads.totalReads == readsBefore) target.value else null
+}
+
+/**
+ * The state returned by [rememberAnimatedRemoteFloat]. Reading [value] evaluates [target] in the
+ * reader's scope and, when it differs from the last requested target, hands it to
+ * [animateToTargets], which animates [animatable] toward it.
+ */
+private class AnimatedRemoteFloat(
+    private val target: State<Float>,
+    private val spec: FloatAnimationSpec,
+) : State<Float> {
+    // Without an authored initial value the first target is snapped to; until then reads return
+    // the target directly.
+    private val animatable = Animatable(if (spec.initialValue.isNaN()) 0f else spec.initialValue)
+    @Volatile private var initialized = !spec.initialValue.isNaN()
+    @Volatile private var hasRequested = false
+    @Volatile private var requested = 0f
+    private val requests = Channel<Float>(Channel.CONFLATED)
+
+    private val snaps = spec is FloatAnimationSpec.Tween && spec.durationMillis <= 0
+
+    /**
+     * Whether the target reads a time field, as last seen by composition. Such a target reaches the
+     * animation through its readers; any other target only through composition, as with
+     * animate*AsState, so a reader that runs before composition (e.g. a draw pass) doesn't start
+     * the animation a frame early.
+     */
+    @Volatile var targetReadsTime = true
+
+    override val value: Float
+        get() {
+            if (!targetReadsTime && !snaps) {
+                val current = animatable.value
+                return if (initialized) current else target.value
+            }
+            val target = target.value
+            // A zero-length tween always shows its target.
+            if (snaps) return target
+            request(target)
+            val current = animatable.value
+            return if (initialized) current else target
         }
 
-    val target = targetState.value
-    LaunchedEffect(animatable, target, spec) {
-        when (spec) {
-            is FloatAnimationSpec.Tween -> {
-                if (spec.durationMillis <= 0) {
-                    animatable.snapTo(target)
-                } else if (animatable.value != target || animatable.isRunning) {
-                    animatable.animateTo(
-                        target,
-                        tween(
-                            durationMillis = spec.durationMillis,
-                            easing = mapEasing(spec.easingType),
-                        ),
-                    )
-                }
+    // Not a snapshot write: safe from composition, layout and draw reads.
+    fun request(target: Float) {
+        if (!hasRequested || target.toRawBits() != requested.toRawBits()) {
+            requested = target
+            hasRequested = true
+            requests.trySend(target)
+        }
+    }
+
+    /** Animates toward each requested target, from composition or from readers. */
+    suspend fun animateToTargets() {
+        if (snaps) return
+        requests.receiveAsFlow().collectLatest { target ->
+            if (!initialized) {
+                animatable.snapTo(target)
+                initialized = true
+                return@collectLatest
             }
-            is FloatAnimationSpec.Spring -> {
-                if (animatable.value != target || animatable.isRunning) {
-                    animatable.animateTo(
-                        target,
-                        spring(
-                            dampingRatio = spec.dampingRatio,
-                            stiffness = spec.stiffness,
-                            visibilityThreshold = spec.stopThreshold,
-                        ),
-                    )
+            when (spec) {
+                is FloatAnimationSpec.Tween -> {
+                    if (spec.durationMillis <= 0) {
+                        animatable.snapTo(target)
+                    } else if (animatable.value != target || animatable.isRunning) {
+                        animatable.animateTo(
+                            target,
+                            tween(
+                                durationMillis = spec.durationMillis,
+                                easing = mapEasing(spec.easingType),
+                            ),
+                        )
+                    }
+                }
+                is FloatAnimationSpec.Spring -> {
+                    if (animatable.value != target || animatable.isRunning) {
+                        animatable.animateTo(
+                            target,
+                            spring(
+                                dampingRatio = spec.dampingRatio,
+                                stiffness = spec.stiffness,
+                                visibilityThreshold = spec.stopThreshold,
+                            ),
+                        )
+                    }
                 }
             }
         }
     }
-    return animatable.asState()
 }

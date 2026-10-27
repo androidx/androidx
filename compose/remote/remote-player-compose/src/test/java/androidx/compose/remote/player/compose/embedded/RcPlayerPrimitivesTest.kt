@@ -115,7 +115,6 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -123,9 +122,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -1778,38 +1779,18 @@ class RcPlayerPrimitivesTest {
             val playerState = RcPlayerState(document)
             playerState.colorState("myColor").value = Color(0xFF00FF00.toInt())
 
-            rule.setContent { RcPlayer(state = playerState) }
+            rule.setContent {
+                RcPlayer(
+                    state = playerState,
+                    modifier = Modifier.size(100.dp).testTag("colorOverride"),
+                )
+            }
 
             rule.mainClock.advanceTimeBy(100)
 
-            val state = document.remoteComposeState
-
-            fun findNamedVariable(ops: Collection<Operation>, name: String): NamedVariable? {
-                for (op in ops) {
-                    if (op is NamedVariable && op.mVarName == name) {
-                        return op
-                    }
-                    if (op is Container) {
-                        val found = findNamedVariable(op.getList(), name)
-                        if (found != null) return found
-                    }
-                    if (op is LayoutComponent) {
-                        val canvasOps = op.getCanvasOperations()
-                        if (canvasOps != null) {
-                            val found = findNamedVariable(listOf(canvasOps), name)
-                            if (found != null) return found
-                        }
-                    }
-                }
-                return null
-            }
-
-            val namedVar = findNamedVariable(document.getOperationsList(), "USER:myColor")
-            assertNotNull(namedVar)
-            val varId = namedVar!!.mVarId
-
-            val resolvedColor = state.getColor(varId)
-            assertEquals(0xFF00FF00.toInt(), resolvedColor)
+            assertEquals(Color(0xFF00FF00.toInt()), playerState.colorState("myColor").value)
+            val bitmap = rule.onNodeWithTag("colorOverride").captureToImage().asAndroidBitmap()
+            assertEquals(0xFF00FF00.toInt(), bitmap.getPixel(50, 50))
         }
     }
 
@@ -2078,7 +2059,7 @@ class RcPlayerPrimitivesTest {
         rule.onNodeWithTag("buttonMaterial3Parent").assertExists()
 
         try {
-            val bounds = rule.onNodeWithText("Click").getUnclippedBoundsInRoot()
+            rule.onNodeWithText("Click").getUnclippedBoundsInRoot()
         } catch (e: Throwable) {}
     }
 
@@ -2138,7 +2119,7 @@ class RcPlayerPrimitivesTest {
             return null
         }
 
-        val namedVar = findNamedVariable(document.getOperationsList(), "USER:chartData")
+        val namedVar = findNamedVariable(document.operations, "USER:chartData")
         assertNotNull(namedVar)
         assertEquals(NamedVariable.FLOAT_ARRAY_TYPE, namedVar!!.mVarType)
         val arrayId = namedVar.mVarId
