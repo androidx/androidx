@@ -150,29 +150,6 @@ class RemotePaintTest {
     }
 
     @Test
-    fun composePaintToDefaultRemotePaintTest() {
-        val composePaint =
-            androidx.compose.ui.graphics.Paint().apply {
-                color = Color.Green
-                strokeWidth = 5f
-                isAntiAlias = false
-                style = PaintingStyle.Fill
-                strokeCap = StrokeCap.Round
-                strokeJoin = StrokeJoin.Bevel
-            }
-        val remotePaint = composePaint.asRemotePaint()
-
-        val defaultPaint = StandardRemotePaint(remotePaint)
-
-        assertThat(defaultPaint.color.constantValue).isEqualTo(Color.Green)
-        assertThat(defaultPaint.strokeWidth.constantValue).isEqualTo(5f)
-        assertThat(defaultPaint.isAntiAlias).isFalse()
-        assertThat(defaultPaint.style).isEqualTo(PaintingStyle.Fill)
-        assertThat(defaultPaint.strokeCap).isEqualTo(StrokeCap.Round)
-        assertThat(defaultPaint.strokeJoin).isEqualTo(StrokeJoin.Bevel)
-    }
-
-    @Test
     fun compatAndroidRemotePaintColorTest() {
         val paint = CompatAndroidRemotePaint()
         val color = Color.Red
