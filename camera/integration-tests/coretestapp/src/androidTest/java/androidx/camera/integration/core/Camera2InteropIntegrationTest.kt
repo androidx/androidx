@@ -392,12 +392,14 @@ class Camera2InteropIntegrationTest(val implName: String, val cameraConfig: Came
     @SdkSuppress(minSdkVersion = 28)
     @Suppress("DEPRECATION")
     fun setPhysicalCameraId_valueShouldExist(): Unit = runBlocking {
-        // Arrange: Skip the test if the camera is not a logical camera.
-        val physicalCameraIds: MutableSet<String>? =
-            getCameraCharacteristics(cameraSelector).physicalCameraIds
-        assumeTrue(!physicalCameraIds!!.isEmpty())
+        // Arrange: Skip the test if the camera is not a logical camera with supported physical
+        // cameras. Using CameraInfo.physicalCameraInfos ensures non-backward-compatible physical
+        // cameras and devices covered by ExcludePhysicalCameraIdQuirk are filtered out.
+        val physicalCameraInfos =
+            processCameraProvider!!.getCameraInfo(cameraSelector).physicalCameraInfos
+        assumeTrue(physicalCameraInfos.isNotEmpty())
 
-        val testCameraId = physicalCameraIds.iterator().next()
+        val testCameraId = Camera2InteropUtil.getCameraId(implName, physicalCameraInfos.first())
         val testLifecycle = TestLifecycleOwner(Lifecycle.State.RESUMED)
 
         // Act.
