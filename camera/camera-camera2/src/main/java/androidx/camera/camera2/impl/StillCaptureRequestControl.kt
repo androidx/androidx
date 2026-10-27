@@ -17,11 +17,13 @@
 package androidx.camera.camera2.impl
 
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.asListenableFuture
 import androidx.camera.camera2.adapter.propagateCompletion
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.impl.CameraSessionLifecycleCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -31,6 +33,7 @@ import dagger.multibindings.IntoSet
 import java.util.LinkedList
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -41,15 +44,38 @@ import kotlinx.coroutines.sync.withLock
 @CameraScope
 public class StillCaptureRequestControl
 @Inject
-constructor(private val flashControl: FlashControl, private val threads: UseCaseThreads) :
-    UseCaseCameraControl {
+constructor(
+    private val flashControl: FlashControl,
+    private val threads: UseCaseThreads,
+    cameraSessionLifecycleAdapter: CameraSessionLifecycleAdapter,
+) : UseCaseCameraControl {
     private val mutex = Mutex()
+    private var sessionStartCount = 0L
+    @Volatile private var isSessionStarted = false
+
+    init {
+        cameraSessionLifecycleAdapter.addSessionLifecycleCallback(
+            threads.sequentialExecutor,
+            object : CameraSessionLifecycleCallback() {
+                override fun onSessionStarted() {
+                    isSessionStarted = true
+                    sessionStartCount++
+                    trySubmitPendingRequests()
+                }
+
+                override fun onSessionStopped() {
+                    isSessionStarted = false
+                }
+            },
+        )
+    }
 
     private var _requestControl: UseCaseCameraRequestControl? = null
     override var requestControl: UseCaseCameraRequestControl?
         get() = _requestControl
         set(value) {
             _requestControl = value
+            isSessionStarted = false
             trySubmitPendingRequests()
         }
 
@@ -62,8 +88,9 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
 
     /**
      * These requests failed to be completely processed with some UseCaseCamera that was open when
-     * corresponding request was issued. (e.g. UseCaseCamera was closed for recreation) Thus, these
-     * requests should be retried when a new UseCaseCamera is created.
+     * corresponding request was issued (e.g. UseCaseCamera was closed for recreation, or the
+     * underlying camera session disconnected and restarted in-place). Thus, these requests should
+     * be retried when a new UseCaseCamera is created or when the camera session starts again.
      */
     @GuardedBy("mutex") private val pendingRequests = LinkedList<CaptureRequest>()
 
@@ -97,8 +124,13 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
             val request = CaptureRequest(captureConfigs, captureMode, flashType, signal)
             val requestControl = requestControl
             if (requestControl != null && requestControl.awaitSurfaceSetup()) {
+                val submittedSessionStartCount = sessionStartCount
                 submitRequest(request, requireNotNull(requestControl))
-                    .propagateResultOrEnqueueRequest(request, requireNotNull(requestControl))
+                    .propagateResultOrEnqueueRequest(
+                        submittedRequest = request,
+                        currentRequestControl = requireNotNull(requestControl),
+                        submittedSessionStartCount = submittedSessionStartCount,
+                    )
             } else {
                 // UseCaseCamera may become null by the time the coroutine is started
                 mutex.withLock { pendingRequests.add(request) }
@@ -120,10 +152,12 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
                     while (pendingRequests.isNotEmpty()) {
                         pendingRequests.poll()?.let { request ->
                             requestControl.let { requestControl ->
+                                val submittedSessionStartCount = sessionStartCount
                                 submitRequest(request, requestControl)
                                     .propagateResultOrEnqueueRequest(
                                         submittedRequest = request,
                                         currentRequestControl = requestControl,
+                                        submittedSessionStartCount = submittedSessionStartCount,
                                     )
                             }
                         }
@@ -151,7 +185,7 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
                 flashMode,
             )
 
-        return threads.sequentialScope.async {
+        return threads.sequentialScope.async(start = CoroutineStart.UNDISPATCHED) {
             // requestControl.issueSingleCaptureAsync shouldn't be invoked from here directly,
             // because sequentialScope.async is may not be executed immediately
             Camera2Logger.debug {
@@ -168,6 +202,7 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
     private fun Deferred<List<Void?>>.propagateResultOrEnqueueRequest(
         submittedRequest: CaptureRequest,
         currentRequestControl: UseCaseCameraRequestControl,
+        submittedSessionStartCount: Long,
     ) {
         invokeOnCompletion { cause: Throwable? ->
             if (
@@ -178,12 +213,19 @@ constructor(private val flashControl: FlashControl, private val threads: UseCase
                     var isPending = true
 
                     requestControl?.let { latestRequestControl ->
-                        if (currentRequestControl != latestRequestControl) {
-                            // camera has already been changed, can retry immediately
+                        if (
+                            currentRequestControl != latestRequestControl ||
+                                (isSessionStarted &&
+                                    submittedSessionStartCount != sessionStartCount)
+                        ) {
+                            // camera has already been changed or session restarted, can retry
+                            // immediately
+                            val currentSessionStartCount = sessionStartCount
                             submitRequest(submittedRequest, latestRequestControl)
                                 .propagateResultOrEnqueueRequest(
                                     submittedRequest = submittedRequest,
                                     currentRequestControl = latestRequestControl,
+                                    submittedSessionStartCount = currentSessionStartCount,
                                 )
                             isPending = false
                         }

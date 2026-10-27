@@ -39,6 +39,7 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.common.CameraFrameNumber
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -52,6 +53,19 @@ class FakeCameraGraph(
 
     val setSurfaceResults = mutableMapOf<StreamId, Surface?>()
     private var isClosed = false
+    var acquireSessionGate: CompletableDeferred<Unit>? = null
+    var sessionAcquireCount = 0
+        private set
+
+    val sessionCloseCount: Int
+        get() = fakeCameraGraphSession.closeCount
+
+    val activeSessionCount: Int
+        get() = fakeCameraGraphSession.activeCount
+
+    val maxConcurrentSessions: Int
+        get() = fakeCameraGraphSession.maxActiveCount
+
     override val id: CameraGraphId
         get() = throw NotImplementedError("Not used in testing")
 
@@ -77,17 +91,31 @@ class FakeCameraGraph(
         get() = throw NotImplementedError("Not used in testing")
 
     override suspend fun acquireSession(): CameraGraph.Session {
+        acquireSessionGate?.await()
         if (isClosed) {
             throw CancellationException()
         }
+        sessionAcquireCount++
+        fakeCameraGraphSession.onAcquired()
         return fakeCameraGraphSession
     }
 
-    override fun acquireSessionOrNull() = if (isClosed) null else fakeCameraGraphSession
+    override fun acquireSessionOrNull() =
+        if (isClosed) {
+            null
+        } else {
+            sessionAcquireCount++
+            fakeCameraGraphSession.onAcquired()
+            fakeCameraGraphSession
+        }
 
     override suspend fun <T> useSession(
         action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): T = fakeCameraGraphSession.use { coroutineScope { action(it) } }
+    ): T {
+        sessionAcquireCount++
+        fakeCameraGraphSession.onAcquired()
+        return fakeCameraGraphSession.use { coroutineScope { action(it) } }
+    }
 
     override fun <T> useSessionIn(
         scope: CoroutineScope,

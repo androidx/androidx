@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl
 import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.Result3A
+import androidx.camera.camera2.testing.FakeCameraGraphSession
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -251,4 +252,37 @@ class DeferredUseCaseCameraRequestControlImplTest {
                 Config.OptionPriority.OPTIONAL,
             )
     }
+
+    @Test
+    fun sessionMethods_whenUninitialized_executeUndispatchedBeforeSessionClose() =
+        testScope.runTest {
+            val session = FakeCameraGraphSession().apply { onAcquired() }
+            val values =
+                mapOf<CaptureRequest.Key<*>, Any>(
+                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON
+                )
+            `when`(mockImpl.setParametersAsync(anyMap(), any(), any(), any()))
+                .thenReturn(CompletableDeferred(Unit))
+
+            // Act: invoke with non-null session and immediately close session BEFORE
+            // advanceUntilIdle()
+            deferredControl.setParametersAsync(
+                values,
+                UseCaseCameraRequestControl.Type.DEFAULT,
+                Config.OptionPriority.OPTIONAL,
+                session,
+            )
+
+            // Assert: impl was initialized and called synchronously (undispatched) while session
+            // was open
+            verify(mockImplProvider, times(1)).get()
+            verify(mockImpl)
+                .setParametersAsync(
+                    values,
+                    UseCaseCameraRequestControl.Type.DEFAULT,
+                    Config.OptionPriority.OPTIONAL,
+                    session,
+                )
+            session.close()
+        }
 }

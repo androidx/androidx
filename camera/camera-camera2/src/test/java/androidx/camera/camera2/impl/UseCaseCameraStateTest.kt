@@ -52,9 +52,11 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -459,6 +461,89 @@ class UseCaseCameraStateTest {
         // --- Cleanup ---
         blocker.release()
         lockHoldingJob.cancel()
+    }
+
+    @Test
+    fun updateAsyncWithSession_whileWaitingForSession_coalescesSubsequentUpdates() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        fakeCameraGraph.acquireSessionGate = gate
+
+        // 1. Start an update without a session; it suspends waiting on acquireSessionGate.
+        val deferred1 =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                useCaseCameraState.updateAsync(
+                    streams = setOf(StreamId(0)),
+                    parameters =
+                        mapOf(
+                            CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO
+                        ),
+                )
+            }
+        assertThat(fakeCameraGraphSession.repeatingRequests).isEmpty()
+
+        // 2. While deferred1 is suspended waiting for a session, submit an update with an
+        // already-acquired session (e.g., from CapturePipeline).
+        useCaseCameraState.updateAsync(
+            parameters = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON),
+            session = fakeCameraGraphSession,
+        )
+        assertThat(fakeCameraGraphSession.repeatingRequests).hasSize(1)
+
+        // 3. Submit another update without a session before the gate opens. It must coalesce
+        // onto the existing waiter rather than launching a second acquireSession() call.
+        val deferred3 =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                useCaseCameraState.updateAsync(
+                    parameters =
+                        mapOf(
+                            CaptureRequest.CONTROL_AWB_MODE to CaptureRequest.CONTROL_AWB_MODE_AUTO
+                        )
+                )
+            }
+
+        // 4. Release the gate and let the single waiting session acquisition complete.
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertThat(fakeCameraGraph.sessionAcquireCount).isEqualTo(1)
+        assertThat(fakeCameraGraphSession.repeatingRequests).hasSize(2)
+        fakeCameraGraphSession.startRepeatingSignal.complete(TOTAL_CAPTURE_DONE)
+        assertFutureCompletes(deferred1.await().asListenableFuture())
+        assertFutureCompletes(deferred3.await().asListenableFuture())
+    }
+
+    @Test
+    fun updateAsyncWithSession_consumesPendingUpdate_avoidsDuplicateSubmission() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        fakeCameraGraph.acquireSessionGate = gate
+
+        // 1. Start an update without a session; it suspends waiting on acquireSessionGate.
+        val deferred1 =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                useCaseCameraState.updateAsync(
+                    streams = setOf(StreamId(0)),
+                    parameters =
+                        mapOf(
+                            CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO
+                        ),
+                )
+            }
+
+        // 2. Submit an update with an existing session, which consumes the pending state update.
+        useCaseCameraState.updateAsync(
+            parameters = mapOf(CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON),
+            session = fakeCameraGraphSession,
+        )
+        assertThat(fakeCameraGraphSession.repeatingRequests).hasSize(1)
+
+        // 3. Release the gate with no new updates pending; no duplicate startRepeating should run.
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertThat(fakeCameraGraph.sessionAcquireCount).isEqualTo(1)
+        assertThat(fakeCameraGraphSession.repeatingRequests).hasSize(1)
+        fakeCameraGraphSession.startRepeatingSignal.complete(TOTAL_CAPTURE_DONE)
+        assertFutureCompletes(deferred1.await().asListenableFuture())
     }
 
     private fun <T> assertFutureCompletes(future: ListenableFuture<T>) {

@@ -71,6 +71,8 @@ constructor(
 
     @GuardedBy("lock") private var closed = false
 
+    @GuardedBy("lock") private var hasPendingUpdate = false
+
     @GuardedBy("lock") private val currentParameters = mutableMapOf<CaptureRequest.Key<*>, Any>()
 
     @GuardedBy("lock") private val currentInternalParameters = mutableMapOf<Metadata.Key<*>, Any>()
@@ -112,13 +114,43 @@ constructor(
         streams: Set<StreamId>? = null,
         template: RequestTemplate? = null,
         listeners: Set<Request.Listener>? = null,
+        session: CameraGraph.Session? = null,
     ): Deferred<Unit> {
-        val result: Deferred<Unit>
+        val (result, shouldSubmit) =
+            stageUpdate(
+                parameters = parameters,
+                appendParameters = appendParameters,
+                internalParameters = internalParameters,
+                appendInternalParameters = appendInternalParameters,
+                streams = streams,
+                template = template,
+                listeners = listeners,
+                session = session,
+            )
+        if (shouldSubmit) {
+            submitLatest(session)
+        }
+        return result
+    }
+
+    internal fun stageUpdate(
+        parameters: Map<CaptureRequest.Key<*>, Any>? = null,
+        appendParameters: Boolean = true,
+        internalParameters: Map<Metadata.Key<*>, Any>? = null,
+        appendInternalParameters: Boolean = true,
+        streams: Set<StreamId>? = null,
+        template: RequestTemplate? = null,
+        listeners: Set<Request.Listener>? = null,
+        session: CameraGraph.Session? = null,
+    ): Pair<Deferred<Unit>, Boolean> {
         synchronized(lock) {
             if (closed) {
-                return CompletableDeferred<Unit>().apply {
-                    completeExceptionally(CancellationException("UseCaseCameraState closed"))
-                }
+                return Pair(
+                    CompletableDeferred<Unit>().apply {
+                        completeExceptionally(CancellationException("UseCaseCameraState closed"))
+                    },
+                    false,
+                )
             }
             // This block does several things while locked, and is paired with another
             // synchronized(lock) section in the submitLatest() method below that prevents these
@@ -128,11 +160,11 @@ constructor(
             // 2) Since a prior update may have happened that didn't need a completion signal,
             //    it is possible that updateSignal is null. Regardless of the need to resubmit or
             //    not, the updateSignal must have a value to be returned.
-            // 3) If an update is already dispatched, return existing update signal. This
-            //    updateSignal may be the value from #2 (this is fine).
-            // 4) If we get this far, we need to dispatch an update. Mark this as updating, and
-            //    exit the locked section.
-            // 5) If updating, invoke submit without holding the lock.
+            // 3) If an update is already dispatched and no session is provided, return existing
+            //    update signal. This updateSignal may be the value from #2 (this is fine).
+            // 4) If we get this far, we need to dispatch an update. Mark this as updating if
+            //    acquiring a session asynchronously, and exit the locked section.
+            // 5) Invoke submit without holding the lock.
 
             updateState(
                 parameters,
@@ -147,17 +179,16 @@ constructor(
             if (updateSignal == null) {
                 updateSignal = CompletableDeferred()
             }
-            if (updating) {
-                return updateSignal!!
+            hasPendingUpdate = true
+            if (session == null) {
+                if (updating) {
+                    return Pair(updateSignal!!, false)
+                }
+                // Fall through to submit if there is no pending update.
+                updating = true
             }
-
-            // Fall through to submit if there is no pending update.
-            updating = true
-            result = updateSignal!!
+            return Pair(updateSignal!!, true)
         }
-
-        submitLatest()
-        return result
     }
 
     @GuardedBy("lock")
@@ -206,9 +237,23 @@ constructor(
      * Tries to invoke [androidx.camera.camera2.pipe.CameraGraph.Session.startRepeating] with
      * current (the most recent) set of values.
      */
-    public suspend fun tryStartRepeating(): Unit = submitLatest()
+    public suspend fun tryStartRepeating(session: CameraGraph.Session? = null) {
+        synchronized(lock) {
+            if (closed) {
+                return
+            }
+            hasPendingUpdate = true
+            if (session == null) {
+                if (updating) {
+                    return
+                }
+                updating = true
+            }
+        }
+        submitLatest(session)
+    }
 
-    private suspend fun submitLatest() {
+    internal suspend fun submitLatest(session: CameraGraph.Session? = null) {
         // Update the cameraGraph with the most recent set of values.
         // Since acquireSession is a suspending function, it's possible that subsequent updates
         // can occur while waiting for the acquireSession call to complete. If this happens,
@@ -218,59 +263,20 @@ constructor(
         // state.
         var signalsToComplete: List<CompletableDeferred<Unit>>? = null
 
-        try {
-            useCaseCameraContext.useGraphSession { session ->
-                val request: Request?
-
-                // Synchronize state reads, signal enqueue/drain, and signal resets atomically
+        if (session != null) {
+            signalsToComplete = submitLatestWithSession(session, clearUpdating = false)
+        } else {
+            try {
+                useCaseCameraContext.useGraphSession { graphSession ->
+                    signalsToComplete = submitLatestWithSession(graphSession, clearUpdating = true)
+                }
+            } catch (e: CancellationException) {
+                Camera2Logger.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
                 synchronized(lock) {
-                    // close() already drained and cancelled every signal; skip stale submits.
-                    if (closed) {
-                        return@useGraphSession
-                    }
-                    if (currentStreams.isEmpty()) {
-                        request = null
-                        signalsToComplete = takeAllSignalsLocked()
-                    } else {
-                        val requestNo = submittedRequestCounter.incrementAndGet()
-                        request =
-                            Request(
-                                template = currentTemplate,
-                                streams = currentStreams.toList(),
-                                parameters =
-                                    templateParamsOverride.getOverrideParams(currentTemplate) +
-                                        currentParameters.toMap(),
-                                extras =
-                                    currentInternalParameters.toMutableMap().also { parameters ->
-                                        parameters[USE_CASE_CAMERA_STATE_CUSTOM_TAG] = requestNo
-                                    },
-                                listeners =
-                                    currentListeners.toMutableList().also { listeners ->
-                                        listeners.add(requestListener)
-                                    },
-                            )
-                        updateSignal?.let { res ->
-                            updateSignals.add(RequestSignal(requestNo, res))
-                            pendingSignalCount.incrementAndGet()
-                        }
-                    }
                     updating = false
-                    updateSignal = null
+                    hasPendingUpdate = false
+                    signalsToComplete = (signalsToComplete ?: emptyList()) + takeAllSignalsLocked()
                 }
-
-                if (request == null) {
-                    session.stopRepeating()
-                } else {
-                    Camera2Logger.debug { "Update RepeatingRequest: $request" }
-                    session.startRepeating(request)
-                    session.update3A(request.parameters)
-                }
-            }
-        } catch (e: CancellationException) {
-            Camera2Logger.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
-            synchronized(lock) {
-                updating = false
-                signalsToComplete = (signalsToComplete ?: emptyList()) + takeAllSignalsLocked()
             }
         }
 
@@ -280,11 +286,74 @@ constructor(
         signalsToComplete?.forEach { it.complete(Unit) }
     }
 
+    private fun submitLatestWithSession(
+        session: CameraGraph.Session,
+        clearUpdating: Boolean,
+    ): List<CompletableDeferred<Unit>>? {
+        val request: Request?
+        val signalsToComplete: List<CompletableDeferred<Unit>>?
+
+        // Synchronize state reads, signal enqueue/drain, and signal resets atomically
+        synchronized(lock) {
+            // close() already drained and cancelled every signal; skip stale submits.
+            if (closed) {
+                return null
+            }
+            if (clearUpdating) {
+                updating = false
+            }
+            if (!hasPendingUpdate) {
+                return null
+            }
+            hasPendingUpdate = false
+
+            if (currentStreams.isEmpty()) {
+                request = null
+                signalsToComplete = takeAllSignalsLocked()
+            } else {
+                val requestNo = submittedRequestCounter.incrementAndGet()
+                request =
+                    Request(
+                        template = currentTemplate,
+                        streams = currentStreams.toList(),
+                        parameters =
+                            templateParamsOverride.getOverrideParams(currentTemplate) +
+                                currentParameters.toMap(),
+                        extras =
+                            currentInternalParameters.toMutableMap().also { parameters ->
+                                parameters[USE_CASE_CAMERA_STATE_CUSTOM_TAG] = requestNo
+                            },
+                        listeners =
+                            currentListeners.toMutableList().also { listeners ->
+                                listeners.add(requestListener)
+                            },
+                    )
+                updateSignal?.let { res ->
+                    updateSignals.add(RequestSignal(requestNo, res))
+                    pendingSignalCount.incrementAndGet()
+                }
+                updateSignal = null
+                signalsToComplete = null
+            }
+        }
+
+        return if (request == null) {
+            session.stopRepeating()
+            signalsToComplete
+        } else {
+            Camera2Logger.debug { "Update RepeatingRequest: $request" }
+            session.startRepeating(request)
+            session.update3A(request.parameters)
+            null
+        }
+    }
+
     public fun close() {
         val signalsToCancel =
             synchronized(lock) {
                 closed = true
                 updating = false
+                hasPendingUpdate = false
                 takeAllSignalsLocked()
             }
         signalsToCancel.forEach {

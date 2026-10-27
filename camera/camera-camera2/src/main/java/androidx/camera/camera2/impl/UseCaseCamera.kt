@@ -179,6 +179,7 @@ constructor(
 
     override fun close(): Job {
         return if (closed.compareAndSet(expect = false, update = true)) {
+            useCaseCameraContext.onClose()
             requestControl.close()
             threads.confineLaunch {
                 Camera2Logger.debug { "Closing $this" }
