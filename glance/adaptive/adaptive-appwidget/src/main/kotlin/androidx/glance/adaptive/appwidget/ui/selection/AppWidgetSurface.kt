@@ -17,12 +17,22 @@
 package androidx.glance.adaptive.appwidget.ui.selection
 
 import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import java.util.Collections
 
 /** Standard platform AppWidget surfaces on which Glance Adaptive widgets can be placed. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class AppWidgetSurface private constructor(tag: String) : GlanceSurface(tag) {
+public class AppWidgetSurface
+private constructor(tag: String, dimensions: Dimensions = Dimensions(0, 0)) :
+    GlanceSurface(tag, dimensions) {
+
+    /**
+     * Returns this surface placed at [dimensions], for the selector and renderer of one placement.
+     */
+    internal fun withDimensions(dimensions: Dimensions): AppWidgetSurface =
+        AppWidgetSurface(tag, dimensions)
+
     public companion object {
         /** Mobile Phone home screen launcher surface. */
         @JvmField public val MOBILE_HOME_SCREEN: AppWidgetSurface = AppWidgetSurface("home_screen")

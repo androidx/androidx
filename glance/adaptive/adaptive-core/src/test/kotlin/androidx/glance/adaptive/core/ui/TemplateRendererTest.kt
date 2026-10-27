@@ -18,7 +18,6 @@ package androidx.glance.adaptive.core.ui
 
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -27,36 +26,36 @@ class TemplateRendererTest {
 
     private class TestTemplate(val title: String) : GlanceAdaptiveTemplate(templateId = 1)
 
-    private class TestSurface(tag: String) : GlanceSurface(tag)
+    private class TestSurface(tag: String, dimensions: Dimensions) : GlanceSurface(tag, dimensions)
 
     private enum class TestArchetype {
         COMPACT
     }
 
-    private val constraints = HostConstraints(Dimensions(200, 100), TestSurface("test_surface"))
+    private val testSurface = TestSurface("test_surface", Dimensions(200, 100))
 
     @Test
-    fun render_receivesTemplateArchetypeAndConstraints() {
+    fun render_receivesTemplateArchetypeAndSurface() {
         var observedTemplate: TestTemplate? = null
         var observedArchetype: TestArchetype? = null
-        var observedConstraints: HostConstraints<TestSurface>? = null
+        var observedSurface: TestSurface? = null
 
         val renderer =
             TemplateRenderer<TestTemplate, TestSurface, TestArchetype, Unit> {
                 template,
                 archetype,
-                hostConstraints ->
+                surface ->
                 observedTemplate = template
                 observedArchetype = archetype
-                observedConstraints = hostConstraints
+                observedSurface = surface
             }
 
         val template = TestTemplate("Morning Run")
-        renderer.render(template, TestArchetype.COMPACT, constraints)
+        renderer.render(template, TestArchetype.COMPACT, testSurface)
 
         assertThat(observedTemplate).isSameInstanceAs(template)
         assertThat(observedArchetype).isEqualTo(TestArchetype.COMPACT)
-        assertThat(observedConstraints).isEqualTo(constraints)
+        assertThat(observedSurface).isSameInstanceAs(testSurface)
     }
 
     /**
@@ -70,12 +69,12 @@ class TemplateRendererTest {
             TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> {
                 template,
                 archetype,
-                hostConstraints ->
-                "${template.title}@${hostConstraints.dimensions.widthDp}/${archetype.name}"
+                surface ->
+                "${template.title}@${surface.dimensions.widthDp}/${archetype.name}"
             }
 
         assertThat(
-                textRenderer.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints)
+                textRenderer.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface)
             )
             .isEqualTo("Morning Run@200/COMPACT")
     }
@@ -91,21 +90,21 @@ class TemplateRendererTest {
         val widened: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, CharSequence> =
             renderer
 
-        assertThat(widened.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints))
+        assertThat(widened.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface))
             .isEqualTo("Morning Run")
     }
 
     @Test
     fun render_templateSurfaceAndArchetypeAreContravariant() {
         val renderer: TemplateRenderer<GlanceAdaptiveTemplate, GlanceSurface, Any, String> =
-            TemplateRenderer { _, _, hostConstraints ->
-                hostConstraints.surface.tag
+            TemplateRenderer { _, _, surface ->
+                surface.tag
             }
 
         // Compiles only because T, S and A are declared `in`.
         val narrowed: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> = renderer
 
-        assertThat(narrowed.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, constraints))
+        assertThat(narrowed.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface))
             .isEqualTo("test_surface")
     }
 }

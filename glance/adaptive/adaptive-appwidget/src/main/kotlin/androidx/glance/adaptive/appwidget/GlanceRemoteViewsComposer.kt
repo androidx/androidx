@@ -32,7 +32,6 @@ import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurfaceDetector
 import androidx.glance.adaptive.appwidget.ui.selection.LocalContainerDimensions
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
@@ -58,10 +57,12 @@ internal data class PreviewTarget(
  *
  * Owns every decision about *how* a composition is produced: which host surface and container
  * dimensions it targets, what can share a single composition, and how that context reaches
- * templates through [HostConstraints], [LocalContainerDimensions], and [androidx.glance.LocalSize].
- * Placed instances and picker previews differ only in where their [RenderTarget] comes from, so
- * both funnel through the same [compose] call. Callers retain the orchestration concerns of
- * resolving what to render and handing the resulting [RemoteViews] to [AppWidgetManager].
+ * templates through the placed surface's
+ * [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions],
+ * [LocalContainerDimensions], and [androidx.glance.LocalSize]. Placed instances and picker previews
+ * differ only in where their [RenderTarget] comes from, so both funnel through the same [compose]
+ * call. Callers retain the orchestration concerns of resolving what to render and handing the
+ * resulting [RemoteViews] to [AppWidgetManager].
  */
 internal class GlanceRemoteViewsComposer(
     private val context: Context,
@@ -145,8 +146,8 @@ internal class GlanceRemoteViewsComposer(
     ): RemoteViews {
         val appContext = context.applicationContext ?: context
         val dimensions = target.dimensions
-        val constraints = HostConstraints(dimensions = dimensions, surface = target.surface)
-        return AppWidgetTemplateRegistry.render(data, constraints, widgetName)
+        val surface = target.surface.withDimensions(dimensions)
+        return AppWidgetTemplateRegistry.render(data, surface, widgetName)
             .toRemoteViews(appContext, dimensions)
     }
 

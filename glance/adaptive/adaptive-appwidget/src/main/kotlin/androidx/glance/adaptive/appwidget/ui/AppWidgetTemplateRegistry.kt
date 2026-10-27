@@ -23,7 +23,6 @@ import androidx.glance.adaptive.appwidget.ui.templates.track.TrackSizeSelector
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackTemplateRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
@@ -35,7 +34,7 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 private fun interface TemplateAssembler {
     fun assemble(
         data: GlanceAdaptiveTemplate,
-        constraints: HostConstraints<AppWidgetSurface>,
+        surface: AppWidgetSurface,
     ): AppWidgetRenderOutput
 }
 
@@ -105,10 +104,10 @@ public object AppWidgetTemplateRegistry {
      * @param widgetName Developer widget identifier matching
      *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
      * @param templateClass The runtime class of the [GlanceAdaptiveTemplate] data payload.
-     * @param selector Resolves the layout archetype for [widgetName]. Note that
-     *   [HostConstraints.dimensions] may be `(0, 0)` when the host has not reported a positive size
-     *   or during widget picker preview rendering, so selectors must handle zero dimensions
-     *   gracefully.
+     * @param selector Resolves the layout archetype for [widgetName]. Note that the
+     *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions] of the surface it
+     *   receives may be `(0, 0)` when the host has not reported a positive size or during widget
+     *   picker preview rendering, so selectors must handle zero dimensions gracefully.
      * @param renderer Draws the archetype chosen by [selector] as [AppWidgetRenderOutput].
      * @param surface Optional [AppWidgetSurface] to target, or `null` for all surfaces.
      */
@@ -143,36 +142,36 @@ public object AppWidgetTemplateRegistry {
     private fun <T : GlanceAdaptiveTemplate, A : Any> assembler(
         selector: ArchetypeSelector<T, AppWidgetSurface, A>,
         renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
-    ): TemplateAssembler = TemplateAssembler { data, constraints ->
+    ): TemplateAssembler = TemplateAssembler { data, surface ->
         @Suppress("UNCHECKED_CAST") val typed = data as T
-        renderer.render(typed, selector.select(typed, constraints), constraints)
+        renderer.render(typed, selector.select(typed, surface), surface)
     }
 
     /**
      * Resolves the override for [widgetName] (if any) or the default for the runtime class of
-     * [data] on [HostConstraints.surface], runs its selector, and hands the resulting archetype to
-     * its renderer.
+     * [data] on [surface], runs its selector, and hands the resulting archetype to its renderer.
      *
      * @param data Declarative template data payload.
-     * @param constraints Host layout constraints and target AppWidget surface.
+     * @param surface Target AppWidget surface, carrying the container size of the placement as
+     *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions].
      * @param widgetName Optional widget identifier to check for a per-widget override first.
      * @return The [AppWidgetRenderOutput] produced by the registered renderer.
      * @throws IllegalArgumentException if no renderer is registered for the type of [data] on
-     *   [HostConstraints.surface].
+     *   [surface].
      */
     public fun <T : GlanceAdaptiveTemplate> render(
         data: T,
-        constraints: HostConstraints<AppWidgetSurface>,
+        surface: AppWidgetSurface,
         widgetName: String? = null,
     ): AppWidgetRenderOutput {
-        val key = Key(data.javaClass, constraints.surface)
+        val key = Key(data.javaClass, surface)
         val assembler =
             synchronized(lock) {
                 requireNotNull(widgetName?.let { overrideMap[it to key] } ?: defaultMap[key]) {
                     "No renderer registered for template: ${data.javaClass.name} on surface: " +
-                        "${constraints.surface}"
+                        "$surface"
                 }
             }
-        return assembler.assemble(data, constraints)
+        return assembler.assemble(data, surface)
     }
 }

@@ -20,7 +20,6 @@ import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.selection.SizeTiers
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
@@ -35,23 +34,21 @@ import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 public object TrackSizeSelector : ArchetypeSelector<TrackTemplate, AppWidgetSurface, TrackSlots> {
 
     /**
-     * Selects the slot plan for [template] under [constraints].
+     * Selects the slot plan for [template] on [surface].
      *
      * [template] does not currently influence the result, but is part of the contract and allows
      * data-aware fallbacks (e.g. degrading when optional fields are absent) to be added without an
      * API change.
      *
      * @param template The template data payload.
-     * @param constraints Container size in DP plus the target AppWidget surface, which decides
-     *   which breakpoints apply.
+     * @param surface The target AppWidget surface, which decides which breakpoints apply, carrying
+     *   the container size in DP as
+     *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions].
      * @return Resolved [TrackSlots].
      */
-    override fun select(
-        template: TrackTemplate,
-        constraints: HostConstraints<AppWidgetSurface>,
-    ): TrackSlots =
+    override fun select(template: TrackTemplate, surface: AppWidgetSurface): TrackSlots =
         TrackSlots.from(
-            tiers = SizeTiers.from(constraints.dimensions, constraints.surface),
-            dimensions = constraints.dimensions,
+            tiers = SizeTiers.from(surface.dimensions, surface),
+            dimensions = surface.dimensions,
         )
 }
