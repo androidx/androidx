@@ -18,6 +18,7 @@
 package androidx.camera.camera2.impl
 
 import android.content.Context
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
@@ -32,6 +33,7 @@ import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.media.MediaCodec
 import android.util.Range
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.adapter.CameraCoordinatorAdapter
 import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
@@ -71,15 +73,21 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
+import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.impl.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -1226,5 +1234,87 @@ class UseCaseManagerTest {
 
         assertThat(isDisabledByDetach).isFalse()
         assertThat(clearRingBufferCallCount).isEqualTo(0)
+    }
+
+    @Test
+    @Config(minSdk = 33, qualifiers = "w1080dp-h1920dp-mdpi")
+    fun meteringRepeatingEnabled_whenS1440pVideoCaptureWithPreviewStabilization() = runTest {
+        // Arrange: Configure a StreamConfigurationMap where 1920x1440 (S1440P_4_3) is larger than
+        // PREVIEW (1920x1080) and maps to RECORD under CAPTURE_SESSION_TABLES, but maps to
+        // S1440P_4_3 under PREVIEW_STABILIZATION_TABLE.
+        initializeUseCaseThreads(this)
+        val s1440pSize = Size(1920, 1440)
+        val privFormat = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+        val customStreamConfigMap =
+            StreamConfigurationMapBuilder.newBuilder()
+                .apply {
+                    addOutputSize(privFormat, Size(640, 480))
+                    addOutputSize(privFormat, Size(1920, 1080))
+                    addOutputSize(privFormat, s1440pSize)
+                    addOutputSize(privFormat, Size(3840, 2160))
+                }
+                .build()
+        val useCaseManager =
+            createUseCaseManager(
+                characteristicsMap =
+                    mapOf(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to
+                            customStreamConfigMap,
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+                    )
+            )
+
+        val videoCaptureConfig =
+            FakeUseCaseConfig.Builder(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE)
+                .setBufferFormat(privFormat)
+                .apply {
+                    mutableConfig.insertOption(
+                        UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE,
+                        StabilizationMode.ON,
+                    )
+                }
+                .useCaseConfig
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        val nonRepeatingSurface =
+            ImmediateSurface(surface, s1440pSize, privFormat).apply {
+                setContainerClass(MediaCodec::class.java)
+                terminationFuture.addListener(
+                    {
+                        surface.release()
+                        surfaceTexture.release()
+                    },
+                    useCaseThreads.backgroundExecutor,
+                )
+            }
+        try {
+            val fakeVideoCapture =
+                FakeUseCase(videoCaptureConfig, UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE)
+                    .apply {
+                        bindToCamera(FakeCamera("0"), null, null, null)
+                        updateSuggestedStreamSpec(StreamSpec.builder(s1440pSize).build(), null)
+                        updateSessionConfigForTesting(
+                            SessionConfig.Builder()
+                                .setTemplateType(TEMPLATE_RECORD)
+                                .addNonRepeatingSurface(nonRepeatingSurface)
+                                .build()
+                        )
+                        useCaseList.add(this)
+                    }
+
+            // Act
+            useCaseManager.attach(listOf(fakeVideoCapture))
+            useCaseManager.activate(fakeVideoCapture)
+
+            // Assert: MeteringRepeating must be enabled because S1440P_4_3 + PREVIEW is supported
+            // in the preview stabilization table.
+            val enabledUseCaseClasses =
+                useCaseManager.getRunningUseCasesForTest().map { it::class.java }
+            assertThat(enabledUseCaseClasses)
+                .containsExactly(FakeUseCase::class.java, MeteringRepeating::class.java)
+        } finally {
+            nonRepeatingSurface.close()
+        }
     }
 }

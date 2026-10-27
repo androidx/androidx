@@ -615,21 +615,23 @@ constructor(
         val meteringDynamicRange =
             resolveMeteringRepeatingDynamicRange(attachedSurfaceInfoList) ?: return false
 
-        val sessionSurfacesConfigs = getSessionSurfacesConfigs()
+        val featureSettings =
+            SupportedSurfaceCombination.FeatureSettings(
+                getCameraMode(),
+                getRequiredMaxBitDepth(attachedSurfaceInfoList, meteringDynamicRange),
+                hasVideoCapture = containsVideoCapture(),
+                videoStabilization = getVideoStabilization(),
+                isUltraHdrOn = isUltraHdrOn(),
+            )
+        val sessionSurfacesConfigs = getSessionSurfacesConfigs(featureSettings)
 
         // TODO: b/406367951 - Properly pass feature combo info for MeteringRepeating
         return supportedSurfaceCombination
             .checkSupported(
-                SupportedSurfaceCombination.FeatureSettings(
-                    getCameraMode(),
-                    getRequiredMaxBitDepth(attachedSurfaceInfoList, meteringDynamicRange),
-                    hasVideoCapture = containsVideoCapture(),
-                    videoStabilization = getVideoStabilization(),
-                    isUltraHdrOn = isUltraHdrOn(),
-                ),
+                featureSettings,
                 mutableListOf<SurfaceConfig>().apply {
                     addAll(sessionSurfacesConfigs)
-                    add(createMeteringRepeatingSurfaceConfig())
+                    add(createMeteringRepeatingSurfaceConfig(featureSettings))
                 },
             )
             .also {
@@ -739,7 +741,9 @@ constructor(
         filterIsInstance<ImageCapture>().firstOrNull()?.currentConfig?.inputFormat ==
             ImageFormat.JPEG_R
 
-    private fun Collection<UseCase>.getSessionSurfacesConfigs(): List<SurfaceConfig> =
+    private fun Collection<UseCase>.getSessionSurfacesConfigs(
+        featureSettings: SupportedSurfaceCombination.FeatureSettings
+    ): List<SurfaceConfig> =
         mutableListOf<SurfaceConfig>().apply {
             this@getSessionSurfacesConfigs.forEach { useCase ->
                 val inputFormats = useCase.inputFormats
@@ -751,18 +755,22 @@ constructor(
                             format,
                             deferrableSurface.prescribedSize,
                             useCase.currentConfig.streamUseCase,
+                            featureSettings,
                         )
                     )
                 }
             }
         }
 
-    private fun createMeteringRepeatingSurfaceConfig() =
+    private fun createMeteringRepeatingSurfaceConfig(
+        featureSettings: SupportedSurfaceCombination.FeatureSettings
+    ) =
         supportedSurfaceCombination.transformSurfaceConfig(
             getCameraMode(),
             meteringRepeating.imageFormat,
             meteringRepeating.meteringSurfaceSize,
             meteringRepeating.currentConfig.streamUseCase,
+            featureSettings,
         )
 
     private fun updateZslDisabledByUseCaseConfigStatus() {
