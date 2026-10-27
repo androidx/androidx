@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -196,6 +197,43 @@ class CaptureRemoteDocumentRecompositionTest {
 
         assertThat(doc1.document.displayHierarchy()).contains("Initial")
         assertThat(doc2.document.displayHierarchy()).contains("Updated")
+    }
+
+    @Test
+    fun testRecompositionWithConsecutiveCollectAsStateUpdates() = runTest {
+        val stateFlow = MutableStateFlow("Initial")
+
+        val flow =
+            captureRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
+                writerEvents = WriterEvents(),
+                context = context,
+                coroutineContext = coroutineContext,
+                content = {
+                    val text by stateFlow.collectAsState()
+                    RemoteText(text.rs)
+                },
+            )
+
+        val documents = mutableListOf<ByteArray>()
+        val job = launch { flow.take(3).toList(documents) }
+
+        testScheduler.advanceUntilIdle()
+        assertThat(documents).hasSize(1)
+
+        stateFlow.value = "Updated 1"
+        testScheduler.advanceUntilIdle()
+        assertThat(documents).hasSize(2)
+
+        stateFlow.value = "Updated 2"
+        testScheduler.advanceUntilIdle()
+        assertThat(documents).hasSize(3)
+
+        job.join()
+
+        assertThat(RemoteDocument(documents[0]).document.displayHierarchy()).contains("Initial")
+        assertThat(RemoteDocument(documents[1]).document.displayHierarchy()).contains("Updated 1")
+        assertThat(RemoteDocument(documents[2]).document.displayHierarchy()).contains("Updated 2")
     }
 
     /**
