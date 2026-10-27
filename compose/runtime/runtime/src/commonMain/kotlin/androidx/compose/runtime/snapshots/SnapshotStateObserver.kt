@@ -26,8 +26,6 @@ import androidx.compose.runtime.DerivedState
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
-import androidx.compose.runtime.composeRuntimeError
-import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.internal.currentThreadName
 import androidx.compose.runtime.platform.makeSynchronizedObject
@@ -45,11 +43,11 @@ import kotlin.contracts.contract
  */
 @Suppress("NotCloseable") // we can't implement AutoCloseable from commonMain
 public class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit) -> Unit) {
-    private val pendingChanges = AtomicReference<Any?>(null)
+    private val pendingChanges = SnapshotChangeQueue()
     private var sendingNotifications = false
 
     private val applyObserver: (Set<Any>, Snapshot) -> Unit = { applied, _ ->
-        addChanges(applied)
+        pendingChanges.add(applied)
         if (drainChanges()) sendNotifications()
     }
 
@@ -69,7 +67,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         // Remove all pending changes and return true if any of the objects are observed
         var hasValues = false
         while (true) {
-            val notifications = removeChanges() ?: return hasValues
+            val notifications = pendingChanges.remove() ?: return hasValues
             forEachScopeMap { scopeMap ->
                 hasValues = scopeMap.recordInvalidation(notifications) || hasValues
             }
@@ -102,64 +100,6 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             }
         }
     }
-
-    /**
-     * Add changes to the changes queue. This uses an atomic reference as a queue to minimize the
-     * number of allocations required in the normal case. If, for example, only one set is added to
-     * the queue, the set itself is the atomic reference. If the queue is empty the reference is
-     * null. Only if there are more than one set added to the queue is an allocation required, then
-     * the atomic reference is a list containing all the sets in the queue. Given the size of the
-     * queue, the type of object referenced is, 0 -> null 1 -> Set<Any?> 2 or more ->
-     * List<Set<Any?>>
-     */
-    private fun addChanges(set: Set<Any>) {
-        while (true) {
-            val old = pendingChanges.get()
-            val new =
-                when (old) {
-                    null -> set
-                    is Set<*> -> listOf(old, set)
-                    is List<*> -> old + listOf(set)
-                    else -> report()
-                }
-            if (pendingChanges.compareAndSet(old, new)) break
-        }
-    }
-
-    /**
-     * Remove a set of changes from the change queue. See [addChanges] for a description of how this
-     * queue works.
-     */
-    @Suppress("UNCHECKED_CAST")
-    private fun removeChanges(): Set<Any>? {
-        while (true) {
-            val old = pendingChanges.get()
-            val result: Set<Any>?
-            val new: Any?
-            when (old) {
-                null -> return null // The queue is empty
-                is Set<*> -> {
-                    result = old as Set<Any>?
-                    new = null
-                }
-                is List<*> -> {
-                    result = old[0] as Set<Any>?
-                    new =
-                        when {
-                            old.size == 2 -> old[1]
-                            old.size > 2 -> old.subList(1, old.size)
-                            else -> null
-                        }
-                }
-                else -> report()
-            }
-            if (pendingChanges.compareAndSet(old, new)) {
-                return result
-            }
-        }
-    }
-
-    private fun report(): Nothing = composeRuntimeError("Unexpected notification")
 
     /** The observer used by this [SnapshotStateObserver] during [observeReads]. */
     private val readObserver: (Any) -> Unit = { state ->
