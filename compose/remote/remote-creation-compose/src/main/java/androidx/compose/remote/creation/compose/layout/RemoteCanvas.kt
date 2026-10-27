@@ -586,6 +586,45 @@ public class RemoteCanvas(
         buffer.addRoots(op, text, bitmapFont, x, y, glyphSpacing)
     }
 
+    /**
+     * Draws a run of bitmap font text along a [path], starting from [start] to [end] (exclusive) of
+     * [text], with an additional vertical offset [yAdj] and horizontal [glyphSpacing] between
+     * glyphs.
+     *
+     * @param text The [RemoteString] to draw.
+     * @param bitmapFont The [RemoteBitmapFont] used to render the glyphs.
+     * @param path The [RemotePath] along which to draw the text run.
+     * @param start The start index in [text] (inclusive).
+     * @param end The end index in [text] (exclusive), or `-1` for the end of the string.
+     * @param yAdj Vertical adjustment applied to each glyph relative to the path.
+     * @param glyphSpacing Extra spacing in pixels added between adjacent glyphs.
+     * @param paint The [RemotePaint] to use for rendering, or `null` to use the current paint.
+     */
+    public fun drawBitmapFontTextRunOnPath(
+        text: RemoteString,
+        bitmapFont: RemoteBitmapFont,
+        path: RemotePath,
+        start: Int,
+        end: Int,
+        yAdj: Float,
+        glyphSpacing: Float,
+        paint: RemotePaint? = null,
+    ) {
+        val op =
+            recordRenderingOp(paint) {
+                document.drawBitmapFontTextRunOnPath(
+                    text.id,
+                    bitmapFont.id,
+                    path,
+                    start,
+                    end,
+                    yAdj,
+                    glyphSpacing,
+                )
+            }
+        buffer.addRoots(op, text, bitmapFont, path)
+    }
+
     /** Draws a path using the specified [pathFillType] and [paint]. */
     public fun drawPath(
         path: RemotePath,

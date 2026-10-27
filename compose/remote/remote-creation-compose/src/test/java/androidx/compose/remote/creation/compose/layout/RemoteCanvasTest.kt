@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
+import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
@@ -577,6 +578,44 @@ class RemoteCanvasTest {
                 "setNamedVariable(45, \"USER:bottom\", 1)",
                 "textData(46, \"\")",
                 "addDrawBitmap(99)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDrawBitmapFontTextRunOnPath_remotePath_recordsOperationAndTracksDependencies() {
+        setupRemoteCanvas()
+
+        val text = createNamedRemoteString("label", "hello")
+        val bitmapFont = RemoteBitmapFont(emptyList())
+        val path =
+            RemotePath().apply {
+                moveTo(0f, 0f)
+                lineTo(10f, 10f)
+            }
+
+        remoteCanvas.drawBitmapFontTextRunOnPath(
+            text = text,
+            bitmapFont = bitmapFont,
+            path = path,
+            start = 0,
+            end = 5,
+            yAdj = 1f,
+            glyphSpacing = 2f,
+            paint = RemotePaint(),
+        )
+
+        assertThat(fakeBuffer.calls).isEmpty()
+
+        remoteCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addPaint",
+                "setNamedVariable(42, \"USER:label\", 0)",
+                "addBitmapFont(43)",
+                "addPathData(44)",
+                "addDrawBitmapFontTextRunOnPath(42, 43, 44)",
             )
             .inOrder()
     }
