@@ -59,11 +59,11 @@ import androidx.wear.compose.remote.material3.internal.setLuminance
  *   `RemoteMaterialTheme` with its luminance set to 80, matching
  *   `androidx.wear.compose.material3.TimeText`.
  * @param style The [RemoteTextStyle] to be applied to the text. Defaults to
- *   [RemoteTimeTextDefaults.timeTextStyle].
+ *   [RemoteTimeTextDefaults.TimeTextStyle].
  * @param fontFeatureSettings The font feature settings to be applied to the text. Defaults to
- *   [RemoteTimeTextDefaults.fontFeatureSettings].
+ *   [RemoteTimeTextDefaults.FontFeatureSettings].
  * @param fontVariationSettings The font variation settings to be applied to the text. Defaults to
- *   [RemoteTimeTextDefaults.fontVariationSettings].
+ *   [RemoteTimeTextDefaults.FontVariationSettings].
  */
 @RemoteComposable
 @Composable
@@ -76,7 +76,7 @@ public fun RemoteTimeText(
     trailingText: RemoteString? = null,
     separator: RemoteString = "·".rs,
     color: RemoteColor? = null,
-    style: RemoteTextStyle = RemoteTimeTextDefaults.timeTextStyle,
+    style: RemoteTextStyle = RemoteTimeTextDefaults.TimeTextStyle,
     fontFeatureSettings: String? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
@@ -162,20 +162,20 @@ private const val DefaultColorLuminance = 80f
 /** Contains the default values used by [RemoteTimeText]. */
 public object RemoteTimeTextDefaults {
     /** Default font family used by [RemoteTimeText]. */
-    public val fontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex")
+    public val FontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex")
 
     /** Default font feature settings used by [RemoteTimeText]. */
-    public val fontFeatureSettings: String? = "tnum"
+    public val FontFeatureSettings: String? = "tnum"
 
     /** Default font variation settings used by [RemoteTimeText]. */
-    public val fontVariationSettings: FontVariation.Settings? = null
+    public val FontVariationSettings: FontVariation.Settings? = null
 
     /** Default text style used by [RemoteTimeText]. */
-    public val timeTextStyle: RemoteTextStyle =
+    public val TimeTextStyle: RemoteTextStyle =
         RemoteTextStyle(
             fontSize = 14.rsp,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            fontVariationSettings = fontVariationSettings,
+            fontFamily = FontFamily,
+            fontFeatureSettings = FontFeatureSettings,
+            fontVariationSettings = FontVariationSettings,
         )
 }

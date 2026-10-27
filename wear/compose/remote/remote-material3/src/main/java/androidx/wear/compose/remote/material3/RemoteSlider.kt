@@ -321,21 +321,28 @@ public object RemoteSliderDefaults {
         disabledUnselectedBarColor: RemoteColor? = null,
         disabledSelectedBarSeparatorColor: RemoteColor? = null,
         disabledUnselectedBarSeparatorColor: RemoteColor? = null,
-    ): RemoteSliderColors =
-        RemoteMaterialTheme.colorScheme.defaultSliderColors.copy(
-            containerColor = containerColor,
-            buttonIconColor = buttonIconColor,
-            selectedBarColor = selectedBarColor,
-            unselectedBarColor = unselectedBarColor,
-            selectedBarSeparatorColor = selectedBarSeparatorColor,
-            unselectedBarSeparatorColor = unselectedBarSeparatorColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledButtonIconColor = disabledButtonIconColor,
-            disabledSelectedBarColor = disabledSelectedBarColor,
-            disabledUnselectedBarColor = disabledUnselectedBarColor,
-            disabledSelectedBarSeparatorColor = disabledSelectedBarSeparatorColor,
-            disabledUnselectedBarSeparatorColor = disabledUnselectedBarSeparatorColor,
+    ): RemoteSliderColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultSliderColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            buttonIconColor = buttonIconColor ?: default.buttonIconColor,
+            selectedBarColor = selectedBarColor ?: default.selectedBarColor,
+            unselectedBarColor = unselectedBarColor ?: default.unselectedBarColor,
+            selectedBarSeparatorColor =
+                selectedBarSeparatorColor ?: default.selectedBarSeparatorColor,
+            unselectedBarSeparatorColor =
+                unselectedBarSeparatorColor ?: default.unselectedBarSeparatorColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledButtonIconColor = disabledButtonIconColor ?: default.disabledButtonIconColor,
+            disabledSelectedBarColor = disabledSelectedBarColor ?: default.disabledSelectedBarColor,
+            disabledUnselectedBarColor =
+                disabledUnselectedBarColor ?: default.disabledUnselectedBarColor,
+            disabledSelectedBarSeparatorColor =
+                disabledSelectedBarSeparatorColor ?: default.disabledSelectedBarSeparatorColor,
+            disabledUnselectedBarSeparatorColor =
+                disabledUnselectedBarSeparatorColor ?: default.disabledUnselectedBarSeparatorColor,
         )
+    }
 
     /** Creates a [RemoteSliderColors] with variant colors. */
     @Composable
@@ -357,21 +364,28 @@ public object RemoteSliderDefaults {
         disabledUnselectedBarColor: RemoteColor? = null,
         disabledSelectedBarSeparatorColor: RemoteColor? = null,
         disabledUnselectedBarSeparatorColor: RemoteColor? = null,
-    ): RemoteSliderColors =
-        RemoteMaterialTheme.colorScheme.variantSliderColors.copy(
-            containerColor = containerColor,
-            buttonIconColor = buttonIconColor,
-            selectedBarColor = selectedBarColor,
-            unselectedBarColor = unselectedBarColor,
-            selectedBarSeparatorColor = selectedBarSeparatorColor,
-            unselectedBarSeparatorColor = unselectedBarSeparatorColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledButtonIconColor = disabledButtonIconColor,
-            disabledSelectedBarColor = disabledSelectedBarColor,
-            disabledUnselectedBarColor = disabledUnselectedBarColor,
-            disabledSelectedBarSeparatorColor = disabledSelectedBarSeparatorColor,
-            disabledUnselectedBarSeparatorColor = disabledUnselectedBarSeparatorColor,
+    ): RemoteSliderColors {
+        val default = RemoteMaterialTheme.colorScheme.variantSliderColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            buttonIconColor = buttonIconColor ?: default.buttonIconColor,
+            selectedBarColor = selectedBarColor ?: default.selectedBarColor,
+            unselectedBarColor = unselectedBarColor ?: default.unselectedBarColor,
+            selectedBarSeparatorColor =
+                selectedBarSeparatorColor ?: default.selectedBarSeparatorColor,
+            unselectedBarSeparatorColor =
+                unselectedBarSeparatorColor ?: default.unselectedBarSeparatorColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledButtonIconColor = disabledButtonIconColor ?: default.disabledButtonIconColor,
+            disabledSelectedBarColor = disabledSelectedBarColor ?: default.disabledSelectedBarColor,
+            disabledUnselectedBarColor =
+                disabledUnselectedBarColor ?: default.disabledUnselectedBarColor,
+            disabledSelectedBarSeparatorColor =
+                disabledSelectedBarSeparatorColor ?: default.disabledSelectedBarSeparatorColor,
+            disabledUnselectedBarSeparatorColor =
+                disabledUnselectedBarSeparatorColor ?: default.disabledUnselectedBarSeparatorColor,
         )
+    }
 
     /** Creates a [RemoteSliderColors] with default colors. */
     @Composable public fun colors(): RemoteSliderColors = sliderColors()
@@ -461,37 +475,32 @@ public class RemoteSliderColors(
 ) {
     /** Returns a copy of this [RemoteSliderColors], optionally overriding some values. */
     public fun copy(
-        containerColor: RemoteColor? = this.containerColor,
-        buttonIconColor: RemoteColor? = this.buttonIconColor,
-        selectedBarColor: RemoteColor? = this.selectedBarColor,
-        unselectedBarColor: RemoteColor? = this.unselectedBarColor,
-        selectedBarSeparatorColor: RemoteColor? = this.selectedBarSeparatorColor,
-        unselectedBarSeparatorColor: RemoteColor? = this.unselectedBarSeparatorColor,
-        disabledContainerColor: RemoteColor? = this.disabledContainerColor,
-        disabledButtonIconColor: RemoteColor? = this.disabledButtonIconColor,
-        disabledSelectedBarColor: RemoteColor? = this.disabledSelectedBarColor,
-        disabledUnselectedBarColor: RemoteColor? = this.disabledUnselectedBarColor,
-        disabledSelectedBarSeparatorColor: RemoteColor? = this.disabledSelectedBarSeparatorColor,
-        disabledUnselectedBarSeparatorColor: RemoteColor? =
-            this.disabledUnselectedBarSeparatorColor,
+        containerColor: RemoteColor = this.containerColor,
+        buttonIconColor: RemoteColor = this.buttonIconColor,
+        selectedBarColor: RemoteColor = this.selectedBarColor,
+        unselectedBarColor: RemoteColor = this.unselectedBarColor,
+        selectedBarSeparatorColor: RemoteColor = this.selectedBarSeparatorColor,
+        unselectedBarSeparatorColor: RemoteColor = this.unselectedBarSeparatorColor,
+        disabledContainerColor: RemoteColor = this.disabledContainerColor,
+        disabledButtonIconColor: RemoteColor = this.disabledButtonIconColor,
+        disabledSelectedBarColor: RemoteColor = this.disabledSelectedBarColor,
+        disabledUnselectedBarColor: RemoteColor = this.disabledUnselectedBarColor,
+        disabledSelectedBarSeparatorColor: RemoteColor = this.disabledSelectedBarSeparatorColor,
+        disabledUnselectedBarSeparatorColor: RemoteColor = this.disabledUnselectedBarSeparatorColor,
     ): RemoteSliderColors =
         RemoteSliderColors(
-            containerColor = containerColor ?: this.containerColor,
-            buttonIconColor = buttonIconColor ?: this.buttonIconColor,
-            selectedBarColor = selectedBarColor ?: this.selectedBarColor,
-            unselectedBarColor = unselectedBarColor ?: this.unselectedBarColor,
-            selectedBarSeparatorColor = selectedBarSeparatorColor ?: this.selectedBarSeparatorColor,
-            unselectedBarSeparatorColor =
-                unselectedBarSeparatorColor ?: this.unselectedBarSeparatorColor,
-            disabledContainerColor = disabledContainerColor ?: this.disabledContainerColor,
-            disabledButtonIconColor = disabledButtonIconColor ?: this.disabledButtonIconColor,
-            disabledSelectedBarColor = disabledSelectedBarColor ?: this.disabledSelectedBarColor,
-            disabledUnselectedBarColor =
-                disabledUnselectedBarColor ?: this.disabledUnselectedBarColor,
-            disabledSelectedBarSeparatorColor =
-                disabledSelectedBarSeparatorColor ?: this.disabledSelectedBarSeparatorColor,
-            disabledUnselectedBarSeparatorColor =
-                disabledUnselectedBarSeparatorColor ?: this.disabledUnselectedBarSeparatorColor,
+            containerColor = containerColor,
+            buttonIconColor = buttonIconColor,
+            selectedBarColor = selectedBarColor,
+            unselectedBarColor = unselectedBarColor,
+            selectedBarSeparatorColor = selectedBarSeparatorColor,
+            unselectedBarSeparatorColor = unselectedBarSeparatorColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledButtonIconColor = disabledButtonIconColor,
+            disabledSelectedBarColor = disabledSelectedBarColor,
+            disabledUnselectedBarColor = disabledUnselectedBarColor,
+            disabledSelectedBarSeparatorColor = disabledSelectedBarSeparatorColor,
+            disabledUnselectedBarSeparatorColor = disabledUnselectedBarSeparatorColor,
         )
 
     internal fun containerColor(enabled: RemoteBoolean): RemoteColor =

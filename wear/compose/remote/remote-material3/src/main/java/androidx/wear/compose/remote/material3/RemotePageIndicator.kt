@@ -112,13 +112,13 @@ public object RemotePageIndicatorDefaults {
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
     /** Default radius of each indicator dot. */
-    public val indicatorRadius: RemoteDp = 3.rdp
+    public val IndicatorRadius: RemoteDp = 3.rdp
 
     /**
      * Default padding of the page indicator from the edge of the screen (8dp aligns with standard
      * Compose edgePadding + background offset).
      */
-    public val pageIndicatorPadding: RemoteDp = 8.rdp
+    public val PageIndicatorPadding: RemoteDp = 8.rdp
 }
 
 /**
@@ -140,8 +140,8 @@ public fun RemoteHorizontalPageIndicator(
     modifier: RemoteModifier = RemoteModifier,
     selectedColor: RemoteColor = RemotePageIndicatorDefaults.selectedColor,
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
-    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.indicatorRadius,
-    padding: RemoteDp = RemotePageIndicatorDefaults.pageIndicatorPadding,
+    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.IndicatorRadius,
+    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
     backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
 ) {
     RemotePageIndicatorImpl(
@@ -175,8 +175,8 @@ public fun RemoteVerticalPageIndicator(
     modifier: RemoteModifier = RemoteModifier,
     selectedColor: RemoteColor = RemotePageIndicatorDefaults.selectedColor,
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
-    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.indicatorRadius,
-    padding: RemoteDp = RemotePageIndicatorDefaults.pageIndicatorPadding,
+    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.IndicatorRadius,
+    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
     backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
 ) {
     RemotePageIndicatorImpl(

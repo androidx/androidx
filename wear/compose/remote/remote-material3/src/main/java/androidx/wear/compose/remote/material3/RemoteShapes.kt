@@ -59,7 +59,52 @@ public class RemoteShapes(
     public val medium: RemoteCornerBasedShape = RemoteShapeDefaults.Medium,
     public val large: RemoteCornerBasedShape = RemoteShapeDefaults.Large,
     public val extraLarge: RemoteCornerBasedShape = RemoteShapeDefaults.ExtraLarge,
-)
+) {
+    /** Returns a copy of this [RemoteShapes], optionally overriding some of the values. */
+    public fun copy(
+        extraSmall: RemoteCornerBasedShape = this.extraSmall,
+        small: RemoteCornerBasedShape = this.small,
+        medium: RemoteCornerBasedShape = this.medium,
+        large: RemoteCornerBasedShape = this.large,
+        extraLarge: RemoteCornerBasedShape = this.extraLarge,
+    ): RemoteShapes =
+        RemoteShapes(
+            extraSmall = extraSmall,
+            small = small,
+            medium = medium,
+            large = large,
+            extraLarge = extraLarge,
+        )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteShapes) return false
+        if (extraSmall != other.extraSmall) return false
+        if (small != other.small) return false
+        if (medium != other.medium) return false
+        if (large != other.large) return false
+        if (extraLarge != other.extraLarge) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = extraSmall.hashCode()
+        result = 31 * result + small.hashCode()
+        result = 31 * result + medium.hashCode()
+        result = 31 * result + large.hashCode()
+        result = 31 * result + extraLarge.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "RemoteShapes(" +
+            "extraSmall=$extraSmall, " +
+            "small=$small, " +
+            "medium=$medium, " +
+            "large=$large, " +
+            "extraLarge=$extraLarge)"
+    }
+}
 
 /** Contains the default values used by [RemoteShapes] */
 public object RemoteShapeDefaults {

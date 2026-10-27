@@ -133,8 +133,7 @@ public object RemoteCheckboxButtonDefaults {
         RemotePaddingValues(horizontal = 14.rdp, vertical = 8.rdp)
 
     /** The default shape for [RemoteCheckboxButton]. */
-    public val checkboxButtonShape: RemoteRoundedCornerShape
-        @Composable get() = RemoteShapeDefaults.Large
+    public val checkboxButtonShape: RemoteRoundedCornerShape = RemoteShapeDefaults.Large
 
     /** The size of the inner box of the checkbox. */
     public val BoxSize: RemoteDp = 18.rdp
@@ -410,65 +409,54 @@ public class RemoteCheckboxButtonColors(
 
     /** Returns a copy of this [RemoteCheckboxButtonColors] optionally overriding some values. */
     public fun copy(
-        checkedContainerColor: RemoteColor? = this.checkedContainerColor,
-        checkedContentColor: RemoteColor? = this.checkedContentColor,
-        checkedSecondaryContentColor: RemoteColor? = this.checkedSecondaryContentColor,
-        checkedIconColor: RemoteColor? = this.checkedIconColor,
-        checkedBoxColor: RemoteColor? = this.checkedBoxColor,
-        checkedCheckmarkColor: RemoteColor? = this.checkedCheckmarkColor,
-        uncheckedContainerColor: RemoteColor? = this.uncheckedContainerColor,
-        uncheckedContentColor: RemoteColor? = this.uncheckedContentColor,
-        uncheckedSecondaryContentColor: RemoteColor? = this.uncheckedSecondaryContentColor,
-        uncheckedIconColor: RemoteColor? = this.uncheckedIconColor,
-        uncheckedBoxColor: RemoteColor? = this.uncheckedBoxColor,
-        disabledCheckedContainerColor: RemoteColor? = this.disabledCheckedContainerColor,
-        disabledCheckedContentColor: RemoteColor? = this.disabledCheckedContentColor,
-        disabledCheckedSecondaryContentColor: RemoteColor? =
+        checkedContainerColor: RemoteColor = this.checkedContainerColor,
+        checkedContentColor: RemoteColor = this.checkedContentColor,
+        checkedSecondaryContentColor: RemoteColor = this.checkedSecondaryContentColor,
+        checkedIconColor: RemoteColor = this.checkedIconColor,
+        checkedBoxColor: RemoteColor = this.checkedBoxColor,
+        checkedCheckmarkColor: RemoteColor = this.checkedCheckmarkColor,
+        uncheckedContainerColor: RemoteColor = this.uncheckedContainerColor,
+        uncheckedContentColor: RemoteColor = this.uncheckedContentColor,
+        uncheckedSecondaryContentColor: RemoteColor = this.uncheckedSecondaryContentColor,
+        uncheckedIconColor: RemoteColor = this.uncheckedIconColor,
+        uncheckedBoxColor: RemoteColor = this.uncheckedBoxColor,
+        disabledCheckedContainerColor: RemoteColor = this.disabledCheckedContainerColor,
+        disabledCheckedContentColor: RemoteColor = this.disabledCheckedContentColor,
+        disabledCheckedSecondaryContentColor: RemoteColor =
             this.disabledCheckedSecondaryContentColor,
-        disabledCheckedIconColor: RemoteColor? = this.disabledCheckedIconColor,
-        disabledCheckedBoxColor: RemoteColor? = this.disabledCheckedBoxColor,
-        disabledCheckedCheckmarkColor: RemoteColor? = this.disabledCheckedCheckmarkColor,
-        disabledUncheckedContainerColor: RemoteColor? = this.disabledUncheckedContainerColor,
-        disabledUncheckedContentColor: RemoteColor? = this.disabledUncheckedContentColor,
-        disabledUncheckedSecondaryContentColor: RemoteColor? =
+        disabledCheckedIconColor: RemoteColor = this.disabledCheckedIconColor,
+        disabledCheckedBoxColor: RemoteColor = this.disabledCheckedBoxColor,
+        disabledCheckedCheckmarkColor: RemoteColor = this.disabledCheckedCheckmarkColor,
+        disabledUncheckedContainerColor: RemoteColor = this.disabledUncheckedContainerColor,
+        disabledUncheckedContentColor: RemoteColor = this.disabledUncheckedContentColor,
+        disabledUncheckedSecondaryContentColor: RemoteColor =
             this.disabledUncheckedSecondaryContentColor,
-        disabledUncheckedIconColor: RemoteColor? = this.disabledUncheckedIconColor,
-        disabledUncheckedBoxColor: RemoteColor? = this.disabledUncheckedBoxColor,
+        disabledUncheckedIconColor: RemoteColor = this.disabledUncheckedIconColor,
+        disabledUncheckedBoxColor: RemoteColor = this.disabledUncheckedBoxColor,
     ): RemoteCheckboxButtonColors =
         RemoteCheckboxButtonColors(
-            checkedContainerColor = checkedContainerColor ?: this.checkedContainerColor,
-            checkedContentColor = checkedContentColor ?: this.checkedContentColor,
-            checkedSecondaryContentColor =
-                checkedSecondaryContentColor ?: this.checkedSecondaryContentColor,
-            checkedIconColor = checkedIconColor ?: this.checkedIconColor,
-            checkedBoxColor = checkedBoxColor ?: this.checkedBoxColor,
-            checkedCheckmarkColor = checkedCheckmarkColor ?: this.checkedCheckmarkColor,
-            uncheckedContainerColor = uncheckedContainerColor ?: this.uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor ?: this.uncheckedContentColor,
-            uncheckedSecondaryContentColor =
-                uncheckedSecondaryContentColor ?: this.uncheckedSecondaryContentColor,
-            uncheckedIconColor = uncheckedIconColor ?: this.uncheckedIconColor,
-            uncheckedBoxColor = uncheckedBoxColor ?: this.uncheckedBoxColor,
-            disabledCheckedContainerColor =
-                disabledCheckedContainerColor ?: this.disabledCheckedContainerColor,
-            disabledCheckedContentColor =
-                disabledCheckedContentColor ?: this.disabledCheckedContentColor,
-            disabledCheckedSecondaryContentColor =
-                disabledCheckedSecondaryContentColor ?: this.disabledCheckedSecondaryContentColor,
-            disabledCheckedIconColor = disabledCheckedIconColor ?: this.disabledCheckedIconColor,
-            disabledCheckedBoxColor = disabledCheckedBoxColor ?: this.disabledCheckedBoxColor,
-            disabledCheckedCheckmarkColor =
-                disabledCheckedCheckmarkColor ?: this.disabledCheckedCheckmarkColor,
-            disabledUncheckedContainerColor =
-                disabledUncheckedContainerColor ?: this.disabledUncheckedContainerColor,
-            disabledUncheckedContentColor =
-                disabledUncheckedContentColor ?: this.disabledUncheckedContentColor,
-            disabledUncheckedSecondaryContentColor =
-                disabledUncheckedSecondaryContentColor
-                    ?: this.disabledUncheckedSecondaryContentColor,
-            disabledUncheckedIconColor =
-                disabledUncheckedIconColor ?: this.disabledUncheckedIconColor,
-            disabledUncheckedBoxColor = disabledUncheckedBoxColor ?: this.disabledUncheckedBoxColor,
+            checkedContainerColor = checkedContainerColor,
+            checkedContentColor = checkedContentColor,
+            checkedSecondaryContentColor = checkedSecondaryContentColor,
+            checkedIconColor = checkedIconColor,
+            checkedBoxColor = checkedBoxColor,
+            checkedCheckmarkColor = checkedCheckmarkColor,
+            uncheckedContainerColor = uncheckedContainerColor,
+            uncheckedContentColor = uncheckedContentColor,
+            uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
+            uncheckedIconColor = uncheckedIconColor,
+            uncheckedBoxColor = uncheckedBoxColor,
+            disabledCheckedContainerColor = disabledCheckedContainerColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            disabledCheckedSecondaryContentColor = disabledCheckedSecondaryContentColor,
+            disabledCheckedIconColor = disabledCheckedIconColor,
+            disabledCheckedBoxColor = disabledCheckedBoxColor,
+            disabledCheckedCheckmarkColor = disabledCheckedCheckmarkColor,
+            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+            disabledUncheckedSecondaryContentColor = disabledUncheckedSecondaryContentColor,
+            disabledUncheckedIconColor = disabledUncheckedIconColor,
+            disabledUncheckedBoxColor = disabledUncheckedBoxColor,
         )
 
     override fun equals(other: Any?): Boolean {

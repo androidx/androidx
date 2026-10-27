@@ -95,8 +95,7 @@ public fun RemoteTextButton(
 /** Contains the default values used by [RemoteTextButton]. */
 public object RemoteTextButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteTextButton]. */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteCircleShape
+    public val shape: RemoteRoundedCornerShape = RemoteCircleShape
 
     /**
      * Returns a [RemoteTextButtonColors] for a text button - by default, a transparent background
@@ -202,15 +201,15 @@ public class RemoteTextButtonColors(
      * @param disabledContentColor the content color of this text button when not enabled.
      */
     public fun copy(
-        containerColor: RemoteColor? = this.containerColor,
-        contentColor: RemoteColor? = this.contentColor,
-        disabledContainerColor: RemoteColor? = this.disabledContainerColor,
-        disabledContentColor: RemoteColor? = this.disabledContentColor,
+        containerColor: RemoteColor = this.containerColor,
+        contentColor: RemoteColor = this.contentColor,
+        disabledContainerColor: RemoteColor = this.disabledContainerColor,
+        disabledContentColor: RemoteColor = this.disabledContentColor,
     ): RemoteTextButtonColors =
         RemoteTextButtonColors(
-            containerColor = containerColor ?: this.containerColor,
-            contentColor = contentColor ?: this.contentColor,
-            disabledContainerColor = disabledContainerColor ?: this.disabledContainerColor,
-            disabledContentColor = disabledContentColor ?: this.disabledContentColor,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
         )
 }

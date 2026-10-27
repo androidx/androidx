@@ -68,4 +68,24 @@ class RemoteProgressIndicatorColorsTest {
         assertEquals(blueBrush, colors.trackBrush(expressionBoolean))
         assertEquals(greenBrush, colors.overflowTrackBrush(expressionBoolean))
     }
+
+    @Test
+    fun copy_preserves_values_when_no_arguments_passed() {
+        val copied = colors.copy()
+        assertEquals(colors, copied)
+        assertEquals(colors.hashCode(), copied.hashCode())
+    }
+
+    @Test
+    fun copy_overrides_specified_brushes() {
+        val yellowBrush = RemoteBrush.solidColor(Color.Yellow.rc)
+        val cyanBrush = RemoteBrush.solidColor(Color.Cyan.rc)
+        val copied = colors.copy(indicatorBrush = yellowBrush, disabledTrackBrush = cyanBrush)
+        assertEquals(yellowBrush, copied.indicatorBrush)
+        assertEquals(blueBrush, copied.trackBrush)
+        assertEquals(greenBrush, copied.overflowTrackBrush)
+        assertEquals(grayBrush, copied.disabledIndicatorBrush)
+        assertEquals(cyanBrush, copied.disabledTrackBrush)
+        assertEquals(lightGrayBrush, copied.disabledOverflowTrackBrush)
+    }
 }

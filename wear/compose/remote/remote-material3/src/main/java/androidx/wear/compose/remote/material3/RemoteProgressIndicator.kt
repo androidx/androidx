@@ -252,6 +252,34 @@ public class RemoteProgressIndicatorColors(
     internal fun overflowTrackBrush(enabled: RemoteBoolean): RemoteBrush =
         resolveRemoteBrush(enabled, overflowTrackBrush, disabledOverflowTrackBrush)
 
+    /**
+     * Returns a copy of this [RemoteProgressIndicatorColors], optionally overriding some of the
+     * values.
+     *
+     * @param indicatorBrush The brush used to draw the indicator when enabled.
+     * @param trackBrush The brush used to draw the track when enabled.
+     * @param overflowTrackBrush The brush used to draw the overflow track when enabled.
+     * @param disabledIndicatorBrush The brush used to draw the indicator when disabled.
+     * @param disabledTrackBrush The brush used to draw the track when disabled.
+     * @param disabledOverflowTrackBrush The brush used to draw the overflow track when disabled.
+     */
+    public fun copy(
+        indicatorBrush: RemoteBrush = this.indicatorBrush,
+        trackBrush: RemoteBrush = this.trackBrush,
+        overflowTrackBrush: RemoteBrush = this.overflowTrackBrush,
+        disabledIndicatorBrush: RemoteBrush = this.disabledIndicatorBrush,
+        disabledTrackBrush: RemoteBrush = this.disabledTrackBrush,
+        disabledOverflowTrackBrush: RemoteBrush = this.disabledOverflowTrackBrush,
+    ): RemoteProgressIndicatorColors =
+        RemoteProgressIndicatorColors(
+            indicatorBrush = indicatorBrush,
+            trackBrush = trackBrush,
+            overflowTrackBrush = overflowTrackBrush,
+            disabledIndicatorBrush = disabledIndicatorBrush,
+            disabledTrackBrush = disabledTrackBrush,
+            disabledOverflowTrackBrush = disabledOverflowTrackBrush,
+        )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is RemoteProgressIndicatorColors) return false

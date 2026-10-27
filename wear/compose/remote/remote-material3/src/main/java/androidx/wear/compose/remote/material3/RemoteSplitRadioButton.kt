@@ -223,12 +223,10 @@ public object RemoteSplitRadioButtonDefaults {
     /**
      * Recommended [RemoteRoundedCornerShape] for the outer container of [RemoteSplitRadioButton].
      */
-    public val shape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(26.rdp)
+    public val shape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(26.rdp)
 
     /** Recommended [RemoteRoundedCornerShape] for the split sections. */
-    public val splitSectionsShape: RemoteRoundedCornerShape
-        get() = RemoteRoundedCornerShape(4.rdp)
+    public val splitSectionsShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(4.rdp)
 
     /** The default minimum height applied for the [RemoteSplitRadioButton]. */
     public val Height: RemoteDp = 52.rdp
@@ -450,63 +448,51 @@ public class RemoteSplitRadioButtonColors(
 ) {
     /** Returns a copy of this [RemoteSplitRadioButtonColors] optionally overriding some values. */
     public fun copy(
-        selectedContainerColor: RemoteColor? = null,
-        selectedContentColor: RemoteColor? = null,
-        selectedSecondaryContentColor: RemoteColor? = null,
-        selectedSplitContainerColor: RemoteColor? = null,
-        selectedControlColor: RemoteColor? = null,
-        unselectedContainerColor: RemoteColor? = null,
-        unselectedContentColor: RemoteColor? = null,
-        unselectedSecondaryContentColor: RemoteColor? = null,
-        unselectedSplitContainerColor: RemoteColor? = null,
-        unselectedControlColor: RemoteColor? = null,
-        disabledSelectedContainerColor: RemoteColor? = null,
-        disabledSelectedContentColor: RemoteColor? = null,
-        disabledSelectedSecondaryContentColor: RemoteColor? = null,
-        disabledSelectedSplitContainerColor: RemoteColor? = null,
-        disabledSelectedControlColor: RemoteColor? = null,
-        disabledUnselectedContainerColor: RemoteColor? = null,
-        disabledUnselectedContentColor: RemoteColor? = null,
-        disabledUnselectedSecondaryContentColor: RemoteColor? = null,
-        disabledUnselectedSplitContainerColor: RemoteColor? = null,
-        disabledUnselectedControlColor: RemoteColor? = null,
+        selectedContainerColor: RemoteColor = this.selectedContainerColor,
+        selectedContentColor: RemoteColor = this.selectedContentColor,
+        selectedSecondaryContentColor: RemoteColor = this.selectedSecondaryContentColor,
+        selectedSplitContainerColor: RemoteColor = this.selectedSplitContainerColor,
+        selectedControlColor: RemoteColor = this.selectedControlColor,
+        unselectedContainerColor: RemoteColor = this.unselectedContainerColor,
+        unselectedContentColor: RemoteColor = this.unselectedContentColor,
+        unselectedSecondaryContentColor: RemoteColor = this.unselectedSecondaryContentColor,
+        unselectedSplitContainerColor: RemoteColor = this.unselectedSplitContainerColor,
+        unselectedControlColor: RemoteColor = this.unselectedControlColor,
+        disabledSelectedContainerColor: RemoteColor = this.disabledSelectedContainerColor,
+        disabledSelectedContentColor: RemoteColor = this.disabledSelectedContentColor,
+        disabledSelectedSecondaryContentColor: RemoteColor =
+            this.disabledSelectedSecondaryContentColor,
+        disabledSelectedSplitContainerColor: RemoteColor = this.disabledSelectedSplitContainerColor,
+        disabledSelectedControlColor: RemoteColor = this.disabledSelectedControlColor,
+        disabledUnselectedContainerColor: RemoteColor = this.disabledUnselectedContainerColor,
+        disabledUnselectedContentColor: RemoteColor = this.disabledUnselectedContentColor,
+        disabledUnselectedSecondaryContentColor: RemoteColor =
+            this.disabledUnselectedSecondaryContentColor,
+        disabledUnselectedSplitContainerColor: RemoteColor =
+            this.disabledUnselectedSplitContainerColor,
+        disabledUnselectedControlColor: RemoteColor = this.disabledUnselectedControlColor,
     ): RemoteSplitRadioButtonColors =
         RemoteSplitRadioButtonColors(
-            selectedContainerColor = selectedContainerColor ?: this.selectedContainerColor,
-            selectedContentColor = selectedContentColor ?: this.selectedContentColor,
-            selectedSecondaryContentColor =
-                selectedSecondaryContentColor ?: this.selectedSecondaryContentColor,
-            selectedSplitContainerColor =
-                selectedSplitContainerColor ?: this.selectedSplitContainerColor,
-            selectedControlColor = selectedControlColor ?: this.selectedControlColor,
-            unselectedContainerColor = unselectedContainerColor ?: this.unselectedContainerColor,
-            unselectedContentColor = unselectedContentColor ?: this.unselectedContentColor,
-            unselectedSecondaryContentColor =
-                unselectedSecondaryContentColor ?: this.unselectedSecondaryContentColor,
-            unselectedSplitContainerColor =
-                unselectedSplitContainerColor ?: this.unselectedSplitContainerColor,
-            unselectedControlColor = unselectedControlColor ?: this.unselectedControlColor,
-            disabledSelectedContainerColor =
-                disabledSelectedContainerColor ?: this.disabledSelectedContainerColor,
-            disabledSelectedContentColor =
-                disabledSelectedContentColor ?: this.disabledSelectedContentColor,
-            disabledSelectedSecondaryContentColor =
-                disabledSelectedSecondaryContentColor ?: this.disabledSelectedSecondaryContentColor,
-            disabledSelectedSplitContainerColor =
-                disabledSelectedSplitContainerColor ?: this.disabledSelectedSplitContainerColor,
-            disabledSelectedControlColor =
-                disabledSelectedControlColor ?: this.disabledSelectedControlColor,
-            disabledUnselectedContainerColor =
-                disabledUnselectedContainerColor ?: this.disabledUnselectedContainerColor,
-            disabledUnselectedContentColor =
-                disabledUnselectedContentColor ?: this.disabledUnselectedContentColor,
-            disabledUnselectedSecondaryContentColor =
-                disabledUnselectedSecondaryContentColor
-                    ?: this.disabledUnselectedSecondaryContentColor,
-            disabledUnselectedSplitContainerColor =
-                disabledUnselectedSplitContainerColor ?: this.disabledUnselectedSplitContainerColor,
-            disabledUnselectedControlColor =
-                disabledUnselectedControlColor ?: this.disabledUnselectedControlColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            selectedSecondaryContentColor = selectedSecondaryContentColor,
+            selectedSplitContainerColor = selectedSplitContainerColor,
+            selectedControlColor = selectedControlColor,
+            unselectedContainerColor = unselectedContainerColor,
+            unselectedContentColor = unselectedContentColor,
+            unselectedSecondaryContentColor = unselectedSecondaryContentColor,
+            unselectedSplitContainerColor = unselectedSplitContainerColor,
+            unselectedControlColor = unselectedControlColor,
+            disabledSelectedContainerColor = disabledSelectedContainerColor,
+            disabledSelectedContentColor = disabledSelectedContentColor,
+            disabledSelectedSecondaryContentColor = disabledSelectedSecondaryContentColor,
+            disabledSelectedSplitContainerColor = disabledSelectedSplitContainerColor,
+            disabledSelectedControlColor = disabledSelectedControlColor,
+            disabledUnselectedContainerColor = disabledUnselectedContainerColor,
+            disabledUnselectedContentColor = disabledUnselectedContentColor,
+            disabledUnselectedSecondaryContentColor = disabledUnselectedSecondaryContentColor,
+            disabledUnselectedSplitContainerColor = disabledUnselectedSplitContainerColor,
+            disabledUnselectedControlColor = disabledUnselectedControlColor,
         )
 
     @Stable

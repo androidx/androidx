@@ -281,15 +281,18 @@ public object RemoteStepperDefaults {
         disabledContentColor: RemoteColor? = null,
         disabledButtonContainerColor: RemoteColor? = null,
         disabledButtonIconColor: RemoteColor? = null,
-    ): RemoteStepperColors =
-        RemoteMaterialTheme.colorScheme.defaultStepperColors.copy(
-            contentColor = contentColor,
-            buttonContainerColor = buttonContainerColor,
-            buttonIconColor = buttonIconColor,
-            disabledContentColor = disabledContentColor,
-            disabledButtonContainerColor = disabledButtonContainerColor,
-            disabledButtonIconColor = disabledButtonIconColor,
+    ): RemoteStepperColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultStepperColors
+        return default.copy(
+            contentColor = contentColor ?: default.contentColor,
+            buttonContainerColor = buttonContainerColor ?: default.buttonContainerColor,
+            buttonIconColor = buttonIconColor ?: default.buttonIconColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledButtonContainerColor =
+                disabledButtonContainerColor ?: default.disabledButtonContainerColor,
+            disabledButtonIconColor = disabledButtonIconColor ?: default.disabledButtonIconColor,
         )
+    }
 
     /**
      * Creates a [RemoteStepperColors] that represents the default colors used in a [RemoteStepper].
@@ -359,21 +362,20 @@ public class RemoteStepperColors(
 ) {
     /** Returns a copy of this [RemoteStepperColors], optionally overriding some values. */
     public fun copy(
-        contentColor: RemoteColor? = this.contentColor,
-        buttonContainerColor: RemoteColor? = this.buttonContainerColor,
-        buttonIconColor: RemoteColor? = this.buttonIconColor,
-        disabledContentColor: RemoteColor? = this.disabledContentColor,
-        disabledButtonContainerColor: RemoteColor? = this.disabledButtonContainerColor,
-        disabledButtonIconColor: RemoteColor? = this.disabledButtonIconColor,
+        contentColor: RemoteColor = this.contentColor,
+        buttonContainerColor: RemoteColor = this.buttonContainerColor,
+        buttonIconColor: RemoteColor = this.buttonIconColor,
+        disabledContentColor: RemoteColor = this.disabledContentColor,
+        disabledButtonContainerColor: RemoteColor = this.disabledButtonContainerColor,
+        disabledButtonIconColor: RemoteColor = this.disabledButtonIconColor,
     ): RemoteStepperColors =
         RemoteStepperColors(
-            contentColor = contentColor ?: this.contentColor,
-            buttonContainerColor = buttonContainerColor ?: this.buttonContainerColor,
-            buttonIconColor = buttonIconColor ?: this.buttonIconColor,
-            disabledContentColor = disabledContentColor ?: this.disabledContentColor,
-            disabledButtonContainerColor =
-                disabledButtonContainerColor ?: this.disabledButtonContainerColor,
-            disabledButtonIconColor = disabledButtonIconColor ?: this.disabledButtonIconColor,
+            contentColor = contentColor,
+            buttonContainerColor = buttonContainerColor,
+            buttonIconColor = buttonIconColor,
+            disabledContentColor = disabledContentColor,
+            disabledButtonContainerColor = disabledButtonContainerColor,
+            disabledButtonIconColor = disabledButtonIconColor,
         )
 
     internal fun contentColor(enabled: RemoteBoolean): RemoteColor =
