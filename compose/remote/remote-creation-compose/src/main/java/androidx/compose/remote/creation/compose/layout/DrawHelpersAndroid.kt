@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.layout
 import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
-import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
@@ -33,7 +32,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextAlign
 import androidx.compose.remote.creation.compose.text.RemoteTextDecoration
 import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
@@ -267,15 +265,6 @@ internal fun RemoteStrokeJoin.toComposeStrokeJoin(): StrokeJoin =
         RemoteStrokeJoin.Round -> StrokeJoin.Round
         RemoteStrokeJoin.Bevel -> StrokeJoin.Bevel
         else -> StrokeJoin.Miter
-    }
-
-internal fun FilterQuality.toRemoteFilterQuality(): RemoteFilterQuality =
-    when (this) {
-        FilterQuality.None -> RemoteFilterQuality.None
-        FilterQuality.Low -> RemoteFilterQuality.Low
-        FilterQuality.Medium -> RemoteFilterQuality.Medium
-        FilterQuality.High -> RemoteFilterQuality.High
-        else -> RemoteFilterQuality.Low
     }
 
 internal fun LineBreak.toRemoteLineBreak(): RemoteLineBreak =
