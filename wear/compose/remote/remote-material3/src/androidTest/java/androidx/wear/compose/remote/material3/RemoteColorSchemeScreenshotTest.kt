@@ -51,6 +51,7 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.wear.compose.remote.material3.util.TestProfiles
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,8 +101,20 @@ class RemoteColorSchemeScreenshotTest {
         )
     }
 
+    @After
+    fun tearDown() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = false
+    }
+
     @Test
-    fun defaultColorScheme_usesNamedColors() {
+    fun defaultColorScheme_flagEnabled_usesDynamicColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = true
+        runColorGridTest(expected = ::systemColor)
+    }
+
+    @Test
+    fun defaultColorScheme_flagDisabled_usesNamedColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = false
         runColorGridTest(expected = fallbackColor(ColorScheme(), source = "default"))
     }
 

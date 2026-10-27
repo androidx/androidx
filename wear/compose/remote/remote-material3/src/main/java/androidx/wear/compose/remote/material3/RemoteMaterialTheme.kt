@@ -68,19 +68,27 @@ public fun RemoteMaterialTheme(
 public object RemoteMaterialTheme {
     /** Retrieves the current [RemoteColorScheme] at the call site's position in the hierarchy. */
     public val colorScheme: RemoteColorScheme
-        @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.colorScheme
+        @Composable
+        @RemoteComposable
+        get() = LocalRemoteMaterialTheme.current?.colorScheme ?: defaultRemoteColorScheme()
 
     /** Retrieves the current [RemoteTypography] at the call site's position in the hierarchy. */
     public val typography: RemoteTypography
-        @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.typography
+        @Composable
+        @RemoteComposable
+        get() = LocalRemoteMaterialTheme.current?.typography ?: RemoteTypography()
 
     /** Retrieves the current [RemoteShapes] at the call site's position in the hierarchy. */
     public val shapes: RemoteShapes
-        @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.shapes
+        @Composable
+        @RemoteComposable
+        get() = LocalRemoteMaterialTheme.current?.shapes ?: RemoteShapes()
 
     /** Retrieves the current [RemoteMotionScheme] at the call site's position in the hierarchy. */
     public val motionScheme: RemoteMotionScheme
-        @Composable @RemoteComposable get() = LocalRemoteMaterialTheme.current.motionScheme
+        @Composable
+        @RemoteComposable
+        get() = LocalRemoteMaterialTheme.current?.motionScheme ?: RemoteMotionScheme.standard()
 
     /**
      * Material 3 contains different theme subsystems to allow visual customization across a UI
@@ -129,7 +137,20 @@ public object RemoteMaterialTheme {
     }
 }
 
-private val LocalRemoteMaterialTheme: ProvidableCompositionLocal<RemoteMaterialTheme.Values> =
+/**
+ * The color scheme used when no [RemoteMaterialTheme] color scheme has been provided. Follows
+ * [RemoteMaterial3Flags.isThemedColorsEnabled].
+ */
+@Composable
+@RemoteComposable
+private fun defaultRemoteColorScheme(): RemoteColorScheme =
+    if (RemoteMaterial3Flags.isThemedColorsEnabled) {
+        dynamicRemoteColorScheme()
+    } else {
+        RemoteColorScheme()
+    }
+
+private val LocalRemoteMaterialTheme: ProvidableCompositionLocal<RemoteMaterialTheme.Values?> =
     staticCompositionLocalOf {
-        RemoteMaterialTheme.Values()
+        null
     }
