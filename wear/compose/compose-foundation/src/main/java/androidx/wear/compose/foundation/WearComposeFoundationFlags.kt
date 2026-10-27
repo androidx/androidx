@@ -50,5 +50,12 @@ package androidx.wear.compose.foundation
  */
 @ExperimentalWearFoundationApi
 public object WearComposeFoundationFlags {
-    // Empty for now, kept for future flags.
+    /**
+     * Whether to use Modifier.Node for Modifier.edgeSwipeToDismiss. If false, the legacy
+     * Modifier.composed implementation will be used instead.
+     */
+    // TODO: b/576970346
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isNewEdgeSwipeToDismissNodeEnabled: Boolean = true
 }
