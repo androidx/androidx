@@ -82,6 +82,7 @@ dependencies {
     implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
+        exclude(group:"androidx.test.espresso", module:"espresso-core")
     }
     implementation(project(":camera:media3:media3-effect"))
     implementation("androidx.camera.viewfinder:viewfinder-core:1.5.1")

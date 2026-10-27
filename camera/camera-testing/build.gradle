@@ -51,8 +51,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.core:core:1.16.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation(libs.espressoCore)
-    implementation(libs.espressoIdlingResource)
+    implementation("androidx.test.espresso:espresso-core:3.7.0")
+    implementation("androidx.test.espresso:espresso-idling-resource:3.7.0")
     implementation(libs.atomicFu)
     implementation(libs.guavaListenableFuture)
     implementation(libs.junit)
@@ -62,7 +62,7 @@ dependencies {
     implementation "androidx.annotation:annotation-experimental:1.4.1"
     implementation "androidx.arch.core:core-common:2.1.0"
     implementation "androidx.lifecycle:lifecycle-runtime:2.10.0"
-    implementation libs.testMonitor
+    implementation("androidx.test:monitor:1.8.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
