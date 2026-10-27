@@ -19,32 +19,47 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Looper
+import android.view.View
 import androidx.collection.buildIntSet
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.headless.SnapshotWriteMonitor
 import androidx.compose.remote.creation.compose.capture.headless.onCaptureAwaitingWriteDelivery
+import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.modifier.height
+import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +74,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -1782,6 +1798,135 @@ class CaptureRemoteDocumentTest {
 
             store.dispose()
             assertEquals(1, retiredCount)
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_withoutContext_providesLocalRemoteLayoutDirection() =
+        runTest(UnconfinedTestDispatcher()) {
+            val displayInfo = RemoteCreationDisplayInfo(200, 100, 160, 1f)
+            var observedDirection: RemoteLayoutDirection? = null
+
+            val bytes =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = displayInfo,
+                    layoutDirection = RemoteLayoutDirection.Rtl,
+                    profile = RcPlatformProfiles.ANDROIDX,
+                ) {
+                    observedDirection = LocalRemoteLayoutDirection.current
+                    RemoteBox(modifier = RemoteModifier.fillMaxSize())
+                }
+
+            assertEquals(RemoteLayoutDirection.Rtl, observedDirection)
+            assertTrue(bytes.toCoreDocument().docInfo.mNumberOfOps > 0)
+        }
+
+    @Test
+    fun captureSingleRemoteDocument_subtreeLocalLayoutDirection_propagatesAndSupportsRemoteOverride() =
+        runTest(UnconfinedTestDispatcher()) {
+            val displayInfo = RemoteCreationDisplayInfo(200, 200, 160, 1f)
+            var rootDirection: RemoteLayoutDirection? = null
+            var rtlSubtreeDirection: RemoteLayoutDirection? = null
+            var nestedUiLtrDirection: RemoteLayoutDirection? = null
+            var nestedRemoteOverrideDirection: RemoteLayoutDirection? = null
+
+            val captured =
+                captureSingleRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = displayInfo,
+                    layoutDirection = LayoutDirection.Ltr,
+                ) {
+                    rootDirection = LocalRemoteLayoutDirection.current
+                    RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                        CompositionLocalProvider(
+                            LocalLayoutDirection provides LayoutDirection.Rtl
+                        ) {
+                            rtlSubtreeDirection = LocalRemoteLayoutDirection.current
+                            RemoteRow(
+                                modifier = RemoteModifier.fillMaxWidth().height(100.rdp),
+                                horizontalArrangement = RemoteArrangement.Start,
+                            ) {
+                                RemoteBox(modifier = RemoteModifier.width(60.rdp).fillMaxHeight())
+                                RemoteBox(modifier = RemoteModifier.width(40.rdp).fillMaxHeight())
+                            }
+                            CompositionLocalProvider(
+                                LocalLayoutDirection provides LayoutDirection.Ltr
+                            ) {
+                                nestedUiLtrDirection = LocalRemoteLayoutDirection.current
+                            }
+                            CompositionLocalProvider(
+                                LocalRemoteLayoutDirection provides RemoteLayoutDirection.Ltr
+                            ) {
+                                nestedRemoteOverrideDirection = LocalRemoteLayoutDirection.current
+                                RemoteRow(
+                                    modifier = RemoteModifier.fillMaxWidth().height(100.rdp),
+                                    horizontalArrangement = RemoteArrangement.Start,
+                                ) {
+                                    RemoteBox(
+                                        modifier = RemoteModifier.width(60.rdp).fillMaxHeight()
+                                    )
+                                    RemoteBox(
+                                        modifier = RemoteModifier.width(40.rdp).fillMaxHeight()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+            assertEquals(RemoteLayoutDirection.Ltr, rootDirection)
+            assertEquals(RemoteLayoutDirection.Rtl, rtlSubtreeDirection)
+            assertEquals(RemoteLayoutDirection.Ltr, nestedUiLtrDirection)
+            assertEquals(RemoteLayoutDirection.Ltr, nestedRemoteOverrideDirection)
+
+            val player = RemoteComposePlayer(context)
+            player.setDocument(RemoteDocument(captured.bytes))
+            player.setUseChoreographer(false)
+            player.measure(
+                View.MeasureSpec.makeMeasureSpec(200, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(200, View.MeasureSpec.EXACTLY),
+            )
+            player.layout(0, 0, 200, 200)
+            player.draw(
+                android.graphics.Canvas(Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888))
+            )
+
+            val root = player.document.document.rootLayoutComponent!!
+            val column = root.list.first { it is LayoutComponent } as LayoutComponent
+            val rtlRow = column.childrenComponents[0] as LayoutComponent
+            val ltrOverrideRow = column.childrenComponents[1] as LayoutComponent
+
+            // In RTL Row (width 200, Start arrangement), RemoteRow reverses children [40, 60] and
+            // aligns to End: 40dp child at x = 100, 60dp child at x = 140.
+            assertEquals(40f, rtlRow.childrenComponents[0].width)
+            assertEquals(100f, rtlRow.childrenComponents[0].x)
+            assertEquals(60f, rtlRow.childrenComponents[1].width)
+            assertEquals(140f, rtlRow.childrenComponents[1].x)
+
+            // Explicit LocalRemoteLayoutDirection.Ltr overrides outer LocalLayoutDirection.Rtl:
+            // 60dp child at x = 0, 40dp child at x = 60.
+            assertEquals(60f, ltrOverrideRow.childrenComponents[0].width)
+            assertEquals(0f, ltrOverrideRow.childrenComponents[0].x)
+            assertEquals(40f, ltrOverrideRow.childrenComponents[1].width)
+            assertEquals(60f, ltrOverrideRow.childrenComponents[1].x)
+        }
+
+    @Test
+    fun contextFreeCaptureSingleRemoteDocument_providesRemoteLayoutDirection() =
+        runTest(UnconfinedTestDispatcher()) {
+            var capturedLocal: RemoteLayoutDirection? = null
+            var capturedCreationState: RemoteLayoutDirection? = null
+            captureSingleRemoteDocument(
+                creationDisplayInfo = RemoteCreationDisplayInfo(200, 100, 160, 1.0f),
+                layoutDirection = RemoteLayoutDirection.Rtl,
+                profile = RcPlatformProfiles.ANDROIDX,
+            ) {
+                capturedLocal = LocalRemoteLayoutDirection.current
+                capturedCreationState =
+                    LocalRemoteComposeCreationState.current.remoteLayoutDirection
+                RemoteBox(modifier = RemoteModifier.fillMaxSize())
+            }
+            assertEquals(RemoteLayoutDirection.Rtl, capturedLocal)
+            assertEquals(RemoteLayoutDirection.Rtl, capturedCreationState)
         }
 }
 
