@@ -90,7 +90,7 @@ final class IsolateUsableState implements IsolateState {
         public void reportResultWithFd(AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
             try {
-                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
+                ThreadPool.getInstance().getExecutor().execute(
                         () -> {
                             // There could have been a race that removes the completer before this
                             // if all evaluations for the isolate were canceled due to termination.
@@ -131,7 +131,7 @@ final class IsolateUsableState implements IsolateState {
         public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
             try {
-                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
+                ThreadPool.getInstance().getExecutor().execute(
                         () -> {
                             // We'd still potentially need to process the result even if this
                             // returns false (the completer isn't pending; for example, if the
@@ -367,11 +367,8 @@ final class IsolateUsableState implements IsolateState {
     public void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes) {
         // We pass the codeAfd to the separate sandbox process but we still need to close
         // it on our end to avoid file descriptor leaks.
-        //
-        // Don't catch RejectedExecutionException, as it shouldn't be possible for the
-        // ExecutorService to have shut down without the isolate having been notified.
         try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
-                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
+                ThreadPool.getInstance().getExecutor())) {
             try {
                 final boolean success = mJsIsolateStub.provideNamedData(name, codeAfd);
                 if (!success) {
@@ -408,6 +405,18 @@ final class IsolateUsableState implements IsolateState {
 
     @Override
     public void onDied(@NonNull TerminationInfo terminationInfo) {
+        if (mJsIsolate.mJsSandbox.getSandboxServiceInstance().isActive()) {
+            // For shared sandboxes, the service as a whole might not be dead. It could just be
+            // that this isolate's sandbox has been closed. If this is the case (isActive=true), we
+            // should make sure the service knows the isolate is no longer needed.
+            try {
+                mJsIsolateStub.close();
+                Log.w(TAG, "Closed an orphaned isolate in a still active sandbox service.");
+            } catch (RemoteException | RuntimeException e) {
+                // Kill the service directly. The sandbox itself is already supposedly closed/dead.
+                mJsIsolate.mJsSandbox.getSandboxServiceInstance().kill(e);
+            }
+        }
         cancelAllPendingEvaluations(terminationInfo.toJavaScriptException());
         mOnTerminatedCallbacks.forEach(
                 (callback, executor) -> executor.execute(() -> callback.accept(terminationInfo)));
@@ -481,10 +490,8 @@ final class IsolateUsableState implements IsolateState {
             final String futureDebugMessage = "evaluateJavascript Future";
             IJsSandboxIsolateSyncCallbackStubWrapper callbackStub =
                     new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
-            // Don't catch RejectedExecutionException, as it shouldn't be possible for the
-            // ExecutorService to have shut down without the isolate having been notified.
             try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
-                    mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
+                    ThreadPool.getInstance().getExecutor())) {
                 // We pass the codeAfd to the separate sandbox process but we still need to
                 // close it on our end to avoid file descriptor leaks.
                 try {
@@ -535,7 +542,7 @@ final class IsolateUsableState implements IsolateState {
 
         // Create unentangled MessagePort. Contains local IMessagePort interface implementation.
         final MessagePortInternal messagePortInternal = new MessagePortInternal(
-                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor,
+                ThreadPool.getInstance().getExecutor(),
                 mMaxEvaluationReturnSizeBytes);
 
 

@@ -19,11 +19,10 @@ package androidx.javascriptengine;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Exception thrown when attempting to create a {@link JavaScriptSandbox} via
- * {@link JavaScriptSandbox#createConnectedInstanceAsync(android.content.Context)} when doing so is
- * not supported.
- * <p>
- * This can occur when the WebView package is too old to provide a sandbox implementation.
+ * Exception thrown when attempting to create a {@link JavaScriptSandbox} when doing so is not
+ * supported.
+ *
+ * <p>This can occur when the WebView package is too old to provide a sandbox implementation.
  */
 public final class SandboxUnsupportedException extends RuntimeException {
     public SandboxUnsupportedException(@NonNull String error) {
