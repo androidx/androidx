@@ -72,9 +72,12 @@ package androidx.javascriptengine {
   @javax.annotation.concurrent.ThreadSafe public final class JavaScriptSandbox implements java.lang.AutoCloseable {
     method public void close();
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JavaScriptSandbox!> createConnectedInstanceAsync(android.content.Context);
+    method @RequiresApi(android.os.Build.VERSION_CODES.Q) public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JavaScriptSandbox!> createDedicatedSandboxAsync(android.content.Context);
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate();
     method public androidx.javascriptengine.JavaScriptIsolate createIsolate(androidx.javascriptengine.IsolateStartupParameters);
+    method @RequiresApi(android.os.Build.VERSION_CODES.Q) public static com.google.common.util.concurrent.ListenableFuture<androidx.javascriptengine.JavaScriptSandbox!> createSharedSandboxAsync(android.content.Context);
     method public boolean isFeatureSupported(String);
+    method public boolean isShared();
     method public static boolean isSupported();
     field public static final String JS_FEATURE_CONSOLE_MESSAGING = "JS_FEATURE_CONSOLE_MESSAGING";
     field public static final String JS_FEATURE_EVALUATE_FROM_FD = "JS_FEATURE_EVALUATE_FROM_FD";
