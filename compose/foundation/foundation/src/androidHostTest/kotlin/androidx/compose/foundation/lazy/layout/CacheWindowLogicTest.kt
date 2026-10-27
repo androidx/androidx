@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Test
@@ -72,6 +73,54 @@ class CacheWindowLogicTest {
         assertThat(logic.perLaneCacheWindowStartIndex[0]).isEqualTo(Int.MAX_VALUE)
         assertThat(logic.perLaneCacheWindowStartIndex[1]).isEqualTo(Int.MAX_VALUE)
         assertThat(logic.perLaneCacheWindowStartIndex[2]).isEqualTo(Int.MAX_VALUE)
+    }
+
+    @Test
+    fun dpWindow_sameValues_areEqual() {
+        val first = LazyLayoutCacheWindow(ahead = 10.dp, behind = 20.dp)
+        val second = LazyLayoutCacheWindow(ahead = 10.dp, behind = 20.dp)
+
+        assertThat(first).isEqualTo(second)
+        assertThat(first.hashCode()).isEqualTo(second.hashCode())
+    }
+
+    @Test
+    fun dpWindow_differentNonScrollCaching_areNotEqual() {
+        val enabled =
+            LazyLayoutCacheWindow(ahead = 10.dp, behind = 20.dp, isNonScrollCachingEnabled = true)
+        val disabled =
+            LazyLayoutCacheWindow(ahead = 10.dp, behind = 20.dp, isNonScrollCachingEnabled = false)
+
+        assertThat(enabled).isNotEqualTo(disabled)
+        assertThat(enabled.hashCode()).isNotEqualTo(disabled.hashCode())
+    }
+
+    @Test
+    fun fractionWindow_sameValues_areEqual() {
+        val first = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 1f)
+        val second = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 1f)
+
+        assertThat(first).isEqualTo(second)
+        assertThat(first.hashCode()).isEqualTo(second.hashCode())
+    }
+
+    @Test
+    fun fractionWindow_differentNonScrollCaching_areNotEqual() {
+        val enabled =
+            LazyLayoutCacheWindow(
+                aheadFraction = 0.5f,
+                behindFraction = 1f,
+                isNonScrollCachingEnabled = true,
+            )
+        val disabled =
+            LazyLayoutCacheWindow(
+                aheadFraction = 0.5f,
+                behindFraction = 1f,
+                isNonScrollCachingEnabled = false,
+            )
+
+        assertThat(enabled).isNotEqualTo(disabled)
+        assertThat(enabled.hashCode()).isNotEqualTo(disabled.hashCode())
     }
 
     private class FakeCacheWindowScope(
