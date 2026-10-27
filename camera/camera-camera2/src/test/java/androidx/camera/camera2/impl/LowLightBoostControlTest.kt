@@ -26,6 +26,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.CaptureResult.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult.CONTROL_LOW_LIGHT_BOOST_STATE
 import android.os.Build
+import android.os.Looper.getMainLooper
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraConfig
@@ -62,6 +63,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -562,6 +564,26 @@ class LowLightBoostControlTest {
             Truth.assertThat(lowLightBoostControl.lowLightBoostStateLiveData.value)
                 .isEqualTo(ACTIVE)
         }
+
+    @Test
+    fun backgroundFrameBeforeMainThreadDisable_doesNotOverwriteOffState(): Unit = runBlocking {
+        activateLowLightBoost()
+        lowLightBoostControl.setLowLightBoostAsync(true).await()
+
+        // Simulate a capture result arriving on a background callback thread while the main looper
+        // has not yet run the posted runnable
+        val backgroundThread = Thread {
+            simulateLowLightBoostStateUpdate(CONTROL_LOW_LIGHT_BOOST_STATE_ACTIVE)
+        }
+        backgroundThread.start()
+        backgroundThread.join()
+
+        // Main thread disables Low Light Boost before the queued main-looper runnable executes
+        lowLightBoostControl.setLowLightBoostAsync(false).await()
+        shadowOf(getMainLooper()).idle()
+
+        Truth.assertThat(lowLightBoostControl.lowLightBoostStateLiveData.value).isEqualTo(OFF)
+    }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(
         timeMillis: Long = TimeUnit.SECONDS.toMillis(5)

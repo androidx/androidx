@@ -1663,7 +1663,7 @@ public class SupportedSurfaceCombination(
 
     private fun getMaxFrameRate(imageFormat: Int, size: Size): Int {
         val minFrameDuration =
-            getStreamConfigurationMapCompat().getOutputMinFrameDuration(imageFormat, size)
+            streamConfigurationMapCompat.getOutputMinFrameDuration(imageFormat, size)
         if (minFrameDuration <= 0L) {
             if (isManualSensorSupported) {
                 Camera2Logger.warn {
