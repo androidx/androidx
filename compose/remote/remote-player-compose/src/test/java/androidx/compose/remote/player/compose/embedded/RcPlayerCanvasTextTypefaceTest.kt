@@ -460,7 +460,7 @@ class RcPlayerCanvasTextTypefaceTest {
     }
 
     @Test
-    fun gmsFontTypefaceResolverConstructs5ArgFontRequestWithVariationSettings() = runBlocking {
+    fun gmsFontTypefaceResolverRequestsBaseFamilyWithoutVariationSettings() = runBlocking {
         val context: Context = ApplicationProvider.getApplicationContext()
         var capturedRequest: FontRequest? = null
         val resolver =
@@ -490,7 +490,8 @@ class RcPlayerCanvasTextTypefaceTest {
         assertThat(capturedRequest!!.query)
             .isEqualTo("name=Roboto Flex&weight=600&italic=1&besteffort=true")
         assertThat(capturedRequest!!.certificatesArrayResId).isEqualTo(123)
-        assertThat(capturedRequest!!.variationSettings).isEqualTo("'wght' 600.0, 'wdth' 110.0")
+        // The player applies the variation axes to the loaded base family.
+        assertThat(capturedRequest!!.variationSettings).isNull()
     }
 
     @Test

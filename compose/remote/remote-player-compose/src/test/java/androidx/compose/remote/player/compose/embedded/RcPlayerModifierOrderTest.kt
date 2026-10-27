@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
-import android.content.Context
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.remote.core.WireBuffer
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
-import androidx.compose.remote.player.compose.embedded.modifier.toModifier
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.Modifier
-import androidx.test.core.app.ApplicationProvider
-import org.junit.Assert.assertEquals
-import org.junit.Before
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.unit.dp
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,169 +43,100 @@ class RcPlayerModifierOrderTest {
 
     @get:Rule val rule = RcPlayerTestRule()
 
-    private lateinit var remoteContext: AndroidRemoteContext
-
-    @Before
-    fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        remoteContext = AndroidRemoteContext().apply { setAndroidContext(context) }
-    }
-
     @Test
     fun testDrawBeforePadding() {
-        val componentModifiers = ComponentModifiers()
-        // Draw content BEFORE padding in the input list
-        componentModifiers.add(DrawContentOperation())
-        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
+        // Draw content BEFORE padding in the wire modifier list
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { DrawContentOperation.apply(it) },
+                { PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+            )
 
-        var resolvedModifier: Modifier = Modifier
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalRemoteContext provides remoteContext,
-                LocalCoreDocument provides CoreDocument(),
-            ) {
-                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
-            }
-        }
-
-        val elements = resolvedModifier.toElementList()
-
-        // We expect DrawWithContentElement (or similar) to be before PaddingElement
-        assertEquals(2, elements.size)
-        assert(elements[0].javaClass.name.contains("DrawWithContent")) {
-            "Expected DrawWithContent modifier first, got ${elements[0].javaClass.name}"
-        }
-        assert(elements[1].javaClass.name.contains("Padding")) {
-            "Expected Padding modifier second, got ${elements[1].javaClass.name}"
-        }
+        assertThat(elements).containsExactly("DrawWithContent", "Padding").inOrder()
     }
 
     @Test
     fun testPaddingBeforeDraw() {
-        val componentModifiers = ComponentModifiers()
-        // Padding BEFORE draw content in the input list
-        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
-        componentModifiers.add(DrawContentOperation())
+        // Padding BEFORE draw content in the wire modifier list
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+                { DrawContentOperation.apply(it) },
+            )
 
-        var resolvedModifier: Modifier = Modifier
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalRemoteContext provides remoteContext,
-                LocalCoreDocument provides CoreDocument(),
-            ) {
-                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
-            }
-        }
-
-        val elements = resolvedModifier.toElementList()
-
-        // We expect PaddingElement to be before DrawWithContentElement
-        assertEquals(2, elements.size)
-        assert(elements[0].javaClass.name.contains("Padding")) {
-            "Expected Padding modifier first, got ${elements[0].javaClass.name}"
-        }
-        assert(elements[1].javaClass.name.contains("DrawWithContent")) {
-            "Expected DrawWithContent modifier second, got ${elements[1].javaClass.name}"
-        }
+        assertThat(elements).containsExactly("Padding", "DrawWithContent").inOrder()
     }
 
     @Test
     fun testDrawContentProcessedOnce() {
-        val componentModifiers = ComponentModifiers()
-        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
+        val elements =
+            renderAndCollectBoxModifierTypes({
+                PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f)
+            })
 
-        var resolvedModifier: Modifier = Modifier
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalRemoteContext provides remoteContext,
-                LocalCoreDocument provides CoreDocument(),
-            ) {
-                resolvedModifier = componentModifiers.toModifier(drawOpsList = listOf())
-            }
-        }
-
-        val elements = resolvedModifier.toElementList()
-        val drawElements = elements.filter { it.javaClass.name.contains("DrawWithContent") }
-        assertEquals(1, drawElements.size)
+        assertThat(elements.count { it == "DrawWithContent" }).isEqualTo(1)
     }
 
     @Test
     fun testRoundedClipHoistedBeforeDrawContent() {
-        val componentModifiers = ComponentModifiers()
-        // DrawContent precedes RoundedClipRect in wire modifier list
-        componentModifiers.add(DrawContentOperation())
-        componentModifiers.add(RoundedClipRectModifierOperation(10f, 10f, 10f, 10f))
+        // DrawContent precedes RoundedClipRect in wire modifier list; clip must be hoisted before
+        // DrawWithContent so it clips the background.
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { DrawContentOperation.apply(it) },
+                { RoundedClipRectModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+            )
 
-        var resolvedModifier: Modifier = Modifier
-
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalRemoteContext provides remoteContext,
-                LocalCoreDocument provides CoreDocument(),
-            ) {
-                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
-            }
-        }
-
-        val elements = resolvedModifier.toElementList()
-        // Clip modifier must be before DrawWithContent modifier so it clips the background
-        assertEquals(2, elements.size)
-        assert(
-            elements[0].javaClass.name.contains("GraphicsLayer") ||
-                elements[0].javaClass.name.contains("Clip")
-        ) {
-            "Expected Clip/GraphicsLayer modifier first, got ${elements[0].javaClass.name}"
-        }
-        assert(elements[1].javaClass.name.contains("DrawWithContent")) {
-            "Expected DrawWithContent modifier second, got ${elements[1].javaClass.name}"
-        }
+        assertThat(elements).containsExactly("Clip", "DrawWithContent").inOrder()
     }
 
     @Test
     fun testPaddingBeforeRoundedClipWithoutPriorDrawContent() {
-        val componentModifiers = ComponentModifiers()
         // Padding before RoundedClipRect without prior DrawContent
-        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
-        componentModifiers.add(RoundedClipRectModifierOperation(10f, 10f, 10f, 10f))
+        val elements =
+            renderAndCollectBoxModifierTypes(
+                { PaddingModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+                { RoundedClipRectModifierOperation.apply(it, 10f, 10f, 10f, 10f) },
+            )
 
-        var resolvedModifier: Modifier = Modifier
+        assertThat(elements).containsExactly("Padding", "Clip", "DrawWithContent").inOrder()
+    }
 
-        rule.setContent {
-            CompositionLocalProvider(
-                LocalRemoteContext provides remoteContext,
-                LocalCoreDocument provides CoreDocument(),
-            ) {
-                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
+    private fun renderAndCollectBoxModifierTypes(
+        vararg modifiers: (WireBuffer) -> Unit
+    ): List<String> {
+        val document = buildDocument {
+            val descId = addText("target")
+            root {
+                startBox(
+                    RecordingModifier().width(100f).height(100f).then { w ->
+                        CoreSemantics()
+                            .apply { mContentDescriptionId = descId }
+                            .write(w.buffer.buffer)
+                        modifiers.forEach { writeOp -> writeOp(w.buffer.buffer) }
+                        w.startCanvasOperations()
+                        w.drawRect(0f, 0f, 50f, 50f)
+                        w.endCanvasOperations()
+                    },
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                endBox()
             }
         }
 
-        val elements = resolvedModifier.toElementList()
-        // Padding modifier must be first, followed by Clip/GraphicsLayer, followed by
-        // DrawWithContent
-        assertEquals(3, elements.size)
-        assert(elements[0].javaClass.name.contains("Padding")) {
-            "Expected Padding modifier first, got ${elements[0].javaClass.name}"
-        }
-        assert(
-            elements[1].javaClass.name.contains("GraphicsLayer") ||
-                elements[1].javaClass.name.contains("Clip")
-        ) {
-            "Expected Clip/GraphicsLayer modifier second, got ${elements[1].javaClass.name}"
-        }
-        assert(elements[2].javaClass.name.contains("DrawWithContent")) {
-            "Expected DrawWithContent modifier third, got ${elements[2].javaClass.name}"
-        }
-    }
+        rule.setContent { Box(Modifier.size(100.dp)) { RcPlayer(document = document) } }
+        rule.waitForIdle()
 
-    private fun Modifier.toElementList(): List<Modifier.Element> {
-        val list = mutableListOf<Modifier.Element>()
-        foldIn(list) { acc, element ->
-            acc.add(element)
-            acc
+        val node = rule.onNodeWithContentDescription("target").fetchSemanticsNode()
+        return node.layoutInfo.getModifierInfo().mapNotNull { info ->
+            val className = info.modifier.javaClass.name
+            when {
+                className.contains("DrawWithContent") -> "DrawWithContent"
+                className.contains("Padding") -> "Padding"
+                className.contains("GraphicsLayer") || className.contains("Clip") -> "Clip"
+                else -> null
+            }
         }
-        return list
     }
 }

@@ -26,6 +26,7 @@ import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.embedded.resources.buildFontFeatureSettings
+import androidx.compose.remote.player.compose.embedded.resources.buildFontVariationSettingsString
 import androidx.compose.remote.player.compose.embedded.resources.documentFontTypeface
 import androidx.compose.remote.player.compose.embedded.resources.rcTypefaceResolver
 import androidx.compose.remote.player.compose.embedded.resources.resolveFontFamily
@@ -139,7 +140,13 @@ public class ComposeLocalPaint {
             if (effectiveFontFamily > PaintBundle.FONT_TYPE_MONOSPACE && name == null) {
                 // A font embedded in the document (FontData) has no text entry and is
                 // stored in the object table as RemoteContext.FontInfo.
-                documentFontTypeface(context, effectiveFontFamily, fontWeight, italic)
+                documentFontTypeface(
+                    context,
+                    effectiveFontFamily,
+                    fontWeight,
+                    italic,
+                    buildFontVariationSettingsString(fontAxis, fontAxisValues, context),
+                )
             } else {
                 null
             }

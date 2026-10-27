@@ -18,14 +18,17 @@
 
 package androidx.compose.remote.player.compose.embedded.components
 
+import androidx.collection.mutableIntSetOf
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager
+import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.doc.DocumentPreprocessResult
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.state.forEachScalarReference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -155,19 +158,30 @@ internal fun Modifier.rootTouchExpressions(
         }
     }
 
-private fun touchExpressionAxes(touchExpressions: List<TouchExpression>): Pair<Boolean, Boolean> {
+/**
+ * The touch position axes [touchExpressions] read, following the [FloatExpression]s they reference
+ * (e.g. a helper expression that scales `ID_TOUCH_POS_X`), so an indirect single-axis read isn't
+ * mistaken for an expression without a detectable axis.
+ */
+private fun touchExpressionAxes(
+    touchExpressions: List<TouchExpression>,
+    floatExpressions: Map<Int, FloatExpression>,
+): Pair<Boolean, Boolean> {
     var usesX = false
     var usesY = false
-    touchExpressions.fastForEach { te ->
-        val exp = te.mSrcExp ?: return@fastForEach
-        for (v in exp) {
-            if (v.isNaN()) {
-                when (Utils.idFromNan(v)) {
-                    RemoteContext.ID_TOUCH_POS_X -> usesX = true
-                    RemoteContext.ID_TOUCH_POS_Y -> usesY = true
-                }
+    val visited = mutableIntSetOf()
+    fun scan(values: FloatArray) {
+        values.forEachScalarReference { id ->
+            when (id) {
+                RemoteContext.ID_TOUCH_POS_X -> usesX = true
+                RemoteContext.ID_TOUCH_POS_Y -> usesY = true
+                else -> if (visited.add(id)) floatExpressions[id]?.let { scan(it.mSrcValue) }
             }
         }
+    }
+    touchExpressions.fastForEach { te ->
+        val exp = te.mSrcExp ?: return@fastForEach
+        scan(exp)
     }
     if (!usesX && !usesY) {
         return true to true
@@ -175,6 +189,19 @@ private fun touchExpressionAxes(touchExpressions: List<TouchExpression>): Pair<B
     return usesX to usesY
 }
 
+/**
+ * Component-level touch forwarding for the [TouchExpression]s scoped to [component].
+ *
+ * Tracking stops, releasing the expressions at the last forwarded position with no velocity (core
+ * `Component.onTouchCancel`), when the drag goes along an axis the expressions don't use, when an
+ * ancestor (such as a scrollable list hosting the player) consumes the gesture before this handler
+ * has locked the drag, or when an ancestor intercepts the gesture on the Initial pass at any time.
+ *
+ * Expressions that read a single touch axis lock the drag, and consume it, once it passes the touch
+ * slop along that axis. Expressions that read both axes (or no detectable axis) only lock once the
+ * drag has passed the slop and the ancestors have seen that event without claiming it, so a
+ * scrollable ancestor still gets drags along its own axis.
+ */
 @Composable
 internal fun Modifier.componentTouchExpressions(
     component: LayoutComponent,
@@ -183,7 +210,11 @@ internal fun Modifier.componentTouchExpressions(
     remoteContext: RemoteContext,
     graphContext: GraphContext?,
 ): Modifier {
-    val (usesX, usesY) = remember(touchExpressions) { touchExpressionAxes(touchExpressions) }
+    val document = LocalCoreDocument.current
+    val (usesX, usesY) =
+        remember(touchExpressions, document) {
+            touchExpressionAxes(touchExpressions, document.floatExpressions)
+        }
     return this.onPlaced { placement.touchCoords = it }
         .pointerInput(
             component,
@@ -195,6 +226,13 @@ internal fun Modifier.componentTouchExpressions(
             val touchSlop = viewConfiguration.touchSlop
             awaitPointerEventScope {
                 while (true) {
+                    // Ancestors see the Initial pass before this handler: a down they consumed
+                    // there was intercepted, so don't start tracking it.
+                    val initialDown =
+                        awaitPointerEvent(PointerEventPass.Initial).changes.fastFirstOrNull {
+                            !it.previousPressed && it.pressed
+                        } ?: continue
+                    if (initialDown.isConsumed) continue
                     val downEvent = awaitPointerEvent(PointerEventPass.Main)
                     val down =
                         downEvent.changes.fastFirstOrNull { !it.previousPressed && it.pressed }
@@ -203,6 +241,9 @@ internal fun Modifier.componentTouchExpressions(
                     val downPos = down.position
                     var dragLocked = false
                     var dragRejected = false
+                    // A two-axis drag past the slop that locks once the ancestors have seen the
+                    // event without claiming it.
+                    var lockPending = false
                     val isLegacyTouch = remoteContext.touchVersion != LayoutManager.FIX_TOUCH_EVENT
                     // Pointer positions are relative to this pointerInput, which sits inside the
                     // component's modifiers (e.g. padding). Shift them into the component's outer
@@ -234,48 +275,83 @@ internal fun Modifier.componentTouchExpressions(
                         te.apply(remoteContext)
                     }
                     var ended = false
+                    // The last position forwarded to the expressions. A cancel releases here, so
+                    // the expressions never jump to wherever the finger ended up after this
+                    // handler stopped forwarding.
+                    var lastRootX = downRootX
+                    var lastRootY = downRootY
                     var lastTouchX = downTouchX
                     var lastTouchY = downTouchY
+                    // Mirrors core Component.onTouchCancel, which releases a TouchExpression at
+                    // the last position with no velocity, so it settles according to its stop
+                    // mode without a fling.
+                    fun cancelTracking() {
+                        ended = true
+                        remoteContext.loadFloat(RemoteContext.ID_TOUCH_POS_X, lastRootX)
+                        remoteContext.loadFloat(RemoteContext.ID_TOUCH_POS_Y, lastRootY)
+                        touchExpressions.fastForEach { te ->
+                            te.updateVariables(graphContext ?: remoteContext)
+                            te.touchUp(remoteContext, lastTouchX, lastTouchY, 0f, 0f)
+                            te.apply(remoteContext)
+                        }
+                    }
                     try {
                         while (true) {
+                            // Ancestors see the Initial pass before this handler. One that
+                            // consumed the change there intercepted the gesture (whether or not
+                            // this handler has locked the drag): stop tracking, as core does when
+                            // a parent intercepts.
+                            val initialChange =
+                                awaitPointerEvent(PointerEventPass.Initial)
+                                    .changes
+                                    .fastFirstOrNull {
+                                        it.id == pointerId
+                                    } ?: break
+                            if (initialChange.isConsumed) {
+                                cancelTracking()
+                                break
+                            }
                             val event = awaitPointerEvent(PointerEventPass.Main)
                             val change =
                                 event.changes.fastFirstOrNull { it.id == pointerId } ?: break
+                            // Consumed before this handler on the Main pass, after the Initial
+                            // pass check above, so by a descendant, e.g. a nested component's
+                            // TouchExpression that locked the drag. Core drags nested expressions
+                            // together, so keep forwarding, and don't mistake this for an ancestor
+                            // claiming the gesture below.
+                            val consumedBeforeUs = change.isConsumed
                             val pos = change.position
                             val local = pos + touchOrigin
                             val rootX = placement.rootOffset.x + local.x
                             val rootY = placement.rootOffset.y + local.y
                             val touchX = if (isLegacyTouch) rootX else local.x
                             val touchY = if (isLegacyTouch) rootY else local.y
-                            lastTouchX = touchX
-                            lastTouchY = touchY
                             if (!change.pressed) {
-                                ended = true
-                                val velocity =
-                                    if (!dragRejected && !change.isConsumed) {
-                                        velocityTracker.addPointerInputChange(change)
-                                        velocityTracker.calculateVelocity()
-                                    } else {
-                                        null
-                                    }
-                                if (!dragRejected && !change.isConsumed) {
-                                    remoteContext.loadFloat(
-                                        RemoteContext.ID_TOUCH_POS_X,
-                                        rootX,
-                                    )
-                                    remoteContext.loadFloat(
-                                        RemoteContext.ID_TOUCH_POS_Y,
-                                        rootY,
-                                    )
+                                if (change.isConsumed) {
+                                    // Someone else took the release: no fling, and release at the
+                                    // last forwarded position.
+                                    cancelTracking()
+                                    break
                                 }
+                                ended = true
+                                velocityTracker.addPointerInputChange(change)
+                                val velocity = velocityTracker.calculateVelocity()
+                                remoteContext.loadFloat(
+                                    RemoteContext.ID_TOUCH_POS_X,
+                                    rootX,
+                                )
+                                remoteContext.loadFloat(
+                                    RemoteContext.ID_TOUCH_POS_Y,
+                                    rootY,
+                                )
                                 touchExpressions.fastForEach { te ->
                                     te.updateVariables(graphContext ?: remoteContext)
                                     te.touchUp(
                                         remoteContext,
                                         touchX,
                                         touchY,
-                                        velocity?.x ?: 0f,
-                                        velocity?.y ?: 0f,
+                                        velocity.x,
+                                        velocity.y,
                                     )
                                     te.apply(remoteContext)
                                 }
@@ -297,32 +373,71 @@ internal fun Modifier.componentTouchExpressions(
                                         } else if (dy > touchSlop) {
                                             dragLocked = true
                                         }
-                                    } else if (dx * dx + dy * dy > touchSlop * touchSlop) {
-                                        dragLocked = true
+                                    } else if (dx > touchSlop || dy > touchSlop) {
+                                        // Both axes (or none detectable): a scrollable ancestor
+                                        // may claim the drag along its own axis, on the Main
+                                        // pass of this event after this handler. Don't consume
+                                        // yet; lock after the Final pass check below. The slop
+                                        // is checked per axis, as an axis-locked scroller does,
+                                        // so this handler never passes the slop before it.
+                                        lockPending = true
                                     }
                                 }
-                                if (!dragRejected) {
-                                    velocityTracker.addPointerInputChange(change)
-                                    remoteContext.loadFloat(
-                                        RemoteContext.ID_TOUCH_POS_X,
-                                        rootX,
-                                    )
-                                    remoteContext.loadFloat(
-                                        RemoteContext.ID_TOUCH_POS_Y,
-                                        rootY,
-                                    )
-                                    touchExpressions.fastForEach { te ->
-                                        te.updateVariables(graphContext ?: remoteContext)
-                                        te.touchDrag(
-                                            remoteContext,
-                                            touchX,
-                                            touchY,
-                                        )
-                                    }
-                                    if (dragLocked) {
-                                        change.consume()
-                                    }
+                                if (dragRejected) {
+                                    // The drag is on an axis the expressions don't use: give the
+                                    // gesture up (leaving it to an ancestor scroller) and cancel,
+                                    // as the View player does when its parent intercepts.
+                                    cancelTracking()
+                                    break
                                 }
+                                velocityTracker.addPointerInputChange(change)
+                                remoteContext.loadFloat(
+                                    RemoteContext.ID_TOUCH_POS_X,
+                                    rootX,
+                                )
+                                remoteContext.loadFloat(
+                                    RemoteContext.ID_TOUCH_POS_Y,
+                                    rootY,
+                                )
+                                touchExpressions.fastForEach { te ->
+                                    te.updateVariables(graphContext ?: remoteContext)
+                                    te.touchDrag(
+                                        remoteContext,
+                                        touchX,
+                                        touchY,
+                                    )
+                                }
+                                lastRootX = rootX
+                                lastRootY = rootY
+                                lastTouchX = touchX
+                                lastTouchY = touchY
+                                if (dragLocked) {
+                                    change.consume()
+                                }
+                            }
+                            // Before this handler locks the drag, an ancestor (e.g. a scrollable
+                            // list or pager hosting the player) can claim the gesture on the Main
+                            // pass after this handler has seen the event. Check the Final pass of
+                            // the same event, and cancel tracking if it was consumed. Once locked,
+                            // the consumption is this handler's own.
+                            if (!dragLocked && !consumedBeforeUs) {
+                                val finalChange =
+                                    awaitPointerEvent(PointerEventPass.Final)
+                                        .changes
+                                        .fastFirstOrNull { it.id == pointerId }
+                                if (
+                                    finalChange != null &&
+                                        finalChange.pressed &&
+                                        finalChange.isConsumed
+                                ) {
+                                    cancelTracking()
+                                    break
+                                }
+                            }
+                            if (lockPending) {
+                                // No ancestor claimed the drag that passed the slop: lock it.
+                                lockPending = false
+                                dragLocked = true
                             }
                         }
                     } finally {
@@ -330,17 +445,7 @@ internal fun Modifier.componentTouchExpressions(
                         // mid-gesture. TouchExpression has no cancel, so release at the last
                         // position with no velocity and let it settle according to its stop mode.
                         if (!ended) {
-                            touchExpressions.fastForEach { te ->
-                                te.updateVariables(graphContext ?: remoteContext)
-                                te.touchUp(
-                                    remoteContext,
-                                    lastTouchX,
-                                    lastTouchY,
-                                    0f,
-                                    0f,
-                                )
-                                te.apply(remoteContext)
-                            }
+                            cancelTracking()
                         }
                     }
                 }

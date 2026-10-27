@@ -22,7 +22,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
@@ -61,6 +60,7 @@ import androidx.compose.remote.player.compose.embedded.layout.RcPlayerStateLayou
 import androidx.compose.remote.player.compose.embedded.modifier.ClickActionHandlers
 import androidx.compose.remote.player.compose.embedded.modifier.toModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +73,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
-import kotlin.math.abs
 
 /**
  * Renders a document that has no root layout component — a raw draw-list document whose draw
@@ -205,6 +204,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         val placement = remember(component) { ComponentPlacementHolder() }
         var outerModifier =
             Modifier.sharedElementTransition(component)
+                .stateBranchEnterExit(component)
                 .then(
                     // Allow StateLayout to adopt its active child's measured dimensions rather than
                     // expanding to incoming minimum parent constraints.
@@ -272,6 +272,7 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                                     posOnScreen.y - document.originY,
                                 )
                             }
+                        val initialPlacement = !placement.boundsInitialized
                         val sizeChanged =
                             !placement.boundsInitialized ||
                                 placement.width != w ||
@@ -305,25 +306,18 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
                                 (h - component.paddingTop - component.paddingBottom).coerceAtLeast(
                                     0f
                                 )
-                            sizeFeedbackOps.fastForEach { op ->
-                                val newVal =
-                                    when (op.type) {
-                                        ComponentValue.WIDTH -> w
-                                        ComponentValue.CONTENT_WIDTH -> contentW
-                                        ComponentValue.HEIGHT -> h
-                                        ComponentValue.CONTENT_HEIGHT -> contentH
-                                        ComponentValue.POS_X -> posInParent.x
-                                        ComponentValue.POS_Y -> posInParent.y
-                                        ComponentValue.POS_ROOT_X -> rootOffset.x
-                                        ComponentValue.POS_ROOT_Y -> rootOffset.y
-                                        else -> return@fastForEach
-                                    }
-                                remoteContext.loadFloat(op.valueId, newVal)
-                                val state = componentValueStateMap[op.valueId] ?: return@fastForEach
-                                if (abs(newVal - state.value) > 2.0f) {
-                                    state.value = newVal
-                                }
-                            }
+                            publishComponentValues(
+                                ops = sizeFeedbackOps,
+                                width = w,
+                                height = h,
+                                contentWidth = contentW,
+                                contentHeight = contentH,
+                                posInParent = posInParent,
+                                rootOffset = rootOffset,
+                                store = remoteContext,
+                                states = componentValueStateMap,
+                                initial = initialPlacement,
+                            )
                         }
                         // Position changes don't re-apply touch expressions: their bounds are
                         // refreshed at touch down.
@@ -380,7 +374,11 @@ private fun RcPlayerLayoutComponent(
         is RowLayout -> RcPlayerRow(component, modifier)
         is CoreText -> RcPlayerText(component, modifier)
         is TextLayout -> RcPlayerText(component, modifier)
-        is FitBoxLayout -> RcPlayerFitBoxLayout(component, modifier)
+        // A fit box's alternatives are not state layout branches.
+        is FitBoxLayout ->
+            CompositionLocalProvider(LocalStateBranchScope provides null) {
+                RcPlayerFitBoxLayout(component, modifier)
+            }
         is StateLayout -> RcPlayerStateLayout(component, modifier)
         is ImageLayout -> RcPlayerImageLayout(component, modifier)
         is Custom -> RcPlayerCustom(component, modifier, customClickHandlers)

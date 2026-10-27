@@ -34,7 +34,6 @@ import androidx.compose.remote.core.operations.IntegerExpression
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.TextFromFloat
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.Container
@@ -69,6 +68,7 @@ import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.RcPlayerState
 import androidx.compose.remote.player.compose.embedded.doc.findVariableId
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -395,13 +395,8 @@ internal object RcPlayerInspector {
         return component.mVisibility
     }
 
-    internal fun resolveFloatOrRaw(raw: Float, remoteContext: RemoteContext): Float {
-        return if (Utils.isVariable(raw)) {
-            remoteContext.getFloat(Utils.idFromNan(raw))
-        } else {
-            raw
-        }
-    }
+    internal fun resolveFloatOrRaw(raw: Float, remoteContext: RemoteContext): Float =
+        MaybeVariableFloat(raw).resolve(remoteContext)
 
     fun resolveVariableId(state: RcPlayerState, target: Any): Int? {
         if (target is Number) return target.toInt()

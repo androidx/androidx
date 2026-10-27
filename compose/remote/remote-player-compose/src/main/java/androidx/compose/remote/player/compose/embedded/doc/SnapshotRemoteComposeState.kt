@@ -19,6 +19,8 @@
 package androidx.compose.remote.player.compose.embedded.doc
 
 import android.graphics.Bitmap
+import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
@@ -60,18 +62,32 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
      */
     internal var opCountDepth: Int = 0
 
+    /**
+     * Float variables a draw stream writes in order, possibly several times per pass (see
+     * `DocumentPreprocessResult.streamFloatIds`). They are kept out of the snapshot map: a draw
+     * reads each one right after writing it, and snapshot writes would invalidate every reader of
+     * the map, including that same draw, on every frame.
+     */
+    internal var streamFloatIds: IntSet = emptyIntSet()
+
     // --- Float ---
     override fun getFloat(id: Int): Float {
+        if (streamFloatIds.contains(id)) return super.getFloat(id)
         return floats[id] ?: super.getFloat(id)
     }
 
     override fun cacheFloat(id: Int, item: Float) {
         super.cacheFloat(id, item)
+        if (streamFloatIds.contains(id)) return
         floats[id] = super.getFloat(id)
         colors[id] = super.getColor(id)
     }
 
     override fun updateFloat(id: Int, value: Float) {
+        if (streamFloatIds.contains(id)) {
+            super.updateFloat(id, value)
+            return
+        }
         val old = floats[id]
         super.updateFloat(id, value)
         val new = super.getFloat(id)

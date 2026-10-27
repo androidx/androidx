@@ -25,13 +25,13 @@ import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionConstraintsModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HeightInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -127,7 +127,7 @@ internal fun Modifier.dimensionConstraints(op: DimensionConstraintsModifierOpera
 @Composable
 internal fun DimensionModifierOperation.fillFraction(): Float {
     val source = rawValue
-    return if (source.isNaN() && !Utils.isVariable(source)) {
+    return if (MaybeVariableFloat(source).isUnset) {
         1f
     } else {
         rememberRemoteFloatAsState(source).value

@@ -18,8 +18,11 @@
 
 package androidx.compose.remote.player.compose.embedded.components
 
+import androidx.collection.IntSet
+import androidx.collection.emptyIntSet
 import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.BoundsTransform
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.EnterTransition
@@ -28,6 +31,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope.ResizeMode
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -46,6 +50,8 @@ import androidx.compose.remote.core.operations.FloatFunctionDefine
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
+import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
+import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentVisibilityOperation
 import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
@@ -60,6 +66,7 @@ import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -76,6 +83,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -495,6 +503,142 @@ private fun ContentDrawScope.executeCustomVisibilityAnimation(
             }
         }
     }
+}
+
+/**
+ * The [AnimatedVisibilityScope] of the animating state layout branch that encloses a component,
+ * along with the animation IDs that pair shared elements across that layout's branches.
+ *
+ * When [componentFades] is set the branch itself is not cross-faded, because fading the whole
+ * branch would also fade (and cut short) the slides and rotations of its components. Instead the
+ * components with their own non-fade enter/exit run their full spec, including any fade side, and
+ * the components in [fadeRootIds] fade themselves over [fadeDuration].
+ */
+internal class StateBranchScope(
+    val visibilityScope: AnimatedVisibilityScope,
+    val pairedSharedIds: IntSet,
+    val componentFades: Boolean = false,
+    val fadeRootIds: IntSet = emptyIntSet(),
+    val fadeDuration: Int = 0,
+    val fadeEasing: Easing = LinearEasing,
+)
+
+/**
+ * The enclosing animating state layout branch, or null outside one. Fit boxes and state layouts
+ * that switch instantly reset it to null for their descendants.
+ */
+internal val LocalStateBranchScope = compositionLocalOf<StateBranchScope?> { null }
+
+private fun AnimationSpec.ANIMATION.isFade(): Boolean =
+    this == AnimationSpec.ANIMATION.FADE_IN || this == AnimationSpec.ANIMATION.FADE_OUT
+
+private fun AnimationSpec.ANIMATION.isDrawn(): Boolean =
+    this == AnimationSpec.ANIMATION.ROTATE || this == AnimationSpec.ANIMATION.CUSTOM
+
+/**
+ * This component's own animation spec if it runs a non-fade enter/exit (slide, rotate or custom)
+ * when its state layout branch enters or exits, or null when the component is left to the branch
+ * cross-fade: it has no own enabled spec, its spec only fades, it animates through its visibility
+ * operation instead, or it is a shared element paired across branches by [pairedSharedIds].
+ */
+internal fun Component.ownBranchEnterExitSpec(pairedSharedIds: IntSet): AnimationSpec? {
+    val modifiers = (this as? LayoutComponent)?.componentModifiers?.list ?: return null
+    // Components with a visibility operation animate through RcPlayerAnimatedVisibility. State
+    // layouts and fit boxes override the visibility of their direct children.
+    if (
+        parent !is FitBoxLayout &&
+            parent !is StateLayout &&
+            modifiers.fastAny { it is ComponentVisibilityOperation }
+    ) {
+        return null
+    }
+    // Only the component's own spec; specs inherited from the parent animate with the parent.
+    val spec = modifiers.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec ?: return null
+    if (!spec.isAnimationEnabled) return null
+    if (spec.enterAnimation.isFade() && spec.exitAnimation.isFade()) return null
+    if (pairedSharedIds.contains(animationId)) return null
+    return spec
+}
+
+/**
+ * Applies the [component]'s own non-fade enter/exit animation (slide, rotate or custom) when its
+ * state layout branch enters or exits, matching core where each component of the previous and next
+ * branch runs its own animation spec. Shared elements paired across branches animate their bounds
+ * instead. Fades are left to the branch cross-fade, unless the branch fades its components
+ * individually (see [StateBranchScope.componentFades]).
+ */
+@Composable
+internal fun Modifier.stateBranchEnterExit(component: LayoutComponent): Modifier {
+    val branch = LocalStateBranchScope.current ?: return this
+    if (branch.fadeRootIds.contains(component.componentId)) {
+        val fadeDuration = branch.fadeDuration
+        val fadeEasing = branch.fadeEasing
+        val fadeEnter =
+            remember(fadeDuration, fadeEasing) {
+                fadeIn(visibilityTween(fadeDuration, 0, fadeEasing))
+            }
+        val fadeExit =
+            remember(fadeDuration, fadeEasing) {
+                fadeOut(visibilityTween(fadeDuration, 0, fadeEasing))
+            }
+        return with(branch.visibilityScope) {
+            this@stateBranchEnterExit.animateEnterExit(fadeEnter, fadeExit)
+        }
+    }
+    val spec = component.ownBranchEnterExitSpec(branch.pairedSharedIds) ?: return this
+    val enterAnim = spec.enterAnimation
+    val exitAnim = spec.exitAnimation
+    // Without a branch cross-fade the component runs its own fade side too.
+    val ownFades = branch.componentFades
+
+    val visDur = spec.visibilityDuration.toInt().coerceAtLeast(0)
+    val motDur = spec.motionDuration.toInt().coerceAtLeast(0)
+    val visEasing = mapEasing(spec.visibilityEasingType)
+    val enterVisDelay = if (spec.enterSequence == AnimationSpec.SEQUENCE.AFTER) motDur else 0
+    val exitVisDelay = if (spec.exitSequence == AnimationSpec.SEQUENCE.AFTER) motDur else 0
+
+    // Motion (size) is animated by the branch SizeTransform, so only the visual part is built.
+    val enter =
+        remember(spec, visDur, enterVisDelay, visEasing, ownFades) {
+            if (enterAnim.isFade() && !ownFades) {
+                EnterTransition.None
+            } else {
+                buildEnterTransition(enterAnim, visDur, enterVisDelay, visEasing, 0, 0, visEasing)
+            }
+        }
+    val exit =
+        remember(spec, visDur, exitVisDelay, visEasing, ownFades) {
+            if (exitAnim.isFade() && !ownFades) {
+                ExitTransition.None
+            } else {
+                buildExitTransition(exitAnim, visDur, exitVisDelay, visEasing, 0, 0, visEasing)
+            }
+        }
+    val scope = branch.visibilityScope
+    val animated = with(scope) { this@stateBranchEnterExit.animateEnterExit(enter, exit) }
+    if (!enterAnim.isDrawn() && !exitAnim.isDrawn()) return animated
+
+    // ROTATE and CUSTOM have no Enter/ExitTransition; animating on the branch transition keeps the
+    // exiting branch composed until they finish.
+    val transition = scope.transition
+    val drawProgressState =
+        transition.animateFloat(
+            transitionSpec = {
+                val delay =
+                    if (targetState == EnterExitState.Visible) enterVisDelay else exitVisDelay
+                visibilityTween(visDur, delay, visEasing)
+            },
+            label = "branchDrawProgress",
+        ) { state ->
+            if (state == EnterExitState.Visible) 1f else 0f
+        }
+    return animated.visibilityAnimationDraw(
+        component = component,
+        animSpec = spec,
+        isActive = transition.currentState != transition.targetState,
+        isEntering = transition.targetState == EnterExitState.Visible,
+        visProgressProvider = { drawProgressState.value },
+    )
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)

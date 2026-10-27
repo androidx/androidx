@@ -28,11 +28,15 @@ import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.player.compose.embedded.doc.DocumentPreprocessResult
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
+import androidx.compose.remote.player.compose.embedded.doc.GraphTimeState
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
+import androidx.compose.remote.player.compose.embedded.doc.TimeReadTracker
+import androidx.compose.remote.player.compose.embedded.doc.discreteTimeListenerMask
 import androidx.compose.remote.player.compose.embedded.doc.findVariableId
 import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
 import androidx.compose.remote.player.compose.embedded.doc.listensToContinuousTime
 import androidx.compose.remote.player.compose.embedded.doc.listensToDiscreteTime
+import androidx.compose.remote.player.compose.embedded.doc.listensToTouchPosition
 import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
 import androidx.compose.remote.player.compose.embedded.inspectable.RcComponentInspectable
 import androidx.compose.remote.player.compose.embedded.inspectable.RcFunctionDefineInspectable
@@ -84,11 +88,7 @@ public class RcPlayerState(
 ) : InspectableValue {
     internal val preprocessed: DocumentPreprocessResult = preprocessDocument(document)
     internal val remoteContext: AndroidRemoteContext =
-        initializePlayerRemoteContext(
-            document,
-            document.clock,
-            preprocessed,
-        )
+        initializePlayerRemoteContext(document, preprocessed)
 
     /**
      * Whether the document reads a continuous time variable: found by preprocessing, or registered
@@ -102,13 +102,32 @@ public class RcPlayerState(
     internal val hasDiscreteTime: Boolean =
         preprocessed.hasDiscreteTime || remoteContext.mRemoteComposeState.listensToDiscreteTime()
 
+    /**
+     * The discrete time variables the document refers to, as a bitmask indexed like
+     * `DISCRETE_TIME_VARIABLES`.
+     */
+    internal val discreteTimeMask: Int =
+        preprocessed.discreteTimeMask or
+            remoteContext.mRemoteComposeState.discreteTimeListenerMask()
+
+    /**
+     * Whether something other than a touch expression reads the touch position, so the player has
+     * to publish it from the root pointer handler.
+     */
+    internal val readsTouchPosition: Boolean =
+        preprocessed.readsTouchPosition ||
+            remoteContext.mRemoteComposeState.listensToTouchPosition()
+
+    /** Counts reads of the time fields, so the clock loop can idle when nothing reads time. */
+    internal val timeReads: TimeReadTracker
+        get() = graphContext.timeState.reads
+
     internal val currentTimeMillisState: MutableFloatState = mutableFloatStateOf(0f)
     internal val graphContext: GraphContext =
         GraphContext(
                 realState = remoteContext.mRemoteComposeState as SnapshotRemoteComposeState,
                 computedOps = preprocessed.computedOpIndex,
-                timeMillis = currentTimeMillisState,
-                clock = document.clock,
+                timeState = GraphTimeState(document.clock, TimeReadTracker()),
                 touchExpressionIds = preprocessed.touchExpressionIds,
             )
             .also { gc ->
@@ -118,7 +137,7 @@ public class RcPlayerState(
 
     /** The initial clock timestamp (in milliseconds) when this player state was initialized. */
     public val startClockMillis: Long
-        get() = graphContext.startClockMillis
+        get() = graphContext.timeState.startClockMillis
 
     override val nameFallback: String
         get() = "RcPlayerState"
@@ -154,18 +173,20 @@ public class RcPlayerState(
 
     /**
      * Advances document time to [frameMillis] across both time-tracking paths:
-     * 1. [GraphContext.updateTime] updates the expression DAG's `timeState` (driving compiled float
-     *    expressions like `ID_ANIMATION_TIME` and discrete wall-clock variables) and returns `true`
-     *    if any discrete clock boundary (second/minute/hour) was crossed.
+     * 1. [GraphTimeState.updateTime] updates the expression DAG's time fields (driving compiled
+     *    float expressions like `ID_ANIMATION_TIME` and discrete wall-clock variables).
      * 2. [currentTimeMillisState] drives non-DAG time readers (such as `TextFromFloat` and canvas
-     *    operations). It is updated whenever continuous animation is active or a discrete clock
-     *    boundary was crossed so both paths stay synchronized on every frame.
+     *    operations). It is updated whenever continuous animation is active or a second boundary
+     *    was crossed so both paths stay synchronized on every frame.
+     *
+     * @return `true` if the time fields were updated, i.e. [updateContinuous] is `true` or a second
+     *   boundary was crossed.
      */
     public fun updateTime(frameMillis: Float, updateContinuous: Boolean = true): Boolean {
-        val updated = graphContext.updateTime(frameMillis, updateContinuous)
-        // Advance the shared snapshot clock when running continuous animations or when a discrete
-        // clock boundary crossed so non-DAG operations observe the same frame timestamp.
-        if (updateContinuous || updated) {
+        val updated = graphContext.timeState.updateTime(frameMillis, updateContinuous)
+        // Advance the shared snapshot clock together with the DAG's time fields so non-DAG
+        // operations observe the same frame timestamp.
+        if (updated) {
             currentTimeMillisState.floatValue = frameMillis
         }
         return updated

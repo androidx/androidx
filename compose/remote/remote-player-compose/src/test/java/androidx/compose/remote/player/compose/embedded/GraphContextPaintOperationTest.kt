@@ -14,46 +14,47 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.ColorAttribute
+import androidx.compose.remote.core.operations.ColorConstant
+import androidx.compose.remote.core.operations.DrawRect
 import androidx.compose.remote.core.operations.ImageAttribute
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.layout.CanvasOperations
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
-import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOperation
-import androidx.compose.remote.player.compose.embedded.components.resolveCoreTextLineHeight
-import androidx.compose.remote.player.compose.embedded.doc.GraphContext
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.doc.initializePlayerRemoteContext
-import androidx.compose.remote.player.compose.embedded.doc.preprocessDocument
-import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
-import androidx.compose.remote.player.compose.embedded.modifier.toModifier
-import androidx.compose.remote.player.compose.embedded.resources.buildFontVariationSettings
-import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
+import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.core.semantics.CoreSemantics
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.AndroidFont
+import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -65,222 +66,172 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class GraphContextPaintOperationTest {
 
     @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun colorAttributeEvaluatesThroughPaintContextInGraphContext() {
-        val state = SnapshotRemoteComposeState()
         val sourceColorId = 1
-        // ARGB: Alpha=255, Red=255, Green=128, Blue=0
-        state.overrideColor(sourceColorId, 0xFFFF8000.toInt())
-
-        val redOp = ColorAttribute(10, sourceColorId, ColorAttribute.COLOR_RED)
-        val greenOp = ColorAttribute(11, sourceColorId, ColorAttribute.COLOR_GREEN)
-        val blueOp = ColorAttribute(12, sourceColorId, ColorAttribute.COLOR_BLUE)
-        val alphaOp = ColorAttribute(13, sourceColorId, ColorAttribute.COLOR_ALPHA)
-
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(10, redOp)
-                put(11, greenOp)
-                put(12, blueOp)
-                put(13, alphaOp)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(ColorConstant(sourceColorId, 0xFFFF8000.toInt()))
+                operations.add(ColorAttribute(10, sourceColorId, ColorAttribute.COLOR_RED))
+                operations.add(ColorAttribute(11, sourceColorId, ColorAttribute.COLOR_GREEN))
+                operations.add(ColorAttribute(12, sourceColorId, ColorAttribute.COLOR_BLUE))
+                operations.add(ColorAttribute(13, sourceColorId, ColorAttribute.COLOR_ALPHA))
+                operations.add(NamedVariable(10, NamedVariable.FLOAT_TYPE, "USER:red"))
+                operations.add(NamedVariable(11, NamedVariable.FLOAT_TYPE, "USER:green"))
+                operations.add(NamedVariable(12, NamedVariable.FLOAT_TYPE, "USER:blue"))
+                operations.add(NamedVariable(13, NamedVariable.FLOAT_TYPE, "USER:alpha"))
             }
 
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = computedOps,
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-            )
-
-        assertThat(graphContext.getFloat(10)).isWithin(0.01f).of(1.0f)
-        assertThat(graphContext.getFloat(11)).isWithin(0.01f).of(128f / 255f)
-        assertThat(graphContext.getFloat(12)).isWithin(0.01f).of(0.0f)
-        assertThat(graphContext.getFloat(13)).isWithin(0.01f).of(1.0f)
+        val state = RcPlayerState(doc)
+        assertThat(state.floatState("red").value).isWithin(0.01f).of(1.0f)
+        assertThat(state.floatState("green").value).isWithin(0.01f).of(128f / 255f)
+        assertThat(state.floatState("blue").value).isWithin(0.01f).of(0.0f)
+        assertThat(state.floatState("alpha").value).isWithin(0.01f).of(1.0f)
     }
 
     @Test
     fun textMeasureEvaluatesThroughPaintContextInGraphContext() {
-        val state = SnapshotRemoteComposeState()
         val textId = 5
-        state.cacheData(textId, "Hello World")
-
-        val widthOp = TextMeasure(20, textId, TextMeasure.MEASURE_WIDTH)
-        val heightOp = TextMeasure(21, textId, TextMeasure.MEASURE_HEIGHT)
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(20, widthOp)
-                put(21, heightOp)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(TextData(textId, "Hello World"))
+                operations.add(
+                    PaintData().apply { mPaintData = PaintBundle().apply { setTextSize(48f) } }
+                )
+                operations.add(TextMeasure(20, textId, TextMeasure.MEASURE_WIDTH))
+                operations.add(TextMeasure(21, textId, TextMeasure.MEASURE_HEIGHT))
+                operations.add(NamedVariable(20, NamedVariable.FLOAT_TYPE, "USER:width"))
+                operations.add(NamedVariable(21, NamedVariable.FLOAT_TYPE, "USER:height"))
             }
 
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = computedOps,
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-            )
-
-        // Default ComposeLocalPaint has textSize = NaN; toNativeTextPaint preserves Paint's 12px
-        // default so TextMeasure produces a finite non-negative width instead of NaN/0.
-        val defaultWidth = graphContext.getFloat(20)
+        val state = RcPlayerState(doc)
+        // Before canvas execution records a stream paint, TextMeasure falls back to the default
+        // 12px paint size and produces a finite positive width rather than NaN/0.
+        val defaultWidth = state.floatState("width").value
         assertThat(defaultWidth.isNaN()).isFalse()
         assertThat(defaultWidth).isGreaterThan(0f)
+        assertThat(state.floatState("height").value).isGreaterThan(0f)
 
-        val largePaint =
-            ComposeLocalPaint().apply {
-                textSize = 48f
-                isTextSizeSet = true
-            }
-        graphContext.setTextMeasurePaint(20, largePaint)
-        val largeWidth = graphContext.getFloat(20)
+        // Rendering the canvas stream applies the 48px PaintData to the TextMeasure op.
+        rule.setContent { RcPlayer(state = state, modifier = Modifier.size(200.dp, 80.dp)) }
+        rule.onRoot().captureToImage()
+
+        val largeWidth = state.floatState("width").value
         assertThat(largeWidth).isGreaterThan(defaultWidth)
     }
 
     @Test
     fun imageAttributeEvaluatesBitmapDataDimensions() {
-        val state = SnapshotRemoteComposeState()
         val imageId = 7
-        val bitmapData =
-            BitmapData(
-                imageId,
-                BitmapData.TYPE_PNG,
-                320,
-                BitmapData.ENCODING_URL,
-                240,
-                "camera/current".toByteArray(),
-            )
-        state.updateObject(imageId, bitmapData)
-
-        val widthOp = ImageAttribute(30, imageId, ImageAttribute.IMAGE_WIDTH, null)
-        val heightOp = ImageAttribute(31, imageId, ImageAttribute.IMAGE_HEIGHT, null)
-
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(30, widthOp)
-                put(31, heightOp)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(
+                    BitmapData(
+                        imageId,
+                        BitmapData.TYPE_PNG,
+                        320,
+                        BitmapData.ENCODING_URL,
+                        240,
+                        "camera/current".toByteArray(),
+                    )
+                )
+                operations.add(ImageAttribute(30, imageId, ImageAttribute.IMAGE_WIDTH, null))
+                operations.add(ImageAttribute(31, imageId, ImageAttribute.IMAGE_HEIGHT, null))
+                operations.add(NamedVariable(30, NamedVariable.FLOAT_TYPE, "USER:width"))
+                operations.add(NamedVariable(31, NamedVariable.FLOAT_TYPE, "USER:height"))
             }
 
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = computedOps,
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-            )
-
-        assertThat(graphContext.getFloat(30)).isEqualTo(320f)
-        assertThat(graphContext.getFloat(31)).isEqualTo(240f)
+        val state = RcPlayerState(doc)
+        assertThat(state.floatState("width").value).isEqualTo(320f)
+        assertThat(state.floatState("height").value).isEqualTo(240f)
     }
 
     @Test
     fun imageAttributeUpdatesZeroDimensionUrlBitmapFromLoadedAndOverriddenImage() {
-        val state = SnapshotRemoteComposeState()
-        val imageId = 8
-        val bitmapData =
-            BitmapData(
-                imageId,
-                BitmapData.TYPE_PNG,
-                0,
-                BitmapData.ENCODING_URL,
-                0,
-                "https://example.com/avatar.png".toByteArray(),
-            )
-        state.updateObject(imageId, bitmapData)
-
-        val widthOp = ImageAttribute(32, imageId, ImageAttribute.IMAGE_WIDTH, null)
-        val heightOp = ImageAttribute(33, imageId, ImageAttribute.IMAGE_HEIGHT, null)
-
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(32, widthOp)
-                put(33, heightOp)
-            }
-
-        val loadedBitmap = Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888)
-        val drawableState =
-            mutableStateOf<Drawable?>(BitmapDrawable(Resources.getSystem(), loadedBitmap))
-
-        val graphContext =
-            GraphContext(
-                    realState = state,
-                    computedOps = computedOps,
-                    timeMillis = mutableFloatStateOf(0f),
-                    clock = RemoteClock.SYSTEM,
+        val state = RcPlayerState(urlBitmapDocument(width = 0, height = 0))
+        val loaded =
+            mutableStateOf<Drawable?>(
+                BitmapDrawable(
+                    Resources.getSystem(),
+                    Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888),
                 )
-                .apply { imageLoader = RcImageLoader { drawableState } }
+            )
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp)) {
+                RcPlayer(state = state, imageLoader = { loaded })
+            }
+        }
+        rule.waitForIdle()
 
-        assertThat(graphContext.getFloat(32)).isEqualTo(240f)
-        assertThat(graphContext.getFloat(33)).isEqualTo(160f)
-        assertThat(bitmapData.width).isEqualTo(240)
-        assertThat(bitmapData.height).isEqualTo(160)
+        assertThat(state.floatState("width").value).isEqualTo(240f)
+        assertThat(state.floatState("height").value).isEqualTo(160f)
 
-        // Overriding the bitmap via state updates the dimensions reported by ImageAttribute
-        drawableState.value = null
-        val overriddenBitmap = Bitmap.createBitmap(480, 360, Bitmap.Config.ARGB_8888)
-        state.overrideData(imageId, overriddenBitmap)
+        // Overriding the bitmap updates the dimensions reported by ImageAttribute.
+        rule.runOnIdle {
+            loaded.value = null
+            state.bitmapState("avatar").value =
+                Bitmap.createBitmap(480, 360, Bitmap.Config.ARGB_8888)
+        }
+        rule.waitForIdle()
 
-        assertThat(graphContext.getFloat(32)).isEqualTo(480f)
-        assertThat(graphContext.getFloat(33)).isEqualTo(360f)
-        assertThat(bitmapData.width).isEqualTo(480)
-        assertThat(bitmapData.height).isEqualTo(360)
+        assertThat(state.floatState("width").value).isEqualTo(480f)
+        assertThat(state.floatState("height").value).isEqualTo(360f)
     }
 
     @Test
     fun imageAttributeUpdatesDefault1x1UrlBitmapFromLoadedImage() {
-        val state = SnapshotRemoteComposeState()
-        val imageId = 8
-        val bitmapData =
-            BitmapData(
-                imageId,
-                BitmapData.TYPE_PNG,
-                1,
-                BitmapData.ENCODING_URL,
-                1,
-                "https://example.com/avatar.png".toByteArray(),
-            )
-        state.updateObject(imageId, bitmapData)
-
-        val widthOp = ImageAttribute(32, imageId, ImageAttribute.IMAGE_WIDTH, null)
-        val heightOp = ImageAttribute(33, imageId, ImageAttribute.IMAGE_HEIGHT, null)
-
-        val computedOps =
-            mutableIntObjectMapOf<Operation>().apply {
-                put(32, widthOp)
-                put(33, heightOp)
-            }
-
-        val loadedBitmap = Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888)
-        val drawableState =
-            mutableStateOf<Drawable?>(BitmapDrawable(Resources.getSystem(), loadedBitmap))
-
-        val graphContext =
-            GraphContext(
-                    realState = state,
-                    computedOps = computedOps,
-                    timeMillis = mutableFloatStateOf(0f),
-                    clock = RemoteClock.SYSTEM,
+        val state = RcPlayerState(urlBitmapDocument(width = 1, height = 1))
+        val loaded =
+            mutableStateOf<Drawable?>(
+                BitmapDrawable(
+                    Resources.getSystem(),
+                    Bitmap.createBitmap(240, 160, Bitmap.Config.ARGB_8888),
                 )
-                .apply { imageLoader = RcImageLoader { drawableState } }
+            )
+        rule.setContent {
+            Box(modifier = Modifier.size(100.dp)) {
+                RcPlayer(state = state, imageLoader = { loaded })
+            }
+        }
+        rule.waitForIdle()
 
-        assertThat(graphContext.getFloat(32)).isEqualTo(240f)
-        assertThat(graphContext.getFloat(33)).isEqualTo(160f)
-        assertThat(bitmapData.width).isEqualTo(240)
-        assertThat(bitmapData.height).isEqualTo(160)
+        assertThat(state.floatState("width").value).isEqualTo(240f)
+        assertThat(state.floatState("height").value).isEqualTo(160f)
+    }
+
+    /** A URL bitmap named `USER:avatar` with placeholder dimensions and its width and height. */
+    private fun urlBitmapDocument(width: Int, height: Int): CoreDocument {
+        val imageId = 8
+        return CoreDocument(RemoteClock.SYSTEM).apply {
+            operations.add(
+                BitmapData(
+                    imageId,
+                    BitmapData.TYPE_PNG,
+                    width.toShort(),
+                    BitmapData.ENCODING_URL,
+                    height.toShort(),
+                    "https://example.com/avatar.png".toByteArray(),
+                )
+            )
+            operations.add(NamedVariable(imageId, NamedVariable.IMAGE_TYPE, "USER:avatar"))
+            operations.add(ImageAttribute(32, imageId, ImageAttribute.IMAGE_WIDTH, null))
+            operations.add(ImageAttribute(33, imageId, ImageAttribute.IMAGE_HEIGHT, null))
+            operations.add(NamedVariable(32, NamedVariable.FLOAT_TYPE, "USER:width"))
+            operations.add(NamedVariable(33, NamedVariable.FLOAT_TYPE, "USER:height"))
+        }
     }
 
     @Test
     fun resolveBitmapReturnsNullOnUnresolvableUrlWithoutThrowing() {
-        val ctx = AndroidRemoteContext()
-        val state = SnapshotRemoteComposeState()
-        ctx.mRemoteComposeState = state
         val imageId = 9
         val badUrlBitmap =
             BitmapData(
@@ -291,52 +242,60 @@ class GraphContextPaintOperationTest {
                 80,
                 "camera/current".toByteArray(),
             )
-        ctx.putObject(imageId, badUrlBitmap)
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(badUrlBitmap)
+                operations.add(NamedVariable(imageId, NamedVariable.IMAGE_TYPE, "USER:img"))
+            }
 
-        val resolved = resolveBitmap(ctx, imageId)
-        assertThat(resolved).isNull()
+        val state = RcPlayerState(doc)
+        assertThat(state.bitmapState("img").value).isNull()
+
+        val ctx =
+            state.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
         // Declared metadata remains intact in the object store.
-        assertThat(state.getObject(imageId)).isSameInstanceAs(badUrlBitmap)
+        assertThat(ctx.mRemoteComposeState.getObject(imageId)).isSameInstanceAs(badUrlBitmap)
     }
 
     @Test
     fun resolveBitmapThroughGraphContextDecodesIntoStore() {
         val imageId = 11
-        fun graphWithBitmap(withStore: Boolean): Pair<GraphContext, SnapshotRemoteComposeState> {
-            val state = SnapshotRemoteComposeState()
-            val store = AndroidRemoteContext().apply { mRemoteComposeState = state }
-            store.putObject(
+        val inlineBitmap =
+            BitmapData(
                 imageId,
-                BitmapData(
-                    imageId,
-                    BitmapData.TYPE_RAW8888,
-                    2,
-                    BitmapData.ENCODING_INLINE,
-                    2,
-                    ByteArray(16) { 0xFF.toByte() },
-                ),
+                BitmapData.TYPE_RAW8888,
+                2,
+                BitmapData.ENCODING_INLINE,
+                2,
+                ByteArray(16) { 0xFF.toByte() },
             )
-            val graphContext =
-                GraphContext(
-                    realState = state,
-                    computedOps = mutableIntObjectMapOf(),
-                    timeMillis = mutableFloatStateOf(0f),
-                    clock = RemoteClock.SYSTEM,
+        val doc =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(inlineBitmap)
+                operations.add(
+                    PaintData().apply {
+                        mPaintData = PaintBundle().apply { setTextureShader(imageId, 0, 0, 0, 0) }
+                    }
                 )
-            if (withStore) graphContext.store = store
-            return graphContext to state
-        }
+                operations.add(DrawRect(0f, 0f, 2f, 2f))
+            }
 
-        // GraphContext drops the decode write on its own...
-        val (noStore, _) = graphWithBitmap(withStore = false)
-        assertThat(resolveBitmap(noStore, imageId)).isNull()
+        val playerState = RcPlayerState(doc)
+        val ctx =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
+        // Before drawing, inline BitmapData is registered lazily without decoding into the store.
+        assertThat(ctx.mRemoteComposeState.containsId(imageId)).isFalse()
 
-        // ...and writes it through its store when one is set.
-        val (graphContext, state) = graphWithBitmap(withStore = true)
-        val resolved = resolveBitmap(graphContext, imageId)
+        // Drawing resolves the texture shader through GraphContext and persists the decoded Bitmap
+        // into the backing store.
+        rule.setContent { RcPlayer(state = playerState, modifier = Modifier.size(10.dp)) }
+        rule.onRoot().captureToImage()
+
+        val resolved = ctx.mRemoteComposeState.getFromId(imageId) as? Bitmap
         assertThat(resolved).isNotNull()
         assertThat(resolved!!.width).isEqualTo(2)
-        assertThat(state.getFromId(imageId)).isSameInstanceAs(resolved)
     }
 
     @Test
@@ -357,17 +316,21 @@ class GraphContextPaintOperationTest {
         TextData.apply(wire, 50, "Sample")
         TextMeasure.apply(wire, 60, 50, TextMeasure.MEASURE_WIDTH)
         ImageAttribute.apply(wire, 61, 42, ImageAttribute.IMAGE_WIDTH, null)
+        NamedVariable.apply(wire, 60, NamedVariable.FLOAT_TYPE, "USER:sampleWidth")
+        NamedVariable.apply(wire, 61, NamedVariable.FLOAT_TYPE, "USER:imageWidth")
         buffer.addContainerEnd()
         buffer.addContainerEnd()
 
         val document = CoreDocument()
         document.initFromBuffer(buffer)
-        val preprocessed = preprocessDocument(document)
+        val playerState = RcPlayerState(document)
 
-        assertThat(preprocessed.computedOpIndex.containsKey(60)).isTrue()
-        assertThat(preprocessed.computedOpIndex.containsKey(61)).isTrue()
+        assertThat(playerState.floatState("sampleWidth").value).isGreaterThan(0f)
+        assertThat(playerState.floatState("imageWidth").value).isEqualTo(64f)
 
-        val ctx = initializePlayerRemoteContext(document, RemoteClock.SYSTEM, preprocessed)
+        val ctx =
+            playerState.inspectableElements.first { it.name == "remoteContext" }.value
+                as AndroidRemoteContext
         val registered = ctx.mRemoteComposeState.getObject(42) as? BitmapData
         assertThat(registered).isNotNull()
         assertThat(registered!!.width).isEqualTo(64)
@@ -376,46 +339,98 @@ class GraphContextPaintOperationTest {
 
     @Test
     fun buildFontVariationSettingsPreservesWeightAndStyleWhenNotExplicit() {
-        val state = SnapshotRemoteComposeState()
-        state.cacheData(1, "wdth")
-        state.cacheData(2, "wght")
-        val graphContext =
-            GraphContext(
-                realState = state,
-                computedOps = mutableIntObjectMapOf(),
-                timeMillis = mutableFloatStateOf(0f),
-                clock = RemoteClock.SYSTEM,
-            )
+        val document = buildWriterDocument {
+            val wdthOnlyId = addText("WdthOnly")
+            val explicitWghtId = addText("ExplicitWght")
+            root {
+                startColumn(RecordingModifier().width(240f).height(160f), 0, 0)
+                startTextComponent(
+                    RecordingModifier().width(240f).height(60f),
+                    wdthOnlyId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    18f,
+                    -1f,
+                    -1f,
+                    1, // italic
+                    700f, // FontWeight.Bold
+                    "device:sans-serif",
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    arrayOf("wdth"),
+                    floatArrayOf(110f),
+                    false,
+                    0,
+                )
+                endTextComponent()
+                startTextComponent(
+                    RecordingModifier().width(240f).height(60f),
+                    explicitWghtId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    18f,
+                    -1f,
+                    -1f,
+                    0, // normal
+                    700f, // FontWeight.Bold
+                    "device:sans-serif",
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    arrayOf("wght"),
+                    floatArrayOf(550f),
+                    false,
+                    0,
+                )
+                endTextComponent()
+                endColumn()
+            }
+        }
+
+        rule.setContent { Box(Modifier.size(240.dp, 160.dp)) { RcPlayer(document = document) } }
+        rule.waitForIdle()
 
         // Only "wdth" is in fontAxis -> "wght" (from FontWeight.Bold) and "ital" (from Italic) are
         // appended so variable-font resolution does not revert to 400/upright.
-        val settingsWithWdthOnly =
-            buildFontVariationSettings(
-                fontAxis = intArrayOf(1),
-                fontAxisValues = floatArrayOf(110f),
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Italic,
-                context = graphContext,
-            )
-        assertThat(settingsWithWdthOnly).isNotNull()
+        val wdthOnlyFont =
+            (rule.textLayoutResultOf("WdthOnly").layoutInput.style.fontFamily as FontListFontFamily)
+                .fonts
+                .single() as AndroidFont
         val byTag =
-            settingsWithWdthOnly!!.settings.associate { it.axisName to it.toVariationValue(null) }
+            wdthOnlyFont.variationSettings.settings.associate {
+                it.axisName to it.toVariationValue(null)
+            }
         assertThat(byTag["wdth"]).isEqualTo(110f)
         assertThat(byTag["wght"]).isEqualTo(700f)
         assertThat(byTag["ital"]).isEqualTo(1f)
 
         // Explicit "wght" in fontAxis is preserved and not overwritten by fontWeight.
-        val settingsWithExplicitWght =
-            buildFontVariationSettings(
-                fontAxis = intArrayOf(2),
-                fontAxisValues = floatArrayOf(550f),
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Normal,
-                context = graphContext,
-            )
-        assertThat(settingsWithExplicitWght).isNotNull()
+        val explicitWghtFont =
+            (rule.textLayoutResultOf("ExplicitWght").layoutInput.style.fontFamily
+                    as FontListFontFamily)
+                .fonts
+                .single() as AndroidFont
         val explicitByTag =
-            settingsWithExplicitWght!!.settings.associate {
+            explicitWghtFont.variationSettings.settings.associate {
                 it.axisName to it.toVariationValue(null)
             }
         assertThat(explicitByTag["wght"]).isEqualTo(550f)
@@ -424,56 +439,143 @@ class GraphContextPaintOperationTest {
 
     @Test
     fun resolveCoreTextLineHeightUsesEffectiveFontSizeAndAutosizeRelativeEm() {
-        val density = Density(density = 2f, fontScale = 1f)
-
-        // Default multiplier=1f, add=0f -> Unspecified
-        assertThat(
-                resolveCoreTextLineHeight(
-                    fontSize = 40f,
-                    lineHeightMultiplier = 1f,
-                    lineHeightAdd = 0f,
-                    autosize = false,
-                    density = density,
+        val document = buildWriterDocument {
+            val defaultId = addText("DefaultLineHeight")
+            val fixedId = addText("FixedLineHeight")
+            val autosizeId = addText("AutosizeLineHeight")
+            root {
+                startColumn(RecordingModifier().width(300f).height(300f), 0, 0)
+                // Default multiplier=1f, add=0f -> Unspecified
+                startTextComponent(
+                    RecordingModifier().width(280f).height(80f),
+                    defaultId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    40f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    null,
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    null,
+                    null,
+                    false,
+                    0,
                 )
-            )
+                endTextComponent()
+                // Fixed font size (40px at density 2 -> 20sp) * 1.5 multiplier = 30sp
+                startTextComponent(
+                    RecordingModifier().width(280f).height(80f),
+                    fixedId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    40f,
+                    -1f,
+                    -1f,
+                    0,
+                    400f,
+                    null,
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1.5f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    null,
+                    null,
+                    false,
+                    0,
+                )
+                endTextComponent()
+                // Autosize with multiplier and no additive offset -> relative em
+                startTextComponent(
+                    RecordingModifier().width(280f).height(80f),
+                    autosizeId,
+                    -1,
+                    0xFF000000.toInt(),
+                    -1,
+                    36f,
+                    8f,
+                    60f,
+                    0,
+                    400f,
+                    null,
+                    CoreText.TEXT_ALIGN_START,
+                    CoreText.OVERFLOW_CLIP,
+                    1,
+                    0f,
+                    0f,
+                    1.25f,
+                    0,
+                    0,
+                    0,
+                    false,
+                    false,
+                    null,
+                    null,
+                    true,
+                    0,
+                )
+                endTextComponent()
+                endColumn()
+            }
+        }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(density = 2f, fontScale = 1f)) {
+                Box(Modifier.size(300.dp, 300.dp)) { RcPlayer(document = document) }
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(rule.textLayoutResultOf("DefaultLineHeight").layoutInput.style.lineHeight)
             .isEqualTo(TextUnit.Unspecified)
-
-        // Fixed font size (e.g. from PaintBundle = 40px at density 2 -> 20sp) * 1.5 multiplier =
-        // 30sp
-        assertThat(
-                resolveCoreTextLineHeight(
-                    fontSize = 40f,
-                    lineHeightMultiplier = 1.5f,
-                    lineHeightAdd = 0f,
-                    autosize = false,
-                    density = density,
-                )
-            )
+        assertThat(rule.textLayoutResultOf("FixedLineHeight").layoutInput.style.lineHeight)
             .isEqualTo(30.sp)
-
-        // Autosize with multiplier and no additive offset -> relative em so lineHeight scales with
-        // the auto-sized font size.
-        assertThat(
-                resolveCoreTextLineHeight(
-                    fontSize = 36f,
-                    lineHeightMultiplier = 1.25f,
-                    lineHeightAdd = 0f,
-                    autosize = true,
-                    density = density,
-                )
-            )
+        assertThat(rule.textLayoutResultOf("AutosizeLineHeight").layoutInput.style.lineHeight)
             .isEqualTo(1.25.em)
     }
 
     @Test
     fun standaloneRippleModifierHandlesTouchWithoutSpuriousClickSemantics() {
-        val modifiers = ComponentModifiers().apply { add(RippleModifierOperation()) }
-        rule.setContent {
-            Box(modifier = modifiers.toModifier().size(48.dp).testTag("rippleOnly"))
+        val doc = buildWriterDocument {
+            val labelId = addText("rippleOnly")
+            root {
+                startBox(
+                    RecordingModifier().width(48f).height(48f).then { w ->
+                        val wire = w.buffer.buffer
+                        RippleModifierOperation.apply(wire)
+                        CoreSemantics().apply { mContentDescriptionId = labelId }.write(wire)
+                    },
+                    BoxLayout.START,
+                    BoxLayout.TOP,
+                )
+                endBox()
+            }
         }
+
+        rule.setContent { RcPlayer(document = doc, modifier = Modifier.size(100.dp)) }
         rule.waitForIdle()
 
-        val node = rule.onNodeWithTag("rippleOnly")
+        val node = rule.onNodeWithContentDescription("rippleOnly")
         assertThat(SemanticsActions.OnClick in node.fetchSemanticsNode().config).isFalse()
 
         node.performTouchInput {

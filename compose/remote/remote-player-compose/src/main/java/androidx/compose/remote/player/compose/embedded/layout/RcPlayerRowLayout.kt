@@ -21,7 +21,6 @@ package androidx.compose.remote.player.compose.embedded.layout
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLayout
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout
@@ -33,6 +32,7 @@ import androidx.compose.remote.player.compose.embedded.LocalCoreDocument
 import androidx.compose.remote.player.compose.embedded.LocalGraphContext
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerChildren
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -79,9 +79,9 @@ internal fun RcPlayerRow(layout: RowLayout, modifier: Modifier) {
                     mods?.fastFirstOrNull { it is AlignByModifierOperation }
                         as? AlignByModifierOperation
                 if (alignByOp != null) {
-                    val line = alignByOp.line
-                    if (Utils.isVariable(line)) {
-                        val id = Utils.idFromNan(line)
+                    val line = MaybeVariableFloat(alignByOp.line)
+                    if (line.isReference) {
+                        val id = line.id
                         if (
                             id == AlignByModifierOperation.ID_FIRST_BASELINE ||
                                 id == AlignByModifierOperation.ID_LAST_BASELINE
@@ -141,9 +141,9 @@ internal fun RcPlayerFlowRow(layout: FlowLayout, modifier: Modifier) {
                 mods?.fastFirstOrNull { it is AlignByModifierOperation }
                     as? AlignByModifierOperation
             if (alignByOp != null) {
-                val line = alignByOp.line
-                if (Utils.isVariable(line)) {
-                    val id = Utils.idFromNan(line)
+                val line = MaybeVariableFloat(alignByOp.line)
+                if (line.isReference) {
+                    val id = line.id
                     if (
                         id == AlignByModifierOperation.ID_FIRST_BASELINE ||
                             id == AlignByModifierOperation.ID_LAST_BASELINE
