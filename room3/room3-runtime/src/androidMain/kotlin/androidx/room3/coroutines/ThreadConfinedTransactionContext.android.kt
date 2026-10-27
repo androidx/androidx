@@ -18,6 +18,8 @@ package androidx.room3.coroutines
 
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomExternalOperationElement
+import androidx.room3.Transactor.SQLiteTransactionType
+import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -27,7 +29,21 @@ import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+
+/**
+ * Context holder for executing thread-confined transactions with
+ * [androidx.sqlite.driver.AndroidSQLiteDriver] or drivers that report having a connection pool.
+ */
+internal class ThreadConfinedTransactionContext(
+    internal val limitedExecutor: Executor,
+    internal val writeMutex: Mutex,
+    internal val readSemaphore: Semaphore?,
+)
 
 /**
  * Calls the specified suspending [block] with Room's thread confined transaction context.
@@ -49,7 +65,10 @@ import kotlinx.coroutines.withContext
  * For further reading on the origin of this function see
  * [Threading models in Coroutines and Android SQLite API](https://medium.com/androiddevelopers/threading-models-in-coroutines-and-android-sqlite-api-6cab11f7eb90)
  */
-internal suspend fun <R> RoomDatabase.withTransactionContext(block: suspend () -> R): R {
+internal suspend fun <R> RoomDatabase.withTransactionContext(
+    type: SQLiteTransactionType,
+    block: suspend () -> R,
+): R {
     if (currentCoroutineContext()[RoomExternalOperationElement] == null) {
         return block.invoke()
     }
@@ -64,21 +83,63 @@ internal suspend fun <R> RoomDatabase.withTransactionContext(block: suspend () -
     return if (transactionDispatcher != null) {
         withContext(transactionDispatcher, transactionBlock)
     } else {
-        startTransactionCoroutine(transactionBlock)
+        startTransactionCoroutine(type, transactionBlock)
     }
 }
 
 /**
+ * Rate limits and starts the transaction coroutine based on the given transaction [type].
+ *
+ * Concurrency is controlled in coroutine-space before claiming a thread from
+ * [ThreadConfinedTransactionContext.limitedExecutor] to avoid exhausting executor threads when
+ * concurrent transactions wait for connections:
+ * - Write transactions ([SQLiteTransactionType.IMMEDIATE] and [SQLiteTransactionType.EXCLUSIVE])
+ *   acquire [ThreadConfinedTransactionContext.writeMutex] to ensure only a single writer runs.
+ * - Read transactions ([SQLiteTransactionType.DEFERRED]) acquire a permit from
+ *   [ThreadConfinedTransactionContext.readSemaphore] in WAL mode to match the number of read
+ *   connections, or [ThreadConfinedTransactionContext.writeMutex] in TRUNCATE mode where only a
+ *   single connection is available.
+ */
+private suspend fun <R> RoomDatabase.startTransactionCoroutine(
+    type: SQLiteTransactionType,
+    transactionBlock: suspend CoroutineScope.() -> R,
+): R =
+    when (type) {
+        SQLiteTransactionType.DEFERRED -> {
+            val semaphore = threadConfinedTransactionContext.readSemaphore
+            if (semaphore != null) {
+                semaphore.withPermit { startTransactionCoroutine(transactionBlock) }
+            } else {
+                threadConfinedTransactionContext.writeMutex.withLock {
+                    startTransactionCoroutine(transactionBlock)
+                }
+            }
+        }
+        SQLiteTransactionType.IMMEDIATE,
+        SQLiteTransactionType.EXCLUSIVE -> {
+            threadConfinedTransactionContext.writeMutex.withLock {
+                startTransactionCoroutine(transactionBlock)
+            }
+        }
+    }
+
+/**
  * Suspend caller coroutine and start the transaction coroutine in a thread from the
- * [RoomDatabase.transactionLimitedExecutor], resuming the caller coroutine with the result once
- * done. The caller's `context` will be a parent of the started coroutine to propagating
+ * [ThreadConfinedTransactionContext.limitedExecutor] in
+ * [RoomDatabase.threadConfinedTransactionContext], resuming the caller coroutine with the result
+ * once done. The caller's `context` will be a parent of the started coroutine to propagating
  * cancellation and release the thread when cancelled.
  */
 private suspend fun <R> RoomDatabase.startTransactionCoroutine(
     transactionBlock: suspend CoroutineScope.() -> R
 ): R = suspendCancellableCoroutine { continuation ->
     try {
-        transactionLimitedExecutor.execute {
+        threadConfinedTransactionContext.limitedExecutor.execute {
+            if (!continuation.isActive) {
+                // If the coroutine got canceled while the runnable was in the queue, then free
+                // the thread quickly by returning early.
+                return@execute
+            }
             try {
                 // Thread acquired, start the transaction coroutine using the parent context.
                 // The started coroutine will have an event loop dispatcher that we'll use for the

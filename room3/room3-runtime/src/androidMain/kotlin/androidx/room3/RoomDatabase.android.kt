@@ -32,6 +32,7 @@ import androidx.room3.autoclose.AutoCloserConfig
 import androidx.room3.autoclose.AutoClosingSQLiteDriver
 import androidx.room3.concurrent.CloseBarrier
 import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
+import androidx.room3.coroutines.ThreadConfinedTransactionContext
 import androidx.room3.coroutines.TransactionElement
 import androidx.room3.coroutines.withTransactionContext
 import androidx.room3.migration.AutoMigrationSpec
@@ -50,7 +51,6 @@ import java.io.File
 import java.io.InputStream
 import java.util.TreeMap
 import java.util.concurrent.Callable
-import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -63,6 +63,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must extend
@@ -85,15 +87,16 @@ public actual abstract class RoomDatabase actual constructor() {
         get() = configuration.name?.let { configuration.context?.getDatabasePath(it)?.path ?: it }
 
     /**
-     * The executor for thread-confined transactions, such as those from the [AndroidSQLiteDriver]
-     * or any driver that report to have an internal pool via [SQLiteDriver.hasConnectionPool].
+     * The executor and synchronization primitives for thread-confined transactions, such as those
+     * from the [AndroidSQLiteDriver] or any driver that reports to have an internal pool via
+     * [SQLiteDriver.hasConnectionPool].
      *
      * @see androidx.room3.coroutines.startTransactionCoroutine
      */
-    internal val transactionLimitedExecutor: Executor
-        get() = internalTransactionLimitedExecutor
+    internal val threadConfinedTransactionContext: ThreadConfinedTransactionContext
+        get() = internalThreadConfinedTransactionContext
 
-    private lateinit var internalTransactionLimitedExecutor: Executor
+    private lateinit var internalThreadConfinedTransactionContext: ThreadConfinedTransactionContext
 
     private lateinit var connectionManager: RoomConnectionManager
 
@@ -218,7 +221,17 @@ public actual abstract class RoomDatabase actual constructor() {
             CoroutineScope(configuration.queryCoroutineContext + SupervisorJob(parentJob))
         val dispatcher =
             configuration.queryCoroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-        internalTransactionLimitedExecutor = dispatcher.asExecutor()
+        internalThreadConfinedTransactionContext =
+            ThreadConfinedTransactionContext(
+                limitedExecutor = dispatcher.asExecutor(),
+                writeMutex = Mutex(),
+                readSemaphore =
+                    if (configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING) {
+                        Semaphore(WAL_DEFAULT_NUMBER_OF_READERS)
+                    } else {
+                        null
+                    },
+            )
 
         allowMainThreadQueries = configuration.allowMainThreadQueries
         autoCloser?.initCoroutineScope(coroutineScope)
@@ -1074,17 +1087,23 @@ public actual abstract class RoomDatabase actual constructor() {
 
         /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
-         * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
+         * tasks, such as `Flow` emissions, [InvalidationTracker] notifications, and transactions.
          *
-         * If no [CoroutineDispatcher] is present in the [context] then this function will throw an
-         * [IllegalArgumentException]
+         * If no [CoroutineDispatcher] is present in the [context], this function throws an
+         * [IllegalArgumentException].
          *
-         * If no context is provided, then Room will default to `Dispatchers.IO`.
+         * If no context is provided, Room defaults to [Dispatchers.IO].
+         *
+         * When using the [androidx.sqlite.driver.AndroidSQLiteDriver] (the default if [setDriver]
+         * is not called), transactions will pin a thread from the dispatcher for their duration
+         * since the underlying database connections are thread-confined. If providing a custom
+         * dispatcher that is shared, ensure its thread pool is sized to avoid thread starvation:
+         * - In [JournalMode.WRITE_AHEAD_LOGGING], the dispatcher should have more than 4 threads.
+         * - In [JournalMode.TRUNCATE], the dispatcher should have more than 1 thread.
          *
          * @param context The context
          * @return This [Builder] instance
-         * @throws IllegalArgumentException if no [CoroutineDispatcher] is found in the given
-         *   [context] or if this builder was already configured with an [Executor].
+         * @throws IllegalArgumentException if the [context] has no [CoroutineDispatcher]
          */
         @Suppress("MissingGetterMatchingBuilder")
         public actual fun setQueryCoroutineContext(context: CoroutineContext): Builder<T> = apply {

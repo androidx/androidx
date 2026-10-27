@@ -41,7 +41,8 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
-internal typealias TransactionWrapper<T> = suspend (suspend () -> T) -> T
+internal typealias TransactionWrapper<T> =
+    suspend (Transactor.SQLiteTransactionType, suspend () -> T) -> T
 
 /**
  * An implementation of a connection pool that doesn't do any connection management.
@@ -161,7 +162,11 @@ private class PassthroughConnection(
     override suspend fun <R> usePrepared(sql: String, block: suspend (SQLiteStatement) -> R): R {
         return if (inTransaction() && transactionWrapper != null) {
             @Suppress("UNCHECKED_CAST") // Safe to cast since it just pipes the result
-            transactionWrapper.invoke { delegate.prepare(sql).use { block.invoke(it) } } as R
+            transactionWrapper.invoke(
+                currentTransactionType ?: Transactor.SQLiteTransactionType.IMMEDIATE
+            ) {
+                delegate.prepare(sql).use { block.invoke(it) }
+            } as R
         } else {
             delegate.prepare(sql).use { block.invoke(it) }
         }
@@ -173,7 +178,7 @@ private class PassthroughConnection(
     ): R {
         return if (transactionWrapper != null) {
             @Suppress("UNCHECKED_CAST") // Safe to cast since it just pipes the result
-            transactionWrapper.invoke { transaction(type, block) } as R
+            transactionWrapper.invoke(type) { transaction(type, block) } as R
         } else {
             transaction(type, block)
         }
