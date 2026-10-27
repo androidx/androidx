@@ -107,18 +107,12 @@ internal class RectManager(
         // change
         val isDispatchGlobalCallbacks = isDirty || isScreenOrWindowDirty
 
+        // TODO: we need to move this to avoid double-firing
         if (isDirty) {
             isDirty = false
             callbacks.forEach { it() }
             rects.forEachUpdatedRect { id, topLeft, bottomRight ->
-                if (isScreenOrWindowDirty) {
-                    // Only update the stored rect coordinates here; fireOnRectChangedEntries
-                    // below will fire all callbacks once with the updated screen/window offsets,
-                    // avoiding double-firing in the same dispatch pass.
-                    throttledCallbacks.updateRect(id, topLeft, bottomRight)
-                } else {
-                    throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
-                }
+                throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
             }
             rects.clearUpdated()
         }
