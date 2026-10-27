@@ -20,21 +20,16 @@ import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
-import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
-import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.role
@@ -47,9 +42,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -59,8 +52,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -219,16 +210,14 @@ public fun RemoteSplitSwitchButton(
                         }
                     },
         ) {
-            RemoteCanvas(modifier = RemoteModifier.size(width = 32.rdp, height = 24.rdp)) {
-                drawSwitchControl(
-                    checked = checked,
-                    thumbColor = thumbColor,
-                    thumbIconColor = thumbIconColor,
-                    trackColor = trackColor,
-                    trackBorderColor = trackBorderColor,
-                    progress = progress,
-                )
-            }
+            RemoteSwitchControl(
+                checked = checked,
+                trackColor = trackColor,
+                trackBorderColor = trackBorderColor,
+                thumbColor = thumbColor,
+                thumbIconColor = thumbIconColor,
+                progress = progress,
+            )
         }
     }
 }
@@ -825,77 +814,4 @@ public class RemoteSplitSwitchButtonColors(
         result = 31 * result + disabledUncheckedTrackBorderColor.hashCode()
         return result
     }
-}
-
-private fun RemoteDrawScope.drawSwitchControl(
-    checked: RemoteBoolean,
-    thumbColor: RemoteColor,
-    thumbIconColor: RemoteColor,
-    trackColor: RemoteColor,
-    trackBorderColor: RemoteColor,
-    progress: RemoteFloat = checked.select(1f.rf, 0f.rf),
-) {
-    val trackWidth = 32.rdp.toPx()
-    val trackHeight = 22.rdp.toPx()
-    val trackTop = 1.rdp.toPx()
-    val cornerRadius = 11.rdp.toPx()
-    val strokeWidth = 2.rdp.toPx()
-
-    // Draw track fill
-    drawRoundRect(
-        paint =
-            RemotePaint {
-                style = PaintingStyle.Fill
-                color = trackColor
-            },
-        topLeft = RemoteOffset(0f.rf, trackTop),
-        size = RemoteSize(trackWidth, trackHeight),
-        cornerRadius = RemoteOffset(cornerRadius, cornerRadius),
-    )
-
-    // Draw track border
-    val halfStroke = strokeWidth / 2f.rf
-    drawRoundRect(
-        paint =
-            RemotePaint {
-                style = PaintingStyle.Stroke
-                color = trackBorderColor
-                this.strokeWidth = strokeWidth
-            },
-        topLeft = RemoteOffset(halfStroke, trackTop + halfStroke),
-        size = RemoteSize(trackWidth - strokeWidth, trackHeight - strokeWidth),
-        cornerRadius = RemoteOffset(cornerRadius - halfStroke, cornerRadius - halfStroke),
-    )
-
-    // Draw thumb
-    val thumbRadiusPx = lerp(6.rdp.toPx(), 9.rdp.toPx(), progress)
-    val thumbCenterXPx = lerp(11.rdp.toPx(), 21.rdp.toPx(), progress)
-    val thumbCenterYPx = 12.rdp.toPx()
-    drawCircle(
-        paint =
-            RemotePaint {
-                style = PaintingStyle.Fill
-                color = thumbColor
-            },
-        radius = thumbRadiusPx,
-        center = RemoteOffset(thumbCenterXPx, thumbCenterYPx),
-    )
-
-    // Draw tick icon on thumb
-    val tickPaint = RemotePaint {
-        style = PaintingStyle.Stroke
-        color = thumbIconColor
-        this.strokeWidth = strokeWidth
-        strokeCap = StrokeCap.Round
-    }
-    drawLine(
-        paint = tickPaint,
-        start = RemoteOffset(thumbCenterXPx - 4.6f.rdp.toPx(), thumbCenterYPx + 1.0f.rdp.toPx()),
-        end = RemoteOffset(thumbCenterXPx - 2.1f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
-    )
-    drawLine(
-        paint = tickPaint,
-        start = RemoteOffset(thumbCenterXPx - 1.5f.rdp.toPx(), thumbCenterYPx + 3.1f.rdp.toPx()),
-        end = RemoteOffset(thumbCenterXPx + 4.5f.rdp.toPx(), thumbCenterYPx - 2.9f.rdp.toPx()),
-    )
 }

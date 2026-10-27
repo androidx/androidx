@@ -20,11 +20,8 @@ import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
@@ -45,9 +42,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -57,7 +52,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -215,9 +209,11 @@ public fun RemoteSplitRadioButton(
                         }
                     },
         ) {
-            RemoteCanvas(modifier = RemoteModifier.size(24.rdp)) {
-                drawRadioControl(selected, controlColor, progress)
-            }
+            RemoteRadioControl(
+                selected = selected,
+                controlColor = controlColor,
+                progress = progress,
+            )
         }
     }
 }
@@ -650,37 +646,4 @@ public class RemoteSplitRadioButtonColors(
         result = 31 * result + disabledUnselectedControlColor.hashCode()
         return result
     }
-}
-
-private fun RemoteDrawScope.drawRadioControl(
-    selected: RemoteBoolean,
-    controlColor: RemoteColor,
-    progress: RemoteFloat = selected.select(1f.rf, 0f.rf),
-) {
-    val strokeWidth = 2.rdp.toPx()
-    val outerRadius = 9.rdp.toPx()
-    val centerOffset = RemoteOffset(12.rdp.toPx(), 12.rdp.toPx())
-    val innerRadiusPx = lerp(0f.rf, 5.rdp.toPx(), progress)
-
-    // Always draw the outer ring
-    drawCircle(
-        paint =
-            RemotePaint {
-                style = PaintingStyle.Stroke
-                color = controlColor
-                this.strokeWidth = strokeWidth
-            },
-        radius = outerRadius,
-        center = centerOffset,
-    )
-
-    drawCircle(
-        paint =
-            RemotePaint {
-                style = PaintingStyle.Fill
-                color = tween(Color.Transparent.rc, controlColor, progress)
-            },
-        radius = innerRadiusPx,
-        center = centerOffset,
-    )
 }
