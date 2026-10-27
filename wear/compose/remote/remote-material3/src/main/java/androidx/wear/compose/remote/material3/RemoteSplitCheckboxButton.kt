@@ -20,11 +20,9 @@ import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
@@ -60,7 +58,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -215,9 +212,12 @@ public fun RemoteSplitCheckboxButton(
                         }
                     },
         ) {
-            RemoteCanvas(modifier = RemoteModifier.size(24.rdp)) {
-                drawCheckboxControl(checked, boxColor, checkmarkColor, progress)
-            }
+            RemoteCheckboxControl(
+                checked = checked,
+                boxColor = boxColor,
+                checkmarkColor = checkmarkColor,
+                progress = progress,
+            )
         }
     }
 }
@@ -685,59 +685,6 @@ public class RemoteSplitCheckboxButtonColors(
         result = 31 * result + disabledUncheckedBoxColor.hashCode()
         return result
     }
-}
-
-private fun RemoteDrawScope.drawCheckboxControl(
-    checked: RemoteBoolean,
-    boxColor: RemoteColor,
-    checkmarkColor: RemoteColor,
-    progress: RemoteFloat = checked.select(1f.rf, 0f.rf),
-) {
-    val boxSize = 18.rdp.toPx()
-    val strokeWidth = 2.rdp.toPx()
-    val cornerRadius = 2.rdp.toPx()
-    val topLeft = (24.rdp.toPx() - boxSize) / 2f.rf
-    val halfStroke = strokeWidth / 2f.rf
-
-    val strokePaint = RemotePaint {
-        style = PaintingStyle.Stroke
-        color = tween(boxColor, Color.Transparent.rc, progress)
-        this.strokeWidth = strokeWidth
-    }
-    drawRoundRect(
-        paint = strokePaint,
-        topLeft = RemoteOffset(topLeft + halfStroke, topLeft + halfStroke),
-        size = RemoteSize(boxSize - strokeWidth, boxSize - strokeWidth),
-        cornerRadius = RemoteOffset(cornerRadius - halfStroke, cornerRadius - halfStroke),
-    )
-
-    val fillPaint = RemotePaint {
-        style = PaintingStyle.Fill
-        color = tween(Color.Transparent.rc, boxColor, progress)
-    }
-    drawRoundRect(
-        paint = fillPaint,
-        topLeft = RemoteOffset(topLeft, topLeft),
-        size = RemoteSize(boxSize, boxSize),
-        cornerRadius = RemoteOffset(cornerRadius, cornerRadius),
-    )
-
-    val tickPaint = RemotePaint {
-        style = PaintingStyle.Stroke
-        color = tween(Color.Transparent.rc, checkmarkColor, progress)
-        this.strokeWidth = strokeWidth
-        strokeCap = StrokeCap.Round
-    }
-    drawLine(
-        paint = tickPaint,
-        start = RemoteOffset(7.4f.rdp.toPx(), 13.0f.rdp.toPx()),
-        end = RemoteOffset(9.9f.rdp.toPx(), 15.5f.rdp.toPx()),
-    )
-    drawLine(
-        paint = tickPaint,
-        start = RemoteOffset(10.5f.rdp.toPx(), 15.1f.rdp.toPx()),
-        end = RemoteOffset(16.5f.rdp.toPx(), 9.1f.rdp.toPx()),
-    )
 }
 
 /** Draws a solid color fill for [shape] using [color]. */
