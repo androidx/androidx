@@ -57,6 +57,14 @@ CameraX involves complex hardware interactions, making robust testing essential.
     convergence or detector failed; or frame displays buffer corruption,
     chromatic shearing, incorrect rotation/aspect ratio, or vendor HAL stream
     configuration failures.
+  - **Pre-Inspection Image Integrity & Adaptive Context Budget**: Before calling
+    `read_file` / `view_file` on downloaded test images, verify binary integrity
+    (e.g. PNG `IHDR`/`IDAT`/`IEND` CRC + `zlib.decompress` or JPEG `SOI`/`EOI`
+    via Python 3 stdlib `struct`/`zlib` rather than optional `PIL`) so truncated
+    files never poison the multi-modal session trajectory, and adaptively
+    downscale oversized PNGs or multi-device batches (`convert -resize
+    <max_dim>x<max_dim>> -quality 85`) to stay within a `<= 3 MB` cumulative
+    session budget.
 - **On-Demand Lab Diagnostic Testing (`@LabTestRule.LabTestOnly`)**:
   When triaging suspected lab fixture failures (e.g. pitch-black 0-lux frames or
   camera orientation mismatches), execute on-demand diagnostic test suites
