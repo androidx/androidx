@@ -481,9 +481,15 @@ internal fun TimePickerImpl(
 
     val analogState = remember(state) { AnalogTimePickerState(state, userOverride) }
 
-    LaunchedEffect(state.hour, state.minute) {
+    LaunchedEffect(state.hour) {
         if (userOverride.value == true) {
             analogState.hour = state.hour
+        }
+        userOverride.value = true
+    }
+
+    LaunchedEffect(state.minute) {
+        if (userOverride.value == true) {
             analogState.minute = state.minute
         }
         userOverride.value = true
@@ -1790,7 +1796,7 @@ internal class AnalogTimePickerState(
         return anim.value - diff
     }
 
-    private var anim = Animatable(hourAngle)
+    private var anim by mutableStateOf(Animatable(hourAngle))
 
     suspend fun onGestureEnd(animationSpec: AnimationSpec<Float>) {
         val end =
@@ -1829,7 +1835,7 @@ internal class AnalogTimePickerState(
         }
     }
 
-    override var minuteInput: Int
+    override var minute: Int
         get() = state.minute
         set(value) {
             minuteAngle = RadiansPerMinute * value - FullCircle / 4
@@ -1839,7 +1845,13 @@ internal class AnalogTimePickerState(
             }
         }
 
-    override var hourInput: Int
+    override var minuteInput: Int
+        get() = state.minuteInput
+        set(value) {
+            minute = value
+        }
+
+    override var hour: Int
         get() = state.hour
         set(value) {
             hourAngle = RadiansPerHour * (value % 12) - FullCircle / 4
@@ -1847,6 +1859,12 @@ internal class AnalogTimePickerState(
             if (selection == TimePickerSelectionMode.Hour) {
                 anim = Animatable(hourAngle)
             }
+        }
+
+    override var hourInput: Int
+        get() = state.hourInput
+        set(value) {
+            hour = value
         }
 
     private fun Float.normalize(): Float {

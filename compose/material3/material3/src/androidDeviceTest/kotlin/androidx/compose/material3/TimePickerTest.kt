@@ -493,6 +493,53 @@ class TimePickerTest {
         rule.waitForIdle()
 
         rule.onNodeWithText("20").assertIsSelected()
+        // Old hour on the clock face should no longer be selected
+        rule
+            .onNodeWithTimeValue(
+                number = 14,
+                selection = TimePickerSelectionMode.Hour,
+                is24Hour = true,
+            )
+            .assertIsNotSelected()
+    }
+
+    @Test
+    fun timePicker_selectHour_toggleAmPm_selectMinute_updatesClockFace() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) { TimePicker(state) }
+
+        // 1. Toggle AM to PM while in Hour mode, then select hour 6 on the clock face
+        rule.onNodeWithText("PM").performClick()
+        rule.waitForIdle()
+        assertThat(state.hour).isEqualTo(22)
+
+        rule
+            .onNodeWithTimeValue(number = 6, selection = TimePickerSelectionMode.Hour)
+            .performClick()
+        rule.waitForIdle()
+        assertThat(state.hour).isEqualTo(18)
+        if (state.selection == TimePickerSelectionMode.Hour) {
+            rule.onNodeWithText("00").performClick()
+            rule.waitForIdle()
+        }
+        assertThat(state.selection).isEqualTo(TimePickerSelectionMode.Minute)
+
+        // 2. Toggle PM back to AM while in Minute mode
+        rule.onNodeWithText("AM").performClick()
+        rule.waitForIdle()
+        assertThat(state.hour).isEqualTo(6)
+
+        // 3. Select minute 30 on the clock face and verify the clock face selector moved off 00
+        rule
+            .onNodeWithTimeValue(number = 30, selection = TimePickerSelectionMode.Minute)
+            .performClick()
+        rule.waitForIdle()
+
+        assertThat(state.minute).isEqualTo(30)
+        rule
+            .onNodeWithTimeValue(number = 0, selection = TimePickerSelectionMode.Minute)
+            .assertIsNotSelected()
     }
 
     @Test
