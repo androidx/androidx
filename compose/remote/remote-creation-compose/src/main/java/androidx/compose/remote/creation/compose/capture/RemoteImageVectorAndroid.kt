@@ -20,9 +20,12 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.asRdp
@@ -31,7 +34,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
-import androidx.compose.remote.creation.compose.vector.toRemoteColor
+import androidx.compose.remote.creation.compose.vector.toRemoteBrush
 import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -59,8 +62,8 @@ import androidx.compose.ui.unit.isSpecified
  * @param strokeLineCap specifies the linecap for a stroked path
  * @param strokeLineJoin specifies the linejoin for a stroked path
  * @param strokeLineMiter specifies the miter limit for a stroked path
- * @param pathFillType specifies the winding rule that decides how the interior of a
- *   [androidx.compose.remote.creation.RemotePath] is calculated.
+ * @param pathFillType specifies the winding rule that decides how the interior of a [RemotePath] is
+ *   calculated.
  * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
  */
 public fun RemoteImageVector.Builder.path(
@@ -80,9 +83,53 @@ public fun RemoteImageVector.Builder.path(
         RemotePathData(pathBuilder),
         pathFillType.toRemotePathFillType(),
         name,
-        fill?.toRemoteColor(),
+        fill?.toRemoteBrush(),
         fillAlpha,
-        stroke?.toRemoteColor(),
+        stroke?.toRemoteBrush(),
+        strokeAlpha,
+        strokeLineWidth,
+        strokeLineCap.toRemoteStrokeCap(),
+        strokeLineJoin.toRemoteStrokeJoin(),
+        strokeLineMiter,
+    )
+
+/**
+ * DSL extension for adding a [RemoteVectorPath] with [RemoteBrush] fill and stroke to [this].
+ *
+ * @param name the name for this path
+ * @param fill specifies the [RemoteBrush] used to fill the path
+ * @param fillAlpha the alpha to fill the path
+ * @param stroke specifies the [RemoteBrush] used to fill the stroke
+ * @param strokeAlpha the alpha to stroke the path
+ * @param strokeLineWidth the width of the line to stroke the path
+ * @param strokeLineCap specifies the linecap for a stroked path
+ * @param strokeLineJoin specifies the linejoin for a stroked path
+ * @param strokeLineMiter specifies the miter limit for a stroked path
+ * @param pathFillType specifies the winding rule that decides how the interior of a [RemotePath] is
+ *   calculated.
+ * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteImageVector.Builder.path(
+    name: String = DefaultPathName,
+    fill: RemoteBrush? = null,
+    fillAlpha: RemoteFloat = 1.0f.rf,
+    stroke: RemoteBrush? = null,
+    strokeAlpha: RemoteFloat = 1.0f.rf,
+    strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
+    strokeLineCap: StrokeCap = StrokeCap.Butt,
+    strokeLineJoin: StrokeJoin = StrokeJoin.Miter,
+    strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
+    pathFillType: PathFillType = DefaultFillType,
+    pathBuilder: RemotePathScope.() -> Unit,
+): RemoteImageVector.Builder =
+    addPath(
+        RemotePathData(pathBuilder),
+        pathFillType.toRemotePathFillType(),
+        name,
+        fill,
+        fillAlpha,
+        stroke,
         strokeAlpha,
         strokeLineWidth,
         strokeLineCap.toRemoteStrokeCap(),
@@ -129,9 +176,9 @@ public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
                     pathData = node.pathData.toRemotePathNodes(),
                     pathFillType = node.pathFillType.toRemotePathFillType(),
                     name = node.name,
-                    fill = node.fill?.toRemoteColor(),
+                    fill = node.fill?.toRemoteBrush(),
                     fillAlpha = node.fillAlpha.rf,
-                    stroke = node.stroke?.toRemoteColor(),
+                    stroke = node.stroke?.toRemoteBrush(),
                     strokeAlpha = node.strokeAlpha.rf,
                     strokeLineWidth = node.strokeLineWidth.rf,
                     strokeLineCap = node.strokeLineCap.toRemoteStrokeCap(),

@@ -16,6 +16,8 @@
 
 package androidx.compose.remote.creation.compose.vector
 
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
@@ -25,16 +27,10 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathNode
 
-internal fun Brush.toRemoteColor(): RemoteColor =
+internal fun Brush.toRemoteBrush(): RemoteBrush? =
     when (this) {
-        is SolidColor ->
-            RemoteColor.rgb(
-                red = value.red.rf,
-                green = value.green.rf,
-                blue = value.blue.rf,
-                alpha = value.alpha.rf,
-            )
-        is ShaderBrush -> RemoteColor.rgb(0f.rf, 0f.rf, 0f.rf, 0f.rf)
+        is SolidColor -> RemoteBrush.solidColor(RemoteColor(value))
+        is ShaderBrush -> null
     }
 
 internal fun List<PathNode>.toRemotePathNodes(): List<RemotePathNode> {

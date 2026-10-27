@@ -20,10 +20,17 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.path
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.horizontalGradient
+import androidx.compose.remote.creation.compose.shaders.radialGradient
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePathFillType
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -76,7 +83,7 @@ class RemoteVectorPainterTest {
                     tintColor = RemoteColor(Color.Black),
                     name = "RemoteIcon20",
                 )
-                .path(fill = SolidColor(Color.Black)) {
+                .path(fill = RemoteBrush.solidColor(Color.Black.rc)) {
                     moveTo(0f.rf, 0f.rf)
                     lineTo(20f.rf, 20f.rf)
                 }
@@ -111,14 +118,28 @@ class RemoteVectorPainterTest {
                     stroke = SolidColor(Color.Green),
                     strokeAlpha = 0.8f,
                 )
+                .addPath(
+                    PathData {
+                        moveTo(2f, 2f)
+                        lineTo(22f, 22f)
+                    },
+                    fill = Brush.linearGradient(listOf(Color.Red, Color.Yellow)),
+                )
                 .build()
 
         val painter = painterRemoteVector(imageVector) as RemoteVectorPainter
         val rootGroup = painter.vector.root
-        assertThat(rootGroup.numChildren).isEqualTo(1)
+        assertThat(rootGroup.numChildren).isEqualTo(2)
 
         val group = RemoteGroupComponent().createGroupComponent(imageVector.root)
-        assertThat(group.numChildren).isEqualTo(1)
+        assertThat(group.numChildren).isEqualTo(2)
+        val solidComponent = group[0] as RemotePathComponent
+        assertThat(solidComponent.pathFillType).isEqualTo(RemotePathFillType.EvenOdd)
+        assertThat(solidComponent.fill).isEqualTo(RemoteBrush.solidColor(Color.Blue.rc))
+        assertThat(solidComponent.stroke).isEqualTo(RemoteBrush.solidColor(Color.Green.rc))
+
+        val shaderComponent = group[1] as RemotePathComponent
+        assertThat(shaderComponent.fill).isNull()
     }
 
     @Test
@@ -132,7 +153,7 @@ class RemoteVectorPainterTest {
                 )
                 .path(
                     pathFillType = PathFillType.EvenOdd,
-                    fill = SolidColor(Color.Red),
+                    fill = RemoteBrush.solidColor(Color.Red.rc),
                     fillAlpha = 0.5f.rf,
                 ) {
                     moveTo(0f.rf, 0f.rf)
@@ -145,6 +166,42 @@ class RemoteVectorPainterTest {
         val remoteCanvas = RemoteCanvas(creationState)
 
         // Draw procedurally using the new RemoteImageVector.draw extension
+        remoteImageVector.draw(remoteCanvas)
+    }
+
+    @Test
+    fun remoteImageVector_draw_gradientFillAndStrokeWithAlpha() {
+        val fillGradient = RemoteBrush.horizontalGradient(listOf(Color.Red.rc, Color.Blue.rc))
+        val strokeGradient = RemoteBrush.radialGradient(listOf(Color.Green.rc, Color.Yellow.rc))
+        val remoteImageVector =
+            RemoteImageVector.Builder(
+                    viewportWidth = 24f.rf,
+                    viewportHeight = 24f.rf,
+                    tintColor = Color.Unspecified.rc,
+                    name = "GradientVector",
+                )
+                .path(
+                    fill = fillGradient,
+                    fillAlpha = 0.5f.rf,
+                    stroke = strokeGradient,
+                    strokeAlpha = 0.75f.rf,
+                    strokeLineWidth = 2f.rf,
+                ) {
+                    moveTo(0f.rf, 0f.rf)
+                    lineTo(24f.rf, 0f.rf)
+                    lineTo(24f.rf, 24f.rf)
+                    lineTo(0f.rf, 24f.rf)
+                    close()
+                }
+                .build()
+
+        val painter = painterRemoteVector(remoteImageVector) as RemoteVectorPainter
+        val pathComponent = painter.vector.root[0] as RemotePathComponent
+        assertThat(pathComponent.fill).isEqualTo(fillGradient)
+        assertThat(pathComponent.stroke).isEqualTo(strokeGradient)
+
+        val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(48f, 48f))
+        val remoteCanvas = RemoteCanvas(creationState)
         remoteImageVector.draw(remoteCanvas)
     }
 }
