@@ -338,7 +338,7 @@ class RemoteCustomComponentTest {
             ) {
                 val namedColor = remember { createNamedRemoteColor("named_color_prop", Color.Blue) }
                 RemoteCustomComponent(name = "ColorPropertiesCustom") {
-                    property(1, Color.Red)
+                    property(1, Color.Red.rc)
                     property(2, Color.Green.rc)
                     property(3, namedColor)
                 }
