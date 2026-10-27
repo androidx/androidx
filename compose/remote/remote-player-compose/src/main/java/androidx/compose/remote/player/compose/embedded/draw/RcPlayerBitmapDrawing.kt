@@ -18,7 +18,6 @@
 
 package androidx.compose.remote.player.compose.embedded.draw
 
-import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.DrawBitmap
 import androidx.compose.remote.core.operations.DrawBitmapInt
@@ -83,13 +82,7 @@ internal fun DrawScope.drawBitmapScaledOp(
     remoteContext: RemoteContext,
     read: RemoteContext,
 ) {
-    val rawImageId = op.imageId
-    val imageId =
-        if ((rawImageId and PaintOperation.PTR_DEREFERENCE) != 0) {
-            remoteContext.mRemoteComposeState.getInteger(rawImageId and PaintOperation.VALUE_MASK)
-        } else {
-            rawImageId and PaintOperation.VALUE_MASK
-        }
+    val imageId = derefId(op.imageId, remoteContext)
     val bitmap = resolveCanvasBitmap(graph, remoteContext, imageId)
     if (bitmap != null) {
         val srcLeft = resolveFloat(op.srcLeft, op.outSrcLeft, read)

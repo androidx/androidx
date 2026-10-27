@@ -70,9 +70,9 @@ import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.TextFromFloat
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.util.fastMap
@@ -565,12 +565,8 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.x)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.x))
-                    } else if (op.x.isNaN()) {
-                        0f
-                    } else {
-                        op.x
+                    MaybeVariableFloat(op.x).let {
+                        if (it.isUnset) 0f else it.resolve(remoteContext)
                     }
                 else -> null
             }
@@ -579,12 +575,8 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.y)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.y))
-                    } else if (op.y.isNaN()) {
-                        0f
-                    } else {
-                        op.y
+                    MaybeVariableFloat(op.y).let {
+                        if (it.isUnset) 0f else it.resolve(remoteContext)
                     }
                 else -> null
             }
@@ -593,12 +585,8 @@ internal data class RcDrawOperationInspectable(
         get() =
             when (val op = operation) {
                 is DrawTextAnchored ->
-                    if (Utils.isVariable(op.panX)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.panX))
-                    } else if (op.panX.isNaN()) {
-                        0f
-                    } else {
-                        op.panX
+                    MaybeVariableFloat(op.panX).let {
+                        if (it.isUnset) 0f else it.resolve(remoteContext)
                     }
                 else -> null
             }
@@ -606,12 +594,7 @@ internal data class RcDrawOperationInspectable(
     val panY: Float?
         get() =
             when (val op = operation) {
-                is DrawTextAnchored ->
-                    if (Utils.isVariable(op.panY)) {
-                        remoteContext.getFloat(Utils.idFromNan(op.panY))
-                    } else {
-                        op.panY
-                    }
+                is DrawTextAnchored -> MaybeVariableFloat(op.panY).resolve(remoteContext)
                 else -> null
             }
 

@@ -24,9 +24,9 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.remote.core.operations.TouchExpression
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.player.compose.embedded.LocalRemoteContext
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -69,8 +69,8 @@ internal fun Modifier.scroll(op: ScrollModifierOperation): Modifier {
     // directly.
     val positionId =
         remember(op) {
-            val raw = op.positionExpression
-            if (Utils.isVariable(raw)) Utils.idFromNan(raw) else -1
+            val raw = MaybeVariableFloat(op.positionExpression)
+            if (raw.isReference) raw.id else -1
         }
     if (positionId > 0) {
         LaunchedEffect(scrollState, positionId) {

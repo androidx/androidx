@@ -49,7 +49,6 @@ import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.embedded.doc.rawDimensionDp
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -62,7 +61,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -394,22 +392,63 @@ class RcPlayerDensityBehaviorTest {
         }
     }
 
+    private fun offsetLeftDp(rawOffset: Float, behavior: Int, density: Float): Float {
+        val doc = runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            captureRule
+                .captureDocument(
+                    context = context,
+                    content = {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(100.rdp).semantics {
+                                    contentDescription = "outer".rs
+                                }
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.size(20.rdp)
+                                        .offset(x = rawOffset.rdp, y = 0.rdp)
+                                        .semantics { contentDescription = "offsetBox".rs }
+                            )
+                        }
+                    },
+                )
+                .apply { setDensityBehavior(behavior) }
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(density, 1f)) {
+                Box(modifier = Modifier) { RcPlayer(document = doc) }
+            }
+        }
+        rule.waitForIdle()
+        val outerLeft =
+            rule.onNodeWithContentDescription("outer").getUnclippedBoundsInRoot().left.value
+        val innerLeft =
+            rule.onNodeWithContentDescription("offsetBox").getUnclippedBoundsInRoot().left.value
+        return innerLeft - outerLeft
+    }
+
     @Test
     fun dpBehaviorPreservesOffsetDp() {
-        val behavior = CoreDocument.DENSITY_BEHAVIOR_DP
-        val rawOffset = 16f
-        val density = 2.5f
-        val offsetDp = rawDimensionDp(rawOffset, behavior, density)
-        assertEquals(16.dp, offsetDp)
+        val offsetDp =
+            offsetLeftDp(
+                rawOffset = 16f,
+                behavior = CoreDocument.DENSITY_BEHAVIOR_DP,
+                density = 2.5f,
+            )
+        assertThat(offsetDp).isWithin(0.5f).of(16f)
     }
 
     @Test
     fun pixelsBehaviorConvertsOffsetPixelsToDp() {
-        val behavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS
-        val rawOffset = 25f
-        val density = 2.5f
-        val offsetDp = rawDimensionDp(rawOffset, behavior, density)
-        assertEquals(10.dp, offsetDp)
+        val offsetDp =
+            offsetLeftDp(
+                rawOffset = 25f,
+                behavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
+                density = 2.5f,
+            )
+        assertThat(offsetDp).isWithin(0.5f).of(10f)
     }
 
     /** Document with a rounded clip rect modifier. */

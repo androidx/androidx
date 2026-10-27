@@ -21,6 +21,7 @@ package androidx.compose.remote.player.compose.embedded.draw
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ParticlesCompare
+import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.core.platform.AndroidPaintContext
@@ -44,8 +45,13 @@ import androidx.compose.ui.util.fastForEach
  * alive (kept alive for documents containing particles — see `containsParticles` in RcPlayer).
  *
  * Particle state (the `float[count][dims]` array) lives on the core `ParticlesCreate` op and is
- * advanced in place by core; only the one-time seeding is tracked here (per document, on
- * [GraphContext]) because unlike the View player the embedded player never "paints" the setup ops.
+ * advanced in place by core. Seeding follows the View player, where `CoreDocument.paint` paints
+ * every op each frame: a `ParticlesCreate` in the draw stream re-seeds on every paint (see
+ * [drawParticlesCreate] and `ParticlesCreate.paint`), so a simulation only accumulates when the
+ * create is wrapped in a one-shot `ImpulseOperation`, whose initial pass runs once per window. If
+ * the draw stream never paints the source (for example it was placed outside `CanvasOperations` and
+ * only visited at document setup), the loop seeds it once per document, keyed by
+ * `ParticlesCreate.getId()`.
  */
 internal fun DrawScope.drawParticles(
     loop: ParticlesLoop,
@@ -55,15 +61,30 @@ internal fun DrawScope.drawParticles(
 ) {
     val source = loop.particlesSource ?: return
     withCorePaintContext(remoteContext, paintState, graph) { paintContext ->
-        // Seed once per document via the core seeding path (ParticlesCreate.paint initializes
-        // every particle from its initial-value equations).
-        if (graph.particlesInitialized.add(System.identityHashCode(loop))) {
+        // A ParticlesCreate the draw stream never painted is seeded once per document, through the
+        // core seeding path (ParticlesCreate.paint initializes every particle from its
+        // initial-value equations).
+        if (graph.particlesInitialized.add(source.id)) {
             source.updateVariables(remoteContext)
             source.paint(paintContext)
         }
         loop.updateVariables(remoteContext)
         loop.paint(paintContext)
     }
+}
+
+/**
+ * [ParticlesCreate] reached in the draw stream: (re-)seeds every particle from its initial-value
+ * equations, matching `ParticlesCreate.paint` in the View player. Variables were already resolved
+ * by the dispatcher.
+ */
+internal fun drawParticlesCreate(
+    op: ParticlesCreate,
+    paintContext: PaintContext,
+    graph: GraphContext?,
+) {
+    op.paint(paintContext)
+    graph?.particlesInitialized?.add(op.id)
 }
 
 /** [ParticlesCompare] (particle interaction pass), reusing the core implementation. */

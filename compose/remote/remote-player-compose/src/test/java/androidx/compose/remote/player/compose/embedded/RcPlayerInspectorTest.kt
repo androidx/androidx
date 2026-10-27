@@ -18,17 +18,23 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawRect
+import androidx.compose.remote.core.operations.FloatConstant
 import androidx.compose.remote.core.operations.FloatFunctionCall
 import androidx.compose.remote.core.operations.FloatFunctionDefine
+import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -51,35 +57,26 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
-import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
-import androidx.compose.remote.player.compose.embedded.inspectable.RcCanvasLayoutInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcComponentInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcConditionalInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcCoreTextInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcDrawOperationInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcFunctionCallInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcFunctionDefineInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcLoopInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcModifierInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcPaddingModifierInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcPathOperationInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcPlayerInspector
-import androidx.compose.remote.player.compose.embedded.inspectable.RcRootLayoutInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcSemanticsModifierInspectable
-import androidx.compose.remote.player.compose.embedded.inspectable.RcWidthModifierInspectable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutInfo
+import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -128,18 +125,16 @@ class RcPlayerInspectorTest {
         }
     }
 
-    private fun collectInspectables(rootNode: SemanticsNode): List<InspectableValue> {
-        val inspectables = mutableListOf<InspectableValue>()
+    private operator fun InspectableValue.get(name: String): Any? =
+        inspectableElements.firstOrNull { it.name == name }?.value
+
+    private fun collectModifierInfos(rootNode: SemanticsNode): List<ModifierInfo> {
+        val infos = mutableListOf<ModifierInfo>()
         val visited = mutableSetOf<LayoutInfo>()
         fun walk(node: SemanticsNode) {
             var current: LayoutInfo? = node.layoutInfo
             while (current != null && visited.add(current)) {
-                for (modInfo in current.getModifierInfo()) {
-                    val inspectable = modInfo.modifier as? InspectableValue
-                    if (inspectable != null) {
-                        inspectables.add(inspectable)
-                    }
-                }
+                infos.addAll(current.getModifierInfo())
                 current = current.parentInfo
             }
             for (child in node.children) {
@@ -147,11 +142,11 @@ class RcPlayerInspectorTest {
             }
         }
         walk(rootNode)
-        return inspectables
+        return infos
     }
 
-    private fun collectInspectableNames(rootNode: SemanticsNode): Set<String> =
-        collectInspectables(rootNode).mapNotNull { it.nameFallback }.toSet()
+    private fun collectInspectables(rootNode: SemanticsNode): List<InspectableValue> =
+        collectModifierInfos(rootNode).mapNotNull { it.modifier as? InspectableValue }
 
     @Test
     fun whenInspectorDisabled_noRcInspectorModifiersAttached() {
@@ -168,33 +163,57 @@ class RcPlayerInspectorTest {
         rule.waitForIdle()
 
         val rootNode = rule.onRoot(useUnmergedTree = true).fetchSemanticsNode()
-        val inspectables = collectInspectables(rootNode)
-        assertThat(inspectables.filterIsInstance<RcComponentInspectable>()).isEmpty()
-        assertThat(inspectables.filterIsInstance<RcModifierInspectable>()).isEmpty()
-        val names = inspectables.mapNotNull { it.nameFallback }.toSet()
-        assertThat(names).doesNotContain(RcPlayerInspector.INSPECTOR_ROOT_NAME)
-        assertThat(names).doesNotContain(RcPlayerInspector.INSPECTOR_CONTENT_NAME)
-
-        val snapshot = RcPlayerInspector.captureTreeSnapshot(rootNode)
-        assertThat(snapshot).isEmpty()
+        val names = collectInspectables(rootNode).mapNotNull { it.nameFallback }.toSet()
+        assertThat(names.filter { it.startsWith("rc") }).isEmpty()
     }
 
+    private fun captureDoc(content: @Composable @RemoteComposable () -> Unit): CoreDocument =
+        runBlocking {
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = ApplicationProvider.getApplicationContext(),
+                        creationDisplayInfo =
+                            createCreationDisplayInfo(
+                                context = ApplicationProvider.getApplicationContext(),
+                                size = Size(200f, 200f),
+                            ),
+                        content = content,
+                    )
+                    .bytes
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                ByteArrayInputStream(bytes).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+        }
+
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun whenInspectorEnabled_exposesInspectableValuesAndCapturesTreeSnapshot() {
         isDebugInspectorInfoEnabled = true
-        val doc =
-            rule.setRemoteContent(
-                remoteCreationDisplayInfo =
-                    createCreationDisplayInfo(
-                        context = ApplicationProvider.getApplicationContext(),
-                        size = Size(200f, 200f),
-                    )
-            ) {
-                TestDocumentContent()
-            }
+        val doc = captureDoc { TestDocumentContent() }
+        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = doc) } }
         rule.waitForIdle()
 
-        val state = RcPlayerState(doc)
+        val rootNode = rule.onRoot(useUnmergedTree = true).fetchSemanticsNode()
+        val modInfos = collectModifierInfos(rootNode)
+        val inspectables = modInfos.mapNotNull { it.modifier as? InspectableValue }
+        val names = inspectables.mapNotNull { it.nameFallback }.toSet()
+        assertThat(names).contains("rcPlayerRoot")
+        assertThat(names).contains("rcComponentContent")
+        assertThat(names).contains("rcColumnLayout")
+        assertThat(names).contains("rcBoxLayout")
+        assertThat(names).contains("rcPadding")
+        assertThat(names).contains("rcWidth")
+        assertThat(names).contains("rcHeight")
+        assertThat(names).contains("rcSemantics")
+        assertThat(names).contains("rcVisibility")
+
+        // Discover live RcPlayerState from the attached rcPlayerRoot InspectableValue
+        val rootModInfo = modInfos.first {
+            (it.modifier as? InspectableValue)?.nameFallback == "rcPlayerRoot"
+        }
+        val state = (rootModInfo.modifier as InspectableValue).valueOverride as RcPlayerState
 
         // Verify RcPlayerState implements InspectableValue directly with lazy document hierarchy
         val stateInspectable: InspectableValue = state
@@ -211,72 +230,65 @@ class RcPlayerInspectorTest {
                 "functions",
                 "operations",
             )
-        assertThat(state.rootComponentInspectable).isInstanceOf(RcRootLayoutInspectable::class.java)
-        assertThat(state.rootComponentInspectable?.nameFallback).isEqualTo("rcRootLayout")
-        assertThat(state.variablesInspectable).isNotEmpty()
+        val rootComp = stateInspectable["rootComponent"] as InspectableValue
+        assertThat(rootComp.nameFallback).isEqualTo("rcRootLayout")
+        assertThat(rootComp["kind"]).isEqualTo("RootLayoutComponent")
 
-        val rootNode = rule.onRoot(useUnmergedTree = true).fetchSemanticsNode()
-        val inspectables = collectInspectables(rootNode)
-        val names = inspectables.mapNotNull { it.nameFallback }.toSet()
-        assertThat(names).contains(RcPlayerInspector.INSPECTOR_ROOT_NAME)
-        assertThat(names).contains(RcPlayerInspector.INSPECTOR_CONTENT_NAME)
-        assertThat(names).contains("rcColumnLayout")
-        assertThat(names).contains("rcBoxLayout")
-        assertThat(names).contains("rcPadding")
-        assertThat(names).contains("rcWidth")
-        assertThat(names).contains("rcHeight")
-        assertThat(names).contains("rcSemantics")
-        assertThat(names).contains("rcVisibility")
+        val variables = stateInspectable["variables"] as List<InspectableValue>
+        assertThat(variables).isNotEmpty()
+        assertThat(variables.first { it["variableName"] == "USER:speed" }["value"]).isEqualTo(80f)
+        assertThat(variables.first { it["variableName"] == "USER:label" }["value"])
+            .isEqualTo("Hello Inspector")
+        assertThat(state.floatState("speed").value).isEqualTo(80f)
+        assertThat(state.stringState("label").value).isEqualTo("Hello Inspector")
+        assertThat(stateInspectable["operations"] as List<InspectableValue>).isNotEmpty()
 
-        // Capture tree snapshot without passing state (discovered via rcPlayerRoot
-        // InspectableValue)
-        val snapshot = RcPlayerInspector.captureTreeSnapshot(rootNode)
-        assertThat(snapshot).isNotEmpty()
+        // Verify live layout coordinates and visibility through ModifierInfo + InspectableValue
+        assertThat(rootModInfo.coordinates.size).isEqualTo(IntSize(200, 200))
 
-        val rootSnap = snapshot.first { it.kind == "RootLayoutComponent" }
-        assertThat(rootSnap.width).isEqualTo(200f)
-        assertThat(rootSnap.height).isEqualTo(200f)
+        val colOuterInfo = modInfos.first {
+            (it.modifier as? InspectableValue)?.nameFallback == "rcColumnLayout"
+        }
+        assertThat(colOuterInfo.coordinates.size).isEqualTo(IntSize(200, 200))
+        val colId = (colOuterInfo.modifier as InspectableValue)["componentId"] as Int
+        val colContentCoords =
+            modInfos
+                .first {
+                    val m = it.modifier as? InspectableValue
+                    m?.nameFallback == "rcComponentContent" && m.valueOverride == colId
+                }
+                .coordinates
 
-        val colSnap = snapshot.first { it.kind == "ColumnLayout" }
-        assertThat(colSnap.x).isEqualTo(0f)
-        assertThat(colSnap.y).isEqualTo(0f)
-        assertThat(colSnap.width).isEqualTo(200f)
-        assertThat(colSnap.height).isEqualTo(200f)
+        val boxInfos =
+            modInfos
+                .filter { (it.modifier as? InspectableValue)?.nameFallback == "rcBoxLayout" }
+                .distinctBy { (it.modifier as InspectableValue)["componentId"] }
+        assertThat(boxInfos).hasSize(2)
 
-        val boxes = snapshot.filter { it.kind == "BoxLayout" }
-        assertThat(boxes).hasSize(2)
-        // First box is placed inside ColumnLayout's content coordinates (after 10px left, 15px top
+        val visibleBox = boxInfos.single {
+            (it.modifier as InspectableValue)["visibility"] == "VISIBLE"
+        }
+        assertThat(visibleBox.coordinates.size).isEqualTo(IntSize(80, 40))
+        // Placed at (0, 0) in ColumnLayout's content coordinates (10px, 15px from root after
         // padding)
-        assertThat(boxes[0].x).isEqualTo(0f)
-        assertThat(boxes[0].y).isEqualTo(0f)
-        assertThat(boxes[0].width).isEqualTo(80f)
-        assertThat(boxes[0].height).isEqualTo(40f)
-        assertThat(boxes[0].visibility).isEqualTo("VISIBLE")
+        assertThat(colContentCoords.localPositionOf(visibleBox.coordinates, Offset.Zero))
+            .isEqualTo(Offset(0f, 0f))
+        assertThat(rootModInfo.coordinates.localPositionOf(visibleBox.coordinates, Offset.Zero))
+            .isEqualTo(Offset(10f, 15f))
 
-        // Second box is placed below the first box (y = 40) and is INVISIBLE
-        assertThat(boxes[1].x).isEqualTo(0f)
-        assertThat(boxes[1].y).isEqualTo(40f)
-        assertThat(boxes[1].width).isEqualTo(60f)
-        assertThat(boxes[1].height).isEqualTo(30f)
-        assertThat(boxes[1].visibility).isEqualTo("INVISIBLE")
-
-        // Verify variable and operation probes via RcPlayerInspector
-        assertThat(RcPlayerInspector.resolveFloat(state, "USER:speed")).isEqualTo(80f)
-        assertThat(RcPlayerInspector.resolveFloat(state, "speed")).isEqualTo(80f)
-        assertThat(RcPlayerInspector.resolveText(state, "USER:label")).isEqualTo("Hello Inspector")
-        assertThat(RcPlayerInspector.collectAllOperations(doc)).isNotEmpty()
+        val invisibleBox = boxInfos.single {
+            (it.modifier as InspectableValue)["visibility"] == "INVISIBLE"
+        }
+        assertThat(invisibleBox.coordinates.size).isEqualTo(IntSize(60, 30))
+        assertThat(colContentCoords.localPositionOf(invisibleBox.coordinates, Offset.Zero))
+            .isEqualTo(Offset(0f, 40f))
     }
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun remoteTextLayoutNode_attachesComposeUiTextAndRcCoreTextAndModifiersSideBySide() {
         isDebugInspectorInfoEnabled = true
-        rule.setRemoteContent(
-            remoteCreationDisplayInfo =
-                createCreationDisplayInfo(
-                    context = ApplicationProvider.getApplicationContext(),
-                    size = Size(200f, 200f),
-                )
-        ) {
+        val doc = captureDoc {
             val greeting = remember { createNamedRemoteString("greeting", "Hello RemoteText") }
             val textWidth = remember {
                 createNamedRemoteFloatExpression("textWidth") { 120f.rf }
@@ -296,13 +308,13 @@ class RcPlayerInspectorTest {
                 )
             }
         }
+        rule.setContent { Box(modifier = Modifier.size(200.dp)) { RcPlayer(document = doc) } }
         rule.waitForIdle()
 
         val rootNode = rule.onRoot(useUnmergedTree = true).fetchSemanticsNode()
         val state =
-            collectInspectables(rootNode)
-                .first { it.nameFallback == RcPlayerInspector.INSPECTOR_ROOT_NAME }
-                .valueOverride as RcPlayerState
+            collectInspectables(rootNode).first { it.nameFallback == "rcPlayerRoot" }.valueOverride
+                as RcPlayerState
 
         // Locate the RemoteText SemanticsNode and walk its LayoutInfo chain
         val textSemanticsNode =
@@ -317,14 +329,14 @@ class RcPlayerInspectorTest {
                     chainInspectables.add(inspectable)
                 }
             }
-            if (chainInspectables.any { it is RcCoreTextInspectable }) {
+            if (chainInspectables.any { it.nameFallback == "rcCoreText" }) {
                 break
             }
             curr = curr.parentInfo
         }
 
-        // Verify both Compose UI's TextStringSimpleElement and RcCoreTextInspectable
-        // ("rcCoreText") are attached on the RemoteText node chain
+        // Verify both Compose UI's TextStringSimpleElement and "rcCoreText" are attached on the
+        // RemoteText node chain
         val chainNames = chainInspectables.mapNotNull { it.nameFallback }
         assertThat(chainNames).contains("TextStringSimpleElement")
         assertThat(chainNames).contains("rcCoreText")
@@ -333,49 +345,51 @@ class RcPlayerInspectorTest {
         assertThat(chainNames).contains("rcPadding")
         assertThat(chainNames).contains("rcSemantics")
 
-        val rcText = chainInspectables.filterIsInstance<RcCoreTextInspectable>().single()
-        assertThat(rcText.text).isEqualTo("Hello RemoteText")
-        assertThat(rcText.fontWeight).isEqualTo(700f)
-        assertThat(rcText.maxLines).isEqualTo(2)
-        assertThat(rcText.visibility).isEqualTo("VISIBLE")
-        assertThat(rcText.modifiers.map { it.nameFallback })
+        val rcText = chainInspectables.single { it.nameFallback == "rcCoreText" }
+        assertThat(rcText["text"]).isEqualTo("Hello RemoteText")
+        assertThat(rcText["fontWeight"]).isEqualTo(700f)
+        assertThat(rcText["maxLines"]).isEqualTo(2)
+        assertThat(rcText["visibility"]).isEqualTo("VISIBLE")
+        val rcTextModifiers = rcText["modifiers"] as List<InspectableValue>
+        assertThat(rcTextModifiers.map { it.nameFallback })
             .containsAtLeast("rcWidth", "rcHeight", "rcPadding", "rcSemantics")
 
-        val rcWidth = chainInspectables.filterIsInstance<RcWidthModifierInspectable>().first()
-        assertThat(rcWidth.value).isEqualTo(120f)
+        val rcWidth = chainInspectables.first { it.nameFallback == "rcWidth" }
+        assertThat(rcWidth["value"]).isEqualTo(120f)
 
-        val rcPadding = chainInspectables.filterIsInstance<RcPaddingModifierInspectable>().first()
-        assertThat(rcPadding.left).isEqualTo(4f)
-        assertThat(rcPadding.top).isEqualTo(6f)
-        assertThat(rcPadding.right).isEqualTo(4f)
-        assertThat(rcPadding.bottom).isEqualTo(6f)
+        val rcPadding = chainInspectables.first { it.nameFallback == "rcPadding" }
+        assertThat(rcPadding["left"]).isEqualTo(4f)
+        assertThat(rcPadding["top"]).isEqualTo(6f)
+        assertThat(rcPadding["right"]).isEqualTo(4f)
+        assertThat(rcPadding["bottom"]).isEqualTo(6f)
 
-        val rcSemantics =
-            chainInspectables.filterIsInstance<RcSemanticsModifierInspectable>().first()
-        assertThat(rcSemantics.contentDescription).isEqualTo("Hello RemoteText")
+        val rcSemantics = chainInspectables.first { it.nameFallback == "rcSemantics" }
+        assertThat(rcSemantics["contentDescription"]).isEqualTo("Hello RemoteText")
 
-        // Verify lazy on-demand evaluation: mutating state updates the existing inspectable's
-        // computed properties without reconstructing the inspectable
-        val greetingId = RcPlayerInspector.resolveVariableId(state, "greeting")!!
-        val textWidthId = RcPlayerInspector.resolveVariableId(state, "textWidth")!!
-        state.remoteContext.overrideText(greetingId, "Updated Lazily")
-        state.remoteContext.overrideFloat(textWidthId, 160f)
+        // Verify lazy on-demand evaluation: mutating state updates both the rendered Compose node
+        // and the InspectableValue tree exposed by RcPlayerState
+        state.stringState("greeting").value = "Updated Lazily"
+        state.floatState("textWidth").value = 160f
         rule.waitForIdle()
 
-        assertThat(rcText.text).isEqualTo("Updated Lazily")
-        assertThat(rcSemantics.contentDescription).isEqualTo("Updated Lazily")
-        assertThat(rcWidth.value).isEqualTo(160f)
+        rule.onNodeWithText("Updated Lazily", useUnmergedTree = true).assertExists()
+        val updatedRoot = state["rootComponent"] as InspectableValue
+        val updatedCol = (updatedRoot["children"] as List<InspectableValue>).single()
+        val updatedText = (updatedCol["children"] as List<InspectableValue>).single()
+        val updatedModifiers = updatedText["modifiers"] as List<InspectableValue>
+        assertThat(updatedText["text"]).isEqualTo("Updated Lazily")
+        assertThat(
+                updatedModifiers.first { it.nameFallback == "rcSemantics" }["contentDescription"]
+            )
+            .isEqualTo("Updated Lazily")
+        assertThat(updatedModifiers.first { it.nameFallback == "rcWidth" }["value"]).isEqualTo(160f)
     }
 
     @Test
+    @Suppress("UNCHECKED_CAST")
     fun canvasLoopConditionalAndFunctionInspectables_evaluateLazilyOnDemand() {
         val doc = CoreDocument(RemoteClock.SYSTEM)
-        val state = RcPlayerState(doc)
-        val ctx = state.remoteContext
-
         val varAId = 42
-        ctx.loadFloat(varAId, 10f)
-
         val drawRect = DrawRect(0f, 0f, 50f, 50f)
         val condOp =
             ConditionalOperations(
@@ -384,71 +398,70 @@ class RcPlayerInspectorTest {
                     10f,
                 )
                 .apply { list.add(drawRect) }
-
-        val condInspectable = RcConditionalInspectable(condOp, ctx)
-        assertThat(condInspectable.nameFallback).isEqualTo("rcConditional")
-        assertThat(condInspectable.type).isEqualTo("eq")
-        assertThat(condInspectable.varA).isEqualTo(10f)
-        assertThat(condInspectable.varB).isEqualTo(10f)
-        assertThat(condInspectable.conditionMet).isTrue()
-        assertThat(condInspectable.operationsInspectable).hasSize(1)
-        val childDraw = condInspectable.operationsInspectable.single() as RcDrawOperationInspectable
-        assertThat(childDraw.commandName).isEqualTo("drawRect")
-
-        // Mutate variable in RemoteContext and verify RcConditionalInspectable re-evaluates on
-        // demand
-        ctx.loadFloat(varAId, 25f)
-        assertThat(condInspectable.varA).isEqualTo(25f)
-        assertThat(condInspectable.conditionMet).isFalse()
-
-        // Verify LoopOperation inspectable
-        val loopOp =
-            LoopOperation(99, 0f, 2f, 6f).apply {
-                list.add(drawRect)
-            }
-        val loopInspectable = RcLoopInspectable(loopOp, ctx)
-        assertThat(loopInspectable.nameFallback).isEqualTo("rcLoop")
-        assertThat(loopInspectable.from).isEqualTo(0f)
-        assertThat(loopInspectable.until).isEqualTo(6f)
-        assertThat(loopInspectable.step).isEqualTo(2f)
-        assertThat(loopInspectable.indexVariableId).isEqualTo(99)
-        assertThat(loopInspectable.estimatedIterations).isEqualTo(3)
-        assertThat(loopInspectable.operationsInspectable).hasSize(1)
-
-        // Verify FloatFunctionDefine and FloatFunctionCall inspectables
-        val fnDef =
-            FloatFunctionDefine(7, intArrayOf(101, 102)).apply {
-                list.add(drawRect)
-            }
-        val fnDefInspectable = RcFunctionDefineInspectable(fnDef, ctx)
-        assertThat(fnDefInspectable.nameFallback).isEqualTo("rcFunctionDefine")
-        assertThat(fnDefInspectable.functionId).isEqualTo(7)
-        assertThat(fnDefInspectable.argVarIds).containsExactly(101, 102).inOrder()
-        assertThat(fnDefInspectable.operationsInspectable).hasSize(1)
-
+        val loopOp = LoopOperation(99, 0f, 2f, 6f).apply { list.add(drawRect) }
+        val fnDef = FloatFunctionDefine(7, intArrayOf(101, 102)).apply { list.add(drawRect) }
         val fnCall = FloatFunctionCall(7, floatArrayOf(Utils.asNan(varAId), 5f))
-        val fnCallInspectable = RcFunctionCallInspectable(fnCall, ctx)
-        assertThat(fnCallInspectable.nameFallback).isEqualTo("rcFunctionCall")
-        assertThat(fnCallInspectable.functionId).isEqualTo(7)
-        assertThat(fnCallInspectable.resolvedArgs).containsExactly(25f, 5f).inOrder()
-
-        // Verify PathData inspectable
         val pathData = PathData(300, floatArrayOf(10f, 0f, 0f, 15f), 0)
-        val pathInspectable = RcPathOperationInspectable(pathData, ctx)
-        assertThat(pathInspectable.nameFallback).isEqualTo("rcPathData")
-        assertThat(pathInspectable.instanceId).isEqualTo(300)
-        assertThat(pathInspectable.floatPathLength).isEqualTo(4)
-
-        // Verify CanvasLayout inspectable wraps child operations lazily
         val canvasLayout =
             CanvasLayout(null, 10, -1, 0f, 0f, 100f, 100f).apply {
                 list.add(condOp)
                 list.add(loopOp)
             }
-        val canvasInspectable =
-            RcComponentInspectable.of(canvasLayout, ctx) as RcCanvasLayoutInspectable
-        assertThat(canvasInspectable.nameFallback).isEqualTo("rcCanvasLayout")
-        assertThat(canvasInspectable.operations)
-            .containsExactlyElementsIn(listOf(condInspectable, loopInspectable))
+
+        doc.operations.add(FloatConstant(varAId, 10f))
+        doc.operations.add(NamedVariable(varAId, NamedVariable.FLOAT_TYPE, "USER:varA"))
+        doc.operations.add(fnDef)
+        doc.operations.add(fnCall)
+        doc.operations.add(pathData)
+        doc.operations.add(canvasLayout)
+
+        val state = RcPlayerState(doc)
+        val operations = state["operations"] as List<InspectableValue>
+
+        val canvasInspectable = operations.single { it.nameFallback == "rcCanvasLayout" }
+        val canvasOps = canvasInspectable["operations"] as List<InspectableValue>
+        assertThat(canvasOps).hasSize(2)
+
+        val condInspectable = canvasOps.single { it.nameFallback == "rcConditional" }
+        assertThat(condInspectable["type"]).isEqualTo("eq")
+        assertThat(condInspectable["varA"]).isEqualTo(10f)
+        assertThat(condInspectable["varB"]).isEqualTo(10f)
+        assertThat(condInspectable["conditionMet"]).isEqualTo(true)
+        val condChildOps = condInspectable["operations"] as List<InspectableValue>
+        assertThat(condChildOps).hasSize(1)
+        assertThat(condChildOps.single().nameFallback).isEqualTo("drawRect")
+        assertThat(condChildOps.single()["command"]).isEqualTo("drawRect")
+
+        // Mutate variable through RcPlayerState and verify RcConditionalInspectable re-evaluates on
+        // demand
+        state.floatState("varA").value = 25f
+        assertThat(condInspectable["varA"]).isEqualTo(25f)
+        assertThat(condInspectable["conditionMet"]).isEqualTo(false)
+
+        // Verify LoopOperation inspectable
+        val loopInspectable = canvasOps.single { it.nameFallback == "rcLoop" }
+        assertThat(loopInspectable["from"]).isEqualTo(0f)
+        assertThat(loopInspectable["until"]).isEqualTo(6f)
+        assertThat(loopInspectable["step"]).isEqualTo(2f)
+        assertThat(loopInspectable["indexVariableId"]).isEqualTo(99)
+        assertThat(loopInspectable["estimatedIterations"]).isEqualTo(3)
+        assertThat(loopInspectable["operations"] as List<InspectableValue>).hasSize(1)
+
+        // Verify FloatFunctionDefine and FloatFunctionCall inspectables
+        val functions = state["functions"] as List<InspectableValue>
+        val fnDefInspectable = functions.single()
+        assertThat(fnDefInspectable.nameFallback).isEqualTo("rcFunctionDefine")
+        assertThat(fnDefInspectable["functionId"]).isEqualTo(7)
+        assertThat(fnDefInspectable["argVarIds"] as List<Int>).containsExactly(101, 102).inOrder()
+        assertThat(fnDefInspectable["operations"] as List<InspectableValue>).hasSize(1)
+
+        val fnCallInspectable = operations.single { it.nameFallback == "rcFunctionCall" }
+        assertThat(fnCallInspectable["functionId"]).isEqualTo(7)
+        assertThat(fnCallInspectable["args"] as List<Float>).containsExactly(25f, 5f).inOrder()
+
+        // Verify PathData inspectable
+        val pathInspectable = operations.single { it.nameFallback == "rcPathData" }
+        assertThat(pathInspectable["instanceId"]).isEqualTo(300)
+        assertThat(pathInspectable["floatPathLength"]).isEqualTo(4)
     }
 }

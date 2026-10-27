@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.MatrixAccess
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ShaderData
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.matrix.MatrixExpression
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.paint.PaintPathEffects
@@ -37,6 +36,7 @@ import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
 import androidx.compose.remote.player.compose.embedded.doc.writeContext
 import androidx.compose.remote.player.compose.embedded.resources.resolveBitmap
+import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.compose.utils.toStampedPathEffectStyle
 import androidx.compose.ui.geometry.Offset
@@ -94,16 +94,14 @@ private fun buildRuntimeShader(
             val dynamicList =
                 values
                     .singleOrNull()
-                    ?.takeIf { it.isNaN() }
-                    ?.let {
-                        remoteContext.collectionsAccess?.getDynamicFloats(Utils.idFromNan(it))
-                    }
+                    ?.let { MaybeVariableFloat(it) }
+                    ?.takeIf { it.isReference }
+                    ?.let { remoteContext.collectionsAccess?.getDynamicFloats(it.id) }
             shader.setFloatUniform(
                 name,
                 dynamicList
                     ?: FloatArray(values.size) { k ->
-                        val v = values[k]
-                        if (v.isNaN()) remoteContext.getFloat(Utils.idFromNan(v)) else v
+                        MaybeVariableFloat(values[k]).resolveOr(values[k], remoteContext)
                     },
             )
         }
@@ -132,7 +130,7 @@ private fun buildRuntimeShader(
  */
 private fun applyShaderMatrix(paintState: ComposeLocalPaint, matrixWord: Int, read: RemoteContext) {
     val shader = paintState.nativeShader ?: return
-    val id = Utils.idFromNan(Float.fromBits(matrixWord))
+    val id = MaybeVariableFloat(Float.fromBits(matrixWord)).id
     if (id == 0) {
         shader.setLocalMatrix(null)
         return

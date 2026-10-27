@@ -14,350 +14,487 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.compose.remote.player.compose.embedded
 
-import android.graphics.Matrix
+import android.graphics.Bitmap
+import android.graphics.Color as AndroidColor
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.PaintOperation
-import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.operations.ClipPath
-import androidx.compose.remote.core.operations.DrawCircle
-import androidx.compose.remote.core.operations.DrawOval
 import androidx.compose.remote.core.operations.DrawPath
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.core.operations.paint.PaintBundle
-import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
-import androidx.compose.remote.player.compose.embedded.draw.derefId
-import androidx.compose.remote.player.compose.embedded.draw.mapTileMode
-import androidx.compose.remote.player.compose.embedded.draw.resolveFloat
-import androidx.compose.remote.player.compose.embedded.draw.updatePaintFromBundle
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
-import androidx.compose.ui.geometry.Size
+import androidx.compose.remote.creation.Rc
+import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class RcPlayerPaintTest {
+
+    @get:Rule val rule = RcPlayerTestRule()
 
     @Test
     fun defaultColorIsOpaqueBlackAndIsColorSetIsFalse() {
-        val paint = ComposeLocalPaint()
-        assertThat(paint.color).isEqualTo(0xFF000000.toInt())
-        assertThat(paint.isColorSet).isFalse()
-        assertThat(paint.effectiveColor()).isEqualTo(Color(0xFF000000.toInt()))
+        val document = buildDocument { drawRect(0f, 0f, 100f, 100f) }
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(100.dp).background(Color.White)) {
+                    RcPlayer(document = document)
+                }
+            }
+        }
+        val bitmap = rule.captureRootBitmap()
+        val pixel = bitmap.getPixel(50, 50)
+        assertThat(AndroidColor.red(pixel)).isEqualTo(0)
+        assertThat(AndroidColor.green(pixel)).isEqualTo(0)
+        assertThat(AndroidColor.blue(pixel)).isEqualTo(0)
+        assertThat(AndroidColor.alpha(pixel)).isEqualTo(255)
     }
 
     @Test
     fun effectiveColorAppliesAlphaToDefaultBlack() {
-        val paint = ComposeLocalPaint().apply { alpha = 0.5f }
-        val effective = paint.effectiveColor()
-        assertThat(effective.alpha).isWithin(0.01f).of(0.5f)
-        assertThat(effective.red).isEqualTo(0f)
-        assertThat(effective.green).isEqualTo(0f)
-        assertThat(effective.blue).isEqualTo(0f)
+        val document = buildDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setAlpha(0.5f) })
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(100.dp).background(Color.White)) {
+                    RcPlayer(document = document)
+                }
+            }
+        }
+        val bitmap = rule.captureRootBitmap()
+        val pixel = bitmap.getPixel(50, 50)
+        // 50% black composited over white yields mid-gray.
+        assertThat(AndroidColor.red(pixel)).isIn(110..145)
+        assertThat(AndroidColor.green(pixel)).isIn(110..145)
+        assertThat(AndroidColor.blue(pixel)).isIn(110..145)
     }
 
     @Test
     fun updatePaintWithExplicitColorSetsIsColorSetTrue() {
-        val paint = ComposeLocalPaint()
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val bundle = PaintBundle().apply { setColor(0xFFFF0000.toInt()) }
-
-        updatePaintFromBundle(bundle, paint, context)
-
-        assertThat(paint.color).isEqualTo(0xFFFF0000.toInt())
-        assertThat(paint.isColorSet).isTrue()
+        val bitmap = rule.renderDocument {
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFF0000.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        assertRed(bitmap, 50, 50)
     }
 
     @Test
     fun updatePaintResolvesNanBoxedStrokeWidth() {
-        val paint = ComposeLocalPaint()
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val strokeWidthId = 42
-        context.loadFloat(strokeWidthId, 5.5f)
-        val bundle = PaintBundle().apply { setStrokeWidth(Utils.asNan(strokeWidthId)) }
+        val document = buildDocument {
+            val strokeWidthVar = addNamedFloat("strokeWidth", 20f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFFFF0000.toInt())
+                    setStyle(PaintBundle.STYLE_STROKE)
+                    setStrokeWidth(strokeWidthVar)
+                }
+            )
+            drawLine(10f, 50f, 90f, 50f)
+        }
+        val state = RcPlayerState(document)
+        val bitmap1 = renderWithState(state)
+        assertRed(bitmap1, 50, 42)
+        assertNotRed(bitmap1, 50, 30)
 
-        updatePaintFromBundle(bundle, paint, context)
-
-        assertThat(paint.strokeWidth).isEqualTo(5.5f)
-        assertThat(paint.isStrokeWidthSet).isTrue()
+        requireNotNull(state.floatState("strokeWidth")).value = 4f
+        rule.waitForIdle()
+        val bitmap2 = rule.captureRootBitmap()
+        assertRed(bitmap2, 50, 50)
+        assertNotRed(bitmap2, 50, 42)
     }
 
     @Test
     fun updatePaintResolvesNanBoxedTextSize() {
-        val paint = ComposeLocalPaint()
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val textSizeId = 43
-        context.loadFloat(textSizeId, 24f)
-        val bundle = PaintBundle().apply { setTextSize(Utils.asNan(textSizeId)) }
+        val sample = "MMMM"
+        val document = buildDocument {
+            val textSizeVar = addNamedFloat("textSize", 10f)
+            val textId = addText(sample)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFFFF0000.toInt())
+                    setTextSize(textSizeVar)
+                }
+            )
+            drawTextRun(textId, 0, sample.length, 0, sample.length, 5f, 80f, false)
+        }
+        val state = RcPlayerState(document)
+        val smallCount = countRedPixels(renderWithState(state))
 
-        updatePaintFromBundle(bundle, paint, context)
+        requireNotNull(state.floatState("textSize")).value = 44f
+        rule.waitForIdle()
+        val largeCount = countRedPixels(rule.captureRootBitmap())
 
-        assertThat(paint.textSize).isEqualTo(24f)
-        assertThat(paint.isTextSizeSet).isTrue()
+        assertThat(smallCount).isGreaterThan(0)
+        assertThat(largeCount).isGreaterThan(smallCount * 4)
     }
 
     @Test
     fun updatePaintResolvesNanBoxedAlpha() {
-        val paint = ComposeLocalPaint()
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val alphaId = 44
-        context.loadFloat(alphaId, 0.75f)
-        val bundle = PaintBundle().apply { setAlpha(Utils.asNan(alphaId)) }
+        val document = buildDocument {
+            val alphaVar = addNamedFloat("alpha", 0.5f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setColor(0xFFFF0000.toInt())
+                    setAlpha(alphaVar)
+                }
+            )
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        val state = RcPlayerState(document)
+        val halfPixel = renderWithState(state).getPixel(50, 50)
+        assertThat(AndroidColor.red(halfPixel)).isGreaterThan(240)
+        assertThat(AndroidColor.green(halfPixel)).isIn(100..155)
+        assertThat(AndroidColor.blue(halfPixel)).isIn(100..155)
 
-        updatePaintFromBundle(bundle, paint, context)
-
-        assertThat(paint.alpha).isWithin(0.001f).of(0.75f)
+        requireNotNull(state.floatState("alpha")).value = 1f
+        rule.waitForIdle()
+        assertRed(rule.captureRootBitmap(), 50, 50)
     }
 
     @Test
     fun updatePaintResolvesNanBoxedGradientStops() {
-        val paint = ComposeLocalPaint()
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val stop1Id = 51
-        val stop2Id = 52
-        context.loadFloat(stop1Id, 0.2f)
-        context.loadFloat(stop2Id, 0.8f)
+        val document = buildDocument {
+            val stop1 = addNamedFloat("stop1", 0.45f)
+            val stop2 = addNamedFloat("stop2", 0.55f)
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setLinearGradient(
+                        intArrayOf(0xFF000000.toInt(), 0xFFFFFFFF.toInt()),
+                        0,
+                        floatArrayOf(stop1, stop2),
+                        0f,
+                        0f,
+                        100f,
+                        0f,
+                        0,
+                    )
+                }
+            )
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        val state = RcPlayerState(document)
+        val bitmap1 = renderWithState(state)
+        assertThat(AndroidColor.red(bitmap1.getPixel(20, 50))).isLessThan(20)
+        assertThat(AndroidColor.red(bitmap1.getPixel(65, 50))).isGreaterThan(235)
 
-        val bundle =
-            PaintBundle().apply {
-                setLinearGradient(
-                    intArrayOf(0xFF000000.toInt(), 0xFFFFFFFF.toInt()),
-                    0,
-                    floatArrayOf(Utils.asNan(stop1Id), Utils.asNan(stop2Id)),
-                    0f,
-                    0f,
-                    100f,
-                    100f,
-                    0,
-                )
-            }
-
-        updatePaintFromBundle(bundle, paint, context)
-
-        assertThat(paint.brush).isNotNull()
+        requireNotNull(state.floatState("stop1")).value = 0.8f
+        requireNotNull(state.floatState("stop2")).value = 0.9f
+        rule.waitForIdle()
+        val bitmap2 = rule.captureRootBitmap()
+        assertThat(AndroidColor.red(bitmap2.getPixel(65, 50))).isLessThan(20)
     }
 
     @Test
     fun drawCircleResolvesNanBoxedCoordinates() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val cxId = 101
-        val cyId = 102
-        val rId = 103
-        context.loadFloat(cxId, 50f)
-        context.loadFloat(cyId, 60f)
-        context.loadFloat(rId, 25f)
+        val document = buildDocument {
+            val cx = addNamedFloat("cx", 50f)
+            val cy = addNamedFloat("cy", 60f)
+            val r = addNamedFloat("r", 20f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFF0000.toInt()) })
+            drawCircle(cx, cy, r)
+        }
+        val state = RcPlayerState(document)
+        val bitmap1 = renderWithState(state)
+        assertRed(bitmap1, 50, 60)
+        assertNotRed(bitmap1, 20, 20)
 
-        val op = DrawCircle(Utils.asNan(cxId), Utils.asNan(cyId), Utils.asNan(rId))
-
-        val resolvedV1 = resolveFloat(op.value1, op.v1, context)
-        val resolvedV2 = resolveFloat(op.value2, op.v2, context)
-        val resolvedV3 = resolveFloat(op.value3, op.v3, context)
-
-        assertThat(resolvedV1).isEqualTo(50f)
-        assertThat(resolvedV2).isEqualTo(60f)
-        assertThat(resolvedV3).isEqualTo(25f)
+        requireNotNull(state.floatState("cx")).value = 20f
+        requireNotNull(state.floatState("cy")).value = 20f
+        requireNotNull(state.floatState("r")).value = 15f
+        rule.waitForIdle()
+        val bitmap2 = rule.captureRootBitmap()
+        assertRed(bitmap2, 20, 20)
+        assertNotRed(bitmap2, 50, 60)
     }
 
     @Test
     fun drawOvalResolvesNanBoxedCoordinates() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val leftId = 111
-        val topId = 112
-        val rightId = 113
-        val bottomId = 114
-        context.loadFloat(leftId, 10f)
-        context.loadFloat(topId, 20f)
-        context.loadFloat(rightId, 80f)
-        context.loadFloat(bottomId, 90f)
+        val bitmap = rule.renderDocument {
+            val left = addNamedFloat("left", 10f)
+            val top = addNamedFloat("top", 20f)
+            val right = addNamedFloat("right", 80f)
+            val bottom = addNamedFloat("bottom", 90f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFF0000.toInt()) })
+            drawOval(left, top, right, bottom)
+        }
 
-        val op =
-            DrawOval(
-                Utils.asNan(leftId),
-                Utils.asNan(topId),
-                Utils.asNan(rightId),
-                Utils.asNan(bottomId),
-            )
-
-        val resolvedX1 = resolveFloat(op.x1Value, op.x1, context)
-        val resolvedY1 = resolveFloat(op.y1Value, op.y1, context)
-        val resolvedX2 = resolveFloat(op.x2Value, op.x2, context)
-        val resolvedY2 = resolveFloat(op.y2Value, op.y2, context)
-
-        assertThat(resolvedX1).isEqualTo(10f)
-        assertThat(resolvedY1).isEqualTo(20f)
-        assertThat(resolvedX2).isEqualTo(80f)
-        assertThat(resolvedY2).isEqualTo(90f)
+        assertRed(bitmap, 45, 55)
+        assertNotRed(bitmap, 90, 95)
     }
 
     @Test
     fun drawPathDereferencesPointerId() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val pointerVarId = 201
-        val targetPathId = 301
-        context.mRemoteComposeState.updateInteger(pointerVarId, targetPathId)
-        context.mRemoteComposeState.putPathData(targetPathId, floatArrayOf(0f, 0f, 10f, 10f))
+        val bitmap = rule.renderDocument {
+            addPathString("M 0 0 L 40 0 L 40 40 L 0 40 Z")
+            val targetPathId = addPathString("M 60 60 L 100 60 L 100 100 L 60 100 Z")
+            val ptrLong = addInteger(targetPathId)
+            val ptrVarId = Utils.idFromLong(ptrLong).toInt()
+            val dereferencedId =
+                (ptrVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
 
-        val dereferencedId =
-            (pointerVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
-        val op = DrawPath(dereferencedId)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFF0000.toInt()) })
+            DrawPath.apply(writer.buffer.buffer, dereferencedId)
+        }
 
-        val actualId = derefId(op.pathId, context)
-        assertThat(actualId).isEqualTo(targetPathId)
-        assertThat(context.mRemoteComposeState.getPathData(actualId)).isNotNull()
+        assertRed(bitmap, 80, 80)
+        assertNotRed(bitmap, 20, 20)
     }
 
     @Test
     fun clipPathDereferencesPointerId() {
-        val context = AndroidRemoteContext(RemoteClock.SYSTEM)
-        val pointerVarId = 202
-        val targetPathId = 302
-        context.mRemoteComposeState.updateInteger(pointerVarId, targetPathId)
-        context.mRemoteComposeState.putPathData(targetPathId, floatArrayOf(50f, 50f, 20f))
+        var dereferencedId = 0
+        val document = buildDocument {
+            addPathString("M 0 0 L 40 0 L 40 40 L 0 40 Z")
+            val targetPathId = addPathString("M 60 60 L 100 60 L 100 100 L 60 100 Z")
+            val ptrLong = addInteger(targetPathId)
+            val ptrVarId = Utils.idFromLong(ptrLong).toInt()
+            dereferencedId =
+                (ptrVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
 
-        val dereferencedId =
-            (pointerVarId and PaintOperation.VALUE_MASK) or PaintOperation.PTR_DEREFERENCE
-        val op = ClipPath(dereferencedId, ClipPath.PATH_CLIP_INTERSECT)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFFFFFF.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            save()
+            ClipPath.apply(writer.buffer.buffer, 0)
+            writer.buffer.addPaint(PaintBundle().apply { setColor(0xFFFF0000.toInt()) })
+            drawRect(0f, 0f, 100f, 100f)
+            restore()
+        }
+        // ClipPath.read masks wire ids to 20 bits, so set the in-memory PTR_DEREFERENCE id directly
+        // on the decoded ClipPath operation to exercise pointer dereferencing in applyClipPath.
+        val clipIndex = document.operations.indexOfFirst { it is ClipPath }
+        document.operations[clipIndex] = ClipPath(dereferencedId, ClipPath.PATH_CLIP_INTERSECT)
+        val bitmap = rule.renderDocument(document)
 
-        val actualId = derefId(op.id, context)
-        assertThat(actualId).isEqualTo(targetPathId)
-        assertThat(context.mRemoteComposeState.getPathData(actualId)).isNotNull()
+        assertRed(bitmap, 80, 80)
+        assertNotRed(bitmap, 20, 20)
     }
 
     @Test
     fun updatePaintFromBundle_resolvesGradientBoundColorIdStop() {
-        val remoteContext = AndroidRemoteContext()
-        val colorId = 42
-        val initialCyan = 0xFF7DE2FF.toInt()
-        remoteContext.mRemoteComposeState.overrideColor(colorId, initialCyan)
+        val document = buildDocument {
+            val midColorId = addNamedColor("midColor", 0xFF00FF00.toInt())
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setLinearGradient(
+                        intArrayOf(0xFF000000.toInt(), midColorId, 0xFF000000.toInt()),
+                        1 shl 1, // bit 1 indicates stop 1 is a color-id reference
+                        floatArrayOf(0f, 0.5f, 1f),
+                        0f,
+                        0f,
+                        100f,
+                        0f,
+                        0,
+                    )
+                }
+            )
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        val state = RcPlayerState(document)
+        val bitmap1 = renderWithState(state)
+        val mid1 = bitmap1.getPixel(50, 50)
+        assertThat(AndroidColor.green(mid1)).isGreaterThan(200)
+        assertThat(AndroidColor.red(mid1)).isLessThan(50)
 
-        // Linear gradient with 3 stops:
-        // stop 0: literal 0xFF101820 (register bit 0 = 0)
-        // stop 1: color-id 42 (register bit 1 = 1 -> register = 2)
-        // stop 2: literal 0xFFFFB86C (register bit 2 = 0)
-        val bundle = PaintBundle()
-        bundle.setLinearGradient(
-            intArrayOf(0xFF101820.toInt(), colorId, 0xFFFFB86C.toInt()),
-            1 shl 1, // bit 1 indicates stop 1 is a color-id reference
-            floatArrayOf(0f, 0.5f, 1f),
-            0f,
-            0f,
-            100f,
-            100f,
-            0, // Clamp
-        )
-
-        val paintState1 = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState1, remoteContext)
-
-        val brush1 = paintState1.brush
-        assertThat(brush1).isNotNull()
-        assertThat(brush1).isInstanceOf(ShaderBrush::class.java)
-
-        val shader1 = (brush1 as ShaderBrush).createShader(Size(100f, 100f))
-        assertThat(shader1).isNotNull()
-
-        // Live recolor: update colorId 42 from Cyan to Magenta
-        val updatedMagenta = 0xFFFF00FF.toInt()
-        remoteContext.mRemoteComposeState.overrideColor(colorId, updatedMagenta)
-
-        val paintState2 = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState2, remoteContext)
-
-        val brush2 = paintState2.brush
-        assertThat(brush2).isNotNull()
-        assertThat(brush2).isInstanceOf(ShaderBrush::class.java)
-        assertThat(brush1).isNotEqualTo(brush2)
+        // Live recolor: update midColor from Green to Red
+        requireNotNull(state.colorState("midColor")).value = Color.Red
+        rule.waitForIdle()
+        val bitmap2 = rule.captureRootBitmap()
+        assertRed(bitmap2, 50, 50)
     }
 
     @Test
     fun updatePaintFromBundle_allLiteralGradientStops() {
-        val remoteContext = AndroidRemoteContext()
-        val bundle = PaintBundle()
-        // Gradient with all literal stops (register bitmask = 0)
-        bundle.setLinearGradient(
-            intArrayOf(0xFF101820.toInt(), 0xFF7DE2FF.toInt(), 0xFFFFB86C.toInt()),
-            0, // all literal stops
-            floatArrayOf(0f, 0.5f, 1f),
-            0f,
-            0f,
-            100f,
-            100f,
-            0,
-        )
+        val bitmap = rule.renderDocument {
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setLinearGradient(
+                        intArrayOf(
+                            0xFFFF0000.toInt(),
+                            0xFF00FF00.toInt(),
+                            0xFF0000FF.toInt(),
+                        ),
+                        0, // all literal stops
+                        floatArrayOf(0f, 0.5f, 1f),
+                        0f,
+                        0f,
+                        100f,
+                        0f,
+                        0,
+                    )
+                }
+            )
+            drawRect(0f, 0f, 100f, 100f)
+        }
 
-        val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext)
-
-        assertThat(paintState.brush).isNotNull()
-        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
+        assertRed(bitmap, 2, 50)
+        val center = bitmap.getPixel(50, 50)
+        assertThat(AndroidColor.green(center)).isGreaterThan(200)
+        val right = bitmap.getPixel(98, 50)
+        assertThat(AndroidColor.blue(right)).isGreaterThan(200)
     }
 
     @Test
     fun updatePaintFromBundle_radialGradientWithColorIdStop() {
-        val remoteContext = AndroidRemoteContext()
-        val colorId = 99
-        remoteContext.mRemoteComposeState.overrideColor(colorId, 0xFF00FF00.toInt()) // Green
+        val document = buildDocument {
+            val edgeColorId = addNamedColor("edgeColor", 0xFF00FF00.toInt())
+            writer.buffer.addPaint(
+                PaintBundle().apply {
+                    setRadialGradient(
+                        intArrayOf(0xFF0000FF.toInt(), edgeColorId),
+                        1 shl 1, // bit 1 is colorId
+                        floatArrayOf(0f, 1f),
+                        50f,
+                        50f,
+                        45f,
+                        0,
+                    )
+                }
+            )
+            drawRect(0f, 0f, 100f, 100f)
+        }
+        val state = RcPlayerState(document)
+        val bitmap1 = renderWithState(state)
+        assertThat(AndroidColor.blue(bitmap1.getPixel(50, 50))).isGreaterThan(200)
+        assertThat(AndroidColor.green(bitmap1.getPixel(95, 50))).isGreaterThan(200)
 
-        val bundle = PaintBundle()
-        bundle.setRadialGradient(
-            intArrayOf(0xFF0000FF.toInt(), colorId),
-            1 shl 1, // bit 1 is colorId
-            floatArrayOf(0f, 1f),
-            50f,
-            50f,
-            50f,
-            0,
-        )
-
-        val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext)
-
-        assertThat(paintState.brush).isNotNull()
-        assertThat(paintState.brush).isInstanceOf(ShaderBrush::class.java)
+        requireNotNull(state.colorState("edgeColor")).value = Color.Red
+        rule.waitForIdle()
+        assertRed(rule.captureRootBitmap(), 95, 50)
     }
 
     @Test
     fun updatePaintFromBundle_tracksFilterBitmapAndImageFilterQuality() {
-        val remoteContext = AndroidRemoteContext()
-        val paintState = ComposeLocalPaint()
-        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
+        val srcBitmap =
+            Bitmap.createBitmap(2, 2, Bitmap.Config.ARGB_8888).apply {
+                setPixel(0, 0, 0xFF000000.toInt())
+                setPixel(0, 1, 0xFF000000.toInt())
+                setPixel(1, 0, 0xFFFFFFFF.toInt())
+                setPixel(1, 1, 0xFFFFFFFF.toInt())
+            }
+        val docUnfiltered = buildDocument {
+            val imgId = addBitmap(srcBitmap)
+            writer.buffer.addPaint(PaintBundle().apply { setFilterBitmap(false) })
+            drawScaledBitmap(
+                imgId,
+                0f,
+                0f,
+                2f,
+                2f,
+                0f,
+                0f,
+                100f,
+                100f,
+                Rc.ImageScale.FILL_BOUNDS,
+                1f,
+                null,
+            )
+        }
+        val docFiltered = buildDocument {
+            val imgId = addBitmap(srcBitmap)
+            writer.buffer.addPaint(PaintBundle().apply { setFilterBitmap(true) })
+            drawScaledBitmap(
+                imgId,
+                0f,
+                0f,
+                2f,
+                2f,
+                0f,
+                0f,
+                100f,
+                100f,
+                Rc.ImageScale.FILL_BOUNDS,
+                1f,
+                null,
+            )
+        }
 
-        val noFilterBundle = PaintBundle().apply { setFilterBitmap(false) }
-        updatePaintFromBundle(noFilterBundle, paintState, remoteContext)
-        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.None)
+        var currentDoc by mutableStateOf(docUnfiltered)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = currentDoc) }
+            }
+        }
+        val unfilteredBmp = rule.captureRootBitmap()
+        // Nearest-neighbor (FilterQuality.None): sharp black/white boundary at x=50, no gray blend.
+        assertThat(AndroidColor.red(unfilteredBmp.getPixel(45, 50))).isEqualTo(0)
+        assertThat(AndroidColor.red(unfilteredBmp.getPixel(55, 50))).isEqualTo(255)
 
-        val filterBundle = PaintBundle().apply { setFilterBitmap(true) }
-        updatePaintFromBundle(filterBundle, paintState, remoteContext)
-        assertThat(paintState.filterQuality).isEqualTo(FilterQuality.Low)
+        currentDoc = docFiltered
+        rule.waitForIdle()
+        val filteredBmp = rule.captureRootBitmap()
+        // Bilinear filtering (FilterQuality.Low): interpolated gray near the center seam.
+        assertThat(AndroidColor.red(filteredBmp.getPixel(45, 50))).isIn(30..225)
     }
 
-    @Test
-    fun mapTileMode_mapsDecalAndStandardModes() {
-        assertThat(mapTileMode(0)).isEqualTo(TileMode.Clamp)
-        assertThat(mapTileMode(1)).isEqualTo(TileMode.Repeated)
-        assertThat(mapTileMode(2)).isEqualTo(TileMode.Mirror)
-        assertThat(mapTileMode(3)).isEqualTo(TileMode.Decal)
-        assertThat(mapTileMode(99)).isEqualTo(TileMode.Clamp)
+    private fun renderWithState(state: RcPlayerState): Bitmap {
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(state = state) }
+            }
+        }
+        return rule.captureRootBitmap()
     }
 
-    @Test
-    fun updatePaintFromBundle_gradientPopulatesNativeShaderForShaderMatrix() {
-        val remoteContext = AndroidRemoteContext()
-        val matrixId = 77
-        val matrixValues = floatArrayOf(2f, 0f, 15f, 0f, 3f, 25f, 0f, 0f, 1f)
-        remoteContext.putObject(matrixId, MatrixConstant(matrixId, 0, matrixValues))
+    private fun countRedPixels(bitmap: Bitmap): Int {
+        var count = 0
+        for (y in 0 until bitmap.height) {
+            for (x in 0 until bitmap.width) {
+                val p = bitmap.getPixel(x, y)
+                if (
+                    AndroidColor.red(p) > 200 &&
+                        AndroidColor.green(p) < 60 &&
+                        AndroidColor.blue(p) < 60
+                ) {
+                    count++
+                }
+            }
+        }
+        return count
+    }
 
-        val bundle =
+    /** A red to blue gradient from x = 0 to 50, painted across the whole player. */
+    private fun RemoteComposeContextAndroid.drawRedToBlue(
+        tileMode: Int,
+        shaderMatrixId: Int? = null,
+    ) {
+        writer.buffer.addPaint(
             PaintBundle().apply {
                 setLinearGradient(
                     intArrayOf(0xFFFF0000.toInt(), 0xFF0000FF.toInt()),
@@ -365,40 +502,43 @@ class RcPlayerPaintTest {
                     null,
                     0f,
                     0f,
-                    100f,
+                    50f,
                     0f,
-                    0,
+                    tileMode,
                 )
-                setShaderMatrix(Utils.asNan(matrixId))
+                shaderMatrixId?.let { setShaderMatrix(Utils.asNan(it)) }
             }
+        )
+        drawRect(0f, 0f, 100f, 100f)
+    }
 
-        val paintState = ComposeLocalPaint()
-        updatePaintFromBundle(bundle, paintState, remoteContext)
+    private fun isBlue(pixel: Int) = AndroidColor.blue(pixel) > 200 && AndroidColor.red(pixel) < 60
 
-        val shader = paintState.nativeShader
-        assertThat(shader).isNotNull()
-        val localMatrix = Matrix()
-        assertThat(shader!!.getLocalMatrix(localMatrix)).isTrue()
-        val actualValues = FloatArray(9)
-        localMatrix.getValues(actualValues)
-        assertThat(actualValues).isEqualTo(matrixValues)
+    @Test
+    fun linearGradient_clampTileMode_extendsEndColor() {
+        val bitmap = rule.renderDocument { drawRedToBlue(tileMode = TILE_MODE_CLAMP) }
+        assertThat(isBlue(bitmap.getPixel(75, 50))).isTrue()
+    }
 
-        // Degenerate zero-length gradient falls back to SolidColor and clears nativeShader.
-        val degenerateBundle =
-            PaintBundle().apply {
-                setLinearGradient(
-                    intArrayOf(0xFF00FF00.toInt(), 0xFF0000FF.toInt()),
-                    0,
-                    null,
-                    10f,
-                    10f,
-                    10f,
-                    10f,
-                    0,
-                )
-            }
-        updatePaintFromBundle(degenerateBundle, paintState, remoteContext)
-        assertThat(paintState.nativeShader).isNull()
-        assertThat(paintState.brush).isInstanceOf(SolidColor::class.java)
+    @Test
+    fun linearGradient_constantShaderMatrix_transformsGradient() {
+        val bitmap = rule.renderDocument {
+            // Translate the gradient 50px right, so it runs from x = 50 to 100.
+            val matrixId = 1000
+            MatrixConstant.apply(
+                writer.buffer.buffer,
+                matrixId,
+                0,
+                floatArrayOf(1f, 0f, 50f, 0f, 1f, 0f, 0f, 0f, 1f),
+            )
+            drawRedToBlue(tileMode = TILE_MODE_CLAMP, shaderMatrixId = matrixId)
+        }
+        // Before the translated start, clamp extends the start color.
+        assertRed(bitmap, 25, 50)
+        assertThat(isBlue(bitmap.getPixel(99, 50))).isTrue()
+    }
+
+    private companion object {
+        const val TILE_MODE_CLAMP = 0
     }
 }

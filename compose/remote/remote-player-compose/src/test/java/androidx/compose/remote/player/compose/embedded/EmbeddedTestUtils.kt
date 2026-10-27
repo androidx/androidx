@@ -27,9 +27,13 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemClock
+import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.semantics.SemanticsActions
@@ -105,6 +109,29 @@ internal fun SemanticsNodeInteractionsProvider.textLayoutResultOf(text: String):
     return results.single()
 }
 
+/** The player's [AndroidRemoteContext], as reported by its inspectable state. */
+internal val RcPlayerState.inspectableRemoteContext: AndroidRemoteContext
+    get() = inspectableElements.first { it.name == "remoteContext" }.value as AndroidRemoteContext
+
+/**
+ * Every operation in this document, depth first, including those nested in containers (loops,
+ * conditionals, components) and in layout components' canvas draw streams.
+ */
+internal fun CoreDocument.allOperations(): List<Operation> {
+    val result = ArrayList<Operation>()
+    fun collect(ops: List<Operation>) {
+        for (op in ops) {
+            result.add(op)
+            if (op is LayoutComponent) {
+                op.getCanvasOperations()?.let { collect(it.list) }
+            }
+            if (op is Container) collect(op.list)
+        }
+    }
+    collect(operations)
+    return result
+}
+
 /** The player's current document time, as reported by its inspectable state. */
 internal val RcPlayerState.currentTimeMillis: Float
     get() = inspectableElements.first { it.name == "currentTimeMillis" }.value as Float
@@ -155,4 +182,50 @@ internal fun ComposeContentTestRule.observeClockCadence(
     } else {
         ClockCadence.STATIC
     }
+}
+
+/**
+ * Runs [frames] frames, each advanced by [frame], and returns how many of them applied a snapshot
+ * state change. An idle player applies none, so this catches per-frame work that outlives an
+ * animation.
+ */
+internal fun ComposeContentTestRule.framesWithStateChanges(
+    frames: Int,
+    frame: () -> Unit = { mainClock.advanceTimeByFrame() },
+): Int {
+    var changedFrames = 0
+    var changed = false
+    val handle = Snapshot.registerApplyObserver { set, _ -> if (set.isNotEmpty()) changed = true }
+    try {
+        repeat(frames) {
+            changed = false
+            frame()
+            if (changed) changedFrames++
+        }
+    } finally {
+        handle.dispose()
+    }
+    return changedFrames
+}
+
+/**
+ * Runs [block] and returns how many snapshot state objects its applied changes touched, summed over
+ * every apply, leaving out the objects in [ignored] (for example the host state the test itself
+ * writes).
+ */
+internal fun ComposeContentTestRule.appliedStateObjects(
+    ignored: Set<Any> = emptySet(),
+    block: () -> Unit,
+): Int {
+    var objects = 0
+    val handle = Snapshot.registerApplyObserver { set, _ ->
+        objects += set.count { it !in ignored }
+    }
+    try {
+        block()
+        waitForIdle()
+    } finally {
+        handle.dispose()
+    }
+    return objects
 }

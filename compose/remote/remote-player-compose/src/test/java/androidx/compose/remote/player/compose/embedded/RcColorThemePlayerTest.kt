@@ -18,33 +18,37 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.R
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.operations.ColorTheme
+import androidx.compose.remote.core.operations.DrawRect
+import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.Theme
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createThemedRemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.player.compose.embedded.doc.SnapshotRemoteComposeState
-import androidx.compose.remote.player.compose.embedded.doc.getOperationsList
-import androidx.compose.remote.player.compose.embedded.resources.AndroidColorThemeResolver
-import androidx.compose.remote.player.compose.embedded.resources.resolveThemeMode
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.onNodeWithTag
@@ -68,123 +72,197 @@ class RcColorThemePlayerTest {
 
     @Test
     fun testResolveThemeMode() {
-        assertThat(resolveThemeMode(Theme.LIGHT, isSystemInDarkTheme = false))
-            .isEqualTo(Theme.LIGHT)
-        assertThat(resolveThemeMode(Theme.LIGHT, isSystemInDarkTheme = true)).isEqualTo(Theme.LIGHT)
-        assertThat(resolveThemeMode(Theme.DARK, isSystemInDarkTheme = false)).isEqualTo(Theme.DARK)
-        assertThat(resolveThemeMode(Theme.DARK, isSystemInDarkTheme = true)).isEqualTo(Theme.DARK)
-        assertThat(resolveThemeMode(Theme.SYSTEM, isSystemInDarkTheme = false))
-            .isEqualTo(Theme.LIGHT)
-        assertThat(resolveThemeMode(Theme.SYSTEM, isSystemInDarkTheme = true)).isEqualTo(Theme.DARK)
-        assertThat(resolveThemeMode(Theme.UNSPECIFIED, isSystemInDarkTheme = false))
-            .isEqualTo(Theme.LIGHT)
-        assertThat(resolveThemeMode(Theme.UNSPECIFIED, isSystemInDarkTheme = true))
-            .isEqualTo(Theme.DARK)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val lightColor = Color(0xFFAA1122)
+        val darkColor = Color(0xFF11AA22)
+        val document = runBlocking {
+            captureRule.captureDocument(context = context) {
+                val color =
+                    RemoteColor.createThemedRemoteColor(
+                        lightMode = 0,
+                        darkMode = 0,
+                        lightFallback = lightColor,
+                        darkFallback = darkColor,
+                    )
+                RemoteBox(modifier = RemoteModifier.size(50.rdp).background(color))
+            }
+        }
+
+        var currentTheme by mutableIntStateOf(Theme.LIGHT)
+        var systemNightMode by mutableIntStateOf(Configuration.UI_MODE_NIGHT_NO)
+
+        rule.setContent {
+            val baseConfig = LocalConfiguration.current
+            val overriddenConfig =
+                Configuration(baseConfig).apply {
+                    uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or systemNightMode
+                }
+            CompositionLocalProvider(LocalConfiguration provides overriddenConfig) {
+                Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                    RcPlayer(document = document, theme = currentTheme)
+                }
+            }
+        }
+
+        val cases =
+            listOf(
+                Triple(Theme.LIGHT, Configuration.UI_MODE_NIGHT_NO, lightColor.toArgb()),
+                Triple(Theme.LIGHT, Configuration.UI_MODE_NIGHT_YES, lightColor.toArgb()),
+                Triple(Theme.DARK, Configuration.UI_MODE_NIGHT_NO, darkColor.toArgb()),
+                Triple(Theme.DARK, Configuration.UI_MODE_NIGHT_YES, darkColor.toArgb()),
+                Triple(Theme.SYSTEM, Configuration.UI_MODE_NIGHT_NO, lightColor.toArgb()),
+                Triple(Theme.SYSTEM, Configuration.UI_MODE_NIGHT_YES, darkColor.toArgb()),
+                Triple(Theme.UNSPECIFIED, Configuration.UI_MODE_NIGHT_NO, lightColor.toArgb()),
+                Triple(Theme.UNSPECIFIED, Configuration.UI_MODE_NIGHT_YES, darkColor.toArgb()),
+            )
+
+        for ((themeMode, nightFlag, expectedArgb) in cases) {
+            currentTheme = themeMode
+            systemNightMode = nightFlag
+            rule.waitForIdle()
+            val bitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+            assertThat(bitmap.getPixel(25, 25)).isEqualTo(expectedArgb)
+        }
     }
 
     @Test
     fun testAndroidColorThemeMappingResolvesFrameworkColors() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val colorTheme =
-            ColorTheme(
-                    100, // id
-                    -1, // colorGroupId
-                    3.toShort(), // lightModeIndex (darker_gray: R.color.darker_gray)
-                    2.toShort(), // darkModeIndex (black: R.color.black)
-                    0xFFEEEEEE.toInt(), // fallbackLight
-                    0xFF111111.toInt(), // fallbackDark
-                )
-                .apply { mColorGroupName = "android" }
+        val document = colorThemeRectDocument(colorGroupName = "android")
 
-        AndroidColorThemeResolver.mapColors(context, listOf(colorTheme))
+        var currentTheme by mutableIntStateOf(Theme.LIGHT)
+        rule.setContent {
+            Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                RcPlayer(document = document, theme = currentTheme)
+            }
+        }
+        rule.waitForIdle()
 
-        val expectedBlack = context.getColor(R.color.black)
         val expectedDarkerGray = context.getColor(R.color.darker_gray)
+        val expectedBlack = context.getColor(R.color.black)
 
-        assertThat(colorTheme.mDarkMode).isEqualTo(expectedBlack)
-        assertThat(colorTheme.mLightMode).isEqualTo(expectedDarkerGray)
+        val lightBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(lightBitmap.getPixel(25, 25)).isEqualTo(expectedDarkerGray)
+
+        currentTheme = Theme.DARK
+        rule.waitForIdle()
+
+        val darkBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(darkBitmap.getPixel(25, 25)).isEqualTo(expectedBlack)
     }
 
     @Test
     fun testAndroidColorThemeMappingSkipsNonAndroidColorGroup() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val colorTheme =
-            ColorTheme(
-                    100, // id
-                    -1, // colorGroupId
-                    3.toShort(), // lightModeIndex
-                    2.toShort(), // darkModeIndex
-                    0xFFEEEEEE.toInt(), // fallbackLight
-                    0xFF111111.toInt(), // fallbackDark
-                )
-                .apply { mColorGroupName = "custom_group" }
+        val document = colorThemeRectDocument(colorGroupName = "custom_group")
 
-        AndroidColorThemeResolver.mapColors(context, listOf(colorTheme))
+        var currentTheme by mutableIntStateOf(Theme.LIGHT)
+        rule.setContent {
+            Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                RcPlayer(document = document, theme = currentTheme)
+            }
+        }
+        rule.waitForIdle()
 
         // Authored fallbacks must remain untouched
-        assertThat(colorTheme.mLightMode).isEqualTo(0xFFEEEEEE.toInt())
-        assertThat(colorTheme.mDarkMode).isEqualTo(0xFF111111.toInt())
+        val lightBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(lightBitmap.getPixel(25, 25)).isEqualTo(0xFFEEEEEE.toInt())
+
+        currentTheme = Theme.DARK
+        rule.waitForIdle()
+
+        val darkBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(darkBitmap.getPixel(25, 25)).isEqualTo(0xFF111111.toInt())
     }
 
     @Test
     fun testAndroidColorThemeMappingSkipsNullColorGroup() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val colorTheme =
-            ColorTheme(
-                    100, // id
-                    -1, // colorGroupId
-                    3.toShort(), // lightModeIndex
-                    2.toShort(), // darkModeIndex
-                    0xFFEEEEEE.toInt(), // fallbackLight
-                    0xFF111111.toInt(), // fallbackDark
-                )
-                .apply { mColorGroupName = null }
+        val document = colorThemeRectDocument(colorGroupName = null)
 
-        AndroidColorThemeResolver.mapColors(context, listOf(colorTheme))
+        var currentTheme by mutableIntStateOf(Theme.LIGHT)
+        rule.setContent {
+            Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                RcPlayer(document = document, theme = currentTheme)
+            }
+        }
+        rule.waitForIdle()
 
         // Authored fallbacks must remain untouched
-        assertThat(colorTheme.mLightMode).isEqualTo(0xFFEEEEEE.toInt())
-        assertThat(colorTheme.mDarkMode).isEqualTo(0xFF111111.toInt())
+        val lightBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(lightBitmap.getPixel(25, 25)).isEqualTo(0xFFEEEEEE.toInt())
+
+        currentTheme = Theme.DARK
+        rule.waitForIdle()
+
+        val darkBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(darkBitmap.getPixel(25, 25)).isEqualTo(0xFF111111.toInt())
     }
 
     @Test
     fun testColorThemeAppliesAccordingToPaintTheme() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val document = CoreDocument(RemoteClock.SYSTEM)
-        val remoteContext =
-            AndroidRemoteContext(RemoteClock.SYSTEM).apply { setAndroidContext(context) }
+        val document =
+            CoreDocument(RemoteClock.SYSTEM).apply {
+                operations.add(
+                    ColorTheme(
+                        100,
+                        -1,
+                        (-1).toShort(),
+                        (-1).toShort(),
+                        0xFFFFFFFF.toInt(), // light color
+                        0xFF000000.toInt(), // dark color
+                    )
+                )
+                operations.add(PaintData(PaintBundle().apply { setColorId(100) }))
+                operations.add(DrawRect(0f, 0f, 50f, 50f))
+            }
 
-        val colorTheme =
-            ColorTheme(
-                100,
-                -1,
-                (-1).toShort(),
-                (-1).toShort(),
-                0xFFFFFFFF.toInt(), // light color
-                0xFF000000.toInt(), // dark color
-            )
-        document.getOperationsList().add(colorTheme)
+        var currentTheme by mutableIntStateOf(Theme.LIGHT)
+        rule.setContent {
+            Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                RcPlayer(document = document, theme = currentTheme)
+            }
+        }
+        rule.waitForIdle()
 
-        // Light mode
-        remoteContext.paintTheme = Theme.LIGHT
-        colorTheme.apply(remoteContext)
-        assertThat(remoteContext.getColor(100)).isEqualTo(0xFFFFFFFF.toInt())
+        val lightBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(lightBitmap.getPixel(25, 25)).isEqualTo(0xFFFFFFFF.toInt())
 
-        // Dark mode
-        remoteContext.paintTheme = Theme.DARK
-        colorTheme.apply(remoteContext)
-        assertThat(remoteContext.getColor(100)).isEqualTo(0xFF000000.toInt())
+        currentTheme = Theme.DARK
+        rule.waitForIdle()
+
+        val darkBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(darkBitmap.getPixel(25, 25)).isEqualTo(0xFF000000.toInt())
     }
 
     @Test
-    fun testSnapshotRemoteComposeStateUpdateColor() {
-        val state = SnapshotRemoteComposeState()
-        val colorId = 100
-        state.updateColor(colorId, 0xFFFF0000.toInt())
-        assertThat(state.getColor(colorId)).isEqualTo(0xFFFF0000.toInt())
+    fun testPlayerStateColorUpdateRepaintsEmbeddedPlayer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(context = context) {
+                val accent = remember { createNamedRemoteColor("accent", Color.Red) }
+                RemoteBox(modifier = RemoteModifier.size(50.rdp).background(accent))
+            }
+        }
 
-        state.updateColor(colorId, 0xFF00FF00.toInt())
-        assertThat(state.getColor(colorId)).isEqualTo(0xFF00FF00.toInt())
+        val playerState = RcPlayerState(document)
+        var accent by playerState.colorState("accent")
+        assertThat(accent).isEqualTo(Color.Red)
+
+        rule.setContent {
+            Box(modifier = Modifier.size(50.dp).testTag("player")) {
+                RcPlayer(state = playerState)
+            }
+        }
+        rule.waitForIdle()
+
+        val initialBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(initialBitmap.getPixel(25, 25)).isEqualTo(Color.Red.toArgb())
+
+        accent = Color.Green
+        rule.waitForIdle()
+
+        assertThat(accent).isEqualTo(Color.Green)
+        val updatedBitmap = rule.onNodeWithTag("player").captureToImage().asAndroidBitmap()
+        assertThat(updatedBitmap.getPixel(25, 25)).isEqualTo(Color.Green.toArgb())
     }
 
     @Test
@@ -300,4 +378,27 @@ class RcColorThemePlayerTest {
         val themedColors = document.themedColors
         assertThat(themedColors).hasSize(2)
     }
+
+    private fun colorThemeRectDocument(colorGroupName: String?): CoreDocument =
+        CoreDocument(RemoteClock.SYSTEM).apply {
+            val groupId =
+                if (colorGroupName != null) {
+                    operations.add(TextData(50, colorGroupName))
+                    50
+                } else {
+                    -1
+                }
+            operations.add(
+                ColorTheme(
+                    100, // id
+                    groupId, // colorGroupId
+                    3.toShort(), // lightModeIndex (darker_gray: R.color.darker_gray)
+                    2.toShort(), // darkModeIndex (black: R.color.black)
+                    0xFFEEEEEE.toInt(), // fallbackLight
+                    0xFF111111.toInt(), // fallbackDark
+                )
+            )
+            operations.add(PaintData(PaintBundle().apply { setColorId(100) }))
+            operations.add(DrawRect(0f, 0f, 50f, 50f))
+        }
 }
