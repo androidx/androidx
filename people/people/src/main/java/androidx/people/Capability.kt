@@ -16,6 +16,8 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * A mode of communication with a person or group.
  *
@@ -38,6 +40,7 @@ package androidx.people
  * New capabilities may be added in future releases. Clients must ignore values they do not
  * recognize, and code that branches on a [Capability] must include an `else` branch.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Capability private constructor(private val name: String) {
 
     override fun toString(): String = name

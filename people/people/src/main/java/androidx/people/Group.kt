@@ -16,12 +16,15 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * An aggregated group record returned by a People Directory application.
  *
  * Each [id] appears at most once in a result. [matchedCriteria] reports every query input that
  * matched this group, so that a batched query can be correlated back to its inputs.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Group(
     /** Unique compound identifier for this group record. */
     public val id: GroupId,

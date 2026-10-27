@@ -16,10 +16,13 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * Marks the [PersonQueryScope] and [GroupQueryScope] DSL scopes, so that a nested scope block
  * cannot implicitly call members of an enclosing scope.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @DslMarker
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

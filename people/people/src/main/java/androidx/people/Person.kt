@@ -17,6 +17,7 @@
 package androidx.people
 
 import android.net.Uri
+import androidx.annotation.RestrictTo
 
 /**
  * An aggregated person record returned by a People Directory application.
@@ -28,6 +29,7 @@ import android.net.Uri
  * val person = results.firstOrNull { Criterion.Phone(number) in it.matchedCriteria }
  * ```
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Person(
     /** Unique compound identifier for this person record. */
     public val id: PersonId,
