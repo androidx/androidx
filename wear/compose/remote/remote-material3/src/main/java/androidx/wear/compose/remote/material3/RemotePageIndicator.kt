@@ -64,7 +64,7 @@ public interface RemotePageIndicatorState {
  * @property pageOffset The current offset from the start of the selected page, as a ratio of the
  *   page width.
  */
-public class DefaultRemotePageIndicatorState(
+internal class DefaultRemotePageIndicatorState(
     override val pageCount: Int,
     override val selectedPage: RemoteInt = 0.ri,
     override val pageOffset: RemoteFloat = 0f.rf,

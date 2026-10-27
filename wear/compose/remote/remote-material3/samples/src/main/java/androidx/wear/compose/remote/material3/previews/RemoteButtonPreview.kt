@@ -47,7 +47,6 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
-import androidx.wear.compose.remote.material3.buttonSizeModifier
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
 import androidx.wear.compose.remote.material3.previews.utils.TestImageVectors
 import androidx.wear.compose.remote.material3.previews.utils.createImage
@@ -58,7 +57,6 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun RemoteButtonEnabled() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         enabled = true.rb,
         content = { RemoteText("button_enabled".rs) },
     )
@@ -75,7 +73,6 @@ private fun RemoteButtonEnabledPreview(
 fun RemoteButtonTwoLineText() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         enabled = true.rb,
         content = { RemoteText("Long label that\nspans two lines".rs) },
     )
@@ -92,7 +89,6 @@ private fun RemoteButtonTwoLineTextPreview(
 fun RemoteButtonWithBorder() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         border = 8.rdp,
         borderColor = RemoteColor(Color.Green),
     ) {
@@ -111,7 +107,6 @@ private fun RemoteButtonWithBorderPreview(
 fun RemoteButtonWithLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         label = { RemoteText("label".rs) },
     )
 }
@@ -127,7 +122,6 @@ private fun RemoteButtonWithLabelPreview(
 fun RemoteButtonWithMultilineLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         label = { RemoteText("First Line\nSecond Line".rs) },
     )
 }
@@ -143,7 +137,6 @@ private fun RemoteButtonWithMultilineLabelPreview(
 fun RemoteButtonWithSecondaryLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         secondaryLabel = { RemoteText(RemoteString("secondaryLabel")) },
         label = { RemoteText(RemoteString("label")) },
     )
@@ -154,7 +147,6 @@ fun RemoteButtonWithSecondaryLabel() {
 fun RemoteButtonWithIcon() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         icon = {
             RemoteIcon(
                 imageVector = TestImageVectors.VolumeUp,
@@ -177,7 +169,6 @@ private fun RemoteButtonWithIconPreview(
 fun RemoteButtonWithIconAndSecondaryLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         icon = {
             RemoteIcon(
                 imageVector = TestImageVectors.VolumeUp,
@@ -204,7 +195,6 @@ private fun RemoteButtonWithIconAndSecondaryLabelPreview(
 fun RemoteButtonWithLongLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         label = {
             RemoteText("This is a longer button label text that wraps onto a second line".rs)
         },
@@ -222,7 +212,6 @@ private fun RemoteButtonWithLongLabelPreview(
 fun RemoteButtonWithIconAndLongLabel() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         icon = {
             RemoteIcon(
                 imageVector = TestImageVectors.VolumeUp,
@@ -251,7 +240,6 @@ fun RemoteButtonWithBackground() {
     val containerPainter = RemoteButtonDefaults.containerPainter(backgroundImage)
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         containerPainter = containerPainter,
     ) {
         RemoteText("image_background".rs)
@@ -269,7 +257,6 @@ private fun RemoteButtonWithBackgroundPreview(
 fun RemoteButtonWithShape() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         shape = RemoteRoundedCornerShape(4.rdp),
         content = { RemoteText("Custom shape".rs) },
     )
@@ -311,7 +298,6 @@ private fun RemoteButtonCustomConfigPreview(
 fun RemoteButtonDisabled() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         enabled = false.rb,
     ) {
         RemoteText("button_disabled".rs)
@@ -329,7 +315,6 @@ private fun RemoteButtonDisabledPreview(
 fun RemoteButtonWithIconAndSecondaryLabelDisabled() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         enabled = false.rb,
         icon = {
             RemoteIcon(
@@ -357,7 +342,6 @@ private fun RemoteButtonWithIconAndSecondaryLabelDisabledPreview(
 fun RemoteButtonChildColors() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         colors = RemoteButtonDefaults.childButtonColors(),
     ) {
         RemoteText("Child Button".rs)
@@ -375,7 +359,6 @@ private fun RemoteButtonChildColorsPreview(
 fun RemoteButtonChildColorsDisabled() {
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         enabled = false.rb,
         colors = RemoteButtonDefaults.childButtonColors(),
     ) {
@@ -400,7 +383,6 @@ fun RemoteButtonWithSmallImageBackground() {
     val containerPainter = RemoteButtonDefaults.containerPainter(smallImage)
     RemoteButton(
         onClick = testAction,
-        modifier = RemoteModifier.buttonSizeModifier(),
         containerPainter = containerPainter,
     ) {
         RemoteText("small_image".rs)
