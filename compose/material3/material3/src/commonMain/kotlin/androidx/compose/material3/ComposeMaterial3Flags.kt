@@ -151,4 +151,13 @@ public object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isModalBottomSheetStateRestorationFixEnabled: Boolean = true
+
+    /**
+     * Whether to use Modifier.Node instead of Modifier.composed in
+     * TabRowDefaults.tabIndicatorOffset(TabPosition).
+     */
+    // TODO: b/574014504
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isTabIndicatorOffsetNodeEnabled: Boolean = true
 }
