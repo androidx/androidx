@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"പ്രോഗ്രസ് ബാർ ഡെമോ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"വിഭാഗത്തിന്റെ പേരിന്റെ ഡെമോ"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"സ്പോട്ട്ലൈറ്റ് വിഭാഗത്തിന്റെ ഡെമോ"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"വിഭാഗങ്ങളാക്കിയ ഇന തിരയലിന്റെ ഡെമോ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"നീളമേറിയ ടാബ് പേരോട് കൂടിയ ഗ്രിഡ് ടാബ്"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"തിരയൽ ടാബ്"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"ലോഡ് ചെയ്യൽ ടാബ്"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"ടെംപ്ലേറ്റ് സ്റ്റൈൽ 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"ടെംപ്ലേറ്റ് സ്റ്റൈൽ 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"അസാധുവാക്കിയ സ്റ്റൈൽ"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"പിശകുള്ള സ്റ്റൈൽ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ടാബ് ടെംപ്ലേറ്റ് ലോഡ് ചെയ്യൽ ഡെമോ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ടാബ് ടെംപ്ലേറ്റ് ടാബുകളൊന്നുമില്ല ഡെമോ"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ടാബ് ടെംപ്ലേറ്റ് സ്റ്റൈൽ ഡെമോ"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ടാബ് ടെംപ്ലേറ്റ് സ്റ്റൈൽ (ടാബ് 1)\nടെംപ്ലേറ്റ്-ലെവൽ സ്റ്റൈലിംഗ് ഇൻഹെറിറ്റ് ചെയ്യുന്നു"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ടാബ് ടെംപ്ലേറ്റ് സ്റ്റൈൽ (ടാബ് 2)\nടെംപ്ലേറ്റ്-ലെവൽ സ്റ്റൈലിംഗ് ഇൻഹെറിറ്റ് ചെയ്യുന്നു"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ടാബ് അസാധുവാക്കൽ സ്റ്റൈൽ\nടെംപ്ലേറ്റ് സ്റ്റൈലിന് പകരം ഇഷ്ടാനുസൃത നീല നിറങ്ങൾ ഉപയോഗിക്കുന്നു"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ടാബ് സ്റ്റൈൽ പിശക്\nചുവപ്പ് പശ്ചാത്തലത്തിൽ ചുവപ്പ് ഐക്കൺ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"അജ്ഞാത ഹോസ്റ്റിൽ നിന്നുള്ള ചിത്രങ്ങൾ പ്രദർശിപ്പിക്കാനാകില്ല"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ഐക്കൺ"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ഉള്ളടക്ക ദാതാക്കളുടെ ഐക്കണുകളുടെ ഡെമോ"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"ഏറ്റവും പുതിയ ഫീച്ചറുകൾ"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"ലോഡ് ചെയ്യുന്നത് പ്രവർത്തനക്ഷമമാക്കി"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ലോഡ് ചെയ്യുന്നത് പ്രവർത്തനരഹിതമാക്കി"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"ആപ്പ് തീം ഉപയോഗിക്കുക"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"ആപ്പ് തീം പ്രവർത്തനക്ഷമമാക്കി"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"ആപ്പ് തീം പ്രവർത്തനരഹിതമാക്കി"</string>
     <string name="loading_screen" msgid="4771507490730308794">"സ്‌ക്രീൻ ലോഡ് ചെയ്യുന്നു"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"നിറം ചേർക്കാൻ/നീക്കം ചെയ്യാൻ മാറ്റുക"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ടോഗിൾ ഫങ്ഷൻ ഉള്ള മാപ്പ് ടെംപ്ലേറ്റ്"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ഉള്ളടക്കമുള്ള മാപ്പിന്റെ ഡെമോകൾ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"സന്ദേശ ടെംപ്ലേറ്റുളള മാപ്പിന്റെ ഡെമോ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ഗ്രിഡ് ടെംപ്ലേറ്റുള്ള മാപ്പിന്റെ ഡെമോ"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"വിഭാഗങ്ങളാക്കിയ ഇനങ്ങളുടെ ലിസ്റ്റ് ഉള്ള മാപ്പ്"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"ബാനർ ഡെമോ"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"മെച്ചപ്പെടുത്തിയ ഹെഡർ ഡെമോ"</string>
 </resources>

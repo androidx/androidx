@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"অগ্ৰগতিৰ দণ্ডৰ ডেম’"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"শাখাৰ হে’ডাৰৰ ডেম’"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"স্পটলাইট শাখাৰ ডেম’"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"শাখা হিচাপে ৰখা বস্তুৰ সন্ধানৰ ডেম’"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"টেবৰ দীঘলীয়া শিৰোনামৰ সৈতে গ্ৰিডৰ টেব"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"সন্ধানৰ টেব"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"টেব ল’ড কৰি থকা হৈছে"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"টেম্পলে’টৰ শৈলী ১"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"টেম্পলে’টৰ শৈলী ২"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"অ’ভাৰৰাইড কৰাৰ শৈলী"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"ব্যৰ্থ হোৱা শৈলী"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"টেবৰ টেম্পলে’টৰ ল’ড হৈ থকা ডেম’"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"কোনো টেব নথকা টেবৰ টেম্পলে’টৰ ডেম’"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"টেবৰ টেম্পলে’টৰ শৈলীৰ ডেম’"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"টেবৰ টেম্পলে’টৰ শৈলী (টেব ১)\nটেম্পলে’ট-স্তৰৰ শৈলী আহৰণ কৰে"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"টেবৰ টেম্পলে’টৰ শৈলী (টেব ২)\nটেম্পলে’ট-স্তৰৰ শৈলী আহৰণ কৰে"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"টেবৰ অ’ভাৰৰাইড কৰাৰ শৈলী\nকাষ্টম নীলা ৰঙৰ সৈতে টেম্পলে’টৰ শৈলী অ’ভাৰৰাইড কৰে"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"টেবৰ বিফল হোৱাৰ শৈলী\nৰঙা পৃষ্ঠভূমিত ৰঙা চিহ্ন"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"অজ্ঞাত হ’ষ্টৰ বাবে প্ৰতিচ্ছবি দেখুৱাব নোৱাৰি"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"চিহ্ন"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"সমল প্ৰদানকাৰীৰ চিহ্নৰ ডেম’"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"শেহতীয়া সুবিধা"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"ল’ড কৰি থকাটো সক্ষম কৰা হৈছে"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ল’ড কৰি থকাটো অক্ষম কৰা হৈছে"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"এপৰ থীম ব্যৱহাৰ কৰক"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"এপৰ থীম সক্ষম কৰা হৈছে"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"এপৰ থীম অক্ষম কৰা হৈছে"</string>
     <string name="loading_screen" msgid="4771507490730308794">"স্ক্ৰীন ল’ড কৰি থকা হৈছে"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"ৰং যোগ দিবলৈ/আঁতৰাবলৈ ট’গল কৰক"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ট’গলৰ সৈতে মেপৰ টেম্পলে’ট"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"সমলৰ ডেম’ৰ সৈতে মেপ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"বাৰ্তাৰ টেমপ্লে’টৰ ডেম’ৰ সৈতে মেপ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"গ্ৰিড টেমপ্লে’টৰ ডেম’ৰ সৈতে মেপ"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"শাখা হিচাপে ৰখা বস্তুৰ সূচীৰ সৈতে মেপ"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"বেনাৰৰ ডেম’"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"বৰ্ধিত হে’ডাৰৰ ডেম’"</string>
 </resources>

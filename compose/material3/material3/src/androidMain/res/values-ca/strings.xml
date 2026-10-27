@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Suggeriments a continuació"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Selecciona la data"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Data seleccionada"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Canvia a la selecció de l\'any"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Llisca per seleccionar un any o toca per tornar a seleccionar un dia"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Activa per canviar l\'any"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Activa per canviar el mes i la data"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Canvia al mes següent"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Canvia al mes anterior"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Navega fins a l\'any %1$s"</string>
@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"per als minuts"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"per a l\'hora"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Canvia al mode d\'introducció de text"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Canvia al mode de desplaçament"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Canvia al mode de rellotge"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Selecciona l\'hora"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Selecciona l\'hora"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Introdueix l\'hora"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"El minut ha de ser 0-59"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"L\'hora ha de ser 1-12"</string>

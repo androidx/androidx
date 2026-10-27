@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Демо на лента за напредок"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Демо на заглавје на оддел"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Демо на одделот „Интересно“"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Демо за пребарување поделени ставки"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демо за шаблон на окно"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демо за шаблон на список со места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Прелистувајте места"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Картичка во вид на решетка со долг наслов на картичката"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картичка за пребарување"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Картичката се вчитува"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Стил на шаблон 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Стил на шаблон 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Стил на отфрлање"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Стил на неуспех"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демо за вчитување шаблон за картичка"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демо за немање картички за шаблон за картичка"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Демо за стил на шаблон за картичка"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Стил на шаблон за картичка (картичка 1)\nНаследува стилизирање на ниво на шаблон"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Стил на шаблон за картичка (картичка 2)\nНаследува стилизирање на ниво на шаблон"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Стил на отфрлена картичка\nГо отфрла стилот на шаблонот со приспособени сини бои"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Стил на неуспешна картичка\nЦрвена икона на црвена заднина"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сликите не може да се прикажат за непознат хост"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Икона"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Демо за икони за даватели на содржини"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Последни функции"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Вчитувањето е овозможено"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Вчитувањето е оневозможено"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Користи ја темата на апликацијата"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Темата на апликацијата е овозможена"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Темата на апликацијата е оневозможена"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Екран за вчитување"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Вклучи/исклучи за додавање/отстранување боја"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Шаблон на карта со вклучување/исклучување"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демоа за карта со содржини"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демоа за шаблон на карта со порака"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демоа за шаблон на карта со мрежа"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Карта со список со поделени ставки"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Демо на банер"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Демо на подобрено заглавје"</string>
 </resources>

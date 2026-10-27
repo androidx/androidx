@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ಪ್ರಗತಿ ಪಟ್ಟಿಯ ಡೆಮೋ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"ವಿಭಾಗದ ಹೆಡರ್ ಡೆಮೋ"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದ ಡೆಮೋ"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ ಹುಡುಕಾಟ ಡೆಮೋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ಪೇನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ಸ್ಥಳ ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"ಲಾಂಗ್ ಟ್ಯಾಬ್ ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಗ್ರಿಡ್ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ಹುಡುಕಾಟ ಟ್ಯಾಬ್"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"ಟ್ಯಾಬ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿ 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿ 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"ಓವರ್‌ರೈಡ್ ಶೈಲಿ"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"ವಿಫಲತೆಯ ಶೈಲಿ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಲೋಡ್ ಆಗುತ್ತಿರುವ ಡೆಮೋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್‌‌ ಯಾವುದೇ ಟ್ಯಾಬ್‌ಗಳ ಡೆಮೋ ಇಲ್ಲ"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿಯ ಡೆಮೋ"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿ (ಟ್ಯಾಬ್ 1)\nಟೆಂಪ್ಲೇಟ್ ಹಂತದ ಶೈಲಿಯನ್ನು ಅಳವಡಿಸಿಕೊಳ್ಳುತ್ತದೆ"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ಟ್ಯಾಬ್ ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿ (ಟ್ಯಾಬ್ 2)\nಟೆಂಪ್ಲೇಟ್ ಹಂತದ ಶೈಲಿಯನ್ನು ಅಳವಡಿಸಿಕೊಳ್ಳುತ್ತದೆ"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ಟ್ಯಾಬ್ ಓವರ್‌ರೈಡ್ ಶೈಲಿ\nಕಸ್ಟಮ್ ನೀಲಿ ಬಣ್ಣಗಳೊಂದಿಗೆ ಟೆಂಪ್ಲೇಟ್ ಶೈಲಿಯನ್ನು ಓವರ್‌ರೈಡ್ ಮಾಡುತ್ತದೆ"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ಟ್ಯಾಬ್ ವಿಫಲತೆಯ ಶೈಲಿ\nಕೆಂಪು ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಕೆಂಪು ಐಕಾನ್"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ಅಪರಿಚಿತ ಹೋಸ್ಟ್‌ಗಾಗಿ ಚಿತ್ರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ಐಕಾನ್"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ಕಂಟೆಂಟ್ ಪೂರೈಕೆದಾರರ ಐಕಾನ್‌ಗಳ ಡೆಮೋ"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"ಇತ್ತೀಚಿನ ಫೀಚರ್‌ಗಳು"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"ಲೋಡ್ ಮಾಡುವಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ಲೋಡ್ ಮಾಡುವಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"ಆ್ಯಪ್ ಥೀಮ್ ಅನ್ನು ಬಳಸಿ"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"ಆ್ಯಪ್ ಥೀಮ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"ಆ್ಯಪ್ ಥೀಮ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="loading_screen" msgid="4771507490730308794">"ಸ್ಕ್ರೀನ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"ಬಣ್ಣವನ್ನು ಸೇರಿಸಲು/ತೆಗೆಯಲು ಟಾಗಲ್ ಮಾಡಿ"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ಟಾಗಲ್‌ಗಳಿರುವ ನಕ್ಷೆ ಟೆಂಪ್ಲೇಟ್"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ಕಂಟೆಂಟ್ ಡೆಮೋಗಳನ್ನು ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್‌‌ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ಗ್ರಿಡ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ ಹೊಂದಿರುವ Map"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂಗಳ ಪಟ್ಟಿಯನ್ನು ಹೊಂದಿರುವ ನಕ್ಷೆ"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"ಬ್ಯಾನರ್ ಡೆಮೋ"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"ವರ್ಧಿತ ಹೆಡರ್ ಡೆಮೋ"</string>
 </resources>

@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Du finner forslag nedenfor"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Velg dato"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Valgt dato"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Bytt til å velge et år"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Sveip for å velge år, eller trykk for å bytte tilbake til valg av dag"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Aktiver for å endre år"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Aktiver for å endre måned og dato"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Bytt til neste måned"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Bytt til forrige måned"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Gå til år %1$s"</string>
@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"for minutter"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"for timer"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Bytt til inndatamodus for tekst"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Bytt til rullemodus"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Bytt til klokkemodus"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Velg et klokkeslett"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Velg et klokkeslett"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Angi et klokkeslett"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Minuttet må være 0–59"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Timen må være 1–12"</string>

@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo barra di avanzamento"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo intestazione di sezione"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo sezione in evidenza"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demo ricerca di elementi a sezioni"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo Modello riquadro"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo Modello elenco luoghi"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Sfoglia luoghi"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Scheda griglia con titolo scheda lungo"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Scheda ricerca"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Caricamento scheda in corso…"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Stile modello 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Stile modello 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Stile sostituito"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Stile non riuscito"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo caricamento modello scheda"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo nessuna scheda modello scheda"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Demo stile di modello scheda"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Stile modello scheda (scheda 1)\nEredita lo stile a livello di modello"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Stile modello scheda (scheda 2)\nEredita lo stile a livello di modello"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Stile scheda sostituito\nSostituisce lo stile del modello con colori blu personalizzati"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Stile scheda non riuscito\nIcona rossa su sfondo rosso"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Non è possibile mostrare immagini per un host sconosciuto"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icona"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demo Icone fornitore di contenuti"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Funzionalità più recenti"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Caricamento attivato"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Caricamento disattivato"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Usa tema app"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Tema app attivato"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Tema app disattivato"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Schermata di caricamento"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Attiva/disattiva per aggiungere/rimuovere colore"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Modello mappa con opzioni di attivazione/disattivazione"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo mappa con contenuti"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mappa con modello messaggio"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mappa con modello griglia"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Mappa con elenco degli elementi a sezioni"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Demo banner"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo intestazione avanzata"</string>
 </resources>

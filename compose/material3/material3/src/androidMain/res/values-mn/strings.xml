@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Доорх зөвлөмжүүд"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Огноо сонгох"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Сонгосон огноо"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Он сонгох руу сэлгэх"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Он сонгохын тулд шудрах эсвэл өдөр сонгох руу буцааж сэлгэхийн тулд товшино уу"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Оныг өөрчлөхийн тулд идэвхжүүлнэ үү"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Сар, огноог өөрчлөхийн тулд идэвхжүүлнэ үү"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Дараагийн сар луу өөрчлөх"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Өмнөх сар луу өөрчлөх"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"%1$s он руу шилжих"</string>
@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"минутын турш"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"цагийн турш"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Текст оруулах горим руу сэлгэх"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Гүйлгэх горим руу сэлгэх"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Цагны горим руу сэлгэх"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Цаг сонгох"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Цаг сонгох"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Цаг оруулах"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Минут нь 0–59 байх ёстой"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Цаг нь 1–12 байх ёстой"</string>

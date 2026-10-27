@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Versiune demonstrativă a barei de progres"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demonstrație cu antetul secțiunii"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demonstrație cu secțiunea În centrul atenției"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demonstrație cu căutarea articolelor cu secțiuni"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiește locații"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Filă cu grilă și titlu lung"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Filă cu căutare"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Se încarcă fila"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Stilul șablonului 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Stilul șablonului 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Stil modificat"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Stil cu probleme"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstrație cu încărcarea șablonului de file"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstrație fără file pentru șablon"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Demonstrație cu stilul șablonului de filă"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Stilul șablonului de file (fila 1)\nMoștenește stilul de la nivel de șablon"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Stilul șablonului de filă (fila 2)\nMoștenește stilul de la nivel de șablon"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Stilul modificat al filei\nModifică stilul șablonului cu nuanțe de albastru personalizate"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Stilul filei care nu a trecut\nPictogramă roșie pe fundal roșu"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nu se pot afișa imagini pentru o gazdă necunoscută"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Pictogramă"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demonstrație cu pictogramele furnizorilor de conținut"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Cele mai recente funcții"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Încărcare activată"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Încărcare dezactivată"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Folosește tema aplicației"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Tema aplicației a fost activată"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Tema aplicației a fost dezactivată"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Ecran de încărcare"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Comută pentru a adăuga / elimina culori"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Șablon pentru hartă cu comutatoare"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrații cu hartă cu conținut"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrație cu șablon pentru hartă cu mesaj"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrație cu șablon pentru hartă cu grilă"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Hartă cu listă de articole cu secțiuni"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Versiune demonstrativă banner"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demonstrație cu antet îmbunătățit"</string>
 </resources>

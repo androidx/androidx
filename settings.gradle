@@ -74,6 +74,16 @@ def rootProjectRepositories
 
 apply from: "buildSrc/settingsScripts/out-setup.groovy"
 
+// Build settings that differ per branch. Each branch's repo manifest links androidx-branch.properties
+// to a file in development/branch-config. Every project gets these settings as extra properties.
+def branchProperties = new Properties()
+def branchPropertiesText = providers.fileContents(layout.rootDirectory.file("../../androidx-branch.properties"))
+        .asText
+        .getOrNull()
+if (branchPropertiesText != null) {
+    branchProperties.load(new StringReader(branchPropertiesText))
+}
+
 getGradle().beforeProject { project ->
     // Migrate to dependencyResolutionManagement.repositories when
     // https://github.com/gradle/gradle/issues/17295 is fixed
@@ -88,6 +98,7 @@ getGradle().beforeProject { project ->
     }
     project.ext.supportRootFolder = supportRootFolder
     project.ext.prebuiltsRoot = prebuiltsRoot
+    branchProperties.each { key, value -> project.ext.set(key, value) }
     init.chooseBuildDirectory(
             new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
     )
@@ -109,6 +120,7 @@ apply(from: "buildSrc/ndk.gradle")
 def buildNumberProvider = providers.environmentVariable("BUILD_NUMBER").orElse("unset")
 // Noisy requests from VSCode based IDEs that we do not want to see in build scans
 def isNoisyTaskRequest = startParameter.taskNames.contains("kotlinLSPProjectDeps") || startParameter.taskNames.contains("javalsCheckProject")
+def publishBuildScans = branchProperties.getProperty("androidx.publishBuildScans") == "true"
 
 develocity {
     server = "https://androidx.develocity.cloud"
@@ -128,7 +140,7 @@ develocity {
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
         // Do not publish scan for androidx-platform-dev
-        publishing.onlyIf { it.authenticated && !isNoisyTaskRequest }
+        publishing.onlyIf { publishBuildScans && it.authenticated && !isNoisyTaskRequest }
     }
 
     // TODO(https://github.com/gradle/gradle/issues/34584): Avoid setting buildFinished via Gradle magic:
@@ -701,6 +713,14 @@ includeProject(":core:core-pip:integration-tests:pip-on-app-switch", [BuildType.
 includeProject(":people:people", [BuildType.MAIN])
 includeProject(":people:people-play-services", [BuildType.MAIN])
 includeProject(":people:people-client", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-compose", [BuildType.COMPOSE])
+includeProject(":test:accessibility:accessibility-core", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-core-testing", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-espresso", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-factory", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-integration", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-robolectric", [BuildType.MAIN])
+includeProject(":test:accessibility:accessibility-uiautomator", [BuildType.MAIN])
 includeProject(":wear:compose:remote:integration-tests:demos", [BuildType.MAIN])
 includeProject(":wear:compose:remote:remote-material3", [BuildType.MAIN])
 includeProject(":wear:compose:remote:remote-material3-samples", "wear/compose/remote/remote-material3/samples", [BuildType.MAIN])

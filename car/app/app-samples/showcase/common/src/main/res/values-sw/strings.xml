@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Toleo la kujaribu Upau wa Shughuli"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Toleo la Kujaribu la Kijajuu cha Sehemu"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Toleo la Kujaribu Sehemu ya Kuangazia"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Onyesho la Utafutaji wa Vipengee Vilivyotenganishwa"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Onyesho la Kiolezo cha Kijisehemu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Onyesho la Kiolezo cha Orodha ya Mahali"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Vinjari Maeneo"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Tab ya kupangilia kwa Gridi yenye Jina Refu la Tab"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Tab ya Kutafuta"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Inapakia Kichupo"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Muundo wa Kiolezo wa 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Muundo wa Kiolezo wa 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Muundo Uliobatilishwa"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Muundo Unaoonyesha Hitilafu"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Kiolezo cha Kupakia Toleo la Kujaribu la Tab"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Kiolezo cha Tab Kisicho na Toleo la Kujaribu la Tab"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Toleo la Kujaribu la Muundo wa Kiolezo cha Kichupo"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Muundo wa Kiolezo cha Kichupo (Kichupo cha 1)\nHurithi muundo wa kiwango cha kiolezo"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Muundo wa Kiolezo cha Kichupo (Kichupo cha 2)\nHurithi muundo wa kiwango cha kiolezo"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Muundo wa Kichupo Uliobatilishwa\nHubatilisha muundo wa kiolezo kwa kutumia rangi maalum za buluu"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Muundo wa Kichupo Unaoonyesha Hitilafu\nAikoni nyekundu kwenye mandharinyuma mekundu"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Picha haziwezi kuonyeshwa kwa mpangishi asiyejulikana"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Aikoni"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Onyesho la Aikoni za Mtoa Huduma ya Maudhui"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Vipengele Vipya"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Upakiaji umeruhusiwa"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Upakiaji umezuiwa"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Tumia Mandhari ya Programu"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Mandhari ya Programu yamewashwa"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Mandhari ya Programu yamezimwa"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Skrini inayopakia"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Geuza ili uweke au uondoe rangi"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Kiolezo cha Ramani chenye Vitufe vya Kuwasha au Kuzima"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Ramani Yenye Matoleo ya Kujaribu Maudhui"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Ramani Yenye Toleo la Kujaribu Kiolezo cha Ujumbe"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Ramani Yenye Toleo la Kujaribu Kiolezo cha Gridi"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Ramani yenye Orodha ya Vipengee Vilivyogawanywa katika Sehemu"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Toleo la Kujaribu Bango"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Toleo la Kujaribu Vichwa Vilivyoboreshwa"</string>
 </resources>

@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo van voortgangsbalk"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Demo van sectiekop"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Demo van gedeelte Spotlight"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Demo van zoeken in opgesplitste items"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo van deelvenstertemplate"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo template voor plaatslijst"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browsen door plaatsen"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Rastertabblad met lange tabbladtitel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Zoektabblad"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Tabblad laden"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Templatestijl 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Templatestijl 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Overschreven stijl"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Mislukte stijl"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demo van laden van tabbladtemplate"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demo van tabbladtemplate zonder tabbladen"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Demo voor templatestijl van tabblad"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Templatestijl van tabblad (tabblad 1)\nNeemt stijl op templateniveau over"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Templatestijl van tabblad (tabblad 2)\nNeemt stijl op templateniveau over"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Overschreven stijl van tabblad\nOverschrijft templatestijl met aangepaste blauwe kleuren"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Mislukte stijl van tabblad\nRood icoon op rode achtergrond"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Afbeeldingen kunnen niet worden getoond voor een onbekende host"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icoon"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demo van Contentprovider-iconen"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Nieuwste functies"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Laden aangezet"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Laden uitgezet"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"App-thema gebruiken"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"App-thema aangezet"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"App-thema uitgezet"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Scherm laden"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Schakelaar om kleur toe te voegen of te verwijderen"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Kaarttemplate met schakelaars"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kaart met contentdemo\'s"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kaart met demo berichtentemplate"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kaart met demo rastertemplate"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Kaart met lijst met gegroepeerde items"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Bannerdemo"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo van verbeterde kop"</string>
 </resources>

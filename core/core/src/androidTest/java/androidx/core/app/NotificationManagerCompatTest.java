@@ -459,7 +459,7 @@ public class NotificationManagerCompatTest {
         channelGroupTwo.setGroup(groupTwo.getId());
         NotificationChannel secondChannelGroupTwo = new NotificationChannel(
                 secondChannelGroupTwoId, "secondChannelGroupTwoName",
-                IMPORTANCE_MAX);
+                IMPORTANCE_LOW);
         secondChannelGroupTwo.setGroup(groupTwo.getId());
 
         List<NotificationChannelGroup> groups = Arrays.asList(groupOne, groupTwo);

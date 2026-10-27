@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"הדגמה (דמו) של סרגל התקדמות"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"הדגמה של כותרת קטע"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"הדגמה של קטע \"הצעות והמלצות\""</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"הדגמה של חיפוש פריטים מחולקים"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"הדגמה של תבנית החלונית"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"הדגמת התבנית של רשימת המקומות"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"עיון במקומות"</string>
@@ -254,7 +255,7 @@
     <string name="search_hint" msgid="978495498991026792">"כאן אפשר לבצע חיפוש"</string>
     <string name="additional_text" msgid="5755100726890686184">"יש לעיין "<annotation link="terms_of_service">"בתנאים ובהגבלות"</annotation>" שלנו"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"‏כניסה באמצעות חשבון Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד סודי"</string>
+    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד הסודי"</string>
     <string name="qr_code" msgid="5487041647280777397">"‏קוד QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"המארח שלך לא תומך בתבנית כניסה לחשבון"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"מארח לא תואם"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"כרטיסיית רשת עם שם כרטיסייה ארוך"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"כרטיסיית חיפוש"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"הכרטיסייה נטענת"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"סגנון תבנית 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"סגנון תבנית 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"סגנון ששונה"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"סגנון שנכשל"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"הדגמה של העלאת תבנית הכרטיסייה"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"הדגמה של תבנית הכרטיסייה כשאין כרטיסיות"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"הדגמה של סגנון תבנית הכרטיסייה"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"סגנון תבנית כרטיסייה (כרטיסייה 1)\nיורש את הסגנון ברמת התבנית"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"סגנון תבנית כרטיסייה (כרטיסייה 2)\nיורש את הסגנון ברמת התבנית"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"שינוי סגנון כרטיסייה\nהחלפת סגנון התבנית בגווני כחול בהתאמה אישית"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"סגנון שנכשל בכרטיסייה\nסמל אדום על רקע אדום"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"לא ניתן להציג תמונות למארח לא ידוע"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"סמל"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"הדגמת הסמלים של ספקי התוכן"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"התכונות העדכניות"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"הטעינה הופעלה"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"הטעינה הושבתה"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"שימוש בעיצוב האפליקציה"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"עיצוב האפליקציה מופעל"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"עיצוב האפליקציה מושבת"</string>
     <string name="loading_screen" msgid="4771507490730308794">"המסך בטעינה"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"אפשר להחליף מצב כדי להוסיף או להסיר צבע"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"תבנית מפה עם מתגים"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"מפה עם הדגמות של תוכן"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"הדגמה של מפה עם תבנית הודעה"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"הדגמה של מפה עם תבנית רשת"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"מפה עם רשימת פריטים שמחולקת לקטעים"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"הדגמה של באנר"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"הדגמה של כותרת משופרת"</string>
 </resources>

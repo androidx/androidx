@@ -249,6 +249,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"پیش رفت بار کا ڈیمو"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"سیکشن ہیڈر ڈیمو"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"اسپاٹ لائٹ سیکشن کا ڈیمو"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"سیکشن کردہ آئٹم کی تلاش کا ڈیمو"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"پین کی تمثیل کا ڈیمو"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"مقام کی فہرست کی تمثیل کا ڈیمو"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مقامات براؤز کریں"</string>
@@ -286,8 +287,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"طویل ٹیب کے عنوان کے ساتھ گرڈ ٹیب"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"تلاش ٹیب"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"ٹیب لوڈ ہو رہا ہے"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"تمثیل کا طرز 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"تمثیل کا طرز 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"اوور رائیڈ کردہ اسٹائل"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"ناکام اسٹائل"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ٹیب کی تمثیل ڈیمو لوڈ ہو رہا ہے"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ٹیب کی تمثیل کوئی ٹیبز ڈیمو نہیں"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ٹیب کی تمثیل کے طرز کا ڈیمو"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ٹیب کی تمثیل کا اسٹائل (ٹیب 1)\nتمثیل کی سطح کی اسٹائلنگ کو وراثت میں حاصل کرتا ہے"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ٹیب کی تمثیل کا اسٹائل (ٹیب 2)\nتمثیل کی سطح کی اسٹائلنگ کا حامل ہے"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ٹیب اوور رائیڈن اسٹائل\nحسب ضرورت نیلے رنگوں کے ساتھ ٹیمپلیٹ اسٹائل کو اوور رائیڈ کرتا ہے"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ٹیب فیلنگ اسٹائل\nسرخ پس منظر پر سرخ آئیکن"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"نامعلوم میزبان کیلئے تصاویر کو ڈسپلے نہیں کیا جا سکتا"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"آئیکن"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"مواد فراہم کنندہ کے آئیکنز کا ڈیمو"</string>
@@ -377,6 +387,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"تازہ ترین خصوصیات"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"لوڈنگ فعال ہے"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"لوڈنگ غیر فعال ہے"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"ایپ تھیم استعمال کریں"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"ایپ تھیم فعال ہو گئی"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"ایپ تھیم غیر فعال ہو گئی"</string>
     <string name="loading_screen" msgid="4771507490730308794">"اسکرین لوڈ ہو رہی ہے"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"رنگ کو شامل/ہٹانے کے لیے ٹوگل کریں"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ٹوگلز کے ساتھ نقشے کی تمثیل"</string>
@@ -388,6 +401,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"مواد کے ڈیموز والا نقشہ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"پیغام کی تمثیل کے ڈیمو والا نقشہ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"گرڈ کی تمثیل کے ڈیمو والا نقشہ"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"سیکشن کردہ آئٹمز کی فہرست کے ساتھ نقشہ"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"بینر ڈیمو"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"بہتر کردہ ہیڈر ڈیمو"</string>
 </resources>

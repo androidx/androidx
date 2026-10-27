@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"進度列示範"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"標題示範"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"焦點推介部分示範"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"分類項目搜尋示範"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"「窗格範本」示範"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"「地點清單範本」示範"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"瀏覽地點"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"有長分頁標題的格線分頁"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜尋分頁"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"正在載入分頁"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"範本樣式 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"範本樣式 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"覆寫樣式"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"錯誤樣式"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"分頁範本載入示範"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"分頁範本無分頁示範"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"分頁範本樣式示範"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"分頁範本樣式 (分頁 1)\n沿用範本級別樣式"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"分頁範本樣式 (分頁 2)\n沿用範本級別樣式"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"分頁覆寫樣式\n以自訂藍色覆寫範本樣式"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"分頁錯誤樣式\n紅色背景上的紅色圖示"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"無法顯示不明主機的圖片"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"圖示"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"「內容供應者圖示」示範"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"最新功能"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"已啟用載入"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"已停用載入"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"使用應用程式主題"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"已啟用應用程式主題"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"已停用應用程式主題"</string>
     <string name="loading_screen" msgid="4771507490730308794">"載入畫面"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"使用切換按鈕新增/移除顏色"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"含有切換按鈕的地圖範本"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"含有內容示範的地圖"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"含有訊息範本示範的地圖"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"含有格線範本示範的地圖"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"含有分區項目清單的地圖"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"橫額示範"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"強化標題示範"</string>
 </resources>

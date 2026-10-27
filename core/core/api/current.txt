@@ -4948,6 +4948,9 @@ package androidx.core.view.accessibility {
     ctor public AccessibilityNodeInfoCompat.MathInfoCompat(String);
     field public static final String MATH_ATTRIBUTE_ARG = "arg";
     field public static final String MATH_ATTRIBUTE_INTENT = "intent";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ANNOTATION = "annotation";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ANNOTATION_XML = "annotation-xml";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_ERROR = "merror";
     field public static final String MATH_TAG_FRACTION = "mfrac";
     field public static final String MATH_TAG_IDENTIFIER = "mi";
     field public static final String MATH_TAG_MATH = "math";
@@ -4956,9 +4959,12 @@ package androidx.core.view.accessibility {
     field public static final String MATH_TAG_NUMBER = "mn";
     field public static final String MATH_TAG_OPERATOR = "mo";
     field public static final String MATH_TAG_OVER = "mover";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_PHANTOM = "mphantom";
     field public static final String MATH_TAG_PRESCRIPT_DELIMITER = "mprescripts";
     field public static final String MATH_TAG_ROOT = "mroot";
     field public static final String MATH_TAG_ROW = "mrow";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_SEMANTICS = "semantics";
+    field @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final String MATH_TAG_SPACE = "mspace";
     field public static final String MATH_TAG_SQUARE_ROOT = "msqrt";
     field public static final String MATH_TAG_STRING_LITERAL = "ms";
     field public static final String MATH_TAG_SUB = "msub";
@@ -4970,6 +4976,49 @@ package androidx.core.view.accessibility {
     field public static final String MATH_TAG_TEXT = "mtext";
     field public static final String MATH_TAG_UNDER = "munder";
     field public static final String MATH_TAG_UNDER_OVER = "munderover";
+  }
+
+  @SuppressCompatibility @androidx.core.view.accessibility.PreviewAccessibilityApi public static final class AccessibilityNodeInfoCompat.PublicationInfoCompat extends androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat {
+    ctor public AccessibilityNodeInfoCompat.PublicationInfoCompat(String);
+    field public static final String PUBLICATION_TAG_ABSTRACT = "doc-abstract";
+    field public static final String PUBLICATION_TAG_ACKNOWLEDGMENTS = "doc-acknowledgments";
+    field public static final String PUBLICATION_TAG_AFTERWORD = "doc-afterword";
+    field public static final String PUBLICATION_TAG_APPENDIX = "doc-appendix";
+    field public static final String PUBLICATION_TAG_BACK_LINK = "doc-backlink";
+    field public static final String PUBLICATION_TAG_BIBLIOGRAPHY = "doc-bibliography";
+    field public static final String PUBLICATION_TAG_BIBLIOGRAPHY_REFERENCE = "doc-biblioref";
+    field public static final String PUBLICATION_TAG_CHAPTER = "doc-chapter";
+    field public static final String PUBLICATION_TAG_COLOPHON = "doc-colophon";
+    field public static final String PUBLICATION_TAG_CONCLUSION = "doc-conclusion";
+    field public static final String PUBLICATION_TAG_COVER = "doc-cover";
+    field public static final String PUBLICATION_TAG_CREDIT = "doc-credit";
+    field public static final String PUBLICATION_TAG_CREDITS = "doc-credits";
+    field public static final String PUBLICATION_TAG_DEDICATION = "doc-dedication";
+    field public static final String PUBLICATION_TAG_ENDNOTES = "doc-endnotes";
+    field public static final String PUBLICATION_TAG_EPIGRAPH = "doc-epigraph";
+    field public static final String PUBLICATION_TAG_EPILOGUE = "doc-epilogue";
+    field public static final String PUBLICATION_TAG_ERRATA = "doc-errata";
+    field public static final String PUBLICATION_TAG_EXAMPLE = "doc-example";
+    field public static final String PUBLICATION_TAG_FOOTNOTE = "doc-footnote";
+    field public static final String PUBLICATION_TAG_FOREWORD = "doc-foreword";
+    field public static final String PUBLICATION_TAG_GLOSSARY = "doc-glossary";
+    field public static final String PUBLICATION_TAG_GLOSSARY_REFERENCE = "doc-glossref";
+    field public static final String PUBLICATION_TAG_INDEX = "doc-index";
+    field public static final String PUBLICATION_TAG_INTRODUCTION = "doc-introduction";
+    field public static final String PUBLICATION_TAG_NOTE_REFERENCE = "doc-noteref";
+    field public static final String PUBLICATION_TAG_NOTICE = "doc-notice";
+    field public static final String PUBLICATION_TAG_PAGE_BREAK = "doc-pagebreak";
+    field public static final String PUBLICATION_TAG_PAGE_FOOTER = "doc-pagefooter";
+    field public static final String PUBLICATION_TAG_PAGE_HEADER = "doc-pageheader";
+    field public static final String PUBLICATION_TAG_PAGE_LIST = "doc-pagelist";
+    field public static final String PUBLICATION_TAG_PART = "doc-part";
+    field public static final String PUBLICATION_TAG_PREFACE = "doc-preface";
+    field public static final String PUBLICATION_TAG_PROLOGUE = "doc-prologue";
+    field public static final String PUBLICATION_TAG_PULL_QUOTE = "doc-pullquote";
+    field public static final String PUBLICATION_TAG_QUESTIONS_AND_ANSWERS = "doc-qna";
+    field public static final String PUBLICATION_TAG_SUBTITLE = "doc-subtitle";
+    field public static final String PUBLICATION_TAG_TABLE_OF_CONTENTS = "doc-toc";
+    field public static final String PUBLICATION_TAG_TIP = "doc-tip";
   }
 
   public static class AccessibilityNodeInfoCompat.RangeInfoCompat {

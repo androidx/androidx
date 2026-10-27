@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Progress bar demo"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Section header demo"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Spotlight section demo"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Sectioned item search demo"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pane template demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Place list template demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browse places"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid tab with long tab title"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Search tab"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Loading tab"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Template style 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Template style 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Overridden style"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Failing style"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Tab template loading demo"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Tab template no tabs demo"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Tab template style demo"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Tab template style (tab 1)\nInherits template-level styling"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Tab template style (tab 2)\nInherits template-level styling"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Tab overridden style\nOverrides template style with custom blue colours"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Tab failing style\nRed icon on red background"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Images cannot be displayed for an unknown host"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icon"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Content provider icons demo"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Latest features"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Loading enabled"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Loading disabled"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Use app theme"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"App theme enabled"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"App theme disabled"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Loading screen"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Toggle to add/remove colour"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Map template with toggles"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Map with content demos"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Map with message template demo"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Map with grid template demo"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Map with sectioned items list"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Banner demo"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Enhanced header demo"</string>
 </resources>

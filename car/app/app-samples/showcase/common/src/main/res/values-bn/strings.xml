@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"প্রগ্রেস বার ডেমো"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"বিভাগের হেডার ডেমো"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"স্পটলাইট বিভাগের ডেমো"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"বিভাগ অনুযায়ী আইটেম সার্চের ডেমো"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"প্যানেল টেমপ্লেটের ডেমো"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"জায়গার তালিকার টেমপ্লেটের ডেমো"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"জায়গা ব্রাউজ করুন"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"ট্যাবের দীর্ঘ শিরোনাম সহ গ্রিড ট্যাব"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"সার্চ ট্যাব"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"\'ট্যাব\' লোড করা হচ্ছে"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"টেমপ্লেট স্টাইল ১"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"টেমপ্লেট স্টাইল ২"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"ওভাররিডেন স্টাইল"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"ফেলিং স্টাইল"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"টেম্পলেট লোড করার সম্পর্কিত ডেমো ট্যাব"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ট্যাব ছাড়াই ট্যাব টেমপ্লেটের ডেমো"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ট্যাব টেমপ্লেট স্টাইল ডেমো"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ট্যাব টেমপ্লেট স্টাইল (ট্যাব ১)\nটেমপ্লেট-লেভেল স্টাইলিং ইনহেরিট করে"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ট্যাব টেমপ্লেট স্টাইল (ট্যাব ২)\nটেমপ্লেট-লেভেল স্টাইলিং ইনহেরিট করে"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ট্যাব ওভাররিডেন স্টাইল\nকাস্টম নীল রঙের সাথে টেমপ্লেট স্টাইল ওভাররাইড করে"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ট্যাব ফেলিং স্টাইল\nলাল ব্যাকগ্রাউন্ডে লাল আইকন"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"অজানা হোস্টের জন্য ছবি দেখানো যায় না"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"আইকন"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"কন্টেন্ট প্রদানকারী আইকনের ডেমো"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"লেটেস্ট ফিচার"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"লোডিং চালু হয়েছে"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"লোডিং বন্ধ হয়ে গেছে"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"অ্যাপ থিম ব্যবহার করুন"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"অ্যাপ থিম চালু করা হয়েছে"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"অ্যাপ থিম বন্ধ করা হয়েছে"</string>
     <string name="loading_screen" msgid="4771507490730308794">"স্ক্রিন লোড হচ্ছে"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"কালার যোগ করতে/সরাতে টগল করুন"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"টগল সহ ম্যাপ টেমপ্লেট"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"কন্টেন্ট সহ ম্যাপ সম্পর্কিত ডেমো"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"মেসেজ টেমপ্লেট সহ ম্যাপ সম্পর্কিত ডেমো"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"গ্রিড টেমপ্লেট সহ ম্যাপ সম্পর্কিত ডেমো"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"বিভাগ অনুযায়ী সাজানো আইটেমের তালিকাসহ ম্যাপ"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"ব্যানার ডেমো"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"উন্নত হেডার ডেমো"</string>
 </resources>

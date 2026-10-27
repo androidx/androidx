@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"ਪ੍ਰਗਤੀ ਪੱਟੀ ਦਾ ਡੈਮੋ"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"ਸੈਕਸ਼ਨ ਸਿਰਲੇਖ ਦਾ ਡੈਮੋ"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"ਸਪੌਟਲਾਈਟ ਸੈਕਸ਼ਨ ਡੈਮੋ"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਖੋਜ ਦਾ ਡੈਮੋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ਪੂਰਵ-ਝਲਕ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ਥਾਂ ਸੰਬੰਧੀ ਸੂਚੀ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ਥਾਵਾਂ ਬ੍ਰਾਊਜ਼ ਕਰੋ"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"ਲੰਮੇ ਟੈਬ ਸਿਰਲੇਖ ਵਾਲੇ ਗਰਿੱਡ ਟੈਬ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ਖੋਜੋ ਟੈਬ"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"ਟੈਬ ਨੂੰ ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"ਟੈਮਪਲੇਟ ਸਟਾਈਲ 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"ਟੈਮਪਲੇਟ ਸਟਾਈਲ 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"ਓਵਰਰਾਈਡ ਕੀਤਾ ਗਿਆ ਸਟਾਈਲ"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"ਅਸਫਲ ਹੋਣ ਦਾ ਸਟਾਈਲ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ਟੈਬ ਟੈਮਪਲੇਟ ਲੋਡ ਕਰਨ ਦੀ ਪ੍ਰਕਿਰਿਆ ਦਾ ਡੈਮੋ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ਬਿਨਾ ਕਿਸੇ ਟੈਬ ਵਾਲੇ ਟੈਬ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"ਟੈਬ ਟੈਮਪਲੇਟ ਸਟਾਈਲ ਦਾ ਡੈਮੋ"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"ਟੈਬ ਟੈਮਪਲੇਟ ਸਟਾਈਲ (ਟੈਬ 1)\nਟੈਮਪਲੇਟ-ਪੱਧਰ ਦੀ ਸਟਾਈਲਿੰਗ ਨੂੰ ਵਿਰਾਸਤ ਵਿੱਚ ਪ੍ਰਾਪਤ ਕਰਦਾ ਹੈ"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"ਟੈਬ ਟੈਮਪਲੇਟ ਸਟਾਈਲ (ਟੈਬ 2)\nਟੈਮਪਲੇਟ-ਪੱਧਰ ਦੀ ਸਟਾਈਲਿੰਗ ਨੂੰ ਵਿਰਾਸਤ ਵਿੱਚ ਪ੍ਰਾਪਤ ਕਰਦਾ ਹੈ"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"ਟੈਬ ਓਵਰਰਾਈਡ ਸਟਾਈਲ\nਵਿਉਂਤੇ ਨੀਲੇ ਰੰਗਾਂ ਨਾਲ ਟੈਮਪਲੇਟ ਸਟਾਈਲ ਨੂੰ ਓਵਰਰਾਈਡ ਕਰਦਾ ਹੈ"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"ਟੈਬ ਅਸਫਲ ਹੋਣ ਦਾ ਸਟਾਈਲ\nਲਾਲ ਬੈਕਗ੍ਰਾਊਂਡ \'ਤੇ ਲਾਲ ਪ੍ਰਤੀਕ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ਕਿਸੇ ਅਗਿਆਤ ਹੋਸਟ ਲਈ ਚਿੱਤਰ ਨਹੀਂ ਦਿਖਾਏ ਜਾ ਸਕਦੇ"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"ਪ੍ਰਤੀਕ"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"ਸਮੱਗਰੀ ਪ੍ਰਦਾਨਕ ਪ੍ਰਤੀਕਾਂ ਦਾ ਡੈਮੋ"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"ਨਵੀਨਤਮ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"ਲੋਡ ਕਰਨਾ ਚਾਲੂ ਕੀਤਾ ਗਿਆ"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"ਲੋਡ ਕਰਨਾ ਬੰਦ ਕੀਤਾ ਗਿਆ"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"ਐਪ ਥੀਮ ਵਰਤੋ"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"ਐਪ ਥੀਮ ਚਾਲੂ ਹੈ"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"ਐਪ ਥੀਮ ਬੰਦ ਹੈ"</string>
     <string name="loading_screen" msgid="4771507490730308794">"ਸਕ੍ਰੀਨ ਲੋੜ ਹੋ ਰਹੀ ਹੈ"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"ਰੰਗ ਸ਼ਾਮਲ ਕਰਨ/ਹਟਾਉਣ ਲਈ ਟੌਗਲ ਕਰੋ"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"ਟੌਗਲ ਵਾਲੇ ਨਕਸ਼ਾ ਟੈਮਪਲੇਟ"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"ਸਮੱਗਰੀ ਸੰਬੰਧੀ ਡੈਮੋਆਂ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"ਸੁਨੇਹਾ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"ਗਰਿੱਡ ਟੈਮਪਲੇਟ ਡੈਮੋ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮਾਂ ਦੀ ਸੂਚੀ ਵਾਲਾ ਨਕਸ਼ਾ"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"ਬੈਨਰ ਡੈਮੋ"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"ਵਿਸਤ੍ਰਿਤ ਸਿਰਲੇਖ ਦਾ ਡੈਮੋ"</string>
 </resources>

@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"İlerleme Çubuğu Demosu"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Bölüm Başlığı Demosu"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Öne Çıkanlar Bölümü Demosu"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Bölümlere Ayrılmış Öğe Arama Demosu"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bölme Şablonu Demosu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Yer Listesi Şablonu Demosu"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Yerlere Göz At"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Uzun Sekme Başlıklı Izgara Sekmesi"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Arama Sekmesi"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Sekme Yükleniyor"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"1. Şablon Stili"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"2. Şablon Stili"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Geçersiz Kılma Durumu Stili"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Başarısız Durum Stili"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Sekme Şablonu Yükleme Demosu"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Sekme Şablonu Sekme İçermeyen Demo"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Sekme Şablonu Stili Demosu"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Sekme Şablonu Stili (1. sekme)\nŞablon düzeyindeki stili devralır"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Sekme Şablonu Stili (2. sekme)\nŞablon düzeyindeki stili devralır"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Geçersiz Kılınan Sekme Stili\nŞablon stilini özel mavi renklerle geçersiz kılar"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Başarısız Sekme Stili\nKırmızı arka plan üzerinde kırmızı simge"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Resimler, bilinmeyen ana makine için gösterilemez"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Simge"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"İçerik Sağlayıcı Simgeleri Demosu"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"En Yeni Özellikler"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Yükleme işlemi etkinleştirildi"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Yükleme işlemi devre dışı bırakıldı"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Uygulama Teması\'nı kullanın"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Uygulama Teması etkin"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Uygulama Teması devre dışı"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Yükleme ekranı"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Renk eklemek/kaldırmak için açın/kapatın"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Açma/Kapatma Düğmesi İçeren Harita Şablonu"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"İçerik Bulunan Harita Demoları"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj Şablonu İçeren Harita Demosu"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Izgara Şablonu İçeren Harita Demosu"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Bölümlere Ayrılmış Öğe Listesi İçeren Harita"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Banner Demosu"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Gelişmiş Başlık Demosu"</string>
 </resources>

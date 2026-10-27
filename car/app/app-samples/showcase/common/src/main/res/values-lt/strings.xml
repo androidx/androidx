@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Eigos juostos demonstracinė versija"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Skilties antraštės demonstracinė versija"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"„Spotlight“ skilties demonstracinė versija"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Į skiltis suskirstytų elementų paieškos demonstracinė versija"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Srities šablono demonstracinė versija"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Vietų sąrašo šablono demonstracinė versija"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Naršyti vietas"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Tinklelio skirtukas su ilgu tinklelio pavadinimu"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Paieškos skirtukas"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Įkeliamas skirtukas"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"1 šablono stilius"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"2 šablono stilius"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Nepaisymo stilius"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Nepavykęs stilius"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Skirtuko šablono įkėlimo demonstracinė versija"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Skirtuko šablono be skirtukų demonstracinė versija"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Skirtuko šablono stiliaus demonstracinė versija"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Skirtuko šablono stilius (1 skirtukas)\nPaveldi šablono lygio stilių"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Skirtuko šablono stilius (2 skirtukas)\nPaveldi šablono lygio stilių"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Skirtuko nepaisymo stilius\nNepaisoma šablono stiliaus naudojant tinkintas mėlynas spalvas"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Nepavykęs skirtuko stilius\nRaudona piktograma raudoname fone"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Vaizdų negalima pateikti nežinomai prieglobai"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Piktograma"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Turinio teikėjo piktogramų demonstracinė versija"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Naujausios funkcijos"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Įkėlimas įgalintas"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Įkėlimas išjungtas"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Naudoti programos temą"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Programos tema įjungta"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Programos tema išjungta"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Įkeliamas ekranas"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Perjunkite norėdami pridėti ar pašalinti spalvą"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Žemėlapio šablonas su perjungikliais"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Žemėlapio su turiniu demonstracinės versijos"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Žemėlapio su pranešimo šablonu demonstracinė versija"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Žemėlapio su tinklelio šablonu demonstracinė versija"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Žemėlapis su į skiltis suskirstytų elementų sąrašu"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Reklamjuostės demonstracinė versija"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Patobulintos antraštės demonstracinė versija"</string>
 </resources>

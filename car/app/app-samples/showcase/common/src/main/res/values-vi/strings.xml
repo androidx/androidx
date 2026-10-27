@@ -29,7 +29,7 @@
     <string name="more_action_title" msgid="1039516575011403837">"Thêm"</string>
     <string name="call_action_title" msgid="6218977436905001611">"Cuộc gọi"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Chính"</string>
-    <string name="options_action_title" msgid="1168121856107932984">"Tùy chọn"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"Tuỳ chọn"</string>
     <string name="search_action_title" msgid="3483459674263446335">"Tìm kiếm"</string>
     <string name="checked_action_title" msgid="906023941445896399">"Đã đánh dấu"</string>
     <string name="unchecked_action_title" msgid="802503415474307811">"Đã bỏ chọn"</string>
@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Bản minh hoạ thanh tiến trình"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Bản minh hoạ tiêu đề mục"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Bản minh hoạ cho phần Tiêu điểm"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Bản minh hoạ tìm kiếm mục theo phần"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bản demo ngăn mẫu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Bản demo mẫu danh sách địa điểm"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Thẻ dạng lưới có tiêu đề thẻ dài"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Thẻ tìm kiếm"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Đang tải thẻ"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Kiểu mẫu 1"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Kiểu mẫu 2"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Kiểu bị ghi đè"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Kiểu bị lỗi"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Bản demo mẫu thẻ đang tải"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Bản demo mẫu thẻ không có thẻ"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Bản minh hoạ cho kiểu thẻ mẫu"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Kiểu thẻ mẫu (Thẻ 1)\nKế thừa kiểu của thẻ mẫu"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Kiểu thẻ mẫu (Thẻ 2)\nKế thừa kiểu của thẻ mẫu"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Kiểu thẻ bị ghi đè\nGhi đè kiểu thẻ mẫu bằng màu xanh dương tuỳ chỉnh"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Kiểu thẻ bị lỗi\nBiểu tượng màu đỏ trên nền màu đỏ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Không thể hiển thị hình ảnh cho một máy chủ không xác định"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Biểu tượng"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Bản demo biểu tượng nhà cung cấp nội dung"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Các tính năng mới nhất"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Đã bật tính năng tải"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Đã tắt tính năng tải"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Dùng Giao diện ứng dụng"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Đã bật Giao diện ứng dụng"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Đã tắt Giao diện ứng dụng"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Màn hình tải"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Bật/tắt để thêm/xoá màu"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Mẫu bản đồ với nút bật/tắt"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Bản minh hoạ bản đồ có nội dung"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Bản minh hoạ bản đồ có mẫu thông báo"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Bản minh hoạ bản đồ có mẫu lưới"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Bản đồ có danh sách các mục theo phần"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Bản minh hoạ biểu ngữ"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Bản minh hoạ phần đầu trang nâng cao"</string>
 </resources>

@@ -28,8 +28,8 @@
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Suggerimenti sotto"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Seleziona data"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"Data selezionata"</string>
-    <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"Passa alla selezione di un anno"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"Scorri per selezionare un anno o tocca per tornare alla selezione di un giorno"</string>
+    <string name="m3c_date_picker_switch_to_year_selection" msgid="1627411828238538995">"Attiva per cambiare anno"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="6328798869762130418">"Attiva per cambiare mese e giorno"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"Passa al mese successivo"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"Passa al mese precedente"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"Vai all\'anno %1$s"</string>
@@ -80,8 +80,10 @@
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"per i minuti"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"per l\'ora"</string>
     <string name="m3c_time_picker_toggle_keyboard" msgid="4323189593686596153">"Passa alla modalità di immissione testo"</string>
+    <string name="m3c_time_picker_toggle_scroll" msgid="207258581847097723">"Passa alla modalità di scorrimento"</string>
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Passa alla modalità orologio"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Seleziona l\'ora"</string>
+    <string name="m3c_time_scroll_dialog_title" msgid="2459257441039462682">"Seleziona l\'ora"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Inserisci l\'ora"</string>
     <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Il minuto deve essere 0-59"</string>
     <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"L\'ora deve essere 1-12"</string>

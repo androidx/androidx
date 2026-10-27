@@ -247,6 +247,7 @@
     <string name="progress_bar_demo_title" msgid="1759206063037269237">"Ukážka ukazovateľa priebehu"</string>
     <string name="section_header_demo_title" msgid="4880150421750399922">"Ukážka hlavičky sekcie"</string>
     <string name="spotlight_section_demo_title" msgid="4149938914167169739">"Ukážka sekcie Rýchle tipy"</string>
+    <string name="sectioned_item_search_demo_title" msgid="7460789456544757426">"Ukážka vyhľadávania položiek v sekciách"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Šablóna panela – demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Šablóna zoznamu miest – demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Prehliadanie miest"</string>
@@ -282,8 +283,17 @@
     <string name="tab_title_grid" msgid="5268168907976325154">"Karta mriežky s dlhým názvom karty"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhľadávania"</string>
     <string name="tab_title_loading" msgid="5385807479734490989">"Načítava sa karta"</string>
+    <string name="tab_title_template_style_1" msgid="2975307122280161449">"Prvý štýl šablóny"</string>
+    <string name="tab_title_template_style_2" msgid="7803400629501965995">"Druhý štýl šablóny"</string>
+    <string name="tab_title_overridden_style" msgid="3140303976251439964">"Prepísaný štýl"</string>
+    <string name="tab_title_failing_style" msgid="745811892650973560">"Nevyhovujúci štýl"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ukážka načítavania šablóny karty"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Ukážka šablón karty bez kariet"</string>
+    <string name="tab_template_style_demo_title" msgid="3986454672226386561">"Demo štýlu šablóny karty"</string>
+    <string name="msg_tab_template_style_1_text" msgid="6874362443887944175">"Karta Štýl šablóny (prvá karta)\nZdedí štýl na úrovni šablóny"</string>
+    <string name="msg_tab_template_style_2_text" msgid="7244377408142388066">"Karta Štýl šablóny (druhá karta)\nZdedí štýl na úrovni šablóny"</string>
+    <string name="msg_tab_overridden_style_text" msgid="7242618513807844655">"Karta Prepísaný štýl\nPrepíše štýl šablóny vlastnými modrými farbami"</string>
+    <string name="msg_tab_failing_style_text" msgid="4357682634226036060">"Karta Nevyhovujúci štýl\nČervená ikona na červenom pozadí"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Obrázky nie je možné zobraziť pre neznámeho hostiteľa"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Ikona"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Ikony poskytovateľa obsahu – demo"</string>
@@ -373,6 +383,9 @@
     <string name="latest_feature_title" msgid="7929405790070777460">"Najnovšie funkcie"</string>
     <string name="loading_toggle_enabled" msgid="8828072732804454994">"Načítavanie je zapnuté"</string>
     <string name="loading_toggle_disabled" msgid="7689738885077382673">"Načítavanie je vypnuté"</string>
+    <string name="app_theme_title" msgid="5002857339487981595">"Použite motív aplikácie"</string>
+    <string name="app_theme_enabled" msgid="3146649362736130743">"Motív aplikácie je aktivovaný"</string>
+    <string name="app_theme_disabled" msgid="947882095780434267">"Motív aplikácie je deaktivovaný"</string>
     <string name="loading_screen" msgid="4771507490730308794">"Obrazovka načítavania"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"Prepnutím pridáte alebo odstránite farbu"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"Šablóna mapy s prepínačmi"</string>
@@ -384,6 +397,7 @@
     <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demá máp s obsahom"</string>
     <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo mapy so šablónou správy"</string>
     <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo mapy so šablónou mriežky"</string>
-    <!-- no translation found for banner_demo_title (6740573531391394513) -->
-    <skip />
+    <string name="map_with_sectioned_items_demo_title" msgid="8566567348699628797">"Mapa so zoznamom položiek v sekciách"</string>
+    <string name="banner_demo_title" msgid="6740573531391394513">"Ukážka bannera"</string>
+    <string name="enhanced_header_demo_title" msgid="5926669146325565791">"Demo zlepšenej hlavičky"</string>
 </resources>
