@@ -27,16 +27,12 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toAndroidBlendMode
 import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toPaintingStyle
-import androidx.compose.remote.creation.compose.layout.toRemoteFilterQuality
 import androidx.compose.remote.creation.compose.layout.toStrokeCap
 import androidx.compose.remote.creation.compose.layout.toStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.asAndroidColorFilter
-import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
@@ -107,9 +103,6 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
                         super.setColorFilter(null)
                     }
                 }
-                is ComposeRemoteColorFilter -> {
-                    super.setColorFilter(value.composeColorFilter.asAndroidColorFilter())
-                }
                 null -> super.setColorFilter(null)
             }
         }
@@ -129,28 +122,6 @@ public open class CompatAndroidRemotePaint : AndroidPaint {
         set(value) {
             shader = value.toAndroidShader()
         }
-}
-
-/** Converts a [androidx.compose.ui.graphics.Paint] to a [RemotePaint]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Paint.asRemotePaint(): RemotePaint {
-    val remotePaint = StandardRemotePaint()
-    remotePaint.isAntiAlias = isAntiAlias
-    remotePaint.blendMode = blendMode
-    remotePaint.style = style
-    remotePaint.strokeWidth = strokeWidth.rf
-    remotePaint.strokeCap = strokeCap
-    remotePaint.strokeJoin = strokeJoin
-    remotePaint.filterQuality = filterQuality.toRemoteFilterQuality()
-    remotePaint.shader = shader.toRemoteShader()
-    remotePaint.color = color.rc
-    remotePaint.colorFilter = colorFilter?.let { ComposeRemoteColorFilter(it) }
-    remotePaint.textSize = nativePaint.textSize.rf
-    remotePaint.typeface = fromAndroidTypeface(nativePaint.typeface)
-    remotePaint.fontFeatureSettings = nativePaint.fontFeatureSettings
-    remotePaint.fontVariationSettings =
-        parseFontVariationSettings(nativePaint.fontVariationSettings)
-    return remotePaint
 }
 
 /** Converts an [android.graphics.Paint] to a [RemotePaint]. */
