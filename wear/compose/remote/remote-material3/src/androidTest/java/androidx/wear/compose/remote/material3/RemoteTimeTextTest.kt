@@ -24,11 +24,14 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope.CircularPlacement
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.offset
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -37,11 +40,14 @@ import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
+import androidx.compose.remote.player.compose.test.utils.R
 import androidx.compose.remote.player.compose.test.utils.RemappingTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.compose.test.utils.createMockContextWithFonts
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontVariation.Setting
 import androidx.compose.ui.text.font.FontVariation.Settings
@@ -73,7 +79,25 @@ class RemoteTimeTextTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
-    @Ignore("Waiting for b/4205105")
+    @Ignore("Waiting for b/582672416")
+    @Test
+    fun timeText_withBackground() {
+        remoteComposeTestRule.runScreenshotTestCustomProfile {
+            RemoteBox(RemoteModifier.fillMaxSize().background(Color.DarkGray.rc)) {
+                RemoteTimeText(
+                    modifier = RemoteModifier.fillMaxSize(),
+                    time = "10:09".rs,
+                )
+                RemoteTimeText(
+                    modifier = RemoteModifier.fillMaxSize().offset(0.rdp, 35.rdp),
+                    time = "10:09".rs,
+                    backgroundColor = Color.Transparent.rc,
+                )
+            }
+        }
+    }
+
+    @Ignore("Waiting for b/545086796")
     @Test
     fun timeText_withRobotoFlex_tnumAndPnum() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -95,89 +119,105 @@ class RemoteTimeTextTest {
         }
     }
 
-    @Ignore("Waiting for b/4205105")
     @Test
     fun drawTextOnCircle_allPlacementsAndAlignments() {
-        remoteComposeTestRule.runScreenshotTestCustomProfile {
+        remoteComposeTestRule.runScreenshotTestCustomProfile(width = 500, height = 500) {
             RemoteBox(RemoteModifier.fillMaxSize()) {
                 RemoteCanvas(RemoteModifier.fillMaxSize()) {
-                    val paint = RemotePaint {
-                        textSize = 12.rsp.toPx()
-                        color = RemoteColor(0xFFFFFFFF.toInt())
-                    }
-                    val text = "10:09".rs
-                    val cx = 96.rf
-                    val cy = 96.rf
-                    val r = 50.rf
+                    val cx = 250.rf
+                    val cy = 250.rf
+                    val center = RemoteOffset(cx, cy)
+                    val outerRadius = 205.rf
+                    val middleRadius = 150.rf
+                    val innerRadius = 95.rf
 
-                    // OUTSIDE placement (START, CENTER, END)
+                    val guidePaint = RemotePaint {
+                        color = Color.DarkGray.rc
+                        style = RemotePaintingStyle.Stroke
+                        strokeWidth = 2.rf
+                    }
+                    drawCircle(paint = guidePaint, radius = outerRadius, center = center)
+                    drawCircle(paint = guidePaint, radius = middleRadius, center = center)
+                    drawCircle(paint = guidePaint, radius = innerRadius, center = center)
+                    drawLine(
+                        paint = guidePaint,
+                        start = RemoteOffset(cx, 10.rf),
+                        end = RemoteOffset(cx, 490.rf),
+                    )
+
+                    val textPaint = RemotePaint {
+                        textSize = 9.rsp.toPx()
+                        color = Color.White.rc
+                    }
+
+                    // OUTSIDE placement along top half (270°), upright left-to-right
                     drawTextOnCircle(
-                        text = text,
+                        text = "Out Start".rs,
                         centerX = cx,
                         centerY = cy,
-                        radius = r,
+                        radius = outerRadius,
                         startAngle = 270.rf,
                         warpRadiusOffset = 0.rf,
                         alignment = CircularAlignment.Start,
                         placement = CircularPlacement.Outside,
-                        paint = paint,
+                        paint = textPaint,
                     )
                     drawTextOnCircle(
-                        text = text,
+                        text = "Out Center".rs,
                         centerX = cx,
                         centerY = cy,
-                        radius = r,
-                        startAngle = 0.rf,
+                        radius = middleRadius,
+                        startAngle = 270.rf,
                         warpRadiusOffset = 0.rf,
                         alignment = CircularAlignment.Center,
                         placement = CircularPlacement.Outside,
-                        paint = paint,
+                        paint = textPaint,
                     )
                     drawTextOnCircle(
-                        text = text,
+                        text = "Out End".rs,
                         centerX = cx,
                         centerY = cy,
-                        radius = r,
+                        radius = innerRadius,
+                        startAngle = 270.rf,
+                        warpRadiusOffset = 0.rf,
+                        alignment = CircularAlignment.End,
+                        placement = CircularPlacement.Outside,
+                        paint = textPaint,
+                    )
+
+                    // INSIDE placement along bottom half (90°), upright left-to-right
+                    drawTextOnCircle(
+                        text = "In Start".rs,
+                        centerX = cx,
+                        centerY = cy,
+                        radius = outerRadius,
+                        startAngle = 90.rf,
+                        warpRadiusOffset = 0.rf,
+                        alignment = CircularAlignment.Start,
+                        placement = CircularPlacement.Inside,
+                        paint = textPaint,
+                    )
+                    drawTextOnCircle(
+                        text = "In Center".rs,
+                        centerX = cx,
+                        centerY = cy,
+                        radius = middleRadius,
+                        startAngle = 90.rf,
+                        warpRadiusOffset = 0.rf,
+                        alignment = CircularAlignment.Center,
+                        placement = CircularPlacement.Inside,
+                        paint = textPaint,
+                    )
+                    drawTextOnCircle(
+                        text = "In End".rs,
+                        centerX = cx,
+                        centerY = cy,
+                        radius = innerRadius,
                         startAngle = 90.rf,
                         warpRadiusOffset = 0.rf,
                         alignment = CircularAlignment.End,
-                        placement = CircularPlacement.Outside,
-                        paint = paint,
-                    )
-
-                    // INSIDE placement (START, CENTER, END)
-                    drawTextOnCircle(
-                        text = text,
-                        centerX = cx,
-                        centerY = cy,
-                        radius = r,
-                        startAngle = 180.rf,
-                        warpRadiusOffset = 0.rf,
-                        alignment = CircularAlignment.Start,
                         placement = CircularPlacement.Inside,
-                        paint = paint,
-                    )
-                    drawTextOnCircle(
-                        text = text,
-                        centerX = cx,
-                        centerY = cy,
-                        radius = r + 20.rf,
-                        startAngle = 270.rf,
-                        warpRadiusOffset = 0.rf,
-                        alignment = CircularAlignment.Center,
-                        placement = CircularPlacement.Inside,
-                        paint = paint,
-                    )
-                    drawTextOnCircle(
-                        text = text,
-                        centerX = cx,
-                        centerY = cy,
-                        radius = r + 20.rf,
-                        startAngle = 0.rf,
-                        warpRadiusOffset = 0.rf,
-                        alignment = CircularAlignment.End,
-                        placement = CircularPlacement.Inside,
-                        paint = paint,
+                        paint = textPaint,
                     )
                 }
             }
@@ -185,9 +225,20 @@ class RemoteTimeTextTest {
     }
 
     private fun RemoteScreenshotTestRule.runScreenshotTestCustomProfile(
+        width: Int = 192,
+        height: Int = 192,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
+        val mockContext =
+            createMockContextWithFonts(
+                baseContext = context,
+                fontStreams =
+                    mapOf(
+                        "roboto" to context.resources.openRawResource(R.font.robotoflex_variable)
+                    ),
+                defaultFontKey = "roboto",
+            )
         val current = FallbackCreateTypefaceResolver()
         val remappingResolver =
             RemappingTypefaceResolver(current).apply {
@@ -196,7 +247,7 @@ class RemoteTimeTextTest {
             }
         val resolver =
             DownloadableTypefaceResolver(
-                context = context,
+                context = mockContext,
                 next = remappingResolver,
                 isBlocking = true,
                 fontVariationSettingsMap =
@@ -211,6 +262,8 @@ class RemoteTimeTextTest {
                             )
                     ),
             )
+        // Trigger a pre-fetch of fonts so they are loaded and cached in
+        // DownloadableTypefaceResolver before screenshot capture in CI.
         resolver.prefetchFonts(listOf("google:Roboto Flex"))
 
         var resolveCalled = false
@@ -259,8 +312,8 @@ class RemoteTimeTextTest {
             profile = TestProfiles.androidXWithCoreText,
             remoteCreationDisplayInfo =
                 RemoteCreationDisplayInfo(
-                    192,
-                    192,
+                    width,
+                    height,
                     context.resources.displayMetrics.densityDpi,
                     context.resources.configuration.fontScale,
                 ),
