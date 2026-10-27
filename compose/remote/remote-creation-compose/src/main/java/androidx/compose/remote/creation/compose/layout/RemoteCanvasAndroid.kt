@@ -25,6 +25,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.RcPathArrayCreator
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.shapes.MorphTweenUtility
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -33,6 +34,9 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.ui.graphics.PathIterator
+import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.graphics.shapes.RoundedPolygon
 
@@ -313,10 +317,7 @@ public fun RemoteCanvas.drawTextOnPath(
     vOffset: Float,
     paint: Paint,
 ) {
-    val pathSnapshot = Path(path)
-    recordRenderingOp(paint.asRemotePaint()) {
-        document.drawTextOnPath(text, pathSnapshot, hOffset, vOffset)
-    }
+    drawTextOnPath(text, path.asRemotePath(), hOffset.rf, vOffset.rf, paint.asRemotePaint())
 }
 
 /**
@@ -336,17 +337,7 @@ public fun RemoteCanvas.drawTextOnPath(
     vOffset: RemoteFloat,
     paint: Paint,
 ) {
-    val pathSnapshot = Path(path)
-    val op =
-        recordRenderingOp(paint.asRemotePaint()) {
-            document.drawTextOnPath(
-                text.getIdForCreationState(creationState),
-                pathSnapshot,
-                hOffset.getFloatIdForCreationState(creationState),
-                vOffset.getFloatIdForCreationState(creationState),
-            )
-        }
-    buffer.addRoots(op, text, hOffset, vOffset)
+    drawTextOnPath(text, path.asRemotePath(), hOffset, vOffset, paint.asRemotePaint())
 }
 
 /**
@@ -400,27 +391,22 @@ public fun RemoteCanvas.drawBitmapFontTextRunOnPath(
     glyphSpacing: Float,
     paint: Paint,
 ) {
-    val pathSnapshot = Path(path)
-    val op =
-        recordRenderingOp(paint.asRemotePaint()) {
-            document.drawBitmapFontTextRunOnPath(
-                text.getIdForCreationState(creationState),
-                bitmapFont.getIdForCreationState(creationState),
-                pathSnapshot,
-                start,
-                end,
-                yAdj,
-                glyphSpacing,
-            )
-        }
-    buffer.addRoots(op, text, bitmapFont)
+    drawBitmapFontTextRunOnPath(
+        text,
+        bitmapFont,
+        path.asRemotePath(),
+        start,
+        end,
+        yAdj,
+        glyphSpacing,
+        paint.asRemotePaint(),
+    )
 }
 
 /** Draws a [Path] using the specified [paint]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCanvas.drawPath(path: Path, paint: Paint) {
-    val pathSnapshot = Path(path)
-    recordRenderingOp(paint.asRemotePaint()) { document.drawPath(pathSnapshot) }
+    drawPath(path.asRemotePath(), paint = paint.asRemotePaint())
 }
 
 /** Draws a [Bitmap] at ([left], [top]) using the specified [paint]. */
@@ -543,4 +529,34 @@ public fun RemoteCanvas.drawRoundedPolygonMorph(
             )
         }
     buffer.addRoots(op, progress)
+}
+
+/** Converts an [android.graphics.Path] to a [RemotePath]. */
+private fun Path.asRemotePath(): RemotePath {
+    val remotePath = RemotePath()
+    val pathIterator = asComposePath().iterator(PathIterator.ConicEvaluation.AsConic)
+    val points = FloatArray(8)
+    while (pathIterator.hasNext()) {
+        val type = pathIterator.next(points)
+        when (type) {
+            PathSegment.Type.Move -> remotePath.moveTo(points[0], points[1])
+            PathSegment.Type.Line -> remotePath.lineTo(points[2], points[3])
+            PathSegment.Type.Quadratic ->
+                remotePath.quadTo(points[2], points[3], points[4], points[5])
+            PathSegment.Type.Conic ->
+                remotePath.conicTo(points[2], points[3], points[4], points[5], points[6])
+            PathSegment.Type.Cubic ->
+                remotePath.cubicTo(
+                    points[2],
+                    points[3],
+                    points[4],
+                    points[5],
+                    points[6],
+                    points[7],
+                )
+            PathSegment.Type.Close -> remotePath.close()
+            PathSegment.Type.Done -> break
+        }
+    }
+    return remotePath
 }

@@ -23,7 +23,9 @@ import android.graphics.Rect
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
@@ -230,15 +232,47 @@ class RemoteCanvasAndroidTest {
     }
 
     @Test
+    @Suppress("NewApi")
     fun testDrawPath() {
         val path =
             Path().apply {
-                moveTo(0f, 0f)
-                lineTo(10f, 10f)
+                moveTo(1f, 2f)
+                lineTo(3f, 4f)
+                quadTo(5f, 6f, 7f, 8f)
+                conicTo(9f, 10f, 11f, 12f, 0.5f)
+                cubicTo(13f, 14f, 15f, 16f, 17f, 18f)
+                close()
             }
+        val expectedRemotePath =
+            RemotePath().apply {
+                moveTo(1f, 2f)
+                lineTo(3f, 4f)
+                quadTo(5f, 6f, 7f, 8f)
+                conicTo(9f, 10f, 11f, 12f, 0.5f)
+                cubicTo(13f, 14f, 15f, 16f, 17f, 18f)
+                close()
+            }
+
         remoteCanvas.drawPath(path, Paint())
+        path.reset()
         remoteCanvas.flush()
-        assertThat(fakeBuffer.calls.any { it.startsWith("addDrawPath") }).isTrue()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
+            .inOrder()
+
+        val doc =
+            CoreDocument().apply {
+                fakeBuffer.buffer.index = 0
+                initFromBuffer(fakeBuffer)
+            }
+        val pathData = doc.operations.filterIsInstance<PathData>().single()
+        assertThat(pathData.floatPath).isEqualTo(expectedRemotePath.createFloatArray())
+        assertThat(pathData.deepToString(""))
+            .isEqualTo(
+                "M 1.0 2.0 L 0.0 0.0 3.0 4.0 Q 0.0 0.0 5.0 6.0 7.0 8.0 " +
+                    "R 0.0 0.0 9.0 10.0 11.0 12.0 0.5 C 0.0 0.0 13.0 14.0 15.0 16.0 17.0 18.0 Z"
+            )
     }
 
     @Test
