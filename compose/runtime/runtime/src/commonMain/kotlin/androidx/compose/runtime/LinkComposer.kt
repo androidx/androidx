@@ -2752,9 +2752,12 @@ internal class LinkComposer(
             var current = virtualHandle
 
             var minPending = pendingStack.size - 1
+            val groups = readerTable.addressSpace.groups
             while (current.group != NULL_ADDRESS) {
                 val newCurrentNodes = updatedNodeCount(current) + delta
                 updateChildNodeCount(current, newCurrentNodes)
+                if (!current.isInsertHandle && IsNodeFlag in groups.groupFlags(current.group)) break
+
                 for (pendingIndex in minPending downTo 0) {
                     val pending = pendingStack.peek(pendingIndex)
                     if (
@@ -2764,14 +2767,12 @@ internal class LinkComposer(
                         break
                     }
                 }
-                if (current.isInsertHandle) {
-                    current = reader.parentHandle
-                } else {
-                    val groups = readerTable.addressSpace.groups
-                    val group = current.group
-                    if (IsNodeFlag in groups.groupFlags(group)) break
-                    current = groups.groupParent(group).toGroupHandle()
-                }
+                current =
+                    if (current.isInsertHandle) {
+                        reader.parentHandle
+                    } else {
+                        groups.groupParent(current.group).toGroupHandle()
+                    }
             }
         }
     }
