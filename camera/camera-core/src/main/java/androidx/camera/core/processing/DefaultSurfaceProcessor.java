@@ -291,11 +291,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         }
 
         // Write to JPEG surface, once for each snapshot request.
+        Bitmap bitmap = null;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             byte[] jpegBytes = null;
             int jpegQuality = -1;
             int rotationDegrees = -1;
-            Bitmap bitmap = null;
             Iterator<PendingSnapshot> iterator = mPendingSnapshots.iterator();
             while (iterator.hasNext()) {
                 PendingSnapshot pendingSnapshot = iterator.next();
@@ -305,6 +305,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
                     // Recycle the previous bitmap to free up memory.
                     if (bitmap != null) {
                         bitmap.recycle();
+                        bitmap = null;
                     }
                     bitmap = getBitmap(jpegOutput.getSecond(), jpegOutput.getThird(),
                             rotationDegrees);
@@ -324,6 +325,10 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             }
         } catch (IOException e) {
             failAllPendingSnapshots(e);
+        } finally {
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
         }
     }
 

@@ -121,7 +121,7 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
     private final Object mAnalyzerLock = new Object();
 
     // Flag that reflects the attaching state of the holding ImageAnalysis object.
-    protected boolean mIsAttached = true;
+    protected volatile boolean mIsAttached = true;
 
     @Override
     public void onImageAvailable(@NonNull ImageReaderProxy imageReaderProxy) {
@@ -190,15 +190,18 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
             outputImageDirty = mOutputImageRotationEnabled
                     && currentBufferRotationDegrees != mPrevBufferRotationDegrees;
 
-            // Cache the image reader proxy and image write for reuse and only recreate when
-            // relative rotation degree changes.
-            if (outputImageDirty) {
-                recreateImageReaderProxy(imageProxy, currentBufferRotationDegrees);
-            }
+            if (mIsAttached && analyzer != null && executor != null) {
+                // Cache the image reader proxy and image write for reuse and only recreate when
+                // relative rotation degree changes.
+                if (outputImageDirty) {
+                    recreateImageReaderProxy(imageProxy, currentBufferRotationDegrees);
+                }
 
-            // Cache memory buffer for image rotation
-            if (mOutputImageRotationEnabled || mOutputImageFormat == OUTPUT_IMAGE_FORMAT_NV21) {
-                createHelperBuffer(imageProxy);
+                // Cache memory buffer for image rotation
+                if (mOutputImageRotationEnabled
+                        || mOutputImageFormat == OUTPUT_IMAGE_FORMAT_NV21) {
+                    createHelperBuffer(imageProxy);
+                }
             }
 
             processedImageReaderProxy = mProcessedImageReaderProxy;
@@ -459,6 +462,12 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
         clearCache();
         synchronized (mAnalyzerLock) {
             closeProcessedFormatProperties();
+            mRGBConvertedBuffer = null;
+            mYRotatedBuffer = null;
+            mURotatedBuffer = null;
+            mVRotatedBuffer = null;
+            mNV21YDelegatedBuffer = null;
+            mNV21UVDelegatedBuffer = null;
         }
     }
 

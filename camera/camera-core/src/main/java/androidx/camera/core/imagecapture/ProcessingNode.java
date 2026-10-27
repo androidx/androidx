@@ -201,11 +201,14 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                     mainThreadExecutor().execute(() -> request.onFinalResult(result));
                 }
             } catch (ImageCaptureException e) {
+                inputPacket.getImageProxy().close();
                 sendError(request, e);
             } catch (OutOfMemoryError e) {
+                inputPacket.getImageProxy().close();
                 sendError(request, new ImageCaptureException(
                         ERROR_UNKNOWN, "Processing failed due to low memory.", e));
             } catch (RuntimeException e) {
+                inputPacket.getImageProxy().close();
                 // For unexpected exceptions, throw an ERROR_UNKNOWN ImageCaptureException.
                 sendError(request,
                         new ImageCaptureException(ERROR_UNKNOWN, "Processing failed.", e));
@@ -227,7 +230,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                             imageFormat));
             Bitmap bitmap = mImage2Bitmap.apply(image);
             mainThreadExecutor().execute(() -> request.onPostviewBitmapAvailable(bitmap));
-        } catch (Exception e) {
+        } catch (Exception | OutOfMemoryError e) {
             inputPacket.getImageProxy().close();
             Logger.e(TAG, "process postview input packet failed.", e);
         }

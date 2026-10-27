@@ -579,14 +579,14 @@ public final class CameraX {
                                 future.addListener(() -> {
                                     mCameraFactory.shutdown();
 
+                                    // Ensure we shutdown the camera executor before
+                                    // exiting the scheduler thread
+                                    if (mCameraExecutor instanceof CameraExecutor) {
+                                        CameraExecutor executor =
+                                                (CameraExecutor) mCameraExecutor;
+                                        executor.deinit();
+                                    }
                                     if (mSchedulerThread != null) {
-                                        // Ensure we shutdown the camera executor before
-                                        // exiting the scheduler thread
-                                        if (mCameraExecutor instanceof CameraExecutor) {
-                                            CameraExecutor executor =
-                                                    (CameraExecutor) mCameraExecutor;
-                                            executor.deinit();
-                                        }
                                         mSchedulerThread.quit();
                                     }
                                     completer.set(null);

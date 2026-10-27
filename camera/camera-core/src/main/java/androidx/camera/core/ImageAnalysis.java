@@ -541,6 +541,9 @@ public final class ImageAnalysis extends UseCase {
 
     private void recreateImageAnalysisAbstractAnalyzer() {
         synchronized (mAnalysisLock) {
+            if (mImageAnalysisAbstractAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.detach();
+            }
             ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
             if (config.getBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
