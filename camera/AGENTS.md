@@ -211,7 +211,7 @@ invariants:
 >    wrapped strictly at **`<= 80` characters** with 100% public purity.
 > 2. **Hard Size & Line Restrictions**: Keep `camera/AGENTS.md` strictly under
 >    **`24,000 bytes`** (`MaxRuleContentBytes` auto-load limit; never use
->    `@[label](path)` inline includes), and keep every
+>    `@`-prefixed `[label](path)` inline includes), and keep every
 >    `camera/.agents/skills/*/SKILL.md` file strictly under **`45,000 bytes` and
 >    `780 lines`** (`46,080 B / 800-line` single-call `read_file` limit).
 > 3. **Cross-File Refresh**: Inspect all 5 files (`camera/AGENTS.md` + all 4
