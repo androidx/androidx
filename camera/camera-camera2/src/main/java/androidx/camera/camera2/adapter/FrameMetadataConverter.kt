@@ -18,43 +18,23 @@ package androidx.camera.camera2.adapter
 
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.common.CameraFrameNumber
-import androidx.camera.common.CameraId
 import androidx.camera.common.Metadata
 import androidx.camera.core.impl.CameraCaptureResult
 import java.lang.Class
 
 public object FrameMetadataConverter {
-    public fun FrameMetadata.toCameraCaptureResult(): CameraCaptureResult {
-        val frameInfo =
-            object : FrameInfo {
-                private val frameMetadata = this@toCameraCaptureResult
-                override val metadata: FrameMetadata = frameMetadata
-
-                override fun get(camera: CameraId): FrameMetadata? = frameMetadata
-
-                override val camera: CameraId = frameMetadata.camera
-                override val frameNumber: CameraFrameNumber =
-                    CameraFrameNumber(frameMetadata.frameNumber.value)
-                override val requestMetadata: RequestMetadata = emptyRequestMetadata
-
-                override fun <T : Any> unwrapAs(type: Class<T>): T? = null
-            }
-
-        return CaptureResultAdapter(
+    public fun FrameMetadata.toCameraCaptureResult(): CameraCaptureResult =
+        PartialCaptureResultAdapter(
             emptyRequestMetadata,
-            /** RequestMetadata not to be used here */
-            CameraFrameNumber(frameNumber.value),
-            frameInfo,
+            frameNumber,
+            this,
         )
-    }
 
     private val emptyRequestMetadata =
         object : RequestMetadata {
