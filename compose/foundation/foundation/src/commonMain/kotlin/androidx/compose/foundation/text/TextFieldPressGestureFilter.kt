@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -29,131 +27,46 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
 import kotlinx.coroutines.launch
 
 /** Required for the press and tap [MutableInteractionSource] consistency for TextField. */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.tapPressTextFieldModifier(
     interactionSource: MutableInteractionSource?,
     enabled: Boolean = true,
     onTap: (Offset) -> Unit,
 ): Modifier =
-    if (enabled) {
-        if (ComposeFoundationFlags.isNewTextFieldModifierImplementationEnabled) {
-            this then TapPressTextFieldElement(interactionSource, onTap)
-        } else {
-            composed {
-                val scope = rememberCoroutineScope()
-                val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
-                val onTapState = rememberUpdatedState(onTap)
-                DisposableEffect(interactionSource) {
-                    onDispose {
-                        pressedInteraction.value?.let { oldValue ->
-                            val interaction = PressInteraction.Cancel(oldValue)
-                            interactionSource?.tryEmit(interaction)
-                            pressedInteraction.value = null
-                        }
+    if (enabled)
+        composed {
+            val scope = rememberCoroutineScope()
+            val pressedInteraction = remember { mutableStateOf<PressInteraction.Press?>(null) }
+            val onTapState = rememberUpdatedState(onTap)
+            DisposableEffect(interactionSource) {
+                onDispose {
+                    pressedInteraction.value?.let { oldValue ->
+                        val interaction = PressInteraction.Cancel(oldValue)
+                        interactionSource?.tryEmit(interaction)
+                        pressedInteraction.value = null
                     }
                 }
-                Modifier.pointerInput(interactionSource) {
-                    detectTapAndPress(
-                        onPress = {
-                            scope.launch {
-                                // Remove any old interactions if we didn't fire stop / cancel
-                                // properly
-                                pressedInteraction.value?.let { oldValue ->
-                                    val interaction = PressInteraction.Cancel(oldValue)
-                                    interactionSource?.emit(interaction)
-                                    pressedInteraction.value = null
-                                }
-                                val interaction = PressInteraction.Press(it)
-                                interactionSource?.emit(interaction)
-                                pressedInteraction.value = interaction
-                            }
-                            val success = tryAwaitRelease()
-                            scope.launch {
-                                pressedInteraction.value?.let { oldValue ->
-                                    val interaction =
-                                        if (success) {
-                                            PressInteraction.Release(oldValue)
-                                        } else {
-                                            PressInteraction.Cancel(oldValue)
-                                        }
-                                    interactionSource?.emit(interaction)
-                                    pressedInteraction.value = null
-                                }
-                            }
-                        },
-                        onTap = { onTapState.value.invoke(it) },
-                    )
-                }
             }
-        }
-    } else {
-        this
-    }
-
-private class TapPressTextFieldElement(
-    private val interactionSource: MutableInteractionSource?,
-    private val onTap: (Offset) -> Unit,
-) : ModifierNodeElement<TapPressTextFieldNode>() {
-    override fun create(): TapPressTextFieldNode = TapPressTextFieldNode(interactionSource, onTap)
-
-    override fun update(node: TapPressTextFieldNode) {
-        node.update(interactionSource, onTap)
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "tapPressTextFieldModifier"
-        properties["interactionSource"] = interactionSource
-        properties["onTap"] = onTap
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TapPressTextFieldElement) return false
-        if (interactionSource != other.interactionSource) return false
-        if (onTap !== other.onTap) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = interactionSource?.hashCode() ?: 0
-        result = 31 * result + onTap.hashCode()
-        return result
-    }
-}
-
-private class TapPressTextFieldNode(
-    private var interactionSource: MutableInteractionSource?,
-    private var onTap: (Offset) -> Unit,
-) : DelegatingNode() {
-    private var pressedInteraction: PressInteraction.Press? = null
-
-    private val pointerInputNode =
-        delegate(
-            SuspendingPointerInputModifierNode {
+            Modifier.pointerInput(interactionSource) {
                 detectTapAndPress(
-                    onPress = { offset ->
-                        coroutineScope.launch {
+                    onPress = {
+                        scope.launch {
                             // Remove any old interactions if we didn't fire stop / cancel properly
-                            pressedInteraction?.let { oldValue ->
+                            pressedInteraction.value?.let { oldValue ->
                                 val interaction = PressInteraction.Cancel(oldValue)
                                 interactionSource?.emit(interaction)
-                                pressedInteraction = null
+                                pressedInteraction.value = null
                             }
-                            val interaction = PressInteraction.Press(offset)
+                            val interaction = PressInteraction.Press(it)
                             interactionSource?.emit(interaction)
-                            pressedInteraction = interaction
+                            pressedInteraction.value = interaction
                         }
                         val success = tryAwaitRelease()
-                        coroutineScope.launch {
-                            pressedInteraction?.let { oldValue ->
+                        scope.launch {
+                            pressedInteraction.value?.let { oldValue ->
                                 val interaction =
                                     if (success) {
                                         PressInteraction.Release(oldValue)
@@ -161,36 +74,12 @@ private class TapPressTextFieldNode(
                                         PressInteraction.Cancel(oldValue)
                                     }
                                 interactionSource?.emit(interaction)
-                                pressedInteraction = null
+                                pressedInteraction.value = null
                             }
                         }
                     },
-                    onTap = { onTap.invoke(it) },
+                    onTap = { onTapState.value.invoke(it) },
                 )
             }
-        )
-
-    fun update(
-        interactionSource: MutableInteractionSource?,
-        onTap: (Offset) -> Unit,
-    ) {
-        this.onTap = onTap
-        if (this.interactionSource != interactionSource) {
-            disposeInteraction()
-            this.interactionSource = interactionSource
-            pointerInputNode.resetPointerInputHandler()
         }
-    }
-
-    override fun onDetach() {
-        disposeInteraction()
-    }
-
-    private fun disposeInteraction() {
-        pressedInteraction?.let { oldValue ->
-            val interaction = PressInteraction.Cancel(oldValue)
-            interactionSource?.tryEmit(interaction)
-            pressedInteraction = null
-        }
-    }
-}
+    else this

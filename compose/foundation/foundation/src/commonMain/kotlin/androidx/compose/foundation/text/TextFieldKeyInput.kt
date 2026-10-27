@@ -18,8 +18,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.selection.BaseTextPreparedSelection.Companion.NoCharacterFound
 import androidx.compose.foundation.text.selection.TextFieldPreparedSelection
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
@@ -29,11 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
@@ -245,7 +240,6 @@ internal class TextFieldKeyInput(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.textFieldKeyInput(
     state: LegacyTextFieldState,
     manager: TextFieldSelectionManager,
@@ -256,175 +250,22 @@ internal fun Modifier.textFieldKeyInput(
     offsetMapping: OffsetMapping,
     undoManager: UndoManager,
     imeAction: ImeAction,
-): Modifier =
-    if (ComposeFoundationFlags.isNewTextFieldModifierImplementationEnabled) {
-        this then
-            TextFieldKeyInputElement(
-                state = state,
-                manager = manager,
-                value = value,
-                onValueChange = onValueChange,
-                editable = editable,
-                singleLine = singleLine,
-                offsetMapping = offsetMapping,
-                undoManager = undoManager,
-                imeAction = imeAction,
-            )
-    } else {
-        composed {
-            val preparedSelectionState = remember { TextPreparedSelectionState() }
-            val keyCombiner = remember { DeadKeyCombiner() }
-            val processor =
-                TextFieldKeyInput(
-                    state = state,
-                    selectionManager = manager,
-                    value = value,
-                    editable = editable,
-                    singleLine = singleLine,
-                    offsetMapping = offsetMapping,
-                    preparedSelectionState = preparedSelectionState,
-                    undoManager = undoManager,
-                    keyCombiner = keyCombiner,
-                    onValueChange = onValueChange,
-                    imeAction = imeAction,
-                )
-            Modifier.onKeyEvent(processor::process)
-        }
-    }
-
-private class TextFieldKeyInputElement(
-    private val state: LegacyTextFieldState,
-    private val manager: TextFieldSelectionManager,
-    private val value: TextFieldValue,
-    private val onValueChange: (TextFieldValue) -> Unit,
-    private val editable: Boolean,
-    private val singleLine: Boolean,
-    private val offsetMapping: OffsetMapping,
-    private val undoManager: UndoManager,
-    private val imeAction: ImeAction,
-) : ModifierNodeElement<TextFieldKeyInputNode>() {
-    override fun create(): TextFieldKeyInputNode =
-        TextFieldKeyInputNode(
+) = composed {
+    val preparedSelectionState = remember { TextPreparedSelectionState() }
+    val keyCombiner = remember { DeadKeyCombiner() }
+    val processor =
+        TextFieldKeyInput(
             state = state,
-            manager = manager,
+            selectionManager = manager,
             value = value,
-            onValueChange = onValueChange,
             editable = editable,
             singleLine = singleLine,
             offsetMapping = offsetMapping,
+            preparedSelectionState = preparedSelectionState,
             undoManager = undoManager,
-            imeAction = imeAction,
-        )
-
-    override fun update(node: TextFieldKeyInputNode) {
-        node.update(
-            state = state,
-            manager = manager,
-            value = value,
+            keyCombiner = keyCombiner,
             onValueChange = onValueChange,
-            editable = editable,
-            singleLine = singleLine,
-            offsetMapping = offsetMapping,
-            undoManager = undoManager,
             imeAction = imeAction,
         )
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "textFieldKeyInput"
-        properties["state"] = state
-        properties["manager"] = manager
-        properties["value"] = value
-        properties["onValueChange"] = onValueChange
-        properties["editable"] = editable
-        properties["singleLine"] = singleLine
-        properties["offsetMapping"] = offsetMapping
-        properties["undoManager"] = undoManager
-        properties["imeAction"] = imeAction
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TextFieldKeyInputElement) return false
-        if (state != other.state) return false
-        if (manager != other.manager) return false
-        if (value != other.value) return false
-        if (onValueChange !== other.onValueChange) return false
-        if (editable != other.editable) return false
-        if (singleLine != other.singleLine) return false
-        if (offsetMapping != other.offsetMapping) return false
-        if (undoManager != other.undoManager) return false
-        if (imeAction != other.imeAction) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = state.hashCode()
-        result = 31 * result + manager.hashCode()
-        result = 31 * result + value.hashCode()
-        result = 31 * result + onValueChange.hashCode()
-        result = 31 * result + editable.hashCode()
-        result = 31 * result + singleLine.hashCode()
-        result = 31 * result + offsetMapping.hashCode()
-        result = 31 * result + undoManager.hashCode()
-        result = 31 * result + imeAction.hashCode()
-        return result
-    }
-}
-
-private class TextFieldKeyInputNode(
-    private var state: LegacyTextFieldState,
-    private var manager: TextFieldSelectionManager,
-    private var value: TextFieldValue,
-    private var onValueChange: (TextFieldValue) -> Unit,
-    private var editable: Boolean,
-    private var singleLine: Boolean,
-    private var offsetMapping: OffsetMapping,
-    private var undoManager: UndoManager,
-    private var imeAction: ImeAction,
-) : Modifier.Node(), KeyInputModifierNode {
-    private val preparedSelectionState = TextPreparedSelectionState()
-    private val keyCombiner = DeadKeyCombiner()
-
-    fun update(
-        state: LegacyTextFieldState,
-        manager: TextFieldSelectionManager,
-        value: TextFieldValue,
-        onValueChange: (TextFieldValue) -> Unit,
-        editable: Boolean,
-        singleLine: Boolean,
-        offsetMapping: OffsetMapping,
-        undoManager: UndoManager,
-        imeAction: ImeAction,
-    ) {
-        this.state = state
-        this.manager = manager
-        this.value = value
-        this.onValueChange = onValueChange
-        this.editable = editable
-        this.singleLine = singleLine
-        this.offsetMapping = offsetMapping
-        this.undoManager = undoManager
-        this.imeAction = imeAction
-    }
-
-    override fun onKeyEvent(event: KeyEvent): Boolean {
-        val processor =
-            TextFieldKeyInput(
-                state = state,
-                selectionManager = manager,
-                value = value,
-                editable = editable,
-                singleLine = singleLine,
-                offsetMapping = offsetMapping,
-                preparedSelectionState = preparedSelectionState,
-                undoManager = undoManager,
-                keyCombiner = keyCombiner,
-                onValueChange = onValueChange,
-                imeAction = imeAction,
-            )
-        return processor.process(event)
-    }
-
-    override fun onPreKeyEvent(event: KeyEvent): Boolean = false
+    Modifier.onKeyEvent(processor::process)
 }

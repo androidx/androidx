@@ -18,11 +18,8 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableNode
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
@@ -47,12 +44,6 @@ import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverModifierNode
-import androidx.compose.ui.node.observeReads
-import androidx.compose.ui.node.requireLayoutDirection
-import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.TextLayoutResult
@@ -69,224 +60,60 @@ import kotlin.math.min
 @Composable internal expect fun rememberTextFieldOverscrollEffect(): OverscrollEffect?
 
 // Scrollable
-@OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.textFieldScrollable(
     scrollerPosition: TextFieldScrollerPosition,
     interactionSource: MutableInteractionSource? = null,
     enabled: Boolean = true,
     overscrollEffect: OverscrollEffect?,
-): Modifier =
-    if (ComposeFoundationFlags.isNewTextFieldModifierImplementationEnabled) {
-        this then
-            TextFieldScrollableElement(
-                scrollerPosition = scrollerPosition,
-                interactionSource = interactionSource,
-                enabled = enabled,
-                overscrollEffect = overscrollEffect,
-            )
-    } else {
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "textFieldScrollable"
-                    properties["scrollerPosition"] = scrollerPosition
-                    properties["interactionSource"] = interactionSource
-                    properties["enabled"] = enabled
-                }
-        ) {
-            // do not reverse direction only in case of RTL in horizontal orientation
-            val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-            val reverseDirection = scrollerPosition.orientation == Orientation.Vertical || !rtl
-            val scrollableState = rememberScrollableState { delta ->
-                val newOffset = scrollerPosition.offset + delta
-                val consumedDelta =
-                    when {
-                        newOffset > scrollerPosition.maximum ->
-                            scrollerPosition.maximum - scrollerPosition.offset
-                        newOffset < 0f -> -scrollerPosition.offset
-                        else -> delta
-                    }
-                scrollerPosition.offset += consumedDelta
-                consumedDelta
+) =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "textFieldScrollable"
+                properties["scrollerPosition"] = scrollerPosition
+                properties["interactionSource"] = interactionSource
+                properties["enabled"] = enabled
             }
-            // TODO: b/255557085 remove when / if rememberScrollableState exposes lambda parameters
-            // for
-            //  setting these
-            val wrappedScrollableState =
-                remember(scrollableState, scrollerPosition) {
-                    object : ScrollableState by scrollableState {
-                        override val canScrollForward by derivedStateOf {
-                            scrollerPosition.offset < scrollerPosition.maximum
-                        }
-                        override val canScrollBackward by derivedStateOf {
-                            scrollerPosition.offset > 0f
-                        }
-                    }
-                }
-            val scroll =
-                Modifier.scrollable(
-                    orientation = scrollerPosition.orientation,
-                    overscrollEffect = overscrollEffect,
-                    reverseDirection = reverseDirection,
-                    state = wrappedScrollableState,
-                    interactionSource = interactionSource,
-                    enabled = enabled && scrollerPosition.maximum != 0f,
-                )
-            scroll
-        }
-    }
-
-private class TextFieldScrollableElement(
-    private val scrollerPosition: TextFieldScrollerPosition,
-    private val interactionSource: MutableInteractionSource?,
-    private val enabled: Boolean,
-    private val overscrollEffect: OverscrollEffect?,
-) : ModifierNodeElement<TextFieldScrollableNode>() {
-    override fun create(): TextFieldScrollableNode =
-        TextFieldScrollableNode(
-            scrollerPosition = scrollerPosition,
-            interactionSource = interactionSource,
-            enabled = enabled,
-            overscrollEffect = overscrollEffect,
-        )
-
-    override fun update(node: TextFieldScrollableNode) {
-        node.update(
-            scrollerPosition = scrollerPosition,
-            interactionSource = interactionSource,
-            enabled = enabled,
-            overscrollEffect = overscrollEffect,
-        )
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "textFieldScrollable"
-        properties["scrollerPosition"] = scrollerPosition
-        properties["interactionSource"] = interactionSource
-        properties["enabled"] = enabled
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TextFieldScrollableElement) return false
-        if (scrollerPosition != other.scrollerPosition) return false
-        if (interactionSource != other.interactionSource) return false
-        if (enabled != other.enabled) return false
-        if (overscrollEffect != other.overscrollEffect) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = scrollerPosition.hashCode()
-        result = 31 * result + (interactionSource?.hashCode() ?: 0)
-        result = 31 * result + enabled.hashCode()
-        result = 31 * result + (overscrollEffect?.hashCode() ?: 0)
-        return result
-    }
-}
-
-private class TextFieldScrollableNode(
-    private var scrollerPosition: TextFieldScrollerPosition,
-    private var interactionSource: MutableInteractionSource?,
-    private var enabled: Boolean,
-    private var overscrollEffect: OverscrollEffect?,
-) : DelegatingNode(), ObserverModifierNode {
-
-    private val rawScrollableState = ScrollableState { delta ->
-        val newOffset = scrollerPosition.offset + delta
-        val consumedDelta =
-            when {
-                newOffset > scrollerPosition.maximum ->
-                    scrollerPosition.maximum - scrollerPosition.offset
-                newOffset < 0f -> -scrollerPosition.offset
-                else -> delta
-            }
-        scrollerPosition.offset += consumedDelta
-        consumedDelta
-    }
-
-    private var wrappedScrollableState: ScrollableState = createWrappedScrollableState()
-
-    private fun createWrappedScrollableState(): ScrollableState {
-        val currentScrollerPosition = scrollerPosition
-        return object : ScrollableState by rawScrollableState {
-            override val canScrollForward by derivedStateOf {
-                currentScrollerPosition.offset < currentScrollerPosition.maximum
-            }
-            override val canScrollBackward by derivedStateOf { currentScrollerPosition.offset > 0f }
-        }
-    }
-
-    private val scrollableNode =
-        delegate(
-            ScrollableNode(
-                state = wrappedScrollableState,
-                overscrollEffect = overscrollEffect,
-                flingBehavior = null,
-                orientation = scrollerPosition.orientation,
-                enabled = enabled && scrollerPosition.maximum != 0f,
-                reverseDirection = true,
-                interactionSource = interactionSource,
-                bringIntoViewSpec = null,
-            )
-        )
-
-    override fun onAttach() {
-        updateScrollableNode()
-    }
-
-    override fun onLayoutDirectionChange() {
-        if (isAttached) {
-            updateScrollableNode()
-        }
-    }
-
-    override fun onObservedReadsChanged() {
-        if (isAttached) {
-            updateScrollableNode()
-        }
-    }
-
-    fun update(
-        scrollerPosition: TextFieldScrollerPosition,
-        interactionSource: MutableInteractionSource?,
-        enabled: Boolean,
-        overscrollEffect: OverscrollEffect?,
     ) {
-        val scrollerPositionChanged = this.scrollerPosition != scrollerPosition
-        this.scrollerPosition = scrollerPosition
-        this.interactionSource = interactionSource
-        this.enabled = enabled
-        this.overscrollEffect = overscrollEffect
-        if (scrollerPositionChanged) {
-            wrappedScrollableState = createWrappedScrollableState()
+        // do not reverse direction only in case of RTL in horizontal orientation
+        val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val reverseDirection = scrollerPosition.orientation == Orientation.Vertical || !rtl
+        val scrollableState = rememberScrollableState { delta ->
+            val newOffset = scrollerPosition.offset + delta
+            val consumedDelta =
+                when {
+                    newOffset > scrollerPosition.maximum ->
+                        scrollerPosition.maximum - scrollerPosition.offset
+                    newOffset < 0f -> -scrollerPosition.offset
+                    else -> delta
+                }
+            scrollerPosition.offset += consumedDelta
+            consumedDelta
         }
-        if (isAttached) {
-            updateScrollableNode()
-        }
+        // TODO: b/255557085 remove when / if rememberScrollableState exposes lambda parameters for
+        //  setting these
+        val wrappedScrollableState =
+            remember(scrollableState, scrollerPosition) {
+                object : ScrollableState by scrollableState {
+                    override val canScrollForward by derivedStateOf {
+                        scrollerPosition.offset < scrollerPosition.maximum
+                    }
+                    override val canScrollBackward by derivedStateOf {
+                        scrollerPosition.offset > 0f
+                    }
+                }
+            }
+        val scroll =
+            Modifier.scrollable(
+                orientation = scrollerPosition.orientation,
+                overscrollEffect = overscrollEffect,
+                reverseDirection = reverseDirection,
+                state = wrappedScrollableState,
+                interactionSource = interactionSource,
+                enabled = enabled && scrollerPosition.maximum != 0f,
+            )
+        scroll
     }
-
-    private fun updateScrollableNode() {
-        var orientation: Orientation = scrollerPosition.orientation
-        var maximum: Float = scrollerPosition.maximum
-        observeReads {
-            orientation = scrollerPosition.orientation
-            maximum = scrollerPosition.maximum
-        }
-        val rtl = requireLayoutDirection() == LayoutDirection.Rtl
-        val reverseDirection = orientation == Orientation.Vertical || !rtl
-        scrollableNode.update(
-            state = wrappedScrollableState,
-            orientation = orientation,
-            overscrollEffect = overscrollEffect,
-            enabled = enabled && maximum != 0f,
-            reverseDirection = reverseDirection,
-            flingBehavior = null,
-            interactionSource = interactionSource,
-            bringIntoViewSpec = null,
-        )
-    }
-}
 
 // Layout
 // Expect/actual is needed due to a different implementation in uikit
