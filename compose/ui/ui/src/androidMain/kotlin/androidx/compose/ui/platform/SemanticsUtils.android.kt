@@ -21,6 +21,7 @@ package androidx.compose.ui.platform
 import android.annotation.SuppressLint
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.ObservationTarget
@@ -144,6 +145,15 @@ internal class ScrollObservationScope(
     var horizontalScrollAxisRange: ScrollAxisRange?,
     var verticalScrollAxisRange: ScrollAxisRange?,
 ) : ObservationTarget {
+    /**
+     * Stores pixels consumed since the last
+     * [android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED] event. Positive values
+     * follow `ACTION_SCROLL_FORWARD`. See
+     * [AndroidComposeViewAccessibilityDelegateCompat.onScrollChanged]. Event dispatch resets this
+     * to [Offset.Zero].
+     */
+    var pixelScrollDelta: Offset = Offset.Zero
+
     override val isObservationValid
         get() = allScopes.contains(this)
 }
