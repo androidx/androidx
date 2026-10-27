@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -231,6 +232,20 @@ class LazyGridCacheWindowTest(orientation: Orientation) :
         rule.onNodeWithTag("101").assertDoesNotExist() // window is full
     }
 
+    @Test
+    fun prefetchedLineSize_usesTallestItemInLine() {
+        val aheadWindow = with(rule.density) { (itemsSizePx * 5 / 6).toDp() }
+        composeGrid(
+            cacheWindow = LazyLayoutCacheWindow(ahead = aheadWindow),
+            itemSize = { index -> if (index % 2 == 0) itemsSizeDp else itemsSizeDp / 6 },
+        )
+
+        rule.onNodeWithTag("4").assertExists()
+        rule.onNodeWithTag("5").assertExists()
+        rule.onNodeWithTag("6").assertDoesNotExist()
+        rule.onNodeWithTag("7").assertDoesNotExist()
+    }
+
     private val activeNodes = mutableSetOf<Int>()
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -255,6 +270,7 @@ class LazyGridCacheWindowTest(orientation: Orientation) :
         reverseLayout: Boolean = false,
         numItems: State<Int> = mutableStateOf(100),
         contentPadding: PaddingValues = PaddingValues(0.dp),
+        itemSize: (index: Int) -> Dp = { itemsSizeDp },
     ) {
         rule.setContent {
             state =
@@ -283,7 +299,7 @@ class LazyGridCacheWindowTest(orientation: Orientation) :
                         onDispose { activeNodes.remove(it) }
                     }
                     Spacer(
-                        Modifier.mainAxisSize(itemsSizeDp).testTag("$it").layout {
+                        Modifier.mainAxisSize(itemSize(it)).testTag("$it").layout {
                             measurable,
                             constraints ->
                             val placeable = measurable.measure(constraints)
