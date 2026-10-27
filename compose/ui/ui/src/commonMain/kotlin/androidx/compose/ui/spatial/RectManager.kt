@@ -107,18 +107,29 @@ internal class RectManager(
         // change
         val isDispatchGlobalCallbacks = isDirty || isScreenOrWindowDirty
 
-        // TODO: we need to move this to avoid double-firing
         if (isDirty) {
             isDirty = false
             callbacks.forEach { it() }
-            rects.forEachUpdatedRect { id, topLeft, bottomRight ->
-                throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
+            // If isScreenOrWindowDirty is also true, skip firing updated rects here; the
+            // isScreenOrWindowDirty block below will iterate all rects with callbacks in a single
+            // RectList pass (updating their stored rect coordinates and firing with the new
+            // screen/window offsets), avoiding a second pass over RectList and preventing
+            // double-firing in the same dispatchCallbacks() call.
+            if (!isScreenOrWindowDirty) {
+                rects.forEachUpdatedRect { id, topLeft, bottomRight ->
+                    throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
+                }
             }
             rects.clearUpdated()
         }
         if (isScreenOrWindowDirty) {
             isScreenOrWindowDirty = false
-            throttledCallbacks.fireOnRectChangedEntries(currentTime)
+            // Iterate via RectList (rather than rectChangedMap) so callbacks always fire in
+            // deterministic hierarchy/placement order, and pass each rect's current topLeft and
+            // bottomRight from RectList so any rect changes from this pass are included.
+            rects.forEachRectWithCallbacks { id, topLeft, bottomRight ->
+                throttledCallbacks.fireOnUpdatedRect(id, topLeft, bottomRight, currentTime)
+            }
         }
         if (isDispatchGlobalCallbacks) {
             throttledCallbacks.fireGlobalChangeEntries(currentTime)

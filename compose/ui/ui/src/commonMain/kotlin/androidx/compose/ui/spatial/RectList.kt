@@ -806,6 +806,26 @@ internal class RectList {
         }
     }
 
+    /**
+     * Iterates over all rects in [RectList] order that have registered callbacks (`hasCallbacks !=
+     * 0`), passing `(id, topLeft, bottomRight)` to [block].
+     */
+    inline fun forEachRectWithCallbacks(block: (Int, Long, Long) -> Unit) {
+        val items = items
+        val size = itemsSize
+        var i = 0
+        while (i < items.size - 2) {
+            if (i >= size) break
+            val meta = items[i + 2]
+            if (unpackMetaHasCallbacks(meta) != 0) {
+                val topLeft = items[i + 0]
+                val bottomRight = items[i + 1]
+                block(unpackMetaValue(meta), topLeft, bottomRight)
+            }
+            i += LongsPerItem
+        }
+    }
+
     fun debugString(): String = buildString {
         val items = items
         val size = itemsSize
