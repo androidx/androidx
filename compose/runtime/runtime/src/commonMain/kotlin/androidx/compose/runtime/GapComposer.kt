@@ -1770,6 +1770,8 @@ internal class GapComposer(
             while (current != -1) {
                 val newCurrentNodes = updatedNodeCount(current) + delta
                 updateNodeCount(current, newCurrentNodes)
+                if (current >= 0 && reader.isNode(current)) break
+
                 for (pendingIndex in minPending downTo 0) {
                     val pending = pendingStack.peek(pendingIndex)
                     if (pending != null && pending.updateNodeCount(current, newCurrentNodes)) {
@@ -1777,13 +1779,7 @@ internal class GapComposer(
                         break
                     }
                 }
-                @Suppress("LiftReturnOrAssignment")
-                if (current < 0) {
-                    current = reader.parent
-                } else {
-                    if (reader.isNode(current)) break
-                    current = reader.parent(current)
-                }
+                current = if (current < 0) reader.parent else reader.parent(current)
             }
         }
     }

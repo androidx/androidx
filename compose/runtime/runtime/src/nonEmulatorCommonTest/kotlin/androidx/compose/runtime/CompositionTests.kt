@@ -5213,6 +5213,34 @@ class CompositionTests {
         expectChanges()
         revalidate()
     }
+
+    @Test // b/569219194
+    fun moveNodeFromParentToChildGroupOfInlinedNode() = compositionTest {
+        var move by mutableStateOf(false)
+        compose {
+            key(move) {}
+            InlineLinear {
+                Linear {}
+                if (move) Linear {}
+            }
+            if (!move) Linear {}
+        }
+        validate {
+            Linear {
+                Linear()
+            }
+            Linear()
+        }
+
+        move = true
+        expectChanges()
+        validate {
+            Linear {
+                Linear()
+                Linear()
+            }
+        }
+    }
 }
 
 class SomeUnstableClass(val a: Any = "abc")
