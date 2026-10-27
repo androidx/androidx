@@ -58,9 +58,9 @@ internal fun RemoteGroupComponent.createGroupComponent(
                     pathData = vectorNode.pathData.toRemotePathNodes()
                     name = vectorNode.name
                     pathFillType = vectorNode.pathFillType.toRemotePathFillType()
-                    fill = vectorNode.fill?.toRemoteColor()
+                    fill = vectorNode.fill?.toRemoteBrush()
                     fillAlpha = vectorNode.fillAlpha.rf
-                    stroke = vectorNode.stroke?.toRemoteColor()
+                    stroke = vectorNode.stroke?.toRemoteBrush()
                     strokeAlpha = vectorNode.strokeAlpha.rf
                     strokeLineWidth = vectorNode.strokeLineWidth.rf
                     strokeLineCap = vectorNode.strokeLineCap.toRemoteStrokeCap()

@@ -20,7 +20,9 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -30,14 +32,16 @@ import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
+import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
- * rendered by passing it as an argument to
- * [androidx.compose.remote.creation.compose.vector.painterRemoteVector]
+ * rendered by passing it as an argument to [painterRemoteVector].
  */
 public class RemoteImageVector
 /**
@@ -237,9 +241,9 @@ internal constructor(
          * @param pathData path information to render the shape of the path
          * @param pathFillType rule to determine how the interior of the path is to be calculated
          * @param name the name of the path
-         * @param fill specifies the [RemoteColor] used to fill the path
+         * @param fill specifies the [RemoteBrush] used to fill the path
          * @param fillAlpha the alpha to fill the path
-         * @param stroke specifies the [RemoteColor] used to fill the stroke
+         * @param stroke specifies the [RemoteBrush] used to fill the stroke
          * @param strokeAlpha the alpha to stroke the path
          * @param strokeLineWidth the width of the line to stroke the path
          * @param strokeLineCap specifies the linecap for a stroked path
@@ -256,14 +260,15 @@ internal constructor(
          *   is 0.
          * @return This ImageVector.Builder instance as a convenience for chaining calls
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("MissingGetterMatchingBuilder")
-        internal fun addPath(
+        public fun addPath(
             pathData: List<RemotePathNode>,
             pathFillType: RemotePathFillType = DefaultFillType,
-            name: String,
-            fill: RemoteColor? = null,
+            name: String = DefaultGroupName,
+            fill: RemoteBrush? = null,
             fillAlpha: RemoteFloat = 1.0f.rf,
-            stroke: RemoteColor? = null,
+            stroke: RemoteBrush? = null,
             strokeAlpha: RemoteFloat = 1.0f.rf,
             strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
             strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
@@ -463,14 +468,14 @@ internal constructor(
     /** Rule to determine how the interior of the path is to be calculated */
     val pathFillType: RemotePathFillType,
 
-    /** Specifies the color used to fill the path */
-    val fill: RemoteColor? = null,
+    /** Specifies the brush used to fill the path */
+    val fill: RemoteBrush? = null,
 
     /** Opacity to fill the path */
     val fillAlpha: RemoteFloat = 1.0f.rf,
 
-    /** Specifies the color used to fill the stroke */
-    val stroke: RemoteColor? = null,
+    /** Specifies the brush used to fill the stroke */
+    val stroke: RemoteBrush? = null,
 
     /** Opacity to stroke the path */
     val strokeAlpha: RemoteFloat = 1.0f.rf,
@@ -584,6 +589,50 @@ public fun RemoteImageVector.Builder.group(
     block()
     clearGroup()
 }
+
+/**
+ * DSL extension for adding a [RemoteVectorPath] with Remote Compose path styling types to [this].
+ *
+ * @param name the name for this path
+ * @param fill specifies the [RemoteBrush] used to fill the path
+ * @param fillAlpha the alpha to fill the path
+ * @param stroke specifies the [RemoteBrush] used to fill the stroke
+ * @param strokeAlpha the alpha to stroke the path
+ * @param strokeLineWidth the width of the line to stroke the path
+ * @param strokeLineCap specifies the [RemoteStrokeCap] for a stroked path
+ * @param strokeLineJoin specifies the [RemoteStrokeJoin] for a stroked path
+ * @param strokeLineMiter specifies the miter limit for a stroked path
+ * @param pathFillType specifies the [RemotePathFillType] winding rule that decides how the interior
+ *   of a [RemotePath] is calculated
+ * @param pathBuilder [RemotePathScope] lambda for adding [RemotePathNode]s to this path
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteImageVector.Builder.path(
+    name: String = DefaultGroupName,
+    fill: RemoteBrush? = null,
+    fillAlpha: RemoteFloat = 1.0f.rf,
+    stroke: RemoteBrush? = null,
+    strokeAlpha: RemoteFloat = 1.0f.rf,
+    strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
+    strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
+    strokeLineJoin: RemoteStrokeJoin = DefaultStrokeLineJoin,
+    strokeLineMiter: RemoteFloat = DefaultStrokeLineMiter,
+    pathFillType: RemotePathFillType,
+    pathBuilder: RemotePathScope.() -> Unit,
+): RemoteImageVector.Builder =
+    addPath(
+        RemotePathData(pathBuilder),
+        pathFillType,
+        name,
+        fill,
+        fillAlpha,
+        stroke,
+        strokeAlpha,
+        strokeLineWidth,
+        strokeLineCap,
+        strokeLineJoin,
+        strokeLineMiter,
+    )
 
 private fun <T> ArrayList<T>.push(value: T): Boolean = add(value)
 

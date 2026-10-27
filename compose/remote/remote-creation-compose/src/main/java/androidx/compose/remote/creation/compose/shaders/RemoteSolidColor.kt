@@ -41,4 +41,14 @@ public class RemoteSolidColor(public val color: RemoteColor) : RemoteBrush() {
         paint.color = color
         paint.shader = null
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteSolidColor) return false
+        return color.isStructurallyEqual(other.color)
+    }
+
+    override fun hashCode(): Int = color.cacheKey.hashCode()
+
+    override fun toString(): String = "RemoteSolidColor(color=$color)"
 }
