@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import androidx.annotation.UiThread;
+
 /**
  * WebViewRenderProcess provides an opaque handle to a WebView renderer.
  */
@@ -39,6 +41,7 @@ public abstract class WebViewRenderProcess {
      *
      * @return {@code true} if it was possible to terminate this renderer, {@code false} otherwise.
      */
+    @UiThread
     public abstract boolean terminate();
 
     public WebViewRenderProcess() {
