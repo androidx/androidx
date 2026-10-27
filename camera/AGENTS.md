@@ -76,6 +76,17 @@ traversal protocol in [`camerax-guidelines-governance`][skill-gov]):
 
 ## General Instructions:
 
+- **Parent AndroidX Baseline (`frameworks/support/AGENTS.md`) & CameraX
+  Overrides**: When operating in an AndroidX checkout where the repository-root
+  `AGENTS.md` and repo-wide skills (`manage_commits`, `manage_cl_workspaces`,
+  `run_tests`) are auto-discovered by upward directory traversal, use the parent
+  AndroidX definitions for workspace handling (standard `repo` checkouts vs. CoG
+  `/google/cog/cloud/...` workspaces), module lookup (grepping `settings.gradle`
+  instead of `./gradlew projects`), `PROJECT_PREFIX` scoping,
+  `<project>:javaFormat`, and commit/amend mechanics, while applying CameraX
+  overrides (`:testReleaseUnitTest --tests` instead of `:test --tests`, `<= 50`
+  char commit titles, and CameraX's Two-Stage Pre-Upload Gate). If operating
+  standalone without parent AndroidX skills, use the defaults below.
 - **Kotlin Formatting**: When modifying any .kt file, format it using `ktfmt`
   via the following command:
   `./gradlew :ktCheckFile --format --file <file>`.
@@ -108,9 +119,10 @@ traversal protocol in [`camerax-guidelines-governance`][skill-gov]):
 Read [`camerax-guidelines-governance`][skill-gov] before editing code. Key
 invariants:
 
-- **Pre-Flight Upstream Sync & `repo start`**: Fetch `aosp androidx-main` first
-  and create feature branches with `repo start <branch_name> .` (never raw
-  `git checkout -b`).
+- **Pre-Flight Upstream Sync & `repo start`**: In standard `repo` checkouts,
+  fetch `aosp androidx-main` first and create feature branches with
+  `repo start <branch_name> .` (prefer `repo start` over raw `git checkout -b`;
+  in CoG workspaces, follow the repo-wide `manage_cl_workspaces` skill instead).
 - **CameraPipe Backend & Lifecycle Scopes**: `camera-camera2` now runs on top of
   `camera-camera2-pipe` (`CameraPipe`). Never conflate:
   - `@CameraScope` (`CameraInternal`, `CameraControlInternal`,
@@ -208,25 +220,37 @@ invariants:
 > Whenever you update `camera/AGENTS.md` or any
 > `camera/.agents/skills/*/SKILL.md` file (or capture lessons from a coding
 > session), you **MUST** read [`camerax-guidelines-governance`][skill-gov]
-> (`Skill: CameraX Agent Guidelines & Experience Capture`) and enforce:
-> 1. **The 3-Tier Signal Filter & 1-Year Litmus Test**: Exclude Tier-1 transient
->    noise and Tier-2 class-private mechanics; add only durable Tier-3 patterns
->    wrapped strictly at **`<= 80` characters** with 100% public purity.
-> 2. **Hard Size & Line Restrictions**: Keep `camera/AGENTS.md` strictly under
->    **`24,000 bytes`** (`MaxRuleContentBytes` auto-load limit; never use
->    `@`-prefixed `[label](path)` inline includes), and keep every
->    `camera/.agents/skills/*/SKILL.md` file strictly under **`45,000 bytes` and
->    `780 lines`** (`46,080 B / 800-line` single-call `read_file` limit).
-> 3. **Cross-File Refresh**: Inspect all 5 files (`camera/AGENTS.md` + all 4
->    `camera/.agents/skills/*/SKILL.md` files, plus
->    `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` when available) to keep
->    routing tables, chapter/section numbers, and shared rubrics synchronized.
+> (`Skill: CameraX Agent Guidelines & Experience Capture`) and enforce in
+> priority order:
+> 1. **Prompt Update Precedence — 1st: Google-Wide Skill, Customization &
+>    Readability Standards**: Rely on automatic upward directory discovery
+>    (`AGENTS.md`, `.agents/skills/`, `skills.json`) and reference shared skills
+>    by registered skill name (`manage_commits`, `run_tests`) or repo-root /
+>    canonical URLs (never write manual `../` parent-traversal links, `file://`
+>    URLs, or `< 50` line redirect stubs). Keep YAML frontmatter
+>    `description: >-` in third person (`< 1024` chars) with `"Use when..."` and
+>    `"Don't use for..."` triggers and zero CLI flags/paths (Progressive
+>    Disclosure), explain *why*, generalize examples (`e.g.`), and avoid
+>    duplicating parent rules (DRY).
+> 2. **Prompt Update Precedence — 2nd: Parent Repository (`AndroidX`)
+>    Baseline**: Defer to repo-wide `AGENTS.md` and `.agents/skills/*` when
+>    present, documenting only CameraX-specific overrides.
+> 3. **Prompt Update Precedence — 3rd: CameraX Project Prompt Governance**:
+>    Apply **The 3-Tier Signal Filter** and **The 1-Year Litmus Test** (exclude
+>    Tier-1 transient noise and Tier-2 class-private mechanics; wrap prose at
+>    **`<= 80` characters** with 100% public purity), keep `camera/AGENTS.md`
+>    under **`24,000 bytes`** (no `@`-prefixed `[label](path)` inline includes),
+>    keep every `SKILL.md` file under **`45,000 bytes` and `780 lines`**, and
+>    refresh all 5 files (`camera/AGENTS.md` + 4 `SKILL.md` files, plus
+>    `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` when available) together.
 
 ## Git Commit Messages
 
-Use the following format for your commit messages. Each section should be
-separated by a blank line. The commit title should not exceed 50 characters,
-and body lines should not exceed 72 characters.
+When the repo-wide `manage_commits` skill is auto-discovered, follow its
+commit/amend and workspace rules (`repo upload` in standard Git checkouts vs.
+`gob_vcs` in CoG workspaces) alongside CameraX's stricter length limits (`<= 50`
+char title, `<= 72` char body lines), with each section separated by a blank
+line:
 
 ```
 <Commit Title>
@@ -259,10 +283,11 @@ Test: <test instructions>
 - This will be used to generate release notes.
 - **Requirement**: Should only be added for public API changes (e.g., changes
   in `camera/**/api/` directories) or bugs impacting public users.
-- **When to omit**: If a change is an internal bug fix, refactoring, test
-  update, or change to restricted APIs marked with `@RestrictTo` (without a
-  public API or user-facing behavior change), **do not add the RelNote tag at
-  all**.
+- **When to omit** (CameraX override over generic `manage_commits`): If a change
+  is an internal bug fix, a fix/follow-up for an unreleased feature or API not
+  yet released to developers, refactoring, test/doc update, or change to
+  restricted APIs marked with `@RestrictTo` (without a public API or
+  user-facing behavior change), **do not add the RelNote tag at all**.
 - **Edge cases**: `RelNote: N/A` can be used if a release note is explicitly
   not applicable despite a public API change, e.g. when reverting a CL that had
   a public API change meant for release.
