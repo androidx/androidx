@@ -418,9 +418,10 @@ internal interface Owner : PositionCalculator {
     /**
      * Dispatches a callback when something in this hierarchy scrolls.
      *
+     * @param node The [LayoutNode] that consumed the scroll.
      * @param delta Delta scrolled.
      */
-    fun dispatchOnScrollChanged(delta: Offset) {}
+    fun dispatchOnScrollChanged(node: LayoutNode, delta: Offset) {}
 
     /**
      * Invalidates the layer that the root elements are drawn in. This does not invalidate any child

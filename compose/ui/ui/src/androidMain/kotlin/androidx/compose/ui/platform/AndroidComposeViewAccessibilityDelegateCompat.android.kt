@@ -2575,6 +2575,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         checkingForSemanticsChanges = true
                         localHandler.post(semanticsChangeChecker)
                     }
+                } else {
+                    // The pending scroll events are dropped below, so drop their deltas too.
+                    scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
                 }
                 subtreeChangedLayoutNodes.clear()
                 pendingHorizontalScrollEvents.clear()
@@ -2583,6 +2586,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         } finally {
             subtreeChangedLayoutNodes.clear()
+            pendingHorizontalScrollEvents.clear()
+            pendingVerticalScrollEvents.clear()
+            scrollObservationScopes.fastForEach { it.pixelScrollDelta = Offset.Zero }
         }
     }
 
@@ -2620,6 +2626,27 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    /**
+     * Records the pixel [delta] that [layoutNode] consumed for its next
+     * [AccessibilityEvent.TYPE_VIEW_SCROLLED] event.
+     *
+     * Positive [ScrollObservationScope.pixelScrollDelta] values mean the viewport moved in the
+     * direction of [AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD]. That is down, or toward the
+     * layout direction end: right in LTR, left in RTL. [ScrollAxisRange.reverseScrolling] does not
+     * change the sign. [performActionHelper] maps that action to the same screen direction for
+     * reversed lists. [delta] uses pointer coordinates, so LTR negates both axes and RTL negates
+     * only y. Nodes without a [ScrollObservationScope] drop [delta] because no scroll event fires
+     * for them.
+     */
+    internal fun onScrollChanged(layoutNode: LayoutNode, delta: Offset) {
+        if (!isEnabled || (delta.x == 0f && delta.y == 0f)) return
+        val scope = scrollObservationScopes.findById(layoutNode.semanticsId) ?: return
+        val forwardDelta =
+            if (layoutNode.layoutDirection == LayoutDirection.Rtl) Offset(delta.x, -delta.y)
+            else -delta
+        scope.pixelScrollDelta += forwardDelta
+    }
+
     private fun sendTypeViewScrolledAccessibilityEvent(layoutNode: LayoutNode) {
         // The node may be no longer available while we were waiting so check
         // again.
@@ -2647,6 +2674,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             event.scrollY = it.value().toInt()
             event.maxScrollY = it.maxValue().toInt()
         }
+        val scope = scrollObservationScopes.findById(id)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val delta = scope?.pixelScrollDelta ?: Offset.Zero
+            Api28Impl.setScrollDelta(event, delta.x.fastRoundToInt(), delta.y.fastRoundToInt())
+        }
+        scope?.pixelScrollDelta = Offset.Zero
         sendEvent(event)
 
         // When navigating with a hardware keyboard, scrolling moves the currently focused item
@@ -3582,6 +3615,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     AccessibilityActionCompat(android.R.id.accessibilityActionSetProgress, it.label)
                 )
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private object Api28Impl {
+        @JvmStatic
+        fun setScrollDelta(event: AccessibilityEvent, deltaX: Int, deltaY: Int) {
+            event.scrollDeltaX = deltaX
+            event.scrollDeltaY = deltaY
         }
     }
 
