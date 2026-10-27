@@ -49,6 +49,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -80,12 +81,45 @@ class RemoteMaterialThemeColorTest {
 
     @After
     fun tearDown() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = false
         RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = false
     }
 
     @Test
-    fun defaultColorScheme_usesNamedColors() {
+    fun defaultColorScheme_defaultFlag_usesNamedColors() {
         val document = capturePrimaryBox(colorScheme = null)
+
+        assertThat(document.themedColors ?: emptyList<ColorTheme>()).isEmpty()
+    }
+
+    @Test
+    fun defaultColorScheme_flagEnabled_usesThemedColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = true
+        val document = capturePrimaryBox(colorScheme = null)
+
+        assertThat(document.themedColors).isNotEmpty()
+    }
+
+    @Test
+    fun defaultColorScheme_flagDisabled_usesNamedColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = false
+        val document = capturePrimaryBox(colorScheme = null)
+
+        assertThat(document.themedColors ?: emptyList<ColorTheme>()).isEmpty()
+    }
+
+    @Test
+    fun defaultColorScheme_flagEnabled_wearWidgetsProfile_fallsBackToNamedColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = true
+        val document = capturePrimaryBox(colorScheme = null, profile = TestProfiles.wearWidgets)
+
+        assertThat(document.themedColors ?: emptyList<ColorTheme>()).isEmpty()
+    }
+
+    @Test
+    fun explicitColorScheme_flagEnabled_usesNamedColors() {
+        RemoteMaterial3Flags.isThemedColorsEnabled = true
+        val document = capturePrimaryBox(colorScheme = { RemoteColorScheme(ColorScheme()) })
 
         assertThat(document.themedColors ?: emptyList<ColorTheme>()).isEmpty()
     }

@@ -62,7 +62,7 @@ class RemoteMaterialThemeTest {
         val expectedTint = ColorScheme().onSurface
 
         runTest {
-            RemoteMaterialTheme {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme(ColorScheme())) {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
             }
@@ -76,7 +76,7 @@ class RemoteMaterialThemeTest {
         val expectedTint = Color.Yellow
 
         runTest(colorOverrides = mapOf("WearM3.onSurface" to Color.Yellow)) {
-            RemoteMaterialTheme {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme(ColorScheme())) {
                 val iconTint = RemoteMaterialTheme.colorScheme.onSurface
                 RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
             }
@@ -90,7 +90,7 @@ class RemoteMaterialThemeTest {
         val expectedTint = Color.Yellow
 
         runTest(colorOverrides = mapOf("WearM3.primary" to Color.Yellow)) {
-            RemoteMaterialTheme {
+            RemoteMaterialTheme(colorScheme = RemoteColorScheme(ColorScheme())) {
                 RemoteButton(onClick = Action.Empty) { RemoteText("button_enabled".rs) }
             }
         }
