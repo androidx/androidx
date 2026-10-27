@@ -423,7 +423,7 @@ package androidx.wear.compose.remote.material3 {
     ctor public RemoteEdgeButtonShape();
     ctor public RemoteEdgeButtonShape(optional androidx.wear.compose.remote.material3.RemoteEdgeButtonSize buttonSize);
     ctor @BytecodeOnly public RemoteEdgeButtonShape(androidx.wear.compose.remote.material3.RemoteEdgeButtonSize!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.layout.RemoteSize size, androidx.compose.remote.creation.compose.capture.RemoteDensity density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.layout.RemoteSize size, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.remote.creation.compose.capture.RemoteDensity density);
     method @InaccessibleFromKotlin public androidx.wear.compose.remote.material3.RemoteEdgeButtonSize getButtonSize();
     property public androidx.wear.compose.remote.material3.RemoteEdgeButtonSize buttonSize;
   }

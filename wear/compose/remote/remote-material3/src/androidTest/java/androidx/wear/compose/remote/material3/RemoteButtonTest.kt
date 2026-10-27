@@ -576,8 +576,8 @@ class RemoteButtonTest {
 private object HexagonShape : RemoteShape {
     override fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
+        density: RemoteDensity,
     ): RemoteOutline {
         val w = size.width
         val h = size.height

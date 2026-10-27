@@ -130,7 +130,12 @@ class RemoteRoundedCornerShapeTest {
     fun createOutline_uniformCorners() {
         val shape = RemoteRoundedCornerShape(10.rdp)
         val density = RemoteDensity(2f.rf, 1f.rf)
-        val outline = shape.createOutline(RemoteSize(100f.rf, 50f.rf), density, LayoutDirection.Ltr)
+        val outline =
+            shape.createOutline(
+                size = RemoteSize(100f.rf, 50f.rf),
+                layoutDirection = LayoutDirection.Ltr,
+                density = density,
+            )
 
         assertTrue(outline is RemoteOutline.Rounded)
         val rounded = outline as RemoteOutline.Rounded
@@ -147,8 +152,8 @@ class RemoteRoundedCornerShapeTest {
         val outline =
             shape.createOutline(
                 size = RemoteSize(100f.rf, 50f.rf),
-                density = density,
                 layoutDirection = LayoutDirection.Ltr,
+                density = density,
                 strokeWidth = 10f.rf,
             )
 

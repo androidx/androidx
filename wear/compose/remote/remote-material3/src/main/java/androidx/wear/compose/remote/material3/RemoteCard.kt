@@ -584,12 +584,16 @@ private fun RemoteDrawScope.drawBorder(
         if (shape is RemoteCornerBasedShape) {
             shape.createOutline(
                 size = RemoteSize(width, height),
-                density = remoteDensity,
                 layoutDirection = layoutDirection,
+                density = remoteDensity,
                 strokeWidth = strokeWidthPx,
             )
         } else {
-            shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+            shape.createOutline(
+                size = RemoteSize(width, height),
+                layoutDirection = layoutDirection,
+                density = remoteDensity,
+            )
         }
     val paint = RemotePaint {
         strokeWidth = strokeWidthPx
@@ -608,7 +612,11 @@ private fun RemoteDrawScope.drawSolidColorShape(
     color: RemoteColor? = null,
 ) {
     drawOutline(
-        shape.createOutline(RemoteSize(w, h), remoteDensity, layoutDirection),
+        shape.createOutline(
+            size = RemoteSize(w, h),
+            layoutDirection = layoutDirection,
+            density = remoteDensity,
+        ),
         RemotePaint {
             style = PaintingStyle.Fill
             color?.let { this.color = it }
