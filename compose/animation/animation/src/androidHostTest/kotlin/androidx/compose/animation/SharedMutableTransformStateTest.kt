@@ -17,7 +17,9 @@
 package androidx.compose.animation
 
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -27,6 +29,11 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SharedMutableTransformStateTest {
+
+    @After
+    fun tearDown() {
+        testTimeSource = null
+    }
 
     @Test
     fun updateMutationState_fromHandoffToMutating_resetsTransformScope() {
@@ -110,5 +117,46 @@ class SharedMutableTransformStateTest {
 
         assertEquals(initialTransform, contentTransform.initialTransform)
         assertEquals(targetTransform, contentTransform.targetTransform)
+    }
+
+    @Test
+    fun combinedScale_constantValueWithDuplicateTimestamps_handoffVelocityIsZero() {
+        var now = 0L
+        testTimeSource = { now }
+        val state = SharedMutableTransformState()
+        state.updateMutationState(isMutating = true, isSettled = true)
+        state.transformScope.scale = 0.5f
+
+        // Record 3 samples across 2 timestamps ([0, 30, 30]), matching the duplicate-timestamp
+        // layout/layer pass pattern from b/574451802.
+        now = 0L
+        state.combinedScale(transitionValue = 1f)
+        now = 30L
+        state.combinedScale(transitionValue = 1f)
+        state.combinedScale(transitionValue = 1f)
+
+        state.updateMutationState(isMutating = false, isSettled = true)
+
+        assertEquals(0f, state.scaleHandoffVelocity?.value ?: Float.NaN, 0f)
+    }
+
+    @Test
+    fun combinedSlide_constantValueWithDuplicateTimestamps_handoffVelocityIsZero() {
+        var now = 0L
+        testTimeSource = { now }
+        val state = SharedMutableTransformState()
+        state.updateMutationState(isMutating = true, isSettled = true)
+        state.transformScope.offset = IntOffset(100, -50)
+
+        now = 0L
+        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
+        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
+        now = 7L
+        state.combinedSlide(IntOffset.Zero, IntSize(200, 200))
+
+        state.updateMutationState(isMutating = false, isSettled = true)
+
+        assertEquals(0f, state.slideHandoffVelocity?.v1 ?: Float.NaN, 0f)
+        assertEquals(0f, state.slideHandoffVelocity?.v2 ?: Float.NaN, 0f)
     }
 }
