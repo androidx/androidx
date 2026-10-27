@@ -49,6 +49,8 @@ import androidx.wear.compose.material.LocalTextStyle
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.LocalRippleThemeConfiguration
+import androidx.wear.compose.material3.RippleDefaults
 
 @Composable
 fun DemoApp(
@@ -57,9 +59,18 @@ fun DemoApp(
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    androidx.wear.compose.material3.AppScaffold(timeText = {}) {
-        val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-        DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    CompositionLocalProvider(
+        LocalRippleThemeConfiguration provides
+            if (focusHighlightState == FocusHighlightType.InsetFocusRing) {
+                RippleDefaults.InsetFocusRingThemeConfiguration
+            } else {
+                RippleDefaults.OpacityFocusThemeConfiguration
+            }
+    ) {
+        androidx.wear.compose.material3.AppScaffold(timeText = {}) {
+            val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
+            DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+        }
     }
 }
 

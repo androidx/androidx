@@ -19,6 +19,10 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,7 +30,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.Text as Material3Text
+import androidx.wear.compose.material3.demos.ScalingLazyDemo
 import androidx.wear.compose.material3.demos.WearMaterial3Demos
+
+val Settings =
+    ComposableDemo("Settings") {
+        ScalingLazyDemo {
+            item { ListHeader { Material3Text("Material 3 UI Highlighting") } }
+            item {
+                RadioButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    selected = focusHighlightState == FocusHighlightType.Opacity,
+                    onSelect = { focusHighlightState = FocusHighlightType.Opacity },
+                    label = { Material3Text("Opacity") },
+                )
+            }
+            item {
+                RadioButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    selected = focusHighlightState == FocusHighlightType.InsetFocusRing,
+                    onSelect = { focusHighlightState = FocusHighlightType.InsetFocusRing },
+                    label = { Material3Text("Inset Focus Ring") },
+                )
+            }
+        }
+    }
 
 val Info =
     DemoCategory(
@@ -60,6 +91,17 @@ val WearComposeDemos =
             WearMaterial3Demos,
             WearNavDemos,
             WearNav3Demos,
+            Settings,
             Info,
         ),
     )
+
+@JvmInline
+internal value class FocusHighlightType private constructor(private val value: Int) {
+    companion object {
+        val Opacity = FocusHighlightType(0)
+        val InsetFocusRing = FocusHighlightType(1)
+    }
+}
+
+internal var focusHighlightState by mutableStateOf(FocusHighlightType.Opacity)
