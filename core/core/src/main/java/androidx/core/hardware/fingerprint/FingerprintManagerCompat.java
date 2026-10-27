@@ -17,6 +17,8 @@ package androidx.core.hardware.fingerprint;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
 import android.os.CancellationSignal;
 import android.os.Handler;
 
@@ -34,8 +36,8 @@ import javax.crypto.Mac;
 /**
  * A class that coordinates access to the fingerprint hardware.
  * <p>
- * This class has been deprecated and should no longer be used. On all platform versions, it behaves
- * as though no fingerprint hardware is available.
+ * On platforms before {@link android.os.Build.VERSION_CODES#M}, this class behaves as there would
+ * be no fingerprint hardware available.
  *
  * @deprecated {@code FingerprintManager} was removed from the platform SDK in Android C, use
  * {@code androidx.biometrics.BiometricPrompt} instead.
@@ -44,41 +46,43 @@ import javax.crypto.Mac;
 @Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FingerprintManagerCompat {
+    private final Context mContext;
+
     /** Get a {@link FingerprintManagerCompat} instance for a provided context. */
     public static @NonNull FingerprintManagerCompat from(@NonNull Context context) {
-        return new FingerprintManagerCompat();
+        return new FingerprintManagerCompat(context);
     }
 
-    private FingerprintManagerCompat() {
+    private FingerprintManagerCompat(Context context) {
+        mContext = context;
     }
 
     /**
-     * Prior to deprecation, this method would determine if there is at least one fingerprint
-     * enrolled.
+     * Determine if there is at least one fingerprint enrolled.
      *
-     * @return false
+     * @return true if at least one fingerprint is enrolled, false otherwise
      */
     @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
     public boolean hasEnrolledFingerprints() {
-        return false;
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        return (fp != null) && Api23Impl.hasEnrolledFingerprints(fp);
     }
 
     /**
-     * Prior to deprecation, this method would determine if fingerprint hardware is present and
-     * functional.
+     * Determine if fingerprint hardware is present and functional.
      *
-     * @return false
+     * @return true if hardware is present and functional, false otherwise.
      */
     @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
     public boolean isHardwareDetected() {
-        return false;
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        return (fp != null) && Api23Impl.isHardwareDetected(fp);
     }
 
     /**
-     * Prior to deprecation, this method would request authentication of a crypto object.
-     * <p>
-     * This call warms up the fingerprint hardware and starts scanning for a fingerprint. It
-     * terminates when {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} or
+     * Request authentication of a crypto object. This call warms up the fingerprint hardware
+     * and starts scanning for a fingerprint. It terminates when
+     * {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} or
      * {@link AuthenticationCallback#onAuthenticationSucceeded(AuthenticationResult)} is called, at
      * which point the object is no longer valid. The operation can be canceled by using the
      * provided cancel object.
@@ -98,14 +102,15 @@ public class FingerprintManagerCompat {
             androidx.core.os.@Nullable CancellationSignal cancel,
             @NonNull AuthenticationCallback callback,
             @Nullable Handler handler) {
-        // No-op.
+        authenticate(crypto, flags,
+                cancel != null ? (CancellationSignal) cancel.getCancellationSignalObject() : null,
+                callback, handler);
     }
 
     /**
-     * Prior to deprecation, this method would request authentication of a crypto object.
-     * <p>
-     * This call warms up the fingerprint hardware and starts scanning for a fingerprint.
-     * It terminates when {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} or
+     * Request authentication of a crypto object. This call warms up the fingerprint hardware
+     * and starts scanning for a fingerprint. It terminates when
+     * {@link AuthenticationCallback#onAuthenticationError(int, CharSequence)} or
      * {@link AuthenticationCallback#onAuthenticationSucceeded(AuthenticationResult)} is called, at
      * which point the object is no longer valid. The operation can be canceled by using the
      * provided cancel object.
@@ -120,7 +125,16 @@ public class FingerprintManagerCompat {
     public void authenticate(@Nullable CryptoObject crypto, int flags,
             @Nullable CancellationSignal cancel, @NonNull AuthenticationCallback callback,
             @Nullable Handler handler) {
-        // No-op.
+        final FingerprintManager fp = getFingerprintManagerOrNull(mContext);
+        if (fp != null) {
+            Api23Impl.authenticate(fp, Api23Impl.wrapCryptoObject(crypto), cancel, flags,
+                    Api23Impl.wrapCallback(callback), handler);
+        }
+    }
+
+    private static @Nullable FingerprintManager getFingerprintManagerOrNull(
+            @NonNull Context context) {
+        return Api23Impl.getFingerprintManagerOrNull(context);
     }
 
     /**
@@ -241,6 +255,101 @@ public class FingerprintManagerCompat {
          * Called when a fingerprint is valid but not recognized.
          */
         public void onAuthenticationFailed() {
+        }
+    }
+
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
+        static boolean hasEnrolledFingerprints(Object fingerprintManager) {
+            return ((FingerprintManager) fingerprintManager).hasEnrolledFingerprints();
+        }
+
+        @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
+        static boolean isHardwareDetected(Object fingerprintManager) {
+            return ((FingerprintManager) fingerprintManager).isHardwareDetected();
+        }
+
+        @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
+        static void authenticate(Object fingerprintManager, Object crypto,
+                CancellationSignal cancel, int flags, Object callback, Handler handler) {
+            ((FingerprintManager) fingerprintManager).authenticate(
+                    (FingerprintManager.CryptoObject) crypto, cancel, flags,
+                    (FingerprintManager.AuthenticationCallback) callback, handler);
+        }
+
+        static FingerprintManager.CryptoObject getCryptoObject(Object authenticationResult) {
+            return ((FingerprintManager.AuthenticationResult) authenticationResult)
+                    .getCryptoObject();
+        }
+
+        public static FingerprintManager getFingerprintManagerOrNull(Context context) {
+            if (context.getPackageManager().hasSystemFeature(
+                    PackageManager.FEATURE_FINGERPRINT)) {
+                return context.getSystemService(FingerprintManager.class);
+            } else {
+                return null;
+            }
+        }
+
+        public static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
+            if (cryptoObject == null) {
+                return null;
+            } else if (cryptoObject.getCipher() != null) {
+                return new FingerprintManager.CryptoObject(cryptoObject.getCipher());
+            } else if (cryptoObject.getSignature() != null) {
+                return new FingerprintManager.CryptoObject(cryptoObject.getSignature());
+            } else if (cryptoObject.getMac() != null) {
+                return new FingerprintManager.CryptoObject(cryptoObject.getMac());
+            } else {
+                return null;
+            }
+        }
+
+        public static CryptoObject unwrapCryptoObject(Object cryptoObjectObj) {
+            FingerprintManager.CryptoObject cryptoObject =
+                    (FingerprintManager.CryptoObject) cryptoObjectObj;
+            if (cryptoObject == null) {
+                return null;
+            } else if (cryptoObject.getCipher() != null) {
+                return new CryptoObject(cryptoObject.getCipher());
+            } else if (cryptoObject.getSignature() != null) {
+                return new CryptoObject(cryptoObject.getSignature());
+            } else if (cryptoObject.getMac() != null) {
+                return new CryptoObject(cryptoObject.getMac());
+            } else {
+                return null;
+            }
+        }
+
+        static FingerprintManager.AuthenticationCallback wrapCallback(
+                final AuthenticationCallback callback) {
+            return new FingerprintManager.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                    callback.onAuthenticationError(errMsgId, errString);
+                }
+
+                @Override
+                public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+                    callback.onAuthenticationHelp(helpMsgId, helpString);
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(
+                        FingerprintManager.AuthenticationResult result) {
+                    callback.onAuthenticationSucceeded(new AuthenticationResult(
+                            unwrapCryptoObject(Api23Impl.getCryptoObject(result))));
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    callback.onAuthenticationFailed();
+                }
+            };
         }
     }
 }
