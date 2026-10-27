@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathScope
+import androidx.compose.remote.creation.compose.vector.toRemoteColor
 import androidx.compose.remote.creation.compose.vector.toRemotePathNodes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -79,9 +80,9 @@ public fun RemoteImageVector.Builder.path(
         RemotePathData(pathBuilder),
         pathFillType.toRemotePathFillType(),
         name,
-        fill,
+        fill?.toRemoteColor(),
         fillAlpha,
-        stroke,
+        stroke?.toRemoteColor(),
         strokeAlpha,
         strokeLineWidth,
         strokeLineCap.toRemoteStrokeCap(),
@@ -128,9 +129,9 @@ public fun ImageVector.toRemoteImageVector(): RemoteImageVector {
                     pathData = node.pathData.toRemotePathNodes(),
                     pathFillType = node.pathFillType.toRemotePathFillType(),
                     name = node.name,
-                    fill = node.fill,
+                    fill = node.fill?.toRemoteColor(),
                     fillAlpha = node.fillAlpha.rf,
-                    stroke = node.stroke,
+                    stroke = node.stroke?.toRemoteColor(),
                     strokeAlpha = node.strokeAlpha.rf,
                     strokeLineWidth = node.strokeLineWidth.rf,
                     strokeLineCap = node.strokeLineCap.toRemoteStrokeCap(),

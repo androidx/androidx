@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -238,9 +237,9 @@ internal constructor(
          * @param pathData path information to render the shape of the path
          * @param pathFillType rule to determine how the interior of the path is to be calculated
          * @param name the name of the path
-         * @param fill specifies the [Brush] used to fill the path
+         * @param fill specifies the [RemoteColor] used to fill the path
          * @param fillAlpha the alpha to fill the path
-         * @param stroke specifies the [Brush] used to fill the stroke
+         * @param stroke specifies the [RemoteColor] used to fill the stroke
          * @param strokeAlpha the alpha to stroke the path
          * @param strokeLineWidth the width of the line to stroke the path
          * @param strokeLineCap specifies the linecap for a stroked path
@@ -262,9 +261,9 @@ internal constructor(
             pathData: List<RemotePathNode>,
             pathFillType: RemotePathFillType = DefaultFillType,
             name: String,
-            fill: Brush? = null,
+            fill: RemoteColor? = null,
             fillAlpha: RemoteFloat = 1.0f.rf,
-            stroke: Brush? = null,
+            stroke: RemoteColor? = null,
             strokeAlpha: RemoteFloat = 1.0f.rf,
             strokeLineWidth: RemoteFloat = DefaultStrokeLineWidth,
             strokeLineCap: RemoteStrokeCap = DefaultStrokeLineCap,
@@ -464,14 +463,14 @@ internal constructor(
     /** Rule to determine how the interior of the path is to be calculated */
     val pathFillType: RemotePathFillType,
 
-    /** Specifies the color or gradient used to fill the path */
-    val fill: Brush? = null,
+    /** Specifies the color used to fill the path */
+    val fill: RemoteColor? = null,
 
     /** Opacity to fill the path */
     val fillAlpha: RemoteFloat = 1.0f.rf,
 
-    /** Specifies the color or gradient used to fill the stroke */
-    val stroke: Brush? = null,
+    /** Specifies the color used to fill the stroke */
+    val stroke: RemoteColor? = null,
 
     /** Opacity to stroke the path */
     val strokeAlpha: RemoteFloat = 1.0f.rf,
