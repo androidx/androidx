@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -72,19 +72,19 @@ public class Utils {
     /**
      * Creates a pipe, writes the given bytes into one end and returns the other end.
      *
-     * @throws RejectedExecutionException if the ExecutorService rejects the task used for writing
+     * @throws RejectedExecutionException if the Executor rejects the task used for writing
      * the bytes in the background.
      */
     @NonNull
     public static AssetFileDescriptor writeBytesIntoPipeAsync(byte @NonNull [] inputBytes,
-            @NonNull ExecutorService executorService) throws IOException {
+            @NonNull Executor executor) throws IOException {
         ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
         ParcelFileDescriptor readSide = pipe[0];
         ParcelFileDescriptor writeSide = pipe[1];
         OutputStream outputStream =
                 new ParcelFileDescriptor.AutoCloseOutputStream(writeSide);
         try {
-            executorService.execute(
+            executor.execute(
                     () -> Utils.writeByteArrayToStream(inputBytes, outputStream));
         } catch (RejectedExecutionException e) {
             closeQuietly(outputStream);

@@ -334,7 +334,7 @@ public class MessagePortTest {
     @Test
     public void testProvideMessagePort_unboundSandbox_returnsDisentangledPort() throws Throwable {
         // Simulates a service death which hasn't yet been handled.
-        mJsSandbox.unbindService();
+        mJsSandbox.unbindServiceForTesting();
         MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
@@ -350,7 +350,7 @@ public class MessagePortTest {
     @Test
     public void testProvideMessagePort_killedSandbox_returnsDisentangledPort() throws Throwable {
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
-        mJsSandbox.killImmediatelyOnThread();
+        mJsSandbox.unbindServiceAndEnterDeadStateForTesting();
         MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
@@ -511,7 +511,7 @@ public class MessagePortTest {
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         // Simulates a service death which hasn't yet been handled.
-        mJsSandbox.unbindService();
+        mJsSandbox.unbindServiceForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -527,7 +527,7 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Simulates a service death which hasn't yet been handled.
-        mJsSandbox.unbindService();
+        mJsSandbox.unbindServiceForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -543,7 +543,7 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Simulates a service death which hasn't yet been handled.
-        mJsSandbox.unbindService();
+        mJsSandbox.unbindServiceForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -557,7 +557,7 @@ public class MessagePortTest {
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
-        mJsSandbox.killImmediatelyOnThread();
+        mJsSandbox.unbindServiceAndEnterDeadStateForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -573,7 +573,7 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
-        mJsSandbox.killImmediatelyOnThread();
+        mJsSandbox.unbindServiceAndEnterDeadStateForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -589,7 +589,7 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
-        mJsSandbox.killImmediatelyOnThread();
+        mJsSandbox.unbindServiceAndEnterDeadStateForTesting();
         messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
         messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
         messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
@@ -702,7 +702,7 @@ public class MessagePortTest {
         // The remote should exist even without the isolate claiming it.
         Assert.assertNotNull(messagePortInternal.mRemoteIMessagePort.get());
 
-        mJsSandbox.kill();
+        mJsSandbox.killDueToException(new RuntimeException("Test kill"));
 
         PollingCheck.waitFor(TIMEOUT_SECONDS * 1000,
                 () -> messagePortInternal.mRemoteIMessagePort.get() == null);
@@ -720,7 +720,7 @@ public class MessagePortTest {
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         Assert.assertNotNull(messagePortInternal.mRemoteIMessagePort.get());
 
-        mJsSandbox.kill();
+        mJsSandbox.killDueToException(new RuntimeException("Test kill"));
 
         PollingCheck.waitFor(TIMEOUT_SECONDS * 1000,
                 () -> messagePortInternal.mRemoteIMessagePort.get() == null);
