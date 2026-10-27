@@ -41,12 +41,18 @@ package androidx.glance.wear.core {
 
   public final class WearWidgetParams {
     method @InaccessibleFromKotlin public int getContainerType();
+    method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getCornerRadiusDp();
     method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getHeightDp();
+    method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getHorizontalPaddingDp();
     method @InaccessibleFromKotlin public androidx.glance.wear.core.WidgetInstanceId getInstanceId();
+    method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getVerticalPaddingDp();
     method @InaccessibleFromKotlin @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float getWidthDp();
     property public int containerType;
+    property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float cornerRadiusDp;
     property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float heightDp;
+    property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float horizontalPaddingDp;
     property public androidx.glance.wear.core.WidgetInstanceId instanceId;
+    property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float verticalPaddingDp;
     property @Dimension(unit=androidx.annotation.Dimension.Companion.DP) public float widthDp;
     field public static final androidx.glance.wear.core.WearWidgetParams.Companion Companion;
   }
