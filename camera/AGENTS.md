@@ -187,10 +187,13 @@ invariants:
     Plan, Report, and Synthesis).
   - Route verifiers **Opposite-Family First** (e.g. Claude reviews Gemini;
     Gemini reviews Claude) with **Zero Author Narrative** in verifier briefs,
-    a **Two-Turn Read Barrier** in Modes 2-5 (Turn 1: raw evidence blind
+    the **Fix-Scope Boundary Rule** (distinguishing in-scope bugs/regressions
+    from `[Optional / Out-of-Scope]` pre-existing caller trade-offs so
+    out-of-scope notes never block convergence or cause scope creep), a
+    **Two-Turn Read Barrier** in Modes 2-5 (Turn 1: raw evidence blind
     diagnosis; Turn 2: **Post-Blind Adjudication Turn** auditing the draft), and
-    three hostile critic lenses (Specification, Quantitative/State, Counter-
-    Hypothesis).
+    three hostile critic lenses (Specification, Quantitative/State,
+    Counter-Hypothesis).
   - Track findings in an ephemeral `convergence_ledger.md` using strict status
     transitions (`OPEN`, `PATCHED_PENDING_REAUDIT`,
     `REVERTED_VERIFICATION_FAILURE`, `DISMISSED_WITH_PROOF`,
