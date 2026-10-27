@@ -62,6 +62,12 @@ import androidx.web.WebContentView
 public open class WebViewBridge : WebContentView {
     public constructor(context: Context) : super(context)
 
+    init {
+        // WebSurface reads this to decide whether the page takes part in nested scrolling, see
+        // setNestedScrollingEnabled. Views have it off unless they turn it on, and WebView doesn't.
+        super.setNestedScrollingEnabled(true)
+    }
+
     /**
      * Sets the [WebChromeClientBridge] that will receive notifications and requests from this
      * [WebViewBridge].
@@ -1065,6 +1071,15 @@ public open class WebViewBridge : WebContentView {
 
     @Deprecated(
         message =
+            "Use Modifier.overscroll or Modifier.nestedScroll on WebSurface instead of View overScrollMode.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun setOverScrollMode(mode: Int) {
+        super.setOverScrollMode(mode)
+    }
+
+    @Deprecated(
+        message =
             "Use Modifier.semantics { contentDescription = ... } on WebSurface instead of View contentDescription.",
         level = DeprecationLevel.WARNING,
     )
@@ -1452,24 +1467,10 @@ public open class WebViewBridge : WebContentView {
     }
 
     // =========================================================================================
-    // 2. View APIs that currently do NOT work via either View or Compose.
-    // TODO: Support overscroll and nested scrolling in WebSurface / WebSurfaceChromium and
-    // deprecate these methods.
-    // =========================================================================================
-
-    override fun setOverScrollMode(mode: Int) {
-        super.setOverScrollMode(mode)
-    }
-
-    override fun setNestedScrollingEnabled(enabled: Boolean) {
-        super.setNestedScrollingEnabled(enabled)
-    }
-
-    // =========================================================================================
-    // 3. View APIs that currently DO work via the headless View, but NOT yet via Compose.
-    // TODO: Support programmatic scrolling, selection ActionMode, rich content, stylus
-    // handwriting, autofill, and content capture in WebSurface / WebContent and deprecate these
-    // methods.
+    // 2. View APIs that currently DO work via the headless View, but NOT yet via Compose.
+    // TODO: Support programmatic scrolling, the nested scrolling opt-out, selection ActionMode,
+    // rich content, stylus handwriting, autofill, and content capture in WebSurface / WebContent
+    // and deprecate these methods.
     // =========================================================================================
 
     override fun scrollTo(x: Int, y: Int) {
@@ -1510,6 +1511,23 @@ public open class WebViewBridge : WebContentView {
 
     override fun setOnScrollChangeListener(l: OnScrollChangeListener?) {
         super.setOnScrollChangeListener(l)
+    }
+
+    /**
+     * Sets whether the page takes part in nested scrolling when [WebSurface] presents this bridge,
+     * which it does by default.
+     *
+     * When enabled, the page gets the first claim on drags that start on it, and scrolling it
+     * didn't use goes to nested scroll parents. When disabled, parents get the first claim instead,
+     * like a [android.webkit.WebView] inside a [android.widget.ScrollView]: a scrollable parent
+     * takes a drag once it passes touch slop and the page gets a cancel, and only drags that no
+     * parent takes reach the page. As with a View child, the page still keeps gestures it asks its
+     * parents not to intercept, such as text selection drags. Disable it for a page that doesn't
+     * scroll itself, such as one sized to its content, so that its parents scroll without waiting
+     * for the page to report the scrolling it didn't use.
+     */
+    override fun setNestedScrollingEnabled(enabled: Boolean) {
+        super.setNestedScrollingEnabled(enabled)
     }
 
     @RequiresApi(31)

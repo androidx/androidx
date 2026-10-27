@@ -31,13 +31,18 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeProvider
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.relocation.bringIntoView
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.web.WebContentView
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 
 internal val WebSurfaceHolderKey = SemanticsPropertyKey<HeadlessViewHolder>("WebSurfaceHolder")
 
@@ -45,7 +50,10 @@ internal val WebSurfaceHolderKey = SemanticsPropertyKey<HeadlessViewHolder>("Web
 // structure, and floating text-selection ActionMode positioning) to Compose / WebSurfaceChromium so
 // HeadlessViewHolder is no longer needed.
 @SuppressLint("ViewConstructor")
-internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
+internal class HeadlessViewHolder(
+    context: Context,
+    private val node: DelegatableNode,
+) : FrameLayout(context) {
 
     init {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -104,8 +112,42 @@ internal class HeadlessViewHolder(context: Context) : FrameLayout(context) {
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean =
         view?.hasFocus() == true
 
+    override fun requestChildRectangleOnScreen(
+        child: View,
+        rectangle: Rect?,
+        immediate: Boolean,
+    ): Boolean {
+        if (!node.node.isAttached) return false
+        val composeRect =
+            rectangle
+                ?.toComposeRect()
+                ?.translate(
+                    (child.left - child.scrollX).toFloat(),
+                    (child.top - child.scrollY).toFloat(),
+                )
+        // Start undispatched (matching FocusableNode) so the visibility check runs before any
+        // subsequent scroll launched in the same frame, e.g. after View.onFocusChanged's
+        // requestRectangleOnScreen on API 37+.
+        node.node.coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            node.bringIntoView { composeRect }
+        }
+        return true
+    }
+
     // Touch input is handled directly by WebSurfaceNode.
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean = true
+
+    /**
+     * Whether [view] asked its parents not to intercept the current gesture, which Chromium does
+     * when it handles a touch itself, e.g. a text selection drag. Reset by WebSurfaceNode at the
+     * start of each gesture.
+     */
+    var disallowIntercept: Boolean = false
+
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        this.disallowIntercept = disallowIntercept
+        super.requestDisallowInterceptTouchEvent(disallowIntercept)
+    }
 
     // Key events are routed through Compose's KeyInputModifierNode on WebSurface.
     override fun dispatchKeyEvent(event: KeyEvent): Boolean = false

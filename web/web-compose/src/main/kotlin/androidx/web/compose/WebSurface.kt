@@ -23,7 +23,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.annotation.NonNull
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
@@ -36,14 +35,23 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
@@ -61,8 +69,10 @@ import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.NoOpUpdate
@@ -70,6 +80,8 @@ import androidx.web.WebContent
 import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
+import kotlin.math.hypot
+import kotlinx.coroutines.launch
 
 /**
  * Creates and retains a [WebContent] instance across configuration changes and transient
@@ -91,8 +103,7 @@ import androidx.web.WebSurfaceChromium
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@NonNull
-public fun retainWebContent(@NonNull block: WebContent.Builder.() -> Unit = {}): WebContent {
+public fun retainWebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
     val webContent = retain { WebContent(block) }
     RetainedEffect(webContent) {
         onRetire {
@@ -126,10 +137,7 @@ public fun retainWebContent(@NonNull block: WebContent.Builder.() -> Unit = {}):
     enforcement = "androidx.web.WebFeature#isFeatureSupported",
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun WebSurface(
-    @NonNull content: WebContent,
-    modifier: Modifier = Modifier,
-) {
+public fun WebSurface(content: WebContent, modifier: Modifier = Modifier) {
     WebSurface(
         content = content,
         modifier = modifier,
@@ -182,11 +190,11 @@ public fun WebSurface(
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T : WebViewBridge> WebSurface(
-    @NonNull content: WebContent,
+    content: WebContent,
     modifier: Modifier = Modifier,
-    @NonNull bridgeFactory: (Context) -> T,
-    @NonNull bridgeUpdate: (T) -> Unit = NoOpUpdate,
-    @NonNull bridgeRelease: (T) -> Unit = NoOpUpdate,
+    bridgeFactory: (Context) -> T,
+    bridgeUpdate: (T) -> Unit = NoOpUpdate,
+    bridgeRelease: (T) -> Unit = NoOpUpdate,
 ) {
     val context = LocalContext.current
     val state =
@@ -202,6 +210,11 @@ public fun <T : WebViewBridge> WebSurface(
     Layout(
         modifier =
             Modifier.onKeyEvent { state.node?.dispatchKeyEvent(it.nativeKeyEvent) == true }
+                .focusProperties {
+                    canFocus = false
+                    onExit = { state.node?.onExitFocus() }
+                }
+                .focusTarget()
                 .then(modifier)
                 .clipToBounds()
                 .then(
@@ -299,19 +312,46 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     ObserverModifierNode,
     SemanticsModifierNode,
     CompositionLocalConsumerModifierNode,
-    ViewTreeObserver.OnGlobalFocusChangeListener {
+    ViewTreeObserver.OnGlobalFocusChangeListener,
+    WebSurfaceChromium.EventListener {
 
     private var webSurface: WebSurfaceChromium? = null
+    private var size = IntSize.Zero
     private var holder: HeadlessViewHolder? = null
+    private var pinnedHandle: PinnableContainer.PinnedHandle? = null
+    private var attachedViewTreeObserver: ViewTreeObserver? = null
 
     /** Prevents reentrant focus synchronization between Compose and the underlying View tree. */
     private var isUpdatingFocus: Boolean = false
 
+    // If Chromium invalidates during draw (e.g. computeScroll), Compose ignores
+    // the synchronous invalidateDraw() call because the layer's dirty flag is
+    // cleared at the end of draw. So we just track if we need to validate
+    // again.
+    private var isDrawing: Boolean = false
+
+    /** Only changed through [transitionTo]. */
+    private var touchState: TouchState = TouchState.Idle
+
+    // Where the surface was in the root when the gesture started. Touch events come in root
+    // coordinates and we translate them by this for the whole gesture, so a parent moving the
+    // surface mid-gesture (e.g. a LazyColumn scrolling from our overscroll) doesn't look like
+    // finger movement to Chromium.
+    private var touchOriginX: Float = 0f
+    private var touchOriginY: Float = 0f
+
+    /** Where the gesture started in root coordinates, for the touch slop check. */
+    private var touchDownX: Float = 0f
+    private var touchDownY: Float = 0f
+
     /**
-     * Tracks whether a touch gesture sequence (started on [MotionEvent.ACTION_DOWN]) is currently
-     * being dispatched to [webSurface].
+     * Whether the page takes part in nested scrolling, i.e. gets the first claim on drags and
+     * passes what it didn't use to parents. Read from the bridge, so apps opt out with
+     * [View.setNestedScrollingEnabled] as they would for a View child, see
+     * [WebViewBridge.setNestedScrollingEnabled].
      */
-    private var isDispatchingTouch: Boolean = false
+    private val nestedScrollEnabled: Boolean
+        get() = state.bridge?.isNestedScrollingEnabled != false
 
     private val focusTargetNode =
         delegate(
@@ -321,18 +361,62 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             )
         )
 
-    // If Chromium invalidates during draw (e.g. computeScroll), Compose ignores
-    // the synchronous invalidateDraw() call because the layer's dirty flag is
-    // cleared at the end of draw. So we just track if we need to validate
-    // again.
-    private var isDrawing: Boolean = false
+    private val nestedScrollDispatcher = NestedScrollDispatcher()
 
-    private fun onInvalidate() {
+    init {
+        delegate(nestedScrollModifierNode(NoOpNestedScrollConnection, nestedScrollDispatcher))
+    }
+
+    override fun onInvalidate() {
         if (!isAttached) return
         if (isDrawing) {
             requireView().postOnAnimation(::onInvalidate)
         } else {
             invalidateDraw()
+        }
+    }
+
+    // The page gets a say in every touch event, so Chromium scrolls asynchronously and we only find
+    // out what the page didn't consume after the fact. That means we have nothing to offer parents
+    // in pre scroll or pre fling, which need a synchronous answer, but we still dispatch them with
+    // zero alongside the post phases so parents get the full nested scroll cycle. With nested
+    // scrolling disabled on the bridge, parents take drags themselves, so this is dropped.
+    override fun onOverScroll(deltaX: Float, deltaY: Float, velocityX: Float, velocityY: Float) {
+        if (!isAttached || !nestedScrollEnabled) return
+        if (velocityX == 0f && velocityY == 0f) {
+            nestedScrollDispatcher.dispatchPreScroll(
+                available = Offset.Zero,
+                source = NestedScrollSource.UserInput,
+            )
+            nestedScrollDispatcher.dispatchPostScroll(
+                consumed = Offset.Zero,
+                available = Offset(deltaX, deltaY),
+                source = NestedScrollSource.UserInput,
+            )
+            // Chromium reports overscroll asynchronously, so it can arrive after the drag ended.
+            // End the gesture again so parents settle with this delta too.
+            if (touchState != TouchState.Dragging) {
+                endNestedScroll()
+            }
+        } else {
+            // A fling reached the edge, where Chromium stops it, so hand the rest to the parent.
+            // This isn't dispatched as SideEffect scrolls, as Pager throws to cancel those.
+            val velocity = Velocity(velocityX, velocityY)
+            nestedScrollDispatcher.coroutineScope.launch {
+                nestedScrollDispatcher.dispatchPreFling(Velocity.Zero)
+                nestedScrollDispatcher.dispatchPostFling(Velocity.Zero, velocity)
+            }
+        }
+    }
+
+    // Chromium works out the fling velocity itself and flings the page with it, so we have nothing
+    // to offer parents in pre fling. We still end the gesture with zero velocity so they can settle
+    // (snap an app bar, release pull-to-refresh). If the page's fling then hits an edge,
+    // onOverScroll hands on what's left.
+    private fun endNestedScroll() {
+        nestedScrollDispatcher.coroutineScope.launch {
+            nestedScrollDispatcher.dispatchPreFling(Velocity.Zero)
+            nestedScrollDispatcher.dispatchPostFling(Velocity.Zero, Velocity.Zero)
         }
     }
 
@@ -362,24 +446,29 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
-        if (!isAttached || isUpdatingFocus) return
+        if (!isAttached) return
         val isFocused = currentState.isFocused
         if (isFocused == previousState.isFocused) return
+        // Pin this item in lazy layouts (e.g. LazyColumn) while focused, matching
+        // Modifier.focusable(). Unfocused WebSurfaces are disposed offscreen as normal, but
+        // disposing a focused WebSurface would detach HeadlessViewHolder from the window, which
+        // tears down any active IME InputConnection, closes the soft keyboard, and drops focus.
+        pinnedHandle?.release()
+        pinnedHandle = if (isFocused) currentValueOf(LocalPinnableContainer)?.pin() else null
+        if (isUpdatingFocus || !isFocused) return
         val view = holder?.view ?: return
         focusUpdate {
-            if (isFocused) {
-                if (!view.hasFocus()) {
-                    view.requestFocus()
-                }
-                if (view.hasFocus() && !focusTargetNode.focusState.isFocused) {
-                    requestFocusWithDescendantPriority()
-                }
-            } else {
-                if (view.hasFocus()) {
-                    view.clearFocus()
-                }
+            if (!view.hasFocus()) {
+                view.requestFocus()
+            }
+            if (view.hasFocus() && !focusTargetNode.focusState.isFocused) {
+                requestFocusWithDescendantPriority()
             }
         }
+    }
+
+    fun onExitFocus() {
+        currentValueOf(LocalFocusManager).clearFocus(force = true)
     }
 
     override fun onGlobalFocusChanged(oldFocus: View?, newFocus: View?) {
@@ -391,10 +480,10 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             newFocus != null && (newFocus === currentHolder || newFocus.parent === currentHolder)
         if (subViewGotFocus && !subViewLostFocus) {
             if (!focusTargetNode.focusState.isFocused) {
-                focusUpdate { requestFocusWithDescendantPriority() }
+                requestFocusWithDescendantPriority()
             }
         } else if (subViewLostFocus && !subViewGotFocus) {
-            if (focusTargetNode.focusState.isFocused) {
+            if (focusTargetNode.focusState.isFocused && !requireView().hasFocus()) {
                 currentValueOf(LocalFocusManager).clearFocus(force = false)
             }
         }
@@ -421,14 +510,17 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     fun onBridgeAttached(bridge: T) {
         if (!isAttached) return
         holder?.view = bridge
-        webSurface?.setWebContent(state.content)
+        if (focusTargetNode.focusState.isFocused) bridge.requestFocus()
+        createSurface()
         runUpdate()
         invalidateDraw()
     }
 
     fun onBridgeDetached() {
-        webSurface?.setWebContent(null)
-        holder?.view = null
+        pinnedHandle?.release()
+        pinnedHandle = null
+        releaseSurface()
+        focusUpdate { holder?.view = null }
     }
 
     fun update(
@@ -464,30 +556,61 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         super.onAttach()
         state.node = this
         val hostView = requireView()
-        hostView.viewTreeObserver.addOnGlobalFocusChangeListener(this)
+        attachedViewTreeObserver =
+            hostView.viewTreeObserver.also { it.addOnGlobalFocusChangeListener(this) }
         (hostView as? ViewGroup)?.let { host ->
             installHostAccessibilityDelegate(host)
-            holder = HeadlessViewHolder(host.context).also(host::addView)
+            holder = HeadlessViewHolder(host.context, this).also(host::addView)
         }
-        webSurface = WebSurfaceChromium.create(::onInvalidate)
         state.bridge?.let { onBridgeAttached(it) }
     }
 
     override fun onDetach() {
-        requireView().viewTreeObserver.removeOnGlobalFocusChangeListener(this)
-        webSurface?.setWebContent(null)
-        holder?.view = null
+        if (focusTargetNode.focusState.isFocused) {
+            onExitFocus()
+        }
+        attachedViewTreeObserver?.takeIf { it.isAlive }?.removeOnGlobalFocusChangeListener(this)
+        attachedViewTreeObserver = null
+        onBridgeDetached()
+        if (state.node === this) {
+            state.node = null
+        }
         (requireView() as? ViewGroup)?.removeView(holder)
         holder = null
-        webSurface?.destroy()
-        webSurface = null
         super.onDetach()
     }
 
+    private fun createSurface() {
+        releaseSurface()
+        webSurface =
+            WebSurfaceChromium.create(this).also {
+                it.setSize(size.width, size.height)
+                it.setWebContent(state.content)
+            }
+    }
+
+    private fun releaseSurface() {
+        val surface = webSurface ?: return
+        webSurface = null
+        transitionTo(TouchState.Idle)
+        surface.destroy()
+    }
+
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        val size = coordinates.size
-        holder?.updateSize(size.width, size.height)
-        webSurface?.setSize(size.width, size.height)
+        // This runs on every layout pass that moves the surface, e.g. each frame of a parent
+        // scroll. Resizing the page is expensive (Chromium relayouts and draws a new frame), so
+        // only do it when the size actually changed; moving just updates the View's position.
+        if (coordinates.size != size) {
+            size = coordinates.size
+            webSurface?.setSize(size.width, size.height)
+        }
+        // The holder is new after every attach, so it can be unsized even when our size didn't
+        // change, e.g. when this node is reused in a lazy list.
+        holder?.let {
+            if (it.width != size.width || it.height != size.height) {
+                it.updateSize(size.width, size.height)
+            }
+        }
         val position = coordinates.positionInRoot()
         holder?.translationX = position.x
         holder?.translationY = position.y
@@ -504,64 +627,201 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         }
     }
 
-    override fun sharePointerInputWithSiblings(): Boolean = true
-
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
         val motionEvent = pointerEvent.motionEvent ?: return
-        val anyConsumed = pointerEvent.changes.fastAny { it.isConsumed }
-        val action = motionEvent.actionMasked
-        if (pass == PointerEventPass.Main && action == MotionEvent.ACTION_DOWN && !anyConsumed) {
-            isDispatchingTouch = dispatchMotionEvent(motionEvent)
-            return
-        }
-        if (pass != PointerEventPass.Final) return
-        if (action == MotionEvent.ACTION_DOWN) {
-            if (isDispatchingTouch) {
-                pointerEvent.changes.fastForEach { it.consume() }
+        if (motionEvent.isTouchAction) {
+            if (onTouchEvent(motionEvent, pass, consumed = pointerEvent.isConsumed)) {
+                pointerEvent.consume()
             }
-            return
-        }
-        if (anyConsumed) {
-            onCancelPointerInput()
-            return
-        }
-        if (dispatchMotionEvent(motionEvent)) {
-            pointerEvent.changes.fastForEach { it.consume() }
-        }
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            isDispatchingTouch = false
-        }
-    }
-
-    private fun dispatchMotionEvent(motionEvent: MotionEvent): Boolean {
-        val offset = requireLayoutCoordinates().positionInRoot()
-        return motionEvent.withOffset(-offset.x, -offset.y) {
-            when (it.actionMasked) {
-                MotionEvent.ACTION_DOWN,
-                MotionEvent.ACTION_POINTER_DOWN,
-                MotionEvent.ACTION_MOVE,
-                MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_POINTER_UP,
-                MotionEvent.ACTION_OUTSIDE,
-                MotionEvent.ACTION_CANCEL -> webSurface?.onTouchEvent(it) == true
-                else -> holder?.dispatchGenericMotionEventToView(it) == true
-            }
+        } else if (pass == PointerEventPass.Main && !pointerEvent.isConsumed) {
+            dispatchGenericMotionEvent(motionEvent, pointerEvent)
         }
     }
 
     override fun onCancelPointerInput() {
-        if (!isDispatchingTouch) return
-        isDispatchingTouch = false
+        cancelTouch()
+    }
+
+    /**
+     * Advances [touchState] and forwards the event to Chromium if the current state handles this
+     * [pass]. Returns true if Chromium handled it, in which case the caller consumes it. [consumed]
+     * is whether another node already consumed the event.
+     */
+    private fun onTouchEvent(
+        motionEvent: MotionEvent,
+        pass: PointerEventPass,
+        consumed: Boolean,
+    ): Boolean {
+        if (!consumed) {
+            when (touchState) {
+                TouchState.Idle ->
+                    if (
+                        pass == PointerEventPass.Main &&
+                            motionEvent.actionMasked == MotionEvent.ACTION_DOWN
+                    ) {
+                        return startTouch(motionEvent)
+                    }
+                TouchState.Touching ->
+                    if (
+                        pass == PointerEventPass.Main &&
+                            motionEvent.actionMasked == MotionEvent.ACTION_MOVE &&
+                            takesGesture(motionEvent)
+                    ) {
+                        transitionTo(TouchState.Dragging)
+                    }
+                TouchState.Dragging -> {}
+            }
+        }
+        // startTouch already forwarded the down in the Main pass.
+        if (motionEvent.actionMasked == MotionEvent.ACTION_DOWN) return false
+        if (pass != touchState.activePass) return false
+        if (consumed) {
+            cancelTouch()
+            return false
+        }
+        return forwardTouchEvent(motionEvent)
+    }
+
+    /**
+     * Starts a gesture with [motionEvent], which is a down, and forwards it to Chromium. Returns
+     * true if Chromium handled it, in which case the caller consumes it.
+     */
+    private fun startTouch(motionEvent: MotionEvent): Boolean {
+        val position = requireLayoutCoordinates().positionInRoot()
+        touchOriginX = position.x
+        touchOriginY = position.y
+        touchDownX = motionEvent.x
+        touchDownY = motionEvent.y
+        holder?.run {
+            // ViewGroup only clears a request not to intercept when it dispatches a down, which
+            // the bridge never gets, so clear it ourselves.
+            view?.requestDisallowInterceptTouchEvent(false)
+            disallowIntercept = false
+        }
+        transitionTo(TouchState.Touching)
+        return forwardTouchEvent(motionEvent)
+    }
+
+    /** Forwards [motionEvent] to Chromium and returns true if Chromium handled it. */
+    private fun forwardTouchEvent(motionEvent: MotionEvent): Boolean {
+        val handled =
+            motionEvent.withOffset(-touchOriginX, -touchOriginY) {
+                webSurface?.onTouchEvent(it) == true
+            }
+        if (!handled || motionEvent.isTouchEnd) {
+            transitionTo(TouchState.Idle)
+        }
+        return handled
+    }
+
+    /** Cancels the gesture in Chromium, if there is one. */
+    private fun cancelTouch() {
+        if (touchState == TouchState.Idle) return
+        transitionTo(TouchState.Idle)
         val now = SystemClock.uptimeMillis()
         val cancelEvent = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
         webSurface?.onTouchEvent(cancelEvent)
         cancelEvent.recycle()
     }
+
+    /** The only place [touchState] changes, so leaving [TouchState.Dragging] always ends it. */
+    private fun transitionTo(newState: TouchState) {
+        val oldState = touchState
+        if (oldState == newState) return
+        touchState = newState
+        if (oldState == TouchState.Dragging) {
+            endNestedScroll()
+        }
+    }
+
+    /**
+     * Whether we take the gesture from the Compose gesture detectors around us. Like a child View,
+     * we do as soon as Chromium asks its parents not to intercept, e.g. for a text selection drag.
+     * With nested scrolling enabled we also do once the finger moves past touch slop.
+     */
+    private fun takesGesture(motionEvent: MotionEvent): Boolean =
+        holder?.disallowIntercept == true || (nestedScrollEnabled && exceedsTouchSlop(motionEvent))
+
+    private fun exceedsTouchSlop(motionEvent: MotionEvent): Boolean {
+        val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
+        return hypot(motionEvent.x - touchDownX, motionEvent.y - touchDownY) >= touchSlop
+    }
+
+    private fun dispatchGenericMotionEvent(motionEvent: MotionEvent, pointerEvent: PointerEvent) {
+        val offset = requireLayoutCoordinates().positionInRoot()
+        val handled =
+            motionEvent.withOffset(-offset.x, -offset.y) {
+                holder?.dispatchGenericMotionEventToView(it) == true
+            }
+        if (handled) {
+            pointerEvent.consume()
+        }
+    }
+
+    /**
+     * Decides in which pass we forward touch events to Chromium, i.e. before or after the Compose
+     * gesture detectors around us see them.
+     *
+     * Chromium recognizes gestures asynchronously, so it can't tell us when to take over a gesture
+     * from Compose. We do what a scrollable does instead and take over once the finger moves past
+     * touch slop. With nested scrolling disabled on the bridge we leave drags to our parents like a
+     * View inside a ScrollView. Either way, like a child View, we take over as soon as Chromium
+     * asks its parents not to intercept, see [takesGesture].
+     */
+    private enum class TouchState(val activePass: PointerEventPass?) {
+        /** No finger down. */
+        Idle(activePass = null),
+
+        /**
+         * Finger down, but the gesture isn't ours yet. We take the down in the Main pass, before
+         * click handlers on us or our ancestors see it, so the page gets taps and long presses like
+         * a child View does. We forward the rest in the Final pass, after the Compose gesture
+         * detectors, so one that takes the gesture before we do still can, in which case Chromium
+         * gets a cancel. With nested scrolling disabled we only leave this state if Chromium asks
+         * for the gesture, so a parent can take drags at any point and the page gets whatever
+         * nobody takes.
+         */
+        Touching(activePass = PointerEventPass.Final),
+
+        /**
+         * The gesture is ours: Chromium asked for it, or the finger moved past touch slop with
+         * nested scrolling enabled and nobody else taking the gesture. We forward and consume in
+         * the Main pass, before parents see the events, like a scrollable. Leaving this state ends
+         * the nested scroll.
+         */
+        Dragging(activePass = PointerEventPass.Main),
+    }
 }
+
+/** We only dispatch to parents and have no nested scroll children to react to. */
+private val NoOpNestedScrollConnection = object : NestedScrollConnection {}
+
+private val PointerEvent.isConsumed: Boolean
+    get() = changes.fastAny { it.isConsumed }
+
+private fun PointerEvent.consume() {
+    changes.fastForEach { it.consume() }
+}
+
+private val MotionEvent.isTouchAction: Boolean
+    get() =
+        when (actionMasked) {
+            MotionEvent.ACTION_DOWN,
+            MotionEvent.ACTION_POINTER_DOWN,
+            MotionEvent.ACTION_MOVE,
+            MotionEvent.ACTION_UP,
+            MotionEvent.ACTION_POINTER_UP,
+            MotionEvent.ACTION_OUTSIDE,
+            MotionEvent.ACTION_CANCEL -> true
+            else -> false
+        }
+
+private val MotionEvent.isTouchEnd: Boolean
+    get() = actionMasked == MotionEvent.ACTION_UP || actionMasked == MotionEvent.ACTION_CANCEL
 
 private inline fun MotionEvent.withOffset(
     dx: Float,
