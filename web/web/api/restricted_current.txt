@@ -1,14 +1,18 @@
 // Signature format: 5.0
-// - surface=restricted-non-atomic-group
+// - surface=restricted-atomic-group
 package androidx.web {
 
   public final class DetachedWebContentView extends androidx.web.WebContentView {
+  }
+
+  @SuppressCompatibility @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This is an internal API for androidx.web modules that may change frequently and without warning.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface InternalWebApi {
   }
 
   public final class WebContent implements java.lang.AutoCloseable {
     method @UiThread public <T extends androidx.web.WebContentView> T attach(android.content.Context context, java.util.function.Function<android.content.Context,T> factory);
     method @UiThread public void close();
     method @UiThread public void detach();
+    method @SuppressCompatibility @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.web.InternalWebApi public boolean isAttached();
   }
 
   public static final class WebContent.Builder {
@@ -30,8 +34,27 @@ package androidx.web {
   public final class WebFeature {
     method public static boolean isFeatureSupported(String feature);
     property public static String WEB_CONTENT;
+    property public static String WEB_SURFACE;
     field public static final androidx.web.WebFeature INSTANCE;
     field public static final String WEB_CONTENT = "WEB_CONTENT";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String WEB_SURFACE = "WEB_SURFACE";
+  }
+
+  @SuppressCompatibility @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.web.InternalWebApi public final class WebSurfaceChromium {
+    method public void destroy();
+    method public void draw(android.graphics.Canvas canvas);
+    method public boolean onTouchEvent(android.view.MotionEvent event);
+    method public void setSize(int width, int height);
+    method public void setWebContent(androidx.web.WebContent? content);
+    field public static final androidx.web.WebSurfaceChromium.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.web.InternalWebApi public static final class WebSurfaceChromium.Companion {
+    method @RequiresFeature(name=androidx.web.WebFeature.WEB_SURFACE, enforcement="androidx.web.WebFeature#isFeatureSupported") @UiThread public androidx.web.WebSurfaceChromium create(androidx.web.WebSurfaceChromium.InvalidateListener listener);
+  }
+
+  @SuppressCompatibility @androidx.web.InternalWebApi public static fun interface WebSurfaceChromium.InvalidateListener {
+    method public void onInvalidate();
   }
 
 }
