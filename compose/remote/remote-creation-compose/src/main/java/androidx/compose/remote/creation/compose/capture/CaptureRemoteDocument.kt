@@ -237,7 +237,7 @@ private fun captureRemoteDocumentImpl(
                 var previousBytes: ByteArray? = null
                 var emittedDocuments = 0
                 var renderedDocuments = 0
-                val rateLimiter = updateThrottle.newLimiter(timeSource)
+                val rateLimiter = updateThrottle.newLimiter(timeSource, profile.platform)
                 // A single-document capture renders once and never re-renders, so it skips the
                 // render read observation.
                 session.renderLoop(

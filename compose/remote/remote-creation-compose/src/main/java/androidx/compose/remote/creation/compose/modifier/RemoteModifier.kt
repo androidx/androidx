@@ -17,7 +17,9 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RcPlatformServices.LogCategory
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Stable
 import java.util.EnumSet
@@ -175,9 +177,10 @@ internal class CombinedRemoteModifier(
         return foldIn(RecordingModifier()) { acc, element ->
             val nonRepeatable = element.nonRepeatableType()
             if (nonRepeatable != null && !seenNonRepeatable.add(nonRepeatable)) {
-                System.err.println(
-                    "Warning: Ignoring duplicate ${element.javaClass.simpleName} ($element); " +
-                        "only the first instance is applied (b/563261712)"
+                scope.creationState.platform.log(
+                    LogCategory.WARN,
+                    "Ignoring duplicate ${element.javaClass.simpleName} ($element); " +
+                        "only the first instance is applied (b/563261712)",
                 )
                 acc
             } else if (element is DrawWithContentModifier) {

@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,7 +79,12 @@ class CaptureUpdateThrottleTest {
     }
 
     private fun TestScope.limiter(burst: Int, intervalMillis: Long): UpdateRateLimiter =
-        UpdateRateLimiter(burst, intervalMillis.milliseconds, testScheduler.timeSource)
+        UpdateRateLimiter(
+            burst,
+            intervalMillis.milliseconds,
+            testScheduler.timeSource,
+            AndroidxRcPlatformServices(),
+        )
 
     private suspend fun UpdateRateLimiter.emit() {
         awaitPermit()
@@ -86,7 +92,7 @@ class CaptureUpdateThrottleTest {
     }
 
     private fun throttleWarnings() =
-        ShadowLog.getLogsForTag("CaptureRemoteDocument").filter { it.type == Log.WARN }
+        ShadowLog.getLogsForTag("RemoteCompose").filter { it.type == Log.WARN }
 
     /** A document settling through a few quick updates must not be delayed or logged. */
     @Test

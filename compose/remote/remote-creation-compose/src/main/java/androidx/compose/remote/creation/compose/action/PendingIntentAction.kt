@@ -18,8 +18,8 @@ package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
 import android.content.Context
-import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RcPlatformServices.LogCategory
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
@@ -140,7 +140,10 @@ public class PendingIntentAction(
             }
         } else {
             if (dynamicExtras.isNotEmpty()) {
-                Log.w(TAG, "Wear widget hosts don't support PendingIntent extras, ignoring them")
+                creationState.platform.log(
+                    LogCategory.WARN,
+                    "Wear widget hosts don't support PendingIntent extras, ignoring them",
+                )
             }
             val valueId = document.addInteger(index)
             CreationHostAction(
@@ -152,15 +155,21 @@ public class PendingIntentAction(
     }
 
     /** The [extras] to encode: those with a valid key and a value only known during playback. */
-    private fun dynamicExtras(): List<Pair<String, RemoteString>> =
+    private fun RemoteStateScope.dynamicExtras(): List<Pair<String, RemoteString>> =
         extras.fastFilter { (key, value) ->
             when {
                 key.isEmpty() || key.any { it in SEPARATORS } -> {
-                    Log.w(TAG, "Ignoring PendingIntent extra with invalid key '$key'")
+                    creationState.platform.log(
+                        LogCategory.WARN,
+                        "Ignoring PendingIntent extra with invalid key '$key'",
+                    )
                     false
                 }
                 value.constantValueOrNull != null -> {
-                    Log.w(TAG, "Ignoring constant PendingIntent extra '$key', put it in the Intent")
+                    creationState.platform.log(
+                        LogCategory.WARN,
+                        "Ignoring constant PendingIntent extra '$key', put it in the Intent",
+                    )
                     false
                 }
                 else -> true
@@ -168,8 +177,6 @@ public class PendingIntentAction(
         }
 
     public companion object {
-        private const val TAG = "PendingIntentAction"
-
         // ASCII control characters, not expected in extra keys or values.
         private const val KEY_SEPARATOR = '\u001F'
         private const val VALUE_SEPARATOR = '\u001E'
