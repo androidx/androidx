@@ -138,6 +138,52 @@ public class PeriodicWorkRequest internal constructor(builder: Builder) :
         }
 
         /**
+         * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see [Builder] constructors with `flexInterval`).
+         * Sub-millisecond precision is truncated.
+         *
+         * @param workerClass The [ListenableWorker] class to run for this work
+         * @param repeatInterval The repeat interval
+         * @throws IllegalArgumentException if [repeatInterval] is infinite
+         */
+        @Suppress("ValueClassUsageFromConstructor")
+        public constructor(
+            workerClass: Class<out ListenableWorker>,
+            repeatInterval: kotlin.time.Duration,
+        ) : super(workerClass) {
+            require(repeatInterval.isFinite()) { "repeatInterval must be finite" }
+            workSpec.setPeriodic(repeatInterval.inWholeMilliseconds)
+        }
+
+        /**
+         * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see [Builder] constructors with `flexInterval`).
+         * Sub-millisecond precision is truncated.
+         *
+         * @param workerClass The [ListenableWorker] class to run for this work
+         * @param repeatInterval The repeat interval
+         * @throws IllegalArgumentException if [repeatInterval] is infinite
+         */
+        @Suppress("ValueClassUsageFromConstructor")
+        public constructor(
+            workerClass: KClass<out ListenableWorker>,
+            repeatInterval: kotlin.time.Duration,
+        ) : super(workerClass.java) {
+            require(repeatInterval.isFinite()) { "repeatInterval must be finite" }
+            workSpec.setPeriodic(repeatInterval.inWholeMilliseconds)
+        }
+
+        /**
          * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
          * every interval period. See diagram below. The flex period begins at `repeatInterval -
          * flexInterval` to the end of the interval. The repeat interval must be greater than or
@@ -259,6 +305,76 @@ public class PeriodicWorkRequest internal constructor(builder: Builder) :
             flexInterval: Duration,
         ) : super(workerClass.java) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
+        }
+
+        /**
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS]. Sub-millisecond
+         * precision is truncated.
+         *
+         *  ```
+         * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
+         * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
+         * \____________________________________/\____________________________________/...
+         * interval 1                            interval 2             ...(repeat)
+         * ```
+         *
+         * @param workerClass The [ListenableWorker] class to run for this work
+         * @param repeatInterval The repeat interval
+         * @param flexInterval The duration for which this work repeats from the end of the
+         *   `repeatInterval`
+         * @throws IllegalArgumentException if [repeatInterval] or [flexInterval] is infinite
+         */
+        @Suppress("ValueClassUsageFromConstructor")
+        public constructor(
+            workerClass: Class<out ListenableWorker>,
+            repeatInterval: kotlin.time.Duration,
+            flexInterval: kotlin.time.Duration,
+        ) : super(workerClass) {
+            require(repeatInterval.isFinite()) { "repeatInterval must be finite" }
+            require(flexInterval.isFinite()) { "flexInterval must be finite" }
+            workSpec.setPeriodic(
+                repeatInterval.inWholeMilliseconds,
+                flexInterval.inWholeMilliseconds,
+            )
+        }
+
+        /**
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS]. Sub-millisecond
+         * precision is truncated.
+         *
+         *  ```
+         * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
+         * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
+         * \____________________________________/\____________________________________/...
+         * interval 1                            interval 2             ...(repeat)
+         * ```
+         *
+         * @param workerClass The [ListenableWorker] class to run for this work
+         * @param repeatInterval The repeat interval
+         * @param flexInterval The duration for which this work repeats from the end of the
+         *   `repeatInterval`
+         * @throws IllegalArgumentException if [repeatInterval] or [flexInterval] is infinite
+         */
+        @Suppress("ValueClassUsageFromConstructor")
+        public constructor(
+            workerClass: KClass<out ListenableWorker>,
+            repeatInterval: kotlin.time.Duration,
+            flexInterval: kotlin.time.Duration,
+        ) : super(workerClass.java) {
+            require(repeatInterval.isFinite()) { "repeatInterval must be finite" }
+            require(flexInterval.isFinite()) { "flexInterval must be finite" }
+            workSpec.setPeriodic(
+                repeatInterval.inWholeMilliseconds,
+                flexInterval.inWholeMilliseconds,
+            )
         }
 
         /**
@@ -410,6 +526,32 @@ public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
 public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
     repeatInterval: Duration,
     flexTimeInterval: Duration,
+): PeriodicWorkRequest.Builder {
+    return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, flexTimeInterval)
+}
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
+ */
+@Suppress("ValueClassUsageWithoutJvmName")
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: kotlin.time.Duration
+): PeriodicWorkRequest.Builder {
+    return PeriodicWorkRequest.Builder(W::class.java, repeatInterval)
+}
+
+/**
+ * Creates a [PeriodicWorkRequest.Builder] with a given [ListenableWorker].
+ *
+ * @param repeatInterval @see [PeriodicWorkRequest.Builder]
+ * @param flexTimeInterval @see [PeriodicWorkRequest.Builder]
+ */
+@Suppress("ValueClassUsageWithoutJvmName")
+public inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
+    repeatInterval: kotlin.time.Duration,
+    flexTimeInterval: kotlin.time.Duration,
 ): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, flexTimeInterval)
 }
