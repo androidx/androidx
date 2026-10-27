@@ -376,6 +376,7 @@ WARN: Couldn't resolve JavaDoc link 'getActivityResultFunctionForIntent' in file
 WARN: Couldn't resolve JavaDoc link 'Intents\.init' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/Intents\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'intended' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'intending' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/intent\/rule\/IntentsTestRule\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'UiController' in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/base/UiControllerImpl\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'gatherAnyResult' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/InteractionResultsHandler\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'isViewIdGenerated' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'View\.VISIBLE' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/espresso\/matcher\/ViewMatchers\.java:[0-9]+:[0-9]+
@@ -403,6 +404,7 @@ WARN: Couldn't resolve JavaDoc link 'getCurrentProcessName' in file:\/\/\/\$OUT_
 WARN: Couldn't resolve JavaDoc link 'androidx\.test\.platform\.reflect\.ReflectiveMethod' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/internal\/util\/ReflectionUtil\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'sendTestNotification' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/orchestrator\/callback\/BundleConverter\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'androidx\.test\.orchestrator\.AndroidTestOrchestrator' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/orchestrator\/junit\/BundleJUnitUtils\.java:[0-9]+:[0-9]+
+WARN: Couldn't resolve JavaDoc link 'Filter' in file:///\$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/filters/SdkSuppressFilter\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'TestStorage' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/io\/PlatformTestStorageRegistry\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'forceEnableAppTracing' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/tracing\/AndroidXTracer\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'android\.viee\.inspector\.WindowInspector' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/test\/platform\/view\/inspector\/WindowInspectorCompat\.java:[0-9]+:[0-9]+
