@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
+import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -38,6 +39,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
@@ -87,11 +89,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -1181,7 +1181,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         BACKGROUND = [0.0, 0.0, 275.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
 """
         testLayout(result) {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            CompositionLocalProvider(
+                LocalRemoteLayoutDirection provides RemoteLayoutDirection.Rtl
+            ) {
                 RemoteRow(
                     modifier = RemoteModifier.fillMaxSize(),
                     horizontalArrangement = RemoteArrangement.Start,
