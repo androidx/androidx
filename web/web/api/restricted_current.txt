@@ -50,11 +50,12 @@ package androidx.web {
   }
 
   @SuppressCompatibility @androidx.web.InternalWebApi public static final class WebSurfaceChromium.Companion {
-    method @RequiresFeature(name=androidx.web.WebFeature.WEB_SURFACE, enforcement="androidx.web.WebFeature#isFeatureSupported") @UiThread public androidx.web.WebSurfaceChromium create(androidx.web.WebSurfaceChromium.InvalidateListener listener);
+    method @RequiresFeature(name=androidx.web.WebFeature.WEB_SURFACE, enforcement="androidx.web.WebFeature#isFeatureSupported") @UiThread public androidx.web.WebSurfaceChromium create(androidx.web.WebSurfaceChromium.EventListener listener);
   }
 
-  @SuppressCompatibility @androidx.web.InternalWebApi public static fun interface WebSurfaceChromium.InvalidateListener {
+  @SuppressCompatibility @androidx.web.InternalWebApi public static interface WebSurfaceChromium.EventListener {
     method public void onInvalidate();
+    method public void onOverScroll(float deltaX, float deltaY, float velocityX, float velocityY);
   }
 
 }
