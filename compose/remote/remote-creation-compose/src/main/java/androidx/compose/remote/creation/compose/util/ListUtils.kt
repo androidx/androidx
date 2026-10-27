@@ -24,6 +24,16 @@ internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 }
 
 /**
+ * Iterates through a [List] using index-based access and calls [action] with the index and element
+ * to avoid [Iterator] heap allocations.
+ */
+internal inline fun <T> List<T>.fastForEachIndexed(action: (Int, T) -> Unit) {
+    for (index in indices) {
+        action(index, get(index))
+    }
+}
+
+/**
  * Iterates through a [List] in reverse order using index-based access to avoid [Iterator] heap
  * allocations.
  */
@@ -84,4 +94,40 @@ internal inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
         if (predicate(item)) return item
     }
     return null
+}
+
+/**
+ * Creates a string from all the elements separated using [separator] and using the given [prefix]
+ * and [postfix] if supplied.
+ *
+ * If the collection could be huge, you can specify a non-negative value of [limit], in which case
+ * only the first [limit] elements will be appended, followed by the [truncated] string (which
+ * defaults to "...").
+ */
+internal fun <T> List<T>.fastJoinToString(
+    separator: CharSequence = ", ",
+    prefix: CharSequence = "",
+    postfix: CharSequence = "",
+    limit: Int = -1,
+    truncated: CharSequence = "...",
+    transform: ((T) -> CharSequence)? = null,
+): String {
+    val buffer = StringBuilder()
+    buffer.append(prefix)
+    var count = 0
+    for (index in indices) {
+        val element = get(index)
+        if (++count > 1) buffer.append(separator)
+        if (limit < 0 || count <= limit) {
+            when {
+                transform != null -> buffer.append(transform(element))
+                element is CharSequence? -> buffer.append(element)
+                element is Char -> buffer.append(element)
+                else -> buffer.append(element.toString())
+            }
+        } else break
+    }
+    if (limit >= 0 && count > limit) buffer.append(truncated)
+    buffer.append(postfix)
+    return buffer.toString()
 }
