@@ -428,8 +428,8 @@ Route documentation updates according to repository scope:
 * **Hard Size & Line Restrictions (Zero Truncation Invariant)**:
   - Keep `camera/AGENTS.md` strictly under `24,000 bytes` (`<= 450 lines`) so
     agent hosts auto-load 100% of the root rules without truncation. Never use
-    `@[label](path)` inline includes in `AGENTS.md` (they expand before the
-    24 KB limit check).
+    `@`-prefixed `[label](path)` inline includes in `AGENTS.md` (they expand
+    before the 24 KB limit check).
   - Keep every `camera/.agents/skills/*/SKILL.md` file strictly under `45,000
     bytes` and `780 lines` (`46,080 B / 800-line` single-call `read_file`
     limit) so 1 `read_file` call loads 100% of any skill file.
