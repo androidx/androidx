@@ -25,9 +25,15 @@ import androidx.build.ide.IdePlugin
 import androidx.build.ide.ManagedIdeTask
 import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
+import androidx.build.ide.registerWriteIdeaPropertiesTask
 import androidx.build.ide.writeAndroidSdkPath
 import java.io.File
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.WriteProperties
+
+/** Folder in your home dir for Studio's config and system files. */
+private const val STUDIO_DIR_NAME = ".AndroidStudioAndroidXPlatform"
 
 private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
     task.ideName.convention("Studio")
@@ -78,16 +84,17 @@ private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
     }
 }
 
-fun Project.configureRootStudioTask(task: ManagedIdeTask) {
+fun Project.configureRootStudioTask(
+    task: ManagedIdeTask,
+    writeIdeaProperties: TaskProvider<WriteProperties>,
+) {
     configureCommonStudioTask(task)
     val vmOptionsFile =
         objects.fileProperty().apply {
             set(layout.projectDirectory.file("development/studio/studio.vmoptions"))
         }
     val ideaPropertiesFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/studio/idea.properties"))
-        }
+        objects.fileProperty().apply { set(writeIdeaProperties.flatMap { it.destinationFile }) }
 
     task.configureIntellijLikeIde(
         envPrefix = "STUDIO",
@@ -121,10 +128,17 @@ fun Project.configurePlaygroundStudioTask(task: ManagedIdeTask) {
 }
 
 fun Project.registerStudioTask() {
-    tasks.register("studio", ManagedIdeTask::class.java) { task ->
-        when (ProjectLayoutType.from(this)) {
-            ProjectLayoutType.ANDROIDX -> configureRootStudioTask(task)
-            ProjectLayoutType.PLAYGROUND -> configurePlaygroundStudioTask(task)
+    when (ProjectLayoutType.from(this)) {
+        ProjectLayoutType.ANDROIDX -> {
+            val writeIdeaProperties =
+                registerWriteIdeaPropertiesTask("Studio", provider { STUDIO_DIR_NAME })
+            tasks.register("studio", ManagedIdeTask::class.java) { task ->
+                configureRootStudioTask(task, writeIdeaProperties)
+            }
         }
+        ProjectLayoutType.PLAYGROUND ->
+            tasks.register("studio", ManagedIdeTask::class.java) { task ->
+                configurePlaygroundStudioTask(task)
+            }
     }
 }
