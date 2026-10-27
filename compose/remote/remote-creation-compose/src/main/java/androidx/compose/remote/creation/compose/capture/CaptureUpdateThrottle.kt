@@ -16,8 +16,9 @@
 
 package androidx.compose.remote.creation.compose.capture
 
-import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.RcPlatformServices.LogCategory
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -47,9 +48,12 @@ public class CaptureUpdateThrottle
 private constructor(private val burst: Int, private val intervalMillis: Long) {
 
     /** Creates the per-collection limiter, or `null` if emissions are never throttled. */
-    internal fun newLimiter(timeSource: TimeSource = TimeSource.Monotonic): UpdateRateLimiter? =
+    internal fun newLimiter(
+        timeSource: TimeSource = TimeSource.Monotonic,
+        platform: RcPlatformServices = RcPlatformServices.None,
+    ): UpdateRateLimiter? =
         if (intervalMillis == 0L) null
-        else UpdateRateLimiter(burst, intervalMillis.milliseconds, timeSource)
+        else UpdateRateLimiter(burst, intervalMillis.milliseconds, timeSource, platform)
 
     public companion object {
         /**
@@ -88,8 +92,6 @@ private const val DEFAULT_INTERVAL_MILLIS = 1_000L
 /** Minimum time between throttling warnings, so throttled content does not flood the log. */
 private val THROTTLE_LOG_INTERVAL: Duration = 60.seconds
 
-private const val TAG = "CaptureRemoteDocument"
-
 /**
  * Token bucket that limits emissions of a single [captureRemoteDocument] collection. Holds up to
  * [burst] tokens, each emission uses one, and one token is earned back every [interval].
@@ -101,6 +103,7 @@ internal class UpdateRateLimiter(
     /** Time to earn back one document once the burst is used up. */
     val interval: Duration,
     private val timeSource: TimeSource,
+    private val platform: RcPlatformServices = RcPlatformServices.None,
 ) {
     private var tokens = burst
     private var refilledAt: TimeMark = timeSource.markNow()
@@ -154,8 +157,8 @@ internal class UpdateRateLimiter(
     private fun logThrottled() {
         val last = loggedAt
         if (last != null && last.elapsedNow() < THROTTLE_LOG_INTERVAL) return
-        Log.w(
-            TAG,
+        platform.log(
+            LogCategory.WARN,
             "captureRemoteDocument content is updating faster than $burst documents, then one " +
                 "every $interval; throttled $throttledSinceLog update(s). Remote documents " +
                 "should change rarely; animate with remote expressions instead of recomposition.",
