@@ -258,8 +258,8 @@ class ExtensionSessionConfigTest(
 
     @Test
     fun isSessionConfigSupported_returnsTrue_forSupportedExtension() = runBlocking {
-        val cameraInfo = cameraProvider.getCameraInfo(baseCameraSelector)
         val sessionConfig = ExtensionSessionConfig.Builder(extensionMode, extensionsManager).build()
+        val cameraInfo = cameraProvider.getCameraInfo(baseCameraSelector, sessionConfig)
 
         assertThat(cameraInfo.isSessionConfigSupported(sessionConfig)).isTrue()
     }
