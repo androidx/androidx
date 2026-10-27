@@ -17,6 +17,7 @@
 package androidx.compose.ui.samples
 
 import android.app.Activity
+import androidx.annotation.RequiresApi
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -40,6 +41,7 @@ import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.unit.dp
 
 @Sampled
+@RequiresApi(35)
 @Composable
 fun SetFrameRateCategorySample() {
     var targetAlpha by remember { mutableFloatStateOf(1f) }
