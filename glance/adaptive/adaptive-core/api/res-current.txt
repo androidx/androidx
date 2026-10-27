@@ -1,0 +1,1 @@
+integer glance_adaptive_widget_category_all_known
