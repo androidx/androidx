@@ -19,9 +19,6 @@ package androidx.text.vertical.testapp
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests the wrapped bounds of the [SubtitleCueDemo] tab in [VerticalTextSampleApp]. */
+/** Tests the wrapped bounds of [SubtitleCueDemo]. */
 @RunWith(AndroidJUnit4::class)
 class SubtitleCueDemoTest {
 
@@ -37,11 +34,9 @@ class SubtitleCueDemoTest {
 
     @Test
     @MediumTest
-    fun subtitleCueTab_wrapsHeightToContent() {
+    fun subtitleCueDemo_wrapsHeightToContent() {
         val maxHeightPx = with(rule.density) { SUBTITLE_CUE_MAX_HEIGHT.roundToPx() }
-        rule.setContent { VerticalTextSampleApp() }
-
-        rule.onNodeWithText("Subtitle Cue").performScrollTo().performClick()
+        rule.setContent { SubtitleCueDemo() }
 
         val cueSize = rule.onNodeWithTag(SUBTITLE_CUE_TEXT_TAG).fetchSemanticsNode().size
         assertThat(cueSize.width).isGreaterThan(0)
@@ -51,11 +46,9 @@ class SubtitleCueDemoTest {
 
     @Test
     @MediumTest
-    fun subtitleCueTab_horizontalCue_wrapsWidthToContent() {
+    fun subtitleCueDemo_horizontalCue_wrapsWidthToContent() {
         val maxWidthPx = with(rule.density) { SUBTITLE_CUE_MAX_WIDTH.roundToPx() }
-        rule.setContent { VerticalTextSampleApp() }
-
-        rule.onNodeWithText("Subtitle Cue").performScrollTo().performClick()
+        rule.setContent { SubtitleCueDemo() }
 
         val cueSize =
             rule
