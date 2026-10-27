@@ -91,9 +91,6 @@ import androidx.pdf.util.MathUtils
 import androidx.pdf.util.ZoomUtils
 import androidx.pdf.util.getDisplaySize
 import androidx.pdf.util.isImageSelectionAvailableInSdk
-import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_IDLE
-import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_INTERACTING
-import androidx.pdf.view.PdfView.Companion.GESTURE_STATE_SETTLING
 import androidx.pdf.view.fastscroll.FastScrollCalculator
 import androidx.pdf.view.fastscroll.FastScrollDrawer
 import androidx.pdf.view.fastscroll.FastScrollGestureDetector
@@ -335,9 +332,26 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Releases page bitmaps when the system reports memory pressure while this view's window is
-     * hidden, and fetches them again when it becomes visible.
+     * Controls whether [PdfView] releases its rendered page bitmaps when its window is no longer
+     * visible, e.g. when the app moves to the background, or retains them so content is shown
+     * immediately when the window becomes visible again.
+     *
+     * Defaults to [BACKGROUND_BITMAP_RELEASE_NONE].
+     *
+     * @throws IllegalArgumentException if set to a value other than
+     *   [BACKGROUND_BITMAP_RELEASE_NONE] or [BACKGROUND_BITMAP_RELEASE_ALL].
      */
+    @Suppress("ExperimentalPropertyAnnotation")
+    @ExperimentalPdfApi
+    @BackgroundBitmapRelease
+    public var backgroundBitmapRelease: Int = BACKGROUND_BITMAP_RELEASE_NONE
+        set(value) {
+            require(value in VALID_BACKGROUND_BITMAP_RELEASES) {
+                "Invalid background bitmap release: $value"
+            }
+            field = value
+        }
+
     private val backgroundBitmapController =
         BackgroundBitmapController(
             releaseBitmaps = { pageManager?.releaseBitmaps() },
@@ -1601,12 +1615,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         maybeUpdatePageVisibility()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         if (visibility == VISIBLE) {
             startCollectingData()
+            if (backgroundBitmapRelease == BACKGROUND_BITMAP_RELEASE_ALL) {
+                maybeUpdatePageVisibility()
+                invalidate()
+            }
         } else {
             stopCollectingData()
+            if (backgroundBitmapRelease == BACKGROUND_BITMAP_RELEASE_ALL) {
+                pageManager?.releaseBitmaps()
+                invalidate()
+            }
         }
         backgroundBitmapController.onWindowVisibilityChanged(isVisible = visibility == VISIBLE)
     }
@@ -2557,6 +2580,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     @IntDef(GESTURE_STATE_IDLE, GESTURE_STATE_INTERACTING, GESTURE_STATE_SETTLING)
     public annotation class GestureState
 
+    @OptIn(ExperimentalPdfApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(BACKGROUND_BITMAP_RELEASE_NONE, BACKGROUND_BITMAP_RELEASE_ALL)
+    public annotation class BackgroundBitmapRelease
+
     /** Adjusts the position of [PdfView] in response to gestures detected by [GestureTracker] */
     private inner class ZoomScrollGestureHandler : GestureTracker.GestureHandler() {
 
@@ -2916,6 +2945,26 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * this alignment will have no effect.
          */
         public const val VERTICAL_ALIGNMENT_CENTER: Int = 1
+
+        /**
+         * Retains rendered bitmaps when the window stops being visible, so content is shown
+         * immediately when it becomes visible again. This is the default.
+         *
+         * @see backgroundBitmapRelease
+         */
+        @ExperimentalPdfApi public const val BACKGROUND_BITMAP_RELEASE_NONE: Int = 0
+
+        /**
+         * Releases all rendered bitmaps when the window stops being visible, to minimize memory
+         * used in the background. Bitmaps are rendered again when the window becomes visible.
+         *
+         * @see backgroundBitmapRelease
+         */
+        @ExperimentalPdfApi public const val BACKGROUND_BITMAP_RELEASE_ALL: Int = 1
+
+        @OptIn(ExperimentalPdfApi::class)
+        private val VALID_BACKGROUND_BITMAP_RELEASES =
+            setOf(BACKGROUND_BITMAP_RELEASE_NONE, BACKGROUND_BITMAP_RELEASE_ALL)
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val DEFAULT_INIT_ZOOM: Float = 1.0f
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

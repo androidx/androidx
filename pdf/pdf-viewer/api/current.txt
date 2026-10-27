@@ -125,6 +125,7 @@ package androidx.pdf.view {
     method public final void addOnViewportChangedListener(androidx.pdf.view.PdfView.OnViewportChangedListener listener);
     method public final void addSelectionMenuItemPreparer(androidx.pdf.view.PdfView.SelectionMenuItemPreparer selectionMenuItemPreparer);
     method public final void clearCurrentSelection();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final int getBackgroundBitmapRelease();
     method @InaccessibleFromKotlin public final androidx.pdf.selection.Selection? getCurrentSelection();
     method @InaccessibleFromKotlin public final android.graphics.drawable.Drawable getFastScrollPageIndicatorBackgroundDrawable();
     method @InaccessibleFromKotlin public final int getFastScrollPageIndicatorMarginEnd();
@@ -152,6 +153,7 @@ package androidx.pdf.view {
     method public final void removeSelectionMenuItemPreparer(androidx.pdf.view.PdfView.SelectionMenuItemPreparer selectionMenuItemPreparer);
     method public final void scrollToPage(int pageNum);
     method public final void scrollToPosition(androidx.pdf.PdfPoint position);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final void setBackgroundBitmapRelease(int);
     method @InaccessibleFromKotlin public final void setFastScrollPageIndicatorBackgroundDrawable(android.graphics.drawable.Drawable);
     method @InaccessibleFromKotlin public final void setFastScrollPageIndicatorMarginEnd(int);
     method @InaccessibleFromKotlin public final void setFastScrollVerticalThumbDrawable(android.graphics.drawable.Drawable);
@@ -171,6 +173,7 @@ package androidx.pdf.view {
     method @InaccessibleFromKotlin public final void setZoom(float);
     method public final androidx.pdf.PdfPoint? viewToPdfPoint(android.graphics.PointF viewPoint);
     method public final androidx.pdf.PdfPoint? viewToPdfPoint(float x, float y);
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final int backgroundBitmapRelease;
     property public final androidx.pdf.selection.Selection? currentSelection;
     property public final android.graphics.drawable.Drawable fastScrollPageIndicatorBackgroundDrawable;
     property public final int fastScrollPageIndicatorMarginEnd;
@@ -189,6 +192,8 @@ package androidx.pdf.view {
     property public final int verticalPageSpacing;
     property public final int visiblePagesCount;
     property public final float zoom;
+    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BACKGROUND_BITMAP_RELEASE_ALL = 1; // 0x1
+    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BACKGROUND_BITMAP_RELEASE_NONE = 0; // 0x0
     field public static final androidx.pdf.view.PdfView.Companion Companion;
     field public static final int GESTURE_STATE_IDLE = 0; // 0x0
     field public static final int GESTURE_STATE_INTERACTING = 1; // 0x1
@@ -198,6 +203,8 @@ package androidx.pdf.view {
   }
 
   public static final class PdfView.Companion {
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BACKGROUND_BITMAP_RELEASE_ALL;
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BACKGROUND_BITMAP_RELEASE_NONE;
     property public static int GESTURE_STATE_IDLE;
     property public static int GESTURE_STATE_INTERACTING;
     property public static int GESTURE_STATE_SETTLING;
