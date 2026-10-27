@@ -1869,10 +1869,8 @@ public final class AppSearchImpl implements Closeable {
             throwIfClosedLocked();
 
             boolean shouldCheckPcc =
-                    Flags.enablePccDataEncapsulation()
-                            && callingUid != InternalVisibilityConfig.INVALID_UID
-                            && mDocumentVisibilityStoreLocked != null
-                            && PccEncapsulationUtil.isPccUid(mVisibilityCheckerLocked, callingUid);
+                    doesCallerRequirePccEnforcement(callingUid)
+                            && mDocumentVisibilityStoreLocked != null;
 
             PutDocumentRequest.Builder putRequestBuilder =
                     PutDocumentRequest.newBuilder().setPersistType(persistType);
@@ -2258,14 +2256,25 @@ public final class AppSearchImpl implements Closeable {
      * {@link AppSearchBlobHandle}. The same {@link ParcelFileDescriptor} will be returned if it is
      * not closed by caller.
      *
+     * <p>When PCC data encapsulation is enabled and {@code callingUid} is a PCC UID, blobs can only
+     * be opened for write in namespaces whose visibility was set by a PCC caller.
+     * Opening a blob for write in any other namespace fails with
+     * {@link AppSearchResult#RESULT_SECURITY_ERROR}.
+     *
      * @param packageName    The package name that owns this blob.
      * @param databaseName   The databaseName this blob resides in.
      * @param handle         The {@link AppSearchBlobHandle} represent the blob.
+     * @param callingUid     The UID of the caller, or {@link InternalVisibilityConfig#INVALID_UID}
+     *                       if it is unknown
+     * @throws AppSearchException with {@link AppSearchResult#RESULT_SECURITY_ERROR} if a PCC caller
+     *                            opens a blob in a namespace whose visibility was not set by a PCC
+     *                            caller.
      */
     public @NonNull ParcelFileDescriptor openWriteBlob(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull AppSearchBlobHandle handle,
+            int callingUid,
             CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException, IOException {
         if (mRevocableFileDescriptorStore == null) {
@@ -2284,6 +2293,21 @@ public final class AppSearchImpl implements Closeable {
             }
             throwIfClosedLocked();
             verifyCallingBlobHandle(packageName, databaseName, handle);
+            // A PCC caller can only write blobs in namespaces whose visibility was set by a PCC
+            // caller.
+            // This check must happen before an already opened fd for the handle is returned below,
+            // since that fd may have been opened by a non-PCC caller.
+            if (doesCallerRequirePccEnforcement(callingUid)
+                    && !isPccBlobNamespace(
+                            createPrefix(packageName, databaseName) + handle.getNamespace())) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_SECURITY_ERROR,
+                        "Cannot open a blob for write in namespace \""
+                                + handle.getNamespace()
+                                + "\" from a PCC caller. The visibility of the blob namespace"
+                                + " needs to be updated by sending a setBlobVisibility request"
+                                + " from the PCC caller first.");
+            }
             ParcelFileDescriptor pfd = mRevocableFileDescriptorStore
                     .getOpenedRevocableFileDescriptorForWrite(packageName, handle);
             if (pfd != null) {
@@ -2539,14 +2563,21 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>The target must be committed via {@link #commitBlob};
      *
-     * @param packageName    The package name that owns this blob.
-     * @param databaseName   The databaseName this blob resides in.
-     * @param handle         The {@link AppSearchBlobHandle} represent the blob.
+     * <p>When PCC data encapsulation is enabled, the caller's access to the blob's namespace is
+     * verified through {@code callerAccess} and the {@link VisibilityChecker}.
+     *
+     * @param packageName  The package name that owns this blob.
+     * @param databaseName The databaseName this blob resides in.
+     * @param handle       The {@link AppSearchBlobHandle} represent the blob.
+     * @param callerAccess Visibility access info of the calling app.
+     * @throws AppSearchException with {@link AppSearchResult#RESULT_NOT_FOUND} if the blob does not
+     *                            exist or the caller is not allowed to read it
      */
     public @NonNull ParcelFileDescriptor openReadBlob(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull AppSearchBlobHandle handle,
+            @NonNull CallerAccess callerAccess,
             CallStats.@Nullable Builder callStatsBuilder)
             throws AppSearchException, IOException {
         if (mRevocableFileDescriptorStore == null) {
@@ -2569,6 +2600,22 @@ public final class AppSearchImpl implements Closeable {
             mRevocableFileDescriptorStore.checkBlobStoreLimit(packageName);
             PropertyProto.BlobHandleProto blobHandleProto =
                     BlobHandleToProtoConverter.toBlobHandleProto(handle);
+            // Before PCC data encapsulation, the owning package always has access to its own
+            // blobs. With PCC data encapsulation, self-access is verified by the
+            // VisibilityChecker, which takes the namespace's writer UID into account. We are using
+            // namespace to check blob's visibility.
+            if (Flags.enablePccDataEncapsulation()
+                    && !VisibilityUtil.isSchemaSearchableByCaller(
+                            callerAccess,
+                            packageName,
+                            createPrefix(packageName, databaseName) + handle.getNamespace(),
+                            mBlobVisibilityStoreLocked,
+                            mVisibilityCheckerLocked)) {
+                // Caller doesn't have access to this namespace.
+                throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
+                        "Cannot find the blob for handle: "
+                                + blobHandleProto.getDigest().toStringUtf8());
+            }
             BlobProto result = mIcingSearchEngineLocked.openReadBlob(blobHandleProto);
             if (callStatsBuilder != null) {
                 callStatsBuilder
@@ -2829,6 +2876,36 @@ public final class AppSearchImpl implements Closeable {
             }
         }
         return nonEmptyNamespaces;
+    }
+
+    /**
+     * Returns whether PCC data encapsulation needs to be enforced for the data written by the
+     * caller with {@code callingUid}, which is the case if it is enabled and the caller is a PCC
+     * component.
+     */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    private boolean doesCallerRequirePccEnforcement(int callingUid) {
+        return Flags.enablePccDataEncapsulation()
+                && callingUid != InternalVisibilityConfig.INVALID_UID
+                && PccEncapsulationUtil.isPccUid(mVisibilityCheckerLocked, callingUid);
+    }
+
+    /**
+     * Returns whether the visibility of the given prefixed blob namespace was set by a PCC caller.
+     *
+     * <p>A blob namespace whose visibility has never been set has no visibility config, so it is
+     * not a PCC blob namespace.
+     */
+    @GuardedBy("mReadWriteLock")
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    private boolean isPccBlobNamespace(@NonNull String prefixedNamespace) {
+        if (mBlobVisibilityStoreLocked == null) {
+            return false;
+        }
+        InternalVisibilityConfig config =
+                mBlobVisibilityStoreLocked.getVisibility(prefixedNamespace);
+        return config != null
+                && PccEncapsulationUtil.isPccUid(mVisibilityCheckerLocked, config.getWriterUid());
     }
 
     /**
@@ -3105,7 +3182,9 @@ public final class AppSearchImpl implements Closeable {
 
                     resultBuilder.setSuccess(id, doc);
                 } catch (Throwable t) {
-                    // Global get
+                    // After PCC-encapsulation is enabled, this could happen with both global and
+                    // local gets (if non-PCC component of a package is trying to access its
+                    // package's PCC-written data)
                     if (callerAccess != null) {
                         // Not passing cause in AppSearchException as that violates privacy
                         // guarantees as user could differentiate between document not existing
@@ -3255,10 +3334,16 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to query group.
      *
+     * <p>When PCC data encapsulation is enabled, the schema types that the caller is not allowed to
+     * access, as verified through {@code callerAccess} and the {@link VisibilityChecker}, are
+     * excluded from the query.
+     *
      * @param packageName     The package name that is performing the query.
      * @param databaseName    The databaseName this query for.
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
+     * @param callerAccess    Visibility access info of the calling app, or {@code null} for
+     *                        internal queries that are not restricted by visibility.
      * @param queryStatsBuilder Optional builder for QueryStats.
      * @return The results of performing this search. It may contain an empty list of results if
      * no documents matched the query.
@@ -3269,6 +3354,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec,
+            @Nullable CallerAccess callerAccess,
             QueryStats.@Nullable Builder queryStatsBuilder,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
@@ -3311,6 +3397,13 @@ public final class AppSearchImpl implements Closeable {
                     new SearchSpecToProtoConverter(queryExpression, searchSpec,
                             Collections.singleton(prefix), mNamespaceCacheLocked,
                             mSchemaCacheLocked, mConfig);
+            if (callerAccess != null && Flags.enablePccDataEncapsulation()) {
+                // Before PCC data encapsulation, the owning package can always query its own
+                // documents. With PCC data encapsulation, self-access is verified by the
+                // VisibilityChecker, which takes the writer UID of each schema type into account.
+                searchSpecToProtoConverter.removeInaccessibleSchemaFilter(
+                        callerAccess, mDocumentVisibilityStoreLocked, mVisibilityCheckerLocked);
+            }
             if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
@@ -3677,10 +3770,15 @@ public final class AppSearchImpl implements Closeable {
      *
      * <p>This method belongs to query group.
      *
+     * <p>When PCC data encapsulation is enabled, the schema types that the caller is not allowed to
+     * access, as verified through {@code callerAccess} and the {@link VisibilityChecker}, are
+     * excluded when generating suggestions.
+     *
      * @param packageName               The package name that is performing the query.
      * @param databaseName              The databaseName this query for.
      * @param suggestionQueryExpression The non-empty query expression used to be completed.
      * @param searchSuggestionSpec      Spec for setting filters.
+     * @param callerAccess              Visibility access info of the calling app.
      * @return a List of {@link SearchSuggestionResult}. The returned {@link SearchSuggestionResult}
      *      are order by the number of {@link SearchResult} you could get
      *      by using that suggestion in {@link #query}.
@@ -3691,6 +3789,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull String suggestionQueryExpression,
             @NonNull SearchSuggestionSpec searchSuggestionSpec,
+            @NonNull CallerAccess callerAccess,
             CallStats.@Nullable Builder callStatsBuilder) throws AppSearchException {
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
@@ -3724,6 +3823,11 @@ public final class AppSearchImpl implements Closeable {
                             Collections.singleton(prefix),
                             mNamespaceCacheLocked,
                             mSchemaCacheLocked);
+            if (Flags.enablePccDataEncapsulation()) {
+                // Remove inaccessible schema types after verifying through the Visibility checker.
+                searchSuggestionSpecToProtoConverter.removeInaccessibleSchemaFilters(
+                        callerAccess, mDocumentVisibilityStoreLocked, mVisibilityCheckerLocked);
+            }
 
             if (searchSuggestionSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an

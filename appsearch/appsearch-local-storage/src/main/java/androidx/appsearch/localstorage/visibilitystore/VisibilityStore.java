@@ -394,6 +394,7 @@ public class VisibilityStore {
                 databaseName,
                 /*queryExpression=*/ "",
                 searchSpec,
+                /*callerAccess=*/ null,
                 /*queryStatsBuilder=*/null,
                 callStatsBuilder);
         List<GenericDocument> visibilityDocuments = new ArrayList<>();

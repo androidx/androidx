@@ -112,6 +112,7 @@ class SearchResultsImpl implements SearchResults {
                     // Normal local query, pass in specified database.
                     searchResultPage = mAppSearchImpl.query(
                             mPackageName, mDatabaseName, mQueryExpression, mSearchSpec,
+                            mSelfCallerAccess,
                             sStatsBuilder,
                             /*callStatsBuilder=*/null);
                 }

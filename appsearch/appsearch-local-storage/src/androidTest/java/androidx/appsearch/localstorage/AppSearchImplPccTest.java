@@ -29,11 +29,18 @@ import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.InternalPutDocumentResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
+import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.app.SearchResultPage;
+import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
@@ -50,6 +57,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,13 +68,17 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PCC_DATA_ENCAPSULATION)
 public class AppSearchImplPccTest {
     private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
     private static final int NON_PCC_UID = 1000;
     private static final int PCC_UID = 30000;
+    private static final UidCallerAccess NON_PCC_CALLER = new UidCallerAccess("pkg", NON_PCC_UID);
+    private static final UidCallerAccess PCC_CALLER = new UidCallerAccess("pkg", PCC_UID);
 
     @Rule
     public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
@@ -85,7 +97,20 @@ public class AppSearchImplPccTest {
                         @NonNull String packageName,
                         @NonNull String prefixedSchema,
                         @NonNull VisibilityStore visibilityStore) {
-                    return true;
+                    // Mirror the framework's read-side PCC data encapsulation rule: data written
+                    // by a PCC UID may only be read by PCC callers. Callers without a UID are
+                    // granted access.
+                    if (!(callerAccess instanceof UidCallerAccess)) {
+                        return true;
+                    }
+                    int callerUid = ((UidCallerAccess) callerAccess).getUid();
+                    InternalVisibilityConfig config = visibilityStore.getVisibility(prefixedSchema);
+                    if (config == null
+                            || config.getWriterUid() == InternalVisibilityConfig.INVALID_UID) {
+                        return true;
+                    }
+                    return !isPrivateComputeCoreUid(config.getWriterUid())
+                            || isPrivateComputeCoreUid(callerUid);
                 }
 
                 @Override
@@ -801,7 +826,7 @@ public class AppSearchImplPccTest {
 
         // PCC caller cannot put a document of SchemaA
         AppSearchBatchResult<String, InternalPutDocumentResponse> result =
-                putDocuments(PCC_UID, createDocument("id1", "SchemaA"));
+                putDocuments(PCC_UID, createDocument("id1", "SchemaA", "val"));
         assertThat(result.getSuccesses()).isEmpty();
         AppSearchResult<InternalPutDocumentResponse> failure = result.getFailures().get("id1");
         assertThat(failure.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
@@ -826,20 +851,23 @@ public class AppSearchImplPccTest {
     public void testBatchPutDocuments_pccCaller_afterPccSetSchema_succeeds() throws Exception {
         // Non-PCC caller registers SchemaA, so the PCC caller cannot put documents of it
         setSchemaTypes(NON_PCC_UID, "SchemaA");
-        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isFalse();
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA", "val")).isSuccess())
+                .isFalse();
 
         // Once the PCC caller resends the setSchema request, SchemaA is owned by PCC and the PCC
         // caller can put documents of it
         setSchemaTypes(PCC_UID, "SchemaA");
         assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
-        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isTrue();
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA", "val")).isSuccess())
+                .isTrue();
     }
 
     @Test
     public void testBatchPutDocuments_pccCaller_pccSchema_succeeds() throws Exception {
         setSchemaTypes(PCC_UID, "SchemaA");
 
-        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA")).isSuccess()).isTrue();
+        assertThat(putDocuments(PCC_UID, createDocument("id1", "SchemaA", "val")).isSuccess())
+                .isTrue();
         assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
     }
 
@@ -847,7 +875,7 @@ public class AppSearchImplPccTest {
     public void testBatchPutDocuments_nonPccCaller_nonPccSchema_succeeds() throws Exception {
         setSchemaTypes(NON_PCC_UID, "SchemaA");
 
-        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA")).isSuccess())
+        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA", "val")).isSuccess())
                 .isTrue();
         assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
     }
@@ -858,7 +886,7 @@ public class AppSearchImplPccTest {
 
         // Data can flow from non-PCC callers into PCC, so a non-PCC caller can put documents of a
         // PCC schema type. This doesn't downgrade the schema type.
-        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA")).isSuccess())
+        assertThat(putDocuments(NON_PCC_UID, createDocument("id1", "SchemaA", "val")).isSuccess())
                 .isTrue();
         assertThat(getWriterUid("SchemaA")).isEqualTo(PCC_UID);
     }
@@ -885,8 +913,8 @@ public class AppSearchImplPccTest {
         AppSearchBatchResult<String, InternalPutDocumentResponse> result =
                 putDocuments(
                         PCC_UID,
-                        createDocument("idA", "SchemaA"),
-                        createDocument("idB", "SchemaB"));
+                        createDocument("idA", "SchemaA", "val"),
+                        createDocument("idB", "SchemaB", "val"));
         assertThat(result.getSuccesses().keySet()).containsExactly("idB");
         assertThat(result.getFailures().keySet()).containsExactly("idA");
         assertThat(result.getFailures().get("idA").getResultCode())
@@ -905,9 +933,9 @@ public class AppSearchImplPccTest {
         AppSearchBatchResult<String, InternalPutDocumentResponse> result =
                 putDocuments(
                         PCC_UID,
-                        createDocument("id1", "SchemaA"),
-                        createDocument("id2", "SchemaA"),
-                        createDocument("id3", "SchemaA"));
+                        createDocument("id1", "SchemaA", "val"),
+                        createDocument("id2", "SchemaA", "val"),
+                        createDocument("id3", "SchemaA", "val"));
         assertThat(result.getSuccesses()).isEmpty();
         assertThat(result.getFailures().keySet()).containsExactly("id1", "id2", "id3");
         for (AppSearchResult<InternalPutDocumentResponse> failure :
@@ -929,7 +957,7 @@ public class AppSearchImplPccTest {
 
         // A schema type without a recorded writer is not owned by PCC
         AppSearchBatchResult<String, InternalPutDocumentResponse> result =
-                putDocuments(PCC_UID, createDocument("id1", "SchemaA"));
+                putDocuments(PCC_UID, createDocument("id1", "SchemaA", "val"));
         assertThat(result.getFailures().get("id1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
 
@@ -945,7 +973,8 @@ public class AppSearchImplPccTest {
         // PCC data encapsulation is not enforced for callers without a UID
         AppSearchBatchResult<String, InternalPutDocumentResponse> result =
                 putDocuments(
-                        InternalVisibilityConfig.INVALID_UID, createDocument("id1", "SchemaA"));
+                        InternalVisibilityConfig.INVALID_UID,
+                        createDocument("id1", "SchemaA", "val"));
         assertThat(result.isSuccess()).isTrue();
         assertThat(getWriterUid("SchemaA")).isEqualTo(NON_PCC_UID);
     }
@@ -988,7 +1017,7 @@ public class AppSearchImplPccTest {
                 .isEqualTo(NON_PCC_UID);
 
         byte[] blobData = "testData".getBytes();
-        byte[] digest = writeBlob("pkg", "db", "ns1", blobData);
+        byte[] digest = writeBlob(mAppSearchImpl, NON_PCC_UID, "pkg", "db", "ns1", blobData);
 
         // PCC caller upgrades the blob namespace
         mAppSearchImpl.setBlobNamespaceVisibility(
@@ -998,13 +1027,27 @@ public class AppSearchImplPccTest {
                 .getWriterUid())
                 .isEqualTo(PCC_UID);
 
-        // Blob is preserved
+        // Blob is preserved and readable by a PCC caller
         AppSearchBlobHandle handle =
                 AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
         try (ParcelFileDescriptor pfd =
-                mAppSearchImpl.openReadBlob("pkg", "db", handle, /* callStatsBuilder= */ null)) {
+                mAppSearchImpl.openReadBlob(
+                        "pkg", "db", handle, PCC_CALLER, /* callStatsBuilder= */ null)) {
             assertThat(pfd).isNotNull();
         }
+
+        // Once the namespace is PCC-owned, the blob is reported as not found to the non-PCC caller
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.openReadBlob(
+                                        "pkg",
+                                        "db",
+                                        handle,
+                                        NON_PCC_CALLER,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 
     @Test
@@ -1021,9 +1064,9 @@ public class AppSearchImplPccTest {
                 /* callStatsBuilder= */ null);
 
         byte[] blobData1 = "blob1".getBytes();
-        byte[] digest1 = writeBlob("pkg", "db", "ns1", blobData1);
+        byte[] digest1 = writeBlob(mAppSearchImpl, PCC_UID, "pkg", "db", "ns1", blobData1);
         byte[] blobData2 = "blob2".getBytes();
-        byte[] digest2 = writeBlob("pkg", "db", "ns2", blobData2);
+        byte[] digest2 = writeBlob(mAppSearchImpl, PCC_UID, "pkg", "db", "ns2", blobData2);
 
         AppSearchBlobHandle handle1 =
                 AppSearchBlobHandle.createWithSha256(digest1, "pkg", "db", "ns1");
@@ -1052,10 +1095,10 @@ public class AppSearchImplPccTest {
                 .isEqualTo(PCC_UID);
         try (ParcelFileDescriptor pfd1 =
                         mAppSearchImpl.openReadBlob(
-                                "pkg", "db", handle1, /* callStatsBuilder= */ null);
+                                "pkg", "db", handle1, PCC_CALLER, /* callStatsBuilder= */ null);
                 ParcelFileDescriptor pfd2 =
                         mAppSearchImpl.openReadBlob(
-                                "pkg", "db", handle2, /* callStatsBuilder= */ null)) {
+                                "pkg", "db", handle2, PCC_CALLER, /* callStatsBuilder= */ null)) {
             assertThat(pfd1).isNotNull();
             assertThat(pfd2).isNotNull();
         }
@@ -1098,26 +1141,28 @@ public class AppSearchImplPccTest {
                 NON_PCC_UID,
                 /* callStatsBuilder= */ null);
         byte[] blobNonPccData1 = "blobInNonPcc1".getBytes();
-        byte[] digestNonPcc1 = writeBlob("pkg", "db", "nsNonPcc1", blobNonPccData1);
+        byte[] digestNonPcc1 =
+                writeBlob(mAppSearchImpl, NON_PCC_UID, "pkg", "db", "nsNonPcc1", blobNonPccData1);
         AppSearchBlobHandle handleNonPcc1 =
                 AppSearchBlobHandle.createWithSha256(digestNonPcc1, "pkg", "db", "nsNonPcc1");
 
         byte[] blobNonPccData2 = "blobInNonPcc2".getBytes();
-        byte[] digestNonPcc2 = writeBlob("pkg", "db", "nsNonPcc2", blobNonPccData2);
+        byte[] digestNonPcc2 =
+                writeBlob(mAppSearchImpl, NON_PCC_UID, "pkg", "db", "nsNonPcc2", blobNonPccData2);
         AppSearchBlobHandle handleNonPcc2 =
                 AppSearchBlobHandle.createWithSha256(digestNonPcc2, "pkg", "db", "nsNonPcc2");
 
-        // 2. Write a blob in nsPcc and set PCC ownership in mBlobVisibilityStoreLocked
-        byte[] blobPccData = "blobInPcc".getBytes();
-        byte[] digestPcc = writeBlob("pkg", "db", "nsPcc", blobPccData);
-        AppSearchBlobHandle handlePcc =
-                AppSearchBlobHandle.createWithSha256(digestPcc, "pkg", "db", "nsPcc");
+        // 2. Set PCC ownership of nsPcc in mBlobVisibilityStoreLocked and write a blob in it
         mAppSearchImpl.mBlobVisibilityStoreLocked.setVisibility(
                 ImmutableList.of(
                         new InternalVisibilityConfig.Builder(prefix + "nsPcc")
                                 .setWriterUid(PCC_UID)
                                 .build()),
                 /* callStatsBuilder= */ null);
+        byte[] blobPccData = "blobInPcc".getBytes();
+        byte[] digestPcc = writeBlob(mAppSearchImpl, PCC_UID, "pkg", "db", "nsPcc", blobPccData);
+        AppSearchBlobHandle handlePcc =
+                AppSearchBlobHandle.createWithSha256(digestPcc, "pkg", "db", "nsPcc");
 
         // Verify initial state: nsPcc is PCC-owned, and the non-PCC namespaces are owned by
         // NON_PCC_UID with default (displayed-by-system) visibility.
@@ -1165,7 +1210,8 @@ public class AppSearchImplPccTest {
                 .getWriterUid())
                 .isEqualTo(PCC_UID);
         try (ParcelFileDescriptor pfdPcc =
-                mAppSearchImpl.openReadBlob("pkg", "db", handlePcc, /* callStatsBuilder= */ null)) {
+                mAppSearchImpl.openReadBlob(
+                        "pkg", "db", handlePcc, PCC_CALLER, /* callStatsBuilder= */ null)) {
             assertThat(pfdPcc).isNotNull();
         }
         assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "nsNonPcc1"))
@@ -1203,13 +1249,21 @@ public class AppSearchImplPccTest {
                 .isNotDisplayedBySystem())
                 .isTrue();
 
-        // 7. Verify Non-PCC blobs are still intact and readable
+        // 7. Verify Non-PCC blobs are still intact and readable by the non-PCC caller
         try (ParcelFileDescriptor pfd1 =
                         mAppSearchImpl.openReadBlob(
-                                "pkg", "db", handleNonPcc1, /* callStatsBuilder= */ null);
+                                "pkg",
+                                "db",
+                                handleNonPcc1,
+                                NON_PCC_CALLER,
+                                /* callStatsBuilder= */ null);
                 ParcelFileDescriptor pfd2 =
                         mAppSearchImpl.openReadBlob(
-                                "pkg", "db", handleNonPcc2, /* callStatsBuilder= */ null)) {
+                                "pkg",
+                                "db",
+                                handleNonPcc2,
+                                NON_PCC_CALLER,
+                                /* callStatsBuilder= */ null)) {
             assertThat(pfd1).isNotNull();
             assertThat(pfd2).isNotNull();
         }
@@ -1224,7 +1278,7 @@ public class AppSearchImplPccTest {
                 "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
 
         byte[] blobData = "blobToRevert".getBytes();
-        byte[] digest = writeBlob("pkg", "db", "ns1", blobData);
+        byte[] digest = writeBlob(mAppSearchImpl, PCC_UID, "pkg", "db", "ns1", blobData);
         AppSearchBlobHandle handle =
                 AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
 
@@ -1278,9 +1332,366 @@ public class AppSearchImplPccTest {
                 .isEqualTo(NON_PCC_UID);
     }
 
+    @Test
+    public void testOpenReadBlob_nonPccCaller_pccNamespace_throwsNotFound() throws Exception {
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+        byte[] digest =
+                writeBlob(mAppSearchImpl, PCC_UID, "pkg", "db", "ns1", "secretPccBlob".getBytes());
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+
+        // A blob in a PCC-written namespace is reported as not found to a non-PCC caller, exactly
+        // like a blob that does not exist, so the caller cannot tell the two cases apart.
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.openReadBlob(
+                                        "pkg",
+                                        "db",
+                                        handle,
+                                        NON_PCC_CALLER,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // PCC caller can still read the blob
+        try (ParcelFileDescriptor pfd =
+                mAppSearchImpl.openReadBlob(
+                        "pkg", "db", handle, PCC_CALLER, /* callStatsBuilder= */ null)) {
+            assertThat(pfd).isNotNull();
+        }
+    }
+
+    @Test
+    public void testOpenReadBlob_pccCaller_nonPccNamespace_succeeds() throws Exception {
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), NON_PCC_UID, /* callStatsBuilder= */ null);
+        byte[] digest =
+                writeBlob(mAppSearchImpl, NON_PCC_UID, "pkg", "db", "ns1", "appBlob".getBytes());
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+
+        // Data can flow from the app into PCC, so both the non-PCC owner and a PCC caller can
+        // read a blob in a non-PCC namespace.
+        try (ParcelFileDescriptor pfdNonPcc =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handle, NON_PCC_CALLER, /* callStatsBuilder= */ null);
+                ParcelFileDescriptor pfdPcc =
+                        mAppSearchImpl.openReadBlob(
+                                "pkg", "db", handle, PCC_CALLER, /* callStatsBuilder= */ null)) {
+            assertThat(pfdNonPcc).isNotNull();
+            assertThat(pfdPcc).isNotNull();
+        }
+    }
+
+    @Test
+    public void testOpenReadBlob_namespaceWithoutWriterUid_nonPccCaller_succeeds()
+            throws Exception {
+        // Write a blob without ever setting blob visibility, so the namespace has no recorded
+        // writerUid.
+        byte[] digest =
+                writeBlob(
+                        mAppSearchImpl,
+                        NON_PCC_UID,
+                        "pkg",
+                        "db",
+                        "ns1",
+                        "blobWithUnknownOwner".getBytes());
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+
+        try (ParcelFileDescriptor pfd =
+                mAppSearchImpl.openReadBlob(
+                        "pkg", "db", handle, NON_PCC_CALLER, /* callStatsBuilder= */ null)) {
+            assertThat(pfd).isNotNull();
+        }
+    }
+
+    @Test
+    public void testOpenReadBlob_noVisibilityChecker_pccNamespace_succeeds() throws Exception {
+        // Without a VisibilityChecker (e.g. Jetpack LocalStorage), the owning package can always
+        // read its own blobs regardless of the namespace's writerUid.
+        AppSearchImpl appSearchImpl =
+                AppSearchImpl.create(
+                        mTemporaryFolder.newFolder(),
+                        mUnlimitedConfig,
+                        new AppSearchUserPlugins.Builder()
+                                .setVisibilityChecker(/* visibilityChecker= */ null)
+                                .setRevocableFileDescriptorStore(
+                                        new JetpackRevocableFileDescriptorStore(mUnlimitedConfig))
+                                .build(),
+                        ALWAYS_OPTIMIZE);
+        try {
+            InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+            appSearchImpl.setBlobNamespaceVisibility(
+                    "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+            byte[] digest =
+                    writeBlob(
+                            appSearchImpl,
+                            NON_PCC_UID,
+                            "pkg",
+                            "db",
+                            "ns1",
+                            "secretPccBlob".getBytes());
+            AppSearchBlobHandle handle =
+                    AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+
+            try (ParcelFileDescriptor pfd =
+                    appSearchImpl.openReadBlob(
+                            "pkg", "db", handle, NON_PCC_CALLER, /* callStatsBuilder= */ null)) {
+                assertThat(pfd).isNotNull();
+            }
+        } finally {
+            appSearchImpl.close();
+        }
+    }
+
+    @Test
+    public void testOpenWriteBlobAndCommitBlob_nonPccCaller_pccNamespace_succeeds()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+
+        // Data can flow from the app into PCC, so a non-PCC caller can write and commit a blob in a
+        // PCC-written namespace. The namespace stays owned by PCC.
+        byte[] digest =
+                writeBlob(mAppSearchImpl, NON_PCC_UID, "pkg", "db", "ns1", "appBlob".getBytes());
+        AppSearchBlobHandle handle =
+                AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", "ns1");
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(PCC_UID);
+
+        // The blob is readable by a PCC caller, but not by the non-PCC caller.
+        try (ParcelFileDescriptor pfd =
+                mAppSearchImpl.openReadBlob(
+                        "pkg", "db", handle, PCC_CALLER, /* callStatsBuilder= */ null)) {
+            assertThat(pfd).isNotNull();
+        }
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.openReadBlob(
+                                        "pkg",
+                                        "db",
+                                        handle,
+                                        NON_PCC_CALLER,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
+    public void testOpenWriteBlob_pccCaller_nonPccNamespace_throwsSecurityError()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        InternalVisibilityConfig config = new InternalVisibilityConfig.Builder("ns1").build();
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), NON_PCC_UID, /* callStatsBuilder= */ null);
+
+        // A PCC caller cannot write blobs in a non-PCC namespace, even if a non-PCC caller already
+        // has the blob open, and the namespace is not implicitly upgraded to PCC ownership.
+        AppSearchBlobHandle handle = createBlobHandle("ns1", "pccBlob");
+        try (ParcelFileDescriptor nonPccPfd =
+                mAppSearchImpl.openWriteBlob(
+                        "pkg", "db", handle, NON_PCC_UID, /* callStatsBuilder= */ null)) {
+            assertThat(nonPccPfd).isNotNull();
+            AppSearchException e =
+                    assertThrows(
+                            AppSearchException.class,
+                            () ->
+                                    mAppSearchImpl.openWriteBlob(
+                                            "pkg",
+                                            "db",
+                                            handle,
+                                            PCC_UID,
+                                            /* callStatsBuilder= */ null));
+            assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        }
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1")
+                .getWriterUid())
+                .isEqualTo(NON_PCC_UID);
+
+        // Once the PCC caller updates the visibility of the namespace, it can write blobs in it.
+        mAppSearchImpl.setBlobNamespaceVisibility(
+                "pkg", "db", ImmutableList.of(config), PCC_UID, /* callStatsBuilder= */ null);
+        try (ParcelFileDescriptor pfd =
+                mAppSearchImpl.openWriteBlob(
+                        "pkg", "db", handle, PCC_UID, /* callStatsBuilder= */ null)) {
+            assertThat(pfd).isNotNull();
+        }
+    }
+
+    @Test
+    public void testOpenWriteBlob_pccCaller_namespaceWithoutWriterUid_throwsSecurityError()
+            throws Exception {
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        // Without any blob visibility set, the namespace has no recorded writerUid and is readable
+        // by non-PCC callers, so a PCC caller cannot write blobs in it.
+        AppSearchBlobHandle handle = createBlobHandle("ns1", "pccBlob");
+        AppSearchException e =
+                assertThrows(
+                        AppSearchException.class,
+                        () ->
+                                mAppSearchImpl.openWriteBlob(
+                                        "pkg",
+                                        "db",
+                                        handle,
+                                        PCC_UID,
+                                        /* callStatsBuilder= */ null));
+        assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
+        assertThat(mAppSearchImpl.mBlobVisibilityStoreLocked.getVisibility(prefix + "ns1"))
+                .isNull();
+    }
+
+    @Test
+    public void testBatchGetDocuments_localNonPccCaller_pccSchema_returnsNotFound()
+            throws Exception {
+        // Register PccType and AppType, then set PccType as PCC and AppType as non-PCC in the
+        // VisibilityStore.
+        setSchemaTypes(InternalVisibilityConfig.INVALID_UID, "PccType", "AppType");
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        mAppSearchImpl.mDocumentVisibilityStoreLocked.setVisibility(
+                ImmutableList.of(
+                        new InternalVisibilityConfig.Builder(prefix + "PccType")
+                                .setWriterUid(PCC_UID)
+                                .build(),
+                        new InternalVisibilityConfig.Builder(prefix + "AppType")
+                                .setWriterUid(NON_PCC_UID)
+                                .build()),
+                /* callStatsBuilder= */ null);
+
+        putDocuments(PCC_UID, createDocument("pccId", "PccType", "val"));
+        putDocuments(NON_PCC_UID, createDocument("appId", "AppType", "val"));
+        GetByDocumentIdRequest request =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("pccId", "appId", "missingId")
+                        .build();
+
+        // A non-PCC caller can only get the document of the non-PCC schema type.
+        AppSearchBatchResult<String, GenericDocument> result =
+                mAppSearchImpl.batchGetDocuments(
+                        "pkg",
+                        "db",
+                        request,
+                        NON_PCC_CALLER,
+                        /* callStatsBuilder= */ null);
+        assertThat(result.getSuccesses().keySet()).containsExactly("appId");
+        AppSearchResult<GenericDocument> pccResult = result.getFailures().get("pccId");
+        AppSearchResult<GenericDocument> missingResult = result.getFailures().get("missingId");
+        assertThat(pccResult.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        // The document of the PCC schema type is reported exactly like a document that does not
+        // exist, so the non-PCC caller cannot tell the two cases apart.
+        assertThat(pccResult.getErrorMessage())
+                .isEqualTo(missingResult.getErrorMessage().replace("missingId", "pccId"));
+
+        // A PCC caller can get both documents.
+        result =
+                mAppSearchImpl.batchGetDocuments(
+                        "pkg",
+                        "db",
+                        request,
+                        PCC_CALLER,
+                        /* callStatsBuilder= */ null);
+        assertThat(result.getSuccesses().keySet()).containsExactly("pccId", "appId");
+    }
+
+    @Test
+    public void testQuery_nonPccCaller_pccSchema_excludesPccDocuments() throws Exception {
+        // Register PccType and AppType, then set PccType as PCC and AppType as non-PCC in the
+        // VisibilityStore.
+        setSchemaTypes(InternalVisibilityConfig.INVALID_UID, "PccType", "AppType");
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        mAppSearchImpl.mDocumentVisibilityStoreLocked.setVisibility(
+                ImmutableList.of(
+                        new InternalVisibilityConfig.Builder(prefix + "PccType")
+                                .setWriterUid(PCC_UID)
+                                .build(),
+                        new InternalVisibilityConfig.Builder(prefix + "AppType")
+                                .setWriterUid(NON_PCC_UID)
+                                .build()),
+                /* callStatsBuilder= */ null);
+
+        putDocuments(PCC_UID, createDocument("pccId", "PccType", "val"));
+        putDocuments(NON_PCC_UID, createDocument("appId", "AppType", "val"));
+        SearchSpec allTypesSpec = new SearchSpec.Builder().build();
+        SearchSpec pccTypeSpec = new SearchSpec.Builder().addFilterSchemas("PccType").build();
+
+        // A non-PCC caller can only find the document of the non-PCC schema type.
+        assertThat(queryIds(allTypesSpec, NON_PCC_CALLER)).containsExactly("appId");
+        assertThat(queryIds(pccTypeSpec, NON_PCC_CALLER)).isEmpty();
+
+        // A PCC caller can find both documents.
+        assertThat(queryIds(allTypesSpec, PCC_CALLER)).containsExactly("pccId", "appId");
+        assertThat(queryIds(pccTypeSpec, PCC_CALLER)).containsExactly("pccId");
+
+        // Internal queries without a caller are not restricted.
+        assertThat(queryIds(allTypesSpec, /* callerAccess= */ null))
+                .containsExactly("pccId", "appId");
+    }
+
+    @Test
+    public void testSearchSuggestion_nonPccCaller_pccSchema_excludesPccDocuments()
+            throws Exception {
+        // Register PccType and AppType, then set PccType as PCC and AppType as non-PCC in the
+        // VisibilityStore.
+        setSchemaTypes(InternalVisibilityConfig.INVALID_UID, "PccType", "AppType");
+        String prefix = PrefixUtil.createPrefix("pkg", "db");
+        mAppSearchImpl.mDocumentVisibilityStoreLocked.setVisibility(
+                ImmutableList.of(
+                        new InternalVisibilityConfig.Builder(prefix + "PccType")
+                                .setWriterUid(PCC_UID)
+                                .build(),
+                        new InternalVisibilityConfig.Builder(prefix + "AppType")
+                                .setWriterUid(NON_PCC_UID)
+                                .build()),
+                /* callStatsBuilder= */ null);
+
+        putDocuments(PCC_UID, createDocument("pccId", "PccType", "pccterm"));
+        putDocuments(NON_PCC_UID, createDocument("appId", "AppType", "appterm"));
+        SearchSuggestionSpec allTypesSpec =
+                new SearchSuggestionSpec.Builder(/* maximumResultCount= */ 10).build();
+        SearchSuggestionSpec pccTypeSpec =
+                new SearchSuggestionSpec.Builder(/* maximumResultCount= */ 10)
+                        .addFilterSchemas("PccType")
+                        .build();
+
+        // A non-PCC caller doesn't get suggestions from the document of the PCC schema type.
+        assertThat(suggest("pcc", allTypesSpec, NON_PCC_CALLER)).isEmpty();
+        assertThat(suggest("app", allTypesSpec, NON_PCC_CALLER)).containsExactly("appterm");
+        // The only schema type in the filter is inaccessible, so no request is sent to Icing. An
+        // empty schema type filter would search all schema types instead.
+        CallStats.Builder nonPccCallStats = new CallStats.Builder();
+        List<SearchSuggestionResult> nonPccResults =
+                mAppSearchImpl.searchSuggestion(
+                        "pkg", "db", "pcc", pccTypeSpec, NON_PCC_CALLER, nonPccCallStats);
+        assertThat(nonPccResults).isEmpty();
+        assertThat(nonPccCallStats.build().getIcingSearchEngineRequestBytes()).isEqualTo(0);
+
+        // A PCC caller gets suggestions from both documents.
+        assertThat(suggest("pcc", allTypesSpec, PCC_CALLER)).containsExactly("pccterm");
+        assertThat(suggest("app", allTypesSpec, PCC_CALLER)).containsExactly("appterm");
+        // The PCC schema type is accessible to the PCC caller, so the request is sent to Icing.
+        CallStats.Builder pccCallStats = new CallStats.Builder();
+        List<SearchSuggestionResult> pccResults =
+                mAppSearchImpl.searchSuggestion(
+                        "pkg", "db", "pcc", pccTypeSpec, PCC_CALLER, pccCallStats);
+        assertThat(pccResults)
+                .containsExactly(
+                        new SearchSuggestionResult.Builder()
+                                .setSuggestedResult("pccterm")
+                                .build());
+        assertThat(pccCallStats.build().getIcingSearchEngineRequestBytes()).isGreaterThan(0);
+    }
+
     /**
-     * Sets the given schema types, each with a single string property "prop", in database "db" of
-     * package "pkg" as the caller with {@code callingUid}.
+     * Sets the given schema types, each with a single indexed string property "prop", in database
+     * "db" of package "pkg" as the caller with {@code callingUid}.
      */
     private void setSchemaTypes(int callingUid, String... schemaTypes) throws Exception {
         ImmutableList.Builder<AppSearchSchema> schemas = ImmutableList.builder();
@@ -1290,6 +1701,12 @@ public class AppSearchImplPccTest {
                             .addProperty(
                                     new AppSearchSchema.StringPropertyConfig.Builder("prop")
                                             .setCardinality(CARDINALITY_OPTIONAL)
+                                            .setIndexingType(
+                                                    AppSearchSchema.StringPropertyConfig
+                                                            .INDEXING_TYPE_PREFIXES)
+                                            .setTokenizerType(
+                                                    AppSearchSchema.StringPropertyConfig
+                                                            .TOKENIZER_TYPE_PLAIN)
                                             .build())
                             .build());
         }
@@ -1329,9 +1746,9 @@ public class AppSearchImplPccTest {
         return resultBuilder.build();
     }
 
-    private static GenericDocument createDocument(String id, String schemaType) {
+    private static GenericDocument createDocument(String id, String schemaType, String value) {
         return new GenericDocument.Builder<>("namespace", id, schemaType)
-                .setPropertyString("prop", "val")
+                .setPropertyString("prop", value)
                 .build();
     }
 
@@ -1342,21 +1759,95 @@ public class AppSearchImplPccTest {
                 .getWriterUid();
     }
 
-    private byte[] writeBlob(String packageName, String databaseName, String namespace, byte[] data)
+    /** Returns the IDs of all documents in database "db" of package "pkg" found by the caller. */
+    private List<String> queryIds(SearchSpec searchSpec, @Nullable CallerAccess callerAccess)
+            throws Exception {
+        SearchResultPage searchResultPage =
+                mAppSearchImpl.query(
+                        "pkg",
+                        "db",
+                        /* queryExpression= */ "",
+                        searchSpec,
+                        callerAccess,
+                        /* queryStatsBuilder= */ null,
+                        /* callStatsBuilder= */ null);
+        List<String> ids = new ArrayList<>();
+        for (SearchResult searchResult : searchResultPage.getResults()) {
+            ids.add(searchResult.getGenericDocument().getId());
+        }
+        return ids;
+    }
+
+    /** Returns the suggestions for the prefix in database "db" of package "pkg" for the caller. */
+    private List<String> suggest(
+            String prefix, SearchSuggestionSpec searchSuggestionSpec, CallerAccess callerAccess)
+            throws Exception {
+        List<SearchSuggestionResult> searchSuggestionResults =
+                mAppSearchImpl.searchSuggestion(
+                        "pkg",
+                        "db",
+                        prefix,
+                        searchSuggestionSpec,
+                        callerAccess,
+                        /* callStatsBuilder= */ null);
+        List<String> suggestions = new ArrayList<>();
+        for (SearchSuggestionResult searchSuggestionResult : searchSuggestionResults) {
+            suggestions.add(searchSuggestionResult.getSuggestedResult());
+        }
+        return suggestions;
+    }
+
+    /** Creates a blob handle in database "db" of package "pkg" for the given content. */
+    private static AppSearchBlobHandle createBlobHandle(String namespace, String content)
+            throws Exception {
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(content.getBytes());
+        return AppSearchBlobHandle.createWithSha256(digest, "pkg", "db", namespace);
+    }
+
+    /** Writes and commits a blob as the caller with {@code callingUid}. */
+    private static byte[] writeBlob(
+            AppSearchImpl appSearchImpl,
+            int callingUid,
+            String packageName,
+            String databaseName,
+            String namespace,
+            byte[] data)
             throws Exception {
         byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
         AppSearchBlobHandle handle =
                 AppSearchBlobHandle.createWithSha256(
                         digest, packageName, databaseName, namespace);
         try (ParcelFileDescriptor pfd =
-                        mAppSearchImpl.openWriteBlob(
-                                packageName, databaseName, handle, /* callStatsBuilder= */ null);
+                        appSearchImpl.openWriteBlob(
+                                packageName,
+                                databaseName,
+                                handle,
+                                callingUid,
+                                /* callStatsBuilder= */ null);
                 FileOutputStream outputStream =
                         new ParcelFileDescriptor.AutoCloseOutputStream(pfd)) {
             outputStream.write(data);
             outputStream.flush();
         }
-        mAppSearchImpl.commitBlob(packageName, databaseName, handle, /* callStatsBuilder= */ null);
+        appSearchImpl.commitBlob(packageName, databaseName, handle, /* callStatsBuilder= */ null);
         return digest;
+    }
+
+    /**
+     * A {@link CallerAccess} that also carries the caller's UID, mirroring framework's
+     * FrameworkCallerAccess, so the test {@link VisibilityChecker} can apply PCC data encapsulation
+     * rules to reads.
+     */
+    private static final class UidCallerAccess extends CallerAccess {
+        private final int mUid;
+
+        UidCallerAccess(@NonNull String callingPackageName, int uid) {
+            super(callingPackageName);
+            mUid = uid;
+        }
+
+        int getUid() {
+            return mUid;
+        }
     }
 }

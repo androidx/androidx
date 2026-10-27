@@ -110,6 +110,7 @@ class AppSearchMigrationHelper implements Closeable {
                             .addFilterSchemas(migrators.keySet())
                             .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                             .build(),
+                    /*callerAccess=*/ null,
                     /*queryStatsBuilder=*/ null,
                     /*callStatsBuilder=*/null);
             while (!searchResultPage.getResults().isEmpty()) {

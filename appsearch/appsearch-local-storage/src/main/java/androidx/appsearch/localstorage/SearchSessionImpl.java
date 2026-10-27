@@ -463,6 +463,10 @@ class SearchSessionImpl implements AppSearchSession {
                     // to compare with given handle to reduce code export delta.
                     ParcelFileDescriptor pfd =
                             mAppSearchImpl.openWriteBlob(mPackageName, mDatabaseName, handle,
+                                    // UID enforcement and PCC only applies to platform-storage
+                                    // and GMS-storage, so calling this with INVALID_UID is
+                                    // valid here for local-storage.
+                                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                                     /*callStatsBuilder=*/null);
                     resultBuilder.setSuccess(handle, pfd);
                 } catch (Throwable t) {
@@ -536,7 +540,7 @@ class SearchSessionImpl implements AppSearchSession {
                     // to compare with given handle to reduce code export delta.
                     ParcelFileDescriptor pfd =
                             mAppSearchImpl.openReadBlob(mPackageName, mDatabaseName, handle,
-                                    /*callStatsBuilder=*/null);
+                                    mSelfCallerAccess, /*callStatsBuilder=*/null);
                     resultBuilder.setSuccess(handle, pfd);
                 } catch (Throwable t) {
                     resultBuilder.setResult(handle, throwableToFailedResult(t));
@@ -598,6 +602,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mDatabaseName,
                 suggestionQueryExpression,
                 searchSuggestionSpec,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null));
     }
 

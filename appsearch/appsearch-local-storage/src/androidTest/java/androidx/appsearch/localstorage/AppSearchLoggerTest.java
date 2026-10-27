@@ -1097,7 +1097,7 @@ public class AppSearchLoggerTest {
                 new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, testPackageName)
                         .setDatabase(testDatabase);
         SearchResultPage searchResultPage = mAppSearchImpl.query(testPackageName, testDatabase,
-                queryStr, searchSpec, queryStatsBuilder,
+                queryStr, searchSpec, /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
         assertThat(searchResultPage.getResults()).hasSize(2);
@@ -1168,7 +1168,7 @@ public class AppSearchLoggerTest {
         mAppSearchImpl.query(testPackageName,
                 testPackageName,
                 /* queryExpression= */ "",
-                searchSpec, queryStatsBuilder,
+                searchSpec, /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
         QueryStats sStats = queryStatsBuilder.build();
@@ -1313,7 +1313,7 @@ public class AppSearchLoggerTest {
                 new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, testPackageName)
                         .setDatabase(testDatabase);
         SearchResultPage searchResultPage = mAppSearchImpl.query(testPackageName, testDatabase,
-                queryStr, searchSpec, queryStatsBuilder,
+                queryStr, searchSpec, /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
 
         assertThat(searchResultPage.getResults()).hasSize(2);
