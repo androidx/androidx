@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
@@ -88,6 +89,11 @@ class RemoteOneHandedGestureClickIndicatorTest {
     }
 
     @Test
+    fun clickIndicator_peakGesture_mirrored() {
+        verifyIndicatorAt(progress = 0.5f, mirrored = true)
+    }
+
+    @Test
     fun clickIndicator_exiting() {
         verifyIndicatorAt(progress = 0.8f)
     }
@@ -124,14 +130,17 @@ class RemoteOneHandedGestureClickIndicatorTest {
         }
     }
 
-    private fun verifyIndicatorAt(progress: Float) {
+    private fun verifyIndicatorAt(progress: Float, mirrored: Boolean = false) {
         remoteComposeTestRule.runScreenshotTest(
             profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = buttonCreationDisplayInfo,
         ) {
             ComponentContainer {
                 RemoteButton(onClick = testAction) {
-                    RemoteOneHandedGestureClickIndicator(hintProgress = progress.rf) {
+                    RemoteOneHandedGestureClickIndicator(
+                        hintProgress = progress.rf,
+                        mirrored = mirrored.rb,
+                    ) {
                         RemoteText("Click Me".rs)
                     }
                 }
