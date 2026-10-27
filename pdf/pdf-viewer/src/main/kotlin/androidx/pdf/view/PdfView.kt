@@ -335,6 +335,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
+     * Releases page bitmaps when the system reports memory pressure while this view's window is
+     * hidden, and fetches them again when it becomes visible.
+     */
+    private val backgroundBitmapController =
+        BackgroundBitmapController(
+            releaseBitmaps = { pageManager?.releaseBitmaps() },
+            restoreBitmaps = {
+                maybeUpdatePageVisibility()
+                invalidate()
+            },
+        )
+
+    private var registeredContext: Context? = null
+
+    /**
      * The maximum scaling factor that can be applied to this View using the [zoom] property. This
      * value is a multiplier relative to the content's natural size, where '1.0' represents 100%
      * (1x) zoom (similarly '2.5' represents 250% (2.5x) zoom).
@@ -1580,6 +1595,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         accessibilityManager.addAccessibilityStateChangeListener(accessibilityStateChangeHandler)
         formWidgetInteractionHandler?.interactionListener = pdfAutofillHandler?.interactionListener
+        registeredContext = context.applicationContext ?: context
+        registeredContext?.registerComponentCallbacks(backgroundBitmapController)
         // PageManager is being reset on onDetachToWindow we should make sure we set it back.
         maybeUpdatePageVisibility()
     }
@@ -1591,6 +1608,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         } else {
             stopCollectingData()
         }
+        backgroundBitmapController.onWindowVisibilityChanged(isVisible = visibility == VISIBLE)
     }
 
     override fun onDetachedFromWindow() {
@@ -1599,6 +1617,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         onSelectionUiSignal(SelectionUiSignal.ToggleActionMode(show = false))
         awaitingFirstLayout = true
         pageManager?.cleanup()
+        registeredContext?.unregisterComponentCallbacks(backgroundBitmapController)
+        backgroundBitmapController.reset()
 
         pdfDocument?.removeOnPdfContentInvalidatedListener(onPdfContentInvalidatedListener)
         accessibilityManager.removeAccessibilityStateChangeListener(accessibilityStateChangeHandler)

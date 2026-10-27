@@ -209,15 +209,17 @@ internal class Page(
         bitmapFetcher?.discardAndCancelTileBitmaps()
     }
 
+    // Releases all bitmaps held for this page and cancels any ongoing bitmap fetch.
+    fun releaseBitmaps() {
+        val fetcher = bitmapFetcher ?: return
+        onBitmapCleared(pageNum)
+        fetcher.close()
+        bitmapFetcher = null
+    }
+
     /** Puts this page into an "invisible" state, i.e. retaining only the minimum data required */
     fun setInvisible() {
-        if (bitmapFetcher != null) {
-            // Bitmaps are managed by BitmapFetcher; only signal clearing if it was active for this
-            // page.
-            onBitmapCleared(pageNum)
-        }
-        bitmapFetcher?.close()
-        bitmapFetcher = null
+        releaseBitmaps()
         pageText = null
         ocrText = null
         fetchTextJob?.cancel()

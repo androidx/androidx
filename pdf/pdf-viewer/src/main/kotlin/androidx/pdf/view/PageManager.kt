@@ -295,6 +295,16 @@ internal class PageManager(
         }
     }
 
+    /**
+     * Releases all [Page] bitmaps to save memory while hidden; they are fetched again by
+     * [updatePageVisibilities].
+     */
+    fun releaseBitmaps() {
+        for (page in pages.valueIterator()) {
+            page.releaseBitmaps()
+        }
+    }
+
     fun getPageLinks(pageNum: Int): PdfDocument.PdfPageLinks? {
         return pages[pageNum]?.links
     }
