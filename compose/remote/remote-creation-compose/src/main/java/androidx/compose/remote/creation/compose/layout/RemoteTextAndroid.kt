@@ -19,14 +19,11 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
@@ -34,10 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
@@ -98,54 +92,5 @@ public fun RemoteText(
         style = style,
         fontFeatureSettings = fontFeatureSettings,
         fontVariationSettings = fontVariationSettings,
-    )
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
-public fun RemoteText(
-    text: RemoteString,
-    color: RemoteColor,
-    fontSize: RemoteTextUnit,
-    modifier: RemoteModifier = RemoteModifier,
-    minFontSize: Float? = null,
-    maxFontSize: Float? = null,
-    fontStyle: FontStyle = FontStyle.Normal,
-    fontWeight: RemoteFloat = 400.rf,
-    textAlign: TextAlign = TextAlign.Start,
-    fontFamily: String? = null,
-    overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    letterSpacing: RemoteFloat = 0f.rf,
-    lineHeightAdd: Float? = null,
-    lineHeightMultiply: RemoteFloat = 1f.rf,
-    lineBreak: LineBreak = LineBreak.Unspecified,
-    hyphens: Hyphens = Hyphens.Unspecified,
-    textDecoration: TextDecoration? = null,
-    fontVariationSettings: FontVariation.Settings? = null,
-    fontFeatureSettings: String? = null,
-) {
-    RemoteText(
-        text = text,
-        color = color,
-        fontSize = fontSize,
-        modifier = modifier,
-        minFontSize = minFontSize,
-        maxFontSize = maxFontSize,
-        fontStyle = fontStyle.toRemoteFontStyle(),
-        fontWeight = fontWeight,
-        textAlign = textAlign.toRemoteTextAlign(),
-        fontFamily = fontFamily,
-        overflow = overflow.toRemoteTextOverflow(),
-        maxLines = maxLines,
-        letterSpacing = letterSpacing,
-        lineHeightAdd = lineHeightAdd,
-        lineHeightMultiply = lineHeightMultiply,
-        lineBreak = lineBreak.toRemoteLineBreak(),
-        hyphens = hyphens.toRemoteHyphens(),
-        textDecoration = textDecoration?.toRemoteTextDecoration(),
-        fontVariationSettings = fontVariationSettings,
-        fontFeatureSettings = fontFeatureSettings,
     )
 }
