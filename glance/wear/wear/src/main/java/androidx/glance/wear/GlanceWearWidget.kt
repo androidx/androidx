@@ -293,46 +293,8 @@ internal constructor(
     internal open suspend fun fetchActiveWidgets(context: Context): List<ActiveWearWidgetHandle> =
         GlanceWearWidgetManager(context).fetchActiveWidgets(this::class)
 
-    public companion object {
+    internal companion object {
         private const val TAG = "GlanceWearWidget"
-
-        /**
-         * Category for widget provider configuration activities.
-         *
-         * The configuration activity launched for configuring a widget provider must specify this
-         * category in its intent filter.
-         *
-         * For example, in `AndroidManifest.xml`:
-         * ```xml
-         * <activity
-         *     android:name=".ProviderConfigurationActivity"
-         *     android:exported="true">
-         *     <intent-filter>
-         *         <action android:name="com.example.ACTION_CONFIGURE_WIDGET" />
-         *         <category android:name="com.google.android.clockwork.tiles.category.PROVIDER_CONFIG" />
-         *         <category android:name="android.intent.category.DEFAULT" />
-         *     </intent-filter>
-         * </activity>
-         * ```
-         */
-        public const val CATEGORY_PROVIDER_CONFIG: String =
-            "com.google.android.clockwork.tiles.category.PROVIDER_CONFIG"
-
-        /**
-         * Intent extra used to supply the widget instance ID ([Int], matching
-         * [WidgetInstanceId.id]) to a widget provider configuration activity.
-         */
-        @SuppressLint("ActionValue")
-        public const val EXTRA_CONFIG_WIDGET_ID: String =
-            "com.google.android.clockwork.EXTRA_PROVIDER_CONFIG_TILE_ID"
-
-        /**
-         * Intent extra used to supply the widget provider [ComponentName] (the
-         * [GlanceWearWidgetService]) to a widget provider configuration activity.
-         */
-        @SuppressLint("ActionValue")
-        public const val EXTRA_CONFIG_PROVIDER_COMPONENT: String =
-            "com.google.android.clockwork.EXTRA_CONFIG_PROVIDER_COMPONENT"
 
         private fun Context.isDebuggableBuild(): Boolean =
             (this.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
