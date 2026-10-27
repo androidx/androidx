@@ -18,8 +18,6 @@ package androidx.web
 
 import android.graphics.Canvas
 import android.view.MotionEvent
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import androidx.annotation.RequiresFeature
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -27,22 +25,39 @@ import androidx.web.WebGlueCommunicator.asProxy
 import java.util.function.BiConsumer
 import org.chromium.support_lib_boundary.web.WebSurfaceBoundaryInterface
 import org.chromium.support_lib_boundary.web.WebSurfaceEvent
+import org.chromium.support_lib_boundary.web.util.WebSurfaceEventPacker
 
 /** Internal adapter wrapping the Chromium [WebSurfaceBoundaryInterface]. */
 @InternalWebApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WebSurfaceChromium
 private constructor(private val boundary: WebSurfaceBoundaryInterface) {
-    public fun interface InvalidateListener {
+    public interface EventListener {
         public fun onInvalidate()
+
+        public fun onOverScroll(deltaX: Float, deltaY: Float, velocityX: Float, velocityY: Float)
     }
 
-    public fun setWebContent(@Nullable content: WebContent?) {
+    internal class EventListenerAdapter(private val listener: EventListener) :
+        BiConsumer<@WebSurfaceEvent Int, Any?> {
+        override fun accept(event: @WebSurfaceEvent Int, payload: Any?) {
+            when (event) {
+                WebSurfaceEvent.INVALIDATE -> listener.onInvalidate()
+                WebSurfaceEvent.OVER_SCROLL -> {
+                    val (deltaX, deltaY, velocityX, velocityY) =
+                        WebSurfaceEventPacker.unpackOverScroll(requireNotNull(payload))
+                    listener.onOverScroll(deltaX, deltaY, velocityX, velocityY)
+                }
+            }
+        }
+    }
+
+    public fun setWebContent(content: WebContent?) {
         val handler = content?.getInvocationHandler()
         boundary.setWebContent(handler)
     }
 
-    public fun draw(@NonNull canvas: Canvas) {
+    public fun draw(canvas: Canvas) {
         boundary.draw(canvas)
     }
 
@@ -50,7 +65,7 @@ private constructor(private val boundary: WebSurfaceBoundaryInterface) {
         boundary.setSize(width, height)
     }
 
-    public fun onTouchEvent(@NonNull event: MotionEvent): Boolean {
+    public fun onTouchEvent(event: MotionEvent): Boolean {
         return boundary.onTouchEvent(event)
     }
 
@@ -64,18 +79,11 @@ private constructor(private val boundary: WebSurfaceBoundaryInterface) {
             name = WebFeature.WEB_SURFACE,
             enforcement = "androidx.web.WebFeature#isFeatureSupported",
         )
-        @NonNull
-        public fun create(@NonNull listener: InvalidateListener): WebSurfaceChromium {
+        public fun create(listener: EventListener): WebSurfaceChromium {
             WebFeature.checkSupported(WebFeature.WEB_SURFACE)
-            val eventListener =
-                BiConsumer<@WebSurfaceEvent Int, Any?> { event, _ ->
-                    when (event) {
-                        WebSurfaceEvent.INVALIDATE -> listener.onInvalidate()
-                    }
-                }
             val boundary =
                 WebGlueCommunicator.factory
-                    .createWebSurface(eventListener)
+                    .createWebSurface(EventListenerAdapter(listener))
                     .asProxy<WebSurfaceBoundaryInterface>()
             return WebSurfaceChromium(boundary)
         }
