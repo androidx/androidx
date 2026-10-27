@@ -103,6 +103,7 @@ dependencies {
     implementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
+        exclude(group:"androidx.test.espresso", module:"espresso-core")
         // Exclude JUnit to avoid R8 errors in release builds.
         exclude(group: "junit", module: "junit")
         // Exclude Truth to avoid R8 errors in release builds.

@@ -31,7 +31,7 @@ dependencies {
     api(project(":xr:projected:projected"))
 
     implementation(libs.junit)
-    implementation(libs.testCoreKtx)
+    implementation("androidx.test:core-ktx:1.7.0")
     implementation(libs.robolectric)
     implementation(libs.mockitoCore4)
     implementation(libs.mockitoKotlin4)

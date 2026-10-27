@@ -53,7 +53,7 @@ androidXMultiplatform {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.testCore)
+            implementation("androidx.test:core:1.7.0")
         }
 
         androidDeviceTest.dependencies {
