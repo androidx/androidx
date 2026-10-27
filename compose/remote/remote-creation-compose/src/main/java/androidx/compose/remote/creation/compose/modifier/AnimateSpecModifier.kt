@@ -286,40 +286,6 @@ public fun RemoteModifier.animationSpec(
 public fun RemoteModifier.animationSpec(enabled: Boolean): RemoteModifier =
     animationSpec(animationId = -1, enabled = enabled)
 
-/** Applies an animation specification to a component using explicit durations and easing types. */
-@Deprecated(
-    "Use sharedElement, animateEnterExit, or animationSpec taking RemoteAnimationSpec instead",
-    ReplaceWith(
-        "sharedElement(key = animationId, spec = remoteTween(motionDuration.toInt()))",
-        "androidx.compose.remote.creation.compose.state.remoteTween",
-    ),
-)
-public fun RemoteModifier.animationSpec(
-    animationId: Int = -1,
-    motionDuration: Float = 300f,
-    motionEasingType: Int = GeneralEasing.CUBIC_STANDARD,
-    visibilityDuration: Float = motionDuration,
-    visibilityEasingType: Int = motionEasingType,
-    enterAnimation: ANIMATION = ANIMATION.FADE_IN,
-    exitAnimation: ANIMATION = ANIMATION.FADE_OUT,
-    enabled: Boolean = true,
-): RemoteModifier {
-    val id = if (enabled) animationId else 0
-    return then(
-        AnimateSpecModifier(
-            animationId = id,
-            motionDuration = motionDuration,
-            motionEasingType = motionEasingType,
-            visibilityDuration = visibilityDuration,
-            visibilityEasingType = visibilityEasingType,
-            enterAnimation = enterAnimation,
-            exitAnimation = exitAnimation,
-            enterFunctionId = -1,
-            exitFunctionId = -1,
-        )
-    )
-}
-
 /** Applies an animation specification to match elements for shared transitions across states. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
