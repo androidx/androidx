@@ -22,6 +22,7 @@ import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.config.CameraScope
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
@@ -31,7 +32,9 @@ import dagger.Module
 import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.launch
 
 @CameraScope
 public class State3AControl
@@ -99,9 +102,12 @@ constructor(
         return update()
     }
 
-    public fun setTryExternalFlashAeModeAsync(value: Boolean): Deferred<Unit> {
+    public fun setTryExternalFlashAeModeAsync(
+        value: Boolean,
+        session: CameraGraph.Session? = null,
+    ): Deferred<Unit> {
         synchronized(lock) { _tryExternalFlashAeMode = value }
-        return update()
+        return update(session)
     }
 
     public fun setPreferredAeModeAsync(value: Int?): Deferred<Unit> {
@@ -109,14 +115,20 @@ constructor(
         return update()
     }
 
-    public fun setPreferredTorchAeModeAsync(value: Int?): Deferred<Unit> {
+    public fun setPreferredTorchAeModeAsync(
+        value: Int?,
+        session: CameraGraph.Session? = null,
+    ): Deferred<Unit> {
         synchronized(lock) { _preferredTorchAeMode = value }
-        return update()
+        return update(session)
     }
 
-    public fun setPreferredLowLightBoostAeModeAsync(value: Int?): Deferred<Unit> {
+    public fun setPreferredLowLightBoostAeModeAsync(
+        value: Int?,
+        session: CameraGraph.Session? = null,
+    ): Deferred<Unit> {
         synchronized(lock) { _preferredLowLightBoostAeMode = value }
-        return update()
+        return update(session)
     }
 
     public fun setPreferredFocusModeAsync(value: Int?): Deferred<Unit> {
@@ -177,7 +189,7 @@ constructor(
      * Enqueues an update task to the sequential scope. Returns a Deferred that completes when the
      * camera parameters are successfully proceeded.
      */
-    private fun update(): Deferred<Unit> {
+    private fun update(session: CameraGraph.Session? = null): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
         val revision: Long
 
@@ -186,7 +198,13 @@ constructor(
             revision = ++currentRevision
         }
 
-        threads.confineLaunch { applyUpdate(revision) }
+        val start =
+            if (session != null) {
+                CoroutineStart.UNDISPATCHED
+            } else {
+                CoroutineStart.DEFAULT
+            }
+        threads.sequentialScope.launch(start = start) { applyUpdate(revision, session) }
 
         return signal
     }
@@ -195,7 +213,7 @@ constructor(
      * Calculates the 3A parameters based on the *current* state snapshot and submits them. Must be
      * called from the sequentialScope.
      */
-    private fun applyUpdate(myRevision: Long) {
+    private fun applyUpdate(myRevision: Long, session: CameraGraph.Session? = null) {
         val control = requestControl
 
         if (control == null) {
@@ -203,16 +221,16 @@ constructor(
             return
         }
 
-        // If a newer update has been requested since we started, we skip the camera work.
-        // We do NOT fail the signals; we leave them in the list for the newer job to complete.
-        val isLatest = synchronized(lock) { myRevision == currentRevision }
-
-        if (!isLatest) {
-            return
-        }
-
+        // If a newer update has been requested since we started and we are not executing
+        // immediately on a caller-provided session, we skip the camera work and leave the
+        // signals in the list for the newer job to complete. When a session is provided, we
+        // must submit the latest state on that session immediately because any queued
+        // non-session update will block waiting to acquire the session.
         val snapshot =
             synchronized(lock) {
+                if (session == null && myRevision != currentRevision) {
+                    return
+                }
                 StateSnapshot(
                     flashMode = _flashMode,
                     template = _template,
@@ -246,7 +264,7 @@ constructor(
             )
 
         try {
-            val signal = control.submitParameters(values = parameters)
+            val signal = control.submitParameters(values = parameters, session = session)
 
             val signalsToComplete = synchronized(lock) { pendingSignals.toList() }
 
