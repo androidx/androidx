@@ -31,10 +31,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -120,6 +123,12 @@ private val statusBarSuppressionScreens =
         Screen.SuppressStatusBarLeaf,
         Screen.CustomSuppressStatusBarOutOfScaffold,
         Screen.PagerWithSuppression,
+    )
+
+private val windowInsetsConsumptionScreens =
+    listOf(
+        Screen.StaticColumnInsetsComparison,
+        Screen.NestedInsetsDoublePaddingDemo,
     )
 
 /** AppScaffold-level TimeText choices. */
@@ -650,6 +659,37 @@ fun MenuScreen(onNavigateTo: (Screen) -> Unit) {
             }
         }
         items(statusBarSuppressionScreens) { screen ->
+            Button(
+                onClick = { onNavigateTo(screen) },
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+                label = { Text(screen.title) },
+            )
+        }
+        item {
+            ListHeader(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        )
+                        .transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+            ) {
+                Text(
+                    text = "Window Insets Consumption",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+        items(windowInsetsConsumptionScreens) { screen ->
             Button(
                 onClick = { onNavigateTo(screen) },
                 modifier =
@@ -3229,6 +3269,527 @@ fun PagerWithSuppressionScreen(onBack: () -> Unit) {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+private enum class StaticColumnMode(val shortName: String, val description: String) {
+    NoPadding(
+        "No Padding",
+        "⚠️ COLLISION: Starts at y=0. Top content overlaps the System Status Bar at 12 o'clock.",
+    ),
+    PaddingOnly(
+        "Padding Only",
+        "🟢 NORMAL: Padded by contentPadding. Standard components (Text, Button) work perfectly WITHOUT consumeWindowInsets.",
+    ),
+    PaddingAndConsume(
+        "Padding + Consume",
+        "🔵 IDENTICAL: consumeWindowInsets added. Output is 100% pixel-identical to Mode 2! Zero screenshot difference.",
+    );
+
+    fun cycle(): StaticColumnMode =
+        when (this) {
+            NoPadding -> PaddingOnly
+            PaddingOnly -> PaddingAndConsume
+            PaddingAndConsume -> NoPadding
+        }
+}
+
+@Composable
+fun StaticColumnInsetsComparisonScreen(onBack: () -> Unit) {
+    var mode by remember { mutableStateOf(StaticColumnMode.PaddingOnly) }
+    var showOverlay by remember { mutableStateOf(false) }
+    var fullscreenPreview by remember { mutableStateOf(false) }
+
+    if (fullscreenPreview) {
+        // Raw static screen preview without scrolling list
+        AppScaffold {
+            ScreenScaffold { contentPadding ->
+                val columnModifier =
+                    Modifier.fillMaxSize()
+                        .then(
+                            when (mode) {
+                                StaticColumnMode.NoPadding -> Modifier
+                                StaticColumnMode.PaddingOnly -> Modifier.padding(contentPadding)
+                                StaticColumnMode.PaddingAndConsume ->
+                                    Modifier.padding(contentPadding)
+                                        .consumeWindowInsets(WindowInsets.statusBars)
+                            }
+                        )
+
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .screenDebugBorder(
+                                when (mode) {
+                                    StaticColumnMode.NoPadding -> Color(0xFFFF5252)
+                                    StaticColumnMode.PaddingOnly -> Color(0xFF4CAF50)
+                                    StaticColumnMode.PaddingAndConsume -> Color(0xFF2196F3)
+                                }
+                            )
+                ) {
+                    Column(
+                        modifier = columnModifier,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        // Top element to clearly show collision or clearance
+                        Box(
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .background(
+                                        when (mode) {
+                                            StaticColumnMode.NoPadding -> Color(0xFFB71C1C)
+                                            StaticColumnMode.PaddingOnly -> Color(0xFF1B5E20)
+                                            StaticColumnMode.PaddingAndConsume -> Color(0xFF0D47A1)
+                                        }
+                                    )
+                                    .padding(vertical = 4.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text =
+                                    if (mode == StaticColumnMode.NoPadding)
+                                        "⚠️ 12 O'CLOCK COLLISION!"
+                                    else "✓ 12 O'clock Top Content",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Mode: ${mode.shortName}",
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Button(
+                                onClick = { fullscreenPreview = false },
+                                modifier = Modifier.fillMaxWidth(0.8f).height(36.dp),
+                            ) {
+                                Text("Exit Fullscreen", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    if (showOverlay) {
+                        StatusBarInsetOverlay(
+                            contentPadding = contentPadding,
+                            isStatusBarVisible = true,
+                        )
+                    }
+                }
+            }
+        }
+        return
+    }
+
+    val listState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+
+    AppScaffold {
+        ScreenScaffold(scrollState = listState) { contentPadding ->
+            val statusBarTop =
+                WindowInsets.statusBarsIgnoringVisibility.asPaddingValues().calculateTopPadding()
+            val effectiveTopPadding =
+                when (mode) {
+                    StaticColumnMode.NoPadding -> 0.dp
+                    StaticColumnMode.PaddingOnly,
+                    StaticColumnMode.PaddingAndConsume -> contentPadding.calculateTopPadding()
+                }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                TransformingLazyColumn(
+                    state = listState,
+                    contentPadding = contentPadding,
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    item {
+                        ScreenTitle("Static Insets Demo", contentPadding = contentPadding)
+                    }
+
+                    item {
+                        Button(
+                            onClick = { mode = mode.cycle() },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .minimumVerticalContentPadding(
+                                        ButtonDefaults.minimumVerticalListContentPadding
+                                    )
+                                    .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor =
+                                        when (mode) {
+                                            StaticColumnMode.NoPadding -> Color(0xFFB71C1C)
+                                            StaticColumnMode.PaddingOnly -> Color(0xFF1B5E20)
+                                            StaticColumnMode.PaddingAndConsume -> Color(0xFF0D47A1)
+                                        }
+                                ),
+                        ) {
+                            Text(
+                                text = "Mode: ${mode.shortName} (Tap)",
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+
+                    item {
+                        Box(
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .background(Color.DarkGray.copy(alpha = 0.7f))
+                                    .padding(8.dp)
+                        ) {
+                            Text(
+                                text = mode.description,
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+
+                    item {
+                        Button(
+                            onClick = { fullscreenPreview = true },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .minimumVerticalContentPadding(
+                                        ButtonDefaults.minimumVerticalListContentPadding
+                                    )
+                                    .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                        ) {
+                            Text(
+                                text = "View Fullscreen Preview",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    }
+
+                    item {
+                        Column(
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .background(Color(0xFF263238).copy(alpha = 0.8f))
+                                    .padding(8.dp),
+                            horizontalAlignment = Alignment.Start,
+                        ) {
+                            Text(
+                                text = "Status Bar Inset: $statusBarTop",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                color = Color.Cyan,
+                            )
+                            Text(
+                                text = "Applied Padding: $effectiveTopPadding",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                color = Color(0xFFFFD54F),
+                            )
+                            Text(
+                                text =
+                                    "consumeWindowInsets: ${mode == StaticColumnMode.PaddingAndConsume}",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                color = Color(0xFF81C784),
+                            )
+                        }
+                    }
+
+                    item {
+                        Button(
+                            onClick = { showOverlay = !showOverlay },
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .minimumVerticalContentPadding(
+                                        ButtonDefaults.minimumVerticalListContentPadding
+                                    )
+                                    .transformedHeight(this, transformationSpec),
+                            transformation = SurfaceTransformation(transformationSpec),
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor =
+                                        if (showOverlay) Color(0xFF37474F) else Color(0xFF1E272C)
+                                ),
+                        ) {
+                            Text(
+                                text =
+                                    if (showOverlay) "Hide Inset Overlay" else "Show Inset Overlay",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                            )
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+                    }
+                }
+
+                if (showOverlay) {
+                    StatusBarInsetOverlay(
+                        contentPadding = contentPadding,
+                        isStatusBarVisible = true,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NestedInsetsDoublePaddingDemoScreen(onBack: () -> Unit) {
+    var outerPaddingEnabled by remember { mutableStateOf(true) }
+    var outerConsumeEnabled by remember { mutableStateOf(false) }
+    var childSafeDrawingEnabled by remember { mutableStateOf(true) }
+    var showFullscreen by remember { mutableStateOf(false) }
+
+    val statusBarTop =
+        WindowInsets.statusBarsIgnoringVisibility.asPaddingValues().calculateTopPadding()
+
+    val isDoublePadding = outerPaddingEnabled && childSafeDrawingEnabled && !outerConsumeEnabled
+    val isCollision = !outerPaddingEnabled && !childSafeDrawingEnabled
+
+    if (showFullscreen) {
+        AppScaffold {
+            ScreenScaffold { contentPadding ->
+                var outerModifier = Modifier.fillMaxSize()
+                if (outerPaddingEnabled) {
+                    outerModifier = outerModifier.padding(contentPadding)
+                }
+                if (outerConsumeEnabled) {
+                    outerModifier = outerModifier.consumeWindowInsets(WindowInsets.statusBars)
+                }
+
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .screenDebugBorder(
+                                if (isDoublePadding) Color(0xFFFF5252)
+                                else if (isCollision) Color(0xFFFFB74D) else Color(0xFF4CAF50)
+                            )
+                ) {
+                    Column(
+                        modifier = outerModifier,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier.fillMaxWidth(0.92f)
+                                    .then(
+                                        if (childSafeDrawingEnabled) Modifier.safeDrawingPadding()
+                                        else Modifier
+                                    )
+                                    .background(
+                                        if (isDoublePadding) Color(0xFFB71C1C)
+                                        else Color(0xFF1B5E20)
+                                    )
+                                    .padding(8.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text =
+                                    if (isDoublePadding) "🔴 DOUBLE PADDING BUG!"
+                                    else if (isCollision) "⚠️ COLLISION!"
+                                    else "🟢 CORRECT SINGLE PADDING",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+
+                        Button(
+                            onClick = { showFullscreen = false },
+                            modifier = Modifier.fillMaxWidth(0.8f).height(36.dp),
+                        ) {
+                            Text("Exit Fullscreen", style = MaterialTheme.typography.labelSmall)
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+        return
+    }
+
+    val listState = rememberTransformingLazyColumnState()
+    val transformationSpec = rememberTransformationSpec()
+
+    AppScaffold {
+        ScreenScaffold(scrollState = listState) { contentPadding ->
+            TransformingLazyColumn(
+                state = listState,
+                contentPadding = contentPadding,
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                item {
+                    ScreenTitle("Nested Insets Demo", contentPadding = contentPadding)
+                }
+
+                item {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .background(
+                                    if (isDoublePadding) Color(0xFFB71C1C)
+                                    else if (isCollision) Color(0xFFE65100) else Color(0xFF1B5E20)
+                                )
+                                .padding(8.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text =
+                                    if (isDoublePadding) "🔴 DOUBLE PADDING BUG!"
+                                    else if (isCollision) "⚠️ COLLISION!"
+                                    else "🟢 CORRECT SINGLE PADDING",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text =
+                                    if (isDoublePadding)
+                                        "Outer: +$statusBarTop | Child: +$statusBarTop (= 2x Gap!)"
+                                    else if (childSafeDrawingEnabled && outerConsumeEnabled)
+                                        "Outer: +$statusBarTop | Child: +0dp (Consumed!)"
+                                    else if (!childSafeDrawingEnabled && outerPaddingEnabled)
+                                        "Outer: +$statusBarTop | Child: No insets modifier"
+                                    else "Outer: 0dp | Child: 0dp (No clearance)",
+                                style = MaterialTheme.typography.bodyExtraSmall,
+                                color = Color(0xFFFFE082),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { showFullscreen = true },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                    ) {
+                        Text("View Fullscreen Bounds", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { outerConsumeEnabled = !outerConsumeEnabled },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (outerConsumeEnabled) Color(0xFF2E7D32)
+                                    else Color(0xFFC62828)
+                            ),
+                    ) {
+                        Text(
+                            text =
+                                if (outerConsumeEnabled) "Outer Consume: ON ✓"
+                                else "Outer Consume: OFF ✗",
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { childSafeDrawingEnabled = !childSafeDrawingEnabled },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (childSafeDrawingEnabled) Color(0xFF00695C)
+                                    else Color(0xFF37474F)
+                            ),
+                    ) {
+                        Text(
+                            text =
+                                if (childSafeDrawingEnabled) "Child safeDrawing: ON"
+                                else "Child safeDrawing: OFF",
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { outerPaddingEnabled = !outerPaddingEnabled },
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .minimumVerticalContentPadding(
+                                    ButtonDefaults.minimumVerticalListContentPadding
+                                )
+                                .transformedHeight(this, transformationSpec),
+                        transformation = SurfaceTransformation(transformationSpec),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (outerPaddingEnabled) Color(0xFF1565C0)
+                                    else Color(0xFF4E342E)
+                            ),
+                    ) {
+                        Text(
+                            text =
+                                if (outerPaddingEnabled) "Outer contentPadding: ON"
+                                else "Outer contentPadding: OFF",
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+
+                item {
+                    Box(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .background(Color.DarkGray.copy(alpha = 0.7f))
+                                .padding(8.dp)
+                    ) {
+                        Text(
+                            text =
+                                "Why: Modifier.padding() is layout space and leaves insets unconsumed. If an inner component uses safeDrawingPadding(), it adds insets again unless outer layout consumes them.",
+                            style = MaterialTheme.typography.bodyExtraSmall,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
         }
