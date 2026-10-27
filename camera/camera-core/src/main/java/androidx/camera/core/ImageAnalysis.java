@@ -510,7 +510,7 @@ public final class ImageAnalysis extends UseCase {
 
         sessionConfigBuilder.addSurface(mDeferrableSurface,
                 streamSpec.getDynamicRange(),
-                null,
+                getPhysicalCameraId(),
                 MirrorMode.MIRROR_MODE_UNSPECIFIED);
 
         if (mCloseableErrorListener != null) {
