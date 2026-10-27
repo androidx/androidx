@@ -59,10 +59,12 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissGestureDisabledSample
 import androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
 import androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissTransformingContentSample
 import androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
 import androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsTransformingContentSample
+import androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonOneHandedGestureSample
 import androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonSample
 import androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonTransformingContentSample
 
@@ -72,9 +74,15 @@ val AlertDialogDemos =
         ComposableDemo("Edge button (TLC)") {
             AlertDialogWithEdgeButtonTransformingContentSample()
         },
+        ComposableDemo("Edge button with gesture") {
+            AlertDialogWithEdgeButtonOneHandedGestureSample()
+        },
         ComposableDemo("Confirm and Dismiss (SLC)") { AlertDialogWithConfirmAndDismissSample() },
         ComposableDemo("Confirm and Dismiss (TLC)") {
             AlertDialogWithConfirmAndDismissTransformingContentSample()
+        },
+        ComposableDemo("Confirm gesture disabled") {
+            AlertDialogWithConfirmAndDismissGestureDisabledSample()
         },
         ComposableDemo("Content groups (SLC)") { AlertDialogWithContentGroupsSample() },
         ComposableDemo("Content groups (TLC)") {

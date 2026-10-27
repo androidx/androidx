@@ -31,9 +31,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -44,11 +46,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -64,6 +68,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
@@ -77,6 +82,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -88,6 +94,7 @@ import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.onehandedgesture.INDICATOR_ANIMATION_START_DELAY_MILLIS
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled
 import androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureManager
@@ -903,6 +910,641 @@ class OneHandedGestureTest {
             }
         }
         assert(confirmButtonClicked)
+    }
+
+    @Test
+    fun alert_dialog_confirm_button_gesture_disabled() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var confirmButtonClicked = false
+        rule.setContentWithTheme {
+            val transformationSpec = rememberTransformationSpec()
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    icon = {
+                        Icon(
+                            Icons.Rounded.AccountCircle,
+                            modifier = Modifier.size(32.dp),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    title = { Text("Title") },
+                    transformationSpec = transformationSpec,
+                    confirmButton = {
+                        AlertDialogDefaults.ConfirmButton(
+                            onClick = { confirmButtonClicked = true },
+                            gestureVisibilityThreshold = AlertDialogDefaults.GestureDisabled,
+                        )
+                    },
+                ) {
+                    item { Text(text = "This is a text which has to be scrolled through") }
+                    item { Button(onClick = {}) { Text(text = "Random button") } }
+                }
+            }
+        }
+
+        // Scroll through alert dialog with one-handed gestures; with gestureVisibilityThreshold =
+        // 0f, the confirm button gesture is disabled and should never trigger.
+        for (i in 0..10) {
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            rule.waitForIdle()
+        }
+        rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_confirm_button_gesture_visibility_threshold() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var confirmButtonClicked = false
+        var offsetX by mutableStateOf(0.dp)
+        var gestureVisibilityThreshold by mutableFloatStateOf(0f)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(
+                    modifier = Modifier.fillMaxSize().offset { IntOffset(offsetX.roundToPx(), 0) },
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    AlertDialogDefaults.ConfirmButton(
+                        onClick = { confirmButtonClicked = true },
+                        gestureVisibilityThreshold = gestureVisibilityThreshold,
+                    )
+                }
+            }
+        }
+
+        // When fully visible (offsetX = 0.dp), gestureVisibilityThreshold = 0f disables the
+        // gesture.
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
+
+        // Shift the 63.dp-wide ConfirmButton left by 21.dp across the left window edge (x = 0) so
+        // two-thirds (~67%) of the button remains inside the window. With threshold = 0.9f, the
+        // gesture is not active.
+        offsetX = (-21).dp
+        gestureVisibilityThreshold = 0.9f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
+
+        // Lowering gestureVisibilityThreshold to 0.5f at the same -21.dp offset activates the
+        // gesture.
+        gestureVisibilityThreshold = 0.5f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, confirmButtonClicked)
+            confirmButtonClicked = false
+        }
+
+        // Shifting the button further left to -42.dp (~33% visible) deactivates the gesture for a
+        // 0.5f threshold.
+        offsetX = (-42).dp
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, confirmButtonClicked) }
+
+        // Returning the button to full visibility (offsetX = 0.dp) with threshold = 0.9f activates
+        // the gesture.
+        offsetX = 0.dp
+        gestureVisibilityThreshold = 0.9f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(true, confirmButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_edge_button_without_gesture_does_not_click() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    edgeButton = {
+                        AlertDialogDefaults.EdgeButton(onClick = { edgeButtonClicked = true })
+                    },
+                )
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_edge_button_with_gesture(@TestParameter useTransformingLazyColumn: Boolean) {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                if (useTransformingLazyColumn) {
+                    AlertDialog(
+                        visible = true,
+                        onDismissRequest = {},
+                        title = {},
+                        transformationSpec = rememberTransformationSpec(),
+                        edgeButton = {
+                            AlertDialogDefaults.EdgeButton(
+                                onClick = { edgeButtonClicked = true },
+                                gestureVisibilityThreshold = 1f,
+                            )
+                        },
+                    )
+                } else {
+                    AlertDialog(
+                        visible = true,
+                        onDismissRequest = {},
+                        title = {},
+                        edgeButton = {
+                            AlertDialogDefaults.EdgeButton(
+                                onClick = { edgeButtonClicked = true },
+                                gestureVisibilityThreshold = 1f,
+                            )
+                        },
+                    )
+                }
+            }
+        }
+
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(true, edgeButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_content_groups_edge_button(
+        @TestParameter enabled: Boolean,
+        @TestParameter useTransformingLazyColumn: Boolean,
+    ) {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                CompositionLocalProvider(LocalOneHandedGestureEnabled provides enabled) {
+                    MockSdkGestureInputManager(sdkGestureInputManager) {
+                        if (useTransformingLazyColumn) {
+                            val transformationSpec = rememberTransformationSpec()
+                            AlertDialog(
+                                visible = true,
+                                onDismissRequest = {},
+                                modifier = Modifier.size(SCREEN_SIZE_SMALL.dp),
+                                title = { Text("Title") },
+                                transformationSpec = transformationSpec,
+                                edgeButton = {
+                                    AlertDialogDefaults.EdgeButton(
+                                        onClick = { edgeButtonClicked = true },
+                                        gestureVisibilityThreshold = 0.9f,
+                                        onGestureLabel = "share once",
+                                    ) {
+                                        Text("Share once")
+                                    }
+                                },
+                            ) {
+                                item {
+                                    SwitchButton(
+                                        modifier =
+                                            Modifier.fillMaxWidth()
+                                                .transformedHeight(this, transformationSpec),
+                                        checked = true,
+                                        onCheckedChange = {},
+                                        label = { Text("Weather") },
+                                        transformation = SurfaceTransformation(transformationSpec),
+                                    )
+                                }
+                                item {
+                                    SwitchButton(
+                                        modifier =
+                                            Modifier.fillMaxWidth()
+                                                .transformedHeight(this, transformationSpec),
+                                        checked = true,
+                                        onCheckedChange = {},
+                                        label = { Text("Calendar") },
+                                        transformation = SurfaceTransformation(transformationSpec),
+                                    )
+                                }
+                                item { AlertDialogDefaults.GroupSeparator() }
+                                item {
+                                    FilledTonalButton(
+                                        modifier =
+                                            Modifier.fillMaxWidth()
+                                                .transformedHeight(this, transformationSpec),
+                                        onClick = {},
+                                        label = {
+                                            Text(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                text = "Never share",
+                                            )
+                                        },
+                                        transformation = SurfaceTransformation(transformationSpec),
+                                    )
+                                }
+                                item {
+                                    FilledTonalButton(
+                                        modifier =
+                                            Modifier.fillMaxWidth()
+                                                .transformedHeight(this, transformationSpec),
+                                        onClick = {},
+                                        label = {
+                                            Text(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                text = "Share always",
+                                            )
+                                        },
+                                        transformation = SurfaceTransformation(transformationSpec),
+                                    )
+                                }
+                            }
+                        } else {
+                            AlertDialog(
+                                visible = true,
+                                onDismissRequest = {},
+                                modifier = Modifier.size(SCREEN_SIZE_SMALL.dp),
+                                title = { Text("Title") },
+                                edgeButton = {
+                                    AlertDialogDefaults.EdgeButton(
+                                        onClick = { edgeButtonClicked = true },
+                                        gestureVisibilityThreshold = 0.9f,
+                                        onGestureLabel = "share once",
+                                    ) {
+                                        Text("Share once")
+                                    }
+                                },
+                            ) {
+                                item {
+                                    SwitchButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        checked = true,
+                                        onCheckedChange = {},
+                                        label = { Text("Weather") },
+                                    )
+                                }
+                                item {
+                                    SwitchButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        checked = true,
+                                        onCheckedChange = {},
+                                        label = { Text("Calendar") },
+                                    )
+                                }
+                                item { AlertDialogDefaults.GroupSeparator() }
+                                item {
+                                    FilledTonalButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {},
+                                        label = {
+                                            Text(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                text = "Never share",
+                                            )
+                                        },
+                                    )
+                                }
+                                item {
+                                    FilledTonalButton(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {},
+                                        label = {
+                                            Text(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                text = "Share always",
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // First gesture should scroll down while EdgeButton is hidden, not click EdgeButton.
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+
+        // Continue scrolling through alert dialog with one-handed gestures until edge button is
+        // gestured.
+        for (i in 1..10) {
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+            rule.waitForIdle()
+            if (edgeButtonClicked) {
+                break
+            }
+        }
+        rule.runOnIdle { assertEquals(enabled, edgeButtonClicked) }
+    }
+
+    @Test
+    fun alert_dialog_edge_button_gesture_visibility_threshold() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        var edgeButtonClicked = false
+        var buttonHeight by mutableStateOf(16.dp)
+        var gestureVisibilityThreshold by mutableFloatStateOf(0f)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(modifier = Modifier.height(buttonHeight)) {
+                    AlertDialogDefaults.EdgeButton(
+                        onClick = { edgeButtonClicked = true },
+                        gestureVisibilityThreshold = gestureVisibilityThreshold,
+                    )
+                }
+            }
+        }
+
+        // gestureVisibilityThreshold = 0f disables the gesture even at non-zero height.
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+
+        // At 16.dp total height (10.dp inner button height after 6.dp vertical padding, ~14.3% of
+        // EdgeButtonSize.Medium's 70.dp maximumHeight), gestureVisibilityThreshold = 0.1f
+        // activates the gesture.
+        gestureVisibilityThreshold = 0.1f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, edgeButtonClicked)
+            edgeButtonClicked = false
+        }
+
+        // At 41.dp total height (35.dp inner button height = 50% of EdgeButtonSize.Medium's 70.dp
+        // maximumHeight), gestureVisibilityThreshold = 0.5f does not activate the gesture (must
+        // exceed threshold).
+        buttonHeight = 35.dp + EdgeButtonVerticalPadding * 2
+        gestureVisibilityThreshold = 0.5f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+
+        // Lowering gestureVisibilityThreshold to 0.4f at the same 50% inner height activates the
+        // gesture (exceeds threshold).
+        gestureVisibilityThreshold = 0.4f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, edgeButtonClicked)
+            edgeButtonClicked = false
+        }
+
+        // Raising gestureVisibilityThreshold to 1.0f at 50% inner height deactivates the gesture.
+        gestureVisibilityThreshold = 1.0f
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+
+        // At full height, gestureVisibilityThreshold = 1.0f activates the gesture.
+        buttonHeight = EdgeButtonSize.Medium.maximumHeightPlusPadding()
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle {
+            assertEquals(true, edgeButtonClicked)
+            edgeButtonClicked = false
+        }
+
+        // Even at full height, setting gestureVisibilityThreshold = GestureDisabled (0f) disables
+        // the gesture.
+        gestureVisibilityThreshold = AlertDialogDefaults.GestureDisabled
+        rule.waitForIdle()
+        sdkGestureInputManager.performGesture(sdkActionPrimary)
+        rule.runOnIdle { assertEquals(false, edgeButtonClicked) }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun alert_dialog_edge_button_invalid_gesture_visibility_threshold_throws() {
+        rule.setContentWithTheme {
+            AlertDialogDefaults.EdgeButton(onClick = {}, gestureVisibilityThreshold = 1.5f)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun alert_dialog_confirm_button_invalid_gesture_visibility_threshold_throws() {
+        rule.setContentWithTheme {
+            AlertDialogDefaults.ConfirmButton(onClick = {}, gestureVisibilityThreshold = -0.1f)
+        }
+    }
+
+    @Test
+    fun alert_dialog_edge_button_accessibility_label() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        var useDefaultLabel by mutableStateOf(true)
+        var customLabel by mutableStateOf<String?>("share once")
+        var gestureVisibilityThreshold by mutableFloatStateOf(1f)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    edgeButton = {
+                        if (useDefaultLabel) {
+                            AlertDialogDefaults.EdgeButton(
+                                onClick = {},
+                                gestureVisibilityThreshold = gestureVisibilityThreshold,
+                            )
+                        } else {
+                            AlertDialogDefaults.EdgeButton(
+                                onClick = {},
+                                gestureVisibilityThreshold = gestureVisibilityThreshold,
+                                onGestureLabel = customLabel,
+                            )
+                        }
+                    },
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val defaultConfirmLabel =
+            context.getString(
+                R.string.one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+            )
+        val defaultExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                defaultConfirmLabel,
+            )
+        onView(withContentDescription(defaultExpectedText)).checkExists()
+
+        // Update to custom onGestureLabel and verify updated accessibility announcement.
+        useDefaultLabel = false
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        val customExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                "share once",
+            )
+        onView(withContentDescription(customExpectedText)).checkExists()
+
+        // Passing onGestureLabel = null suppresses the accessibility indicator view.
+        customLabel = null
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+        onView(withContentDescription(customExpectedText)).checkDoesNotExist()
+        onView(withContentDescription(defaultExpectedText)).checkDoesNotExist()
+
+        // Disabling the gesture with gestureVisibilityThreshold = 0f also suppresses the
+        // accessibility indicator view even when using the default label.
+        useDefaultLabel = true
+        gestureVisibilityThreshold = 0f
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+        onView(withContentDescription(defaultExpectedText)).checkDoesNotExist()
+    }
+
+    @Test
+    fun alert_dialog_confirm_button_accessibility_label() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock()
+        var useDefaultLabel by mutableStateOf(true)
+        var customLabel by mutableStateOf<String?>("approve")
+        var gestureVisibilityThreshold by mutableFloatStateOf(0.9f)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    confirmButton = {
+                        if (useDefaultLabel) {
+                            AlertDialogDefaults.ConfirmButton(
+                                onClick = {},
+                                gestureVisibilityThreshold = gestureVisibilityThreshold,
+                            )
+                        } else {
+                            AlertDialogDefaults.ConfirmButton(
+                                onClick = {},
+                                gestureVisibilityThreshold = gestureVisibilityThreshold,
+                                onGestureLabel = customLabel,
+                            )
+                        }
+                    },
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val defaultConfirmLabel =
+            context.getString(
+                R.string.one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+            )
+        val defaultExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                defaultConfirmLabel,
+            )
+        onView(withContentDescription(defaultExpectedText)).checkExists()
+
+        // Update to custom onGestureLabel and verify updated accessibility announcement.
+        useDefaultLabel = false
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        val customExpectedText =
+            context.getString(
+                R.string.one_handed_gesture_primary_action_accessibility_text,
+                "approve",
+            )
+        onView(withContentDescription(customExpectedText)).checkExists()
+
+        // Passing onGestureLabel = null suppresses the accessibility indicator view.
+        customLabel = null
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+        onView(withContentDescription(customExpectedText)).checkDoesNotExist()
+        onView(withContentDescription(defaultExpectedText)).checkDoesNotExist()
+
+        // Disabling the gesture with gestureVisibilityThreshold = 0f also suppresses the
+        // accessibility indicator view.
+        useDefaultLabel = true
+        gestureVisibilityThreshold = 0f
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+        onView(withContentDescription(defaultExpectedText)).checkDoesNotExist()
+    }
+
+    @Test
+    fun alert_dialog_edge_button_click_indicator_shown() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(showIndicator = true)
+
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                AlertDialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    title = {},
+                    edgeButton = {
+                        AlertDialogDefaults.EdgeButton(
+                            onClick = {},
+                            gestureVisibilityThreshold = 1f,
+                        )
+                    },
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(GESTURE_AVAILABLE_DELAY)
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(sdkActionPrimary, sdkGestureInputManager.lastNotifiedSdkGestureAction)
+            assertNotNull(sdkGestureInputManager.lastNotifiedGestureId)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun alert_dialog_edge_button_click_indicator_uses_content_color() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(showIndicator = true)
+        val expectedContentColor = Color.Yellow
+
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithTheme {
+            MockSdkGestureInputManager(sdkGestureInputManager) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+                    AlertDialogDefaults.EdgeButton(
+                        onClick = {},
+                        gestureVisibilityThreshold = 1f,
+                        modifier = Modifier.testTag(TEST_TAG),
+                        colors = ButtonDefaults.buttonColors(contentColor = expectedContentColor),
+                        content = {
+                            Spacer(Modifier.size(OneHandedGestureIndicatorSize.Medium.size))
+                        },
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        // Before ShowIndicatorDelayMillis elapses, expectedContentColor is not yet rendered
+        // since the button content is an empty Spacer.
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertDoesNotContainColor(expectedContentColor)
+
+        // Advance past ShowIndicatorDelayMillis to trigger showIndicator(), then advance past the
+        // fade-in delay so the gesture indicator is actively rendered using LocalContentColor.
+        rule.mainClock.advanceTimeBy(OneHandedGestureDefaults.ShowIndicatorDelayMillis)
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeBy(INDICATOR_ANIMATION_START_DELAY_MILLIS)
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedContentColor)
     }
 
     @Test
