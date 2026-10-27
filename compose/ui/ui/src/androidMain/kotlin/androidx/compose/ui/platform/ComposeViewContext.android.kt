@@ -20,7 +20,6 @@ package androidx.compose.ui.platform
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK
-import android.annotation.SuppressLint
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -45,10 +44,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags.isMediaQueryIntegrationEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.ExperimentalMediaQueryApi
-import androidx.compose.ui.LocalUiMediaScope
 import androidx.compose.ui.R
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -544,8 +540,7 @@ private constructor(
     }
 
     /** Provide common CompositionLocals. */
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalMediaQueryApi::class)
+    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     @Composable
     internal fun ProvideCompositionLocals(
@@ -562,64 +557,24 @@ private constructor(
             currentComposer.collectParameterInformation()
         }
 
-        @Suppress("UNCHECKED_CAST")
-        if (androidx.compose.ui.ComposeUiFlags.isMinimalistLocalsEnabled) {
-            CompositionLocalProvider(
-                LocalAndroidComposeView provides owner,
-                LocalLifecycleOwner provides lifecycleOwner,
-                LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
-                LocalInspectionTables provides inspectionTable,
-                LocalContext provides owner.context,
-                LocalConfiguration provides owner.configuration,
-                LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
-                LocalProvidableScrollCaptureInProgress providesComputed
-                    {
-                        owner.scrollCaptureInProgress
-                    },
-                LocalHostDefaultProvider provides owner.hostDefaultProvider,
-                LocalView provides owner.view,
-                LocalViewConfiguration provides owner.viewConfiguration,
-            ) {
-                sharedResources.ProvideCompositionLocals {
-                    ProvideCommonCompositionLocals(owner = owner, content = content)
-                }
-            }
-        } else {
-            CompositionLocalProvider(
-                LocalAndroidComposeView provides owner,
-                LocalLifecycleOwner provides lifecycleOwner,
-                LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
-                LocalSoundEffect providesComputed { soundEffect },
-                LocalContext provides owner.context,
-                LocalInspectionTables provides inspectionTable,
-                LocalConfiguration provides owner.configuration,
-                LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
-                LocalView provides owner.view,
-                LocalWindow providesComputed { owner.window },
-                LocalProvidableScrollCaptureInProgress providesComputed
-                    {
-                        owner.scrollCaptureInProgress
-                    },
-                LocalViewConfiguration provides owner.viewConfiguration,
-                LocalHostDefaultProvider provides owner.hostDefaultProvider,
-                LocalGraphicsResourceCache providesComputed { graphicsResourceCache },
-            ) {
-                sharedResources.ProvideCompositionLocals {
-                    if (isMediaQueryIntegrationEnabled) {
-                        CompositionLocalProvider(
-                            // Defer owner.uiMediaScope evaluation until actively read in
-                            // composition.
-                            LocalUiMediaScope providesComputed
-                                {
-                                    owner.uiMediaScope ?: error("UiMediaScope is not initialized.")
-                                }
-                        ) {
-                            ProvideCommonCompositionLocals(owner = owner, content = content)
-                        }
-                    } else {
-                        ProvideCommonCompositionLocals(owner = owner, content = content)
-                    }
-                }
+        CompositionLocalProvider(
+            LocalAndroidComposeView provides owner,
+            LocalLifecycleOwner provides lifecycleOwner,
+            LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
+            LocalInspectionTables provides inspectionTable,
+            LocalContext provides owner.context,
+            LocalConfiguration provides owner.configuration,
+            LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
+            LocalProvidableScrollCaptureInProgress providesComputed
+                {
+                    owner.scrollCaptureInProgress
+                },
+            LocalHostDefaultProvider provides owner.hostDefaultProvider,
+            LocalView provides owner.view,
+            LocalViewConfiguration provides owner.viewConfiguration,
+        ) {
+            sharedResources.ProvideCompositionLocals {
+                ProvideCommonCompositionLocals(owner = owner, content = content)
             }
         }
     }
