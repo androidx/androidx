@@ -317,9 +317,11 @@ applicable. Prioritize clarity and conciseness.
             in-context verification.
     *   **Evidence & Draft Handoff Mechanism for Non-Diff Tasks:**
         Because clean-context verifiers start with zero conversation history:
-        - For **Code Review (Mode 1)**, verifiers inspect `git status` / `git
-          diff` / `git show` and full surrounding source files in the workspace
-          directly (never pass only an incremental delta since the last round).
+        - For **Code Review (Mode 1)**, the coordinator brief must specify the
+          target workspace path and target revision/diff (never pass only an
+          incremental delta since the last round), and verifiers must inspect
+          the full modified files and surrounding source classes at that target
+          revision.
         - For **Non-Diff Deliverables (Modes 2–5)**, the orchestrating agent
           MUST write:
           1. The **Full Updated Draft Deliverable** (e.g.,
@@ -370,14 +372,34 @@ applicable. Prioritize clarity and conciseness.
           shared-channel environments, explicitly instruct clean-context
           verifiers **never** to read prior board messages or earlier verifier
           threads so their audit remains uncontaminated.
-        - **Per-CL Granularity + Cross-CL Stack Pass (No Batch Dilution)**:
-          Never bundle a multi-CL stack or a large batch of unrelated bug fixes
-          into a single verifier pass. Scope each clean-context verifier worker
-          to **1 logical CL/commit** (or a cohesive unit of related
-          files/issues), spawning parallel per-CL workers when auditing
-          multiple changes, and follow per-CL reviews on a multi-commit stack
-          with **one stack-level integration pass** (`git log -p base..HEAD`)
-          to verify cross-CL contracts and `Multi-Commit Stack Hygiene`.
+        - **Per-CL Granularity, Cross-CL Stack Pass & Fix-Scope Boundary Rule**:
+          - *Per-CL Granularity (No Batch Dilution):* Never bundle a multi-CL
+            stack or a large batch of unrelated bug fixes into a single verifier
+            pass. Scope each clean-context verifier worker to **1 logical
+            CL/commit** (or a cohesive unit of related files/issues), spawning
+            parallel per-CL workers when auditing multiple changes, and follow
+            per-CL reviews on a multi-commit stack with **one stack-level
+            integration pass** (`git log -p base..HEAD`) to verify cross-CL
+            contracts and `Multi-Commit Stack Hygiene`.
+          - *Fix-Scope Boundary Rule (Wide Context Reading vs. Strict Scope
+            Isolation):* Reading surrounding classes and callers widely is
+            mandatory to understand invariants and prevent regressions, but must
+            never cause scope creep (`Strict Scope Isolation`). Verifiers must
+            separate: (i) **In-Scope Defects / Regressions** (bugs, race
+            conditions, resource leaks, incomplete fixes along the modified
+            boundary, or regressions introduced by the change), which are graded
+            `Critical` / `High` / `Medium` (`P0-P2`) and block convergence, from
+            (ii) **Pre-Existing / Out-of-Scope Observations** (pre-existing
+            design trade-offs in untouched callers, orthogonal refactoring
+            ideas, or subjective CL-splitting preferences on a cohesive fix),
+            which **must** be labeled `[Optional / Out-of-Scope]` (`Low / P3`)
+            and **never** block the `0 OPEN Critical/High/Medium` convergence
+            exit gate or force out-of-scope edits.
+          - *Artifact-Backed Audit Handoff:* For detailed multi-finding audits,
+            instruct verifiers to write the full structured report (complete
+            code snippets and `file:line` proofs) to a scratch/temp file and
+            return a concise summary table + file path so communication channels
+            remain high-signal without losing detail.
     *   **Independent Verifier Onboarding ("New Engineer Brain"):** Each
         spawned verifier sub-agent (`verifier-r1`, `verifier-r2`, `verifier-r3`,
         up to `verifier-r5` when auto-scaling) must start with a clean context
