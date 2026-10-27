@@ -533,6 +533,12 @@ validThroughLibraryVersion = "1.2.0"
 reason = "b/TODO - <reason>"
 
 [[exemption]]
+library = "androidx.web:web-compose"
+dependsOn = "androidx.web:web"
+validThroughLibraryVersion = "1.0.0-beta01"
+reason = "b/559499991 - androidx.web is temporarily not a same-version group so that androidx.web:web can release before the WebSurface API in web-compose is ready. web-compose uses web's @InternalWebApi and will rejoin a same-version group with it; remove this exemption when the group becomes atomic again."
+
+[[exemption]]
 library = "androidx.xr.arcore:arcore"
 dependsOn = "androidx.xr.runtime:runtime"
 validThroughLibraryVersion = "1.1.0-beta01"
