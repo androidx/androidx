@@ -26,7 +26,6 @@ import androidx.compose.runtime.Recomposer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -63,15 +62,15 @@ class AppWidgetTemplateRegistryTest {
     @Test
     fun register_and_render_invokesRegisteredRenderer() {
         var observedTemplate: DummyTemplate? = null
-        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
+        var observedSurface: AppWidgetSurface? = null
         var rendered = false
 
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
             noArchetype,
-            GlanceTemplateRenderer { template, _, constraints ->
+            GlanceTemplateRenderer { template, _, placedSurface ->
                 observedTemplate = template
-                observedConstraints = constraints
+                observedSurface = placedSurface
                 { rendered = true }
             },
         )
@@ -79,12 +78,13 @@ class AppWidgetTemplateRegistryTest {
         val dummy = DummyTemplate("Test")
 
         val output =
-            AppWidgetTemplateRegistry.render(dummy, HostConstraints(Dimensions(200, 100), surface))
+            AppWidgetTemplateRegistry.render(dummy, surface.withDimensions(Dimensions(200, 100)))
         assertThat(output).isInstanceOf(GlanceRenderOutput::class.java)
         runComposition { (output as GlanceRenderOutput).content() }
 
         assertThat(observedTemplate).isSameInstanceAs(dummy)
-        assertThat(observedConstraints).isEqualTo(HostConstraints(Dimensions(200, 100), surface))
+        assertThat(observedSurface).isEqualTo(surface)
+        assertThat(observedSurface?.dimensions).isEqualTo(Dimensions(200, 100))
         assertThat(rendered).isTrue()
     }
 
@@ -93,8 +93,8 @@ class AppWidgetTemplateRegistryTest {
         var observedArchetype: DummyArchetype? = null
         AppWidgetTemplateRegistry.register(
             DummyTemplate::class.java,
-            ArchetypeSelector { _, constraints ->
-                if (constraints.dimensions.widthDp >= 250) DummyArchetype.ROW
+            ArchetypeSelector { _, placedSurface ->
+                if (placedSurface.dimensions.widthDp >= 250) DummyArchetype.ROW
                 else DummyArchetype.CARD
             },
             RemoteComposeTemplateRenderer { _, archetype, _ ->
@@ -105,7 +105,7 @@ class AppWidgetTemplateRegistryTest {
 
         AppWidgetTemplateRegistry.render(
             DummyTemplate("Test"),
-            HostConstraints(Dimensions(300, 100), surface),
+            surface.withDimensions(Dimensions(300, 100)),
         )
 
         assertThat(observedArchetype).isEqualTo(DummyArchetype.ROW)
@@ -125,7 +125,7 @@ class AppWidgetTemplateRegistryTest {
         val output =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), surface),
+                surface.withDimensions(Dimensions(200, 100)),
             )
 
         assertThat(output).isInstanceOf(RemoteViewsRenderOutput::class.java)
@@ -145,7 +145,7 @@ class AppWidgetTemplateRegistryTest {
         val output =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), surface),
+                surface.withDimensions(Dimensions(200, 100)),
             )
 
         assertThat(output).isInstanceOf(RemoteComposeRenderOutput::class.java)
@@ -177,7 +177,7 @@ class AppWidgetTemplateRegistryTest {
 
         AppWidgetTemplateRegistry.render(
             DummyTemplate("Test"),
-            HostConstraints(Dimensions(200, 100), surface),
+            surface.withDimensions(Dimensions(200, 100)),
         )
 
         assertThat(firstCalls).isEqualTo(0)
@@ -188,7 +188,7 @@ class AppWidgetTemplateRegistryTest {
     fun render_unregistered_throwsException() {
         AppWidgetTemplateRegistry.render(
             DummyTemplate("Unregistered"),
-            HostConstraints(Dimensions(200, 100), surface),
+            surface.withDimensions(Dimensions(200, 100)),
         )
     }
 
@@ -212,12 +212,12 @@ class AppWidgetTemplateRegistryTest {
         val homeOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_HOME_SCREEN),
+                AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(200, 100)),
             )
         val lockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(200, 100)),
             )
 
         assertThat(homeOutput).isInstanceOf(RemoteComposeRenderOutput::class.java)
@@ -250,25 +250,25 @@ class AppWidgetTemplateRegistryTest {
         val customLockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(200, 100)),
                 widgetName = "custom_widget",
             )
         val customHomeOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_HOME_SCREEN),
+                AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(200, 100)),
                 widgetName = "custom_widget",
             )
         val defaultWidgetLockOutput =
             AppWidgetTemplateRegistry.render(
                 DummyTemplate("Test"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(200, 100)),
                 widgetName = "other_widget",
             )
         val otherTemplateOnCustomWidgetOutput =
             AppWidgetTemplateRegistry.render(
                 OtherTemplate("Other"),
-                HostConstraints(Dimensions(200, 100), AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN.withDimensions(Dimensions(200, 100)),
                 widgetName = "custom_widget",
             )
 

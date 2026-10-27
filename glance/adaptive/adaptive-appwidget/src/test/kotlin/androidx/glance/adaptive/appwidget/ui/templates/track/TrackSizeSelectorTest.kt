@@ -18,7 +18,6 @@ package androidx.glance.adaptive.appwidget.ui.templates.track
 
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -78,10 +77,10 @@ class TrackSizeSelectorTest {
     fun select_isIndependentOfOptionalData() {
         // Selection may consult the payload, but must not currently depend on it.
         val sparseTemplate = TrackTemplate(title = "Morning Run")
-        val constraints = HostConstraints(Dimensions(300, 200), AppWidgetSurface.MOBILE_HOME_SCREEN)
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(300, 200))
 
-        assertThat(TrackSizeSelector.select(sparseTemplate, constraints))
-            .isEqualTo(TrackSizeSelector.select(template, constraints))
+        assertThat(TrackSizeSelector.select(sparseTemplate, surface))
+            .isEqualTo(TrackSizeSelector.select(template, surface))
     }
 
     private fun select(
@@ -89,7 +88,7 @@ class TrackSizeSelectorTest {
         widthDp: Int,
         heightDp: Int = 200,
     ): TrackSlots =
-        TrackSizeSelector.select(template, HostConstraints(Dimensions(widthDp, heightDp), surface))
+        TrackSizeSelector.select(template, surface.withDimensions(Dimensions(widthDp, heightDp)))
 
     private fun selectOnHomeScreen(widthDp: Int, heightDp: Int = 200): TrackSlots =
         select(AppWidgetSurface.MOBILE_HOME_SCREEN, widthDp, heightDp)

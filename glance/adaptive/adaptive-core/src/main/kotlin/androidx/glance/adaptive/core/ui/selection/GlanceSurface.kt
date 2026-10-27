@@ -30,7 +30,18 @@ public abstract class GlanceSurface
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     /** Unique canonical identifier for this surface (e.g. "home_screen", "wear_widget"). */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tag: String,
+    /**
+     * Size in DP of the placement being rendered on this surface.
+     * - Selectors and renderers receive each placement's surface with its size, because breakpoints
+     *   depend on the surface: the same width resolves to a different [WidthTier] on a home screen
+     *   than on a lock screen.
+     * - Not part of equality: a placed surface equals the surface constant it comes from.
+     * - `(0, 0)` on surface constants, when the host has not reported a positive size, and during
+     *   widget picker preview rendering, so selectors and renderers must handle zero dimensions.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val dimensions: Dimensions = Dimensions(0, 0),
 ) {
     override fun equals(other: Any?): Boolean =
         this === other || (other is GlanceSurface && tag == other.tag)

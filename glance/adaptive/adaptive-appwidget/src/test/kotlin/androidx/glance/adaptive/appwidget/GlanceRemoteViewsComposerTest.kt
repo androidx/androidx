@@ -39,7 +39,6 @@ import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
@@ -70,21 +69,21 @@ class GlanceRemoteViewsComposerTest {
     private val component = ComponentName(context.packageName, "TestReceiver")
     private lateinit var composer: GlanceRemoteViewsComposer
 
-    /** Every [HostConstraints] the registry handed the renderer, in composition order. */
-    private val recordedConstraints = mutableListOf<HostConstraints<AppWidgetSurface>>()
+    /** Every placed surface the registry handed the renderer, in composition order. */
+    private val recordedSurfaces = mutableListOf<AppWidgetSurface>()
     private val recordedLocalSizes = mutableListOf<DpSize>()
 
     @Before
     fun setUp() {
-        recordedConstraints.clear()
+        recordedSurfaces.clear()
         recordedLocalSizes.clear()
         GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
             noArchetype,
-            GlanceTemplateRenderer { _, _, constraints ->
-                recordedConstraints += constraints
+            GlanceTemplateRenderer { _, _, surface ->
+                recordedSurfaces += surface
                 { recordedLocalSizes += LocalSize.current }
             },
         )
@@ -366,9 +365,8 @@ class GlanceRemoteViewsComposerTest {
 
         composer.compose(TestTemplate(), target)
 
-        assertThat(recordedConstraints.map { it.surface })
-            .containsExactly(AppWidgetSurface.MOBILE_LOCK_SCREEN)
-        assertThat(recordedConstraints.map { it.dimensions }).containsExactly(Dimensions(348, 88))
+        assertThat(recordedSurfaces).containsExactly(AppWidgetSurface.MOBILE_LOCK_SCREEN)
+        assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(Dimensions(348, 88))
         assertThat(recordedLocalSizes).containsExactly(DpSize(Dp(348f), Dp(88f)))
     }
 
@@ -378,7 +376,7 @@ class GlanceRemoteViewsComposerTest {
 
         composer.compose(TestTemplate(), target)
 
-        assertThat(recordedConstraints.map { it.dimensions }).containsExactly(UNSPECIFIED)
+        assertThat(recordedSurfaces.map { it.dimensions }).containsExactly(UNSPECIFIED)
         assertThat(recordedLocalSizes).containsExactly(DpSize.Unspecified)
     }
 
@@ -387,9 +385,9 @@ class GlanceRemoteViewsComposerTest {
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
             noArchetype,
-            GlanceTemplateRenderer { _, _, constraints ->
+            GlanceTemplateRenderer { _, _, surface ->
                 {
-                    if (constraints.dimensions.widthDp >= 200) {
+                    if (surface.dimensions.widthDp >= 200) {
                         Row { Text("wide") }
                     } else {
                         Box { Text("compact") }
@@ -417,14 +415,14 @@ class GlanceRemoteViewsComposerTest {
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
         var observedContext: Context? = null
-        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
+        var observedSurface: AppWidgetSurface? = null
 
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
             noArchetype,
-            RemoteViewsTemplateRenderer { ctx, _, _, constraints ->
+            RemoteViewsTemplateRenderer { ctx, _, _, surface ->
                 observedContext = ctx
-                observedConstraints = constraints
+                observedSurface = surface
                 expectedRemoteViews
             },
         )
@@ -434,8 +432,8 @@ class GlanceRemoteViewsComposerTest {
 
         assertThat(result).isSameInstanceAs(expectedRemoteViews)
         assertThat(observedContext).isEqualTo(context.applicationContext)
-        assertThat(observedConstraints)
-            .isEqualTo(HostConstraints(Dimensions(348, 88), target.surface))
+        assertThat(observedSurface).isEqualTo(target.surface)
+        assertThat(observedSurface?.dimensions).isEqualTo(Dimensions(348, 88))
         assertThat(recordedLocalSizes).isEmpty()
     }
 
@@ -460,15 +458,15 @@ class GlanceRemoteViewsComposerTest {
     @Config(sdk = [37], qualifiers = "xhdpi")
     fun compose_remoteComposeRenderer_capturesDocumentIntoRemoteViewsWithPxSize() = runTest {
         var remoteComposableInvoked = false
-        var observedConstraints: HostConstraints<AppWidgetSurface>? = null
+        var observedSurface: AppWidgetSurface? = null
         var capturedDisplaySize: Size? = null
         var capturedProfile: Profile? = null
 
         AppWidgetTemplateRegistry.register(
             TestTemplate::class.java,
             noArchetype,
-            RemoteComposeTemplateRenderer { _, _, constraints ->
-                observedConstraints = constraints
+            RemoteComposeTemplateRenderer { _, _, surface ->
+                observedSurface = surface
                 {
                     remoteComposableInvoked = true
                     val state = LocalRemoteComposeCreationState.current
@@ -486,8 +484,8 @@ class GlanceRemoteViewsComposerTest {
         assertThat(density).isEqualTo(2f)
         assertThat(result).isNotNull()
         assertThat(remoteComposableInvoked).isTrue()
-        assertThat(observedConstraints)
-            .isEqualTo(HostConstraints(Dimensions(348, 88), target.surface))
+        assertThat(observedSurface).isEqualTo(target.surface)
+        assertThat(observedSurface?.dimensions).isEqualTo(Dimensions(348, 88))
         assertThat(capturedDisplaySize).isEqualTo(Size(348 * density, 88 * density))
         assertThat(capturedProfile).isSameInstanceAs(GlanceAppWidgetProfiles.widgetsV7)
         assertThat(capturedProfile?.apiLevel)

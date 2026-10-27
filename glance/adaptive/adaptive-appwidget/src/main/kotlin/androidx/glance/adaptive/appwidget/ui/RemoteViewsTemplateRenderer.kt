@@ -22,17 +22,15 @@ import androidx.annotation.RestrictTo
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.selection.HostConstraints
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
  * Render output backed directly by a [RemoteViews] instance or provider.
  *
  * Building a [RemoteViews] needs a [Context] (for its package name and resources), but a
- * [TemplateRenderer] only receives the template, archetype, and [HostConstraints]. The output
- * therefore carries a [provider] that the composer invokes with the application [Context] once it
- * is ready to deliver the widget. Use the secondary constructor when the [RemoteViews] has already
- * been built.
+ * [TemplateRenderer] only receives the template, archetype, and surface. The output therefore
+ * carries a [provider] that the composer invokes with the application [Context] once it is ready to
+ * deliver the widget. Use the secondary constructor when the [RemoteViews] has already been built.
  *
  * @property provider Factory invoked with the application [Context] to construct the [RemoteViews]
  *   for the target widget placement.
@@ -69,27 +67,25 @@ public fun interface RemoteViewsTemplateRenderer<
 > : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
-     * Builds the [RemoteViews] representation of [template] for [archetype] and [constraints] using
+     * Builds the [RemoteViews] representation of [template] for [archetype] on [surface] using
      * [context].
      *
      * @param context The application [Context] used to construct the [RemoteViews].
      * @param template The declarative data payload describing the widget's content.
-     * @param archetype The layout archetype resolved for [template] under [constraints].
-     * @param constraints The layout constraints and target surface provided by the host.
+     * @param archetype The layout archetype resolved for [template] on [surface].
+     * @param surface The target surface, carrying the container size of the placement as
+     *   [GlanceSurface.dimensions].
      * @return The [RemoteViews] to deliver to the host.
      */
     public fun renderRemoteViews(
         context: Context,
         template: T,
         archetype: A,
-        constraints: HostConstraints<S>,
+        surface: S,
     ): RemoteViews
 
-    override fun render(
-        template: T,
-        archetype: A,
-        constraints: HostConstraints<S>,
-    ): AppWidgetRenderOutput = RemoteViewsRenderOutput { context ->
-        renderRemoteViews(context, template, archetype, constraints)
-    }
+    override fun render(template: T, archetype: A, surface: S): AppWidgetRenderOutput =
+        RemoteViewsRenderOutput { context ->
+            renderRemoteViews(context, template, archetype, surface)
+        }
 }
