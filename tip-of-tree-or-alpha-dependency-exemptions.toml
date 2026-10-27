@@ -627,3 +627,33 @@ library = "androidx.xr.scenecore:scenecore-testing"
 dependsOn = "androidx.xr.runtime:runtime-testing"
 validThroughLibraryVersion = "1.1.0-beta01"
 reason = "b/TODO - <reason>"
+
+[[exemption]]
+library = "androidx.xr.compose:compose"
+dependsOn = "androidx.xr.runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/571061979 - These libraries will be relesed together"
+
+[[exemption]]
+library = "androidx.xr.compose:compose"
+dependsOn = "androidx.xr.scenecore:scenecore"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/571061979 - These libraries will be relesed together"
+
+[[exemption]]
+library = "androidx.xr.compose:compose-testing"
+dependsOn = "androidx.xr.scenecore:scenecore"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/571061979 - These libraries will be relesed together"
+
+[[exemption]]
+library = "androidx.xr.compose:compose-testing"
+dependsOn = "androidx.xr.runtime:runtime"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/571061979 - These libraries will be relesed together"
+
+[[exemption]]
+library = "androidx.xr.compose:compose-testing"
+dependsOn = "androidx.xr.scenecore:scenecore-spatial-core"
+validThroughLibraryVersion = "1.1.0-beta01"
+reason = "b/571061979 - These libraries will be relesed together"
