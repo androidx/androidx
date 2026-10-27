@@ -875,7 +875,7 @@ package androidx.webkit {
 
   public abstract class WebViewRenderProcess {
     ctor public WebViewRenderProcess();
-    method public abstract boolean terminate();
+    method @UiThread public abstract boolean terminate();
   }
 
   public abstract class WebViewRenderProcessClient {
