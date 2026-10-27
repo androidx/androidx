@@ -46,9 +46,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,6 +59,16 @@ import org.junit.runner.RunWith
 @LargeTest
 class DeferredAnimatedVisibilityTest {
     @get:Rule val rule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        testTimeSource = { rule.mainClock.currentTime }
+    }
+
+    @After
+    fun tearDown() {
+        testTimeSource = null
+    }
 
     @Test
     fun visibility_enterGateClosed_defersAnimationUntilReady() {
@@ -330,8 +342,6 @@ class DeferredAnimatedVisibilityTest {
 
     @Test
     fun visibility_previewScaleSustained_whenNoScaleInTransitions() {
-        testTimeSource = { rule.mainClock.currentTime }
-
         lateinit var state: DeferredTransitionState<Boolean>
         var previewScale by mutableStateOf(1f)
 
@@ -396,8 +406,6 @@ class DeferredAnimatedVisibilityTest {
         // 5. Run to completion
         rule.mainClock.advanceTimeBy(1000L)
         rule.waitForIdle()
-
-        testTimeSource = null
     }
 
     @Test
@@ -919,7 +927,6 @@ class DeferredAnimatedVisibilityTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
         assertEquals(fullWidth, measuredWidth, 1f)
-        testTimeSource = null
     }
 
     @Test
@@ -929,7 +936,6 @@ class DeferredAnimatedVisibilityTest {
         var measuredWidth = 0f
 
         rule.setContent {
-            testTimeSource = { rule.mainClock.currentTime }
             // Start hidden
             state = remember { DeferredTransitionState(false) }
             val transition = rememberDeferredTransition(state)
@@ -1012,8 +1018,6 @@ class DeferredAnimatedVisibilityTest {
 
     @Test
     fun visibility_previewScale_handoffVelocity() {
-        testTimeSource = { rule.mainClock.currentTime }
-
         lateinit var state: DeferredTransitionState<Boolean>
         var previewScale by mutableStateOf(1f)
 
@@ -1092,8 +1096,6 @@ class DeferredAnimatedVisibilityTest {
             "Expected width drop with fast gesture ($widthDropFast) to be greater than with slow gesture ($widthDropSlow)",
             widthDropFast > widthDropSlow,
         )
-
-        testTimeSource = null
     }
 
     @Test
