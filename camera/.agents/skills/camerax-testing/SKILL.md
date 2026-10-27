@@ -1,9 +1,12 @@
 ---
 name: camerax-testing
 description: >-
-  CameraX unit (Robolectric) and instrumentation (androidTest) testing
-  standards, Truth/fakes conventions, leak debugging, and Test Pyramid
-  modernization.
+  Guides authoring and running CameraX Robolectric unit tests and
+  instrumentation device tests, Truth/fakes conventions, leak debugging, and
+  Test Pyramid migration. Use when writing, running, or migrating CameraX unit
+  or androidTest tests, or debugging test resource leaks. Don't use for OEM
+  hardware quirk scoping (use camerax-triage-and-quirks) or multi-model code
+  review (use camerax-code-review).
 ---
 
 # CameraX Testing, Troubleshooting & Test Pyramid Guide
@@ -218,6 +221,14 @@ CameraX involves complex hardware interactions, making robust testing essential.
     **Suggested Quirk Entry** to streamline future triage.
 
 #### 3. Execution & Validation
+- **Parent AndroidX Baseline (`frameworks/support/AGENTS.md` & `run_tests`
+  Skill) & CameraX Overrides**: When the parent AndroidX `AGENTS.md` and
+  repo-wide `run_tests` skill are auto-discovered by upward directory traversal,
+  follow their baseline rules (grepping `settings.gradle` instead of running
+  `./gradlew projects`, using `PROJECT_PREFIX`, and using `--className` for FTL
+  runs), with the CameraX override below that host unit test filtering
+  (`--tests`) must target `:testReleaseUnitTest` (or `:testDebugUnitTest`)
+  rather than the anchor `:test` task.
 - **Local Compile Check**: Compile the entire CameraX project tests and debug
   APKs using:
   ```bash
