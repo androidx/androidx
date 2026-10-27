@@ -37,6 +37,7 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontVariation
+import androidx.wear.compose.remote.material3.internal.setLuminance
 
 /**
  * A remote composable for displaying the time and surrounding text, designed to curve along the top
@@ -55,7 +56,8 @@ import androidx.compose.ui.text.font.FontVariation
  * @param separator The separator to be used between the leading/trailing text and the time.
  *   Defaults to "·".
  * @param color The color of the text. Defaults to the `onBackground` color from the current
- *   `RemoteMaterialTheme`.
+ *   `RemoteMaterialTheme` with its luminance set to 80, matching
+ *   `androidx.wear.compose.material3.TimeText`.
  * @param style The [RemoteTextStyle] to be applied to the text. Defaults to
  *   [RemoteTimeTextDefaults.timeTextStyle].
  * @param fontFeatureSettings The font feature settings to be applied to the text. Defaults to
@@ -94,7 +96,9 @@ public fun RemoteTimeText(
             fontVariationSettings = fontVariationSettings,
         )
     val resolvedFontSize = mergedStyle.fontSize ?: 14.rsp
-    val resolvedColor = mergedStyle.color ?: RemoteMaterialTheme.colorScheme.onBackground
+    val resolvedColor =
+        mergedStyle.color
+            ?: RemoteMaterialTheme.colorScheme.onBackground.setLuminance(DefaultColorLuminance)
 
     RemoteBox(modifier.clearAndSetSemantics {}) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
@@ -151,6 +155,9 @@ private fun RemoteDrawScope.drawTimeText(
         textPaint,
     )
 }
+
+/** Luminance of the default text color, matching `TimeTextDefaults.timeTextStyle`. */
+private const val DefaultColorLuminance = 80f
 
 /** Contains the default values used by [RemoteTimeText]. */
 public object RemoteTimeTextDefaults {
