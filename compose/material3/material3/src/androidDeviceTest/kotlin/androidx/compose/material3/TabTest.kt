@@ -897,7 +897,16 @@ class TabTest {
     fun testInspectorValue() {
         val pos = TabPosition(10.0.dp, 200.0.dp, 0.dp)
         rule.setContent {
-            val modifier = Modifier.tabIndicatorOffset(pos) as InspectableValue
+            val modifier =
+                Modifier.tabIndicatorOffset(pos).foldIn<InspectableValue?>(null) { acc, element ->
+                    if (
+                        element is InspectableValue && element.nameFallback == "tabIndicatorOffset"
+                    ) {
+                        element
+                    } else {
+                        acc
+                    }
+                }!!
             assertThat(modifier.nameFallback).isEqualTo("tabIndicatorOffset")
             assertThat(modifier.valueOverride).isEqualTo(pos)
             assertThat(modifier.inspectableElements.asIterable()).isEmpty()
