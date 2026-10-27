@@ -36,6 +36,7 @@ import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.R
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.util.trace
 import androidx.core.os.HandlerCompat
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
@@ -317,6 +318,14 @@ internal val View.windowRecomposer: Recomposer
 public fun View.createLifecycleAwareWindowRecomposer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     lifecycle: Lifecycle? = null,
+): Recomposer =
+    trace("Compose:initRecomposer") {
+        createLifecycleAwareWindowRecomposerImpl(coroutineContext, lifecycle)
+    }
+
+private fun View.createLifecycleAwareWindowRecomposerImpl(
+    coroutineContext: CoroutineContext,
+    lifecycle: Lifecycle?,
 ): Recomposer {
     // Only access AndroidUiDispatcher.CurrentThread if we would use an element from it,
     // otherwise prevent lazy initialization.
