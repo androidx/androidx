@@ -49,7 +49,7 @@ import org.junit.runner.RunWith
     ExperimentalBenchmarkConfigApi::class,
     ExperimentalPerfettoCaptureApi::class,
 )
-class TrivialPerfettoSdkBenchmark {
+class CompositionTracingBenchmark {
 
     @Before
     fun checkDeviceSupport() {
