@@ -22,7 +22,10 @@ import android.os.Bundle
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.ImageView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.emoji2.emojipicker.R as EmojiPickerViewR
 import androidx.emoji2.emojipicker.test.R
@@ -68,9 +71,16 @@ class EmojiPickerViewTestActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.inflation_test)
 
         emojiPickerView = findViewById(R.id.emojiPickerTest)
+        ViewCompat.setOnApplyWindowInsetsListener(emojiPickerView.parent as View) { v, windowInsets
+            ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
     }
 }
 
