@@ -239,8 +239,7 @@ private fun IconButtonImpl(
     interactionSource: MutableInteractionSource?,
     content: @Composable () -> Unit,
 ) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // Without an interaction source, clickable creates the ripple on the first interaction.
     Box(
         modifier =
             modifier
@@ -445,8 +444,7 @@ private fun IconToggleButtonImpl(
     shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit,
 ) {
-    @Suppress("NAME_SHADOWING")
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // Without an interaction source, toggleable creates the ripple on the first interaction.
     Box(
         modifier =
             modifier
