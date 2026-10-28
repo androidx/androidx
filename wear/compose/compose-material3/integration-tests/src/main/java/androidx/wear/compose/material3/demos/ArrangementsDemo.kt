@@ -45,7 +45,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,7 +65,6 @@ import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
-import kotlin.math.min
 
 @Composable
 private fun ArrangementsDemoList(
@@ -177,10 +175,7 @@ fun ArrangementsDemo() {
     var reverseLayoutIx by remember { mutableStateOf(false) }
     var anchorItemIndex by remember { mutableIntStateOf(-1) }
 
-    val screenSizeDp =
-        with(LocalDensity.current) {
-            with(LocalConfiguration.current) { min(screenWidthDp, screenHeightDp) }
-        }
+    val screenSizeDp = LocalConfiguration.current.screenWidthDp
 
     @Composable
     fun MinusItemsButton(modifier: Modifier = Modifier) {

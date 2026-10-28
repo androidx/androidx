@@ -21,8 +21,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.materialcore.screenHeightDp
-import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.ceil
 
 internal object PaddingDefaults {
@@ -39,8 +37,11 @@ internal object PaddingDefaults {
      */
     @Composable
     fun verticalContentPadding(): Dp {
-        val screenHeight = LocalConfiguration.current.screenHeightDp
-        return ceilDp(screenHeight.dp * verticalContentPaddingPercentage / 100)
+        // Use screenWidthDp rather than screenHeightDp because circular Wear screens have equal
+        // physical width and height, whereas screenHeightDp can be reduced by window insets such
+        // as the global status bar.
+        val screenWidth = LocalConfiguration.current.screenWidthDp
+        return ceilDp(screenWidth.dp * verticalContentPaddingPercentage / 100)
     }
 
     /**
@@ -63,11 +64,16 @@ internal object PaddingDefaults {
     val edgePadding = 2.dp
 }
 
+/**
+ * Returns a fraction of the screen width in Dp, rounded up to the next integer Dp.
+ *
+ * Typically used for determining screen-relative sizes (both horizontal and vertical) on circular
+ * Wear screens, because `Configuration.screenHeightDp` can be affected by window insets such as the
+ * global status bar.
+ */
 @Composable
-internal fun screenHeightFraction(fraction: Float): Dp = ceilDp(screenHeightDp().dp * fraction)
-
-@Composable
-internal fun screenWidthFraction(fraction: Float): Dp = ceilDp(screenWidthDp().dp * fraction)
+internal fun screenWidthFraction(fraction: Float): Dp =
+    ceilDp(LocalConfiguration.current.screenWidthDp.dp * fraction)
 
 internal const val LARGE_VERTICAL_CONTENT_PADDING_FRACTION = 0.23f
 internal const val SMALL_VERTICAL_CONTENT_PADDING_FRACTION = 0.13f

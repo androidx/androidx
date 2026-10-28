@@ -434,7 +434,7 @@ public object IconButtonDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumVerticalListContentPadding: Dp
-        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** Recommended alpha to apply to an IconButton with Image content with disabled */
     public val DisabledImageOpacity: Float = DisabledContentAlpha

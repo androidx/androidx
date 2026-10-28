@@ -321,7 +321,7 @@ public object TextDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumTopListContentPadding: Dp
-        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /**
      * The minimum bottom content padding for the list when a [Text] is placed at the bottom.
@@ -333,5 +333,5 @@ public object TextDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumBottomListContentPadding: Dp
-        @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 }

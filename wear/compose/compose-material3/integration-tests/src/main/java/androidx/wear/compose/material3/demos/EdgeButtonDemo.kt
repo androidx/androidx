@@ -485,7 +485,7 @@ fun EdgeButtonConfigurableDemo() {
 fun EdgeButtonListDemo() {
     val state = rememberScalingLazyListState()
     val horizontalPadding = LocalConfiguration.current.screenWidthDp.dp * 0.052f
-    val verticalPadding = LocalConfiguration.current.screenHeightDp.dp * 0.16f
+    val verticalPadding = LocalConfiguration.current.screenWidthDp.dp * 0.16f
     val colors =
         listOf(
             "Filled" to ButtonDefaults.buttonColors(),

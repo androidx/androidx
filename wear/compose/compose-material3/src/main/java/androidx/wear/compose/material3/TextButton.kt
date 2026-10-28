@@ -171,7 +171,7 @@ public object TextButtonDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumVerticalListContentPadding: Dp
-        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** Returns the default [TextButtonShapes] for a static [TextButton]. */
     @Composable public fun shapes(): TextButtonShapes = MaterialTheme.shapes.defaultTextButtonShapes

@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -45,7 +46,6 @@ import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
-import androidx.wear.compose.materialcore.screenHeightDp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Job
@@ -304,9 +304,9 @@ public object ButtonGroupDefaults {
      */
     @Composable
     public fun fullWidthPaddings(): PaddingValues {
-        val screenHeight = screenHeightDp().dp
+        val screenWidth = LocalConfiguration.current.screenWidthDp.dp
         return PaddingValues(
-            horizontal = screenHeight * FullWidthHorizontalPaddingPercentage / 100,
+            horizontal = screenWidth * FullWidthHorizontalPaddingPercentage / 100,
             vertical = 0.dp,
         )
     }
@@ -321,7 +321,7 @@ public object ButtonGroupDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumVerticalListContentPadding: Dp
-        @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** How much buttons grow (and neighbors shrink) when pressed. */
     public val ExpansionWidth: Dp = 24.dp

@@ -484,5 +484,4 @@ internal val VerticalSpacing = 8.dp
 
 /** Vertical top/bottom padding. */
 @Composable
-internal fun verticalContentPadding(): Dp =
-    LocalConfiguration.current.screenHeightDp.dp * 5.2f / 100
+internal fun verticalContentPadding(): Dp = LocalConfiguration.current.screenWidthDp.dp * 5.2f / 100

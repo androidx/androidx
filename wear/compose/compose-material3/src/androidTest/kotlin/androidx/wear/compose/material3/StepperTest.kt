@@ -347,10 +347,10 @@ class StepperTest {
 
     @Test
     fun sets_custom_increase_icon() {
-        var screenHeight = 0.dp
+        var screenWidth = 0.dp
 
         rule.setContentWithTheme {
-            screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
             Stepper(
                 modifier = Modifier.testTag(TEST_TAG).fillMaxSize(),
@@ -375,7 +375,7 @@ class StepperTest {
             .onNodeWithTag(ICON_TAG, true)
             .assertExists()
             .assertTopPositionInRootIsEqualTo(
-                calculateVerticalMargin(screenHeight) +
+                calculateVerticalMargin(screenWidth) +
                     (ButtonHeight - StepperDefaults.IconSize) / 2f
             )
     }

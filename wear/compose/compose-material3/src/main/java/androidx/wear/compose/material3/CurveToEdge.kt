@@ -183,8 +183,9 @@ private class CurveModifierNode(
         constraints: Constraints,
     ): MeasureResult {
         val config = currentValueOf(LocalConfiguration)
-        val maxWidth = min(constraints.maxWidth, config.screenWidthDp.dp.toPx().toInt())
-        val maxHeight = min(constraints.maxHeight, config.screenHeightDp.dp.toPx().toInt())
+        val screenSizePx = config.screenWidthDp.dp.toPx().toInt()
+        val maxWidth = min(constraints.maxWidth, screenSizePx)
+        val maxHeight = min(constraints.maxHeight, screenSizePx)
 
         val halfMaxSweepAngleRad = maxSweepAngle * PI / 360
         // Set the maximum width of the component to the arc length

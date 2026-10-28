@@ -1941,7 +1941,7 @@ public object ButtonDefaults {
      * Image](https://developer.android.com/wear/images/design/WearComposeM3_TransformingLazyColumnButtonsSample_CompositeImage.png)
      */
     public val minimumVerticalListContentPadding: Dp
-        @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** The recommended icon size when used in [CompactButton]s containing both icon and text. */
     @Deprecated(
@@ -2354,7 +2354,7 @@ public object CompactButtonDefaults {
      *   Image](https://developer.android.com/wear/images/design/WearComposeM3_TransformingLazyColumnMinimumVerticalContentPaddingSample_CompositeImage.png)
      */
     public val minimumVerticalListContentPadding: Dp
-        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /**
      * The height applied for the [CompactButton]. This includes a visible button height of 32.dp
