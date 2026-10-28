@@ -212,6 +212,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
  * @param text The initial text
  */
 @InternalTextApi // "Used by benchmarks"
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PartialGapBuffer(public var text: String) {
     internal companion object {

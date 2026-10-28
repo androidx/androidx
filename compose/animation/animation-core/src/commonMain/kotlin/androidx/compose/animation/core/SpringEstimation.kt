@@ -32,6 +32,7 @@ import kotlin.math.sqrt
 private const val MAX_LONG_MILLIS: Long = Long.MAX_VALUE / 1_000_000
 
 /** Returns the estimated time that the spring will last be at [delta] */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun estimateAnimationDurationMillis(
     stiffness: Float,
@@ -55,6 +56,7 @@ public fun estimateAnimationDurationMillis(
 }
 
 /** Returns the estimated time that the spring will last be at [delta] */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun estimateAnimationDurationMillis(
     stiffness: Double,
@@ -87,6 +89,7 @@ public fun estimateAnimationDurationMillis(
 }
 
 /** Returns the estimated time that the spring will last be at [delta] */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun estimateAnimationDurationMillis(
     springConstant: Double,

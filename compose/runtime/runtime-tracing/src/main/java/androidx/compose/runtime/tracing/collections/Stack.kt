@@ -19,12 +19,13 @@ package androidx.compose.runtime.tracing.collections
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 
-@RestrictTo(Scope.LIBRARY_GROUP) public const val BIT_COUNT: Int = 6
+@Suppress("BanRestrictTo") @RestrictTo(Scope.LIBRARY_GROUP) public const val BIT_COUNT: Int = 6
 /** Size of each block is 2 ^ 6 (64) elements. */
 internal const val BLOCK_CAPACITY = 1.shl(bitCount = BIT_COUNT)
 /** Size of the block pool. */
 internal const val BLOCK_POOL_SIZE = 8
 
+@Suppress("BanRestrictTo")
 @RestrictTo(Scope.LIBRARY)
 public class Stack<T>(
     @JvmField internal val tid: Long,

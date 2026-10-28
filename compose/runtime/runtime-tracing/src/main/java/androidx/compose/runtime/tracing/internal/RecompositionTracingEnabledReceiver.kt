@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo
  *
  * The enabled state is cleared on reinstall of the app, which is also a desired property.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RecompositionTracingEnabledReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

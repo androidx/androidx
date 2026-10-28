@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.checkPrecondition
  */
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object FontScaleConverterFactory {
     private const val ScaleKeyMultiplier = 100f
@@ -37,6 +38,7 @@ public object FontScaleConverterFactory {
     private val CommonFontSizes = floatArrayOf(8f, 10f, 12f, 14f, 18f, 20f, 24f, 30f, 100f)
 
     // GuardedBy("LOOKUP_TABLES_WRITE_LOCK") but only for writes!
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     @Volatile

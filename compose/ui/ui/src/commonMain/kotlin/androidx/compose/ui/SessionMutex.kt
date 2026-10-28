@@ -32,6 +32,7 @@ import kotlinx.coroutines.job
  * cancelled and allowed to finish any cancellation tasks (e.g. `finally` blocks) before the new
  * session's coroutine starts.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @InternalComposeUiApi
 @JvmInline

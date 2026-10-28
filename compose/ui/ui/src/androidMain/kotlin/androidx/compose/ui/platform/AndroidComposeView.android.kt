@@ -4646,6 +4646,7 @@ internal class IndirectPointerNavigationGestureDetector(
 
 /** Enables or disables navigation sound effects for testing or benchmarking. */
 @VisibleForTesting
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ViewRootForTest.setNavigationSoundEffectEnabled(enabled: Boolean) {
     require(this is AndroidComposeView) {

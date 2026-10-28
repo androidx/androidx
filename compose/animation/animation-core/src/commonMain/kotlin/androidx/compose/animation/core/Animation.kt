@@ -107,6 +107,7 @@ public fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTim
  * @param targetValue the value that the animation will end at
  * @param initialVelocity the initial velocity to start the animation at
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,

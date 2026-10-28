@@ -28,6 +28,7 @@ import kotlin.math.min
  * whose meanings are defined by the caller. An interval can also hold arbitrary [data] to be used
  * to looking at the result of queries with [IntervalTree.findOverlaps].
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class Interval<T>(
     public val start: Float,
@@ -79,6 +80,7 @@ internal val EmptyInterval: Interval<Any?> = Interval(Float.MAX_VALUE, Float.MIN
  * any given interval. This can be used for instance to perform fast spatial queries like finding
  * all the segments in a path that overlap with a given vertical interval.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class IntervalTree<T> {
     // Note: this interval tree is implemented as a binary red/black tree that gets
