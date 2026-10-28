@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.5.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha04)" variant="all" version="9.5.0-alpha04">
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
 
     <issue
         id="UnrememberedGetBackStackEntry"
@@ -17,6 +17,15 @@
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/navigation/compose/NavHostTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanRestrictTo"
+        message="`@RestrictTo` should not be used in core Compose libraries"
+        errorLine1="@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonStubsMain/kotlin/androidx/navigation/compose/internal/NotImplemented.kt"/>
     </issue>
 
     <issue

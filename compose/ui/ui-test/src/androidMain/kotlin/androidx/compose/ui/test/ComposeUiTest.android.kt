@@ -401,6 +401,7 @@ public sealed interface AndroidComposeUiTest<A : ComponentActivity> :
      * Sets the [ComposeAccessibilityValidator] to perform the accessibility checks with. Providing
      * `null` means disabling the accessibility checks
      */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?)
 }
@@ -723,6 +724,7 @@ internal constructor(
     }
 
     /** Checks if there are any pending uncaught coroutine or recomposition exceptions. */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun checkPendingExceptions() {
         throwPendingException()
@@ -734,6 +736,7 @@ internal constructor(
      *
      * @param throwable error that caused the test failure
      */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun handleTestFailureAndRethrow(throwable: Throwable): Nothing {
         failurePipelineRunner.runPipeline(
@@ -1177,6 +1180,7 @@ internal class BeginningOfCascadingComposeErrors() : RuntimeException(MESSAGE) {
  * A validator that is used to run accessibility checks before every action through
  * [tryPerformAccessibilityChecks]
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ComposeAccessibilityValidator {
     public fun check(view: View)
@@ -1210,6 +1214,7 @@ internal interface TestOwnerProvider {
  * [androidx.compose.ui.test.accessibility.disableAccessibilityChecks] to manage accessibility
  * checks in your tests. Passing `null` here disables the checks.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ComposeUiTest.setComposeAccessibilityValidator(
     validator: ComposeAccessibilityValidator?

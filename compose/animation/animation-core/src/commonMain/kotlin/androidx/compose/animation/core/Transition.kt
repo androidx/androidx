@@ -1043,7 +1043,9 @@ public fun <T> updateTransition(
 public sealed class Transition<S>
 protected constructor(
     private val transitionState: TransitionState<S>,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val parentTransition: Transition<*>?,
+    @Suppress("BanRestrictTo")
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    public val parentTransition: Transition<*>?,
     label: String? = null,
 ) {
     private val _rawLabel: String? = label
@@ -1121,6 +1123,7 @@ protected constructor(
      * Play time in nano-seconds. [playTimeNanos] is always non-negative. It starts from 0L at the
      * beginning of the transition and increment until all child animations have finished.
      */
+    @Suppress("BanRestrictTo")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var playTimeNanos: Long
@@ -1152,6 +1155,7 @@ protected constructor(
         get() = _animations
 
     // Seeking related
+    @Suppress("BanRestrictTo")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var isSeeking: Boolean by mutableStateOf(false)
@@ -1287,6 +1291,7 @@ protected constructor(
      * __Caveat:__ This function puts [Transition] in a manual playtime setting mode. From then on
      * the [Transition] will not resume normal animation runs.
      */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @OptIn(InternalAnimationApi::class)
     @JvmName("seek")
@@ -1831,6 +1836,7 @@ protected constructor(
      * Once a [DeferredAnimation] is created, it can be configured and updated as needed using
      * [DeferredAnimation.animate] method.
      */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public inner class DeferredAnimation<T, V : AnimationVector>
     internal constructor(
@@ -2003,6 +2009,7 @@ private const val ResetAnimationSnapTarget = -5f
  * @param typeConverter A converter to convert any value of type [T] from/to an [AnimationVector]
  * @param label A label for differentiating this animation from others in android studio.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Composable
 public fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(

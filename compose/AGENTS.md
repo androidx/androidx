@@ -32,10 +32,6 @@ generated or modified must follow standard AndroidX Compose guidelines.
   platform-specific directories only for platform-specific API implementations.
 - **Modifiers:** Prefer `Modifier.Node` implementations for high-performance
   modifiers. Avoid `composed {}`.
-- **API Visibility:** Prefer **Public APIs** where possible. Use
-  `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` only when an API is strictly
-  internal to AndroidX and would be difficult or dangerous for external
-  developers to use correctly.
 - **Opt-in APIs:** Use `@Experimental...Api` annotations only when introducing
   new API surfaces that are likely to remain unstable. When in doubt, don't use
   them.

@@ -44,6 +44,7 @@ class ComposeIssueRegistry : IssueRegistry() {
                 FeatureFlagDetector.ISSUE,
                 SnapshotStateListFastIterableDetector.ISSUE,
                 LazyDelegateDetector.ISSUE,
+                BanRestrictToDetector.ISSUE,
             )
         }
 

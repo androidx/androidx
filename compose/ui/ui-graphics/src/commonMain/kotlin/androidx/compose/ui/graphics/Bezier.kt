@@ -69,6 +69,7 @@ private fun evaluateX(segment: PathSegment, t: Float): Float {
  * Evaluate the specified [segment] at position [t] and returns the Y coordinate of the segment's
  * curve at that position.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun evaluateY(segment: PathSegment, t: Float): Float {
     val points = segment.points
@@ -109,7 +110,7 @@ private fun evaluateCubic(p0: Float, p1: Float, p2: Float, p3: Float, t: Float):
  * point (0, 0), the end point (0, 0) and two control points of respective coordinates [p1] and
  * [p2].
  */
-@Suppress("UnnecessaryVariable")
+@Suppress("BanRestrictTo", "UnnecessaryVariable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun evaluateCubic(p1: Float, p2: Float, t: Float): Float {
     val a = 1.0f / 3.0f + (p1 - p2)
@@ -122,6 +123,7 @@ public fun evaluateCubic(p1: Float, p2: Float, t: Float): Float {
  * Finds the first real root of the specified [segment]. If no root can be found, this method
  * returns [Float.NaN].
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun findFirstRoot(segment: PathSegment, fraction: Float): Float {
     val points = segment.points
@@ -188,6 +190,7 @@ private fun findFirstQuadraticRoot(p0: Float, p1: Float, p2: Float): Float {
  *
  * If no root can be found, this method returns [Float.NaN].
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun findFirstCubicRoot(p0: Float, p1: Float, p2: Float, p3: Float): Float {
     // This function implements Cardano's algorithm as described in "A Primer on Bézier Curves":
@@ -368,6 +371,7 @@ private fun findDerivativeRoots(
  *
  * The [roots] array is used as a scratch array and must be able to hold at least 5 floats.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun computeHorizontalBounds(
     segment: PathSegment,
@@ -413,6 +417,7 @@ internal fun computeVerticalBounds(
     return FloatFloatPair(minY, maxY)
 }
 
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun computeCubicVerticalBounds(
     p0y: Float,

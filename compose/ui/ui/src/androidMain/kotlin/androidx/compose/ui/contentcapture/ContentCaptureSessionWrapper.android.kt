@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo
  * The methods in this interface are expected to delegate to the underlying platform's
  * [android.view.contentcapture.ContentCaptureSession].
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface ContentCaptureSessionWrapper {
     /**

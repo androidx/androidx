@@ -142,7 +142,7 @@ public val LocalFocusManager: ProvidableCompositionLocal<FocusManager> =
     }
 
 /** The CompositionLocal to provide platform font loading methods. */
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "BanRestrictTo")
 @Deprecated(
     "LocalFontLoader is replaced with LocalFontFamilyResolver",
     replaceWith = ReplaceWith("LocalFontFamilyResolver"),
@@ -189,6 +189,7 @@ public val LocalLayoutDirection:
     }
 
 /** The providable CompositionLocal to provide the locale list. This list can never be empty. */
+@Suppress("BanRestrictTo")
 @get:VisibleForTesting
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val LocalProvidableLocaleList: ProvidableCompositionLocal<LocaleList> =

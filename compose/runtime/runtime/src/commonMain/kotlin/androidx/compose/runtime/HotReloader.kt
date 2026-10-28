@@ -132,7 +132,7 @@ public fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
  */
 // suppressing for test-only api
 @OptIn(ComposeToolingApi::class)
-@Suppress("ListIterator")
+@Suppress("BanRestrictTo", "ListIterator")
 @RestrictTo(LIBRARY_GROUP)
 @TestOnly
 public fun getCurrentCompositionErrors(): List<Pair<Throwable, Boolean>> =

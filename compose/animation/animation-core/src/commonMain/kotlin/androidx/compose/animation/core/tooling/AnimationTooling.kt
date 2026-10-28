@@ -29,6 +29,7 @@ import androidx.compose.runtime.State
  *
  * The tooling handle is intended to be used with ui-tooling artifact of a matching version.
  */
+@Suppress("BanRestrictTo")
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public interface AnimateValueAsStateToolingHandle<T, V : AnimationVector> {
     /** Current [Animatable] for this instance */

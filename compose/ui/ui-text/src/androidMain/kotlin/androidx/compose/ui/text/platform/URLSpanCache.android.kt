@@ -44,6 +44,7 @@ import java.util.WeakHashMap
  */
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class URLSpanCache {
     private val spansByAnnotation = WeakHashMap<UrlAnnotation, URLSpan>()

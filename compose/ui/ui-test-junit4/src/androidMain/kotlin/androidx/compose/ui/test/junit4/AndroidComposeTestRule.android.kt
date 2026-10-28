@@ -485,6 +485,7 @@ private constructor(
      * Sets the [ComposeAccessibilityValidator] to perform the accessibility checks with. Providing
      * `null` means disabling the accessibility checks
      */
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setComposeAccessibilityValidator(validator: ComposeAccessibilityValidator?): Unit {
         composeTest.setComposeAccessibilityValidator(validator)

@@ -70,6 +70,7 @@ public open class TextInputService(private val platformTextInputService: Platfor
      * `PlatformTextInputModifierNode.textInputSession`.
      */
     @InternalTextApi
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun startInput() {
         platformTextInputService.startInput()
@@ -91,6 +92,7 @@ public open class TextInputService(private val platformTextInputService: Platfor
     }
 
     @InternalTextApi
+    @Suppress("BanRestrictTo")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun stopInput() {
         // This is a direct stop call, there's no need to compare the current input session.

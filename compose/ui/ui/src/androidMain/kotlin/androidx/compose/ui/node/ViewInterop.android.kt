@@ -25,6 +25,7 @@ import androidx.compose.ui.util.fastForEach
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is
 // needed
 //  for convenient LayoutParams usage in compose with views.
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ViewAdapter {
     public val id: Int
@@ -39,6 +40,7 @@ public interface ViewAdapter {
 // TODO(b/150806128): We should decide if we want to make this public API or not. Right now it is
 // needed
 //  for convenient LayoutParams usage in compose with views.
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T : ViewAdapter> View.getOrAddAdapter(id: Int, factory: () -> T): T {
     return getViewAdapter().get(id, factory)

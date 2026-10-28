@@ -83,6 +83,7 @@ public fun createFontFamilyResolver(
  * This is primarily useful for testing or benchmarking.
  */
 @InternalTextApi // exposed for benchmarking, not a stable API.
+@Suppress("BanRestrictTo")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(

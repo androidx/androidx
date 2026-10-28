@@ -107,6 +107,12 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     disable.add("ConfigurationScreenWidthHeight")
                 }
 
+                // BanRestrictTo is only an error for core Compose libraries, ignore it for other
+                // libraries.
+                if (!path.startsWith(":compose:") || path.startsWith(":compose:remote:")) {
+                    disable.add("BanRestrictTo")
+                }
+
                 // These checks are not required for samples projects.
                 if (type == SoftwareType.SAMPLES) {
                     disable.add("ListIterator")
