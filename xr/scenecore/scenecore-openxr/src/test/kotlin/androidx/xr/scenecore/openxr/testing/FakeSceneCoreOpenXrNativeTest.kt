@@ -425,4 +425,187 @@ class FakeSceneCoreOpenXrNativeTest {
         assertThrows(IllegalStateException::class.java) { fake.createSceneEntity() }
         assertThrows(IllegalStateException::class.java) { fake.createSceneTransaction() }
     }
+
+    @Test
+    fun createSceneTransaction_whilePoolIsInUse_failsUntilSubmittedTransactionsComplete() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.transactionPoolSize = 2
+        val tx1 = fake.createSceneTransaction()
+        fake.createSceneTransaction()
+        fake.submitSceneTransaction(tx1)
+
+        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
+
+        fake.completeSubmittedTransactions()
+        assertThat(fake.createSceneTransaction()).isNotEqualTo(INVALID_HANDLE)
+        assertThat(fake.submittedTransactionsInFlight).isEqualTo(0)
+    }
+
+    @Test
+    fun cancelSceneTransaction_neverFreesItsSlot() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.transactionPoolSize = 1
+
+        fake.cancelSceneTransaction(fake.createSceneTransaction())
+        fake.completeSubmittedTransactions()
+
+        assertThat(fake.leakedTransactionSlots).isEqualTo(1)
+        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun submitSceneTransaction_withSimulateSubmitFailure_failsAndNeverFreesItsSlot() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        fake.transactionPoolSize = 1
+        fake.simulateSubmitFailure = true
+        val tx = fake.createSceneTransaction()
+        fake.setTransactionTransform(tx, entity, Pose(Vector3(1f, 2f, 3f)), Vector3.One)
+
+        assertThat(fake.submitSceneTransaction(tx)).isFalse()
+
+        fake.completeSubmittedTransactions()
+        assertThat(fake.entityTransforms).doesNotContainKey(entity)
+        assertThat(fake.submittedTransactions).isEmpty()
+        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun createSceneTransaction_countsEveryAttempt() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSceneTransaction()
+        fake.simulateTransactionUnavailable = true
+
+        fake.createSceneTransaction()
+
+        assertThat(fake.transactionCreateAttempts).isEqualTo(2)
+    }
+
+    @Test
+    fun submitSceneTransaction_recordsTheTransactionChanges() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val child = fake.createSceneEntity()
+        val parent = fake.createSceneEntity()
+        val tx = fake.createSceneTransaction()
+        fake.setTransactionParent(tx, child, parent)
+
+        fake.submitSceneTransaction(tx)
+
+        assertThat(fake.submittedTransactions.single().handle).isEqualTo(tx)
+        assertThat(fake.submittedTransactions.single().parents).containsExactly(child, parent)
+    }
+
+    @Test
+    fun stagingChanges_toADestroyedEntity_fails() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+        val destroyed = fake.createSceneEntity()
+        fake.destroySceneEntity(destroyed)
+        val tx = fake.createSceneTransaction()
+
+        assertThat(fake.setTransactionTransform(tx, destroyed, Pose(), Vector3.One)).isFalse()
+        assertThat(fake.setTransactionParent(tx, destroyed, INVALID_HANDLE)).isFalse()
+        assertThat(
+                fake.setTransactionSpaceAttachment(
+                    tx,
+                    destroyed,
+                    fake.fakeSpaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+            )
+            .isFalse()
+        assertThat(fake.removeTransactionSpaceAttachment(tx, destroyed)).isFalse()
+    }
+
+    @Test
+    fun stagingChanges_toAnEntityItDidNotCreate_fails() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+        val unknown = 999L
+        val tx = fake.createSceneTransaction()
+
+        assertThat(fake.setTransactionTransform(tx, unknown, Pose(), Vector3.One)).isFalse()
+        assertThat(fake.setTransactionParent(tx, unknown, INVALID_HANDLE)).isFalse()
+        assertThat(
+                fake.setTransactionSpaceAttachment(
+                    tx,
+                    unknown,
+                    fake.fakeSpaceHandle,
+                    ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+                )
+            )
+            .isFalse()
+        assertThat(fake.removeTransactionSpaceAttachment(tx, unknown)).isFalse()
+    }
+
+    @Test
+    fun stagingChanges_toTheRoot_onlyAllowsTransforms() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+        val root = fake.fakeRootEntityHandle
+        val tx = fake.createSceneTransaction()
+
+        assertThat(fake.setTransactionTransform(tx, root, Pose(), Vector3.One)).isTrue()
+        assertThat(fake.setTransactionParent(tx, root, INVALID_HANDLE)).isFalse()
+        assertThat(fake.removeTransactionSpaceAttachment(tx, root)).isFalse()
+    }
+
+    @Test
+    fun setTransactionParent_toTheRootOrAnEntityItCreated_succeeds() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+        val child = fake.createSceneEntity()
+        val parent = fake.createSceneEntity()
+        val tx = fake.createSceneTransaction()
+
+        assertThat(fake.setTransactionParent(tx, child, fake.fakeRootEntityHandle)).isTrue()
+        assertThat(fake.setTransactionParent(tx, child, parent)).isTrue()
+    }
+
+    @Test
+    fun setTransactionParent_toItselfOrAnUnknownEntity_fails() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val child = fake.createSceneEntity()
+        val tx = fake.createSceneTransaction()
+
+        assertThat(fake.setTransactionParent(tx, child, child)).isFalse()
+        assertThat(fake.setTransactionParent(tx, child, 999L)).isFalse()
+    }
+
+    @Test
+    fun destroySceneEntity_rootOrEntityItDidNotCreateOrAlreadyDestroyed_fails() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.createSpatialContainer()
+        val entity = fake.createSceneEntity()
+        fake.destroySceneEntity(entity)
+
+        assertThat(fake.destroySceneEntity(fake.fakeRootEntityHandle)).isFalse()
+        assertThat(fake.destroySceneEntity(999L)).isFalse()
+        assertThat(fake.destroySceneEntity(entity)).isFalse()
+        assertThat(fake.destroyedEntities).containsExactly(entity)
+    }
+
+    @Test
+    fun destroySceneEntity_withSimulateDestroyFailure_failsAndKeepsTheEntity() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        fake.simulateDestroyFailure = true
+
+        assertThat(fake.destroySceneEntity(entity)).isFalse()
+
+        assertThat(fake.createdEntities).contains(entity)
+        assertThat(fake.destroyedEntities).isEmpty()
+    }
 }

@@ -31,7 +31,15 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 internal const val ATTACHMENT_LOSS_BEHAVIOUR_DETACH: Int = 2
 
-/** Test fake implementation of [SceneCoreOpenXrNative] that records all calls in-memory. */
+/**
+ * Test fake implementation of [SceneCoreOpenXrNative] that records all calls in-memory.
+ *
+ * Like the native side, it fails to stage a change to an entity that it didn't create, or has
+ * destroyed. Like the OpenXR runtime, it has [transactionPoolSize] transactions: an open
+ * transaction holds one until it's submitted, and a submitted transaction holds it until
+ * [completeSubmittedTransactions]. A cancelled transaction never gives it back, since OpenXR has no
+ * way to cancel a transaction.
+ */
 internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = false) {
 
     override var nativeScenecore: Long = 1L // Non-zero handle to indicate active native instance
@@ -60,6 +68,25 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var simulateAttachmentFailure: Boolean = false
     // When set, staging an attachment throws, as with a prebuilt that predates the natives.
     var simulateMissingAttachmentNatives: Boolean = false
+    // When set, submitting a transaction fails, and it keeps its slot.
+    var simulateSubmitFailure: Boolean = false
+    // When set, destroying an entity fails, as when no transaction is free to detach it.
+    var simulateDestroyFailure: Boolean = false
+
+    /** How many transactions can be open, or submitted and not completed, at a time. */
+    var transactionPoolSize: Int = Int.MAX_VALUE
+
+    /** How many submitted transactions hold a slot until [completeSubmittedTransactions]. */
+    var submittedTransactionsInFlight: Int = 0
+        private set
+
+    /** How many slots cancelled or failed transactions hold, which never come back. */
+    var leakedTransactionSlots: Int = 0
+        private set
+
+    /** How many times [createSceneTransaction] was called, including when it failed. */
+    var transactionCreateAttempts: Int = 0
+        private set
 
     private var nextEntityHandle: Long = 1001L
     private var nextTransactionHandle: Long = 5001L
@@ -83,6 +110,9 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     val openTransactions: MutableMap<Long, PendingTransaction> = mutableMapOf()
     val committedTransactions: MutableList<Long> = mutableListOf()
     val cancelledTransactions: MutableList<Long> = mutableListOf()
+
+    /** The changes of each submitted transaction, in the order they were submitted. */
+    val submittedTransactions: MutableList<PendingTransaction> = mutableListOf()
     var requestedSpatialContainerVisible: Boolean? = null
 
     val isInitialized = AtomicBoolean(false)
@@ -152,6 +182,8 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
 
     override fun destroySceneEntity(entityHandle: Long): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        // Like the native side, refuse the root, and entities that it didn't create or destroyed.
+        if (simulateDestroyFailure || !isLiveEntity(entityHandle)) return false
         destroyedEntities.add(entityHandle)
         createdEntities.remove(entityHandle)
         entityParents.remove(entityHandle)
@@ -170,7 +202,10 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     override fun createSceneTransaction(): Long {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         check(isInitialized.get()) { "SceneCoreOpenXrNative has not been initialized." }
-        if (simulateTransactionUnavailable) {
+        transactionCreateAttempts++
+        val usedSlots =
+            openTransactions.size + submittedTransactionsInFlight + leakedTransactionSlots
+        if (simulateTransactionUnavailable || usedSlots >= transactionPoolSize) {
             return INVALID_HANDLE
         }
         val handle = nextTransactionHandle++
@@ -186,6 +221,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     ): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         val tx = openTransactions[transactionHandle] ?: return false
+        if (entityHandle != fakeRootEntityHandle && !isLiveEntity(entityHandle)) return false
         tx.transforms[entityHandle] = Pair(pose, scale)
         return true
     }
@@ -197,6 +233,14 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     ): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         val tx = openTransactions[transactionHandle] ?: return false
+        // Like the native side, refuse to reparent the root, or to parent to an unknown entity.
+        val isParentValid =
+            parentHandle == INVALID_HANDLE ||
+                parentHandle == fakeRootEntityHandle ||
+                isLiveEntity(parentHandle)
+        if (!isLiveEntity(childHandle) || !isParentValid || childHandle == parentHandle) {
+            return false
+        }
         tx.parents[childHandle] = parentHandle
         return true
     }
@@ -215,6 +259,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         }
         if (simulateAttachmentFailure) return false
         val tx = openTransactions[transactionHandle] ?: return false
+        if (!isLiveEntity(entityHandle)) return false
         // Like the native side, reject values that aren't LAST_KNOWN or DETACH.
         if (
             trackingLossBehaviour != ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN &&
@@ -233,6 +278,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         if (simulateAttachmentFailure) return false
         val tx = openTransactions[transactionHandle] ?: return false
+        if (!isLiveEntity(entityHandle)) return false
         tx.attachments[entityHandle] = null
         return true
     }
@@ -240,6 +286,10 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     override fun submitSceneTransaction(transactionHandle: Long): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         val tx = openTransactions.remove(transactionHandle) ?: return false
+        if (simulateSubmitFailure) {
+            leakedTransactionSlots++
+            return false
+        }
         for ((entity, pair) in tx.transforms) {
             entityTransforms[entity] = pair
         }
@@ -258,15 +308,24 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
             }
         }
         committedTransactions.add(transactionHandle)
+        submittedTransactions.add(tx)
+        submittedTransactionsInFlight++
         return true
     }
 
     override fun cancelSceneTransaction(transactionHandle: Long): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
-        openTransactions.remove(transactionHandle)
+        if (openTransactions.remove(transactionHandle) != null) leakedTransactionSlots++
         cancelledTransactions.add(transactionHandle)
         return true
     }
+
+    /** Frees the slots of the submitted transactions, as the runtime does once it applied them. */
+    fun completeSubmittedTransactions() {
+        submittedTransactionsInFlight = 0
+    }
+
+    private fun isLiveEntity(entityHandle: Long): Boolean = entityHandle in createdEntities
 
     override fun requestSpatialContainerVisible(visible: Boolean): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
