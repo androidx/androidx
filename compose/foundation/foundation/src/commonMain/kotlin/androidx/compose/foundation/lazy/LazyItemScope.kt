@@ -17,11 +17,16 @@
 package androidx.compose.foundation.lazy
 
 import androidx.annotation.FloatRange
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
@@ -105,3 +110,24 @@ public interface LazyItemScope {
         fadeOutSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
     ): Modifier = this
 }
+
+/**
+ * Animates the appearance, disappearance and placement of a lazy list item using an
+ * [EnterTransition] and an [ExitTransition].
+ *
+ * This should only be applied to the root content of an item in a lazy layout.
+ */
+// TODO: Move into LazyItemScope as an animateItem overload and make public once the EnterTransition
+// /
+//  ExitTransition based API is ready. Until then it is internal, and demos and tests access it via
+//  Kotlin friend paths. It has a different name because the LazyItemScope.animateItem member would
+//  otherwise shadow it inside item content.
+internal fun Modifier.animateItemWithTransitions(
+    enterTransition: EnterTransition? = fadeIn(),
+    exitTransition: ExitTransition? = fadeOut(),
+    placementSpec: FiniteAnimationSpec<IntOffset>? =
+        spring(
+            stiffness = Spring.StiffnessMediumLow,
+            visibilityThreshold = IntOffset.VisibilityThreshold,
+        ),
+): Modifier = this then LazyLayoutAnimateItemElement(enterTransition, exitTransition, placementSpec)
