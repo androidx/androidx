@@ -17,6 +17,8 @@
 package androidx.compose.ui.tooling
 
 import android.view.View
+import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.SemanticsNode
@@ -42,6 +44,40 @@ internal const val DEFAULT_EXPAND_MAX_SIZE_PX = 4096
 
 /** Remaining scroll range, in pixels, below which a scrollable container is considered to fit. */
 private const val SCROLL_OVERFLOW_TOLERANCE_PX = 0.5f
+
+/** Kotlin file class declaring Wear Compose's `LocalReduceMotion`. */
+private const val WEAR_COMPOSITION_LOCALS_CLASS =
+    "androidx.wear.compose.foundation.CompositionLocalsKt"
+
+/**
+ * Returns Wear Compose's `LocalReduceMotion` if Wear Compose can be loaded from [classLoader], or
+ * null otherwise.
+ */
+@Suppress("BanUncheckedReflection")
+@VisibleForTesting
+internal fun findWearLocalReduceMotion(
+    classLoader: ClassLoader?
+): ProvidableCompositionLocal<Boolean>? =
+    try {
+        @Suppress("UNCHECKED_CAST")
+        Class.forName(WEAR_COMPOSITION_LOCALS_CLASS, false, classLoader)
+            .getMethod("getLocalReduceMotion")
+            .invoke(null) as? ProvidableCompositionLocal<Boolean>
+    } catch (_: ReflectiveOperationException) {
+        null
+    } catch (_: LinkageError) {
+        null
+    } catch (_: SecurityException) {
+        null
+    }
+
+/**
+ * Wear Compose's `LocalReduceMotion`, or null if Wear Compose is not in the classpath. Resolved
+ * reflectively since ui-tooling can not depend on Wear Compose.
+ */
+internal val wearLocalReduceMotion: ProvidableCompositionLocal<Boolean>? by lazy {
+    findWearLocalReduceMotion(ComposeViewAdapter::class.java.classLoader)
+}
 
 /** Axis along which a preview grows to display all its scrollable content. */
 internal enum class PreviewExpandAxis {

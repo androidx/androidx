@@ -39,6 +39,7 @@ import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.abs
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -47,6 +48,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+
+/** Tolerance, in pixels, for heights computed by adding up dimensions rounded to pixels. */
+private const val EXPAND_ROUNDING_TOLERANCE_PX = 2
 
 @MediumTest
 @OptIn(UiToolingDataApi::class)
@@ -933,9 +937,10 @@ class ComposeViewAdapterTest {
         viewportHeightPx: Int,
         device: String = EXPAND_VERTICAL_DEVICE,
         heightMode: Int = View.MeasureSpec.UNSPECIFIED,
+        className: String = "androidx.compose.ui.tooling.ExpandListsPreviewKt",
     ): Int {
         initAndWaitForDraw(
-            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            className,
             methodName,
             device = device,
         )
@@ -1131,6 +1136,78 @@ class ComposeViewAdapterTest {
             )
             assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
         }
+    }
+
+    @Test
+    fun expandVertical_providesWearReduceMotion() {
+        observedWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = EXPAND_VERTICAL_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertEquals(true, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun expandVertical_providesWearReduceMotion_withPreviewWrapper() {
+        observedWearReduceMotion = null
+        observedWrapperWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            previewWrapperProvider = WearReduceMotionObservingWrapper::class.java,
+            device = EXPAND_VERTICAL_DEVICE,
+        )
+        // The value is provided around the user's PreviewWrapperProvider, so both the wrapper and
+        // the preview inside it see it.
+        activityTestRule.runOnUiThread {
+            assertEquals(true, observedWrapperWearReduceMotion)
+            assertEquals(true, observedWearReduceMotion)
+        }
+    }
+
+    @Test
+    fun noExpand_doesNotProvideWearReduceMotion() {
+        observedWearReduceMotion = null
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        // The system "remove animations" setting is off on test devices.
+        activityTestRule.runOnUiThread { assertEquals(false, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun findWearLocalReduceMotion_returnsNullWithoutWear() {
+        // A class loader that can't load anything besides the bootstrap classes.
+        val bootstrapClassLoader = ClassLoader.getSystemClassLoader().parent
+        assertEquals(null, findWearLocalReduceMotion(bootstrapClassLoader))
+    }
+
+    /** Height of [ExpandTransformingLazyColumnWithPaddingPreview]'s content, padding included. */
+    private fun transformingLazyColumnWithPaddingHeight(): Int =
+        EXPAND_LIST_TOP_PADDING.toPx() +
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT +
+            EXPAND_LIST_BOTTOM_PADDING.toPx()
+
+    @Test
+    fun expandVertical_transformingLazyColumn_showsAllContentPadding() {
+        // Measuring the list at smaller heights during the search scrolls it to its end. That
+        // state must not make the list look like it fits before its bottom content padding (e.g.
+        // the space reserved for an EdgeButton) is entirely visible.
+        val height =
+            measureExpanded(
+                "ExpandTransformingLazyColumnWithPaddingPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = transformingLazyColumnWithPaddingHeight()
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
     }
 
     private fun checkDesignInfoList(

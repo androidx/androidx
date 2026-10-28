@@ -579,6 +579,19 @@ internal class ComposeViewAdapter : FrameLayout {
                     reportDeviceHeight = reportDeviceHeight,
                 )
             }
+        // When expanding vertically, Wear lists (ScalingLazyColumn, TransformingLazyColumn) would
+        // scale and fade the items close to the edges of the now very tall viewport. Wear's
+        // LocalReduceMotion disables those transformations so all items render at their natural
+        // size.
+        val wearReduceMotion = if (isVerticalExpansionEnabled) wearLocalReduceMotion else null
+        val previewContent =
+            if (wearReduceMotion == null) content
+            else
+                remember(wearReduceMotion, content) {
+                    @Composable {
+                        CompositionLocalProvider(wearReduceMotion provides true, content = content)
+                    }
+                }
         // We need to replace the FontResourceLoader to avoid using ResourcesCompat.
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
@@ -596,9 +609,9 @@ internal class ComposeViewAdapter : FrameLayout {
                     isEnabled = true,
                     isShowKeyLabelEnabled = lookaheadAnimationVisualDebuggingKeyLabelEnabled,
                 ) {
-                    Inspectable(slotTableRecord, content)
+                    Inspectable(slotTableRecord, previewContent)
                 }
-            } else Inspectable(slotTableRecord, content)
+            } else Inspectable(slotTableRecord, previewContent)
         }
     }
 
