@@ -34,6 +34,7 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.isInUserInteractionDisabledSubtree
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.SemanticsNodeCopy
 import androidx.compose.ui.platform.getTextLayoutResult
@@ -129,6 +130,7 @@ internal class AndroidContentCaptureManager(
                 field =
                     view.semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                         customRootNodeId = AccessibilityNodeProviderCompat.HOST_VIEW_ID,
+                        skipDisabledUserInteraction = false,
                         shouldIgnoreNode = { it.isAccessibilityIgnoredLink },
                     )
                 currentSemanticsNodesSnapshotTimestampMillis = System.currentTimeMillis()
@@ -500,6 +502,7 @@ internal class AndroidContentCaptureManager(
     }
 
     private fun updateTranslationOnAppeared(node: SemanticsNode) {
+        if (node.isInUserInteractionDisabledSubtree()) return
         val config = node.unmergedConfig
         val isShowingTextSubstitution =
             config.getOrNull(SemanticsProperties.IsShowingTextSubstitution)
@@ -533,6 +536,7 @@ internal class AndroidContentCaptureManager(
 
     private fun showTranslatedText() {
         currentSemanticsNodes.forEachValue { node ->
+            if (node.semanticsNode.isInUserInteractionDisabledSubtree()) return@forEachValue
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == false) {
                 config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(true)
@@ -542,6 +546,7 @@ internal class AndroidContentCaptureManager(
 
     private fun hideTranslatedText() {
         currentSemanticsNodes.forEachValue { node ->
+            if (node.semanticsNode.isInUserInteractionDisabledSubtree()) return@forEachValue
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) == true) {
                 config.getOrNull(SemanticsActions.ShowTextSubstitution)?.action?.invoke(false)
@@ -551,6 +556,7 @@ internal class AndroidContentCaptureManager(
 
     private fun clearTranslatedText() {
         currentSemanticsNodes.forEachValue { node ->
+            if (node.semanticsNode.isInUserInteractionDisabledSubtree()) return@forEachValue
             val config = node.semanticsNode.unmergedConfig
             if (config.getOrNull(SemanticsProperties.IsShowingTextSubstitution) != null) {
                 config.getOrNull(SemanticsActions.ClearTextSubstitution)?.action?.invoke()
@@ -572,6 +578,7 @@ internal class AndroidContentCaptureManager(
                 val node =
                     contentCaptureManager.currentSemanticsNodes[it.toInt()]?.semanticsNode
                         ?: return@forEach
+                if (node.isInUserInteractionDisabledSubtree()) return@forEach
                 val requestBuilder =
                     ViewTranslationRequest.Builder(
                         contentCaptureManager.view.autofillId,
@@ -617,10 +624,12 @@ internal class AndroidContentCaptureManager(
                 response.get(key)?.getValue(ViewTranslationRequest.ID_TEXT)?.text?.let {
                     contentCaptureManager.currentSemanticsNodes[key.toInt()]?.semanticsNode?.let {
                         semanticsNode ->
-                        semanticsNode.unmergedConfig
-                            .getOrNull(SemanticsActions.SetTextSubstitution)
-                            ?.action
-                            ?.invoke(AnnotatedString(it.toString()))
+                        if (!semanticsNode.isInUserInteractionDisabledSubtree()) {
+                            semanticsNode.unmergedConfig
+                                .getOrNull(SemanticsActions.SetTextSubstitution)
+                                ?.action
+                                ?.invoke(AnnotatedString(it.toString()))
+                        }
                     }
                 }
             }

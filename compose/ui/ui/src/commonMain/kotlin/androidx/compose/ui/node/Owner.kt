@@ -408,6 +408,19 @@ internal interface Owner : PositionCalculator {
     /** Decrements count of modifiers requesting to stop the screen from going to sleep */
     fun decrementKeepScreenOnCount() {}
 
+    /**
+     * Count of attached `enableUserInteraction(enabled = false)` modifier nodes, or `-1` if this
+     * [Owner] does not track the count.
+     */
+    val disabledUserInteractionCount: Int
+        get() = -1
+
+    /** Increments count of attached `enableUserInteraction(enabled = false)` modifier nodes. */
+    fun incrementDisabledUserInteractionCount() {}
+
+    /** Decrements count of attached `enableUserInteraction(enabled = false)` modifier nodes. */
+    fun decrementDisabledUserInteractionCount() {}
+
     /** On Android it is only available when the view is attached. */
     val outOfFrameExecutor: OutOfFrameExecutor?
         get() = null

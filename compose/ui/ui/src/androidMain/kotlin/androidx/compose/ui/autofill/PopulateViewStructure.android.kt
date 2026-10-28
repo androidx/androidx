@@ -25,6 +25,8 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillId
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.isInUserInteractionDisabledSubtree
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextClassName
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.TextFieldClassName
 import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
@@ -115,6 +117,9 @@ internal fun ViewStructure.populate(
             properties.Disabled -> autofillApi.setEnabled(this, false)
             properties.Text -> textMergedProp = value as List<AnnotatedString>
         }
+    }
+    if ((semanticsInfo as? LayoutNode)?.isInUserInteractionDisabledSubtree() == true) {
+        autofillApi.setEnabled(this, false)
     }
 
     // Id.

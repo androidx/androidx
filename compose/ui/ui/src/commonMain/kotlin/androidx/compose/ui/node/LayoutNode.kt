@@ -35,6 +35,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.internal.requirePrecondition
+import androidx.compose.ui.isUserInteractionDisabled
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -1073,6 +1074,7 @@ internal class LayoutNode(
         pointerType: PointerType = PointerType.Unknown,
         isInLayer: Boolean = true,
     ) {
+        if (isUserInteractionDisabled()) return
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
         outerCoordinator.hitTest(
             NodeCoordinator.PointerInputSource,
@@ -1090,6 +1092,7 @@ internal class LayoutNode(
         pointerType: PointerType = PointerType.Touch,
         isInLayer: Boolean = true,
     ) {
+        if (isUserInteractionDisabled()) return
         val positionInWrapped = outerCoordinator.fromParentPosition(pointerPosition)
         outerCoordinator.hitTest(
             NodeCoordinator.SemanticsSource,
