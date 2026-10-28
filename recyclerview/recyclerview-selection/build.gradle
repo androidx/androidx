@@ -49,6 +49,9 @@ androidx {
     mavenVersion = LibraryVersions.RECYCLERVIEW_SELECTION
     inceptionYear = "2017"
     description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
+    deviceTests {
+        maxShardCount = 1
+    }
 }
 
 android {
