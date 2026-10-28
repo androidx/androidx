@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.quirk.CameraNoResponseWhenEnablingFlashQuirk
+import androidx.camera.camera2.compat.quirk.ImageCaptureFlashNotFireQuirk
 import androidx.camera.camera2.compat.quirk.ImageCaptureWashedOutImageQuirk
 import androidx.camera.camera2.compat.quirk.UltraWideFlashCaptureUnderexposureQuirk
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
@@ -64,6 +65,29 @@ class UseTorchAsFlashTest {
             val useTorchAsFlash = createUseTorchAsFlash()
 
             assertThat(useTorchAsFlash.shouldUseTorchAsFlash { null }).isTrue()
+        }
+    }
+
+    @Test
+    fun shouldUseTorchAsFlash_withImageCaptureFlashNotFireQuirk_isTrue() = runBlocking {
+        ImageCaptureFlashNotFireQuirk.BUILD_MODELS.forEach { model ->
+            listOf(model, model.uppercase()).forEach { testModel ->
+                ShadowBuild.setModel(testModel)
+                val useTorchAsFlash = createUseTorchAsFlash()
+
+                assertThat(useTorchAsFlash.shouldUseTorchAsFlash { null }).isTrue()
+                assertThat(useTorchAsFlash.shouldDisableAePrecapture()).isTrue()
+            }
+        }
+        ImageCaptureFlashNotFireQuirk.BUILD_MODELS_FRONT_CAMERA.forEach { model ->
+            listOf(model, model.uppercase()).forEach { testModel ->
+                ShadowBuild.setModel(testModel)
+                val useTorchAsFlash =
+                    createUseTorchAsFlash(lensFacing = CameraCharacteristics.LENS_FACING_FRONT)
+
+                assertThat(useTorchAsFlash.shouldUseTorchAsFlash { null }).isTrue()
+                assertThat(useTorchAsFlash.shouldDisableAePrecapture()).isTrue()
+            }
         }
     }
 
