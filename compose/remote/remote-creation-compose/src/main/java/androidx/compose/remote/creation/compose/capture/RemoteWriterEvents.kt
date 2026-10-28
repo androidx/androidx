@@ -31,7 +31,7 @@ import androidx.compose.remote.creation.compose.util.fastForEachIndexed
  * composable tree into a desired output format, such as a binary file, a JSON representation, or a
  * network stream.
  */
-public class WriterEvents {
+public class RemoteWriterEvents {
     private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()
     private val lambdaMap: MutableIntObjectMap<() -> Unit> = MutableIntObjectMap()
 
@@ -66,3 +66,6 @@ public class WriterEvents {
     public val lambdas: IntObjectMap<() -> Unit>
         get() = lambdaMap
 }
+
+/** Bridge for modules pinned to a prebuilt that still references `WriterEvents`. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class WriterEvents

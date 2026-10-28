@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
@@ -59,7 +59,7 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
     public fun setContent(
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        writerEvents: WriterEvents = WriterEvents(),
+        writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
         onCreate: ((CoreDocument) -> Unit)? = null,
         clock: RemoteClock = RemoteClock.SYSTEM,
         creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
@@ -93,7 +93,7 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
     private class CreationImpl(
         private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         private val profile: Profile,
-        private val writerEvents: WriterEvents,
+        private val writerEvents: RemoteWriterEvents,
         private val onCreate: ((CoreDocument) -> Unit)?,
         private val clock: RemoteClock,
     ) : Creation {

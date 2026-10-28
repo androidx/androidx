@@ -19,15 +19,17 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
+import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.TileMode
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BlurEffect(
+public class RemoteBlurEffect(
     public val radiusX: Float,
     public val radiusY: Float = radiusX,
     public val edgeTreatment: RemoteTileMode = RemoteTileMode.Clamp,
-) : RenderEffect() {
-    override fun toComposeRenderEffect(): androidx.compose.ui.graphics.RenderEffect {
+) : RemoteRenderEffect() {
+    override fun toComposeRenderEffect(): RenderEffect {
         val composeTileMode =
             when (edgeTreatment) {
                 RemoteTileMode.Clamp -> TileMode.Clamp
@@ -36,6 +38,6 @@ public class BlurEffect(
                 RemoteTileMode.Decal -> TileMode.Decal
                 else -> TileMode.Clamp
             }
-        return androidx.compose.ui.graphics.BlurEffect(radiusX, radiusY, composeTileMode)
+        return BlurEffect(radiusX, radiusY, composeTileMode)
     }
 }

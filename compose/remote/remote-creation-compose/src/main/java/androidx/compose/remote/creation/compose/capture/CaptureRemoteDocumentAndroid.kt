@@ -74,7 +74,7 @@ import kotlinx.coroutines.flow.flow
  * once inside a virtual display.
  *
  * This is a suspending function that performs the composition and rendering, returning a
- * [CapturedDocument] which contains the serialized bytes and metadata.
+ * [RemoteCapturedDocument] which contains the serialized bytes and metadata.
  *
  * @param context The Android [Context] to use.
  * @param creationDisplayInfo Details about the virtual display to capture for (size, density,
@@ -90,7 +90,7 @@ import kotlinx.coroutines.flow.flow
  *   [RcPlatformProfiles.ANDROIDX].
  * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
  * @param content The Composable content to render and capture.
- * @return A [CapturedDocument] containing the serialized document bytes.
+ * @return A [RemoteCapturedDocument] containing the serialized document bytes.
  */
 public suspend fun captureSingleRemoteDocument(
     context: Context,
@@ -104,9 +104,9 @@ public suspend fun captureSingleRemoteDocument(
         toLayoutDirection(context.resources.configuration.layoutDirection),
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerEvents: WriterEvents = WriterEvents(),
+    writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
     content: @Composable @RemoteComposable () -> Unit,
-): CapturedDocument =
+): RemoteCapturedDocument =
     captureSingleRemoteDocument(
         context = context,
         creationDisplayInfo = creationDisplayInfo,
@@ -141,11 +141,11 @@ public suspend fun captureSingleRemoteDocument(
         toLayoutDirection(context.resources.configuration.layoutDirection),
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerEvents: WriterEvents = WriterEvents(),
+    writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
     savedState: SavedState? = null,
     retainedValuesStore: RetainedValuesStore? = null,
     content: @Composable @RemoteComposable () -> Unit,
-): CapturedDocument {
+): RemoteCapturedDocument {
     val lifecycleOwner = HeadlessLifecycleOwner(savedState)
     val saveableStateRegistry = savedState?.let {
         SaveableStateRegistry(it.toSaveableStateMap(), ::canBeSavedToBundle)
@@ -178,7 +178,7 @@ public suspend fun captureSingleRemoteDocument(
                     content = content,
                 ),
         )
-    return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
+    return RemoteCapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
 }
 
 /**
@@ -227,7 +227,7 @@ public fun captureRemoteDocument(
     layoutDirection: LayoutDirection? = null,
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerEvents: WriterEvents = WriterEvents(),
+    writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
     coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> =
@@ -264,7 +264,7 @@ public fun captureRemoteDocument(
             creationDisplayInfo.density.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
-    writerEvents: WriterEvents = WriterEvents(),
+    writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     coroutineContext: CoroutineContext = Dispatchers.Default,
@@ -461,4 +461,38 @@ private class ParcelableMapHolder(val map: Map<String, List<Any?>>) : Parcelable
                 override fun newArray(size: Int): Array<ParcelableMapHolder?> = arrayOfNulls(size)
             }
     }
+}
+
+/**
+ * Bridge for modules pinned to a prebuilt that still references [WriterEvents] and
+ * [CapturedDocument].
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("Use overload with RemoteWriterEvents", level = DeprecationLevel.HIDDEN)
+public suspend fun captureSingleRemoteDocument(
+    context: Context,
+    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+    remoteDensity: RemoteDensity =
+        RemoteDensity(
+            creationDisplayInfo.density.density.rf,
+            creationDisplayInfo.density.fontScale.rf,
+        ),
+    layoutDirection: LayoutDirection =
+        toLayoutDirection(context.resources.configuration.layoutDirection),
+    @Suppress("UNUSED_PARAMETER") clock: RemoteClock = RemoteClock.SYSTEM,
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    @Suppress("UNUSED_PARAMETER") writerEvents: WriterEvents = WriterEvents(),
+    content: @Composable @RemoteComposable () -> Unit,
+): CapturedDocument {
+    val result =
+        captureSingleRemoteDocument(
+            context = context,
+            creationDisplayInfo = creationDisplayInfo,
+            remoteDensity = remoteDensity,
+            layoutDirection = layoutDirection,
+            profile = profile,
+            writerEvents = RemoteWriterEvents(),
+            content = content,
+        )
+    return CapturedDocument(result.bytes, result.pendingIntents)
 }

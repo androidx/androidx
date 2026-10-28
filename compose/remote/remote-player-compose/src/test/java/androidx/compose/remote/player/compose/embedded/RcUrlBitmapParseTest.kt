@@ -21,7 +21,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -41,7 +41,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcUrlBitmapParseTest {
 
-    private suspend fun createUrlBitmapDocument(): CapturedDocument {
+    private suspend fun createUrlBitmapDocument(): RemoteCapturedDocument {
         val context = ApplicationProvider.getApplicationContext<Context>()
         return captureSingleRemoteDocument(context = context) {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {

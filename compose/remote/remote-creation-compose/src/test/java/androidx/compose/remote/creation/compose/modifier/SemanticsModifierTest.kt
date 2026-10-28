@@ -25,7 +25,7 @@ import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.semantics.AccessibleComponent
 import androidx.compose.remote.core.semantics.CoreSemantics
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -110,7 +110,7 @@ class SemanticsModifierTest {
         assertThat(context.getText(semantics.textId!!)).isEqualTo("item")
     }
 
-    private fun makeAndUpdateCoreDocument(captured: CapturedDocument) =
+    private fun makeAndUpdateCoreDocument(captured: RemoteCapturedDocument) =
         CoreDocument().apply {
             val buffer = RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(captured.bytes))
             buffer.buffer.index = 0

@@ -176,7 +176,7 @@ class GraphicsLayerModifierTest {
             recordAndEvaluate {
                 RemoteModifier.graphicsLayer(
                     shape = RemoteRectangleShape,
-                    renderEffect = BlurEffect(8f, 12f, RemoteTileMode.Mirror),
+                    renderEffect = RemoteBlurEffect(8f, 12f, RemoteTileMode.Mirror),
                 )
             }
 

@@ -21,7 +21,7 @@ package androidx.compose.remote.creation.compose
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -201,7 +201,7 @@ class RemoteComposeTest {
             val flow =
                 captureRemoteDocument(
                     creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                    writerEvents = WriterEvents(),
+                    writerEvents = RemoteWriterEvents(),
                     context = context,
                     content = { RemoteBox(modifier = RemoteModifier.fillMaxSize()) },
                 )

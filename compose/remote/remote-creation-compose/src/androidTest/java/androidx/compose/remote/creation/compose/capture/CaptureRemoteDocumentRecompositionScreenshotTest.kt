@@ -113,7 +113,7 @@ class CaptureRemoteDocumentRecompositionScreenshotTest {
         val flow =
             captureRemoteDocument(
                 creationDisplayInfo = RemoteCreationDisplayInfo(width, height, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 context = context,
                 content = {
                     val color = if (state.value == "Initial") Color.Red.rc else Color.Green.rc

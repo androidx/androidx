@@ -51,7 +51,7 @@ internal class GraphicsLayerModifier(
     val compositingStrategy: RemoteCompositingStrategy = RemoteCompositingStrategy.Auto,
     val alpha: RemoteFloat,
     val cameraDistance: RemoteFloat,
-    val renderEffect: RenderEffect?,
+    val renderEffect: RemoteRenderEffect?,
 ) : RemoteModifier.Element {
 
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
@@ -116,7 +116,7 @@ internal class GraphicsLayerModifier(
                 compositingStrategy.value,
             )
         }
-        if (renderEffect is BlurEffect) {
+        if (renderEffect is RemoteBlurEffect) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.BLUR_RADIUS_X,
                 renderEffect.radiusX,
@@ -192,7 +192,7 @@ internal class GraphicsLayerModifier(
  * @param shape The shape of the layer.
  * @param compositingStrategy The compositing strategy to use for the layer.
  * @param cameraDistance The camera distance for 3D transforms.
- * @param renderEffect The [RenderEffect] to apply, or null.
+ * @param renderEffect The [RemoteRenderEffect] to apply, or null.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.graphicsLayer(
@@ -210,7 +210,7 @@ public fun RemoteModifier.graphicsLayer(
     shape: RemoteShape,
     compositingStrategy: RemoteCompositingStrategy = RemoteCompositingStrategy.Auto,
     cameraDistance: RemoteFloat = 8f.rf, // Default Value for Camera Distance
-    renderEffect: RenderEffect? = null,
+    renderEffect: RemoteRenderEffect? = null,
 ): RemoteModifier =
     then(
         GraphicsLayerModifier(

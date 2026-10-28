@@ -43,7 +43,7 @@ public fun rememberRemoteDocument(
     creationDisplayInfo: RemoteCreationDisplayInfo = rememberRemoteCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
-    writerEvents: WriterEvents = WriterEvents(),
+    writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
     onCreate: ((CoreDocument) -> Unit)? = null,
     clock: RemoteClock = RemoteClock.SYSTEM,
     content: @Composable @RemoteComposable () -> Unit,

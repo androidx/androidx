@@ -24,7 +24,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
@@ -42,8 +42,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * Creates an [RemoteAction] that sends a [PendingIntent], filling in [extras] when the action runs.
  *
  * The [PendingIntent] is not serialized into the document. It is stored in
- * [androidx.compose.remote.creation.compose.capture.CapturedDocument.pendingIntents], keyed by its
- * index, and the host sends it when the action runs: the embedded player through
+ * [androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument.pendingIntents], keyed
+ * by its index, and the host sends it when the action runs: the embedded player through
  * [PendingIntentActionHandler], and `RemoteViews` hosts once it is registered with
  * `setOnClickPendingIntent(PendingIntentAction.FIRST_ACTION_ID + index, it)`.
  *
@@ -104,10 +104,10 @@ public class PendingIntentAction(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val writerCallback = document.writerCallback
-        if (writerCallback !is WriterEvents) {
+        if (writerCallback !is RemoteWriterEvents) {
             error(
                 "Could not store the pendingIntent, " +
-                    "a WriterEvents is required for writing a PendingIntentAction."
+                    "a RemoteWriterEvents is required for writing a PendingIntentAction."
             )
         }
         val index = writerCallback.storePendingIntent(pendingIntent())

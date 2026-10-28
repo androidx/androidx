@@ -36,7 +36,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -74,7 +73,7 @@ internal fun RemoteComposeDemo(
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val context = LocalContext.current
-    val capturedDocument = remember { mutableStateOf<CapturedDocument?>(null) }
+    val capturedDocumentBytes = remember { mutableStateOf<ByteArray?>(null) }
     val remoteDocument = remember { mutableStateOf<RemoteDocument?>(null) }
 
     LaunchedEffect(Unit) {
@@ -86,7 +85,7 @@ internal fun RemoteComposeDemo(
                     content = content,
                 )
             remoteDocument.value = RemoteDocument(document.bytes)
-            capturedDocument.value = document
+            capturedDocumentBytes.value = document.bytes
         }
     }
 
@@ -94,7 +93,7 @@ internal fun RemoteComposeDemo(
         RemotePlayer(remoteDocument = remoteDocument.value, modifier = Modifier.weight(1f))
         SaveRemoteDocumentButton(
             fileName = fileName,
-            capturedDocument = capturedDocument.value,
+            capturedDocumentBytes = capturedDocumentBytes.value,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
@@ -124,7 +123,7 @@ private fun RemotePlayer(remoteDocument: RemoteDocument?, modifier: Modifier = M
 @Composable
 private fun SaveRemoteDocumentButton(
     fileName: String,
-    capturedDocument: CapturedDocument?,
+    capturedDocumentBytes: ByteArray?,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -133,10 +132,10 @@ private fun SaveRemoteDocumentButton(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.CreateDocument("application/remote-compose-doc")
         ) { uri ->
-            if (uri != null && capturedDocument != null) {
+            if (uri != null && capturedDocumentBytes != null) {
                 scope.launch(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                        outputStream.write(capturedDocument.bytes)
+                        outputStream.write(capturedDocumentBytes)
                     }
                 }
             }
@@ -144,7 +143,7 @@ private fun SaveRemoteDocumentButton(
 
     Button(
         onClick = { saveLauncher.launch(fileName) },
-        enabled = capturedDocument != null,
+        enabled = capturedDocumentBytes != null,
         modifier = modifier.padding(24.dp),
     ) {
         Text("Save as .rc file")

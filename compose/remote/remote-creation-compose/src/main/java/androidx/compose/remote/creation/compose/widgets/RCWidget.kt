@@ -26,7 +26,7 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.PendingIntentAction
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -121,7 +121,7 @@ public open class RCWidget(
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     public fun getRemoteView(
         context: Context,
-        document: CapturedDocument,
+        document: RemoteCapturedDocument,
         provider: RemoteComposeWidget,
         widgetId: Int,
     ): RemoteViews {

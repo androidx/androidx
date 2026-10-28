@@ -20,7 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.collection.IntSet
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -79,7 +79,7 @@ internal object WearWidgetCapture {
         }
     }
 
-    fun CapturedDocument.toBundle(): Bundle {
+    fun RemoteCapturedDocument.toBundle(): Bundle {
         return Bundle().addPendingIntentsFrom(this)
     }
 
@@ -88,12 +88,12 @@ internal object WearWidgetCapture {
         return this
     }
 
-    private fun Bundle.addPendingIntentsFrom(capturedDocument: CapturedDocument): Bundle {
+    private fun Bundle.addPendingIntentsFrom(capturedDocument: RemoteCapturedDocument): Bundle {
         putParcelable(PENDING_INTENT_KEY, capturedDocument.toPendingIntentBundle())
         return this
     }
 
-    private fun CapturedDocument.toPendingIntentBundle(): Bundle =
+    private fun RemoteCapturedDocument.toPendingIntentBundle(): Bundle =
         Bundle().apply {
             pendingIntents.forEach { key, pendingIntent -> putParcelable("$key", pendingIntent) }
         }

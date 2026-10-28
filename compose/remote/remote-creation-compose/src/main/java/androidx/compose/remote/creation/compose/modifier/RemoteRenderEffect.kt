@@ -20,6 +20,6 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.RenderEffect
 
-public abstract class RenderEffect {
+public abstract class RemoteRenderEffect {
     public abstract fun toComposeRenderEffect(): RenderEffect
 }

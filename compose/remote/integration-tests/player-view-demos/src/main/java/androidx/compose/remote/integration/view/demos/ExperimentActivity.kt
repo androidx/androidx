@@ -80,7 +80,7 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -463,7 +463,7 @@ fun getComposeDoc(
                 captureSingleRemoteDocument(
                     profile = profile,
                     creationDisplayInfo = creationDisplayInfo,
-                    writerEvents = WriterEvents(),
+                    writerEvents = RemoteWriterEvents(),
                     context = context,
                     content = content,
                 )
