@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.Utils
@@ -373,10 +374,10 @@ public constructor(
          * @return A [RemoteColor] representing the constant color.
          */
         public operator fun invoke(
-            red: Float,
-            green: Float,
-            blue: Float,
-            alpha: Float = 1f,
+            @FloatRange(from = 0.0, to = 1.0) red: Float,
+            @FloatRange(from = 0.0, to = 1.0) green: Float,
+            @FloatRange(from = 0.0, to = 1.0) blue: Float,
+            @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1f,
         ): RemoteColor = rgb(red = red, green = green, blue = blue, alpha = alpha)
 
         /**

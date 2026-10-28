@@ -59,8 +59,8 @@ internal enum class RemoteColorSource {
             Named -> createNamedRemoteColor(role.name, fallback)
             Themed ->
                 RemoteColor.createThemedRemoteColor(
-                    lightMode = role.lightToken,
-                    darkMode = role.darkToken,
+                    lightColorRes = role.lightToken,
+                    darkColorRes = role.darkToken,
                     lightFallback = fallback,
                     darkFallback = fallback,
                 )

@@ -65,19 +65,19 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
  * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasSample
  * @sample androidx.compose.remote.creation.compose.samples.RemoteCanvasAnimationSample
  * @param modifier The [RemoteModifier] to apply to this layout.
- * @param content The drawing commands to be executed on the remote canvas via [RemoteDrawScope].
+ * @param onDraw The drawing commands to be executed on the remote canvas via [RemoteDrawScope].
  */
 @RemoteComposable
 @Composable
 public fun RemoteCanvas(
     modifier: RemoteModifier = RemoteModifier,
-    content: RemoteDrawScope.() -> Unit,
+    onDraw: RemoteDrawScope.() -> Unit,
 ) {
     RemoteComposeNode(
         factory = ::RemoteCanvasNode,
         update = {
             set(modifier) { this.modifier = it }
-            set(content) { this.onDraw = it }
+            set(onDraw) { this.onDraw = it }
         },
     )
 }

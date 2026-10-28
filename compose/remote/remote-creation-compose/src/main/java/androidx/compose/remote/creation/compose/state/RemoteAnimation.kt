@@ -16,6 +16,8 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import kotlin.math.sqrt
 
@@ -113,7 +115,7 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
  * @property easing The easing curve to apply.
  */
 public class RemoteTweenSpec(
-    public val durationMillis: Int = 300,
+    @IntRange(from = 0) public val durationMillis: Int = 300,
     public val easing: RemoteEasing = RemoteEasing.Standard,
 ) : RemoteAnimationSpec {
     init {
@@ -216,22 +218,22 @@ internal class RemoteSpringSpec(
  * @param easing Easing curve to apply.
  */
 public fun remoteTween(
-    durationMillis: Int = 300,
+    @IntRange(from = 0) durationMillis: Int = 300,
     easing: RemoteEasing = RemoteEasing.Standard,
 ): RemoteTweenSpec = RemoteTweenSpec(durationMillis = durationMillis, easing = easing)
 
 /**
  * Creates a [RemoteAnimationSpec] for physics-based spring animations.
  *
- * @param stiffness Spring stiffness.
  * @param dampingRatio Damping ratio (1.0 = no bounce, < 1.0 = bouncy).
+ * @param stiffness Spring stiffness.
  * @param stopThreshold Threshold for stopping velocity/displacement.
  * @param boundaryMode Boundary mode for the spring.
  */
 public fun remoteSpring(
-    stiffness: Float = 50f,
-    dampingRatio: Float = 1f,
-    stopThreshold: Float = 0.001f,
+    @FloatRange(from = 0.0, to = 1.0) dampingRatio: Float = 1f,
+    @FloatRange(from = 0.0, fromInclusive = false) stiffness: Float = 50f,
+    @FloatRange(from = 0.0, fromInclusive = false) stopThreshold: Float = 0.001f,
     boundaryMode: Int = 0,
 ): RemoteAnimationSpec =
     RemoteSpringSpec(

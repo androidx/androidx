@@ -113,7 +113,7 @@ class RemoteImageTest {
                 }
             }
             RemoteImage(
-                remoteBitmap = backgroundImage,
+                bitmap = backgroundImage,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = ContentScale.Fit,
@@ -157,7 +157,7 @@ class RemoteImageTest {
         ) {
             val backgroundImage = createImage(size, size)
             RemoteImage(
-                remoteBitmap = backgroundImage.asImageBitmap().rb,
+                bitmap = backgroundImage.asImageBitmap().rb,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = ContentScale.Fit,
@@ -231,7 +231,7 @@ class RemoteImageTest {
             val backgroundImage = createImage(size, size).asImageBitmap()
             val bitmap = remember { MutableRemoteImageBitmap(backgroundImage) }
             RemoteImage(
-                remoteBitmap = bitmap,
+                bitmap = bitmap,
                 contentDescription = "background".rs,
                 modifier = RemoteModifier.size(size.rdp),
                 contentScale = ContentScale.Fit,

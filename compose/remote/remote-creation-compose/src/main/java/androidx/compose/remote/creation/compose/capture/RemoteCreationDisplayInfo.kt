@@ -19,6 +19,8 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.ui.geometry.Size
@@ -77,10 +79,10 @@ internal constructor(
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 public fun RemoteCreationDisplayInfo(
-    width: Int,
-    height: Int,
-    densityDpi: Int,
-    fontScale: Float = 1.0f,
+    @IntRange(from = 1) width: Int,
+    @IntRange(from = 1) height: Int,
+    @IntRange(from = 1) densityDpi: Int,
+    @FloatRange(from = 0.0, fromInclusive = false) fontScale: Float = 1.0f,
     isInspectionMode: Boolean = false,
     densityBehavior: RemoteDensityBehavior = RemoteDensityBehavior.Legacy,
 ): RemoteCreationDisplayInfo {

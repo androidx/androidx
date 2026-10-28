@@ -82,7 +82,7 @@ fun BitmapLoaderDemo(onDocument: (CoreDocument) -> Unit = {}) {
                         )
                     }
                 RemoteImage(
-                    remoteBitmap = bitmap,
+                    bitmap = bitmap,
                     contentDescription = "Color $hex".rs,
                     modifier = RemoteModifier.size(100.rdp, 100.rdp),
                 )

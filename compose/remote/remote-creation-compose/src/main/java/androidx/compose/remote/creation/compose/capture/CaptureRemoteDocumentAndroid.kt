@@ -207,10 +207,10 @@ public suspend fun captureSingleRemoteDocument(
  *   layout scaling discrepancies.
  * @param layoutDirection The layout direction (LTR or RTL) to use. Defaults to the layout direction
  *   of [context]'s configuration when `null`.
- * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
  * @param clock The clock used for the recomposer timeline. Defaults to [RemoteClock.SYSTEM].
  * @param profile The writing profile that determines supported operations. Defaults to
  *   [RcPlatformProfiles.ANDROIDX].
+ * @param writerEvents Callback to handle non-serializable events (e.g. pending intents).
  * @param coroutineContext The CoroutineContext to run recomposition and rendering on. Defaults to
  *   [Dispatchers.Default].
  * @param content The Composable content to render and capture.
@@ -225,9 +225,9 @@ public fun captureRemoteDocument(
             creationDisplayInfo.density.fontScale.rf,
         ),
     layoutDirection: LayoutDirection? = null,
-    writerEvents: WriterEvents = WriterEvents(),
     clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    writerEvents: WriterEvents = WriterEvents(),
     coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable @RemoteComposable () -> Unit,
 ): Flow<ByteArray> =

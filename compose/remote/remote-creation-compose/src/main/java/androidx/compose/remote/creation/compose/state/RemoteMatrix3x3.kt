@@ -96,11 +96,11 @@ internal constructor(
     /**
      * Creates a new [RemoteMatrix3x3] that represents the multiplication of this matrix by another.
      *
-     * @param v The [RemoteMatrix3x3] to multiply with this one (this * v).
+     * @param other The [RemoteMatrix3x3] to multiply with this one (this * other).
      * @return A new [RemoteMatrix3x3] representing the multiplication.
      */
-    public operator fun times(v: RemoteMatrix3x3): RemoteMatrix3x3 {
-        val key = RemoteOperationCacheKey.create(OperationKey.MUL, this, v)
+    public operator fun times(other: RemoteMatrix3x3): RemoteMatrix3x3 {
+        val key = RemoteOperationCacheKey.create(OperationKey.MUL, this, other)
         return RemoteMatrix3x3(
             cacheKey = key,
             arrayProvider = { creationState ->
@@ -109,7 +109,7 @@ internal constructor(
                     // see MatrixOperations#eval.
                     *this@RemoteMatrix3x3.arrayProvider(creationState),
                     MatrixOperations.IDENTITY,
-                    *v.arrayProvider(creationState),
+                    *other.arrayProvider(creationState),
                     MatrixOperations.MUL,
                 )
             },

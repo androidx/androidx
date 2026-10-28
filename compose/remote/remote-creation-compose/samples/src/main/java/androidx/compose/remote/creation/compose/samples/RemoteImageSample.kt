@@ -37,7 +37,7 @@ fun RemoteImageSample() {
         RemoteImageBitmap(url = "https://example.com/placeholder.png")
     }
     RemoteImage(
-        remoteBitmap = remoteBitmap,
+        bitmap = remoteBitmap,
         contentDescription = "Sample Remote Image".rs,
         modifier = RemoteModifier.size(100.rdp),
         contentScale = ContentScale.Crop,
@@ -52,7 +52,7 @@ fun RemoteImageFitSample() {
         RemoteImageBitmap(url = "https://example.com/placeholder.png")
     }
     RemoteImage(
-        remoteBitmap = remoteBitmap,
+        bitmap = remoteBitmap,
         contentDescription = "Fit Sample".rs,
         modifier = RemoteModifier.size(100.rdp),
         contentScale = ContentScale.Fit,

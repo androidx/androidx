@@ -324,7 +324,7 @@ class RcPlayerStateTest {
             val remoteImage = remember {
                 createNamedRemoteImageBitmap("custom_image") { initialBitmap }
             }
-            RemoteImage(remoteBitmap = remoteImage, contentDescription = "image".rs)
+            RemoteImage(bitmap = remoteImage, contentDescription = "image".rs)
         }
 
         val playerState = RcPlayerState(document)

@@ -564,7 +564,7 @@ private fun DogeExpandedSlot(
         }
 
         RemoteImage(
-            remoteBitmap = icon.rb,
+            bitmap = icon.rb,
             contentDescription = RemoteString("Doge Icon"),
             modifier = RemoteModifier.size(176.rdp),
         )

@@ -26,8 +26,8 @@ import androidx.compose.remote.creation.Rc.AndroidColors
  * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
  * mode.
  *
- * @param lightMode The [android.R.color] resource ID for light mode.
- * @param darkMode The [android.R.color] resource ID for dark mode.
+ * @param lightColorRes The [android.R.color] resource ID for light mode.
+ * @param darkColorRes The [android.R.color] resource ID for dark mode.
  * @param lightFallback The fallback ARGB color integer to use in light mode if the theme color
  *   cannot be resolved.
  * @param darkFallback The fallback ARGB color integer to use in dark mode if the theme color cannot
@@ -35,13 +35,13 @@ import androidx.compose.remote.creation.Rc.AndroidColors
  * @return A [RemoteColor] representing the themed color.
  */
 public fun RemoteColor.Companion.createThemedRemoteColor(
-    @ColorRes lightMode: Int,
-    @ColorRes darkMode: Int,
+    @ColorRes lightColorRes: Int,
+    @ColorRes darkColorRes: Int,
     @ColorInt lightFallback: Int,
     @ColorInt darkFallback: Int,
 ): RemoteColor {
-    val lightModeIndex = AndroidSystemColorMap.lookupIndex(lightMode)
-    val darkModeIndex = AndroidSystemColorMap.lookupIndex(darkMode)
+    val lightModeIndex = AndroidSystemColorMap.lookupIndex(lightColorRes)
+    val darkModeIndex = AndroidSystemColorMap.lookupIndex(darkColorRes)
     val cacheKey =
         RemoteStateThemeColorKey(
             group = AndroidColors.GROUP,
@@ -67,19 +67,6 @@ public fun RemoteColor.Companion.createThemedRemoteColor(
         },
     )
 }
-
-/**
- * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
- * mode.
- *
- * @param lightMode The [android.R.color] resource ID for light mode.
- * @param darkMode The [android.R.color] resource ID for dark mode.
- * @param lightFallback The fallback ARGB color integer to use in light mode if the theme color
- *   cannot be resolved.
- * @param darkFallback The fallback ARGB color integer to use in dark mode if the theme color cannot
- *   be resolved.
- * @return A [RemoteColor] representing the themed color.
- */
 
 /**
  * Maps standard [android.R.color] resource IDs to and from their 0..195 index in the `"android"`

@@ -237,8 +237,7 @@ class BackgroundModifierTest {
             DemoBox("background(painterRemoteColor(Color.Blue))".rs) {
                 RemoteBox(
                     modifier =
-                        RemoteModifier.fillMaxSize()
-                            .background(remotePainter = painterRemoteColor(blue))
+                        RemoteModifier.fillMaxSize().background(painter = painterRemoteColor(blue))
                 )
             }
         }

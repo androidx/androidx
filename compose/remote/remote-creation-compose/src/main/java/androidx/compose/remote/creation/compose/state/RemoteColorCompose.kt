@@ -68,8 +68,8 @@ public fun createNamedRemoteColor(
  * Creates a themed [RemoteColor] that resolves to different Android system colors in light and dark
  * mode.
  *
- * @param lightMode The [android.R.color] resource ID for light mode.
- * @param darkMode The [android.R.color] resource ID for dark mode.
+ * @param lightColorRes The [android.R.color] resource ID for light mode.
+ * @param darkColorRes The [android.R.color] resource ID for dark mode.
  * @param lightFallback The fallback [Color] value to use in light mode if the theme color cannot be
  *   resolved.
  * @param darkFallback The fallback [Color] value to use in dark mode if the theme color cannot be
@@ -77,14 +77,14 @@ public fun createNamedRemoteColor(
  * @return A [RemoteColor] representing the themed color.
  */
 public fun RemoteColor.Companion.createThemedRemoteColor(
-    @ColorRes lightMode: Int,
-    @ColorRes darkMode: Int,
+    @ColorRes lightColorRes: Int,
+    @ColorRes darkColorRes: Int,
     lightFallback: Color,
     darkFallback: Color,
 ): RemoteColor =
     createThemedRemoteColor(
-        lightMode = lightMode,
-        darkMode = darkMode,
+        lightColorRes = lightColorRes,
+        darkColorRes = darkColorRes,
         lightFallback = lightFallback.toArgb(),
         darkFallback = darkFallback.toArgb(),
     )

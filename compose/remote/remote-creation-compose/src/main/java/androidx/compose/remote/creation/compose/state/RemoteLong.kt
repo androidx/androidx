@@ -53,11 +53,11 @@ internal constructor(
     }
 
     /**
-     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] plus [v].
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] plus [other].
      *
-     * @param v The [RemoteLong] to add.
+     * @param other The [RemoteLong] to add.
      */
-    public operator fun plus(v: RemoteLong): RemoteLong {
+    public operator fun plus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit addition using 32-bit integer arithmetic (Multiple-precision arithmetic).
         //
         // The algorithm computes the lower 32-bit sum and manually detects carry-out by checking if
@@ -65,20 +65,20 @@ internal constructor(
         // values, it flips the sign bit using `xor Int.MIN_VALUE` to perform unsigned comparisons.
         // See: https://www.nayuki.io/page/unsigned-int-considered-harmful-for-java (Unsigned
         // comparison)
-        val lowAdd = this.low + v.low
+        val lowAdd = this.low + other.low
         val minVal = Int.MIN_VALUE.ri
         val carry = selectIfLt(lowAdd xor minVal, this.low xor minVal, 1.ri, 0.ri)
-        val highAdd = this.high + v.high + carry
-        val key = RemoteOperationCacheKey.create(RemoteLongOp.Add, this@RemoteLong, v)
+        val highAdd = this.high + other.high + carry
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Add, this@RemoteLong, other)
         return object : RemoteLong(lowAdd, highAdd, key) {}
     }
 
     /**
-     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] minus [v].
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] minus [other].
      *
-     * @param v The [RemoteLong] to subtract.
+     * @param other The [RemoteLong] to subtract.
      */
-    public operator fun minus(v: RemoteLong): RemoteLong {
+    public operator fun minus(other: RemoteLong): RemoteLong {
         // Emulates 64-bit subtraction using 32-bit integer arithmetic (Multiple-precision
         // arithmetic).
         //
@@ -89,20 +89,20 @@ internal constructor(
         // Int.MIN_VALUE`.
         // See: https://www.nayuki.io/page/unsigned-int-considered-harmful-for-java (Unsigned
         // comparison)
-        val lowSub = this.low - v.low
+        val lowSub = this.low - other.low
         val minVal = Int.MIN_VALUE.ri
-        val borrow = selectIfLt(this.low xor minVal, v.low xor minVal, 1.ri, 0.ri)
-        val highSub = this.high - v.high - borrow
-        val key = RemoteOperationCacheKey.create(RemoteLongOp.Sub, this@RemoteLong, v)
+        val borrow = selectIfLt(this.low xor minVal, other.low xor minVal, 1.ri, 0.ri)
+        val highSub = this.high - other.high - borrow
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Sub, this@RemoteLong, other)
         return object : RemoteLong(lowSub, highSub, key) {}
     }
 
     /**
-     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] times [v].
+     * Returns a new [RemoteLong] that evaluates to this [RemoteLong] times [other].
      *
-     * @param v The [RemoteLong] to multiply by.
+     * @param other The [RemoteLong] to multiply by.
      */
-    public operator fun times(v: RemoteLong): RemoteLong {
+    public operator fun times(other: RemoteLong): RemoteLong {
         // Emulates 64-bit multiplication using 32-bit integer arithmetic.
         //
         // To prevent 32-bit signed overflow during intermediate calculations, the 32-bit `low`
@@ -114,8 +114,8 @@ internal constructor(
         val mask = 0xFFFF.ri
         val a0 = this.low and mask
         val a1 = (this.low shr 16.ri) and mask
-        val b0 = v.low and mask
-        val b1 = (v.low shr 16.ri) and mask
+        val b0 = other.low and mask
+        val b1 = (other.low shr 16.ri) and mask
 
         val m00 = a0 * b0
         val m00Carry = (m00 shr 16.ri) and mask
@@ -135,10 +135,10 @@ internal constructor(
         val m11 = a1 * b1
         val upper32 = m11 + highCross
 
-        val finalLow = this.low * v.low
-        val finalHigh = (this.high * v.low) + (this.low * v.high) + upper32
+        val finalLow = this.low * other.low
+        val finalHigh = (this.high * other.low) + (this.low * other.high) + upper32
 
-        val key = RemoteOperationCacheKey.create(RemoteLongOp.Mul, this@RemoteLong, v)
+        val key = RemoteOperationCacheKey.create(RemoteLongOp.Mul, this@RemoteLong, other)
         return object : RemoteLong(finalLow, finalHigh, key) {}
     }
 
@@ -313,8 +313,8 @@ public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
  * Remembers a named remote long expression.
  *
  * @param name The unique name for this remote long.
- * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
  * @param defaultValue The initial long value.
+ * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
  * @return A [RemoteLong] representing the named remote long expression.
  */
 @Composable

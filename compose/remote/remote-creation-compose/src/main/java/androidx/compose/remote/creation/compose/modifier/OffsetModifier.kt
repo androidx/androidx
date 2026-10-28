@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.modifiers.OffsetModifier as CreationOffsetModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
@@ -65,5 +66,5 @@ internal class OffsetModifier(
  * @param x The horizontal offset in [RemoteDp].
  * @param y The vertical offset in [RemoteDp].
  */
-public fun RemoteModifier.offset(x: RemoteDp, y: RemoteDp): RemoteModifier =
+public fun RemoteModifier.offset(x: RemoteDp = 0.rdp, y: RemoteDp = 0.rdp): RemoteModifier =
     then(OffsetModifier(x, y))

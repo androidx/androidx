@@ -286,7 +286,7 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                 RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS,
             ) {
                 RemoteImage(
-                    remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                    bitmap = RemoteImageBitmap(noiseBitmap),
                     contentDescription = null,
                     modifier = RemoteModifier.size(60.rdp),
                 )
@@ -308,7 +308,7 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                 ): WearWidgetData =
                     WearWidgetDocument(background = WearWidgetBrush) {
                         RemoteImage(
-                            remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                            bitmap = RemoteImageBitmap(noiseBitmap),
                             contentDescription = null,
                             modifier = RemoteModifier.size(60.rdp),
                         )
