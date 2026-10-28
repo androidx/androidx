@@ -384,6 +384,12 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
          */
         private var currentToken: Int = -1
 
+        /**
+         * Counter for the first time reads during [observeReads]. Used to skip
+         * [clearObsoleteStateReads] when no new states are present.
+         */
+        private var currentFirstReadCount = 0
+
         /** Values that have been read during the scope's [SnapshotStateObserver.observeReads]. */
         private var _valueToScopes: ScopeMap<Any, Any>? = null
         private val valueToScopes
@@ -507,7 +513,12 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             }
 
             val previousToken = recordedValues.put(value, currentToken, -1)
-            if (value is DerivedState<*> && previousToken != currentToken) {
+            val isFirstReadInScope = previousToken != currentToken
+            if (isFirstReadInScope) {
+                currentFirstReadCount++
+            }
+
+            if (value is DerivedState<*> && isFirstReadInScope) {
                 val record = value.currentRecord
                 // re-read the value before removing dependencies, in case the new value wasn't read
                 recordedIndirectStateValues[value] = record.currentValue
@@ -525,7 +536,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 // The calculation of the computed state immediately follows this read, and we're
                 // not already inside another computed state read. Record subsequent reads as
                 // dependencies of this state, including when it was already read in this scope.
-                if (previousToken != currentToken) {
+                if (isFirstReadInScope) {
                     dependencyToIndirectStates.removeScope(value)
                 }
                 this.currentComputedState = value
@@ -569,22 +580,28 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             val previousScope = currentScope
             val previousReads = currentScopeReads
             val previousToken = currentToken
+            val previousFirstReadCount = currentFirstReadCount
 
             currentScope = scope
             currentScopeReads = scopeToValues[scope]
             if (currentToken == -1) {
                 currentToken = currentSnapshot().snapshotId.hashCode()
             }
+            currentFirstReadCount = 0
 
             observeIndirectStateRecalculations(derivedStateObserver) {
                 Snapshot.observeInternal(readObserver, null, block)
             }
 
-            clearObsoleteStateReads(currentScope!!)
+            val scopeReads = currentScopeReads
+            if (scopeReads != null && currentFirstReadCount != scopeReads.size) {
+                clearObsoleteStateReads(currentScope!!)
+            }
 
             currentScope = previousScope
             currentScopeReads = previousReads
             currentToken = previousToken
+            currentFirstReadCount = previousFirstReadCount
         }
 
         private fun clearObsoleteStateReads(scope: Any) {
