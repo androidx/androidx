@@ -30,8 +30,8 @@ import androidx.annotation.StringDef
  * reused for both the populate and the verify phase of a flow.
  *
  * Which keys apply depends on [STORAGE_TYPE]:
- * - [BackupActionValues.STORAGE_TYPE_PREFS] uses [PREF_NAME], [PREF_KEY], [VALUE], [VALUE_TYPE],
- *   [EXPECTED] and [EXPECT_NULL].
+ * - [BackupActionValues.STORAGE_TYPE_PREFS] and [BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS]
+ *   use [PREF_NAME], [PREF_KEY], [VALUE], [VALUE_TYPE], [EXPECTED] and [EXPECT_NULL].
  * - [BackupActionValues.STORAGE_TYPE_DATABASE] uses [DB_NAME], [TABLE], [VALUES], [KEY_COL],
  *   [KEY_VAL], [EXPECTED_COL], [EXPECTED_VAL] and [EXPECT_NULL].
  * - [BackupActionValues.STORAGE_TYPE_FILES] uses [PATH], [VALUE], [IS_BINARY], [EXPECTED] and
@@ -48,9 +48,9 @@ public object BackupActionInputKeys {
      * Storage medium the action operates on.
      *
      * Must be one of [BackupActionValues.STORAGE_TYPE_PREFS],
-     * [BackupActionValues.STORAGE_TYPE_DATABASE] or [BackupActionValues.STORAGE_TYPE_FILES],
-     * matched case-insensitively. Defaults to [BackupActionValues.STORAGE_TYPE_PREFS] when absent.
-     * Any other value fails the action.
+     * [BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS], [BackupActionValues.STORAGE_TYPE_DATABASE]
+     * or [BackupActionValues.STORAGE_TYPE_FILES], matched case-insensitively. Defaults to
+     * [BackupActionValues.STORAGE_TYPE_PREFS] when absent. Any other value fails the action.
      */
     public const val STORAGE_TYPE: String = "storage_type"
 
@@ -66,13 +66,17 @@ public object BackupActionInputKeys {
     public const val IS_DEVICE_PROTECTED: String = "is_device_protected"
 
     /**
-     * Name of the [android.content.SharedPreferences] file.
+     * Name of the [android.content.SharedPreferences] file or of the Preferences DataStore.
      *
-     * Defaults to [BackupActionValues.DEFAULT_PREF_NAME] when absent.
+     * Required for a Preferences DataStore. For a SharedPreferences file, defaults to
+     * [BackupActionValues.DEFAULT_PREF_NAME] when absent.
      */
     public const val PREF_NAME: String = "pref_name"
 
-    /** Key within the [android.content.SharedPreferences] file. Required for preference storage. */
+    /**
+     * Key within the [android.content.SharedPreferences] file or the Preferences DataStore.
+     * Required for preference storage.
+     */
     public const val PREF_KEY: String = "pref_key"
 
     /**
@@ -89,10 +93,12 @@ public object BackupActionInputKeys {
      *
      * Must be one of [BackupActionValues.VALUE_TYPE_INT], [BackupActionValues.VALUE_TYPE_LONG],
      * [BackupActionValues.VALUE_TYPE_FLOAT], [BackupActionValues.VALUE_TYPE_BOOLEAN],
-     * [BackupActionValues.VALUE_TYPE_STRING] or [BackupActionValues.VALUE_TYPE_STRING_SET], matched
-     * case-insensitively. Defaults to [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other
-     * value fails the action, as does a [VALUE] or [EXPECTED] that does not parse as this type.
-     * Booleans accept only `"true"` and `"false"`, in any casing.
+     * [BackupActionValues.VALUE_TYPE_STRING] or [BackupActionValues.VALUE_TYPE_STRING_SET], or, for
+     * a Preferences DataStore only, [BackupActionValues.VALUE_TYPE_DOUBLE] or
+     * [BackupActionValues.VALUE_TYPE_BYTES], matched case-insensitively. Defaults to
+     * [BackupActionValues.VALUE_TYPE_STRING] when absent. Any other value fails the action, as does
+     * a [VALUE] or [EXPECTED] that does not parse as this type. Booleans accept only `"true"` and
+     * `"false"`, in any casing.
      */
     public const val VALUE_TYPE: String = "value_type"
 
@@ -231,31 +237,46 @@ public object BackupActionValues {
     /** [BackupActionInputKeys.STORAGE_TYPE] value selecting raw file storage. */
     public const val STORAGE_TYPE_FILES: String = "FILES"
 
-    /** [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putInt`. */
+    /** [BackupActionInputKeys.STORAGE_TYPE] value selecting Preferences DataStore storage. */
+    public const val STORAGE_TYPE_DATASTORE_PREFS: String = "DATASTORE_PREFS"
+
+    /** [BackupActionInputKeys.VALUE_TYPE] value storing an `Int`. */
     public const val VALUE_TYPE_INT: String = "INT"
 
-    /** [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putLong`. */
+    /** [BackupActionInputKeys.VALUE_TYPE] value storing a `Long`. */
     public const val VALUE_TYPE_LONG: String = "LONG"
 
-    /** [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putFloat`. */
+    /** [BackupActionInputKeys.VALUE_TYPE] value storing a `Float`. */
     public const val VALUE_TYPE_FLOAT: String = "FLOAT"
 
-    /** [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putBoolean`. */
+    /**
+     * [BackupActionInputKeys.VALUE_TYPE] value storing a `Double`, which only Preferences DataStore
+     * supports.
+     */
+    public const val VALUE_TYPE_DOUBLE: String = "DOUBLE"
+
+    /** [BackupActionInputKeys.VALUE_TYPE] value storing a `Boolean`. */
     public const val VALUE_TYPE_BOOLEAN: String = "BOOLEAN"
 
     /**
-     * [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putString`. This is the
-     * default when the key is absent.
+     * [BackupActionInputKeys.VALUE_TYPE] value storing a `String`. This is the default when the key
+     * is absent.
      */
     public const val VALUE_TYPE_STRING: String = "STRING"
 
     /**
-     * [BackupActionInputKeys.VALUE_TYPE] value storing the value with `putStringSet`.
+     * [BackupActionInputKeys.VALUE_TYPE] value storing a set of strings.
      *
      * The value is a JSON array of strings, such as `["a","b"]`. Verification compares the stored
      * set with it regardless of order.
      */
     public const val VALUE_TYPE_STRING_SET: String = "STRING_SET"
+
+    /**
+     * [BackupActionInputKeys.VALUE_TYPE] value storing a byte array, given in Base64, which only
+     * Preferences DataStore supports.
+     */
+    public const val VALUE_TYPE_BYTES: String = "BYTES"
 
     /** [BackupActionOutputKeys.STATUS] value reported when the action completed its work. */
     public const val STATUS_SUCCESS: String = "success"
@@ -265,7 +286,7 @@ public object BackupActionValues {
      */
     public const val STATUS_FAILURE: String = "failure"
 
-    /** [BackupActionInputKeys.PREF_NAME] used when the key is absent. */
+    /** [BackupActionInputKeys.PREF_NAME] of a SharedPreferences file when the key is absent. */
     public const val DEFAULT_PREF_NAME: String = "default_prefs"
 }
 

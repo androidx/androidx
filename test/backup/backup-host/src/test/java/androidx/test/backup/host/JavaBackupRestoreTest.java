@@ -84,6 +84,12 @@ public class JavaBackupRestoreTest {
         assertEquals("int_key", prefPrimitive.getKey());
         assertEquals(42, prefPrimitive.getValue());
 
+        StorageDomain.DataStorePreference dataStoreDomain =
+                new StorageDomain.DataStorePreference("user_prefs", "pi_key", 3.14);
+        assertEquals("user_prefs", dataStoreDomain.getDataStoreName());
+        assertEquals("pi_key", dataStoreDomain.getKey());
+        assertEquals(3.14, dataStoreDomain.getValue());
+
         StorageDomain.TextFile textDomain =
                 new StorageDomain.TextFile("files/data.txt", "file content");
         assertEquals("files/data.txt", textDomain.getPath());

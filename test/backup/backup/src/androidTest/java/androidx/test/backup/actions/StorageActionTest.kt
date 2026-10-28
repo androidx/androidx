@@ -1740,6 +1740,16 @@ public class StorageActionTest {
             verify(*noPath).errorMessage,
         )
         assertEquals(
+            "Missing 'pref_name' argument for DATASTORE_PREFS populate.",
+            populate(
+                    BackupActionInputKeys.STORAGE_TYPE to
+                        BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS,
+                    BackupActionInputKeys.PREF_KEY to "key",
+                    BackupActionInputKeys.VALUE to "v",
+                )
+                .errorMessage,
+        )
+        assertEquals(
             "Unsupported storage_type: TAPE",
             verify(BackupActionInputKeys.STORAGE_TYPE to "TAPE").errorMessage,
         )
@@ -1801,6 +1811,73 @@ public class StorageActionTest {
             )
         } finally {
             context.deleteDatabase(dbName)
+        }
+    }
+
+    /**
+     * Preferences DataStore values of every type are written into one file and verified, and
+     * [BackupActionInputKeys.EXPECT_NULL] removes a key and verifies that it is absent.
+     */
+    @Test
+    public fun testDataStorePrefsPopulateAndVerifyAllTypesAndAbsence() {
+        val name = "user_datastore_${System.nanoTime()}"
+        fun args(key: String, vararg more: Pair<String, String>) =
+            arrayOf(
+                BackupActionInputKeys.STORAGE_TYPE to
+                    BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS,
+                BackupActionInputKeys.PREF_NAME to name,
+                BackupActionInputKeys.PREF_KEY to key,
+                *more,
+            )
+        val values =
+            mapOf(
+                "string" to ("hello" to BackupActionValues.VALUE_TYPE_STRING),
+                "int" to ("-42" to BackupActionValues.VALUE_TYPE_INT),
+                "long" to ("9876543210" to BackupActionValues.VALUE_TYPE_LONG),
+                "float" to ("2.5" to BackupActionValues.VALUE_TYPE_FLOAT),
+                "double" to ("3.141592653589793" to BackupActionValues.VALUE_TYPE_DOUBLE),
+                "boolean" to ("false" to BackupActionValues.VALUE_TYPE_BOOLEAN),
+                "set" to ("[\"b\",\"a\"]" to BackupActionValues.VALUE_TYPE_STRING_SET),
+                "bytes" to
+                    (base64(byteArrayOf(0, -128, 127)) to BackupActionValues.VALUE_TYPE_BYTES),
+            )
+        val absent = args("string", BackupActionInputKeys.EXPECT_NULL to "true")
+
+        try {
+            assertSucceeds(verify(*absent))
+            for ((key, typedValue) in values) {
+                val (value, type) = typedValue
+                assertSucceeds(
+                    populate(
+                        *args(
+                            key,
+                            BackupActionInputKeys.VALUE to value,
+                            BackupActionInputKeys.VALUE_TYPE to type,
+                        )
+                    )
+                )
+            }
+            for ((key, typedValue) in values) {
+                val (value, type) = typedValue
+                assertSucceeds(
+                    verify(
+                        *args(
+                            key,
+                            BackupActionInputKeys.VALUE to value,
+                            BackupActionInputKeys.VALUE_TYPE to type,
+                        )
+                    )
+                )
+            }
+
+            assertEquals(
+                "Expected preference 'string' in DataStore '$name' to be absent, but found 'hello'.",
+                verify(*absent).errorMessage,
+            )
+            assertSucceeds(populate(*absent))
+            assertSucceeds(verify(*absent))
+        } finally {
+            File(context.filesDir, "datastore/$name.preferences_pb").delete()
         }
     }
 

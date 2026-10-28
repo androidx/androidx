@@ -73,12 +73,15 @@ internal object BackupActionValues {
     const val STORAGE_TYPE_PREFS = "PREFS"
     const val STORAGE_TYPE_DATABASE = "DATABASE"
     const val STORAGE_TYPE_FILES = "FILES"
+    const val STORAGE_TYPE_DATASTORE_PREFS = "DATASTORE_PREFS"
     const val VALUE_TYPE_INT = "INT"
     const val VALUE_TYPE_LONG = "LONG"
     const val VALUE_TYPE_FLOAT = "FLOAT"
+    const val VALUE_TYPE_DOUBLE = "DOUBLE"
     const val VALUE_TYPE_BOOLEAN = "BOOLEAN"
     const val VALUE_TYPE_STRING = "STRING"
     const val VALUE_TYPE_STRING_SET = "STRING_SET"
+    const val VALUE_TYPE_BYTES = "BYTES"
     const val STATUS_SUCCESS = "success"
     const val STATUS_FAILURE = "failure"
 }
@@ -196,19 +199,21 @@ internal object BackupActionWireProtocol {
     fun populateArgs(storage: StorageDomain): Map<String, String> =
         when (storage) {
             is StorageDomain.Preference ->
-                buildMap {
-                    put(BackupActionInputKeys.STORAGE_TYPE, BackupActionValues.STORAGE_TYPE_PREFS)
-                    put(BackupActionInputKeys.PREF_NAME, storage.prefName)
-                    put(BackupActionInputKeys.PREF_KEY, storage.key)
-                    val value = storage.value
-                    if (value != null) {
-                        put(BackupActionInputKeys.VALUE, preferenceValueString(value))
-                        put(BackupActionInputKeys.VALUE_TYPE, valueTypeOf(value))
-                    } else {
-                        put(BackupActionInputKeys.EXPECT_NULL, "true")
-                    }
-                    putDeviceProtected(storage.isDeviceProtectedStorage)
-                }
+                preferenceArgs(
+                    BackupActionValues.STORAGE_TYPE_PREFS,
+                    storage.prefName,
+                    storage.key,
+                    storage.value,
+                    storage.isDeviceProtectedStorage,
+                )
+            is StorageDomain.DataStorePreference ->
+                preferenceArgs(
+                    BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS,
+                    storage.dataStoreName,
+                    storage.key,
+                    storage.value,
+                    storage.isDeviceProtectedStorage,
+                )
             is StorageDomain.Database ->
                 buildMap {
                     val columns =
@@ -311,22 +316,50 @@ internal object BackupActionWireProtocol {
     private fun encode(value: String): String =
         URLEncoder.encode(value, StandardCharsets.UTF_8.name())
 
+    /**
+     * Returns the `PopulateStorageAction` arguments that write [value] to the preference [key] of
+     * the store [name] of [storageType], or remove the key if [value] is null.
+     */
+    private fun preferenceArgs(
+        storageType: String,
+        name: String,
+        key: String,
+        value: Any?,
+        isDeviceProtectedStorage: Boolean,
+    ): Map<String, String> = buildMap {
+        put(BackupActionInputKeys.STORAGE_TYPE, storageType)
+        put(BackupActionInputKeys.PREF_NAME, name)
+        put(BackupActionInputKeys.PREF_KEY, key)
+        if (value != null) {
+            put(BackupActionInputKeys.VALUE, preferenceValueString(value))
+            put(BackupActionInputKeys.VALUE_TYPE, valueTypeOf(value))
+        } else {
+            put(BackupActionInputKeys.EXPECT_NULL, "true")
+        }
+        putDeviceProtected(isDeviceProtectedStorage)
+    }
+
     private fun valueTypeOf(value: Any): String =
         when (value) {
             is Int -> BackupActionValues.VALUE_TYPE_INT
             is Long -> BackupActionValues.VALUE_TYPE_LONG
             is Float -> BackupActionValues.VALUE_TYPE_FLOAT
+            is Double -> BackupActionValues.VALUE_TYPE_DOUBLE
             is Boolean -> BackupActionValues.VALUE_TYPE_BOOLEAN
             is Set<*> -> BackupActionValues.VALUE_TYPE_STRING_SET
+            is ByteArray -> BackupActionValues.VALUE_TYPE_BYTES
             else -> BackupActionValues.VALUE_TYPE_STRING
         }
 
-    /** Returns [value] as [BackupActionInputKeys.VALUE]: a set as a JSON array of strings. */
+    /**
+     * Returns [value] as [BackupActionInputKeys.VALUE]: a set as a JSON array of strings, and a
+     * byte array as Base64.
+     */
     private fun preferenceValueString(value: Any): String =
-        if (value is Set<*>) {
-            JsonArray(value.map { JsonPrimitive(it as String) }).toString()
-        } else {
-            value.toString()
+        when (value) {
+            is Set<*> -> JsonArray(value.map { JsonPrimitive(it as String) }).toString()
+            is ByteArray -> base64(value)
+            else -> value.toString()
         }
 
     /**

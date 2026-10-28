@@ -70,12 +70,15 @@ class BackupActionWireProtocolTest {
         assertEquals("PREFS", BackupActionValues.STORAGE_TYPE_PREFS)
         assertEquals("DATABASE", BackupActionValues.STORAGE_TYPE_DATABASE)
         assertEquals("FILES", BackupActionValues.STORAGE_TYPE_FILES)
+        assertEquals("DATASTORE_PREFS", BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS)
         assertEquals("INT", BackupActionValues.VALUE_TYPE_INT)
         assertEquals("LONG", BackupActionValues.VALUE_TYPE_LONG)
         assertEquals("FLOAT", BackupActionValues.VALUE_TYPE_FLOAT)
+        assertEquals("DOUBLE", BackupActionValues.VALUE_TYPE_DOUBLE)
         assertEquals("BOOLEAN", BackupActionValues.VALUE_TYPE_BOOLEAN)
         assertEquals("STRING", BackupActionValues.VALUE_TYPE_STRING)
         assertEquals("STRING_SET", BackupActionValues.VALUE_TYPE_STRING_SET)
+        assertEquals("BYTES", BackupActionValues.VALUE_TYPE_BYTES)
         assertEquals("success", BackupActionValues.STATUS_SUCCESS)
         assertEquals("failure", BackupActionValues.STATUS_FAILURE)
     }
@@ -297,11 +300,45 @@ class BackupActionWireProtocolTest {
     }
 
     @Test
+    fun populateArgsEncodeDataStorePreferenceValues() {
+        assertEquals(
+            mapOf(
+                "storage_type" to "DATASTORE_PREFS",
+                "pref_name" to "user_prefs",
+                "pref_key" to "pi",
+                "value" to "3.14",
+                "value_type" to "DOUBLE",
+            ),
+            BackupActionWireProtocol.populateArgs(
+                StorageDomain.DataStorePreference("user_prefs", "pi", 3.14)
+            ),
+        )
+        assertEquals(
+            mapOf(
+                "storage_type" to "DATASTORE_PREFS",
+                "pref_name" to "user_prefs",
+                "pref_key" to "token",
+                "value" to "AQL/",
+                "value_type" to "BYTES",
+            ),
+            BackupActionWireProtocol.populateArgs(
+                StorageDomain.DataStorePreference("user_prefs", "token", byteArrayOf(1, 2, -1))
+            ),
+        )
+    }
+
+    @Test
     fun populateArgsMarkEveryKindOfDomainInDeviceProtectedStorage() {
         val domains =
             listOf(
                 StorageDomain.Preference("prefs", "key", "v", isDeviceProtectedStorage = true),
                 StorageDomain.Preference("prefs", "key", null, isDeviceProtectedStorage = true),
+                StorageDomain.DataStorePreference(
+                    "prefs",
+                    "key",
+                    3.14,
+                    isDeviceProtectedStorage = true,
+                ),
                 StorageDomain.Database("app.db", "t", "id", 1, mapOf("a" to "b"), true),
                 StorageDomain.TextFile("a.txt", "hello", isDeviceProtectedStorage = true),
                 StorageDomain.BinaryFile("b.bin", byteArrayOf(1), isDeviceProtectedStorage = true),

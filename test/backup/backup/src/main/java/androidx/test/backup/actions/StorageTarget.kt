@@ -27,6 +27,7 @@ import androidx.test.backup.BackupActionInputKeys.STORAGE_TYPE
 import androidx.test.backup.BackupActionInputKeys.TABLE
 import androidx.test.backup.BackupActionValues.DEFAULT_PREF_NAME
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATABASE
+import androidx.test.backup.BackupActionValues.STORAGE_TYPE_DATASTORE_PREFS
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_FILES
 import androidx.test.backup.BackupActionValues.STORAGE_TYPE_PREFS
 import androidx.test.backup.BackupDeviceActionArgs
@@ -47,6 +48,18 @@ internal sealed class StorageTarget(val context: Context) {
     /** The preference [key] in the `SharedPreferences` file [prefName]. */
     class Preference(context: Context, val prefName: String, val key: String) :
         StorageTarget(context)
+
+    /** The preference [key] in the Preferences DataStore [name]. */
+    class PreferencesDataStore(context: Context, val name: String, val key: String) :
+        StorageTarget(context) {
+        /**
+         * The DataStore file, `datastore/<name>.preferences_pb` in the files directory of
+         * [context]: where `preferencesDataStore(name)` keeps it, or, for a device-protected
+         * [context], where `deviceProtectedDataStoreFile("<name>.preferences_pb")` does.
+         */
+        val file: File
+            get() = File(context.filesDir, "datastore/$name.preferences_pb")
+    }
 
     /** The table [table] of the SQLite database [dbName]. */
     class Database(context: Context, val dbName: String, val table: String) : StorageTarget(context)
@@ -90,6 +103,12 @@ internal fun storageTargetOf(
             StorageTarget.Preference(
                 storageContext,
                 prefName = args[PREF_NAME] ?: DEFAULT_PREF_NAME,
+                key = required(PREF_KEY),
+            )
+        STORAGE_TYPE_DATASTORE_PREFS ->
+            StorageTarget.PreferencesDataStore(
+                storageContext,
+                name = required(PREF_NAME),
                 key = required(PREF_KEY),
             )
         STORAGE_TYPE_DATABASE ->

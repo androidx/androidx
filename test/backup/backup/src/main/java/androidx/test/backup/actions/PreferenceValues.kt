@@ -16,8 +16,11 @@
 
 package androidx.test.backup.actions
 
+import android.util.Base64
 import androidx.test.backup.BackupActionInputKeys.VALUE_TYPE
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_BOOLEAN
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_BYTES
+import androidx.test.backup.BackupActionValues.VALUE_TYPE_DOUBLE
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_FLOAT
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_INT
 import androidx.test.backup.BackupActionValues.VALUE_TYPE_LONG
@@ -60,6 +63,31 @@ internal fun parsePreferenceValue(value: String, valueType: String): Any =
         VALUE_TYPE_STRING_SET -> parseStringSet(value)
         VALUE_TYPE_STRING -> value
         else -> throw IllegalArgumentException("Unsupported $VALUE_TYPE: $valueType")
+    }
+
+/**
+ * Parses a string into a typed Preferences DataStore value according to [valueType].
+ *
+ * Supports every [parsePreferenceValue] type, plus [VALUE_TYPE_DOUBLE] and Base64-encoded
+ * [VALUE_TYPE_BYTES].
+ *
+ * @throws IllegalArgumentException if [valueType] is unsupported or [value] cannot be parsed
+ */
+internal fun parseDataStoreValue(value: String, valueType: String): Any =
+    when (valueType.uppercase()) {
+        VALUE_TYPE_DOUBLE ->
+            value.toDoubleOrNull()
+                ?: throw IllegalArgumentException("Invalid double preference value: '$value'")
+        VALUE_TYPE_BYTES ->
+            try {
+                Base64.decode(value, Base64.DEFAULT)
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException(
+                    "Invalid bytes preference value ${shown(value)}: expected Base64",
+                    e,
+                )
+            }
+        else -> parsePreferenceValue(value, valueType)
     }
 
 /**

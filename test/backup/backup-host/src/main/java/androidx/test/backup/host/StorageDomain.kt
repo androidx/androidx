@@ -93,11 +93,12 @@ public sealed class StorageDomain {
      * @property prefName The name of the SharedPreferences XML file (excluding the .xml extension).
      * @property key The specific preference key to seed or verify.
      * @property value The value associated with the preference key, or `null` if asserting missing
-     *   state. Supported types are: String, Int, Long, Float, Boolean, a Set of Strings, or null. A
-     *   set is stored with `putStringSet` and compared regardless of the order of its elements; the
-     *   preference keeps a copy of it. A `null` value is seeded by removing the key and verified by
-     *   checking that the key is absent. Clearing app data also removes the key, so a `null` value
-     *   cannot detect a restore that loses data.
+     *   state. Supported types are: String, Int, Long, Float, Boolean, a Set of Strings, or null;
+     *   other types fail construction with an [IllegalArgumentException]. A set is stored with
+     *   `putStringSet` and compared regardless of the order of its elements; the preference keeps a
+     *   copy of it. A `null` value is seeded by removing the key and verified by checking that the
+     *   key is absent. Clearing app data also removes the key, so a `null` value cannot detect a
+     *   restore that loses data.
      * @property isDeviceProtectedStorage Whether the SharedPreferences file is in device-protected
      *   storage, which is available before the user first unlocks the device, rather than in the
      *   default storage of the app. That is credential-encrypted storage, unless the app sets
@@ -144,6 +145,89 @@ public sealed class StorageDomain {
 
         override fun toString(): String {
             return "Preference(prefName='$prefName', key='$key', value=${shownValue(value)}" +
+                "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
+        }
+    }
+
+    /**
+     * Targets a preference of an on-device Preferences DataStore.
+     *
+     * The DataStore file is `datastore/<dataStoreName>.preferences_pb` in the files directory of
+     * the app, where `preferencesDataStore(dataStoreName)` keeps it. With
+     * [isDeviceProtectedStorage], it's that path in the files directory of device-protected
+     * storage, which `deviceProtectedDataStoreFile("<dataStoreName>.preferences_pb")` returns.
+     * `preferencesDataStoreFile` always returns the first path, even for a device-protected
+     * context.
+     *
+     * The Kotlin type of [value] sets the type of the preference key, such as `1.5f` for
+     * `floatPreferencesKey` and `1.5` for `doublePreferencesKey`. Use the type of your app's key:
+     * with another type, the verification passes, but your app can't read the value.
+     *
+     * @property dataStoreName The name of the Preferences DataStore, as the app passes it to
+     *   `preferencesDataStore`.
+     * @property key The preference key to seed or verify.
+     * @property value The value associated with [key], or `null` if asserting missing state.
+     *   Supported types are: String, Int, Long, Float, Double, Boolean, ByteArray, a Set of
+     *   Strings, or null; other types fail construction with an [IllegalArgumentException]. The
+     *   domain keeps a copy of a set or byte array, and returns a new copy of a byte array on each
+     *   read. A `null` value is seeded by removing the key and verified by checking that the key is
+     *   absent. Clearing app data also removes the key, so a `null` value cannot detect a restore
+     *   that loses data.
+     * @property isDeviceProtectedStorage Whether the Preferences DataStore file is in
+     *   device-protected storage, which is available before the user first unlocks the device,
+     *   rather than in the default storage of the app. That is credential-encrypted storage, unless
+     *   the app sets `android:defaultToDeviceProtectedStorage`.
+     */
+    public class DataStorePreference
+    @JvmOverloads
+    constructor(
+        public val dataStoreName: String,
+        public val key: String,
+        value: Any? = null,
+        public val isDeviceProtectedStorage: Boolean = false,
+    ) : StorageDomain() {
+
+        init {
+            if (value != null) {
+                require(isValidPreferenceType(value) || value is Double || value is ByteArray) {
+                    "Unsupported Preferences DataStore value type: ${value.javaClass.name}. " +
+                        "Supported types are: String, Int, Long, Float, Double, Boolean, " +
+                        "ByteArray, Set<String>."
+                }
+            }
+        }
+
+        public val value: Any? =
+            when (value) {
+                is ByteArray -> value.clone()
+                is Set<*> -> Collections.unmodifiableSet(LinkedHashSet(value))
+                else -> value
+            }
+            get() = if (field is ByteArray) field.clone() else field
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is DataStorePreference) return false
+            return dataStoreName == other.dataStoreName &&
+                key == other.key &&
+                Objects.deepEquals(value, other.value) &&
+                isDeviceProtectedStorage == other.isDeviceProtectedStorage
+        }
+
+        override fun hashCode(): Int {
+            var result = dataStoreName.hashCode()
+            result = 31 * result + key.hashCode()
+            val value = value
+            result =
+                31 * result + if (value is ByteArray) value.contentHashCode() else value.hashCode()
+            result = 31 * result + isDeviceProtectedStorage.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            val value = value
+            val shown = if (value is ByteArray) "(${value.size} bytes)" else shownValue(value)
+            return "DataStorePreference(dataStoreName='$dataStoreName', key='$key', value=$shown" +
                 "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
     }
@@ -288,7 +372,8 @@ public sealed class StorageDomain {
      *
      * @property path The path of the file, relative to the app's files directory
      *   (`Context.getFilesDir()`), such as `"my_image.png"`. An absolute path is used as is.
-     * @property content The raw byte array content of the file.
+     * @property content The raw byte array content of the file. The domain keeps a copy of it, and
+     *   returns a new copy on each read.
      * @property isDeviceProtectedStorage Whether the file is in device-protected storage, which is
      *   available before the user first unlocks the device, rather than in the default storage of
      *   the app. That is credential-encrypted storage, unless the app sets
@@ -391,21 +476,22 @@ public sealed class StorageDomain {
      * restored domain as well, to verify that the restore happened: a flow with only excluded data
      * fails with an [IllegalArgumentException].
      *
-     * @property domain data to seed and then expect absent: a [Preference] with a value, a
-     *   [Database], a [TextFile] or a [BinaryFile]. Any other domain fails construction with an
-     *   [IllegalArgumentException].
+     * @property domain data to seed and then expect absent: a [Preference] or [DataStorePreference]
+     *   with a value, a [Database], a [TextFile] or a [BinaryFile]. Any other domain fails
+     *   construction with an [IllegalArgumentException].
      */
     public class ExcludedData(public val domain: StorageDomain) : StorageDomain() {
 
         init {
             require(
                 (domain is Preference && domain.value != null) ||
+                    (domain is DataStorePreference && domain.value != null) ||
                     domain is Database ||
                     domain is TextFile ||
                     domain is BinaryFile
             ) {
-                "ExcludedData needs a Preference with a value, a Database, a TextFile or a " +
-                    "BinaryFile, not $domain."
+                "ExcludedData needs a Preference or DataStorePreference with a value, a " +
+                    "Database, a TextFile or a BinaryFile, not $domain."
             }
         }
 
