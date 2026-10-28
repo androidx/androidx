@@ -247,5 +247,7 @@ class SuspendFunctionProcessorDelegate(
 
 internal data class ContinuationParamName(val paramName: String)
 
+internal data class QueryParameters(val parameters: List<QueryParameter>)
+
 // Indicator that the function is a suspend function.
 fun TypeAdapterExtras.hasContinuation() = getData(ContinuationParamName::class) != null

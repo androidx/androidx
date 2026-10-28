@@ -4,11 +4,15 @@ import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
+import kotlin.Any
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.emptyMap
 import kotlin.collections.listOf
+import kotlin.collections.mapOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
@@ -99,6 +103,56 @@ internal class MyDao_Impl(
     val _sql: String = "SELECT * FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return __lettersReturnTypeConverter.convertD(_rawQuery) {
+      performSuspending<MyEntity>(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _result: MyEntity
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            _result = MyEntity(_tmpPk)
+          } else {
+            error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
+          }
+          _result
+        } finally {
+          _stmt.close()
+        }
+      }
+    }
+  }
+
+  public override suspend fun getE(id: Int): E<MyEntity> {
+    val _sql: String = "SELECT * FROM MyEntity WHERE pk = ?"
+    val _args: Map<String, Any?> = mapOf("id" to id)
+    return __lettersReturnTypeConverter.convertE(_args) {
+      performSuspending<MyEntity>(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          _stmt.bindLong(_argIndex, id.toLong())
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _result: MyEntity
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            _result = MyEntity(_tmpPk)
+          } else {
+            error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
+          }
+          _result
+        } finally {
+          _stmt.close()
+        }
+      }
+    }
+  }
+
+  public override suspend fun getF(): E<MyEntity> {
+    val _sql: String = "SELECT * FROM MyEntity"
+    val _args: Map<String, Any?> = emptyMap()
+    return __lettersReturnTypeConverter.convertE(_args) {
       performSuspending<MyEntity>(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {

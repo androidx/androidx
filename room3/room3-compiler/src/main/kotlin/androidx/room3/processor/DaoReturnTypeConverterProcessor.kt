@@ -36,6 +36,7 @@ import androidx.room3.compiler.processing.isBoolean
 import androidx.room3.compiler.processing.isKotlinUnit
 import androidx.room3.compiler.processing.isSuspendFunction
 import androidx.room3.ext.CommonTypeNames
+import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.KotlinTypeNames.NO_ARG_LAMBDA
 import androidx.room3.ext.KotlinTypeNames.NO_ARG_SUSPEND_LAMBDA
 import androidx.room3.ext.KotlinTypeNames.SINGLE_ARG_LAMBDA
@@ -83,6 +84,12 @@ class DaoReturnTypeConverterProcessor(
                 context.processingEnv.getDeclaredType(
                     context.processingEnv.requireTypeElement(CommonTypeNames.LIST),
                     context.processingEnv.requireType(CommonTypeNames.STRING),
+                ),
+            mapOfStringToNullableAny =
+                context.processingEnv.getDeclaredType(
+                    context.processingEnv.requireTypeElement(CommonTypeNames.MAP),
+                    context.processingEnv.requireType(CommonTypeNames.STRING),
+                    context.processingEnv.requireType(KotlinTypeNames.ANY).makeNullable(),
                 ),
         )
 
@@ -341,9 +348,11 @@ class DaoReturnTypeConverterProcessor(
     /**
      * A functional / lambda parameter in DAO return type converters is required. All other params
      * are optional, but are limited to:
+     * * `RoomDatabase` representing `database`
      * * `Boolean` representing `inTransaction`
      * * `List<String>` or `Array<String>` representing `tableNames`
      * * `RoomRawQuery` representing `rawQuery`
+     * * `Map<String, Any?>` representing `args`
      *
      * We need to have a way to check if [1] any / which of these parameters have been defined in
      * the convert function we have, [2] the order in which they have been supplied.
@@ -396,6 +405,19 @@ class DaoReturnTypeConverterProcessor(
             OptionalParam.TABLE_NAMES_ARRAY
         } else if (it.isBoolean()) {
             OptionalParam.IN_TRANSACTION
+        } else if (it.isSameType(paramTypesConstants.mapOfStringToNullableAny)) {
+            if (OperationType.WRITE in operationTypes) {
+                context.logger.e(
+                    element = convertFunction,
+                    msg =
+                        daoReturnTypeFunctionForOpWithBadParam(
+                            op = OperationType.WRITE.name,
+                            paramTypeName = it.asTypeName().toString(context.codeLanguage),
+                        ),
+                )
+                return null
+            }
+            OptionalParam.ARGS
         } else {
             context.logger.e(
                 element = convertFunction,
@@ -488,6 +510,7 @@ class DaoReturnTypeConverterProcessor(
         val rawQuery: XType,
         val string: XType,
         val listOfString: XType,
+        val mapOfStringToNullableAny: XType,
     )
 }
 

@@ -19,10 +19,13 @@ package androidx.room3.solver.query.result
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XPropertySpec
 import androidx.room3.compiler.codegen.XTypeName
+import androidx.room3.compiler.codegen.buildCodeBlock
 import androidx.room3.compiler.processing.XType
 import androidx.room3.ext.ArrayLiteral
 import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.InvokeWithLambdaParameter
+import androidx.room3.ext.KotlinCollectionMemberNames
+import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.ListOfString
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
@@ -31,12 +34,14 @@ import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.types.DaoReturnTypeConverter
 import androidx.room3.solver.types.DaoReturnTypeConverter.OptionalParam
+import androidx.room3.vo.QueryParameter
 
 class DaoConverterQueryResultBinder(
     val typeArg: XType,
     val tableNames: Set<String>,
     adapter: QueryResultAdapter?,
     val converter: DaoReturnTypeConverter,
+    val parameters: List<QueryParameter> = emptyList(),
 ) : QueryResultBinder(adapter) {
 
     override fun convertAndReturn(
@@ -49,6 +54,7 @@ class DaoConverterQueryResultBinder(
     ) {
         val rawQueryVar = scope.getTmpVar("_rawQuery")
         val statementVar = scope.getTmpVar("_stmt")
+        val argsVar = scope.getTmpVar("_args")
         if (converter.hasRawQueryParam()) {
             if (bindStatement != null) {
                 val rawQueryAssignExprBlock =
@@ -80,6 +86,30 @@ class DaoConverterQueryResultBinder(
                 scope.builder.addLocalVal(rawQueryVar, RAW_QUERY, "%T(%L)", RAW_QUERY, sqlQueryVar)
             }
         }
+        if (converter.requiredParameters.contains(OptionalParam.ARGS)) {
+            val mapExpr = buildCodeBlock {
+                if (parameters.isEmpty()) {
+                    add("%M()", KotlinCollectionMemberNames.EMPTY_MAP)
+                } else {
+                    val placeHolders = parameters.joinToString(", ") { "%S to %L" }
+                    val mapArgs = parameters.flatMap { listOf(it.name, it.name) }
+                    add(
+                        "%M($placeHolders)",
+                        KotlinCollectionMemberNames.MAP_OF,
+                        *mapArgs.toTypedArray(),
+                    )
+                }
+            }
+            scope.builder.addLocalVariable(
+                name = argsVar,
+                typeName =
+                    CommonTypeNames.MAP.parametrizedBy(
+                        CommonTypeNames.STRING,
+                        KotlinTypeNames.ANY.copy(nullable = true),
+                    ),
+                assignExpr = mapExpr,
+            )
+        }
 
         val lambdaHasRawQuery = converter.executeAndReturnLambda.hasRawQueryParam
         val converterRawQuery = scope.getTmpVar("_converterQuery")
@@ -92,6 +122,7 @@ class DaoConverterQueryResultBinder(
                     OptionalParam.TABLE_NAMES_LIST -> ListOfString(*tableNames.toTypedArray())
                     OptionalParam.IN_TRANSACTION -> inTransaction
                     OptionalParam.RAW_QUERY -> rawQueryVar
+                    OptionalParam.ARGS -> argsVar
                 }
             }
 

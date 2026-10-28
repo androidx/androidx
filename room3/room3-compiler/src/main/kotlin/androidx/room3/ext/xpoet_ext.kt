@@ -119,6 +119,8 @@ object KotlinCollectionMemberNames {
     val MUTABLE_LIST_OF = KotlinTypeNames.COLLECTIONS_KT.packageMember("mutableListOf")
     val MUTABLE_SET_OF = KotlinTypeNames.SETS_KT.packageMember("mutableSetOf")
     val MUTABLE_MAP_OF = KotlinTypeNames.MAPS_KT.packageMember("mutableMapOf")
+    val MAP_OF = KotlinTypeNames.MAPS_KT.packageMember("mapOf")
+    val EMPTY_MAP = KotlinTypeNames.MAPS_KT.packageMember("emptyMap")
 }
 
 object KotlinPreconditionsMemberNames {
