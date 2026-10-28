@@ -90,10 +90,16 @@ public class SamplePlaces {
 
         TypedArray typedArray =
                 carContext.obtainStyledAttributes(R.style.CarAppTheme, R.styleable.ShowcaseTheme);
-        CarColor iconTintColor =
-                CarColor.createCustom(
-                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColor, -1),
-                        typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColorDark, -1));
+        CarColor iconTintColor;
+        try {
+            iconTintColor =
+                    CarColor.createCustom(
+                            typedArray.getColor(R.styleable.ShowcaseTheme_markerIconTintColor, -1),
+                            typedArray.getColor(
+                                    R.styleable.ShowcaseTheme_markerIconTintColorDark, -1));
+        } finally {
+            typedArray.recycle();
+        }
 
 
         Location location1 = new Location(SamplePlaces.class.getSimpleName());
