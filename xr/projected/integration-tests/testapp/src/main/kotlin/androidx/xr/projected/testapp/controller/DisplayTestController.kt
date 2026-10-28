@@ -116,9 +116,19 @@ class DisplayTestController(
     }
 
     fun playSound() {
+        val controller = deviceController
+        if (controller == null) {
+            val message = "Can't play display status sound, device capabilities are not available"
+            Log.w(TAG, message)
+            viewModel.setStatusMessage(message)
+            return
+        }
+        val hasVisualUi =
+            ProjectedDeviceController.Capability.CAPABILITY_VISUAL_UI in controller.capabilities
+        val soundResourceId = if (hasVisualUi) R.raw.display_detected else R.raw.no_display
         try {
             mediaPlayer?.release()
-            mediaPlayer = MediaPlayer.create(context, R.raw.display_detected)
+            mediaPlayer = MediaPlayer.create(context, soundResourceId)
             mediaPlayer?.start()
         } catch (e: Exception) {
             Log.e(TAG, "Error playing sound", e)
