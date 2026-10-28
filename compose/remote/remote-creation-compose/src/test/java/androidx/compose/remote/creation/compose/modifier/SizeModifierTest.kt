@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
@@ -320,5 +321,61 @@ class SizeModifierTest {
         assertThat(heightInElements).hasSize(1)
         assertThat(widthInElements[0].min).isEqualTo(40f)
         assertThat(heightInElements[0].min).isEqualTo(40f)
+    }
+
+    @Test
+    fun testIntrinsicWidth_min() {
+        val modifier = RemoteModifier.width(RemoteIntrinsicSize.Min)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CoreWidthModifier
+        assertThat(element.type).isEqualTo(Type.INTRINSIC_MIN)
+
+        element.write(creationState.document)
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addWidthModifierOperation(${Type.INTRINSIC_MIN.ordinal}, 0.0)")
+    }
+
+    @Test
+    fun testIntrinsicWidth_max() {
+        val modifier = RemoteModifier.width(RemoteIntrinsicSize.Max)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CoreWidthModifier
+        assertThat(element.type).isEqualTo(Type.INTRINSIC_MAX)
+
+        element.write(creationState.document)
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addWidthModifierOperation(${Type.INTRINSIC_MAX.ordinal}, 0.0)")
+    }
+
+    @Test
+    fun testIntrinsicHeight_min() {
+        val modifier = RemoteModifier.height(RemoteIntrinsicSize.Min)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CoreHeightModifier
+        assertThat(element.type).isEqualTo(Type.INTRINSIC_MIN)
+
+        element.write(creationState.document)
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addHeightModifierOperation(${Type.INTRINSIC_MIN.ordinal}, 0.0)")
+    }
+
+    @Test
+    fun testIntrinsicHeight_max() {
+        val modifier = RemoteModifier.height(RemoteIntrinsicSize.Max)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(1)
+        val element = recordingModifier.list[0] as CoreHeightModifier
+        assertThat(element.type).isEqualTo(Type.INTRINSIC_MAX)
+
+        element.write(creationState.document)
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addHeightModifierOperation(${Type.INTRINSIC_MAX.ordinal}, 0.0)")
     }
 }
