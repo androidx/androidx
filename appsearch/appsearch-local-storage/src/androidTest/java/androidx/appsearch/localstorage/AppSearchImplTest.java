@@ -1038,6 +1038,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 /*logger=*/ null,
@@ -1096,6 +1097,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 batchResultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,
@@ -1163,6 +1165,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 batchResultBuilder,
                 /*sendChangeNotifications=*/ false,
                 /*logger=*/ null,
@@ -3895,6 +3898,7 @@ public class AppSearchImplTest {
 
         String prefix = PrefixUtil.createPrefix("package", "db1");
         mAppSearchImpl.setBlobNamespaceVisibility("package", "db1", ImmutableList.of(config),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         // Expect the config will be added prefix.
@@ -3962,6 +3966,7 @@ public class AppSearchImplTest {
         String prefix = PrefixUtil.createPrefix("package", "db1");
         mAppSearchImpl.setBlobNamespaceVisibility("package", "db1",
                 ImmutableList.of(config1, config2),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         // Expect the config will be added prefix.
@@ -4023,6 +4028,7 @@ public class AppSearchImplTest {
         // remove config1 by only set config2 to db
         mAppSearchImpl.setBlobNamespaceVisibility("package", "db1",
                 /*visibilityConfigs=*/ImmutableList.of(config2),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         // Check config 1 is removed from VisibilityStore
@@ -4096,6 +4102,7 @@ public class AppSearchImplTest {
                 new InternalVisibilityConfig.Builder("visibleNamespace").build();
         mAppSearchImpl.setBlobNamespaceVisibility(
                 "package", "db1", ImmutableList.of(config),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
@@ -4164,6 +4171,7 @@ public class AppSearchImplTest {
                 new InternalVisibilityConfig.Builder("visibleNamespace").build();
         mAppSearchImpl.setBlobNamespaceVisibility(
                 "package", "db1", ImmutableList.of(config),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         byte[] data = generateRandomBytes(20 * 1024); // 20 KiB
@@ -5934,6 +5942,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6035,6 +6044,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6136,6 +6146,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6233,6 +6244,7 @@ public class AppSearchImplTest {
                 "package1",
                 "database1",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6307,6 +6319,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 /*logger=*/ null,
@@ -6423,6 +6436,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6599,6 +6613,7 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         try {
             mAppSearchImpl.setBlobNamespaceVisibility("package", "database", ImmutableList.of(),
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     callStatsBuilder);
         } catch (Exception e) {
             // We don't care whether the write blob is success or not, just want to verify the last
@@ -6771,6 +6786,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -6927,6 +6943,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 documents,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 fakeLogger,
@@ -11855,6 +11872,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 ImmutableList.of(document1, document2),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 /* logger= */ null,
@@ -12274,6 +12292,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 ImmutableList.of(document1, document2),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 resultBuilder,
                 /*sendChangeNotifications=*/ false,
                 /* logger= */ null,
@@ -13434,6 +13453,7 @@ public class AppSearchImplTest {
                 .build();
 
         mAppSearchImpl.setBlobNamespaceVisibility("package", "db1", ImmutableList.of(config),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /* callStatsBuilder= */ null);
         assertThat(mAppSearchImpl.getAndResetNeedsPersistType())
                 .isEqualTo(AppSearchImpl.DEFAULT_PERSIST_TYPE);
@@ -13676,6 +13696,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 ImmutableList.of(person1, person2, person3, email1, email2, email3),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 batchResultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,
@@ -13819,6 +13840,7 @@ public class AppSearchImplTest {
                 "package",
                 "database",
                 ImmutableList.of(person),
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 batchResultBuilder,
                 /* sendChangeNotifications= */ false,
                 /* logger= */ null,

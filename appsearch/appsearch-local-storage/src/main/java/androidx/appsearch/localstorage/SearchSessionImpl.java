@@ -211,6 +211,9 @@ class SearchSessionImpl implements AppSearchSession {
                 firstSetSchemaStatsBuilder.setSchemaMigrationCallType(
                         SchemaMigrationStats.FIRST_CALL_GET_INCOMPATIBLE);
             }
+            // UID enforcement and PCC only applies to platform-storage and GMS-storage, so
+            // calling this with INVALID_UID is valid here for local-storage.
+            int callingUid = InternalVisibilityConfig.INVALID_UID;
             InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                     mPackageName,
                     mDatabaseName,
@@ -219,7 +222,7 @@ class SearchSessionImpl implements AppSearchSession {
                     accountPropertyPaths,
                     /*forceOverride=*/false,
                     request.getVersion(),
-                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                    callingUid,
                     firstSetSchemaStatsBuilder,
                     /*callStatsBuilder=*/null);
             long firstSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
@@ -263,7 +266,7 @@ class SearchSessionImpl implements AppSearchSession {
                             accountPropertyPaths,
                             /*forceOverride=*/ true,
                             request.getVersion(),
-                            /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                            callingUid,
                             secondSetSchemaStatsBuilder,
                             /*callStatsBuilder=*/null);
                     if (!internalSetSchemaResponse.isSuccess()) {
@@ -387,11 +390,15 @@ class SearchSessionImpl implements AppSearchSession {
             AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
 
+            // UID enforcement and PCC only applies to platform-storage and GMS-storage, so
+            // calling this with INVALID_UID is valid here for local-storage.
+            int callingUid = InternalVisibilityConfig.INVALID_UID;
             // Normal documents.
             mAppSearchImpl.batchPutDocuments(
                     mPackageName,
                     mDatabaseName,
                     documents,
+                    callingUid,
                     resultBuilder,
                     /*sendChangeNotifications=*/ true,
                     mLogger,
@@ -405,6 +412,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     takenActions,
+                    callingUid,
                     resultBuilder,
                     /*sendChangeNotifications=*/ true,
                     mLogger,
@@ -551,6 +559,9 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     visibilityConfigs,
+                    // UID enforcement and PCC only applies to platform-storage and GMS-storage, so
+                    // calling this with INVALID_UID is valid here for local-storage.
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     /*callStatsBuilder=*/null);
             mIsMutated = true;
             return null;
@@ -779,6 +790,8 @@ class SearchSessionImpl implements AppSearchSession {
                 accountPropertyPaths,
                 request.isForceOverride(),
                 request.getVersion(),
+                // UID enforcement and PCC only applies to platform-storage and GMS-storage, so
+                // calling this with INVALID_UID is valid here for local-storage.
                 /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 setSchemaStatsBuilder,
                 /*callStatsBuilder=*/null);

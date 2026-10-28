@@ -252,14 +252,18 @@ public class VisibilityStore {
         if (Flags.enableBatchPutVisibilityDocuments() && !visibilityDocuments.isEmpty()) {
             AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> batchResultBuilder =
                     new AppSearchBatchResult.Builder<>();
+            // Pass INVALID_UID for internal VisibilityStore writes so that AppSearchImpl skips PCC
+            // encapsulation checks.
+            int callingUid = InternalVisibilityConfig.INVALID_UID;
             if (!overlayDocuments.isEmpty()) {
                 mAppSearchImpl.batchPutDocuments(
                         VISIBILITY_PACKAGE_NAME,
                         mAndroidVOverlayDatabaseName,
                         overlayDocuments,
+                        callingUid,
                         batchResultBuilder,
-                        /*sendChangeNotifications=*/ false,
-                        /*logger=*/null,
+                        /* sendChangeNotifications= */ false,
+                        /* logger= */ null,
                         PersistType.Code.UNKNOWN,
                         callStatsBuilder);
             }
@@ -269,9 +273,10 @@ public class VisibilityStore {
                     VISIBILITY_PACKAGE_NAME,
                     mDatabaseName,
                     visibilityDocuments,
+                    callingUid,
                     batchResultBuilder,
-                    /*sendChangeNotifications=*/ false,
-                    /*logger=*/null,
+                    /* sendChangeNotifications= */ false,
+                    /* logger= */ null,
                     PersistType.Code.LITE,
                     callStatsBuilder);
 
@@ -487,9 +492,10 @@ public class VisibilityStore {
                     VISIBILITY_PACKAGE_NAME,
                     mDatabaseName,
                     migratedVisibilityDocuments,
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     batchResultBuilder,
-                    /*sendChangeNotifications=*/ false,
-                    /*logger=*/null,
+                    /* sendChangeNotifications= */ false,
+                    /* logger= */ null,
                     PersistType.Code.UNKNOWN,
                     callStatsBuilder);
 
