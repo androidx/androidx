@@ -111,8 +111,8 @@ public object RemotePageIndicatorDefaults {
         @RemoteComposable
         get() = RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.85f.rf)
 
-    /** Default radius of each indicator dot. */
-    public val IndicatorRadius: RemoteDp = 3.rdp
+    /** Default size (diameter) of each circular indicator dot. */
+    public val IndicatorSize: RemoteDp = 6.rdp
 
     /**
      * Default padding of the page indicator from the edge of the screen (8dp aligns with standard
@@ -122,16 +122,17 @@ public object RemotePageIndicatorDefaults {
 }
 
 /**
- * A horizontal page indicator curved along the bottom edge of the screen.
+ * A horizontal page indicator curved along the bottom edge of the screen. Pages are indicated as a
+ * Circle shape.
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteHorizontalPageIndicatorSample
  * @param state The state object of the page indicator.
  * @param modifier The modifier to be applied to the layout.
  * @param selectedColor The color of the selected page indicator.
  * @param unselectedColor The color of unselected page indicators.
- * @param indicatorRadius The base radius of each indicator dot.
- * @param padding The padding of the indicator from the bottom edge of the screen.
  * @param backgroundColor The color of the page indicator background.
+ * @param indicatorSize The size (diameter) of each circular indicator dot.
+ * @param padding The padding of the indicator from the bottom edge of the screen.
  */
 @RemoteComposable
 @Composable
@@ -140,9 +141,9 @@ public fun RemoteHorizontalPageIndicator(
     modifier: RemoteModifier = RemoteModifier,
     selectedColor: RemoteColor = RemotePageIndicatorDefaults.selectedColor,
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
-    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.IndicatorRadius,
-    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
     backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
+    indicatorSize: RemoteDp = RemotePageIndicatorDefaults.IndicatorSize,
+    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
 ) {
     RemotePageIndicatorImpl(
         state = state,
@@ -151,22 +152,23 @@ public fun RemoteHorizontalPageIndicator(
         selectedColor = selectedColor,
         unselectedColor = unselectedColor,
         backgroundColor = backgroundColor,
-        indicatorRadius = indicatorRadius,
+        indicatorSize = indicatorSize,
         padding = padding,
     )
 }
 
 /**
- * A vertical page indicator curved along the right edge of the screen.
+ * A vertical page indicator curved along the right edge of the screen. Pages are indicated as a
+ * Circle shape.
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteVerticalPageIndicatorSample
  * @param state The state object of the page indicator.
  * @param modifier The modifier to be applied to the layout.
  * @param selectedColor The color of the selected page indicator.
  * @param unselectedColor The color of unselected page indicators.
- * @param indicatorRadius The base radius of each indicator dot.
- * @param padding The padding of the indicator from the right edge of the screen.
  * @param backgroundColor The color of the page indicator background.
+ * @param indicatorSize The size (diameter) of each circular indicator dot.
+ * @param padding The padding of the indicator from the right edge of the screen.
  */
 @RemoteComposable
 @Composable
@@ -175,9 +177,9 @@ public fun RemoteVerticalPageIndicator(
     modifier: RemoteModifier = RemoteModifier,
     selectedColor: RemoteColor = RemotePageIndicatorDefaults.selectedColor,
     unselectedColor: RemoteColor = RemotePageIndicatorDefaults.unselectedColor,
-    indicatorRadius: RemoteDp = RemotePageIndicatorDefaults.IndicatorRadius,
-    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
     backgroundColor: RemoteColor = RemotePageIndicatorDefaults.backgroundColor,
+    indicatorSize: RemoteDp = RemotePageIndicatorDefaults.IndicatorSize,
+    padding: RemoteDp = RemotePageIndicatorDefaults.PageIndicatorPadding,
 ) {
     RemotePageIndicatorImpl(
         state = state,
@@ -186,7 +188,7 @@ public fun RemoteVerticalPageIndicator(
         selectedColor = selectedColor,
         unselectedColor = unselectedColor,
         backgroundColor = backgroundColor,
-        indicatorRadius = indicatorRadius,
+        indicatorSize = indicatorSize,
         padding = padding,
     )
 }
@@ -200,7 +202,7 @@ private fun RemotePageIndicatorImpl(
     selectedColor: RemoteColor,
     unselectedColor: RemoteColor,
     backgroundColor: RemoteColor,
-    indicatorRadius: RemoteDp,
+    indicatorSize: RemoteDp,
     padding: RemoteDp,
 ) {
     val rawPage = state.selectedPage.toRemoteFloat() + state.pageOffset
@@ -212,7 +214,7 @@ private fun RemotePageIndicatorImpl(
             selectedColor = selectedColor,
             unselectedColor = unselectedColor,
             backgroundColor = backgroundColor,
-            radius = indicatorRadius.toPx(),
+            radius = indicatorSize.toPx() / 2f.rf,
             padding = padding.toPx(),
             spacingPx = spacingPx,
             isHorizontal = isHorizontal,

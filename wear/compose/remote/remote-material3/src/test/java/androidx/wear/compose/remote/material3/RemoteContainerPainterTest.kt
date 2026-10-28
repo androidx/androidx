@@ -19,7 +19,7 @@ package androidx.wear.compose.remote.material3
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color as AndroidColor
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -62,7 +62,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     enabled = true.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -84,7 +84,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     enabled = false.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -111,7 +111,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     enabled = false.rb,
                     modifier = RemoteModifier.size(100.rdp, 60.rdp),
                     shape = RemoteRectangleShape,
@@ -140,7 +140,7 @@ class RemoteContainerPainterTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteCard(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     modifier = RemoteModifier.size(100.rdp, 80.rdp),
                     shape = RemoteRectangleShape,
                     containerPainter =

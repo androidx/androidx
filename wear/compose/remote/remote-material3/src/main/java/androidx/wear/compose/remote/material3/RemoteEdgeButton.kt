@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -113,8 +113,8 @@ import androidx.wear.compose.material3.TextConfiguration
  *   respond to user input.
  * @param colors [RemoteButtonColors] that will be used to resolve the colors used for this button.
  *   See [RemoteEdgeButtonDefaults.buttonColors].
- * @param border The border stroke width for the button.
- * @param borderColor The color of the border.
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
+ *   button.
  * @param shape Defines the button's shape. Defaults to [RemoteEdgeButtonDefaults.shape].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
@@ -124,13 +124,12 @@ import androidx.wear.compose.material3.TextConfiguration
 @RemoteComposable
 @Suppress("RestrictedApiAndroidX")
 public fun RemoteEdgeButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small,
     enabled: RemoteBoolean = true.rb,
     colors: RemoteButtonColors = RemoteEdgeButtonDefaults.buttonColors(),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     shape: RemoteShape = RemoteEdgeButtonDefaults.shape(buttonSize),
     contentPadding: RemotePaddingValues = RemoteEdgeButtonDefaults.ContentPadding,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
@@ -150,8 +149,7 @@ public fun RemoteEdgeButton(
                         enabled = enabled,
                         containerPainter = null,
                         disabledContainerPainter = null,
-                        borderColor = borderColor,
-                        borderStrokeWidth = border,
+                        border = border,
                     )
                     drawContent()
                 },

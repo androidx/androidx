@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -98,9 +98,7 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
  *   shape is a key characteristic of the Wear Material3 Theme
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
- * @param border Optional [RemoteDp] that will be used to resolve the border for this button in
- *   different states.
- * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
@@ -109,14 +107,13 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
-    colors: RemoteButtonColors = RemoteButtonDefaults.buttonColors(),
     shape: RemoteShape = RemoteButtonDefaults.shape,
+    colors: RemoteButtonColors = RemoteButtonDefaults.buttonColors(),
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteButtonDefaults.ContentPadding,
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
     RemoteButtonImpl(
@@ -125,7 +122,6 @@ public fun RemoteButton(
         colors = colors,
         enabled = enabled,
         border = border,
-        borderColor = borderColor,
         shape = shape,
         contentPadding = contentPadding,
         labelFont = RemoteMaterialTheme.typography.labelMedium,
@@ -154,9 +150,7 @@ public fun RemoteButton(
  *   shape is a key characteristic of the Wear Material3 Theme
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
- * @param border Optional [RemoteDp] that will be used to resolve the border for this button in
- *   different states.
- * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
@@ -165,17 +159,16 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     containerPainter: RemotePainter,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     disabledContainerPainter: RemotePainter =
         RemoteButtonDefaults.disabledContainerPainter(containerPainter),
+    shape: RemoteShape = RemoteButtonDefaults.shape,
     colors: RemoteButtonColors =
         RemoteButtonDefaults.buttonWithNullableContainerPainterColors(containerPainter),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
-    shape: RemoteShape = RemoteButtonDefaults.shape,
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteButtonDefaults.ContentPadding,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
@@ -189,7 +182,6 @@ public fun RemoteButton(
         shape = shape,
         contentPadding = contentPadding,
         border = border,
-        borderColor = borderColor,
         labelFont = RemoteMaterialTheme.typography.labelMedium,
         content = content,
     )
@@ -242,9 +234,7 @@ public fun RemoteButton(
  *   for this button in different states (the containerColor and disabledContainerColor are
  *   overridden by containerPainter and disabledContainerPainter respectively). See
  *   [RemoteButtonDefaults.buttonWithContainerPainterColors].
- * @param border Optional [RemoteDp] that will be used to resolve the border for this button in
- *   different states.
- * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
@@ -255,18 +245,17 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
     icon: (@Composable () -> Unit)? = null,
     enabled: RemoteBoolean = true.rb,
     containerPainter: RemotePainter? = null,
     disabledContainerPainter: RemotePainter? = null,
+    shape: RemoteShape = RemoteButtonDefaults.shape,
     colors: RemoteButtonColors =
         RemoteButtonDefaults.buttonWithNullableContainerPainterColors(containerPainter),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
-    shape: RemoteShape = RemoteButtonDefaults.shape,
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteButtonDefaults.ContentPadding,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
@@ -293,7 +282,6 @@ public fun RemoteButton(
         disabledContainerPainter = disabledContainerPainter,
         colors = colors,
         border = border,
-        borderColor = borderColor,
         contentPadding = contentPadding,
         labelContent =
             provideScopeContent(
@@ -347,19 +335,17 @@ public fun RemoteButton(
  * @sample androidx.wear.compose.remote.material3.samples.RemoteCompactButtonSimpleSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- *   clickable. It must be a constant value.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [RemoteButtonDefaults.ExtraSmallIconSize] when
  *   used with a label or [RemoteButtonDefaults.SmallIconSize] when used as the only content in the
  *   button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable. It must be a constant value.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  *   shape is a key characteristic of the Wear Material3 Theme
  * @param colors [RemoteButtonColors] that will be used to resolve the background and content color
  *   for this button in different states. See [RemoteButtonDefaults.buttonColors].
- * @param border Optional [RemoteDp] that will be used to resolve the border for this button in
- *   different states.
- * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
@@ -368,16 +354,15 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteCompactButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     icon: (@Composable () -> Unit)? = null,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteButtonDefaults.compactButtonShape,
     colors: RemoteButtonColors = RemoteButtonDefaults.buttonColors(),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     contentPadding: RemotePaddingValues = RemoteButtonDefaults.CompactButtonContentPadding,
-    label: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)?,
+    label: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
 ) {
     val tapPadding = RemoteButtonDefaults.CompactButtonTapTargetPadding
 
@@ -390,19 +375,18 @@ public fun RemoteCompactButton(
                 .clip(shape = shape)
                 .clickable(
                     onClick,
-                    enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
+                    enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
                 ),
         contentAlignment = RemoteAlignment.Center,
     ) {
         if (label != null) {
             RemoteButtonImpl(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .widthIn(min = RemoteButtonDefaults.CompactButtonVisibleHeight),
                 colors = colors,
                 border = border,
-                borderColor = borderColor,
                 contentPadding = contentPadding,
                 enabled = enabled,
                 shape = shape,
@@ -439,13 +423,12 @@ public fun RemoteCompactButton(
             }
         } else {
             RemoteButtonImpl(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .width(RemoteButtonDefaults.IconOnlyCompactButtonWidth),
                 colors = colors,
                 border = border,
-                borderColor = borderColor,
                 contentPadding = contentPadding,
                 enabled = enabled,
                 shape = shape,
@@ -475,14 +458,13 @@ public fun RemoteCompactButton(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteButtonColors,
     containerPainter: RemotePainter?,
     disabledContainerPainter: RemotePainter?,
     enabled: RemoteBoolean,
-    border: RemoteDp?,
-    borderColor: RemoteColor?,
+    border: RemoteBorderStroke?,
     shape: RemoteShape,
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
@@ -494,7 +476,7 @@ private fun RemoteButtonImpl(
         RemoteModifier.clip(shape = shape)
             .clickable(
                 action = onClick,
-                enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
+                enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)
             .let {
@@ -523,8 +505,7 @@ private fun RemoteButtonImpl(
                             enabled = enabled,
                             containerPainter = containerPainter,
                             disabledContainerPainter = disabledContainerPainter,
-                            borderColor = borderColor,
-                            borderStrokeWidth = border,
+                            border = border,
                         )
                     }
                     if (clipBackgroundToShape) {
@@ -546,7 +527,7 @@ private fun RemoteButtonImpl(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabelContent: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
     icon: (@Composable @RemoteComposable () -> Unit)?,
@@ -554,8 +535,7 @@ private fun RemoteButtonImpl(
     containerPainter: RemotePainter?,
     disabledContainerPainter: RemotePainter?,
     enabled: RemoteBoolean,
-    border: RemoteDp?,
-    borderColor: RemoteColor?,
+    border: RemoteBorderStroke?,
     shape: RemoteShape,
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
@@ -575,7 +555,6 @@ private fun RemoteButtonImpl(
         disabledContainerPainter = disabledContainerPainter,
         colors = colors,
         border = border,
-        borderColor = borderColor,
         contentPadding = contentPadding,
         horizontalArrangement = arrangement,
     ) {
@@ -1228,8 +1207,7 @@ internal fun RemoteDrawScope.drawShapedBackground(
     enabled: RemoteBoolean,
     containerPainter: RemotePainter?,
     disabledContainerPainter: RemotePainter?,
-    borderColor: RemoteColor? = null,
-    borderStrokeWidth: RemoteDp? = null,
+    border: RemoteBorderStroke? = null,
 ) {
     if (!enabled.hasConstantValue) {
         TODO("Dynamic clickable enabled value is not supported.")
@@ -1241,17 +1219,16 @@ internal fun RemoteDrawScope.drawShapedBackground(
     backgroundImagePainter?.let { with(it) { onDraw() } } ?: drawSolidColorShape(shape, color)
 
     // Draw border if specified
-    if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth, shape)
+    if (border != null) {
+        drawBorder(border, shape)
     }
 }
 
 private fun RemoteDrawScope.drawBorder(
-    borderColor: RemoteColor,
-    borderStrokeWidth: RemoteDp,
+    border: RemoteBorderStroke,
     shape: RemoteShape,
 ) {
-    val strokeWidthPx = borderStrokeWidth.toPx()
+    val strokeWidthPx = border.width.toPx()
     val outline =
         when (shape) {
             is RemoteCornerBasedShape -> {
@@ -1278,14 +1255,14 @@ private fun RemoteDrawScope.drawBorder(
                 )
             }
         }
-    drawOutline(
-        outline,
-        RemotePaint {
-            color = borderColor
-            strokeWidth = strokeWidthPx
-            style = PaintingStyle.Stroke
-        },
-    )
+    val paint = RemotePaint {
+        strokeWidth = strokeWidthPx
+        style = PaintingStyle.Stroke
+    }
+    with(border.brush) {
+        applyTo(paint, RemoteSize(width, height))
+    }
+    drawOutline(outline, paint)
 }
 
 /**

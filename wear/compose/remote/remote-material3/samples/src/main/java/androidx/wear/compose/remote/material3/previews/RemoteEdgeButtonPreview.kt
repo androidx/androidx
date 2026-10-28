@@ -25,8 +25,8 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -35,6 +35,7 @@ import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.wear.compose.remote.material3.RemoteBorderStroke
 import androidx.wear.compose.remote.material3.RemoteEdgeButton
 import androidx.wear.compose.remote.material3.RemoteEdgeButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteEdgeButtonSize
@@ -211,8 +212,7 @@ fun RemoteEdgeButtonOutlined() {
         onClick = testAction,
         buttonSize = RemoteEdgeButtonSize.Small,
         colors = RemoteEdgeButtonDefaults.outlinedButtonColors(),
-        border = 2.rdp,
-        borderColor = RemoteColor(Color.Cyan),
+        border = RemoteBorderStroke(width = 2.rdp, color = Color.Cyan.rc),
     ) {
         RemoteText("Outlined".rs)
     }
@@ -230,8 +230,7 @@ fun RemoteEdgeButtonWithBorder() {
     RemoteEdgeButton(
         onClick = testAction,
         buttonSize = RemoteEdgeButtonSize.Small,
-        border = 2.rdp,
-        borderColor = RemoteColor(Color.Green),
+        border = RemoteBorderStroke(width = 2.rdp, color = Color.Green.rc),
     ) {
         RemoteText("With Border".rs)
     }

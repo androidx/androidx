@@ -14,31 +14,31 @@ package androidx.compose.remote.creation.compose {
 
 package androidx.compose.remote.creation.compose.action {
 
-  public interface Action {
-    field public static final androidx.compose.remote.creation.compose.action.Action.Companion Companion;
-  }
-
-  public static final class Action.Companion {
-  }
-
   public final class CombinedActionKt {
-    method public static androidx.compose.remote.creation.compose.action.Action combinedAction(androidx.compose.remote.creation.compose.action.Action... actions);
+    method public static androidx.compose.remote.creation.compose.action.RemoteAction combinedAction(androidx.compose.remote.creation.compose.action.RemoteAction... actions);
   }
 
   public final class HostActionKt {
-    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name);
-    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteFloat value);
-    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteInt value);
-    method public static androidx.compose.remote.creation.compose.action.Action hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteString value);
+    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name);
+    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteFloat value);
+    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteInt value);
+    method public static androidx.compose.remote.creation.compose.action.RemoteAction hostAction(androidx.compose.remote.creation.compose.state.RemoteString name, androidx.compose.remote.creation.compose.state.RemoteString value);
   }
 
   public final class PendingIntentActionKt {
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.action.Action pendingIntentAction(kotlin.jvm.functions.Function1<? super android.content.Context!,android.app.PendingIntent!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.action.Action pendingIntentAction(kotlin.jvm.functions.Function1<android.content.Context,android.app.PendingIntent> pendingIntent);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.action.RemoteAction pendingIntentAction(kotlin.jvm.functions.Function1<? super android.content.Context!,android.app.PendingIntent!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.action.RemoteAction pendingIntentAction(kotlin.jvm.functions.Function1<android.content.Context,android.app.PendingIntent> pendingIntent);
+  }
+
+  public interface RemoteAction {
+    field public static final androidx.compose.remote.creation.compose.action.RemoteAction.Companion Companion;
+  }
+
+  public static final class RemoteAction.Companion {
   }
 
   public final class ValueChangeKt {
-    method public static <T> androidx.compose.remote.creation.compose.action.Action valueChange(androidx.compose.remote.creation.compose.state.MutableRemoteState<T> remoteState, androidx.compose.remote.creation.compose.state.RemoteState<T> updatedValue);
+    method public static <T> androidx.compose.remote.creation.compose.action.RemoteAction valueChange(androidx.compose.remote.creation.compose.state.MutableRemoteState<T> remoteState, androidx.compose.remote.creation.compose.state.RemoteState<T> updatedValue);
   }
 
 }
@@ -521,9 +521,9 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class ClickableModifierKt {
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action action, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action, boolean, androidx.compose.ui.semantics.Role?);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.Action!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action, optional boolean enabled, optional androidx.compose.ui.semantics.Role? role);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clickable-NVUIbCQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction, boolean, androidx.compose.ui.semantics.Role?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clickable-NVUIbCQ$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.action.RemoteAction!, boolean, androidx.compose.ui.semantics.Role!, int, Object!);
   }
 
   public final class ClipModifierKt {
@@ -764,15 +764,15 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class TouchCancelActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action action);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchCancel(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class TouchDownActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchDown(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action action);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchDown(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class TouchUpActionModifierKt {
-    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchUp(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.Action action);
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier onTouchUp(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.action.RemoteAction action);
   }
 
   public final class VisibilityModifierKt {

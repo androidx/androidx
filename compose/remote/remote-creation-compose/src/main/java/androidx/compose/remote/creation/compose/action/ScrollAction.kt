@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 internal class ScrollByAction(
     public val scrollState: RemoteScrollState,
     public val value: RemoteFloat,
-) : RemoteAction() {
+) : RemoteAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val positionState = scrollState.positionState
@@ -38,7 +38,7 @@ internal class ScrollByAction(
 internal class ScrollToAction(
     public val scrollState: RemoteScrollState,
     public val value: RemoteFloat,
-) : RemoteAction() {
+) : RemoteAction {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val positionState = scrollState.positionState
@@ -47,19 +47,21 @@ internal class ScrollToAction(
 }
 
 /**
- * Creates an [Action] that scrolls this [RemoteScrollState] by a delta [value].
+ * Creates an [RemoteAction] that scrolls this [RemoteScrollState] by a delta [value].
  *
  * @param value The delta in pixels to scroll by.
- * @return An [Action] representing the scroll change.
+ * @return An [RemoteAction] representing the scroll change.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteScrollState.scrollBy(value: RemoteFloat): Action = ScrollByAction(this, value)
+public fun RemoteScrollState.scrollBy(value: RemoteFloat): RemoteAction =
+    ScrollByAction(this, value)
 
 /**
- * Creates an [Action] that scrolls this [RemoteScrollState] to a target [value].
+ * Creates an [RemoteAction] that scrolls this [RemoteScrollState] to a target [value].
  *
  * @param value The target position in pixels to scroll to.
- * @return An [Action] representing the scroll change.
+ * @return An [RemoteAction] representing the scroll change.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteScrollState.scrollTo(value: RemoteFloat): Action = ScrollToAction(this, value)
+public fun RemoteScrollState.scrollTo(value: RemoteFloat): RemoteAction =
+    ScrollToAction(this, value)

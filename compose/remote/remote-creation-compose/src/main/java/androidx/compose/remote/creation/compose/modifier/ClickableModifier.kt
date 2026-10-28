@@ -21,7 +21,6 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.MultiClickModifier
-import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -29,16 +28,13 @@ import androidx.compose.remote.creation.modifiers.ClickActionModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 internal class ClickableModifier(
-    public val actions: List<Action>,
+    public val actions: List<RemoteAction>,
     public val clickType: Int = MultiClickModifier.CLICK_TYPE_SINGLE,
 ) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return ClickActionModifier(
-            @Suppress("ListIterator")
-            actions.mapNotNull { action ->
-                if (action is RemoteAction) with(action) { toRemoteAction() } else null
-            },
+            @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } },
             clickType,
         )
     }
@@ -61,13 +57,13 @@ internal class ClickableModifier(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clickable(
-    action: Action,
+    action: RemoteAction,
     enabled: Boolean = true,
     role: RemoteRole,
 ): RemoteModifier = clickableImpl(action = action, enabled = enabled, role = role)
 
 internal fun RemoteModifier.clickableImpl(
-    action: Action,
+    action: RemoteAction,
     enabled: Boolean = true,
     role: RemoteRole? = RemoteRole.Button,
 ): RemoteModifier =

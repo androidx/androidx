@@ -15,7 +15,7 @@
  */
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
@@ -53,8 +53,7 @@ import androidx.compose.ui.semantics.Role
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param border Optional [RemoteDp] border stroke width.
- * @param borderColor Optional [RemoteColor] border color.
+ * @param border Optional [RemoteBorderStroke] for the button.
  * @param icon An optional slot for providing an icon to indicate the purpose of the button.
  * @param secondaryLabel A slot for providing the button's secondary label.
  * @param label A slot for providing the button's main label.
@@ -63,14 +62,13 @@ import androidx.compose.ui.semantics.Role
 @RemoteComposable
 public fun RemoteCheckboxButton(
     checked: RemoteBoolean,
-    onCheckedChange: Action,
+    onCheckedChange: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCheckboxButtonDefaults.checkboxButtonShape,
     colors: RemoteCheckboxButtonColors = RemoteCheckboxButtonDefaults.checkboxButtonColors(),
     contentPadding: RemotePaddingValues = RemoteCheckboxButtonDefaults.ContentPadding,
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     icon: (@Composable @RemoteComposable () -> Unit)? = null,
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)? = null,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
@@ -97,7 +95,6 @@ public fun RemoteCheckboxButton(
             colors.iconColor(enabled = enabled, checked = checked, progress = colorProgress),
         contentPadding = contentPadding,
         border = border,
-        borderColor = borderColor,
         role = Role.Checkbox,
         icon = icon,
         secondaryLabel = secondaryLabel,

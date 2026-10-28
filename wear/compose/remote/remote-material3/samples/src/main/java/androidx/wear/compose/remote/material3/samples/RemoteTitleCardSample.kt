@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
@@ -42,7 +42,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteTitleCardSample() {
     RemoteTitleCard(
-        onClick = Action.Empty,
+        onClick = RemoteAction.Empty,
         title = { RemoteText("Title Card Title".rs) },
         time = { RemoteText("now".rs) },
         modifier = RemoteModifier.padding(16.rdp),
@@ -64,7 +64,7 @@ fun RemoteTitleCardWithImageSample() {
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteTitleCard(
-        onClick = Action.Empty,
+        onClick = RemoteAction.Empty,
         containerPainter = containerPainter,
         title = { RemoteText("Title Card".rs) },
         time = { RemoteText("now".rs) },

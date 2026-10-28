@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -35,7 +35,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteAppCardSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteAppCard(
-        onClick = Action.Empty,
+        onClick = RemoteAction.Empty,
         appName = { RemoteText("App Name".rs) },
         time = { RemoteText("now".rs) },
         title = { RemoteText("App Card Title".rs) },

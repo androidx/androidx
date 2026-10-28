@@ -17,7 +17,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.core.semantics.AccessibleComponent
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.ui.semantics.Role
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -45,14 +45,18 @@ class RemoteRoleTest {
     @Test
     fun clickableAndCombinedClickable_acceptRemoteRole() {
         val clickableModifier =
-            RemoteModifier.clickable(action = Action.Empty, role = RemoteRole.Checkbox)
+            RemoteModifier.clickable(action = RemoteAction.Empty, role = RemoteRole.Checkbox)
         val clickableComposeRole =
-            RemoteModifier.clickable(action = Action.Empty, role = Role.Checkbox)
+            RemoteModifier.clickable(action = RemoteAction.Empty, role = Role.Checkbox)
         val clickableNullRole =
-            RemoteModifier.clickable(action = Action.Empty, role = null as Role?)
+            RemoteModifier.clickable(action = RemoteAction.Empty, role = null as Role?)
         val combinedModifier =
-            RemoteModifier.combinedClickable(onClick = Action.Empty, role = RemoteRole.Switch)
-        val combinedNullRole = RemoteModifier.combinedClickable(onClick = Action.Empty, role = null)
+            RemoteModifier.combinedClickable(
+                onClick = RemoteAction.Empty,
+                role = RemoteRole.Switch,
+            )
+        val combinedNullRole =
+            RemoteModifier.combinedClickable(onClick = RemoteAction.Empty, role = null)
         assertThat(clickableModifier).isNotEqualTo(RemoteModifier)
         assertThat(clickableComposeRole).isEqualTo(clickableModifier)
         assertThat(clickableNullRole).isEqualTo(RemoteModifier)

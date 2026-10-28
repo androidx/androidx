@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -73,10 +73,10 @@ import androidx.wear.compose.material3.TextConfiguration
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitCheckboxButtonSample
  * @param checked [RemoteBoolean] flag indicating whether this button is currently checked.
- * @param onCheckedChange Action to be invoked when the toggle control is clicked.
+ * @param onCheckedChange RemoteAction to be invoked when the toggle control is clicked.
  * @param toggleContentDescription Text used by accessibility services to describe what this toggle
  *   control represents.
- * @param onContainerClick Action to be invoked when the container area is clicked.
+ * @param onContainerClick RemoteAction to be invoked when the container area is clicked.
  * @param modifier [RemoteModifier] to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will appear
  *   visually disabled and will not be clickable. Note that only constant values are currently
@@ -93,9 +93,9 @@ import androidx.wear.compose.material3.TextConfiguration
 @Composable
 public fun RemoteSplitCheckboxButton(
     checked: RemoteBoolean,
-    onCheckedChange: Action,
+    onCheckedChange: RemoteAction,
     toggleContentDescription: RemoteString?,
-    onContainerClick: Action,
+    onContainerClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteSplitCheckboxButtonDefaults.shape,
@@ -136,7 +136,7 @@ public fun RemoteSplitCheckboxButton(
                         action = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != Action.Empty,
+                                onContainerClick != RemoteAction.Empty,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -194,7 +194,7 @@ public fun RemoteSplitCheckboxButton(
                         action = onCheckedChange,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onCheckedChange != Action.Empty,
+                                onCheckedChange != RemoteAction.Empty,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
@@ -194,8 +196,8 @@ class RemotePageIndicatorUnitTest {
 
     @Test
     fun page_indicator_defaults_colors_match_onBackground() {
-        lateinit var selectedColor: androidx.compose.remote.creation.compose.state.RemoteColor
-        lateinit var unselectedColor: androidx.compose.remote.creation.compose.state.RemoteColor
+        lateinit var selectedColor: RemoteColor
+        lateinit var unselectedColor: RemoteColor
         val expectedOnBackground = Color.Cyan
         composeRule.setContent {
             RemoteMaterialTheme(
@@ -208,5 +210,57 @@ class RemotePageIndicatorUnitTest {
 
         assertThat(selectedColor.constantValue).isEqualTo(expectedOnBackground)
         assertThat(unselectedColor.constantValue).isEqualTo(expectedOnBackground.copy(alpha = 0.3f))
+    }
+
+    @Test
+    fun page_indicator_indicatorSize_default_and_custom() {
+        assertThat(RemotePageIndicatorDefaults.IndicatorSize.constantValue).isEqualTo(6f)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val defaultDoc = runBlocking {
+            captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
+                val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 2)
+                RemoteHorizontalPageIndicator(
+                    state = state,
+                    selectedColor = Color.Green.rc,
+                    unselectedColor = Color.Black.rc,
+                    backgroundColor = Color.Black.rc,
+                )
+            }
+        }
+        val largeDoc = runBlocking {
+            captureRule.captureDocument(context = context, creationDisplayInfo = displayInfo) {
+                val state = rememberRemotePageIndicatorState(selectedPage = 0.ri, pageCount = 2)
+                RemoteHorizontalPageIndicator(
+                    state = state,
+                    selectedColor = Color.Green.rc,
+                    unselectedColor = Color.Black.rc,
+                    backgroundColor = Color.Black.rc,
+                    indicatorSize = 16.rdp,
+                )
+            }
+        }
+        composeRule.setContent {
+            Row {
+                Box(modifier = Modifier.size(500.dp, 500.dp).testTag("defaultSize")) {
+                    RcPlayer(document = defaultDoc)
+                }
+                Box(modifier = Modifier.size(500.dp, 500.dp).testTag("largeSize")) {
+                    RcPlayer(document = largeDoc)
+                }
+            }
+        }
+        val defaultBitmap =
+            composeRule.onNodeWithTag("defaultSize").captureToImage().asAndroidBitmap()
+        val largeBitmap = composeRule.onNodeWithTag("largeSize").captureToImage().asAndroidBitmap()
+        val defaultGreenPixels = defaultBitmap.countPixelsMatching {
+            it.green > 0.5f && it.red < 0.2f && it.blue < 0.2f
+        }
+        val largeGreenPixels = largeBitmap.countPixelsMatching {
+            it.green > 0.5f && it.red < 0.2f && it.blue < 0.2f
+        }
+        assertThat(defaultGreenPixels).isGreaterThan(0)
+        assertThat(largeGreenPixels).isGreaterThan(defaultGreenPixels * 2)
     }
 }

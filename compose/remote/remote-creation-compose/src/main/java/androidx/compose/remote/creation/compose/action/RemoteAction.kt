@@ -21,14 +21,14 @@ import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
 /** A RemoteCompose frontend model of Actions that can be converted to RemoteCompose operations. */
-public interface Action {
+public interface RemoteAction {
+    @Suppress("HiddenAbstractMethodInInterface")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun RemoteStateScope.toRemoteAction(): CreationAction
+
     public companion object {
         /** A placeholder empty action. */
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val Empty: Action = combinedAction()
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val Empty: RemoteAction = combinedAction()
     }
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class RemoteAction : Action {
-    internal abstract fun RemoteStateScope.toRemoteAction(): CreationAction
 }

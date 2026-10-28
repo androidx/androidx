@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -73,8 +73,8 @@ import androidx.wear.compose.remote.material3.internal.RemoteIcons
  * @param value Current value of the Slider.
  * @param steps The number of steps between the min and max value of the [valueRange].
  * @param modifier Modifiers to be applied to the Slider.
- * @param decreaseAction Action to perform when the decrease button is clicked.
- * @param increaseAction Action to perform when the increase button is clicked.
+ * @param decreaseAction RemoteAction to perform when the decrease button is clicked.
+ * @param increaseAction RemoteAction to perform when the increase button is clicked.
  * @param enabled Controls the enabled state of the Slider. Note that only constant values are
  *   currently supported for [enabled] for click handling.
  * @param valueRange The range of values that this slider can take.
@@ -91,8 +91,8 @@ public fun RemoteSlider(
     value: RemoteFloat,
     steps: Int = 0,
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: Action = Action.Empty,
-    increaseAction: Action = Action.Empty,
+    decreaseAction: RemoteAction = RemoteAction.Empty,
+    increaseAction: RemoteAction = RemoteAction.Empty,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     segmented: Boolean = steps <= RemoteSliderDefaults.MaxSegmentSteps,
@@ -194,8 +194,8 @@ public fun RemoteSlider(
  * @param value Current value of the Slider.
  * @param steps The number of steps between the min and max value of the [valueRange].
  * @param modifier Modifiers to be applied to the Slider.
- * @param decreaseAction Action to perform when the decrease button is clicked.
- * @param increaseAction Action to perform when the increase button is clicked.
+ * @param decreaseAction RemoteAction to perform when the decrease button is clicked.
+ * @param increaseAction RemoteAction to perform when the increase button is clicked.
  * @param enabled Controls the enabled state of the Slider. Note that only constant values are
  *   currently supported for [enabled] for click handling.
  * @param valueRange The range of values that this slider can take.
@@ -212,8 +212,8 @@ public fun RemoteSlider(
     value: RemoteInt,
     steps: Int = 0,
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: Action = Action.Empty,
-    increaseAction: Action = Action.Empty,
+    decreaseAction: RemoteAction = RemoteAction.Empty,
+    increaseAction: RemoteAction = RemoteAction.Empty,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     segmented: Boolean = steps <= RemoteSliderDefaults.MaxSegmentSteps,

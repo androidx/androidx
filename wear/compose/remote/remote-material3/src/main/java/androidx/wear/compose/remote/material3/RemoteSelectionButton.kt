@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -43,7 +43,6 @@ import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
@@ -103,7 +102,7 @@ internal fun animateSelectionColorProgress(
 @Composable
 @RemoteComposable
 internal fun RemoteSelectionButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier,
     enabled: RemoteBoolean,
     shape: RemoteShape,
@@ -112,8 +111,7 @@ internal fun RemoteSelectionButtonImpl(
     secondaryContentColor: RemoteColor,
     iconColor: RemoteColor,
     contentPadding: RemotePaddingValues,
-    border: RemoteDp?,
-    borderColor: RemoteColor?,
+    border: RemoteBorderStroke?,
     role: Role,
     icon: (@Composable @RemoteComposable () -> Unit)?,
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
@@ -127,7 +125,7 @@ internal fun RemoteSelectionButtonImpl(
             // the player's generic click haptic.
             .clickable(
                 action = onClick,
-                enabled = (enabled.constantValueOrNull ?: false) && onClick != Action.Empty,
+                enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { this.role = role }
@@ -144,8 +142,7 @@ internal fun RemoteSelectionButtonImpl(
                         enabled = enabled,
                         containerPainter = null,
                         disabledContainerPainter = null,
-                        borderColor = borderColor,
-                        borderStrokeWidth = border,
+                        border = border,
                     )
                     drawContent()
                 }

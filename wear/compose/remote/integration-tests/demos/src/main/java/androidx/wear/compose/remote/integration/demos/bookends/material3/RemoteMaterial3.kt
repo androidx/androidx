@@ -18,7 +18,7 @@
 
 package androidx.wear.compose.remote.integration.demos.bookends.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteCustomComponent
 import androidx.compose.remote.creation.compose.layout.RemoteImage
@@ -213,7 +213,7 @@ fun RemoteTransformingLazyColumn(
 @RemoteComposable
 @Composable
 fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)? = null,
     icon: (@Composable @RemoteComposable () -> Unit)? = null,
@@ -266,7 +266,7 @@ fun RemoteButton(
 @Composable
 fun RemoteSwitchButton(
     checked: RemoteBoolean,
-    onCheckedChange: Action,
+    onCheckedChange: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     icon: (@Composable @RemoteComposable () -> Unit)? = null,

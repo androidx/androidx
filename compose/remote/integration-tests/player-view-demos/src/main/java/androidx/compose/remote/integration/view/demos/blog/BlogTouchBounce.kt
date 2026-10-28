@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.blog
 
-import androidx.compose.remote.creation.compose.action.Action.Companion.Empty
+import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas

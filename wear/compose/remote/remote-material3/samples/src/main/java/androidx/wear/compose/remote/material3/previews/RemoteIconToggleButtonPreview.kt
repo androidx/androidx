@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -105,13 +105,15 @@ public fun RemoteIconToggleButtonExtraLargePreview(
 @Composable
 @RemoteComposable
 public fun RemoteIconToggleButtonChecked() {
-    RemoteIconToggleButton(checked = true.rb, onCheckedChange = Action.Empty) { ToggleIcon() }
+    RemoteIconToggleButton(checked = true.rb, onCheckedChange = RemoteAction.Empty) { ToggleIcon() }
 }
 
 @Composable
 @RemoteComposable
 public fun RemoteIconToggleButtonUnchecked() {
-    RemoteIconToggleButton(checked = false.rb, onCheckedChange = Action.Empty) { ToggleIcon() }
+    RemoteIconToggleButton(checked = false.rb, onCheckedChange = RemoteAction.Empty) {
+        ToggleIcon()
+    }
 }
 
 @Composable
@@ -119,7 +121,7 @@ public fun RemoteIconToggleButtonUnchecked() {
 public fun RemoteIconToggleButtonDisabledChecked() {
     RemoteIconToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         enabled = false.rb,
     ) {
         ToggleIcon()
@@ -131,7 +133,7 @@ public fun RemoteIconToggleButtonDisabledChecked() {
 public fun RemoteIconToggleButtonDisabledUnchecked() {
     RemoteIconToggleButton(
         checked = false.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         enabled = false.rb,
     ) {
         ToggleIcon()
@@ -143,7 +145,7 @@ public fun RemoteIconToggleButtonDisabledUnchecked() {
 public fun RemoteIconToggleButtonVariantChecked() {
     RemoteIconToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         shapes = RemoteIconToggleButtonDefaults.variantShapes(),
     ) {
         ToggleIcon()
@@ -155,7 +157,7 @@ public fun RemoteIconToggleButtonVariantChecked() {
 public fun RemoteIconToggleButtonVariantUnchecked() {
     RemoteIconToggleButton(
         checked = false.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         shapes = RemoteIconToggleButtonDefaults.variantShapes(),
     ) {
         ToggleIcon()
@@ -167,7 +169,7 @@ public fun RemoteIconToggleButtonVariantUnchecked() {
 public fun RemoteIconToggleButtonSmall() {
     RemoteIconToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         modifier = RemoteModifier.size(RemoteIconToggleButtonDefaults.SmallSize),
     ) {
         ToggleIcon(RemoteIconToggleButtonDefaults.SmallSize)
@@ -179,7 +181,7 @@ public fun RemoteIconToggleButtonSmall() {
 public fun RemoteIconToggleButtonLarge() {
     RemoteIconToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         modifier = RemoteModifier.size(RemoteIconToggleButtonDefaults.LargeSize),
     ) {
         ToggleIcon(RemoteIconToggleButtonDefaults.LargeSize)
@@ -191,7 +193,7 @@ public fun RemoteIconToggleButtonLarge() {
 public fun RemoteIconToggleButtonExtraLarge() {
     RemoteIconToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         modifier = RemoteModifier.size(RemoteIconToggleButtonDefaults.ExtraLargeSize),
     ) {
         ToggleIcon(RemoteIconToggleButtonDefaults.ExtraLargeSize)

@@ -17,18 +17,17 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
 
-internal class TouchCancelActionModifier(public val action: Action) : RemoteModifier.Element {
+internal class TouchCancelActionModifier(public val action: RemoteAction) : RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return TouchActionModifier(
             TouchActionModifier.CANCEL,
-            if (action is RemoteAction) with(action) { listOf(toRemoteAction()) } else emptyList(),
+            with(action) { listOf(toRemoteAction()) },
         )
     }
 }
@@ -36,7 +35,7 @@ internal class TouchCancelActionModifier(public val action: Action) : RemoteModi
 /**
  * Performs [action] when a touch gesture is cancelled on the element.
  *
- * @param action The [Action] to perform when the touch is cancelled.
+ * @param action The [RemoteAction] to perform when the touch is cancelled.
  */
-public fun RemoteModifier.onTouchCancel(action: Action): RemoteModifier =
+public fun RemoteModifier.onTouchCancel(action: RemoteAction): RemoteModifier =
     then(TouchCancelActionModifier(action))

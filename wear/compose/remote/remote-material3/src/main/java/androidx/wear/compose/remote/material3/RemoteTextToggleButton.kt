@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -67,7 +67,7 @@ import androidx.compose.ui.semantics.Role
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTextToggleButtonVariantAnimatedSample
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
- * @param onCheckedChange [Action] to be performed when this toggle button is clicked.
+ * @param onCheckedChange [RemoteAction] to be performed when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
  * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
  *   will not be clickable. Note that only constant values are currently supported for [enabled] for
@@ -81,21 +81,19 @@ import androidx.compose.ui.semantics.Role
  *   available through [RemoteTextToggleButtonDefaults.animatedShapes] and
  *   [RemoteTextToggleButtonDefaults.variantAnimatedShapes]. The press animation is driven by touch
  *   events on the player, and is not shown by players that don't dispatch them.
- * @param border Optional [RemoteDp] border stroke width for this toggle button.
- * @param borderColor Optional [RemoteColor] for the border of this toggle button.
+ * @param border Optional [RemoteBorderStroke] for this toggle button.
  * @param content The text to be drawn inside the toggle button.
  */
 @Composable
 @RemoteComposable
 public fun RemoteTextToggleButton(
     checked: RemoteBoolean,
-    onCheckedChange: Action,
+    onCheckedChange: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     colors: RemoteTextToggleButtonColors = RemoteTextToggleButtonDefaults.colors(),
     shapes: RemoteTextToggleButtonShapes = RemoteTextToggleButtonDefaults.shapes(),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val animatedShape =
@@ -119,7 +117,6 @@ public fun RemoteTextToggleButton(
             ),
         enabled = enabled,
         border = border,
-        borderColor = borderColor,
         shape = animatedShape.shape,
         role = Role.Checkbox,
         content =

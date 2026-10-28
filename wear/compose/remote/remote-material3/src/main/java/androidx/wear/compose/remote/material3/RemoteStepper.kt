@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -54,8 +54,8 @@ import androidx.compose.ui.platform.LocalConfiguration
  * @param decreaseIcon A slot for an icon which is placed on the decrease (bottom) button.
  * @param increaseIcon A slot for an icon which is placed on the increase (top) button.
  * @param modifier Modifiers to be applied to the Stepper.
- * @param decreaseAction Action to perform when the decrease button is clicked.
- * @param increaseAction Action to perform when the increase button is clicked.
+ * @param decreaseAction RemoteAction to perform when the decrease button is clicked.
+ * @param increaseAction RemoteAction to perform when the increase button is clicked.
  * @param enabled Controls the enabled state of the Stepper. Note that only constant values are
  *   currently supported for [enabled] for click handling.
  * @param valueRange The range of values that this stepper can take.
@@ -76,8 +76,8 @@ public fun RemoteStepper(
         RemoteStepperDefaults.IncreaseIcon()
     },
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: Action = Action.Empty,
-    increaseAction: Action = Action.Empty,
+    decreaseAction: RemoteAction = RemoteAction.Empty,
+    increaseAction: RemoteAction = RemoteAction.Empty,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     colors: RemoteStepperColors = RemoteStepperDefaults.stepperColors(),
@@ -106,7 +106,6 @@ public fun RemoteStepper(
                 backgroundColor = colors.buttonContainerColor(enabled),
                 enabled = enabled,
                 border = null,
-                borderColor = null,
                 shape = RemoteStepperDefaults.buttonShape,
                 content =
                     provideScopeContent(
@@ -145,7 +144,6 @@ public fun RemoteStepper(
                 backgroundColor = colors.buttonContainerColor(enabled),
                 enabled = enabled,
                 border = null,
-                borderColor = null,
                 shape = RemoteStepperDefaults.buttonShape,
                 content =
                     provideScopeContent(
@@ -168,8 +166,8 @@ public fun RemoteStepper(
  * @param decreaseIcon A slot for an icon which is placed on the decrease (bottom) button.
  * @param increaseIcon A slot for an icon which is placed on the increase (top) button.
  * @param modifier Modifiers to be applied to the Stepper.
- * @param decreaseAction Action to perform when the decrease button is clicked.
- * @param increaseAction Action to perform when the increase button is clicked.
+ * @param decreaseAction RemoteAction to perform when the decrease button is clicked.
+ * @param increaseAction RemoteAction to perform when the increase button is clicked.
  * @param enabled Controls the enabled state of the Stepper. Note that only constant values are
  *   currently supported for [enabled] for click handling.
  * @param valueRange The range of values that this stepper can take.
@@ -190,8 +188,8 @@ public fun RemoteStepper(
         RemoteStepperDefaults.IncreaseIcon()
     },
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: Action = Action.Empty,
-    increaseAction: Action = Action.Empty,
+    decreaseAction: RemoteAction = RemoteAction.Empty,
+    increaseAction: RemoteAction = RemoteAction.Empty,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     colors: RemoteStepperColors = RemoteStepperDefaults.stepperColors(),

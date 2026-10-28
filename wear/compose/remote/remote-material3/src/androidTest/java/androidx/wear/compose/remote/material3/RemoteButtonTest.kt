@@ -271,8 +271,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(150.rdp),
-                    border = 8.rdp,
-                    borderColor = RemoteColor(Color.Green),
+                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Green.rc),
                     shape = RemoteCircleShape,
                 ) {
                     RemoteText("button_with_circle_shape".rs)
@@ -291,8 +290,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(120.rdp, 50.rdp),
-                    border = 4.rdp,
-                    borderColor = RemoteColor(Color.Green),
+                    border = RemoteBorderStroke(width = 4.rdp, color = Color.Green.rc),
                     shape = RemoteRoundedCornerShape(topStart = 80.rdp, bottomStart = 80.rdp),
                 ) {
                     RemoteText("scale".rs)
@@ -313,8 +311,7 @@ class RemoteButtonTest {
                 RemoteButton(
                     onClick = testAction,
                     modifier = RemoteModifier.size(120.rdp, 50.rdp),
-                    border = 8.rdp,
-                    borderColor = RemoteColor(Color.Green),
+                    border = RemoteBorderStroke(width = 8.rdp, color = Color.Green.rc),
                     shape = RemoteRoundedCornerShape(2.rdp),
                 ) {
                     RemoteText("clamp".rs)

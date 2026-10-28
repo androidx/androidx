@@ -34,7 +34,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
@@ -2049,7 +2049,7 @@ class RcPlayerPrimitivesTest {
     @Test
     fun testRemoteButtonFromMaterial3() {
         rule.setRemoteContent(modifier = Modifier.size(200.dp).testTag("buttonMaterial3Parent")) {
-            RemoteButton(onClick = Action.Empty) {
+            RemoteButton(onClick = RemoteAction.Empty) {
                 RemoteText("Click".rs)
             }
         }

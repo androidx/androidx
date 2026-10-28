@@ -29,7 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
@@ -170,7 +170,7 @@ public fun HostActionsDemo() {
 
 @Composable
 @RemoteComposable
-private fun DemoRow(label: String, action: Action) {
+private fun DemoRow(label: String, action: RemoteAction) {
     RemoteText(
         text = label.rs,
         modifier =

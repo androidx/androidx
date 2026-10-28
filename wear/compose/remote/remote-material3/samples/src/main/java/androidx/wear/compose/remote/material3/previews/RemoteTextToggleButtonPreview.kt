@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -98,13 +98,15 @@ public fun RemoteTextToggleButtonExtraLargePreview(
 @Composable
 @RemoteComposable
 public fun RemoteTextToggleButtonChecked() {
-    RemoteTextToggleButton(checked = true.rb, onCheckedChange = Action.Empty) { ToggleText() }
+    RemoteTextToggleButton(checked = true.rb, onCheckedChange = RemoteAction.Empty) { ToggleText() }
 }
 
 @Composable
 @RemoteComposable
 public fun RemoteTextToggleButtonUnchecked() {
-    RemoteTextToggleButton(checked = false.rb, onCheckedChange = Action.Empty) { ToggleText() }
+    RemoteTextToggleButton(checked = false.rb, onCheckedChange = RemoteAction.Empty) {
+        ToggleText()
+    }
 }
 
 @Composable
@@ -112,7 +114,7 @@ public fun RemoteTextToggleButtonUnchecked() {
 public fun RemoteTextToggleButtonDisabledChecked() {
     RemoteTextToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         enabled = false.rb,
     ) {
         ToggleText()
@@ -124,7 +126,7 @@ public fun RemoteTextToggleButtonDisabledChecked() {
 public fun RemoteTextToggleButtonDisabledUnchecked() {
     RemoteTextToggleButton(
         checked = false.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         enabled = false.rb,
     ) {
         ToggleText()
@@ -136,7 +138,7 @@ public fun RemoteTextToggleButtonDisabledUnchecked() {
 public fun RemoteTextToggleButtonVariantChecked() {
     RemoteTextToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         shapes = RemoteTextToggleButtonDefaults.variantShapes(),
     ) {
         ToggleText()
@@ -148,7 +150,7 @@ public fun RemoteTextToggleButtonVariantChecked() {
 public fun RemoteTextToggleButtonVariantUnchecked() {
     RemoteTextToggleButton(
         checked = false.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         shapes = RemoteTextToggleButtonDefaults.variantShapes(),
     ) {
         ToggleText()
@@ -160,7 +162,7 @@ public fun RemoteTextToggleButtonVariantUnchecked() {
 public fun RemoteTextToggleButtonLarge() {
     RemoteTextToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         modifier = RemoteModifier.size(RemoteTextToggleButtonDefaults.LargeSize),
     ) {
         RemoteText("ABC".rs, style = RemoteTextToggleButtonDefaults.largeTextStyle)
@@ -172,7 +174,7 @@ public fun RemoteTextToggleButtonLarge() {
 public fun RemoteTextToggleButtonExtraLarge() {
     RemoteTextToggleButton(
         checked = true.rb,
-        onCheckedChange = Action.Empty,
+        onCheckedChange = RemoteAction.Empty,
         modifier = RemoteModifier.size(RemoteTextToggleButtonDefaults.ExtraLargeSize),
     ) {
         RemoteText("ABC".rs, style = RemoteTextToggleButtonDefaults.extraLargeTextStyle)

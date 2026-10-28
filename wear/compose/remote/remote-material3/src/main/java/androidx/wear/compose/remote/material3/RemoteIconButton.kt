@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -52,28 +52,25 @@ import androidx.compose.ui.graphics.Color
  * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonSimpleSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable. It must be a constant value.
  * @param shape Defines the shape for this button. Defaults to a static shape based on
  *   [RemoteIconButtonDefaults.shape]
  * @param colors [RemoteIconButtonColors] that will be used to resolve the background and content
  *   color for this button in different states.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not be
- *   clickable. It must be a constant value.
- * @param border Optional [RemoteDp] that will be used to resolve the border for this button in
- *   different states.
- * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
+ * @param border Optional [RemoteBorderStroke] that will be used to resolve the border for this
  *   button in different states.
  * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
 @RemoteComposable
 public fun RemoteIconButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
-    colors: RemoteIconButtonColors = RemoteIconButtonDefaults.iconButtonColors(),
     enabled: RemoteBoolean = true.rb,
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
     shape: RemoteShape = RemoteIconButtonDefaults.shape,
+    colors: RemoteIconButtonColors = RemoteIconButtonDefaults.iconButtonColors(),
+    border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteRoundButton(
@@ -82,7 +79,6 @@ public fun RemoteIconButton(
         backgroundColor = colors.containerColor(enabled = enabled),
         enabled = enabled,
         border = border,
-        borderColor = borderColor,
         shape = shape,
         content =
             provideScopeContent(
