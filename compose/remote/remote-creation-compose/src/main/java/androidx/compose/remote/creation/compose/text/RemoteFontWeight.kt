@@ -17,29 +17,37 @@
 package androidx.compose.remote.creation.compose.text
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import kotlin.jvm.JvmInline
 
 /** Represents the thickness of glyphs in a font for Remote Compose. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@JvmInline
-public value class RemoteFontWeight(public val weight: Int) : Comparable<RemoteFontWeight> {
-    override fun compareTo(other: RemoteFontWeight): Int = weight.compareTo(other.weight)
+public class RemoteFontWeight(public val weight: RemoteFloat) {
+    public constructor(weight: Int) : this(weight.rf)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteFontWeight) return false
+        return weight.isStructurallyEqual(other.weight)
+    }
+
+    override fun hashCode(): Int = weight.cacheKey.hashCode()
 
     override fun toString(): String = "RemoteFontWeight($weight)"
 
     public companion object {
-        @Stable public val W100: RemoteFontWeight = RemoteFontWeight(100)
-        @Stable public val W200: RemoteFontWeight = RemoteFontWeight(200)
-        @Stable public val W300: RemoteFontWeight = RemoteFontWeight(300)
-        @Stable public val W400: RemoteFontWeight = RemoteFontWeight(400)
-        @Stable public val W500: RemoteFontWeight = RemoteFontWeight(500)
-        @Stable public val W600: RemoteFontWeight = RemoteFontWeight(600)
-        @Stable public val W700: RemoteFontWeight = RemoteFontWeight(700)
-        @Stable public val W800: RemoteFontWeight = RemoteFontWeight(800)
-        @Stable public val W900: RemoteFontWeight = RemoteFontWeight(900)
+        @Stable public val W100: RemoteFontWeight = RemoteFontWeight(100.rf)
+        @Stable public val W200: RemoteFontWeight = RemoteFontWeight(200.rf)
+        @Stable public val W300: RemoteFontWeight = RemoteFontWeight(300.rf)
+        @Stable public val W400: RemoteFontWeight = RemoteFontWeight(400.rf)
+        @Stable public val W500: RemoteFontWeight = RemoteFontWeight(500.rf)
+        @Stable public val W600: RemoteFontWeight = RemoteFontWeight(600.rf)
+        @Stable public val W700: RemoteFontWeight = RemoteFontWeight(700.rf)
+        @Stable public val W800: RemoteFontWeight = RemoteFontWeight(800.rf)
+        @Stable public val W900: RemoteFontWeight = RemoteFontWeight(900.rf)
 
         @Stable public val Thin: RemoteFontWeight = W100
         @Stable public val ExtraLight: RemoteFontWeight = W200

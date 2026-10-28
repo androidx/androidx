@@ -102,7 +102,7 @@ public fun RemoteText(
         if (style.lineHeight == null || !style.lineHeight.hasConstantValue) 1f.rf
         else // default lineHeight is descent — ascent
          style.lineHeight.value / resolvedFontSize.value
-    val unadjustedFontWeight = (fontWeight ?: style.remoteFontWeight)?.weight ?: 400
+    val unadjustedFontWeight = (fontWeight ?: style.remoteFontWeight)?.weight ?: 400f.rf
 
     RemoteText(
         text = text,
@@ -110,7 +110,7 @@ public fun RemoteText(
         fontSize = resolvedFontSize,
         modifier = modifier,
         fontStyle = fontStyle ?: style.remoteFontStyle ?: RemoteFontStyle.Normal,
-        fontWeight = unadjustedFontWeight.rf,
+        fontWeight = unadjustedFontWeight,
         textAlign = textAlign ?: style.remoteTextAlign ?: RemoteTextAlign.Start,
         fontFamily = (fontFamily ?: style.fontFamily)?.name,
         overflow = overflow,
