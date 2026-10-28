@@ -23,6 +23,14 @@ import androidx.collection.buildIntSet
 import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.profile.Profile
 import androidx.glance.wear.core.RcWearOperations.CORE_TEXT
+import androidx.glance.wear.core.RcWearOperations.DATA_FONT
+import androidx.glance.wear.core.RcWearOperations.DYNAMIC_FLOAT_LIST
+import androidx.glance.wear.core.RcWearOperations.ID_LOOKUP
+import androidx.glance.wear.core.RcWearOperations.MODIFIER_GRAPHICS_LAYER
+import androidx.glance.wear.core.RcWearOperations.PATH_COMBINE
+import androidx.glance.wear.core.RcWearOperations.PATH_EXPRESSION
+import androidx.glance.wear.core.RcWearOperations.TEXT_TRANSFORM
+import androidx.glance.wear.core.RcWearOperations.UPDATE_DYNAMIC_FLOAT_LIST
 import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 
@@ -39,6 +47,14 @@ public object GlanceWearProfiles {
     internal val WEAR_WIDGETS_ALLOWED_OPERATIONS: IntSet = buildIntSet {
         addAll(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS)
         add(CORE_TEXT)
+        add(DATA_FONT)
+        add(DYNAMIC_FLOAT_LIST)
+        add(ID_LOOKUP)
+        add(MODIFIER_GRAPHICS_LAYER)
+        add(PATH_COMBINE)
+        add(PATH_EXPRESSION)
+        add(TEXT_TRANSFORM)
+        add(UPDATE_DYNAMIC_FLOAT_LIST)
     }
 
     /** A profile for Wear Widgets, based on the allowed operations for widgets. */
