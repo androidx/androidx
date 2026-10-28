@@ -26,9 +26,9 @@ import androidx.xr.runtime.math.Vector3
 
 /**
  * Rotate a subspace element (i.e., Panel) in space with regard to the center of the element.
- * Parameter rotation angles are specified in degrees. The rotations are applied in the order pitch,
- * then yaw, then roll. If no values are provided, no rotation is applied. Rotation does not alter a
- * Composable's measured size in its parent.
+ * Parameter rotation angles are specified in degrees. The rotations are applied in the order yaw,
+ * then pitch, then roll, matching [Quaternion.fromEulerAngles]. If no values are provided, no
+ * rotation is applied. Rotation does not alter a Composable's measured size in its parent.
  *
  * @param pitch Rotation around the x-axis. Defaults to `0.0f`. The x-axis is the axis along which
  *   width is measured.
