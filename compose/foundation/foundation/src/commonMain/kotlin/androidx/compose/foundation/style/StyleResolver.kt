@@ -19,15 +19,39 @@ package androidx.compose.foundation.style
 import androidx.collection.MutableObjectList
 import androidx.collection.ScatterSet
 import androidx.collection.mutableObjectListOf
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.annotation.RememberInComposition
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.unit.Density
+
+/**
+ * Create and remember a [StyleResolver].
+ *
+ * [rememberStyleResolver] should be used when creating a [StyleResolver] in composition because it
+ * will update the [style] and [styleState] values in a remembered [StyleResolver] which avoids
+ * unnecessary property invalidations and animation cancellation.
+ */
+@ExperimentalFoundationStyleApi
+@Composable
+public fun rememberStyleResolver(
+    style: CommonStyle,
+    styleState: StyleState = remember { MutableStyleState(null) },
+): StyleResolver {
+    val styleResolver = remember { StyleResolver(style, styleState) }
+    styleResolver.style = style
+    styleResolver.styleState = styleState
+    return styleResolver
+}
 
 /**
  * The type of the scope of [StyleResolver.resolve] that allows the `block` to read the fully
@@ -54,8 +78,8 @@ public interface StyleResolverScope :
 public class StyleResolver
 @RememberInComposition
 constructor(
-    internal val style: CommonStyle,
-    internal val styleState: StyleState = MutableStyleState(null),
+    style: CommonStyle,
+    styleState: StyleState = MutableStyleState(null),
 ) : RememberObserver {
     internal val resolvedProperties = ResolvedProperties()
     internal val resolvedLocals = ResolvedProperties()
@@ -76,6 +100,20 @@ constructor(
                     "Unbound style resolver. Cannot read an style resolver before it has been bound to " +
                         "a styleResolver modifier."
                 )
+
+    /**
+     * The style being resolved by the style resolver. Assigning a new value to this property will
+     * cause the style resolver to invalidate and the new style will be called on or before the next
+     * call to [resolve].
+     */
+    public var style: CommonStyle by mutableStateOf(style)
+
+    /**
+     * The style state being used to resolve the style. Assigning a new value to this property will
+     * cause the style resolver to invalidate and the new style will be called on or before the next
+     * call to [resolve].
+     */
+    public var styleState: StyleState by mutableStateOf(styleState)
 
     /**
      * Asks the [StyleResolver] to resolve the properties of a given style lambda. The resolved

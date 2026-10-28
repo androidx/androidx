@@ -18,9 +18,10 @@
 
 package androidx.compose.foundation.style
 
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -256,7 +258,7 @@ class StyleResolverNodeTest {
                     val value = if (useLarge) 100 else 50
                     StyleResolver({ sizeLocal.provide(value) })
                 }
-            val childResolver = remember { StyleResolver({}) }
+            val childResolver = rememberStyleResolver({})
             Box(Modifier.styleResolver(parentResolver)) {
                 Box(
                     Modifier.styleResolver(childResolver).layout { measurable, constraints ->
@@ -276,6 +278,39 @@ class StyleResolverNodeTest {
     }
 
     @Test
+    fun avoidUnnecessaryResolverSwap() {
+        val intProperty = stylePropertyOf("int") { 0 }
+        var requested by mutableIntStateOf(0)
+        fun styleProducer(): CommonStyle = CommonStyle {
+            animate(tween(500)) {
+                intProperty.provide(requested)
+            }
+        }
+        rule.setContent {
+            requested // Ensure compose is called when requested is changed.
+            val styleResolver = rememberStyleResolver(styleProducer())
+            Box(
+                Modifier.testTag("box").styleResolver(styleResolver).layout {
+                    measurable,
+                    constraints ->
+                    val intValue = styleResolver.resolve { intProperty.value }
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(intValue, intValue)
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(0.dp)
+
+        requested = 100
+        rule.runOnIdle {}
+
+        rule.onNodeWithTag("box").assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
     @Suppress("DEPRECATION")
     fun parentResolverSwap_childApplyingNestedStyle_updates() {
         val key = NestedStyleKey("child")
@@ -289,7 +324,7 @@ class StyleResolverNodeTest {
                         provideNestedStyle(key, Style { size(size) }.toCommonStyle())
                     })
                 }
-            val childResolver = remember { StyleResolver({ applyNestedStyle(key) }) }
+            val childResolver = rememberStyleResolver({ applyNestedStyle(key) })
             Box(Modifier.styleResolver(parentResolver)) {
                 Box(Modifier.testTag("child").styleable(childResolver))
             }

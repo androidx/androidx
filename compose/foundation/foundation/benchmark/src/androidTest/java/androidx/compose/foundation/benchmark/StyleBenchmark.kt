@@ -39,7 +39,6 @@ import androidx.compose.foundation.style.CommonStyle
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.MutableStyleState
 import androidx.compose.foundation.style.Style
-import androidx.compose.foundation.style.StyleResolver
 import androidx.compose.foundation.style.StyleScope
 import androidx.compose.foundation.style.animate
 import androidx.compose.foundation.style.border
@@ -50,6 +49,7 @@ import androidx.compose.foundation.style.externalPadding
 import androidx.compose.foundation.style.focused
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
+import androidx.compose.foundation.style.rememberStyleResolver
 import androidx.compose.foundation.style.size
 import androidx.compose.foundation.style.styleResolver
 import androidx.compose.foundation.style.styleable
@@ -473,7 +473,7 @@ fun StyleText(
     color: ColorProducer? = null,
     autoSize: TextAutoSize? = null,
 ) {
-    val styleResolver = remember(style) { StyleResolver(style) }
+    val styleResolver = rememberStyleResolver(style)
     BasicText(
         text = text,
         modifier = modifier.styleResolver(styleResolver),
