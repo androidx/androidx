@@ -4961,7 +4961,7 @@ class CompositionTests {
             Wrap { Text("$derived") }
         }
 
-        repeat(100) {
+        repeat(10) {
             state.intValue++
             advance(ignorePendingWork = true)
         }

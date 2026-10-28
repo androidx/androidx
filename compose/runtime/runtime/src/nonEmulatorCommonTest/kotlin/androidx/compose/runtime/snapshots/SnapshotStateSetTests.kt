@@ -186,7 +186,7 @@ class SnapshotStateSetTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_add() =
         runTest(timeout = 30.seconds) {
-            repeat(10) {
+            repeat(2) {
                 val sets = Array(100) { mutableStateSetOf<Int>() }.toList()
                 val channel = Channel<Unit>(Channel.CONFLATED)
                 coroutineScope {

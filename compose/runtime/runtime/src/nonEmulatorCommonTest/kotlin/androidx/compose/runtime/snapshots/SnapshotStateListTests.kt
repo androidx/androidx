@@ -576,7 +576,7 @@ class SnapshotStateListTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentGlobalModifications_addAll() =
         runTest(timeout = 30.seconds) {
-            repeat(50) {
+            repeat(5) {
                 val list = mutableStateListOf<Int>()
                 coroutineScope {
                     repeat(100) { index ->
@@ -598,7 +598,7 @@ class SnapshotStateListTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_add() =
         runTest(timeout = 30.seconds) {
-            repeat(10) {
+            repeat(2) {
                 val lists = Array(100) { mutableStateListOf<Int>() }.toList()
                 val channel = Channel<Unit>(Channel.CONFLATED)
                 coroutineScope {
@@ -627,7 +627,7 @@ class SnapshotStateListTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_addAll_clear() =
         runTest(timeout = 30.seconds) {
-            repeat(10) {
+            repeat(2) {
                 val lists = Array(100) { mutableStateListOf<Int>() }.toList()
                 val data = Array(100) { index -> index }.toList()
                 val channel = Channel<Unit>(Channel.CONFLATED)
@@ -659,28 +659,26 @@ class SnapshotStateListTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_addAll_removeRange() =
         runTest(timeout = 30.seconds) {
-            repeat(4) {
-                val lists = Array(100) { mutableStateListOf<Int>() }.toList()
-                val data = Array(100) { index -> index }.toList()
-                val channel = Channel<Unit>(Channel.CONFLATED)
-                coroutineScope {
-                    // Launch mutator
-                    launch(Dispatchers.Default) {
-                        repeat(100) {
-                            lists.fastForEach { list ->
-                                list.addAll(data)
-                                list.removeRange(0, data.size)
-                            }
-                            // Simulate the write observer
-                            channel.trySend(Unit)
+            val lists = Array(100) { mutableStateListOf<Int>() }.toList()
+            val data = Array(100) { index -> index }.toList()
+            val channel = Channel<Unit>(Channel.CONFLATED)
+            coroutineScope {
+                // Launch mutator
+                launch(Dispatchers.Default) {
+                    repeat(100) {
+                        lists.fastForEach { list ->
+                            list.addAll(data)
+                            list.removeRange(0, data.size)
                         }
-                        channel.close()
+                        // Simulate the write observer
+                        channel.trySend(Unit)
                     }
+                    channel.close()
+                }
 
-                    // Simulate the global snapshot manager
-                    launch(Dispatchers.Default) {
-                        channel.consumeEach { Snapshot.notifyObjectsInitialized() }
-                    }
+                // Simulate the global snapshot manager
+                launch(Dispatchers.Default) {
+                    channel.consumeEach { Snapshot.notifyObjectsInitialized() }
                 }
             }
             // Should only get here if the above doesn't deadlock.

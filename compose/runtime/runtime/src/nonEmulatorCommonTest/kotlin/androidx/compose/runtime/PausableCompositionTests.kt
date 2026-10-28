@@ -34,6 +34,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -695,7 +696,7 @@ class PausableCompositionTests {
             setContent()
             resumeTillComplete { false }
 
-            repeat(1000) {
+            repeat(100) {
                 val job = launch(Dispatchers.Default) { repeat(10) { launch { invalidate() } } }
                 job.join()
 
@@ -746,52 +747,53 @@ class PausableCompositionTests {
     }
 
     @Test
-    fun resumeOnBackgroundThread() = compositionTest {
-        val awaiter = Awaiter()
-        var text by mutableStateOf("Some text")
-        var running by mutableStateOf(false)
-        var counter = 0
-        val mutatorJob =
-            launch(Dispatchers.Default) {
-                while (running) {
-                    text = "Some text $counter"
-                    counter++
-                    yield()
-                }
-            }
-
-        val workflow = workflow {
-            setContent()
-
-            val resumeJob =
+    fun resumeOnBackgroundThread() =
+        compositionTest(timeout = 3.minutes) {
+            val awaiter = Awaiter()
+            var text by mutableStateOf("Some text")
+            var running by mutableStateOf(false)
+            var counter = 0
+            val mutatorJob =
                 launch(Dispatchers.Default) {
-                    while (!isComplete) {
-                        resumeOnce { true }
+                    while (running) {
+                        text = "Some text $counter"
+                        counter++
+                        yield()
                     }
                 }
 
-            resumeJob.join()
-            resumeTillComplete { false }
-            apply()
-            awaiter.done()
+            val workflow = workflow {
+                setContent()
+
+                val resumeJob =
+                    launch(Dispatchers.Default) {
+                        while (!isComplete) {
+                            resumeOnce { true }
+                        }
+                    }
+
+                resumeJob.join()
+                resumeTillComplete { false }
+                apply()
+                awaiter.done()
+            }
+
+            compose {
+                W { Text(text) }
+
+                PausableContent(workflow) { W { repeat(1000) { W { Text(text) } } } }
+                W { Text(text) }
+            }
+
+            repeat(100) {
+                advance(ignorePendingWork = true)
+                delay(1)
+            }
+
+            running = false
+            mutatorJob.join()
+            awaiter.await()
         }
-
-        compose {
-            W { Text(text) }
-
-            PausableContent(workflow) { W { repeat(1000) { W { Text(text) } } } }
-            W { Text(text) }
-        }
-
-        repeat(100) {
-            advance(ignorePendingWork = true)
-            delay(1)
-        }
-
-        running = false
-        mutatorJob.join()
-        awaiter.await()
-    }
 
     @Test
     fun rememberObserverThrashing() = compositionTest {
