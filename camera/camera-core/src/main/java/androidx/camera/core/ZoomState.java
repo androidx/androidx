@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.RestrictTo;
-
 /**
  * An interface which contains the zoom related information from a camera.
  *
@@ -74,8 +72,6 @@ public interface ZoomState {
      * <p>If the camera is not a logical multi-camera, or on API levels lower than {@link
      * android.os.Build.VERSION_CODES#Q}, this value is always {@code 1.0}.
      */
-    // TODO: b/317468002 - Make this public in next alpha
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default float getActiveIntrinsicZoomRatio() {
         return 1.0f;
     }

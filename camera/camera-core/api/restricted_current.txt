@@ -950,6 +950,7 @@ package androidx.camera.core {
   }
 
   public interface ZoomState {
+    method public default float getActiveIntrinsicZoomRatio();
     method public float getLinearZoom();
     method public float getMaxZoomRatio();
     method public float getMinZoomRatio();
