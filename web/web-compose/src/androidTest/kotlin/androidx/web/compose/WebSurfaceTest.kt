@@ -34,6 +34,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,11 +46,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -63,6 +70,7 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -842,6 +850,403 @@ class WebSurfaceTest {
             swipeTowardsEnd = { swipeLeft() },
             swipeTowardsStart = { swipeRight() },
         )
+    }
+
+    @Test
+    fun testNestedScrollInPullToRefreshBox() {
+        lateinit var bridge: WebViewBridge
+        lateinit var pullToRefreshState: PullToRefreshState
+        var isRefreshing by mutableStateOf(false)
+        var refreshCount = 0
+
+        composeTestRule.setContent {
+            pullToRefreshState = rememberPullToRefreshState()
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    isRefreshing = true
+                    refreshCount++
+                },
+                state = pullToRefreshState,
+                threshold = 50.dp,
+            ) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        // Pull down at the top of the page so overscroll pulls the indicator past its threshold.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(centerX, 20.dp.toPx()))
+            repeat(10) { moveBy(Offset(0f, 15.dp.toPx())) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { pullToRefreshState.distanceFraction > 1f }
+
+        // Pushing back up hands the rest of the gesture to PullToRefreshBox: pushing past where
+        // the pull started retracts it without scrolling the page, and releasing cancels refresh.
+        surface.performTouchInput {
+            repeat(15) { moveBy(Offset(0f, -15.dp.toPx())) }
+            up()
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { pullToRefreshState.distanceFraction == 0f }
+        composeTestRule.runOnIdle { assertEquals(0, refreshCount) }
+        assertEquals("0", bridge.evaluateJs("Math.round(window.scrollY)"))
+
+        // The page gets the next gesture again, so pulling down past the threshold and releasing
+        // refreshes.
+        surface.performTouchInput {
+            down(Offset(centerX, 20.dp.toPx()))
+            repeat(10) { moveBy(Offset(0f, 15.dp.toPx())) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { pullToRefreshState.distanceFraction > 1f }
+        surface.performTouchInput { up() }
+        composeTestRule.waitUntil(TIMEOUT_MS) { refreshCount == 1 && isRefreshing }
+    }
+
+    @Test
+    fun testNestedScrollParentIsOnlyOfferedDragsAlongAxesItTookOverscroll() {
+        lateinit var bridge: WebViewBridge
+        var tookOverscrollX = false
+        val parent =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
+                    if (available.y < 0f) available.copy(x = 0f) else Offset.Zero
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    if (available.x == 0f) return Offset.Zero
+                    tookOverscrollX = true
+                    return Offset(available.x, 0f)
+                }
+            }
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.nestedScroll(parent)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "200vw", height = "200vh"))
+
+        // Drag right at the left edge so the parent takes the page's horizontal overscroll, then
+        // drag up in the same gesture. Because the parent took no vertical overscroll, it isn't
+        // offered the vertical drag and the page scrolls instead.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(50.dp.toPx(), 150.dp.toPx()))
+            repeat(5) { moveBy(Offset(15.dp.toPx(), 0f)) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { tookOverscrollX }
+
+        surface.performTouchInput {
+            repeat(5) { moveBy(Offset(0f, -15.dp.toPx())) }
+            up()
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
+        }
+    }
+
+    @Test
+    fun testNestedScrollPageKeepsDragWhenParentOnlyTakesOverscroll() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(200.dp, 300.dp)) {
+                item {
+                    WebSurface(
+                        content = webContent,
+                        modifier = Modifier.size(200.dp).testTag("surface"),
+                        bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                    )
+                }
+                item { Box(modifier = Modifier.size(200.dp)) }
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+        bridge.evaluateJs("window.scrollTo(0, document.body.scrollHeight)")
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
+        }
+        val pageBottom = bridge.evaluateJs("Math.round(window.scrollY)").toInt()
+
+        // Drag up past the bottom of the page, so the list takes the overscroll...
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(centerX, 150.dp.toPx()))
+            moveBy(Offset(0f, -30.dp.toPx()))
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { listState.firstVisibleItemScrollOffset > 0 }
+
+        // ...but it only takes what the page leaves, so dragging back down scrolls the page.
+        // We check before lifting the finger: Chromium swaps the test clock's event times for
+        // the current time, so our moves look a millisecond apart and the release fling can go
+        // either way.
+        surface.performTouchInput { repeat(4) { moveBy(Offset(0f, 15.dp.toPx())) } }
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) < pageBottom
+        }
+        surface.performTouchInput { up() }
+    }
+
+    @Test
+    fun testNestedScrollHandoverFlingsParent() {
+        lateinit var bridge: WebViewBridge
+        var overscrolled = false
+        val flings = mutableListOf<Velocity>()
+        val parent =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
+                    if (available.y < 0f) available.copy(x = 0f) else Offset.Zero
+
+                // Takes downward overscroll, like a pull-to-refresh indicator.
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    if (available.y <= 0f) return Offset.Zero
+                    overscrolled = true
+                    return Offset(0f, available.y)
+                }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    flings += available
+                    return Velocity.Zero
+                }
+            }
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.nestedScroll(parent)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        // Pull down at the top so the parent takes the page's overscroll, then flick back up so it
+        // claims the drag and gets a single fling with the flick's velocity when released.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(centerX, 20.dp.toPx()))
+            repeat(5) { moveBy(Offset(0f, 15.dp.toPx())) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { overscrolled }
+
+        surface.performTouchInput {
+            repeat(3) { moveBy(Offset(0f, -15.dp.toPx()), delayMillis = 8L) }
+            up()
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { flings.isNotEmpty() }
+        composeTestRule.runOnIdle {
+            assertEquals(1, flings.size)
+            assertTrue(flings.single().y < 0f)
+        }
+    }
+
+    @Test
+    fun testNestedScrollParentIsNotOfferedDragsWithoutTakingOverscroll() {
+        lateinit var bridge: WebViewBridge
+        var overscrolled = false
+        var offeredDrags = 0
+        // Like a collapsing top app bar: takes upward drags in pre scroll, but no overscroll.
+        val parent =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (available.x != 0f || available.y != 0f) offeredDrags++
+                    return if (available.y < 0f) available.copy(x = 0f) else Offset.Zero
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    if (available.y < 0f) overscrolled = true
+                    return Offset.Zero
+                }
+            }
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.nestedScroll(parent)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+        bridge.evaluateJs("window.scrollTo(0, document.body.scrollHeight)")
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
+        }
+
+        // Drag up past the bottom of the page so it overscrolls, then keep dragging up in the same
+        // gesture. The parent didn't take the overscroll, so it isn't offered the drag.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(centerX, 150.dp.toPx()))
+            repeat(3) { moveBy(Offset(0f, -15.dp.toPx())) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { overscrolled }
+
+        surface.performTouchInput {
+            repeat(5) { moveBy(Offset(0f, -15.dp.toPx())) }
+            up()
+        }
+        composeTestRule.runOnIdle { assertEquals(0, offeredDrags) }
+    }
+
+    @Test
+    fun testNestedScrollHandoverOnlyDispatchesAxesTheParentTookOverscroll() {
+        lateinit var bridge: WebViewBridge
+        var tookOverscrollX = false
+        var horizontalDrags = 0
+        var verticalDispatches = 0
+        // Like a HorizontalPager: takes horizontal overscroll, then horizontal drags in pre scroll.
+        val parent =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y != 0f) verticalDispatches++
+                    if (!tookOverscrollX || available.x == 0f) return Offset.Zero
+                    horizontalDrags++
+                    return Offset(available.x, 0f)
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    if (available.y != 0f) verticalDispatches++
+                    if (available.x == 0f) return Offset.Zero
+                    tookOverscrollX = true
+                    return Offset(available.x, 0f)
+                }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    if (available.y != 0f) verticalDispatches++
+                    return Velocity.Zero
+                }
+            }
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.nestedScroll(parent)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "200vw", height = "200vh"))
+
+        // Drag right at the left edge so the parent takes the page's horizontal overscroll and then
+        // the drag, then drag back while drifting down. The parent only gets the horizontal part:
+        // the page didn't overscroll vertically, and no longer has the drag either.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(50.dp.toPx(), 100.dp.toPx()))
+            repeat(5) { moveBy(Offset(15.dp.toPx(), 0f)) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { tookOverscrollX }
+
+        surface.performTouchInput {
+            repeat(5) { moveBy(Offset(-15.dp.toPx(), 5.dp.toPx())) }
+            up()
+        }
+        composeTestRule.runOnIdle {
+            // More than the move that handed the drag over, so later moves reached it too.
+            assertTrue(horizontalDrags > 1)
+            assertEquals(0, verticalDispatches)
+        }
+    }
+
+    @Test
+    fun testNestedScrollHandoverFlingFollowsRemainingPointer() {
+        lateinit var bridge: WebViewBridge
+        var overscrolled = false
+        val flings = mutableListOf<Velocity>()
+        // Like pull-to-refresh: takes downward overscroll, and upward drags in pre scroll.
+        val parent =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
+                    if (available.y < 0f) available.copy(x = 0f) else Offset.Zero
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    if (available.y <= 0f) return Offset.Zero
+                    overscrolled = true
+                    return Offset(0f, available.y)
+                }
+
+                override suspend fun onPreFling(available: Velocity): Velocity {
+                    flings += available
+                    return Velocity.Zero
+                }
+            }
+
+        composeTestRule.setContent {
+            Box(modifier = Modifier.nestedScroll(parent)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(200.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(scrollablePageHtml(width = "100vw", height = "200vh"))
+
+        // Pull down at the top so the parent takes the page's overscroll.
+        val surface = composeTestRule.onNodeWithTag("surface")
+        surface.performTouchInput {
+            down(Offset(centerX, 20.dp.toPx()))
+            repeat(5) { moveBy(Offset(0f, 15.dp.toPx())) }
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { overscrolled }
+
+        // Push back up so the parent claims the drag, then put a second finger down above the
+        // first, lift the first, and drag the second down. The release fling follows the second
+        // finger, rather than the jump up from the first finger to the second.
+        surface.performTouchInput {
+            moveBy(Offset(0f, -15.dp.toPx()))
+            down(1, Offset(centerX, 10.dp.toPx()))
+            up(0)
+            repeat(3) { moveBy(1, Offset(0f, 5.dp.toPx())) }
+            up(1)
+        }
+        composeTestRule.waitUntil(TIMEOUT_MS) { flings.isNotEmpty() }
+        composeTestRule.runOnIdle {
+            assertEquals(1, flings.size)
+            assertTrue(flings.single().y >= 0f)
+        }
     }
 
     @Test
