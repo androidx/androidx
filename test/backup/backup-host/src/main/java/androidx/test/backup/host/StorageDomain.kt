@@ -17,13 +17,14 @@
 package androidx.test.backup.host
 
 import java.util.Collections
+import java.util.Objects
 
 /**
  * Defines target data coordinates in the device sandbox that are seeded and verified.
  *
  * Provides strongly-typed, compile-time safe data structures for zero-boilerplate testing. The
- * framework uses these to automatically drive the PopulateStorageAction and AssertStorageAction
- * helpers.
+ * framework uses these to automatically drive the bundled storage actions, or the actions of a
+ * [CustomData].
  *
  * Note: This sealed class is open to future additions. Consumers should use a non-exhaustive 'when'
  * pattern-matching approach (incorporating an explicit 'else' branch) to ensure binary
@@ -161,7 +162,7 @@ public sealed class StorageDomain {
      *   SQL `NULL`. It may include [primaryKeyCol], matched case-insensitively like SQLite column
      *   names, but only with a value whose string form equals that of [primaryKeyVal]; otherwise
      *   construction fails with an [IllegalArgumentException]. When it is omitted, [primaryKeyVal]
-     *   is written to that column.
+     *   is written to that column. The domain keeps a copy of it.
      * @property isDeviceProtectedStorage Whether the database is in device-protected storage, which
      *   is available before the user first unlocks the device, rather than in the default storage
      *   of the app. That is credential-encrypted storage, unless the app sets
@@ -174,9 +175,12 @@ public sealed class StorageDomain {
         public val table: String,
         public val primaryKeyCol: String,
         public val primaryKeyVal: Any,
-        public val columnValues: Map<String, Any?>,
+        columnValues: Map<String, Any?>,
         public val isDeviceProtectedStorage: Boolean = false,
     ) : StorageDomain() {
+
+        public val columnValues: Map<String, Any?> =
+            Collections.unmodifiableMap(LinkedHashMap(columnValues))
 
         init {
             require(columnValues.isNotEmpty()) {
@@ -320,5 +324,99 @@ public sealed class StorageDomain {
             return "BinaryFile(path='$path', size=${content.size}" +
                 "${deviceProtectedSuffix(isDeviceProtectedStorage)})"
         }
+    }
+
+    /**
+     * Targets data that device actions of your own seed and verify, such as a restore credential
+     * that only the app's code can create and read.
+     *
+     * The flow runs [populateAction] with [args] before the backup. After the restore, it runs
+     * [verifyAction] with [args] and the data that [populateAction] returned, except its `status`
+     * and `error`. That data replaces the values of [args] with the same keys. The flow fails if
+     * either action fails, or if [populateAction] returns a key that the runner reserves.
+     *
+     * @property populateAction class name of the [androidx.test.backup.BackupDeviceAction] that
+     *   seeds the data
+     * @property verifyAction class name of the [androidx.test.backup.BackupDeviceAction] that
+     *   verifies the data after the restore
+     * @property args arguments for both actions, as [BackupRestoreController.runOnDevice] takes
+     *   them. The keys `actionClass`, `argsFile`, `debug` and `redirect_dir` are reserved for the
+     *   runner; with one of them, construction fails with an [IllegalArgumentException]. The domain
+     *   keeps a copy of it.
+     */
+    public class CustomData
+    @JvmOverloads
+    constructor(
+        public val populateAction: String,
+        public val verifyAction: String,
+        args: Map<String, String> = emptyMap(),
+    ) : StorageDomain() {
+
+        public val args: Map<String, String> = Collections.unmodifiableMap(LinkedHashMap(args))
+
+        init {
+            val runnerKeys = args.keys.filter { it in BackupActionWireProtocol.RUNNER_KEYS }
+            require(runnerKeys.isEmpty()) {
+                "CustomData args must not use the keys $runnerKeys, which the runner reads itself."
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is CustomData) return false
+            return populateAction == other.populateAction &&
+                verifyAction == other.verifyAction &&
+                args == other.args
+        }
+
+        override fun hashCode(): Int {
+            var result = populateAction.hashCode()
+            result = 31 * result + verifyAction.hashCode()
+            result = 31 * result + args.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "CustomData(populateAction='$populateAction', verifyAction='$verifyAction', " +
+                "args=${args.mapValues { shownValue(it.value) }})"
+        }
+    }
+
+    /**
+     * Targets data that the restore doesn't bring back, such as data that the app's backup rules
+     * exclude.
+     *
+     * The flow seeds [domain] before the backup, and verifies after the restore that the preference
+     * key, the database row with the primary key value, or the file is absent. A flow needs a
+     * restored domain as well, to verify that the restore happened: a flow with only excluded data
+     * fails with an [IllegalArgumentException].
+     *
+     * @property domain data to seed and then expect absent: a [Preference] with a value, a
+     *   [Database], a [TextFile] or a [BinaryFile]. Any other domain fails construction with an
+     *   [IllegalArgumentException].
+     */
+    public class ExcludedData(public val domain: StorageDomain) : StorageDomain() {
+
+        init {
+            require(
+                (domain is Preference && domain.value != null) ||
+                    domain is Database ||
+                    domain is TextFile ||
+                    domain is BinaryFile
+            ) {
+                "ExcludedData needs a Preference with a value, a Database, a TextFile or a " +
+                    "BinaryFile, not $domain."
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ExcludedData) return false
+            return domain == other.domain
+        }
+
+        override fun hashCode(): Int = Objects.hash(domain)
+
+        override fun toString(): String = "ExcludedData($domain)"
     }
 }

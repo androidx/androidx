@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Base64
@@ -145,6 +146,49 @@ internal object BackupActionWireProtocol {
         }
 
     /**
+     * Returns the class name and the arguments of the device action that seeds [storage] before a
+     * backup.
+     */
+    fun populateCall(storage: StorageDomain): Pair<String, Map<String, String>> =
+        when (storage) {
+            is StorageDomain.CustomData -> storage.populateAction to storage.args
+            is StorageDomain.ExcludedData ->
+                BackupRestoreController.ACTION_POPULATE_STORAGE to populateArgs(storage.domain)
+            else -> BackupRestoreController.ACTION_POPULATE_STORAGE to populateArgs(storage)
+        }
+
+    /**
+     * Returns the class name and the arguments of the device action that verifies [storage] after a
+     * restore, given the [data] that the action of [populateCall] returned.
+     *
+     * @throws IOException if the populate action of a [StorageDomain.CustomData] returned a key
+     *   that the runner reads itself
+     */
+    fun verifyCall(
+        storage: StorageDomain,
+        data: Map<String, String>,
+    ): Pair<String, Map<String, String>> =
+        when (storage) {
+            is StorageDomain.CustomData -> {
+                // The status and error describe the populate action's result, not its data.
+                val forwarded = data - BackupActionOutputKeys.STATUS - BackupActionOutputKeys.ERROR
+                val runnerKeys = forwarded.keys.filter { it in RUNNER_KEYS }
+                if (runnerKeys.isNotEmpty()) {
+                    throw IOException(
+                        "${storage.populateAction.substringAfterLast('.')} returned the keys " +
+                            "$runnerKeys, which the runner reads itself, so " +
+                            "${storage.verifyAction.substringAfterLast('.')} can't get them. Use " +
+                            "other keys."
+                    )
+                }
+                storage.verifyAction to storage.args + forwarded
+            }
+            is StorageDomain.ExcludedData ->
+                BackupRestoreController.ACTION_ASSERT_STORAGE to absenceArgs(storage.domain)
+            else -> BackupRestoreController.ACTION_ASSERT_STORAGE to assertArgs(storage)
+        }
+
+    /**
      * Returns the `PopulateStorageAction` arguments that write [storage] on the device.
      *
      * @throws IllegalArgumentException if [storage] is of an unsupported type
@@ -235,6 +279,23 @@ internal object BackupActionWireProtocol {
             }
 
     /**
+     * Returns the `AssertStorageAction` arguments that check that [storage] is absent on the
+     * device: the preference key, the database row with the primary key value, or the file.
+     *
+     * The seeded values are left out, so that a device library that ignores
+     * [BackupActionInputKeys.EXPECT_NULL] fails instead of verifying that the data is present.
+     *
+     * @throws IllegalArgumentException if [storage] is of an unsupported type
+     */
+    fun absenceArgs(storage: StorageDomain): Map<String, String> =
+        populateArgs(storage) -
+            setOf(
+                BackupActionInputKeys.VALUE,
+                BackupActionInputKeys.VALUE_TYPE,
+                BackupActionInputKeys.VALUES,
+            ) + (BackupActionInputKeys.EXPECT_NULL to "true")
+
+    /**
      * Encodes column name/value pairs into the [BackupActionInputKeys.VALUES] wire format.
      *
      * Both halves of every pair are percent-encoded in UTF-8, which is what lets a column value
@@ -283,7 +344,7 @@ internal object BackupActionWireProtocol {
     private const val RUNNER_ACTION_CLASS = "actionClass"
     private const val RUNNER_ARGS_FILE = "argsFile"
     private const val RUNNER_REDIRECT_DIR = "redirect_dir"
-    private val RUNNER_KEYS =
+    val RUNNER_KEYS: Set<String> =
         setOf(RUNNER_DEBUG, RUNNER_ACTION_CLASS, RUNNER_ARGS_FILE, RUNNER_REDIRECT_DIR)
 
     /** Device directory for the files that the host pushes for the runner. */

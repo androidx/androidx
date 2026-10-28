@@ -566,11 +566,17 @@ class BackupRestoreControllerImplTest {
     @Test
     fun deviceOperationsRunOnTheApplication() = runBlocking {
         device.onShell { command ->
-            if (command.startsWith("pm clear")) shellOutput("Success\n") else shellOutput()
+            when {
+                command.startsWith("pm clear") -> shellOutput("Success\n")
+                command == "pm path $PACKAGE" -> shellOutput("package:/data/app/a/base.apk\n")
+                command == "pm uninstall $PACKAGE" -> shellOutput("Success\n")
+                else -> shellOutput()
+            }
         }
 
         assertEquals(controller, controller.stopApp())
         assertEquals(controller, controller.clearAppData())
+        assertEquals(controller, controller.uninstallApp())
         assertEquals(controller, controller.clearDeviceLogs())
         assertEquals(
             controller,
@@ -578,7 +584,13 @@ class BackupRestoreControllerImplTest {
         )
 
         assertEquals(
-            listOf("am force-stop $PACKAGE", "pm clear $PACKAGE", "logcat -c"),
+            listOf(
+                "am force-stop $PACKAGE",
+                "pm clear $PACKAGE",
+                "pm path $PACKAGE",
+                "pm uninstall $PACKAGE",
+                "logcat -c",
+            ),
             device.commands,
         )
         assertEquals(listOf("/sdcard/a.txt"), device.pulledPaths)
@@ -613,6 +625,7 @@ class BackupRestoreControllerImplTest {
     @Test
     fun asyncMethodsCompleteWithTheController() {
         assertEquals(controller, controller.stopAppAsync().get())
+        assertEquals(controller, controller.uninstallAppAsync().get())
     }
 
     /** Other controllers can run on the same session, so closing one must leave it open. */
@@ -1426,6 +1439,199 @@ class BackupRestoreControllerImplTest {
         assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
     }
 
+    /**
+     * A custom domain runs its populate action before the backup and its verify action after the
+     * restore, which gets the arguments and the data that the populate action returned.
+     */
+    @Test
+    fun flowPassesTheDataOfACustomPopulateActionToItsVerifyAction() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","credential_id":"abc"}"""))
+            } else {
+                null
+            }
+        }
+
+        runBlocking {
+            controller.runBackupRestoreFlow(listOf(PREFERENCE, CUSTOM_DATA), outputDir(), LOCAL)
+        }
+
+        val populate = device.commands.indexOfFirst { it.contains(CUSTOM_POPULATE) }
+        val verify = device.commands.indexOfFirst { it.contains(CUSTOM_VERIFY) }
+        assertTrue(populate < device.commands.indexOf("bmgr backupnow $PACKAGE"))
+        assertTrue(verify > device.commands.indexOfFirst { it.startsWith("bmgr restore") })
+        assertTrue(device.commands[populate].contains("-e rp_id 'example.com'"))
+        assertTrue(device.commands[verify].contains("-e rp_id 'example.com'"))
+        assertTrue(device.commands[verify].contains("-e credential_id 'abc'"))
+        assertEquals(2, assertNotNull(controller.lastExecutionSummary).storageDomainCount)
+    }
+
+    @Test
+    fun flowFailsWhenACustomVerifyActionFails() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_VERIFY)) {
+                shellOutput(runnerStdout("""{"status":"failure","error":"No restore key"}"""))
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(CUSTOM_DATA, outputDir(), LOCAL) }
+            }
+
+        assertEquals("VerifyKeyAction failed for $CUSTOM_DATA: No restore key", e.message)
+        assertFailure(BackupExecutionStage.VERIFICATION, BackupErrorCode.VERIFICATION_FAILED)
+    }
+
+    /** The verify action can't get a key that the runner reads itself, so the flow stops early. */
+    @Test
+    fun flowFailsBeforeTheBackupWhenACustomPopulateActionReturnsARunnerKey() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","debug":"true"}"""))
+            } else {
+                null
+            }
+        }
+
+        val e =
+            assertFailsWith<IOException> {
+                runBlocking { controller.runBackupRestoreFlow(CUSTOM_DATA, outputDir(), LOCAL) }
+            }
+
+        assertEquals(
+            "CreateKeyAction returned the keys [debug], which the runner reads itself, so " +
+                "VerifyKeyAction can't get them. Use other keys.",
+            e.message,
+        )
+        assertFailure(BackupExecutionStage.SEEDING, BackupErrorCode.SEEDING_FAILED)
+        assertTrue(device.commands.none { it.startsWith("bmgr backupnow") }, "${device.commands}")
+    }
+
+    @Test
+    fun flowRestoresAndVerifiesOnTargetControllerWhenRestoreOnIsSpecified() {
+        onHealthyDevice { command ->
+            if (command.contains(CUSTOM_POPULATE)) {
+                shellOutput(runnerStdout("""{"status":"success","credential_id":"abc"}"""))
+            } else {
+                null
+            }
+        }
+        val targetDevice = FakeAdbDevice()
+        targetDevice.onShell { command ->
+            when {
+                command.startsWith("am instrument") -> shellOutput(runnerStdout("{}"))
+                command.startsWith("pm clear") -> shellOutput("Success\n")
+                else -> null
+            }
+        }
+        val targetController =
+            BackupRestoreControllerImpl(
+                targetDevice.session,
+                FAKE_SERIAL,
+                34,
+                PACKAGE,
+                backupServiceProvider = { fakeBackupService() },
+            )
+        runBlocking {
+            controller.runBackupRestoreFlow(
+                listOf(PREFERENCE, CUSTOM_DATA),
+                outputDir(),
+                CLOUD,
+                restoreOn = targetController,
+            )
+        }
+
+        assertTrue(
+            device.commands.any { it.contains(BackupRestoreController.ACTION_POPULATE_STORAGE) }
+        )
+        assertTrue(device.commands.any { it.contains(CUSTOM_POPULATE) })
+        assertTrue(device.commands.none { it.startsWith("pm clear") }, "${device.commands}")
+        assertTrue(
+            device.commands.none { it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE) },
+            "${device.commands}",
+        )
+        assertTrue(device.commands.none { it.contains(CUSTOM_VERIFY) }, "${device.commands}")
+
+        assertTrue(
+            targetDevice.commands.none {
+                it.contains(BackupRestoreController.ACTION_POPULATE_STORAGE)
+            },
+            "${targetDevice.commands}",
+        )
+        assertTrue(targetDevice.commands.any { it.startsWith("pm clear") })
+        val assertCommands =
+            targetDevice.commands.filter {
+                it.contains(BackupRestoreController.ACTION_ASSERT_STORAGE)
+            }
+        assertEquals(1, assertCommands.size, "${targetDevice.commands}")
+        val verifyCommand = targetDevice.commands.single { it.contains(CUSTOM_VERIFY) }
+        assertTrue(verifyCommand.contains("-e rp_id 'example.com'"), verifyCommand)
+        assertTrue(verifyCommand.contains("-e credential_id 'abc'"), verifyCommand)
+    }
+
+    @Test
+    fun flowRejectsARestoreTargetForADifferentApplication() {
+        val otherController =
+            BackupRestoreControllerImpl(
+                device.session,
+                FAKE_SERIAL,
+                34,
+                "com.example.other",
+                backupServiceProvider = { fakeBackupService() },
+            )
+
+        assertFailsWith<IllegalArgumentException> {
+            runBlocking {
+                controller.runBackupRestoreFlow(
+                    PREFERENCE,
+                    outputDir(),
+                    CLOUD,
+                    restoreOn = otherController,
+                )
+            }
+        }
+
+        assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** The data of a LOCAL backup stays on its device, so the flow fails before it seeds. */
+    @Test
+    fun flowRejectsALocalBackupThatAnotherDeviceWouldRestore() {
+        val otherDevice =
+            BackupRestoreControllerImpl(
+                device.session,
+                "other-serial",
+                34,
+                PACKAGE,
+                backupServiceProvider = { fakeBackupService() },
+            )
+
+        val e =
+            assertFailsWith<IllegalArgumentException> {
+                runBlocking {
+                    controller.runBackupRestoreFlow(
+                        PREFERENCE,
+                        outputDir(),
+                        LOCAL,
+                        restoreOn = otherDevice,
+                    )
+                }
+            }
+
+        assertEquals(
+            "A LOCAL backup stays in the local transport of $FAKE_SERIAL, so other-serial can't " +
+                "restore it. To restore on another device, use a cloud or device-to-device mode.",
+            e.message,
+        )
+        assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
     @Test
     fun flowSucceedsWhenPublishingTelemetryFails() {
         onHealthyDevice()
@@ -1449,6 +1655,29 @@ class BackupRestoreControllerImplTest {
             runBlocking { controller.runBackupRestoreFlow(emptyList(), outputDir(), LOCAL) }
         }
 
+        assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
+        assertTrue(device.commands.isEmpty(), "${device.commands}")
+    }
+
+    /** Absence checks alone pass even when nothing was restored, so they need a restored domain. */
+    @Test
+    fun flowRejectsOnlyExcludedDataAsAPreconditionFailure() {
+        val e =
+            assertFailsWith<IllegalArgumentException> {
+                runBlocking {
+                    controller.runBackupRestoreFlow(
+                        StorageDomain.ExcludedData(PREFERENCE),
+                        outputDir(),
+                        LOCAL,
+                    )
+                }
+            }
+
+        assertEquals(
+            "All storages are ExcludedData, so the flow can't verify that the restore happened. " +
+                "Add a domain that the restore brings back.",
+            e.message,
+        )
         assertFailure(BackupExecutionStage.PRECONDITION, BackupErrorCode.UNKNOWN_ERROR)
         assertTrue(device.commands.isEmpty(), "${device.commands}")
     }
@@ -1646,5 +1875,13 @@ class BackupRestoreControllerImplTest {
         val CLOUD = BackupTransportMode.CLOUD_ENCRYPTED
         val PREFERENCE = StorageDomain.Preference("app_prefs", "key", "val")
         val SHORT_TIMEOUT: Duration = Duration.ofMillis(200)
+        const val CUSTOM_POPULATE = "com.example.backup.CreateKeyAction"
+        const val CUSTOM_VERIFY = "com.example.backup.VerifyKeyAction"
+        val CUSTOM_DATA =
+            StorageDomain.CustomData(
+                CUSTOM_POPULATE,
+                CUSTOM_VERIFY,
+                mapOf("rp_id" to "example.com"),
+            )
     }
 }

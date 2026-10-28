@@ -175,6 +175,9 @@ constructor(public val payload: Map<String, String> = emptyMap()) {
  * documented keys are listed in [BackupActionOutputKeys]. Build the outcome with
  * [BackupDeviceActionResult.success] or [BackupDeviceActionResult.failure] so that the host can
  * tell the two apart.
+ *
+ * To use the instrumentation that runs the action, such as its `UiAutomation`, get it from
+ * [androidx.test.platform.app.InstrumentationRegistry].
  */
 public interface BackupDeviceAction {
     /**

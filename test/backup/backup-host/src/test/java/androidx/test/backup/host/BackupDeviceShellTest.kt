@@ -576,6 +576,44 @@ class BackupDeviceShellTest {
     }
 
     @Test
+    fun uninstallPackageUninstallsOnlyAnInstalledPackage() = runBlocking {
+        device.onShell { shellOutput() }
+        shell.uninstallPackage(PACKAGE)
+        assertEquals(listOf("pm path $PACKAGE"), device.commands)
+
+        device.onShell { command ->
+            when (command) {
+                "pm path $PACKAGE" -> shellOutput("package:/data/app/a/base.apk\n")
+                "pm uninstall $PACKAGE" -> shellOutput("Success\n")
+                else -> shellOutput()
+            }
+        }
+        shell.uninstallPackage(PACKAGE)
+        assertEquals(
+            listOf("pm path $PACKAGE", "pm path $PACKAGE", "pm uninstall $PACKAGE"),
+            device.commands,
+        )
+    }
+
+    @Test
+    fun uninstallPackageThrowsWhenPmUninstallFails() {
+        device.onShell { command ->
+            when (command) {
+                "pm path $PACKAGE" -> shellOutput("package:/data/app/a/base.apk\n")
+                "pm uninstall $PACKAGE" ->
+                    shellOutput("Failure [DELETE_FAILED_INTERNAL_ERROR]\n", exitCode = 1)
+                else -> shellOutput()
+            }
+        }
+
+        val e = assertFailsWith<IOException> { runBlocking { shell.uninstallPackage(PACKAGE) } }
+        assertEquals(
+            "Failed to uninstall $PACKAGE (exit code 1): Failure [DELETE_FAILED_INTERNAL_ERROR]",
+            e.message,
+        )
+    }
+
+    @Test
     fun withCleanupCleansUpAfterAFailure() {
         var cleanedUp = false
 

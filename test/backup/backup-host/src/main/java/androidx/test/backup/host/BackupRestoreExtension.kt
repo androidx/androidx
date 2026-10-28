@@ -236,39 +236,102 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
     /**
      * Returns the devices that the [BackupRestoreController] parameters of [executable] ask for, in
      * the order of the parameters.
+     *
+     * @throws IllegalArgumentException if the [Device] of a parameter has a negative API level, a
+     *   [Device.minApi] above its [Device.maxApi], or a [Device.api] or a system property API level
+     *   outside them
      */
     internal fun deviceRequestsOf(executable: Executable): List<DeviceRequest> =
         executable.parameters
             .filter { isController(it) }
             .mapIndexed { index, parameter ->
                 val device = parameter.getAnnotation(Device::class.java)
-                DeviceRequest(requestedSerial(device, index), requestedApi(device, index))
+                val api = device?.api ?: 0
+                val minApi = device?.minApi ?: 0
+                val maxApi = device?.maxApi ?: Int.MAX_VALUE
+                val role = device?.role.orEmpty()
+                val where =
+                    "controller parameter $index" + if (role.isEmpty()) "" else " (role '$role')"
+                listOf("api" to api, "minApi" to minApi, "maxApi" to maxApi)
+                    .firstOrNull { it.second < 0 }
+                    ?.let { (name, value) ->
+                        throw IllegalArgumentException(
+                            "The @Device of $where sets $name to $value, but an API level can't " +
+                                "be negative."
+                        )
+                    }
+                require(minApi <= maxApi) {
+                    "The @Device of $where sets minApi to $minApi, above its maxApi of $maxApi."
+                }
+                require(api == 0 || api in minApi..maxApi) {
+                    "The @Device of $where asks for API level $api, but its minApi and maxApi " +
+                        "allow only ${apiRange(minApi, maxApi)}."
+                }
+                val property = apiProperty(index)
+                if (property != null) {
+                    require(property.second == 0 || property.second in minApi..maxApi) {
+                        "The system property ${property.first} asks for API level " +
+                            "${property.second}, but the @Device of $where allows only " +
+                            "${apiRange(minApi, maxApi)}. Use an API level in that range" +
+                            if (property.first == PROP_DEVICE_API) {
+                                ", or $PROP_DEVICE_APIS for an API level per parameter."
+                            } else {
+                                "."
+                            }
+                    }
+                }
+                DeviceRequest(
+                    requestedSerial(device, index),
+                    property?.second ?: api,
+                    minApi,
+                    maxApi,
+                )
             }
 
     /**
      * Returns the serial numbers of the [devices] assigned to [requests], in the order of
      * [requests], or null for a request that no device matches.
      *
-     * A request for a serial number gets the device with that serial number. Each other request, in
-     * order, gets the first device by serial number that matches it and that no other request asks
-     * for or got before it. When every device that matches a request is taken, it gets the first
-     * one, which it then shares.
+     * A request for a serial number gets the device with that serial number. The other requests
+     * each get a device of their own when enough devices match them: in order, each takes the first
+     * free device by serial number that matches it, and earlier requests move to other devices that
+     * match them if that frees one for it. A request that can't get a device of its own shares the
+     * first device that matches it.
      */
     internal fun assignDevices(
         requests: List<DeviceRequest>,
         devices: List<OnlineDevice>,
     ): List<String?> {
         val sortedDevices = devices.sortedBy { it.serialNumber }
-        val taken = requests.map { it.serialNumber }.filterTo(HashSet()) { it.isNotEmpty() }
-        return requests.map { request ->
-            val matching = sortedDevices.filter { request.matches(it) }
-            val device =
-                if (request.serialNumber.isNotEmpty()) {
-                    matching.firstOrNull()
-                } else {
-                    matching.firstOrNull { it.serialNumber !in taken } ?: matching.firstOrNull()
+        val matching = requests.map { request -> sortedDevices.filter { request.matches(it) } }
+        val bound = requests.map { it.serialNumber }.filterTo(HashSet()) { it.isNotEmpty() }
+        val owners = HashMap<String, Int>()
+
+        // Finds a device of its own for the request at [index], if necessary by moving requests to
+        // other devices that match them, and returns whether there is one.
+        fun place(index: Int, visited: MutableSet<String>): Boolean {
+            val candidates = matching[index].map { it.serialNumber }.filter { it !in bound }
+            val free = candidates.firstOrNull { it !in owners }
+            if (free != null) {
+                owners[free] = index
+                return true
+            }
+            for (serial in candidates) {
+                if (visited.add(serial) && place(owners.getValue(serial), visited)) {
+                    owners[serial] = index
+                    return true
                 }
-            device?.serialNumber?.also { taken += it }
+            }
+            return false
+        }
+
+        requests.indices
+            .filter { requests[it].serialNumber.isEmpty() }
+            .forEach { place(it, HashSet()) }
+        val assigned = owners.entries.associate { (serial, index) -> index to serial }
+        return requests.mapIndexed { index, request ->
+            val first = matching[index].firstOrNull()?.serialNumber
+            if (request.serialNumber.isNotEmpty()) first else assigned[index] ?: first
         }
     }
 
@@ -282,8 +345,11 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
         devices: List<OnlineDevice>,
     ): String {
         val available = devices.joinToString(", ") { "${it.serialNumber} (API ${it.api})" }
+        val range =
+            (if (request.minApi != 0) ", minApi=${request.minApi}" else "") +
+                (if (request.maxApi != Int.MAX_VALUE) ", maxApi=${request.maxApi}" else "")
         return "Could not find any online devices matching requirements: " +
-            "API=${request.api}, Serial='${request.serialNumber}'" +
+            "API=${request.api}$range, Serial='${request.serialNumber}'" +
             (if (role.isNotEmpty()) " (role '$role')" else "") +
             ". Available devices: [$available]"
     }
@@ -313,20 +379,33 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
 
     /**
      * Returns the API level of the device that the controller parameter at [deviceIndex] with the
-     * annotation [device] asks for, or 0 for any API level.
-     *
-     * In order of precedence, that is the one at [deviceIndex] in
-     * `androidx.test.backup.device.apis`; the one in `androidx.test.backup.device.api`; and the
-     * [Device.api] of [device].
+     * annotation [device] asks for, or 0 for any API level: the one that [apiProperty] sets, or
+     * else the [Device.api] of [device].
      */
-    internal fun requestedApi(device: Device?, deviceIndex: Int): Int {
+    internal fun requestedApi(device: Device?, deviceIndex: Int): Int =
+        apiProperty(deviceIndex)?.second ?: device?.api ?: 0
+
+    /**
+     * Returns the name and the value of the system property that sets the API level of the
+     * controller parameter at [deviceIndex], or null if none does.
+     *
+     * In order of precedence, that is the entry at [deviceIndex] in
+     * `androidx.test.backup.device.apis`, and `androidx.test.backup.device.api`.
+     */
+    private fun apiProperty(deviceIndex: Int): Pair<String, Int>? {
         val apis = listProperty(PROP_DEVICE_APIS).mapNotNull { it.toIntOrNull() }
-        if (deviceIndex < apis.size) return apis[deviceIndex]
-        System.getProperty(PROP_DEVICE_API)?.toIntOrNull()?.let {
-            return it
-        }
-        return device?.api ?: 0
+        if (deviceIndex < apis.size) return PROP_DEVICE_APIS to apis[deviceIndex]
+        return System.getProperty(PROP_DEVICE_API)?.toIntOrNull()?.let { PROP_DEVICE_API to it }
     }
+
+    /** Returns the API levels from [minApi] to [maxApi], as failure messages name them. */
+    private fun apiRange(minApi: Int, maxApi: Int): String =
+        when {
+            maxApi == Int.MAX_VALUE -> "API level $minApi or higher"
+            minApi == maxApi -> "API level $minApi"
+            minApi == 0 -> "API level $maxApi or lower"
+            else -> "API levels $minApi to $maxApi"
+        }
 
     /** Returns the trimmed, non-empty entries of the comma-separated system property [name]. */
     private fun listProperty(name: String): List<String> =
@@ -488,13 +567,20 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
 
     /**
      * The device that a [BackupRestoreController] parameter asks for: the one with [serialNumber],
-     * or any device for "", which runs API level [api], or any API level for 0.
+     * or any device for "", which runs API level [api], or any API level for 0, and an API level
+     * from [minApi] to [maxApi].
      */
-    internal data class DeviceRequest(val serialNumber: String, val api: Int) {
+    internal data class DeviceRequest(
+        val serialNumber: String,
+        val api: Int,
+        val minApi: Int = 0,
+        val maxApi: Int = Int.MAX_VALUE,
+    ) {
         /** Returns whether [device] is a device that this request asks for. */
         fun matches(device: OnlineDevice): Boolean =
             (serialNumber.isEmpty() || device.serialNumber == serialNumber) &&
-                (api == 0 || device.api == api)
+                (api == 0 || device.api == api) &&
+                device.api in minApi..maxApi
     }
 
     /** An online device with [serialNumber], which runs API level [api]. */

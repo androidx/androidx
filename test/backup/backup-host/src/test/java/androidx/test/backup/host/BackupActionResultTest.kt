@@ -16,10 +16,12 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -61,7 +63,11 @@ class BackupActionResultTest {
         assertFalse(failure.isSuccess)
         assertEquals("An error occurred", failure.errorMessage)
         assertNull(failure.stackTrace)
-        assertEquals("Failure(errorMessage=An error occurred, stackTrace=null)", failure.toString())
+        assertTrue(failure.data.isEmpty())
+        assertEquals(
+            "Failure(errorMessage=An error occurred, stackTrace=null, data={})",
+            failure.toString(),
+        )
     }
 
     @Test
@@ -71,7 +77,19 @@ class BackupActionResultTest {
         assertEquals("Crash", failure.errorMessage)
         assertEquals("at some.Method(File.kt:12)", failure.stackTrace)
         assertEquals(
-            "Failure(errorMessage=Crash, stackTrace=at some.Method(File.kt:12))",
+            "Failure(errorMessage=Crash, stackTrace=at some.Method(File.kt:12), data={})",
+            failure.toString(),
+        )
+    }
+
+    @Test
+    fun testFailureKeepsTheDataOfTheAction() {
+        val failure =
+            BackupActionResult.Failure("Wrong key", data = mapOf("credential_id" to "abc"))
+
+        assertEquals(mapOf("credential_id" to "abc"), failure.data)
+        assertEquals(
+            "Failure(errorMessage=Wrong key, stackTrace=null, data={credential_id=abc})",
             failure.toString(),
         )
     }
@@ -82,12 +100,56 @@ class BackupActionResultTest {
         val failure2 = BackupActionResult.Failure("Fail", "trace")
         val failure3 = BackupActionResult.Failure("Fail", null)
         val failure4 = BackupActionResult.Failure("Crash", "trace")
+        val failure5 = BackupActionResult.Failure("Fail", "trace", mapOf("a" to "b"))
 
         assertEquals(failure1, failure2)
         assertNotEquals(failure1, failure3)
         assertNotEquals(failure1, failure4)
+        assertNotEquals(failure1, failure5)
         assertEquals(failure1.hashCode(), failure2.hashCode())
         assertNotEquals(failure1.hashCode(), failure3.hashCode())
         assertNotEquals(failure1.hashCode(), failure4.hashCode())
+        assertNotEquals(failure1.hashCode(), failure5.hashCode())
+    }
+
+    @Test
+    fun testResultsKeepAnUnmodifiableCopyOfTheirData() {
+        val data = mutableMapOf("key" to "value")
+        val results =
+            listOf(
+                BackupActionResult.Success(data),
+                BackupActionResult.Failure("Fail", data = data),
+            )
+
+        data["other"] = "value"
+
+        for (result in results) {
+            assertEquals(mapOf("key" to "value"), result.data)
+            assertThrows(UnsupportedOperationException::class.java) {
+                (result.data as MutableMap<String, String>)["other"] = "value"
+            }
+        }
+    }
+
+    @Test
+    fun testGetOrThrowReturnsTheDataOfASuccess() {
+        assertEquals(
+            mapOf("id" to "1"),
+            BackupActionResult.Success(mapOf("id" to "1")).getOrThrow(),
+        )
+    }
+
+    @Test
+    fun testGetOrThrowThrowsTheErrorMessageAndStackTraceOfAFailure() {
+        fun messageOf(failure: BackupActionResult.Failure) =
+            assertThrows(IOException::class.java) { failure.getOrThrow() }.message
+
+        assertEquals("Wrong key", messageOf(BackupActionResult.Failure("Wrong key")))
+        // The runner reports a blank stack trace for an action that returned its failure.
+        assertEquals("Wrong key", messageOf(BackupActionResult.Failure("Wrong key", " \n")))
+        assertEquals(
+            "Crash\nat some.Method(File.kt:12)",
+            messageOf(BackupActionResult.Failure("Crash", "at some.Method(File.kt:12)")),
+        )
     }
 }

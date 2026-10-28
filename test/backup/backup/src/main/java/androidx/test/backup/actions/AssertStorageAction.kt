@@ -17,6 +17,7 @@
 package androidx.test.backup.actions
 
 import android.content.Context
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.util.Base64
@@ -40,7 +41,8 @@ import androidx.test.backup.BackupDeviceActionResult
  * Parses the configuration from [BackupDeviceActionArgs] and verifies
  * [android.content.SharedPreferences], SQLite databases, or raw file contents in
  * credential-encrypted or device-protected storage. See
- * [androidx.test.backup.BackupActionInputKeys] for the keys each storage type consumes.
+ * [androidx.test.backup.BackupActionInputKeys] for the keys each storage type consumes. With
+ * [androidx.test.backup.BackupActionInputKeys.EXPECT_NULL], it verifies that the data is absent.
  *
  * A mismatch is reported as [BackupDeviceActionResult.failure] carrying the expected and the actual
  * value, not as a thrown exception. Long values are shortened to the part where they differ.
@@ -138,6 +140,7 @@ public class AssertStorageAction : BackupDeviceAction {
         val table = target.table
         val keyCol = args[KEY_COL] ?: return failure("Missing '$KEY_COL' argument.")
         val keyVal = args[KEY_VAL] ?: return failure("Missing '$KEY_VAL' argument.")
+        if (args[EXPECT_NULL].toBoolean()) return verifyRowAbsent(target, keyCol, keyVal)
 
         // Collect every column to verify. When 'values' is supplied it carries the whole row that
         // PopulateStorageAction inserted, so every pair is checked — verifying only the first would
@@ -205,17 +208,63 @@ public class AssertStorageAction : BackupDeviceAction {
         }
     }
 
+    /**
+     * Returns success unless the table of [target] has a row with [keyVal] in [keyCol]. A database
+     * or a table that doesn't exist has no such row.
+     */
+    private fun verifyRowAbsent(
+        target: StorageTarget.Database,
+        keyCol: String,
+        keyVal: String,
+    ): BackupDeviceActionResult {
+        // Verifying must not create a database that the restore did not bring back.
+        val dbFile = target.context.getDatabasePath(target.dbName)
+        if (!dbFile.exists()) return BackupDeviceActionResult.success()
+        val rows =
+            SQLiteDatabase.openDatabase(dbFile.path, null, OPEN_READONLY).use { db ->
+                val tables =
+                    DatabaseUtils.queryNumEntries(
+                        db,
+                        "sqlite_master",
+                        "type = 'table' AND name = ? COLLATE NOCASE",
+                        arrayOf(target.table),
+                    )
+                if (tables == 0L) 0L
+                else
+                    DatabaseUtils.queryNumEntries(
+                        db,
+                        "`${target.table}`",
+                        "`$keyCol` = ?",
+                        arrayOf(keyVal),
+                    )
+            }
+        return if (rows == 0L) {
+            BackupDeviceActionResult.success()
+        } else {
+            failure(
+                "Expected no row with $keyCol='$keyVal' in table '${target.table}', but found $rows."
+            )
+        }
+    }
+
     private fun verify(
         target: StorageTarget.FileContent,
         args: BackupDeviceActionArgs,
     ): BackupDeviceActionResult {
+        val file = target.file
+        if (args[EXPECT_NULL].toBoolean()) {
+            return if (!file.exists()) {
+                BackupDeviceActionResult.success()
+            } else {
+                failure("Expected file ${file.absolutePath} to be absent, but found it.")
+            }
+        }
         val expected =
             args[EXPECTED]
                 ?: args[VALUE]
                 ?: return failure(
                     "Missing '$EXPECTED' or '$VALUE' argument for FILES verification."
                 )
-        val file = target.file
         if (!file.exists()) {
             return failure("File not found at path: ${file.absolutePath}")
         }

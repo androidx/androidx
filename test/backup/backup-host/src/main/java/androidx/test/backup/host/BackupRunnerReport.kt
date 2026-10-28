@@ -51,14 +51,19 @@ internal class BackupRunnerReport(
      * Combines the runner's verdict with the one derived from the payload.
      *
      * The payload decides the message, but a failure reported by the runner is never downgraded to
-     * a success, so a runner that is stricter than the payload rule still wins.
+     * a success, so a runner that is stricter than the payload rule still wins. The payload's data
+     * is kept either way, without the status and error that a failure reports itself.
      */
     private fun reconcile(
         runnerFailure: BackupActionResult.Failure?,
         fromPayload: BackupActionResult,
     ): BackupActionResult =
         if (runnerFailure != null && fromPayload is BackupActionResult.Success) {
-            runnerFailure
+            BackupActionResult.Failure(
+                runnerFailure.errorMessage,
+                runnerFailure.stackTrace,
+                failureData(fromPayload.data),
+            )
         } else {
             fromPayload
         }
@@ -91,16 +96,25 @@ internal class BackupRunnerReport(
         if (status != null) {
             if (status.equals(BackupActionValues.STATUS_FAILURE, ignoreCase = true)) {
                 return BackupActionResult.Failure(
-                    error
-                        ?: "$actionClassName reported ${BackupActionOutputKeys.STATUS}='$status' without an " +
-                            "${BackupActionOutputKeys.ERROR} message."
+                    errorMessage =
+                        error
+                            ?: "$actionClassName reported ${BackupActionOutputKeys.STATUS}='$status' without an " +
+                                "${BackupActionOutputKeys.ERROR} message.",
+                    data = failureData(dataMap),
                 )
             }
         } else if (!error.isNullOrEmpty()) {
-            return BackupActionResult.Failure(error)
+            return BackupActionResult.Failure(error, data = failureData(dataMap))
         }
         return BackupActionResult.Success(dataMap)
     }
+
+    /**
+     * Returns the data of a failed action: [dataMap] without its [BackupActionOutputKeys.STATUS]
+     * and [BackupActionOutputKeys.ERROR], which [BackupActionResult.Failure] reports itself.
+     */
+    private fun failureData(dataMap: Map<String, String>): Map<String, String> =
+        dataMap - BackupActionOutputKeys.STATUS - BackupActionOutputKeys.ERROR
 
     companion object {
         /** Start of the line on which `am instrument` prints the result of the runner. */
