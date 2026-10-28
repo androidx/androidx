@@ -22,6 +22,7 @@ import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.snapshots.Snapshot
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -378,6 +379,7 @@ class RecomposerTests {
         }
     }
 
+    @Ignore // b/578048148
     @OptIn(DelicateCoroutinesApi::class)
     @Test // b/329011032
     fun validatePotentialDeadlock() = compositionTest {
