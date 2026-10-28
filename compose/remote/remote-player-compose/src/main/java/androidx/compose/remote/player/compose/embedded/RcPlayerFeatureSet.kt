@@ -151,7 +151,7 @@ public class RcPlayerFeatureSet(features: List<RcPlayerFeature>) {
 public object RcPlayerFeatures {
     /** All features the library provides. */
     public val All: List<RcPlayerFeature>
-        get() = listOf(MatrixFeature, MeshFeature, SoundFeature.Default)
+        get() = listOf(MatrixFeature, MeshFeature, SoundFeature.Default, SensorFeature)
 
     /**
      * The features for documents with [profileMask]: those whose [RcPlayerFeature.profiles] the
