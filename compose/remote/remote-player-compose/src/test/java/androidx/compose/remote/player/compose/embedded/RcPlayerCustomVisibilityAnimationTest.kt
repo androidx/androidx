@@ -551,6 +551,9 @@ class RcPlayerCustomVisibilityAnimationTest {
             DimensionModifierOperation.Type.EXACT.ordinal,
             100f,
         )
+        // Box 2 has no visibility operation, so its custom spec never runs; it only makes the
+        // player publish Box 2's position (component.y), which is tracked only for components with
+        // a custom visibility animation.
         AnimationSpec.apply(
             buffer.buffer,
             2,
@@ -558,8 +561,10 @@ class RcPlayerCustomVisibilityAnimationTest {
             GeneralEasing.CUBIC_LINEAR,
             200f,
             GeneralEasing.CUBIC_LINEAR,
-            AnimationSpec.ANIMATION.FADE_IN.ordinal,
-            AnimationSpec.ANIMATION.FADE_OUT.ordinal,
+            AnimationSpec.ANIMATION.CUSTOM.ordinal,
+            AnimationSpec.ANIMATION.CUSTOM.ordinal,
+            301,
+            302,
         )
         LayoutComponentContent.apply(buffer.buffer, -1)
         ContainerEnd.apply(buffer.buffer)
@@ -630,6 +635,52 @@ class RcPlayerCustomVisibilityAnimationTest {
         rule.mainClock.advanceTimeBy(200)
         assertThat(box1.mVisibility).isEqualTo(Component.Visibility.VISIBLE)
         assertThat(box2.y).isWithin(1f).of(100f)
+    }
+
+    @Test
+    fun withoutCustomVisibilityAnimation_doesNotTrackComponentPosition() {
+        val buffer = RemoteComposeBuffer()
+        val tags = shortArrayOf(Header.DOC_WIDTH, Header.DOC_HEIGHT, Header.DOC_PROFILES)
+        val values =
+            arrayOf<Any>(400, 400, RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL)
+        buffer.addHeader(tags, values)
+
+        RootLayoutComponent.apply(buffer.buffer, -1)
+        ColumnLayout.apply(buffer.buffer, 80, -1, ColumnLayout.START, ColumnLayout.TOP, 0f)
+        LayoutComponentContent.apply(buffer.buffer, -1)
+        for (id in 81..82) {
+            BoxLayout.apply(buffer.buffer, id, -1, BoxLayout.START, BoxLayout.TOP)
+            WidthModifierOperation.apply(
+                buffer.buffer,
+                DimensionModifierOperation.Type.EXACT.ordinal,
+                200f,
+            )
+            HeightModifierOperation.apply(
+                buffer.buffer,
+                DimensionModifierOperation.Type.EXACT.ordinal,
+                100f,
+            )
+            LayoutComponentContent.apply(buffer.buffer, -1)
+            ContainerEnd.apply(buffer.buffer)
+            ContainerEnd.apply(buffer.buffer)
+        }
+        ContainerEnd.apply(buffer.buffer)
+        ContainerEnd.apply(buffer.buffer)
+        ContainerEnd.apply(buffer.buffer)
+
+        val doc = CoreDocument(RemoteClock.SYSTEM).apply { initFromBuffer(buffer) }
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(modifier = Modifier.size(400.dp)) { RcPlayer(state = RcPlayerState(doc)) }
+            }
+        }
+        rule.waitForIdle()
+
+        // Placement callbacks per component are costly in large documents (e.g. long scrolling
+        // lists), so the position is only published for custom visibility animations.
+        val box2 = doc.getComponent(82) as LayoutComponent
+        assertThat(box2.height).isWithin(0.5f).of(100f)
+        assertThat(box2.y).isWithin(0.5f).of(0f)
     }
 
     @Test

@@ -357,7 +357,16 @@ private fun Modifier.visibilityAnimationDraw(
 ): Modifier {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
-    val textMeasurer = rememberTextMeasurer()
+    // Only custom animations execute document draw operations that may measure text.
+    val textMeasurer =
+        if (
+            animSpec.enterAnimation == AnimationSpec.ANIMATION.CUSTOM ||
+                animSpec.exitAnimation == AnimationSpec.ANIMATION.CUSTOM
+        ) {
+            rememberTextMeasurer()
+        } else {
+            null
+        }
     val contentLayer = rememberGraphicsLayer()
 
     return this.drawWithContent {
@@ -372,15 +381,20 @@ private fun Modifier.visibilityAnimationDraw(
             val progress = (if (isEntering) visProgress else 1f - visProgress).coerceIn(0f, 1f)
             when (anim) {
                 AnimationSpec.ANIMATION.CUSTOM -> {
-                    executeCustomVisibilityAnimation(
-                        component = component,
-                        functionId = fnId,
-                        progress = progress,
-                        remoteContext = remoteContext,
-                        graph = graph,
-                        textMeasurer = textMeasurer,
-                        contentLayer = contentLayer,
-                    )
+                    // textMeasurer is always remembered when either animation is CUSTOM.
+                    if (textMeasurer != null) {
+                        executeCustomVisibilityAnimation(
+                            component = component,
+                            functionId = fnId,
+                            progress = progress,
+                            remoteContext = remoteContext,
+                            graph = graph,
+                            textMeasurer = textMeasurer,
+                            contentLayer = contentLayer,
+                        )
+                    } else {
+                        drawContent()
+                    }
                 }
                 AnimationSpec.ANIMATION.ROTATE -> {
                     // A full turn, fading in on enter and out on exit.
@@ -534,6 +548,15 @@ private fun AnimationSpec.ANIMATION.isFade(): Boolean =
 
 private fun AnimationSpec.ANIMATION.isDrawn(): Boolean =
     this == AnimationSpec.ANIMATION.ROTATE || this == AnimationSpec.ANIMATION.CUSTOM
+
+/**
+ * Whether this enabled spec runs a custom (document function) enter or exit animation, which needs
+ * the component's position and a text measurer for its draw operations.
+ */
+internal fun AnimationSpec.hasCustomAnimation(): Boolean =
+    isAnimationEnabled &&
+        (enterAnimation == AnimationSpec.ANIMATION.CUSTOM ||
+            exitAnimation == AnimationSpec.ANIMATION.CUSTOM)
 
 /**
  * This component's own animation spec if it runs a non-fade enter/exit (slide, rotate or custom)
