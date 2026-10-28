@@ -104,6 +104,10 @@ internal class FrameBufferImpl(
         }
 
     override fun onFrameStarted(frameReference: FrameReference) {
+        if (!frameReference.requestMetadata.streams.keys.containsAll(streams)) {
+            return
+        }
+
         // If capacity is 0, emit the reference and exit early.
         if (capacity == 0) {
             synchronized(lock) {
