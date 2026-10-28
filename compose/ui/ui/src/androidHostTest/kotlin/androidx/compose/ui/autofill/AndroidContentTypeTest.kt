@@ -88,11 +88,13 @@ import androidx.compose.ui.autofill.ContentType.Companion.PostalCode
 import androidx.compose.ui.autofill.ContentType.Companion.PostalCodeExtended
 import androidx.compose.ui.autofill.ContentType.Companion.SmsOtpCode
 import androidx.compose.ui.autofill.ContentType.Companion.Username
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalComposeUiHostApi::class)
 @RunWith(JUnit4::class)
 class AndroidContentTypeTest {
     @Test
@@ -308,5 +310,18 @@ class AndroidContentTypeTest {
     fun smsOTPCode() {
         assertThat(SmsOtpCode.contentHints)
             .isEqualTo(ContentType(AUTOFILL_HINT_SMS_OTP).contentHints)
+    }
+
+    @Test
+    fun plus_contentHintsInDeclarationOrder() {
+        val combined = Username + Password + ContentType("custom") + Username
+        assertThat(combined.contentHints)
+            .containsExactly(AUTOFILL_HINT_USERNAME, AUTOFILL_HINT_PASSWORD, "custom")
+            .inOrder()
+    }
+
+    @Test
+    fun customContentType_contentHints() {
+        assertThat(ContentType("custom").contentHints).containsExactly("custom")
     }
 }

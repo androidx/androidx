@@ -52,6 +52,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRE
 import androidx.autofill.HintConstants.AUTOFILL_HINT_POSTAL_CODE
 import androidx.autofill.HintConstants.AUTOFILL_HINT_SMS_OTP
 import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
+import androidx.compose.ui.platform.ExperimentalComposeUiHostApi
 
 public actual sealed interface ContentType {
     public actual companion object {
@@ -138,5 +139,16 @@ private class AndroidContentType(val androidAutofillHints: Set<String>) : Conten
  */
 public fun ContentType(contentHint: String): ContentType = AndroidContentType(setOf(contentHint))
 
-internal val ContentType.contentHints: Array<String>
-    get() = (this as AndroidContentType).androidAutofillHints.toTypedArray()
+/**
+ * The Android autofill hints of this [ContentType], for populating
+ * [android.view.ViewStructure.setAutofillHints].
+ *
+ * Hints use the Android autofill hint vocabulary: the `View.AUTOFILL_HINT_*` constants and
+ * [androidx.autofill.HintConstants], or any custom hint passed to [ContentType] (`contentHint`).
+ * Hints are in declaration order; a [ContentType] combined with [ContentType.plus] lists the
+ * receiver's hints first, followed by the hints of the other [ContentType] that aren't already
+ * present.
+ */
+@ExperimentalComposeUiHostApi
+public val ContentType.contentHints: Set<String>
+    get() = (this as AndroidContentType).androidAutofillHints
