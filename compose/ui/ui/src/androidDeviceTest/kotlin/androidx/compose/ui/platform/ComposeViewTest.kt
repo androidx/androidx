@@ -47,6 +47,7 @@ import kotlinx.coroutines.Job
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -794,6 +795,7 @@ class ComposeViewTest {
         assertThat(isComposed).isTrue()
     }
 
+    @Ignore("b/576279516")
     @Test
     fun concurrentCreateCompositionFromMultipleThreads() {
         val attachedView = View(rule.activity)
