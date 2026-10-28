@@ -65,10 +65,12 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
     internal open var nativeScenecore: Long = INVALID_HANDLE
 
     private val isLibraryLoaded = AtomicBoolean(false)
-    private val isDestroyed = AtomicBoolean(false)
+    internal val isDestroyed = AtomicBoolean(false)
 
-    // Lets destroy() wait for an in-flight getRootSpacePoseInPlatformReferenceSpace() call, which
-    // runs on a background sampler thread, before the native instance is freed.
+    // Lets destroy() wait for the native calls in flight on other threads before it frees the
+    // native instance: getRootSpacePoseInPlatformReferenceSpace() on the root space pose sampler,
+    // pollAndroidViewPanelDisplayId() on the executor, and runIfAlive() blocks, such as the scene
+    // committer's commits. It doesn't serialize the native calls, which the natives synchronize.
     private val nativeLifecycleLock = ReentrantReadWriteLock()
 
     init {
@@ -249,6 +251,17 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
             "SceneCoreOpenXrNative has been destroyed."
         }
         return nativeGetRootEntityHandle(nativeScenecore)
+    }
+
+    /**
+     * Runs [block] unless this instance has been destroyed, and returns its result, or null.
+     *
+     * [destroy] waits for [block] to return, so [block] can call the other methods from any thread
+     * without racing [destroy]. [block] must not call [destroy] itself: [destroy] wouldn't wait for
+     * it, and [block]'s later native calls would throw.
+     */
+    fun <T : Any> runIfAlive(block: () -> T): T? = nativeLifecycleLock.read {
+        if (nativeScenecore == INVALID_HANDLE || isDestroyed.get()) null else block()
     }
 
     /** Creates a child scene entity under the scene context. */
@@ -462,8 +475,10 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
     open fun destroy() {
         nativeLifecycleLock.write {
             if (!isDestroyed.getAndSet(true) && nativeScenecore != INVALID_HANDLE) {
-                nativeShutdown(nativeScenecore)
-                nativeDestroy(nativeScenecore)
+                if (isLibraryLoaded.get()) {
+                    nativeShutdown(nativeScenecore)
+                    nativeDestroy(nativeScenecore)
+                }
                 nativeScenecore = INVALID_HANDLE
             }
         }

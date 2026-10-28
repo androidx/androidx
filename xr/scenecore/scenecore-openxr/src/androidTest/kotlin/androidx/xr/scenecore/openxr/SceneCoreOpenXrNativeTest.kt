@@ -153,6 +153,28 @@ class SceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun runIfAlive_beforeDestroy_runsBlockAndReturnsItsResult() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+
+        val result = nativeWrapper.runIfAlive { nativeWrapper.createSceneTransaction() }
+
+        assertThat(result).isEqualTo(INVALID_HANDLE)
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun runIfAlive_afterDestroy_returnsNullWithoutRunningBlock() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+        nativeWrapper.destroy()
+        var hasRun = false
+
+        val result = nativeWrapper.runIfAlive { hasRun = true }
+
+        assertThat(result).isNull()
+        assertThat(hasRun).isFalse()
+    }
+
+    @Test
     fun openTransaction_createsTransaction() {
         val nativeWrapper = SceneCoreOpenXrNative()
         val tx = nativeWrapper.openTransaction()

@@ -482,6 +482,8 @@ class OpenXrAnchorEntityTest {
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
         assertThat(fakeNative.entityAttachments).containsKey(handle)
 
+        // dispose() needs a free transaction to destroy the native entity.
+        fakeNative.simulateTransactionUnavailable = false
         anchorEntity.dispose()
 
         assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)

@@ -608,4 +608,62 @@ class FakeSceneCoreOpenXrNativeTest {
         assertThat(fake.createdEntities).contains(entity)
         assertThat(fake.destroyedEntities).isEmpty()
     }
+
+    @Test
+    fun destroySceneEntity_whilePoolIsInUse_failsAndKeepsTheEntity() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        fake.transactionPoolSize = 1
+        fake.createSceneTransaction()
+
+        assertThat(fake.destroySceneEntity(entity)).isFalse()
+
+        assertThat(fake.createdEntities).contains(entity)
+        assertThat(fake.destroyedEntities).isEmpty()
+    }
+
+    @Test
+    fun destroySceneEntity_withSimulateTransactionUnavailable_failsAndKeepsTheEntity() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        fake.simulateTransactionUnavailable = true
+
+        assertThat(fake.destroySceneEntity(entity)).isFalse()
+
+        assertThat(fake.createdEntities).contains(entity)
+        assertThat(fake.destroyedEntities).isEmpty()
+    }
+
+    @Test
+    fun destroySceneEntity_holdsATransactionUntilSubmittedTransactionsComplete() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        fake.transactionPoolSize = 1
+
+        assertThat(fake.destroySceneEntity(entity)).isTrue()
+
+        assertThat(fake.submittedTransactionsInFlight).isEqualTo(1)
+        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
+        fake.completeSubmittedTransactions()
+        assertThat(fake.createSceneTransaction()).isNotEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun submitSceneTransaction_runsOnSubmitSceneTransactionFirst() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        val tx = fake.createSceneTransaction()
+        fake.setTransactionTransform(tx, entity, Pose(Vector3(1f, 2f, 3f)), Vector3.One)
+        var transformsWhenCalled: Map<Long, Pair<Pose, Vector3>>? = null
+        fake.onSubmitSceneTransaction = { transformsWhenCalled = fake.entityTransforms.toMap() }
+
+        fake.submitSceneTransaction(tx)
+
+        assertThat(transformsWhenCalled).isEmpty()
+        assertThat(fake.entityTransforms).containsKey(entity)
+    }
 }
