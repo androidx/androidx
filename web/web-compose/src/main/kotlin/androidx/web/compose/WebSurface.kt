@@ -42,10 +42,6 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.layout.Layout
@@ -81,7 +77,6 @@ import androidx.web.WebContentView
 import androidx.web.WebFeature
 import androidx.web.WebSurfaceChromium
 import kotlin.math.hypot
-import kotlinx.coroutines.launch
 
 /**
  * Creates and retains a [WebContent] instance across configuration changes and transient
@@ -361,11 +356,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             )
         )
 
-    private val nestedScrollDispatcher = NestedScrollDispatcher()
-
-    init {
-        delegate(nestedScrollModifierNode(NoOpNestedScrollConnection, nestedScrollDispatcher))
-    }
+    /** Connects our drags to nested scroll parents. */
+    private val nestedScrollHandover = delegate(NestedScrollHandoverNode())
 
     override fun onInvalidate() {
         if (!isAttached) return
@@ -376,48 +368,16 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         }
     }
 
-    // The page gets a say in every touch event, so Chromium scrolls asynchronously and we only find
-    // out what the page didn't consume after the fact. That means we have nothing to offer parents
-    // in pre scroll or pre fling, which need a synchronous answer, but we still dispatch them with
-    // zero alongside the post phases so parents get the full nested scroll cycle. With nested
-    // scrolling disabled on the bridge, parents take drags themselves, so this is dropped.
+    // Chromium reports what the page didn't scroll, which nestedScrollHandover passes on to
+    // parents. With nested scrolling disabled on the bridge, parents take drags themselves, so this
+    // is dropped.
     override fun onOverScroll(deltaX: Float, deltaY: Float, velocityX: Float, velocityY: Float) {
         if (!isAttached || !nestedScrollEnabled) return
-        if (velocityX == 0f && velocityY == 0f) {
-            nestedScrollDispatcher.dispatchPreScroll(
-                available = Offset.Zero,
-                source = NestedScrollSource.UserInput,
-            )
-            nestedScrollDispatcher.dispatchPostScroll(
-                consumed = Offset.Zero,
-                available = Offset(deltaX, deltaY),
-                source = NestedScrollSource.UserInput,
-            )
-            // Chromium reports overscroll asynchronously, so it can arrive after the drag ended.
-            // End the gesture again so parents settle with this delta too.
-            if (touchState != TouchState.Dragging) {
-                endNestedScroll()
-            }
-        } else {
-            // A fling reached the edge, where Chromium stops it, so hand the rest to the parent.
-            // This isn't dispatched as SideEffect scrolls, as Pager throws to cancel those.
-            val velocity = Velocity(velocityX, velocityY)
-            nestedScrollDispatcher.coroutineScope.launch {
-                nestedScrollDispatcher.dispatchPreFling(Velocity.Zero)
-                nestedScrollDispatcher.dispatchPostFling(Velocity.Zero, velocity)
-            }
-        }
-    }
-
-    // Chromium works out the fling velocity itself and flings the page with it, so we have nothing
-    // to offer parents in pre fling. We still end the gesture with zero velocity so they can settle
-    // (snap an app bar, release pull-to-refresh). If the page's fling then hits an edge,
-    // onOverScroll hands on what's left.
-    private fun endNestedScroll() {
-        nestedScrollDispatcher.coroutineScope.launch {
-            nestedScrollDispatcher.dispatchPreFling(Velocity.Zero)
-            nestedScrollDispatcher.dispatchPostFling(Velocity.Zero, Velocity.Zero)
-        }
+        nestedScrollHandover.onPageOverScroll(
+            delta = Offset(deltaX, deltaY),
+            velocity = Velocity(velocityX, velocityY),
+            isDragging = touchState == TouchState.Dragging,
+        )
     }
 
     private fun runUpdate() {
@@ -632,6 +592,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
+        // It takes drags for parents in the Initial pass, before we forward events to Chromium.
+        nestedScrollHandover.onPointerEvent(pointerEvent, pass)
         val motionEvent = pointerEvent.motionEvent ?: return
         if (motionEvent.isTouchAction) {
             if (onTouchEvent(motionEvent, pass, consumed = pointerEvent.isConsumed)) {
@@ -643,6 +605,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     override fun onCancelPointerInput() {
+        nestedScrollHandover.onCancelPointerInput()
         cancelTouch()
     }
 
@@ -722,6 +685,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     private fun cancelTouch() {
         if (touchState == TouchState.Idle) return
         transitionTo(TouchState.Idle)
+        nestedScrollHandover.onPageTouchCancelled()
         val now = SystemClock.uptimeMillis()
         val cancelEvent = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
         webSurface?.onTouchEvent(cancelEvent)
@@ -734,7 +698,7 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         if (oldState == newState) return
         touchState = newState
         if (oldState == TouchState.Dragging) {
-            endNestedScroll()
+            nestedScrollHandover.onDragEnded()
         }
     }
 
@@ -797,13 +761,10 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 }
 
-/** We only dispatch to parents and have no nested scroll children to react to. */
-private val NoOpNestedScrollConnection = object : NestedScrollConnection {}
-
-private val PointerEvent.isConsumed: Boolean
+internal val PointerEvent.isConsumed: Boolean
     get() = changes.fastAny { it.isConsumed }
 
-private fun PointerEvent.consume() {
+internal fun PointerEvent.consume() {
     changes.fastForEach { it.consume() }
 }
 

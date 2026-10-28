@@ -53,6 +53,7 @@ dependencies {
     testImplementation(libs.truth)
 
     androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:material3:material3"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
