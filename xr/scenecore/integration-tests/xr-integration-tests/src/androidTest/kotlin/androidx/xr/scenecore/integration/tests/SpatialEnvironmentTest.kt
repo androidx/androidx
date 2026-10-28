@@ -250,12 +250,15 @@ class SpatialEnvironmentTest {
                 // The entity renders through its own subspace, which starts in the app task.
                 val entitySubspace =
                     checkNotNull(
-                        pollSpatialScene(
-                            "entity subspace to appear in the app task",
+                        SpatialSceneHelper.awaitSpatialScene(
+                            description = "entity subspace to appear in the app task",
+                            timeout = SCENE_TIMEOUT,
+                            pollInterval = SCENE_POLL_INTERVAL,
                             select = { scene ->
-                                scene.findTaskByPackageName(activity.packageName)?.findNode {
-                                    it.name.startsWith(GLTF_ENTITY_SUBSPACE_PREFIX)
-                                }
+                                scene
+                                    .findTaskByPackageName(activity.packageName)
+                                    ?.subspaceNodes
+                                    ?.firstOrNull()
                             },
                             until = { it != null },
                         )
@@ -445,27 +448,6 @@ class SpatialEnvironmentTest {
     private suspend fun captureSpatialScene(): SpatialScene =
         withContext(Dispatchers.IO) { SpatialSceneHelper.captureSpatialScene() }
 
-    /**
-     * Repeatedly captures the scene graph until [until] holds for the value returned by [select].
-     *
-     * @throws AssertionError if [until] does not hold within [SCENE_TIMEOUT].
-     */
-    private suspend fun <T> pollSpatialScene(
-        description: String,
-        select: (SpatialScene) -> T,
-        until: (T) -> Boolean,
-    ): T {
-        val start = TimeSource.Monotonic.markNow()
-        while (true) {
-            val value = select(captureSpatialScene())
-            if (until(value)) return value
-            if (start.elapsedNow() >= SCENE_TIMEOUT) {
-                throw AssertionError("Timed out waiting for $description, last value: $value")
-            }
-            delay(SCENE_POLL_INTERVAL)
-        }
-    }
-
     /** Returns the geometry node currently attached under the environment root, if any. */
     private fun environmentGeometryNode(scene: SpatialScene): SpatialNode? =
         scene.rootNodes
@@ -475,7 +457,14 @@ class SpatialEnvironmentTest {
     private suspend fun awaitEnvironmentGeometryNode(
         description: String,
         until: (SpatialNode?) -> Boolean,
-    ): SpatialNode? = pollSpatialScene(description, ::environmentGeometryNode, until)
+    ): SpatialNode? =
+        SpatialSceneHelper.awaitSpatialScene(
+            description = description,
+            timeout = SCENE_TIMEOUT,
+            pollInterval = SCENE_POLL_INTERVAL,
+            select = ::environmentGeometryNode,
+            until = until,
+        )
 
     /**
      * Repeatedly takes screenshots until [until] holds for the value returned by [select]. Taking a
@@ -594,8 +583,5 @@ class SpatialEnvironmentTest {
 
         /** Name given to the environment geometry subspace by the rendering runtime. */
         const val ENVIRONMENT_GEOMETRY_NODE = "EnvironmentGeometryNode"
-
-        /** Name prefix of the subspace node backing a [GltfModelEntity]. */
-        const val GLTF_ENTITY_SUBSPACE_PREFIX = "gltf_entity_subspace_"
     }
 }
