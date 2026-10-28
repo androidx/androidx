@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.Lifecycle
@@ -580,11 +581,15 @@ class RcPlayerRecompositionEventsTest {
                 val expectedText = if (expectedState) "True Branch" else "False Branch"
                 val targetEmission = i + 1 // Starts at 1
 
-                // Wait for emission
+                // Wait for emission and UI update
                 rule.waitUntil(10000) {
+                    Snapshot.sendApplyNotifications()
                     ShadowLooper.idleMainLooper()
-                    val current = emissionCount.get()
-                    current >= targetEmission
+                    emissionCount.get() >= targetEmission &&
+                        rule
+                            .onAllNodesWithText(expectedText, useUnmergedTree = true)
+                            .fetchSemanticsNodes()
+                            .isNotEmpty()
                 }
 
                 // Assert text

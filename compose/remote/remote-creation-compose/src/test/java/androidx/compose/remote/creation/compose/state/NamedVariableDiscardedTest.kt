@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
@@ -84,7 +83,9 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedColor = remember { createNamedRemoteColor("testColor", Color.Red) }
+                    val namedColor = remember {
+                        createNamedRemoteColor("testColor", Color.Red)
+                    }
                     RemoteBox(modifier = RemoteModifier.size(10.rdp).background(namedColor))
                 }
             }

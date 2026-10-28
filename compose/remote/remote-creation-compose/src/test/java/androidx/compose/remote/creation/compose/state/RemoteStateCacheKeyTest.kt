@@ -44,6 +44,20 @@ class RemoteStateCacheKeyTest {
     }
 
     @Test
+    fun remoteColorConstantCacheKey_Equality() {
+        val key1 = RemoteColorConstantCacheKey(0xFF0000)
+        val key1Dup = RemoteColorConstantCacheKey(0xFF0000)
+        val key2 = RemoteColorConstantCacheKey(0x00FF00)
+        val intKey = RemoteConstantCacheKey(0xFF0000)
+
+        assertThat(key1).isEqualTo(key1Dup)
+        assertThat(key1.hashCode()).isEqualTo(key1Dup.hashCode())
+
+        assertThat(key1).isNotEqualTo(key2)
+        assertThat(key1).isNotEqualTo(intKey)
+    }
+
+    @Test
     fun remoteNamedCacheKey_Equality() {
         val key1 = RemoteNamedCacheKey(RemoteState.Domain.User, "width")
         val key1Dup = RemoteNamedCacheKey(RemoteState.Domain.User, "width")

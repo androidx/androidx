@@ -57,6 +57,7 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -630,7 +631,7 @@ public object RemoteButtonDefaults {
             iconColor = iconColor ?: default.iconColor,
             disabledContainerColor =
                 disabledContainerColor
-                    ?: if (containerColor?.constantValueOrNull == Color.Transparent) {
+                    ?: if (containerColor?.asConstantColorOrNull() == Color.Transparent) {
                         Color.Transparent.rc
                     } else {
                         default.disabledContainerColor

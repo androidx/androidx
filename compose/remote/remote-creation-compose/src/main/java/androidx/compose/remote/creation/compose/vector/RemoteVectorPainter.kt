@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendMode
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
+import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
@@ -127,7 +128,7 @@ internal fun createColorFilter(
     tintColor: RemoteColor,
     tintBlendMode: RemoteBlendMode,
 ): RemoteColorFilter? {
-    val constantColor = tintColor.constantValueOrNull
+    val constantColor = tintColor.asConstantColorOrNull()
     return if (constantColor != null) {
         if (constantColor.isSpecified && constantColor != Color.Transparent) {
             RemoteBlendModeColorFilter(tintColor, tintBlendMode)

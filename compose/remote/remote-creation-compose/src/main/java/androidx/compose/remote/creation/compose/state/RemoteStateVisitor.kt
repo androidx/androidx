@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 
 /**
@@ -82,6 +81,7 @@ public fun <S : BaseRemoteState<*>> S.transform(
                     state
                         ?: when (key) {
                             is RemoteConstantCacheKey -> resolveConstantState(key)
+                            is RemoteColorConstantCacheKey -> RemoteColor(key.color)
                             is FloatArrayCacheKey -> FloatArrayRemoteState(key.floatArray, key)
                             else -> null
                         }
@@ -103,6 +103,7 @@ public fun <S : BaseRemoteState<*>> S.transform(
                             }
                         }
                         is RemoteConstantCacheKey -> node ?: resolveConstantState(key)
+                        is RemoteColorConstantCacheKey -> node ?: RemoteColor(key.color)
                         is FloatArrayCacheKey -> node ?: FloatArrayRemoteState(key.floatArray, key)
                         is RemoteNamedCacheKey ->
                             node
@@ -140,7 +141,6 @@ internal fun resolveConstantState(key: RemoteConstantCacheKey): BaseRemoteState<
         is Int -> RemoteInt(v)
         is Boolean -> RemoteBoolean(v)
         is String -> RemoteString(v)
-        is Color -> RemoteColor(v)
         is ImageBitmap -> RemoteImageBitmap(v)
         is Double -> RemoteFloat(v.toFloat())
         is Long -> RemoteLong(v)

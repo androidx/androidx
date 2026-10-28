@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.combineFontSettings
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 
 /** Tracks the state of a [RemotePaint] to optimize serialization by only sending deltas. */
@@ -89,7 +88,7 @@ internal class PaintTracker {
         val colorIsId: Boolean
         val constantValue = targetRemoteColor.constantValueOrNull
         if (constantValue != null) {
-            colorVal = constantValue.toArgb()
+            colorVal = constantValue
             colorIsId = false
         } else {
             colorVal = targetRemoteColor.getIdForCreationState(creationState)

@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a radial gradient with the given colors at the provided offset defined in the colorstop
@@ -159,7 +158,7 @@ public class RemoteRadialShader(
                 val color = colors[i]
                 val constantValue = color.constantValueOrNull
                 if (constantValue != null) {
-                    constantValue.toArgb()
+                    constantValue
                 } else {
                     mask = mask or (1 shl i)
                     color.getIdForCreationState(creationState)

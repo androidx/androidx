@@ -216,7 +216,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val textIdValue = text.getIdForCreationState(creationState)
 
-        val colorInt = color.constantValueOrNull?.toArgb() ?: Color.Black.toArgb()
+        val colorInt = color.constantValueOrNull ?: Color.Black.toArgb()
         val colorId =
             if (!color.hasConstantValue) {
                 color.getIdForCreationState(creationState)

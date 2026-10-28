@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a sweep gradient with the given colors dispersed around the center with offsets defined
@@ -118,7 +117,7 @@ public class RemoteSweepShader(
                 val color = colors[i]
                 val constantValue = color.constantValueOrNull
                 if (constantValue != null) {
-                    constantValue.toArgb()
+                    constantValue
                 } else {
                     mask = mask or (1 shl i)
                     color.getIdForCreationState(creationState)

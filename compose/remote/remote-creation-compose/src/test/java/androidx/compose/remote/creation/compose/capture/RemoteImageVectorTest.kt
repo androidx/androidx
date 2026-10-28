@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePathFillType
 import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
 import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
+import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.vector.RemotePathNode
@@ -195,7 +196,7 @@ class RemoteImageVectorTest {
 
     @Test
     fun builderPath_supportsRemoteGradientAndDynamicSolidBrushes() {
-        val dynamicColor = RemoteColor.createNamedRemoteColor("iconFill", Color.Magenta)
+        val dynamicColor = createNamedRemoteColor("iconFill", Color.Magenta)
         val fillBrush = RemoteBrush.linearGradient(listOf(Color.Red.rc, dynamicColor))
         val strokeBrush = RemoteBrush.radialGradient(listOf(Color.Cyan.rc, Color.Blue.rc))
         val sweepBrush = RemoteBrush.sweepGradient(listOf(Color.Yellow.rc, Color.Green.rc))

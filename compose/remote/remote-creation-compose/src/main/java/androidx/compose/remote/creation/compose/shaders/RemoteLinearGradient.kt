@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.toArgb
 import kotlin.collections.toFloatArray
 
 /**
@@ -280,7 +279,7 @@ public class RemoteLinearShader(
                 val color = colors[i]
                 val constantValue = color.constantValueOrNull
                 if (constantValue != null) {
-                    constantValue.toArgb()
+                    constantValue
                 } else {
                     mask = mask or (1 shl i)
                     color.getIdForCreationState(creationState)
