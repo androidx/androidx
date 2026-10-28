@@ -30,6 +30,7 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -219,5 +220,16 @@ class SpatialBoxTest {
             .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
             .assertWidthIsEqualTo(150.dp)
             .assertHeightIsEqualTo(150.dp)
+    }
+
+    @Test
+    fun spatialBoxMeasurePolicy_equalsAndHashCode() {
+        val policy1 = SpatialBoxMeasurePolicy(SpatialAlignment.Center, false)
+        val policy2 = SpatialBoxMeasurePolicy(SpatialAlignment.Center, false)
+        val policyDifferent = SpatialBoxMeasurePolicy(SpatialAlignment.TopStart, false)
+
+        assertThat(policy1).isEqualTo(policy2)
+        assertThat(policy1.hashCode()).isEqualTo(policy2.hashCode())
+        assertThat(policy1).isNotEqualTo(policyDifferent)
     }
 }
