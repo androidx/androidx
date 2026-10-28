@@ -61,6 +61,11 @@ class DisplayControllerProjectedActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!::viewModel.isInitialized) {
+            Log.w(TAG, "ViewModel not initialized by host activity; finishing.")
+            finish()
+            return
+        }
 
         lifecycleScope.launch {
             try {
