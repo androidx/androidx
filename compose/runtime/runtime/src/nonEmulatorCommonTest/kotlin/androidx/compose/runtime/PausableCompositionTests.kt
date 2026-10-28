@@ -41,6 +41,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -974,6 +975,64 @@ class PausableCompositionTests {
             "Expected error prefix 'Failed to execute op number 0:', was: ${exception.message}",
         )
     }
+
+    @Test
+    fun stateReadThenChangedWhileComposingInitialContent_isComposedBeforeApply() =
+        assertChangeWhileComposingIsComposedBeforeApply(expected = "b") { name, changeName ->
+            Text(name.value)
+            changeName()
+        }
+
+    @Test
+    fun stateChangedThenReadWhileComposingInitialContent_isComposedBeforeApply() =
+        assertChangeWhileComposingIsComposedBeforeApply(expected = "b") { name, changeName ->
+            changeName()
+            Text(name.value)
+        }
+
+    @Test
+    fun derivedStateReadThenChangedWhileComposingInitialContent_isComposedBeforeApply() =
+        assertChangeWhileComposingIsComposedBeforeApply(expected = "b!") { name, changeName ->
+            val greeting = remember { derivedStateOf { name.value + "!" } }
+            Text(greeting.value)
+            changeName()
+        }
+
+    /**
+     * Composes [content], which shows `name` ("a"). `changeName()` changes it to "b" from outside
+     * the composition, as another thread would, and runs a frame.
+     */
+    private fun assertChangeWhileComposingIsComposedBeforeApply(
+        expected: String,
+        content: @Composable (name: State<String>, changeName: () -> Unit) -> Unit,
+    ) =
+        runTest(UnconfinedTestDispatcher()) {
+            val clock = BroadcastFrameClock()
+            val recomposer = Recomposer(coroutineContext + clock)
+            val runner = launch(clock) { recomposer.runRecomposeAndApplyChanges() }
+            val root = View().also { it.name = "root" }
+            val composition = PausableComposition(ViewApplier(root), recomposer)
+            val name = mutableStateOf("a")
+            var changed = false
+            val changeName = {
+                if (!changed) {
+                    changed = true
+                    Snapshot.global { Snapshot.withMutableSnapshot { name.value = "b" } }
+                    clock.sendFrame(0L)
+                }
+            }
+            val paused = composition.setPausableContent { content(name, changeName) }
+
+            assertFalse(paused.resume { false }, "the change must be recomposed before apply()")
+            assertFalse(recomposer.hasPendingWork, "the change must not schedule a recomposition")
+            assertTrue(paused.resume { false })
+            paused.apply()
+            assertEquals(listOf(expected), root.children.mapNotNull { it.text })
+
+            composition.dispose()
+            runner.cancel()
+            recomposer.cancel()
+        }
 }
 
 fun String.splitRecording() = split(", ")

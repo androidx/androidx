@@ -265,7 +265,10 @@ internal class PausedCompositionImpl(
                         PausedCompositionState.InitialPending,
                         PausedCompositionState.RecomposePending,
                     )
-                    if (invalidScopes.isEmpty()) markComplete()
+                    // Changes recorded while the content was composed are recomposed by the next
+                    // resume(). Later passes don't wait, or content that writes state it read
+                    // would never complete.
+                    if (invalidScopes.isEmpty() && !composition.hasInvalidations) markComplete()
                 }
                 PausedCompositionState.RecomposePending.ordinal -> {
                     updateState(
@@ -321,6 +324,10 @@ internal class PausedCompositionImpl(
                 PausedCompositionState.ApplyPending.ordinal -> {
                     applyChanges()
                     updateState(PausedCompositionState.ApplyPending, PausedCompositionState.Applied)
+                    // Invalidations that arrived after the last resume().
+                    if (!composition.isDisposed && composition.hasInvalidations) {
+                        context.invalidate(composition)
+                    }
                 }
                 PausedCompositionState.Applied.ordinal ->
                     error("The paused composition has already been applied")

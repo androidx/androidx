@@ -16,11 +16,17 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.Linear
+import androidx.compose.runtime.mock.Text
+import androidx.compose.runtime.mock.View
+import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.snapshots.Snapshot
 import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -298,7 +304,55 @@ class RecomposerTestsJvm {
 
         recomposer.cancel()
     }
+
+    @Test
+    fun stateChangedWhileComposingPausedContentOnAnotherThread_isComposedBeforeApply() =
+        runBlocking(AutoTestFrameClock()) {
+            val recomposer = Recomposer(coroutineContext)
+            launch { recomposer.runRecomposeAndApplyChanges() }
+            val root = View().also { it.name = "root" }
+            val composition = PausableComposition(ViewApplier(root), recomposer)
+            val name = mutableStateOf("a")
+            val paused = composition.setPausableContent {
+                Text(name.value)
+                // Text is not restartable; Linear gives shouldPause a call after name is read.
+                Linear {}
+            }
+            val nameRead = CountDownLatch(1)
+            val nameChanged = CountDownLatch(1)
+
+            // Compose on another thread, and hold it once the content has read name.
+            val composing =
+                launch(Dispatchers.Default) {
+                    while (
+                        !paused.resume {
+                            nameRead.countDown()
+                            nameChanged.awaitOrFail()
+                            false
+                        }
+                    ) {}
+                }
+            runInterruptible(Dispatchers.Default) { nameRead.awaitOrFail() }
+
+            // Change name while the composition is still being composed.
+            Snapshot.withMutableSnapshot { name.value = "b" }
+            val idle =
+                withTimeoutOrNull(5.seconds) {
+                    recomposer.currentState.first { it == Recomposer.State.Idle }
+                }
+            assertNotNull(idle, "the recomposer did not become idle")
+
+            nameChanged.countDown()
+            assertNotNull(withTimeoutOrNull(5.seconds) { composing.join() }, "composing timed out")
+            paused.apply()
+            assertEquals(listOf("b"), root.children.mapNotNull { it.text })
+
+            composition.dispose()
+            coroutineContext.cancelChildren()
+        }
 }
+
+private fun CountDownLatch.awaitOrFail() = assertTrue(await(5, TimeUnit.SECONDS), "timed out")
 
 private class AutoTestFrameClock : MonotonicFrameClock {
     private val time = AtomicLong(0)
