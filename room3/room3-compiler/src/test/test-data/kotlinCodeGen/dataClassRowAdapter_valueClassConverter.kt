@@ -13,7 +13,10 @@ import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.Unit
+import kotlin.collections.LinkedHashMap
 import kotlin.collections.List
+import kotlin.collections.Map
+import kotlin.collections.MutableMap
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
@@ -146,6 +149,37 @@ internal class MyDao_Impl(
           _result = UUIDValueClass(_data)
         } else {
           error("The query result was empty, but expected a single row to return a NON-NULL object of type 'UUIDValueClass'.")
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun getValueClassMap(): Map<LongValueClass, GenericValueClass<String>> {
+    val _sql: String = "SELECT pk, genericData AS data FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _columnIndexOfData: Int = getColumnIndexOrThrow(_stmt, "data")
+        val _result: MutableMap<LongValueClass, GenericValueClass<String>> = LinkedHashMap<LongValueClass, GenericValueClass<String>>()
+        while (_stmt.step()) {
+          val _key: LongValueClass
+          val _data: Long
+          _data = _stmt.getLong(_columnIndexOfPk)
+          _key = LongValueClass(_data)
+          if (_stmt.isNull(_columnIndexOfData)) {
+            error("The column(s) of the map value object of type '[@MapColumn(\"data\")] GenericValueClass<String>' are NULL but the map's value type argument expect it to be NON-NULL")
+          }
+          val _value: GenericValueClass<String>
+          val _password: String
+          _password = _stmt.getText(_columnIndexOfData)
+          _value = GenericValueClass<String>(_password)
+          if (!_result.containsKey(_key)) {
+            _result.put(_key, _value)
+          }
         }
         _result
       } finally {
