@@ -301,15 +301,17 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 } else {
                     // anytime we compose a new item, and we use it,
                     // we need to update our item info mapping
-                    info.updateAnimation(
-                        item,
-                        coroutineScope,
-                        graphicsContext,
-                        layoutMinOffset,
-                        layoutMaxOffset,
-                        isVertical,
-                        crossAxisOffset = info.crossAxisOffset,
-                    )
+                    if (shouldSetupAnimation) {
+                        info.updateAnimation(
+                            item,
+                            coroutineScope,
+                            graphicsContext,
+                            layoutMinOffset,
+                            layoutMaxOffset,
+                            isVertical,
+                            crossAxisOffset = info.crossAxisOffset,
+                        )
+                    }
                     if (newIndex < firstVisibleIndex) {
                         movingAwayToStartBound.add(item)
                     } else {
@@ -469,7 +471,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     }
 
     fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutItemAnimation? =
-        keyToItemInfoMap[key]?.animations?.get(placeableIndex)
+        keyToItemInfoMap[key]?.animations?.getOrNull(placeableIndex)
 
     private fun IntArray.updateAndReturnOffsetFor(item: T, isVertical: Boolean): Int {
         val lane = item.lane

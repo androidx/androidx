@@ -2340,8 +2340,8 @@ class LazyStaggeredGridTest(
         val random = Random(42)
         repeat(20) {
             val newItems = items.shuffled(random)
-            items = newItems
             rule.runOnUiThread {
+                items = newItems
                 Snapshot.sendApplyNotifications()
                 rule.mainClock.advanceTimeByFrame()
             }
