@@ -25,6 +25,7 @@ import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.OpenXrAnchorEntity.AnchorSample
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative.Attachment
+import androidx.xr.scenecore.openxr.testing.commitSceneChanges
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
@@ -52,6 +53,9 @@ class OpenXrAnchorEntityTest {
     private val fakeNative = FakeSceneCoreOpenXrNative()
     private val nodeRegistry = OpenXrSceneNodeRegistry()
     private val executor = FakeScheduledExecutorService()
+    // Runs the scene committer's commits, apart from the entity's tasks.
+    private val commitExecutor = FakeScheduledExecutorService()
+    private val sceneCommitter = OpenXrSceneCommitter(fakeNative, commitExecutor)
     private val directExecutor = Executor { it.run() }
     // A new anchor reports PAUSED at the identity pose until it's first tracked.
     private val samples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
@@ -75,7 +79,14 @@ class OpenXrAnchorEntityTest {
     }
 
     private fun createActivitySpace(rootHandle: Long) =
-        OpenXrActivitySpace(activity, rootHandle, fakeNative, nodeRegistry, executor)
+        OpenXrActivitySpace(
+            activity,
+            rootHandle,
+            fakeNative,
+            sceneCommitter,
+            nodeRegistry,
+            executor,
+        )
 
     private fun createAnchorEntity(
         entityHandle: Long = fakeNative.createSceneEntity(),
@@ -85,6 +96,7 @@ class OpenXrAnchorEntityTest {
             activity,
             entityHandle,
             fakeNative,
+            sceneCommitter,
             nodeRegistry,
             executor,
             activitySpace,
@@ -96,6 +108,7 @@ class OpenXrAnchorEntityTest {
                 activity,
                 fakeNative.createSceneEntity(),
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             ) {}
@@ -472,7 +485,7 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun stoppedSample_noTransactionAvailable_movesToErrorAndLeavesAttachmentUntilDispose() {
+    fun stoppedSample_noTransactionAvailable_movesToErrorAndLeavesAttachmentUntilDestroyed() {
         attachAndCollect()
         val handle = anchorEntity.entityHandle
         fakeNative.simulateTransactionUnavailable = true
@@ -482,9 +495,9 @@ class OpenXrAnchorEntityTest {
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
         assertThat(fakeNative.entityAttachments).containsKey(handle)
 
-        // dispose() needs a free transaction to destroy the native entity.
-        fakeNative.simulateTransactionUnavailable = false
         anchorEntity.dispose()
+        fakeNative.simulateTransactionUnavailable = false
+        commitExecutor.commitSceneChanges()
 
         assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
     }
@@ -558,6 +571,7 @@ class OpenXrAnchorEntityTest {
         val child = createChildEntity()
 
         child.parent = anchorEntity
+        commitExecutor.commitSceneChanges()
 
         assertThat(fakeNative.entityParents[child.entityHandle])
             .isEqualTo(anchorEntity.entityHandle)
@@ -580,7 +594,7 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun dispose_removesAttachmentAndDestroysEntityBeforeReportingError() {
+    fun dispose_removesAttachmentBeforeReportingErrorThenDestroysEntity() {
         attachAndCollect()
         val handle = anchorEntity.entityHandle
         var isAttachedWhenErrorReported: Boolean? = null
@@ -594,6 +608,7 @@ class OpenXrAnchorEntityTest {
         anchorEntity.dispose()
         assertThat(isAttachedWhenErrorReported).isNull()
         executor.runAll()
+        commitExecutor.commitSceneChanges()
 
         assertThat(isAttachedWhenErrorReported).isFalse()
         assertThat(fakeNative.destroyedEntities).contains(handle)
@@ -627,6 +642,7 @@ class OpenXrAnchorEntityTest {
         val handle = anchorEntity.entityHandle
 
         anchorEntity.dispose()
+        commitExecutor.commitSceneChanges()
 
         assertThat(fakeNative.committedTransactions).isEmpty()
         assertThat(fakeNative.destroyedEntities).contains(handle)
@@ -640,5 +656,21 @@ class OpenXrAnchorEntityTest {
         anchorEntity.dispose()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun dispose_noTransactionAvailable_destroysEntityOnceOneIs() {
+        attachAndCollect()
+        val handle = anchorEntity.entityHandle
+        fakeNative.simulateTransactionUnavailable = true
+
+        anchorEntity.dispose()
+        // A few tries, each of which fails.
+        repeat(3) { commitExecutor.simulateSleepExecutingAtMostOneTask() }
+        assertThat(fakeNative.destroyedEntities).doesNotContain(handle)
+
+        fakeNative.simulateTransactionUnavailable = false
+        commitExecutor.commitSceneChanges()
+        assertThat(fakeNative.destroyedEntities).contains(handle)
     }
 }

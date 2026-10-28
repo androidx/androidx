@@ -221,6 +221,7 @@ Entities, runtimes, and native subsystems must be disposed in the strict reverse
 ### 9. Synchronous `NodeTransaction` Model & Initial Config Ordering
 - `SpatialSceneRuntime` and `AndroidXrEntity` execute `NodeTransaction.apply()` synchronously on the caller's thread, not on `scheduledExecutor`.
 - Any node configuration that gates privacy or rendering behavior on the underlying node MUST be applied **synchronously in `init`** before the node is parented (`setParent`) or positioned (`setPose`).
+- `scenecore-openxr` is the exception: its entities record parent, transform and destroy changes with `OpenXrSceneCommitter`, which commits them on `scheduledExecutorService` about a frame later, or once a scene transaction is free. Kotlin getters return the requested state right away. The JNI natives synchronize these commits with the native calls made on the main thread.
 
 ### 10. Shared `ReformOptions.flags` Bitmask Preservation
 - `AndroidXrEntity.getReformOptions()` returns a single shared `ReformOptions` instance across `MovableComponentImpl` and `ResizableComponentImpl`.
@@ -412,5 +413,5 @@ Structure multi-CL feature stacks following the canonical dependency hierarchy:
    - Mark unstable/experimental APIs with appropriate annotations (e.g., `@ExperimentalGltfAnimationApi`).
    - Always run `./gradlew :xr:scenecore:scenecore:updateApi` whenever public API signatures change.
 4. **Threading & Lifecycle Rules**:
-   - Scene graph modifications must run on the UI/Main thread.
+   - Scene graph modifications must run on the UI/Main thread. In `scenecore-openxr`, `OpenXrSceneCommitter` then commits them to the native runtime asynchronously (see "Synchronous `NodeTransaction` Model & Initial Config Ordering").
    - Heavy asset loading operations (glTF models, textures, audio resources) must be asynchronous and tied to proper Lifecycles.

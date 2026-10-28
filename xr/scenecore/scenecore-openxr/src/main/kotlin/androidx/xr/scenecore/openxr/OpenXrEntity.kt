@@ -37,6 +37,9 @@ import java.util.concurrent.ScheduledExecutorService
  *
  * This should not be created on its own but should be inherited by objects that need to wrap an
  * OpenXR scene entity handle.
+ *
+ * Its parent, pose and scale update right away, and [sceneCommitter] commits them to the OpenXR
+ * runtime shortly after.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class OpenXrEntity
@@ -44,6 +47,7 @@ internal constructor(
     context: Context?,
     entityHandle: Long,
     @JvmField internal val nativeWrapper: SceneCoreOpenXrNative,
+    @JvmField internal val sceneCommitter: OpenXrSceneCommitter,
     @JvmField internal val sceneNodeRegistry: OpenXrSceneNodeRegistry,
     @JvmField internal val executor: ScheduledExecutorService,
 ) : BaseEntity(context), Entity {
@@ -55,27 +59,38 @@ internal constructor(
         bindEntityHandle(entityHandle)
     }
 
-    internal fun bindEntityHandle(handle: Long) {
+    /**
+     * Binds this entity to native entity [handle]. Set [isOwnedByRuntime] for a native entity that
+     * the runtime owns and refuses to destroy, such as the root entity.
+     */
+    internal fun bindEntityHandle(handle: Long, isOwnedByRuntime: Boolean = false) {
         this.entityHandle = handle
         if (handle != INVALID_HANDLE) {
             sceneNodeRegistry.setEntityForNode(handle, this)
             registerCleanup(
                 executor,
-                OpenXrEntityCleanupAction(handle, nativeWrapper, sceneNodeRegistry),
+                OpenXrEntityCleanupAction(
+                    handle,
+                    isOwnedByRuntime,
+                    sceneCommitter,
+                    sceneNodeRegistry,
+                ),
             )
         }
     }
 
+    // Keeps removing the node from the registry, and only asks the committer to destroy the native
+    // entity when this entity owns it: the committer keeps trying a destruction that the runtime
+    // refuses.
     private class OpenXrEntityCleanupAction(
         private val entityHandle: Long,
-        private val nativeWrapper: SceneCoreOpenXrNative,
+        private val isOwnedByRuntime: Boolean,
+        private val sceneCommitter: OpenXrSceneCommitter,
         private val sceneNodeRegistry: OpenXrSceneNodeRegistry,
     ) :
         CleanupAction({
             sceneNodeRegistry.removeEntityForNode(entityHandle)
-            if (nativeWrapper.nativeScenecore != INVALID_HANDLE && entityHandle != INVALID_HANDLE) {
-                nativeWrapper.destroySceneEntity(entityHandle)
-            }
+            if (!isOwnedByRuntime) sceneCommitter.edit { destroyEntity(entityHandle) }
         })
 
     override var parent: Entity?
@@ -87,19 +102,14 @@ internal constructor(
                     "Cannot set parent with a non-OpenXrEntity parent: $newParent"
                 )
             }
+            val hadParent = super<BaseEntity>.parent != null
             super<BaseEntity>.parent = newParent
-
-            if (entityHandle != INVALID_HANDLE) {
-                OpenXrTransaction(nativeWrapper, nativeWrapper.createSceneTransaction()).use { tx ->
-                    if (tx.isAvailable) {
-                        tx.setParent(
-                            entityHandle,
-                            (newParent as? OpenXrEntity)?.entityHandle ?: INVALID_HANDLE,
-                        )
-                        tx.commit()
-                    }
-                }
-            }
+            val handle = entityHandle
+            // The OpenXR runtime shows an unparented entity under the activity window
+            // (b/517189353), so don't unparent an entity that has no parent, such as a new one.
+            if (handle == INVALID_HANDLE || (newParent == null && !hadParent)) return
+            val parentHandle = (newParent as? OpenXrEntity)?.entityHandle ?: INVALID_HANDLE
+            sceneCommitter.edit { setParent(handle, parentHandle) }
         }
 
     override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
@@ -111,19 +121,7 @@ internal constructor(
                 else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
             }
         super<BaseEntity>.setPose(targetPose, Space.PARENT)
-
-        if (entityHandle != INVALID_HANDLE) {
-            OpenXrTransaction(nativeWrapper, nativeWrapper.createSceneTransaction()).use { tx ->
-                if (tx.isAvailable) {
-                    tx.setTransform(
-                        entityHandle,
-                        targetPose,
-                        super<BaseEntity>.getScale(Space.PARENT),
-                    )
-                    tx.commit()
-                }
-            }
-        }
+        commitTransform()
     }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
@@ -137,19 +135,30 @@ internal constructor(
 
     override fun setScale(scale: Vector3, @SpaceValue relativeTo: Int) {
         super<BaseEntity>.setScale(scale, relativeTo)
-        val localScale = super<BaseEntity>.getScale(Space.PARENT)
-        if (entityHandle != INVALID_HANDLE) {
-            OpenXrTransaction(nativeWrapper, nativeWrapper.createSceneTransaction()).use { tx ->
-                if (tx.isAvailable) {
-                    tx.setTransform(
-                        entityHandle,
-                        super<BaseEntity>.getPose(Space.PARENT),
-                        localScale,
-                    )
-                    tx.commit()
-                }
-            }
+        commitTransform()
+    }
+
+    /** Has [sceneCommitter] commit this entity's pose and scale relative to its parent. */
+    private fun commitTransform() {
+        val handle = entityHandle
+        if (handle == INVALID_HANDLE) return
+        val pose = super<BaseEntity>.getPose(Space.PARENT)
+        val scale = super<BaseEntity>.getScale(Space.PARENT)
+        sceneCommitter.edit { setTransform(handle, pose, scale) }
+    }
+
+    /**
+     * Has [sceneCommitter] commit this entity's parent, if it has one, and its transform again,
+     * even though they didn't change. Like the [parent] setter, doesn't unparent an entity that has
+     * no parent.
+     */
+    internal fun commitParentAndTransform() {
+        val handle = entityHandle
+        val parentHandle = (parent as? OpenXrEntity)?.entityHandle ?: INVALID_HANDLE
+        if (handle != INVALID_HANDLE && parentHandle != INVALID_HANDLE) {
+            sceneCommitter.edit { setParent(handle, parentHandle) }
         }
+        commitTransform()
     }
 
     // TODO: b/535276460 - Implement native alpha transparency and hierarchical alpha propagation
@@ -176,6 +185,10 @@ internal constructor(
     ): HitTestResult = TODO("Not yet implemented for OpenXR")
 
     override fun dispose() {
+        // Detaches the children before the cleanup has the native entity destroyed, since the
+        // runtime can remove an entity's children with it. The committer destroys it after these
+        // changes.
+        children.forEach { it.parent = null }
         entityHandle = INVALID_HANDLE
         super<BaseEntity>.dispose()
     }

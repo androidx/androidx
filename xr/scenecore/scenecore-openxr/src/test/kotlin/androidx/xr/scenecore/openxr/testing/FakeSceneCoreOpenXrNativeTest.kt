@@ -141,19 +141,22 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
-    fun destroySceneEntity_removesParentAndChildrenRelationships() {
+    fun destroySceneEntity_unparentsTheEntityButLeavesItsChildrenParentedToIt() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
+        val grandparent = fake.createSceneEntity()
         val parent = fake.createSceneEntity()
         val child = fake.createSceneEntity()
-
         val tx = fake.createSceneTransaction()
+        fake.setTransactionParent(tx, parent, grandparent)
         fake.setTransactionParent(tx, child, parent)
         fake.submitSceneTransaction(tx)
-        assertThat(fake.entityParents[child]).isEqualTo(parent)
 
         fake.destroySceneEntity(parent)
-        assertThat(fake.entityParents[child]).isNull()
+
+        assertThat(fake.entityParents).doesNotContainKey(parent)
+        assertThat(fake.entityParents[child]).isEqualTo(parent)
+        assertThat(fake.childrenWhenDestroyed[parent]).containsExactly(child)
         assertThat(fake.destroyedEntities).contains(parent)
     }
 

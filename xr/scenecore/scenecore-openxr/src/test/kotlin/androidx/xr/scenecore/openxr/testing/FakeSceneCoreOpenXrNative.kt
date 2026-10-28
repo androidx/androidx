@@ -103,6 +103,12 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     val entityTransforms: MutableMap<Long, Pair<Pose, Vector3>> = mutableMapOf()
     val entityAttachments: MutableMap<Long, Attachment> = mutableMapOf()
 
+    /**
+     * The entities that were still parented to each destroyed entity. Like the natives, the fake
+     * leaves them parented to it, so out of the scene.
+     */
+    val childrenWhenDestroyed: MutableMap<Long, List<Long>> = mutableMapOf()
+
     /** The `XrSpace` an entity is attached to, and what happens when that space loses tracking. */
     data class Attachment(val spaceHandle: Long, val trackingLossBehaviour: Int)
 
@@ -195,7 +201,8 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         destroyedEntities.add(entityHandle)
         createdEntities.remove(entityHandle)
         entityParents.remove(entityHandle)
-        entityParents.entries.removeIf { it.value == entityHandle }
+        childrenWhenDestroyed[entityHandle] =
+            entityParents.filterValues { it == entityHandle }.keys.toList()
         entityTransforms.remove(entityHandle)
         entityAttachments.remove(entityHandle)
         return true

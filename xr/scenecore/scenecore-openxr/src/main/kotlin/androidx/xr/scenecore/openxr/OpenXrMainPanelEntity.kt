@@ -36,10 +36,20 @@ internal constructor(
     activity: Activity?,
     entityHandle: Long,
     nativeWrapper: SceneCoreOpenXrNative,
+    sceneCommitter: OpenXrSceneCommitter,
     sceneNodeRegistry: OpenXrSceneNodeRegistry,
     executor: ScheduledExecutorService,
     parent: Entity? = null,
-) : OpenXrEntity(activity, entityHandle, nativeWrapper, sceneNodeRegistry, executor), PanelEntity {
+) :
+    OpenXrEntity(
+        activity,
+        entityHandle,
+        nativeWrapper,
+        sceneCommitter,
+        sceneNodeRegistry,
+        executor,
+    ),
+    PanelEntity {
 
     init {
         this.parent = parent

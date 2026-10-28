@@ -26,9 +26,8 @@ import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
+import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -44,7 +43,8 @@ class OpenXrActivitySpaceTest {
     private lateinit var activity: Activity
     private lateinit var fakeNative: FakeSceneCoreOpenXrNative
     private lateinit var nodeRegistry: OpenXrSceneNodeRegistry
-    private lateinit var executor: ScheduledExecutorService
+    private lateinit var executor: FakeScheduledExecutorService
+    private lateinit var sceneCommitter: OpenXrSceneCommitter
     private lateinit var activitySpace: OpenXrActivitySpace
 
     @Before
@@ -54,13 +54,15 @@ class OpenXrActivitySpaceTest {
         fakeNative.init(100L, 200L, 300L)
         fakeNative.createSpatialContainer()
         nodeRegistry = OpenXrSceneNodeRegistry()
-        executor = Executors.newSingleThreadScheduledExecutor()
+        executor = FakeScheduledExecutorService()
+        sceneCommitter = OpenXrSceneCommitter(fakeNative, executor)
 
         activitySpace =
             OpenXrActivitySpace(
                 activity,
                 fakeNative.fakeRootEntityHandle,
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )
@@ -223,6 +225,7 @@ class OpenXrActivitySpaceTest {
                 activity,
                 fakeNative.createSceneEntity(),
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )
@@ -297,7 +300,15 @@ class OpenXrActivitySpaceTest {
                 .first()
         val childHandle = fakeNative.createSceneEntity()
         val childEntity =
-            object : OpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor) {}
+            object :
+                OpenXrEntity(
+                    activity,
+                    childHandle,
+                    fakeNative,
+                    sceneCommitter,
+                    nodeRegistry,
+                    executor,
+                ) {}
         childEntity.parent = activitySpace
         val localPose = Pose(Vector3(1f, 2f, 3f))
         childEntity.setPose(localPose, Space.PARENT)
@@ -315,7 +326,15 @@ class OpenXrActivitySpaceTest {
 
         val childHandle = fakeNative.createSceneEntity()
         val childEntity =
-            object : OpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor) {}
+            object :
+                OpenXrEntity(
+                    activity,
+                    childHandle,
+                    fakeNative,
+                    sceneCommitter,
+                    nodeRegistry,
+                    executor,
+                ) {}
         childEntity.parent = activitySpace
         val childLocalPose = Pose(Vector3(1f, 2f, 3f))
         childEntity.setPose(childLocalPose, Space.PARENT)

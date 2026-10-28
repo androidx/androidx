@@ -96,7 +96,7 @@ class OpenXrSceneRuntimeTest {
     }
 
     @Test
-    fun coordinatedTeardown_releasesSceneCoreChildHandlesBeforeNativeDestroy() {
+    fun coordinatedTeardown_destroysTheRuntimeAndItsNativeInstance() {
         var activity: ComponentActivity? = null
         activityRule.scenario.onActivity { activity = it }
         var runtime: OpenXrSceneRuntime? = null

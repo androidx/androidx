@@ -64,11 +64,19 @@ internal class OpenXrAnchorEntity(
     context: Context?,
     entityHandle: Long,
     nativeWrapper: SceneCoreOpenXrNative,
+    sceneCommitter: OpenXrSceneCommitter,
     sceneNodeRegistry: OpenXrSceneNodeRegistry,
     executor: ScheduledExecutorService,
     private val activitySpace: OpenXrActivitySpace,
 ) :
-    OpenXrSystemSpaceEntity(context, entityHandle, nativeWrapper, sceneNodeRegistry, executor),
+    OpenXrSystemSpaceEntity(
+        context,
+        entityHandle,
+        nativeWrapper,
+        sceneCommitter,
+        sceneNodeRegistry,
+        executor,
+    ),
     AnchorEntity {
 
     /** One update of an anchor's tracking state, and its pose in the platform reference space. */
@@ -327,8 +335,8 @@ internal class OpenXrAnchorEntity(
     }
 
     /**
-     * Removes the attachment, moves to ERROR, then destroys the native entity. The listener gets
-     * the ERROR report afterwards, on the executor.
+     * Removes the attachment, moves to ERROR, then has [sceneCommitter] destroy the native entity.
+     * The listener gets the ERROR report afterwards, on the executor.
      *
      * This destroys the native entity even if already in ERROR.
      */

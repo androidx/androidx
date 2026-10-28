@@ -38,10 +38,18 @@ internal constructor(
     context: Context?,
     entityHandle: Long,
     nativeWrapper: SceneCoreOpenXrNative,
+    sceneCommitter: OpenXrSceneCommitter,
     sceneNodeRegistry: OpenXrSceneNodeRegistry,
     executor: ScheduledExecutorService,
 ) :
-    OpenXrEntity(context, entityHandle, nativeWrapper, sceneNodeRegistry, executor),
+    OpenXrEntity(
+        context,
+        entityHandle,
+        nativeWrapper,
+        sceneCommitter,
+        sceneNodeRegistry,
+        executor,
+    ),
     SystemSpaceEntity {
 
     private class ListenerHolder(val listener: Runnable, val executor: Executor)
