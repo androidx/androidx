@@ -20,18 +20,22 @@ import androidx.collection.intSetOf
 import androidx.compose.remote.core.Operations.CLIP_PATH
 import androidx.compose.remote.core.Operations.COLOR_THEME
 import androidx.compose.remote.core.Operations.DATA_BITMAP_FONT
+import androidx.compose.remote.core.Operations.DATA_FONT
 import androidx.compose.remote.core.Operations.DATA_SHADER
 import androidx.compose.remote.core.Operations.DRAW_BITMAP_FONT_TEXT_RUN
 import androidx.compose.remote.core.Operations.DRAW_BITMAP_FONT_TEXT_RUN_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_CIRCLE
 import androidx.compose.remote.core.Operations.DRAW_TEXT_ON_PATH
 import androidx.compose.remote.core.Operations.DRAW_TO_BITMAP
+import androidx.compose.remote.core.Operations.DYNAMIC_FLOAT_LIST
 import androidx.compose.remote.core.Operations.HEADER
+import androidx.compose.remote.core.Operations.ID_LOOKUP
 import androidx.compose.remote.core.Operations.LAYOUT_BOX
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_COLUMN
 import androidx.compose.remote.core.Operations.LAYOUT_COLLAPSIBLE_ROW
 import androidx.compose.remote.core.Operations.MODIFIER_CLICK
 import androidx.compose.remote.core.Operations.MODIFIER_COLLAPSIBLE_PRIORITY
+import androidx.compose.remote.core.Operations.MODIFIER_GRAPHICS_LAYER
 import androidx.compose.remote.core.Operations.MODIFIER_SCROLL
 import androidx.compose.remote.core.Operations.MODIFIER_TOUCH_CANCEL
 import androidx.compose.remote.core.Operations.MODIFIER_TOUCH_DOWN
@@ -39,11 +43,15 @@ import androidx.compose.remote.core.Operations.MODIFIER_TOUCH_UP
 import androidx.compose.remote.core.Operations.PARTICLE_COMPARE
 import androidx.compose.remote.core.Operations.PARTICLE_DEFINE
 import androidx.compose.remote.core.Operations.PARTICLE_LOOP
+import androidx.compose.remote.core.Operations.PATH_COMBINE
+import androidx.compose.remote.core.Operations.PATH_EXPRESSION
 import androidx.compose.remote.core.Operations.ROOT_CONTENT_DESCRIPTION
 import androidx.compose.remote.core.Operations.SKIP
 import androidx.compose.remote.core.Operations.TEXT_STYLE
+import androidx.compose.remote.core.Operations.TEXT_TRANSFORM
 import androidx.compose.remote.core.Operations.THEME
 import androidx.compose.remote.core.Operations.TOUCH_EXPRESSION
+import androidx.compose.remote.core.Operations.UPDATE_DYNAMIC_FLOAT_LIST
 import androidx.compose.remote.core.Operations.WAKE_IN
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.glance.wear.core.ContainerInfo
@@ -130,6 +138,17 @@ class WearWidgetsProfileTest {
     fun testSafeFallbackOperations() {
         val profile = GlanceWearProfiles.createWearWidgetsProfile()
         val operations = profile.supportedOperations
+        val post160Operations =
+            listOf(
+                DATA_FONT,
+                DYNAMIC_FLOAT_LIST,
+                ID_LOOKUP,
+                MODIFIER_GRAPHICS_LAYER,
+                PATH_COMBINE,
+                PATH_EXPRESSION,
+                TEXT_TRANSFORM,
+                UPDATE_DYNAMIC_FLOAT_LIST,
+            )
 
         assertThat(operations)
             .containsAtLeastElementsIn(
@@ -139,6 +158,16 @@ class WearWidgetsProfileTest {
             .containsAtLeastElementsIn(
                 RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it }
             )
+        assertThat(operations).containsAtLeastElementsIn(post160Operations)
+        assertThat(RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS.mapToList { it })
+            .containsNoneIn(post160Operations)
+        assertThat(
+                GlanceWearProfiles.createWearWidgetsProfile(
+                        RendererVersion.SAFE_FALLBACK_SUPPORTED_OPERATIONS
+                    )
+                    .supportedOperations
+            )
+            .containsNoneIn(post160Operations)
     }
 
     @Test
