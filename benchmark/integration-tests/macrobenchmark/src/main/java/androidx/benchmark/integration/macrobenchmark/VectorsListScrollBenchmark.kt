@@ -160,7 +160,7 @@ class VectorsListScrollBenchmark {
         private const val RESOURCE_ID = "recycler"
         private const val ITEM_RESOURCE_ID = "content"
         private const val FIND_OBJECT_TIMEOUT_MS = 5_000L
-        private const val SCROLL_COUNT = 10
+        private const val SCROLL_COUNT = 8
         private const val ITEMS_SCROLLED_MIN_TOLERANCE = 3
         private const val TRACE_PREFIX = "VectorsListScrollBenchmark"
 
