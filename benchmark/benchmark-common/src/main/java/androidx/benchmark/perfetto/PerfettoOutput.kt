@@ -55,7 +55,9 @@ internal fun writeOutput(
     // Input traces (potentially owned)
     val inputs = absoluteTracePaths.map { input -> VirtualFile.fromPath(input) }
     // Create the ZIP container with all the provided inputs.
-    val zip = ZipOutputStream(outputFile.outputStream())
+    // Buffer the stream so we write bigger chunks and make fewer writes. Too many small writes can
+    // exhaust the file system.
+    val zip = ZipOutputStream(outputFile.outputStream().buffered())
     zip.use {
         inputs.forEach { file -> zip.entry(file) }
         // In Memory traces
@@ -106,8 +108,8 @@ internal fun appendToPerfettoTrace(
 ) {
     val tempFile = File.createTempFile("perfetto_trace_merged", ".tmp", perfettoTrace.parentFile)
     try {
-        ZipInputStream(FileInputStream(perfettoTrace)).use { zipIn ->
-            ZipOutputStream(FileOutputStream(tempFile)).use { zipOut ->
+        ZipInputStream(FileInputStream(perfettoTrace).buffered()).use { zipIn ->
+            ZipOutputStream(FileOutputStream(tempFile).buffered()).use { zipOut ->
                 var entry = zipIn.nextEntry
                 while (entry != null) {
                     zipOut.putNextEntry(ZipEntry(entry.name))
