@@ -30,27 +30,27 @@ import androidx.compose.ui.layout.ContentScale
  * A composable that lays out and draws a given [RemoteImageBitmap]. This is the remote equivalent
  * of [androidx.compose.foundation.Image].
  *
- * @param remoteBitmap the [RemoteImageBitmap] to be drawn.
+ * @param bitmap the [RemoteImageBitmap] to be drawn.
  * @param contentDescription the Text used by accessibility services to describe what this image
  *   represents.
  * @param modifier the [RemoteModifier] to be applied to this layout node.
  * @param contentScale the rule to apply to scale the image when its size does not match the layout
  *   size, Defaults to [ContentScale.Fit].
- * @param alpha the Optional opacity to be applied to the [remoteBitmap] when it is rendered.
+ * @param alpha the Optional opacity to be applied to the [bitmap] when it is rendered.
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageSample
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageFitSample
  */
 @Composable
 @RemoteComposable
 public fun RemoteBasicImage(
-    remoteBitmap: RemoteImageBitmap,
+    bitmap: RemoteImageBitmap,
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
     RemoteImage(
-        remoteBitmap = remoteBitmap,
+        remoteBitmap = bitmap,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale,

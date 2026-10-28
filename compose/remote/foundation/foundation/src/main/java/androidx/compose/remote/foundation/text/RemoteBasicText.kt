@@ -44,8 +44,8 @@ import androidx.compose.ui.text.style.TextOverflow
  * @param textAlign The alignment of the text within its container.
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text.
- * @param style The [RemoteTextStyle] to be applied to the text.
  * @param fontVariationSettings The font variation settings to be applied to the text.
+ * @param style The [RemoteTextStyle] to be applied to the text.
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextSample
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextStylingSample
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextFontFamilySample
@@ -63,8 +63,8 @@ public fun RemoteBasicText(
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    style: RemoteTextStyle = RemoteTextStyle.Default,
     fontVariationSettings: FontVariation.Settings? = null,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     RemoteText(
         text = text,
@@ -77,7 +77,7 @@ public fun RemoteBasicText(
         textAlign = textAlign,
         overflow = overflow,
         maxLines = maxLines,
-        style = style,
         fontVariationSettings = fontVariationSettings,
+        style = style,
     )
 }
