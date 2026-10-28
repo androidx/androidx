@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteConfiguration
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
@@ -42,7 +43,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.platform.LocalConfiguration
 
 /**
  * [RemoteStepper] allows users to make a selection from a range of values. It's a full-screen
@@ -89,10 +89,12 @@ public fun RemoteStepper(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
     ) {
+        val verticalPadding = verticalContentPadding()
+
         RemoteBox(
             modifier =
                 RemoteModifier.weight(RemoteStepperDefaults.ButtonWeight.rf)
-                    .padding(top = verticalContentPadding()),
+                    .padding(top = verticalPadding),
             contentAlignment = RemoteAlignment.TopCenter,
         ) {
             // TODO(b/557131896): Use repeatableClickable once supported
@@ -130,7 +132,7 @@ public fun RemoteStepper(
         RemoteBox(
             modifier =
                 RemoteModifier.weight(RemoteStepperDefaults.ButtonWeight.rf)
-                    .padding(bottom = verticalContentPadding()),
+                    .padding(bottom = verticalPadding),
             contentAlignment = RemoteAlignment.BottomCenter,
         ) {
             // TODO(b/557131896): Use repeatableClickable once supported
@@ -410,13 +412,15 @@ public class RemoteStepperColors(
     }
 }
 
-@Composable
-internal fun verticalContentPadding(): RemoteDp {
-    val configuration = LocalConfiguration.current
-    val screenHeightDp = configuration.screenHeightDp.toFloat()
-    return if (screenHeightDp in 1f..300f) {
-        (screenHeightDp * 0.052f).rdp
-    } else {
-        10.rdp
-    }
-}
+/**
+ * Vertical top/bottom padding for the increase and decrease buttons, as a fraction of the window
+ * width.
+ *
+ * The width is used instead of the height because the Wear OS Global Status Bar reduces the
+ * reported screen height, while Wear screens are assumed to be round. This matches Wear Compose
+ * Material3 `Stepper`.
+ */
+internal fun verticalContentPadding(): RemoteDp =
+    RemoteConfiguration.windowWidth * VerticalContentPaddingFraction
+
+private const val VerticalContentPaddingFraction = 0.052f
