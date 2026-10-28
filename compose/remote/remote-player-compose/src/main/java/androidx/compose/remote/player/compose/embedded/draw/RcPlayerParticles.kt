@@ -24,10 +24,7 @@ import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
-import androidx.compose.remote.player.core.platform.AndroidPaintContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.util.fastForEach
 
 /**
  * Particle rendering by *reusing the core implementation* — the same `ParticlesLoop.paint` /
@@ -36,7 +33,7 @@ import androidx.compose.ui.util.fastForEach
  * in exactly one place.
  *
  * The bridge is [withCorePaintContext]: it wraps the Compose [DrawScope]'s native canvas in the
- * View player's [AndroidPaintContext] (inheriting the current canvas transform), replays the paint
+ * View player's `AndroidPaintContext` (inheriting the current canvas transform), replays the paint
  * state the Compose dispatcher has accumulated (see [ComposeLocalPaint.sourceBundles]), installs
  * the paint context + PAINT mode on the [RemoteContext] so the ops' `apply` routes to `paint`, and
  * restores everything after. Compose-driven reactivity is preserved by reading the frame-clock time
@@ -97,40 +94,5 @@ internal fun DrawScope.drawParticlesCompare(
     withCorePaintContext(remoteContext, paintState, graph) { paintContext ->
         op.updateVariables(remoteContext)
         op.paint(paintContext)
-    }
-}
-
-/**
- * Runs [block] with the View player's [AndroidPaintContext] installed on [remoteContext], bound to
- * this [DrawScope]'s native canvas, so core `paint()` implementations (and the child ops they
- * dispatch via `Operation.apply`) render into the Compose draw pass. See the file doc.
- */
-private inline fun DrawScope.withCorePaintContext(
-    remoteContext: RemoteContext,
-    paintState: ComposeLocalPaint,
-    graph: GraphContext,
-    block: (PaintContext) -> Unit,
-) {
-    // Observe the frame clock so the draw re-runs each tick (continuous simulation).
-    graph.getFloat(RemoteContext.ID_ANIMATION_TIME)
-    val canvas = drawContext.canvas.nativeCanvas
-    val currentPaintContext = remoteContext.paintContext
-    val paintContext =
-        if (currentPaintContext is AndroidPaintContext) {
-            currentPaintContext.reset()
-            currentPaintContext.setCanvas(canvas)
-            currentPaintContext
-        } else {
-            AndroidPaintContext(remoteContext, canvas).also { remoteContext.setPaintContext(it) }
-        }
-    // Seed the core paint from the paint ops the Compose dispatcher already consumed into
-    // ComposeLocalPaint, so paint set *outside* this subtree (color, stroke, …) still applies.
-    paintState.sourceBundles.fastForEach { bundle -> paintContext.applyPaint(bundle) }
-    val previousMode = remoteContext.mode
-    remoteContext.mode = RemoteContext.ContextMode.PAINT
-    try {
-        block(paintContext)
-    } finally {
-        remoteContext.mode = previousMode
     }
 }

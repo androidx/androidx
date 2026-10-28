@@ -28,6 +28,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -71,6 +72,22 @@ internal fun ComposeContentTestRule.renderDocument(document: CoreDocument): Bitm
     setContent {
         CompositionLocalProvider(LocalDensity provides Density(1f)) {
             Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
+        }
+    }
+    return onRoot().captureToImage().asAndroidBitmap()
+}
+
+/** Renders [document] in a 100x100px [RcPlayer] (at 1.0 density) that runs only [features]. */
+@OptIn(ExperimentalRemotePlayerApi::class)
+internal fun ComposeContentTestRule.renderDocument(
+    document: CoreDocument,
+    features: RcPlayerFeatureSet,
+): Bitmap {
+    setContent {
+        CompositionLocalProvider(LocalDensity provides Density(1f)) {
+            Box(modifier = Modifier.size(100.dp)) {
+                RcPlayer(document = document, features = features)
+            }
         }
     }
     return onRoot().captureToImage().asAndroidBitmap()

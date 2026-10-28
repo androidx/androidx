@@ -54,6 +54,12 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
     val composeRule: ComposeContentTestRule
         get() = baseRule.composeTestRule
 
+    /**
+     * Picks the [RcPlayer] features for a captured document. When null, the player uses the library
+     * features for the document's profile, as the [RcPlayer] overloads without features do.
+     */
+    @ExperimentalRemotePlayerApi var features: ((CoreDocument) -> RcPlayerFeatureSet)? = null
+
     override fun apply(base: Statement, description: Description): Statement =
         baseRule.apply(
             object : Statement() {
@@ -126,6 +132,9 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                     override fun Play(coreDocument: CoreDocument, size: Size) {
                         RcPlayer(
                             document = coreDocument,
+                            features =
+                                features?.invoke(coreDocument)
+                                    ?: RcPlayerFeatures.forProfiles(coreDocument.profileMask),
                             customPlugins = customPlugins,
                             typefaceResolver = typefaceResolver,
                             onNamedAction = onNamedAction,

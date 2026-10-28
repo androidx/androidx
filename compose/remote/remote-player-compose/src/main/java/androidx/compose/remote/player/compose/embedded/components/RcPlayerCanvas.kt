@@ -55,7 +55,12 @@ internal fun RcPlayerCanvas(layout: CanvasLayout, modifier: Modifier) {
         // earlier in the pass would see the previous frame's value, and writing snapshot state
         // during draw re-invalidates the frame.
         Canvas(modifier = Modifier.fillMaxSize()) {
-            executeOperations(operations, remoteContext, textMeasurer, graph = graph)
+            executeOperations(
+                operations,
+                remoteContext,
+                textMeasurer,
+                graph = graph,
+            )
         }
     }
 }

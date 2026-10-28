@@ -21,11 +21,13 @@
     "ModifierParameter",
     "AutoboxingStateCreation",
 )
+@file:OptIn(ExperimentalRemotePlayerApi::class)
 
 package androidx.compose.remote.player.compose.embedded
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.util.Log
 import android.view.ViewTreeObserver
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
@@ -68,6 +70,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -94,6 +97,10 @@ import kotlinx.coroutines.delay
  * Re-installing onto an already-initialized document is guarded against below so an accidental
  * reuse doesn't clobber existing state, but the two players would then share one state, which is
  * not supported.
+ *
+ * This overload runs every library feature that the document's profile can use (see
+ * [RcPlayerFeatures]), which keeps all of them in the app. To keep only the features an app needs,
+ * pass an [RcPlayerFeatureSet] instead.
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -102,6 +109,86 @@ import kotlinx.coroutines.delay
 @Composable
 public fun RcPlayer(
     state: RcPlayerState,
+    modifier: Modifier = Modifier,
+    imageLoader: RcImageLoader? = null,
+    trustedContent: Boolean = false,
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
+    onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    customPlugins: CustomPluginRegistry? = null,
+    lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
+    pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
+    theme: Int = Theme.SYSTEM,
+) {
+    val features =
+        remember(state.document) { RcPlayerFeatures.forProfiles(state.document.profileMask) }
+    RcPlayerImpl(
+        state = state,
+        features = features,
+        modifier = modifier,
+        imageLoader = imageLoader,
+        trustedContent = trustedContent,
+        onAction = onAction,
+        onNamedAction = onNamedAction,
+        customPlugins = customPlugins,
+        lambdas = lambdas,
+        pendingIntents = pendingIntents,
+        typefaceResolver = typefaceResolver,
+        theme = theme,
+    )
+}
+
+/**
+ * A player of a [CoreDocument] that runs with a fixed set of [features], on top of the built-in
+ * support for [RcPlayerFeatureSet.BuiltInProfiles].
+ *
+ * Unlike the overload without [features], this one doesn't reference every feature the library
+ * provides, so R8 can remove the features an app doesn't pass. Operations that need a missing
+ * feature are skipped, and a warning lists the opcodes of the document's profile that the player
+ * can't execute.
+ */
+@OptIn(ExperimentalRemotePlayerApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressLint("RestrictedApiAndroidX")
+@Suppress("PrimitiveInCollection")
+@Composable
+public fun RcPlayer(
+    state: RcPlayerState,
+    features: RcPlayerFeatureSet,
+    modifier: Modifier = Modifier,
+    imageLoader: RcImageLoader? = null,
+    trustedContent: Boolean = false,
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
+    onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    customPlugins: CustomPluginRegistry? = null,
+    lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
+    pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
+    theme: Int = Theme.SYSTEM,
+) {
+    RcPlayerImpl(
+        state = state,
+        features = features,
+        modifier = modifier,
+        imageLoader = imageLoader,
+        trustedContent = trustedContent,
+        onAction = onAction,
+        onNamedAction = onNamedAction,
+        customPlugins = customPlugins,
+        lambdas = lambdas,
+        pendingIntents = pendingIntents,
+        typefaceResolver = typefaceResolver,
+        theme = theme,
+    )
+}
+
+@OptIn(ExperimentalRemotePlayerApi::class)
+@SuppressLint("RestrictedApiAndroidX")
+@Suppress("PrimitiveInCollection")
+@Composable
+internal fun RcPlayerImpl(
+    state: RcPlayerState,
+    features: RcPlayerFeatureSet,
     modifier: Modifier = Modifier,
     imageLoader: RcImageLoader? = null,
     trustedContent: Boolean = false,
@@ -284,6 +371,22 @@ public fun RcPlayer(
 
     RcPlayerHapticEffect(document)
 
+    val featureDocumentScope =
+        remember(document, remoteContext) { RcFeatureDocumentScope(document, remoteContext) }
+    features.features.fastForEach { feature ->
+        key(feature.key) { feature.Install(featureDocumentScope) }
+    }
+    LaunchedEffect(document, features) {
+        val unsupported = features.unsupportedOpcodes(document.profileMask)
+        if (unsupported.isNotEmpty()) {
+            Log.w(
+                "RcPlayer",
+                "Document profile 0x${document.profileMask.toString(16)} needs opcodes " +
+                    "$unsupported that $features does not execute",
+            )
+        }
+    }
+
     // Desired frame rate (Header DOC_DESIRED_FPS): expressed as a platform hint via Compose's
     // preferredFrameRate modifier (which sets the layer's frame rate) rather than throttling the
     // time ticker ourselves — the system then drives frames at this rate and the withFrameMillis
@@ -409,6 +512,7 @@ public fun RcPlayer(
         // Make it reachable from the (non-composable) canvas draw path too — the document image
         // draws resolve through it via the GraphContext.
         graphContext.imageLoader = resolvedImageLoader
+        graphContext.features = features
         CompositionLocalProvider(
             LocalCoreDocument provides document,
             LocalRemoteContext provides remoteContext,
@@ -507,6 +611,46 @@ public fun RcPlayer(
     val state = rememberRcPlayerState(document)
     RcPlayer(
         state = state,
+        modifier = modifier,
+        imageLoader = imageLoader,
+        trustedContent = trustedContent,
+        onAction = onAction,
+        onNamedAction = onNamedAction,
+        customPlugins = customPlugins,
+        lambdas = lambdas,
+        pendingIntents = pendingIntents,
+        typefaceResolver = typefaceResolver,
+        theme = theme,
+    )
+}
+
+/**
+ * A player of a [CoreDocument] that runs with a fixed set of [features]. See the [RcPlayerState]
+ * overload taking an [RcPlayerFeatureSet].
+ */
+@OptIn(ExperimentalRemotePlayerApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressLint("RestrictedApiAndroidX")
+@Suppress("PrimitiveInCollection")
+@Composable
+public fun RcPlayer(
+    document: CoreDocument,
+    features: RcPlayerFeatureSet,
+    modifier: Modifier = Modifier,
+    imageLoader: RcImageLoader? = null,
+    trustedContent: Boolean = false,
+    onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
+    onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    customPlugins: CustomPluginRegistry? = null,
+    lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
+    pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
+    typefaceResolver: RcTypefaceResolver? = LocalRcTypefaceResolver.current,
+    theme: Int = Theme.SYSTEM,
+) {
+    val state = rememberRcPlayerState(document)
+    RcPlayerImpl(
+        state = state,
+        features = features,
         modifier = modifier,
         imageLoader = imageLoader,
         trustedContent = trustedContent,
