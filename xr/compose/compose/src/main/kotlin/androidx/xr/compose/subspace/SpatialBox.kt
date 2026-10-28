@@ -125,7 +125,7 @@ private object SpatialBoxMeasurePolicies {
 }
 
 /** [SubspaceMeasurePolicy] for [SpatialBox]. */
-internal class SpatialBoxMeasurePolicy(
+internal data class SpatialBoxMeasurePolicy(
     private val alignment: SpatialAlignment,
     private val propagateMinConstraints: Boolean,
 ) : SubspaceMeasurePolicy {
