@@ -9,3 +9,14 @@ configs: {
     path_regex: ".*"
   }
 }
+
+configs: {
+  id: "android-compose-external-performance-review"
+  display_name: "Jetpack Compose Performance External Review"
+  description: "Check this changelist against Jetpack Compose best practices for UI development. Check for state management issues, unnecessary recompositions, improper modifier usage, side-effect handling, and UI performance optimizations."
+  skills: ".agents/skills/external-jetpack-compose-performance"
+  include_filters: {
+    path_regex: ".*\\.kt$"
+  }
+  automatic: false
+}
