@@ -113,14 +113,28 @@ When directed to an index page, directory list, or guide linking to sub-guides
     while applying CameraX's stricter commit limits (`<= 50` char title) and
     Stage 1 + Stage 2 Pre-Upload Gate below. If operating standalone without
     parent skills, use the standard `repo` defaults below.
-- **Pre-Flight Upstream Sync & AOSP Feature Branch Creation (`repo start` vs.
-  `git branch` in Standard `repo` Checkouts)**:
-  - In standard `repo`/Git checkouts, before starting root-cause analysis or
-    creating a feature branch, fetch the latest upstream manifest branch
-    (`git fetch aosp androidx-main`) and check recent CameraX commits
-    (`git log --oneline HEAD..aosp/androidx-main -- camera/`). If upstream
-    commits recently touched the target files or bug, sync first
-    (`repo sync -c -j8 .`) to avoid duplicate fixes or rebase conflicts.
+- **Pre-Flight Upstream Sync, Agent-Checkout Stash/Branch Preservation & AOSP
+  Feature Branch Creation (`repo start` vs. `git branch` in Standard `repo`
+  Checkouts)**:
+  - In standard `repo`/Git checkouts, before starting root-cause analysis,
+    running test scans, or creating a feature branch:
+    1. Never auto-clean or modify a developer's personal AOSP checkout without
+       explicit permission. Automatic pre-flight cleanup applies **only** to an
+       agent-managed checkout (initialized by the agent via `repo init` and
+       `repo sync`, or when the user explicitly opts in): stash any leftover
+       uncommitted or untracked scan/task files
+       (`git stash push -u -m "camerax-auto-stash-..."`) so work is preserved
+       without blocking sync or builds.
+    2. Fetch the latest upstream manifest branch (`git fetch aosp androidx-main`
+       and `git log --oneline HEAD..aosp/androidx-main -- camera/`), preserve
+       any detached unmerged commits on a `wip-preserve-<sha>` branch while
+       keeping local unmerged CL branches intact, and optionally prune local
+       branches already merged into `aosp/androidx-main` (`git branch -d
+       <branch>`) only when the user opts in (`--prune_merged_branches`).
+    3. Sync `frameworks/support` and `prebuilts/androidx/internal`
+       (`repo sync -c -j8 frameworks/support prebuilts/androidx/internal`) and
+       detach/switch `HEAD` to clean `aosp/androidx-main` in the agent-managed
+       checkout so builds and troubleshooting never get blocked.
   - Prefer using `repo start <branch_name> .` when creating a new feature
     branch in a standard `repo` checkout. `repo start` automatically establishes
     upstream tracking against the manifest remote (`aosp/androidx-main`),
@@ -390,9 +404,18 @@ When directed to an index page, directory list, or guide linking to sub-guides
 
 ### Workflow & Long-Term Governance:
 
-#### 0. Prompt Update Precedence: Google-Wide -> Parent Repo -> CameraX
+#### 0. Prompt Update Precedence: Project `.md` First -> Google -> AndroidX
 When updating any prompt (`AGENTS.md`, `SKILL.md`) or helper script, prioritize
 standards in this strict order:
+0. **Prioritize Checked-In Project `.md` & `SKILL.md` Files Over Local
+   Workstation Rules (Last Resort Only)**:
+   - Always land workflow, triage, and governance updates in checked-in project
+     `.md` and `SKILL.md` files in the repository (`camera/AGENTS.md`,
+     `camera/.agents/skills/*/SKILL.md`, and
+     `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` + sibling `skills/` when
+     internal tools are configured) so all team members and future sessions in
+     either repository automatically inherit them. Treat local user/workstation
+     rules strictly as a last resort for personal environment bootstrapping.
 1. **Prompt Update Precedence — 1st: Google-Wide Skill, Customization &
    Readability Standards**:
    - **Automatic Discovery & Canonical Referencing (No Manual `../` Links /

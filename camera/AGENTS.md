@@ -119,10 +119,15 @@ traversal protocol in [`camerax-guidelines-governance`][skill-gov]):
 Read [`camerax-guidelines-governance`][skill-gov] before editing code. Key
 invariants:
 
-- **Pre-Flight Upstream Sync & `repo start`**: In standard `repo` checkouts,
-  fetch `aosp androidx-main` first and create feature branches with
-  `repo start <branch_name> .` (prefer `repo start` over raw `git checkout -b`;
-  in CoG workspaces, follow the repo-wide `manage_cl_workspaces` skill instead).
+- **Pre-Flight Upstream Sync, Agent-Checkout Stash & `repo start`**: In
+  standard `repo` checkouts, fetch `aosp androidx-main` first and create
+  feature branches with `repo start <branch_name> .` (never modify a
+  developer's personal checkout without permission; in an agent-managed
+  `repo init`/`repo sync` triage checkout, auto-stash leftover
+  uncommitted/untracked scan or task files via `git stash push -u`, preserve
+  detached unmerged commits on `wip-preserve-<sha>`, optionally prune already-
+  merged local branches if opted in, and detach/switch `HEAD` to clean
+  `aosp/androidx-main`; in CoG workspaces, follow `manage_cl_workspaces`).
 - **CameraPipe Backend & Lifecycle Scopes**: `camera-camera2` now runs on top of
   `camera-camera2-pipe` (`CameraPipe`). Never conflate:
   - `@CameraScope` (`CameraInternal`, `CameraControlInternal`,
@@ -222,6 +227,13 @@ invariants:
 > session), you **MUST** read [`camerax-guidelines-governance`][skill-gov]
 > (`Skill: CameraX Agent Guidelines & Experience Capture`) and enforce in
 > priority order:
+> 0. **Prioritize Checked-In Project `.md` & `SKILL.md` Files Over Local
+>    Workstation Rules (Last Resort Only)**: Always land workflow, triage, and
+>    governance updates in checked-in project `.md` and `SKILL.md` files
+>    (`camera/AGENTS.md`, `camera/.agents/skills/*/SKILL.md`, and
+>    `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md` + sibling `skills/` when
+>    configured) so all team members and future sessions automatically inherit
+>    them; treat local user/workstation rules strictly as a last resort.
 > 1. **Prompt Update Precedence — 1st: Google-Wide Skill, Customization &
 >    Readability Standards**: Rely on automatic upward directory discovery
 >    (`AGENTS.md`, `.agents/skills/`, `skills.json`) and reference shared skills
