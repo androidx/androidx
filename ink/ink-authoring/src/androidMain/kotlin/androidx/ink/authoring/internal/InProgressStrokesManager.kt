@@ -480,6 +480,7 @@ internal class InProgressStrokesManager<
                 startEventTimeMillis = startTimeMillis,
                 inputsFromMotionEvents = inputsFromMotionEvents,
                 strokeUnitLengthCm = input.strokeUnitLengthCm,
+                hasBarrelTwist = input.hasBarrelTwist(),
             )
         val startAction =
             StartAction(
@@ -538,6 +539,11 @@ internal class InProgressStrokesManager<
                     motionEventToStrokeTransform = strokeState.motionEventToStrokeTransform,
                     strokeStartTimeMillis = strokeState.startEventTimeMillis,
                     strokeUnitLengthCm = strokeState.strokeUnitLengthCm,
+                    // TODO(b/555755656): See comment in `StrokeInputPool.kt`; remove this
+                    // barrel-twist-specific behavior once `device.getMotionRange` returns more
+                    // consistent
+                    // results for `AXIS_RZ`.
+                    forceHasBarrelTwist = strokeState.hasBarrelTwist,
                     outBatch = realInputs,
                 )
                 // TODO b/306361370 - Generate LatencyData only for those inputs that pass
@@ -673,6 +679,11 @@ internal class InProgressStrokesManager<
                 strokeState.motionEventToStrokeTransform,
                 strokeState.startEventTimeMillis,
                 strokeState.strokeUnitLengthCm,
+                // TODO(b/555755656): See comment in `StrokeInputPool.kt`; remove this
+                // barrel-twist-specific
+                // behavior once `device.getMotionRange` returns more consistent results for
+                // `AXIS_RZ`.
+                forceHasBarrelTwist = strokeState.hasBarrelTwist,
             ),
             strokeId,
             endTimeMs = event.eventTime,
@@ -1708,6 +1719,7 @@ internal class InProgressStrokesManager<
             val startEventTimeMillis: Long,
             val inputsFromMotionEvents: Boolean,
             val strokeUnitLengthCm: Float,
+            val hasBarrelTwist: Boolean,
         ) : UiStrokeState
 
         /** UI thread state for a stroke that has been canceled. */

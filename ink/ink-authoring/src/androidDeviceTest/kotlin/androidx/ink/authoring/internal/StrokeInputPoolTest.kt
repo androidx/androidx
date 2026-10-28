@@ -17,6 +17,7 @@
 package androidx.ink.authoring.internal
 
 import android.graphics.Matrix
+import android.view.InputDevice
 import android.view.MotionEvent
 import androidx.ink.authoring.testing.MultiTouchInputCreator
 import androidx.ink.brush.ExperimentalInkBarrelTwistApi
@@ -241,6 +242,88 @@ class StrokeInputPoolTest {
     }
 
     @Test
+    fun obtainSingleValueForMotionEvent_withZeroBarrelTwist() {
+        val pool = StrokeInputPool()
+        val zeroTwistEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = 1000L,
+                eventTime = 1000L,
+                action = MotionEvent.ACTION_DOWN,
+                x = 10f,
+                y = 20f,
+                axisRz = 0f,
+            )
+
+        assertThat(
+                pool
+                    .obtainSingleValueForMotionEvent(
+                        zeroTwistEvent,
+                        pointerIndex = 0,
+                        motionEventToStrokeTransform = Matrix(),
+                        strokeStartTimeMillis = 1000L,
+                        forceHasBarrelTwist = null,
+                    )
+                    .getBarrelTwistRadians()
+            )
+            .isEqualTo(StrokeInput.NO_BARREL_TWIST)
+
+        assertThat(
+                pool
+                    .obtainSingleValueForMotionEvent(
+                        zeroTwistEvent,
+                        pointerIndex = 0,
+                        motionEventToStrokeTransform = Matrix(),
+                        strokeStartTimeMillis = 1000L,
+                        forceHasBarrelTwist = true,
+                    )
+                    .getBarrelTwistRadians()
+            )
+            .isWithin(0.001f)
+            .of(0f)
+    }
+
+    @Test
+    fun obtainSingleValueForMotionEvent_withNonZeroBarrelTwist() {
+        val pool = StrokeInputPool()
+        val nonZeroTwistEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = 1000L,
+                eventTime = 1000L,
+                action = MotionEvent.ACTION_DOWN,
+                x = 10f,
+                y = 20f,
+                axisRz = -0.5f,
+            )
+
+        assertThat(
+                pool
+                    .obtainSingleValueForMotionEvent(
+                        nonZeroTwistEvent,
+                        pointerIndex = 0,
+                        motionEventToStrokeTransform = Matrix(),
+                        strokeStartTimeMillis = 1000L,
+                        forceHasBarrelTwist = null,
+                    )
+                    .getBarrelTwistRadians()
+            )
+            .isWithin(0.001f)
+            .of(0.5f * PI)
+
+        assertThat(
+                pool
+                    .obtainSingleValueForMotionEvent(
+                        nonZeroTwistEvent,
+                        pointerIndex = 0,
+                        motionEventToStrokeTransform = Matrix(),
+                        strokeStartTimeMillis = 1000L,
+                        forceHasBarrelTwist = false,
+                    )
+                    .getBarrelTwistRadians()
+            )
+            .isEqualTo(StrokeInput.NO_BARREL_TWIST)
+    }
+
+    @Test
     fun convertAxisOrientationToOrientationRadians_convertsAngles() {
         assertThat(convertAxisOrientationToOrientationRadians(-0.5f * PI)).isWithin(0.001f).of(0f)
         assertThat(convertAxisOrientationToOrientationRadians(-0.25f * PI))
@@ -274,6 +357,42 @@ class StrokeInputPoolTest {
         assertThat(convertAxisRzToBarrelTwistRadians(0.25f)).isWithin(0.001f).of(1.75f * PI)
     }
 }
+
+private fun obtainStylusMotionEventWithAxisRz(
+    downTime: Long,
+    eventTime: Long,
+    action: Int,
+    x: Float,
+    y: Float,
+    axisRz: Float,
+): MotionEvent =
+    MotionEvent.obtain(
+        /* downTime = */ downTime,
+        /* eventTime = */ eventTime,
+        /* action = */ action,
+        /* pointerCount = */ 1,
+        /* pointerProperties = */ arrayOf(
+            MotionEvent.PointerProperties().apply {
+                id = 0
+                toolType = MotionEvent.TOOL_TYPE_STYLUS
+            }
+        ),
+        /* pointerCoords = */ arrayOf(
+            MotionEvent.PointerCoords().apply {
+                this.x = x
+                this.y = y
+                setAxisValue(MotionEvent.AXIS_RZ, axisRz)
+            }
+        ),
+        /* metaState = */ 0,
+        /* buttonState = */ 0,
+        /* xPrecision = */ 1f,
+        /* yPrecision = */ 1f,
+        /* deviceId = */ 0,
+        /* edgeFlags = */ 0,
+        /* source = */ InputDevice.SOURCE_STYLUS,
+        /* flags = */ 0,
+    )
 
 /** A [Correspondence] for fuzzy matching of a [StrokeInput]. */
 @OptIn(ExperimentalInkBarrelTwistApi::class)
