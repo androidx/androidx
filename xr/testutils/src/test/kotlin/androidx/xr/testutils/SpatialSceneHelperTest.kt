@@ -1902,6 +1902,9 @@ class SpatialSceneHelperTest {
         assertEquals(Vector2(0.950f, 1.050f), taskWindow.effectiveSurfaceBoundsInMeters)
         assertEquals(8933, taskWindow.ownInputTarget?.inputId)
 
+        assertEquals(3, task.embeddedWindowLeashes.size)
+        assertEquals(setOf(104, 105, 107), task.embeddedWindowLeashes.map { it.id }.toSet())
+
         assertEquals(1, task.activityWindowLeashes.size)
         val activityWindow = task.activityWindowLeashes.single()
         assertEquals(130, activityWindow.id)

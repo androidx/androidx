@@ -32,6 +32,13 @@ import androidx.xr.runtime.math.Vector3
 import java.io.InputStream
 import java.util.regex.Pattern
 import kotlin.math.abs
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
  * Utility for capturing, inspecting, and querying spatial scenes from Android XR devices and
@@ -56,6 +63,46 @@ public object SpatialSceneHelper {
     public fun captureSpatialScene(
         uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
     ): SpatialScene = captureSceneWithPolling(uiAutomation = uiAutomation)
+
+    /**
+     * Repeatedly captures the spatial scene graph off the main thread ([Dispatchers.IO]) until
+     * [until] holds for the value returned by [select].
+     *
+     * Note that each iteration calls [captureSpatialScene], which may itself poll internally for up
+     * to 3 seconds while waiting for window transition snapshots to clear.
+     *
+     * @param description Human-readable description of the condition being awaited, used in the
+     *   timeout error message.
+     * @param timeout Maximum duration to poll before throwing an [AssertionError].
+     * @param pollInterval Delay between successive scene captures.
+     * @param uiAutomation The [UiAutomation] instance used to execute the shell command.
+     * @param select Selector that extracts a value from each captured [SpatialScene].
+     * @param until Predicate that determines whether the selected value satisfies the condition.
+     * @return The first selected value for which [until] returns `true`.
+     * @throws AssertionError if [until] does not hold within [timeout].
+     */
+    public suspend fun <T> awaitSpatialScene(
+        description: String,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+        select: (SpatialScene) -> T,
+        until: (T) -> Boolean,
+    ): T {
+        val start = TimeSource.Monotonic.markNow()
+        while (true) {
+            val scene =
+                withContext(Dispatchers.IO) { captureSpatialScene(uiAutomation = uiAutomation) }
+            val selected = select(scene)
+            if (until(selected)) return selected
+            if (start.elapsedNow() >= timeout) {
+                throw AssertionError(
+                    "Timed out after $timeout waiting for $description, last value: $selected"
+                )
+            }
+            delay(pollInterval)
+        }
+    }
 
     private fun captureSceneWithPolling(uiAutomation: UiAutomation): SpatialScene {
         var scene: SpatialScene
@@ -443,6 +490,13 @@ constructor(public val activitySpaceRoot: SpatialNode, packageName: String? = nu
      */
     public val activityWindowLeashes: List<SpatialNode>
         get() = findNodes { it.isActivityWindowLeash }
+
+    /**
+     * All embedded spatial window leash containers ([SpatialNode.isEmbeddedWindowLeash]) in this
+     * task.
+     */
+    public val embeddedWindowLeashes: List<SpatialNode>
+        get() = findNodes { it.isEmbeddedWindowLeash }
 
     /** All spatial window leash containers ([SpatialNode.isWindowLeash]) in this task. */
     public val windowLeashes: List<SpatialNode>
