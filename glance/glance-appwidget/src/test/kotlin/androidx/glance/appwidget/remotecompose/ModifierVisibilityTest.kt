@@ -59,7 +59,7 @@ class ModifierVisibilityTest : BaseRemoteComposeTest() {
         box.updateVariables(debugContext)
         debugPrintDoc(doc)
         val modifiers = box.mList[0] as ComponentModifiers
-        val modifier = modifiers.list[0] as ComponentVisibilityOperation
+        modifiers.list[0] as ComponentVisibilityOperation
 
         assertEquals(Component.Visibility.VISIBLE, box.mVisibility)
     }

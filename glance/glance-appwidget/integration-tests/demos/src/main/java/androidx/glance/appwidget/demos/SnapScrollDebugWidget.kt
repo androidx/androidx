@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -80,7 +79,6 @@ fun SnapScrollingMinDemo() {
         }
 
     Box(GlanceModifier.fillMaxSize().cornerRadius(24.dp)) {
-        val context = LocalContext.current
         LazyColumn(verticalScrollMode = scrollMode, modifier = GlanceModifier.fillMaxSize()) {
             itemsIndexed(displayableNotifications) { index, item ->
                 // Seems to require `fillMaxSize()` to fill entire snap scrolling space, otherwise

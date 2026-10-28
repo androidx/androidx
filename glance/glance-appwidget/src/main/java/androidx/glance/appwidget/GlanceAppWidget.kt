@@ -296,11 +296,12 @@ public suspend inline fun <reified State> GlanceAppWidget.updateIf(
 public suspend fun GlanceAppWidget.provideContent(
     content: @Composable @GlanceComposable () -> Unit
 ): Nothing {
-    coroutineContext[ContentReceiver]?.provideContent(content)
-        ?: error(
-            "provideContent requires a ContentReceiver and should only be called from " +
-                "GlanceAppWidget.provideGlance"
-        )
+    (coroutineContext[ContentReceiver]
+            ?: error(
+                "provideContent requires a ContentReceiver and should only be called from " +
+                    "GlanceAppWidget.provideGlance"
+            ))
+        .provideContent(content)
 }
 
 /**

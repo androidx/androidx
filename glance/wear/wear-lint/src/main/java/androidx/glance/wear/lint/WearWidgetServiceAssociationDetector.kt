@@ -118,7 +118,7 @@ class WearWidgetServiceAssociationDetector : Detector(), SourceCodeScanner {
         }
 
         private fun suggestAssociationFix(context: JavaContext, declaration: UClass): LintFix? {
-            var targetWidgetClass: PsiClass? = null
+            var targetWidgetClass: PsiClass?
 
             // 1. Try to check getWidget property return type and resolve its PsiClass
             val widgetMethod = declaration.methods.find { it.name == "getWidget" }

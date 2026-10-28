@@ -69,8 +69,7 @@ class TranslateSizeBoxTest : BaseRemoteComposeTest() {
                 }
             }
 
-        results.forEach {
-            (dpSize, translation): Pair<DpSize, GlanceToRemoteComposeTranslation.Single> ->
+        results.forEach { (_, translation): Pair<DpSize, GlanceToRemoteComposeTranslation.Single> ->
             val doc =
                 makeCoreDocumentForDebug(
                     wireBuffer = translation.remoteComposeContext.buffer.buffer

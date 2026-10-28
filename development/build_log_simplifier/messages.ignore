@@ -634,13 +634,6 @@ w: .*/test/java/com/android/build/gradle/internal/fixtures/FakeGradleExecOperati
 .*HWUI    : Davey! duration=.*
 # Fixed in room-generated code, other projects need to upgrade after room releases.
 w: .*\/generated\/ksp\/.*\.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
-# b/554101833
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Initializer is redundant\.
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Unreachable code\.
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ This 'var' property is never written to, it can be declared as 'val'\.
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ This 'var' property is not written to more than once, it can be declared as 'val'\.
-w: .*\/glance\/.*.kt:[0-9]+:[0-9]+ Redundant string template.
 # b/554104579
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Assigned value is never read\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Initializer is redundant\.

@@ -35,6 +35,7 @@ class RemoteViewsTest : BaseRemoteComposeTest() {
 
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
+    @Suppress("UNUSED_VARIABLE")
     @Test
     fun testCorrectnessOfRemoteViews() = fakeCoroutineScope.runTest {
         val content: @Composable () -> Unit = {

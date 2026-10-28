@@ -56,7 +56,7 @@ class TranslateEmittableButtonTest : BaseRemoteComposeTest() {
                 }
 
             val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-            val textLayout = getSimpleLeaf(doc) as TextLayout
+            @Suppress("UNUSED_VARIABLE") val textLayout = getSimpleLeaf(doc) as TextLayout
 
             // TODO: check properties on the text layout
 
