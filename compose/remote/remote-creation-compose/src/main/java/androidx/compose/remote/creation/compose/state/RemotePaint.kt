@@ -139,8 +139,7 @@ public sealed interface RemotePaint {
 }
 
 /** A default implementation of [RemotePaint] that stores properties as fields. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StandardRemotePaint() : RemotePaint {
+internal class StandardRemotePaint() : RemotePaint {
 
     public override var isAntiAlias: Boolean = true
     public override var blendMode: BlendMode = BlendMode.SrcOver
@@ -162,7 +161,7 @@ public class StandardRemotePaint() : RemotePaint {
      *
      * @param other The paint to copy properties from.
      */
-    public constructor(other: RemotePaint) : this() {
+    internal constructor(other: RemotePaint) : this() {
         this.isAntiAlias = other.isAntiAlias
         this.blendMode = other.blendMode
         this.style = other.style
