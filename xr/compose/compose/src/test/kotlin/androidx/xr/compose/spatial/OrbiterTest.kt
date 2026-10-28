@@ -20,6 +20,7 @@ import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
@@ -51,6 +53,7 @@ import androidx.xr.compose.subspace.MAX_SAFE_PANEL_HEIGHT_PX
 import androidx.xr.compose.subspace.MAX_SAFE_PANEL_WIDTH_PX
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.size
@@ -1070,5 +1073,75 @@ class OrbiterTest {
         return session.scene.getEntitiesOfType(PanelEntity::class.java).first {
             it.sizeInPixels.width == sizePx
         }
+    }
+
+    @Test
+    fun orbiterPosition_equalsAndHashCode() {
+        val pos1 =
+            OrbiterPosition.TopStart(
+                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                verticalEdgeAlignment = EdgeAlignment.Outside,
+                offset = DpVolumeOffset(10.dp, 20.dp, 30.dp),
+            )
+        val pos2 =
+            OrbiterPosition.TopStart(
+                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                verticalEdgeAlignment = EdgeAlignment.Outside,
+                offset = DpVolumeOffset(10.dp, 20.dp, 30.dp),
+            )
+        val posDiffOffset =
+            OrbiterPosition.TopStart(
+                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                verticalEdgeAlignment = EdgeAlignment.Outside,
+                offset = DpVolumeOffset(15.dp, 20.dp, 30.dp),
+            )
+        val posDiffClass =
+            OrbiterPosition.TopLeft(
+                horizontalEdgeAlignment = EdgeAlignment.Inside,
+                verticalEdgeAlignment = EdgeAlignment.Outside,
+                offset = DpVolumeOffset(10.dp, 20.dp, 30.dp),
+            )
+
+        assertThat(pos1).isEqualTo(pos2)
+        assertThat(pos1.hashCode()).isEqualTo(pos2.hashCode())
+        assertThat(pos1).isNotEqualTo(posDiffOffset)
+        assertThat(pos1).isNotEqualTo(posDiffClass)
+    }
+
+    @Test
+    fun orbiter_whenParentRecomposesWithEqualPosition_doesNotRelayout() {
+        var parentCount by mutableStateOf(0)
+        var placementCount = 0
+        val trackingShape =
+            SpatialRoundedCornerShape(
+                object : CornerSize {
+                    override fun toPx(shapeSize: Size, density: Density): Float {
+                        placementCount++
+                        return 0f
+                    }
+                }
+            )
+
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.size(100.dp)) {
+                    Text("Count: $parentCount")
+                    Orbiter(
+                        position = OrbiterPosition.TopCenter(),
+                        shape = trackingShape,
+                    ) {
+                        Box(modifier = Modifier.size(10.dp))
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        placementCount = 0
+
+        parentCount++
+        composeTestRule.waitForIdle()
+
+        assertThat(placementCount).isEqualTo(0)
     }
 }
