@@ -40,17 +40,15 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
  *   beginning again.
  * @param velocity The speed of the animation in dps / second.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MarqueeModifier(
-    public val iterations: Int,
-    public val animationMode: Int,
-    public val repeatDelayMillis: Float,
-    public val initialDelayMillis: Float,
-    public val spacing: Float,
-    public val velocity: Float,
+internal class MarqueeModifier(
+    val iterations: Int,
+    val animationMode: Int,
+    val repeatDelayMillis: Float,
+    val initialDelayMillis: Float,
+    val spacing: Float,
+    val velocity: Float,
 ) : RemoteModifier.Element {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return CreationMarqueeModifier(
             iterations,
