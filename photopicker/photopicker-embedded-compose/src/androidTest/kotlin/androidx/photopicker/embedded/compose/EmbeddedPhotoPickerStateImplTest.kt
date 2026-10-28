@@ -60,7 +60,6 @@ class EmbeddedPhotoPickerStateImplTest {
     val composeTestRule = createComposeRule(ComposeUiTestConfig(effectContext = testDispatcher))
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplThrowsSessionError() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -85,7 +84,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testRunSessionDispatchesSessionErrorToCallbackAndExitsCleanly() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -118,7 +116,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplEmitsSurfacePackage() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -134,7 +131,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplClosesSessionWhenRunSessionIsCancelled() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -161,7 +157,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplDoesNotEmitErrorOnRunSessionCancellation() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -186,7 +181,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplEmitsSelections() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -222,7 +216,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplEmitsDeSelections() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -253,7 +246,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplEmitsSelectionComplete() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -278,7 +270,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplThrowsWhenNotReady() =
         runTest(testDispatcher) {
             lateinit var state: EmbeddedPhotoPickerState
@@ -297,7 +288,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplOpensWithPreselectedUris() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -330,7 +320,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplProgrammaticDeselection() =
         runTest(testDispatcher) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -359,7 +348,6 @@ class EmbeddedPhotoPickerStateImplTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerStateImplDeselectBeforeSessionOpenedThrows() =
         runTest(testDispatcher) {
             lateinit var state: EmbeddedPhotoPickerState

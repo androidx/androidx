@@ -60,7 +60,6 @@ internal val DEFAULT_FEATURE_INFO = EmbeddedPhotoPickerFeatureInfo.Builder().bui
 @Composable
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-@ExperimentalPhotoPickerComposeApi
 public fun EmbeddedPhotoPicker(
     state: EmbeddedPhotoPickerState,
     modifier: Modifier = Modifier,

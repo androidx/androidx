@@ -61,7 +61,6 @@ class EmbeddedPhotoPickerTest {
     }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceHostTokenToState() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -79,7 +78,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProvidesSurfaceSizeToState() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -97,7 +95,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerOpensSession() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -117,7 +114,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerClosesSessionOnDisposal() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -146,7 +142,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerResizingSync() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -178,7 +173,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerConfigurationChangePropagation() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -213,7 +207,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerProgrammaticExpansionSync() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
@@ -245,7 +238,6 @@ class EmbeddedPhotoPickerTest {
         }
 
     @Test
-    @ExperimentalPhotoPickerComposeApi
     fun testEmbeddedPhotoPickerFeatureInfoPropagation() =
         runTest(composeTestRule.mainClock.scheduler) {
             val testProvider = TestEmbeddedPhotoPickerProvider.get()
