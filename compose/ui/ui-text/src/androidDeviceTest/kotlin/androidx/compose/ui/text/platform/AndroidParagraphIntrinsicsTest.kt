@@ -18,7 +18,6 @@ package androidx.compose.ui.text.platform
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.AndroidComposeUiTextFlags
 import androidx.compose.ui.text.AndroidParagraphIntrinsics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.EmojiSupportMatch
@@ -38,7 +37,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers
@@ -54,21 +52,8 @@ class AndroidParagraphIntrinsicsTest {
 
     val context = InstrumentationRegistry.getInstrumentation().context
 
-    private var originalLineHeightOptimizationEnabled = true
-
-    @Before
-    @OptIn(ExperimentalTextApi::class)
-    fun setup() {
-        originalLineHeightOptimizationEnabled =
-            AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled
-        AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled = true
-    }
-
     @After
-    @OptIn(ExperimentalTextApi::class)
     fun cleanup() {
-        AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled =
-            originalLineHeightOptimizationEnabled
         EmojiCompat.reset(null)
         EmojiCompatStatus.setDelegateForTesting(null)
     }

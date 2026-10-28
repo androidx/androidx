@@ -172,7 +172,6 @@ internal class AndroidParagraph(
      * 1. Soft wrapping is disabled.
      * 2. The text does not contain any explicit newlines.
      * 3. No baseline shift is applied (which would force `StaticLayout` anyway).
-     * 4. The global optimization flag is enabled.
      */
     private var applyLineHeightOptimization: Boolean = false
 
@@ -198,9 +197,7 @@ internal class AndroidParagraph(
                 android.text.style.LineHeightSpan::class.java
             ) == true
         applyLineHeightOptimization =
-            AndroidComposeUiTextFlags.isSingleLineLineHeightOptimizationEnabled &&
-                paragraphIntrinsics.style.lineHeight.isSpecified &&
-                !hasLineHeightStyleSpan
+            paragraphIntrinsics.style.lineHeight.isSpecified && !hasLineHeightStyleSpan
 
         val style = paragraphIntrinsics.style
 
