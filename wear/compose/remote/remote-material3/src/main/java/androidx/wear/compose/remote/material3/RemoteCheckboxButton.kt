@@ -146,6 +146,7 @@ public object RemoteCheckboxButtonDefaults {
 
     /** Creates a [RemoteCheckboxButtonColors] with default values for [RemoteCheckboxButton]. */
     @Composable
+    @RemoteComposable
     public fun checkboxButtonColors(): RemoteCheckboxButtonColors =
         RemoteMaterialTheme.colorScheme.defaultCheckboxButtonColors
 
@@ -178,6 +179,7 @@ public object RemoteCheckboxButtonDefaults {
      * @param disabledUncheckedBoxColor Box color when unchecked and disabled.
      */
     @Composable
+    @RemoteComposable
     public fun checkboxButtonColors(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,
@@ -244,6 +246,7 @@ public object RemoteCheckboxButtonDefaults {
 
     private val RemoteColorScheme.defaultCheckboxButtonColors: RemoteCheckboxButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteCheckboxButtonColors(
                 checkedContainerColor = primaryContainer,

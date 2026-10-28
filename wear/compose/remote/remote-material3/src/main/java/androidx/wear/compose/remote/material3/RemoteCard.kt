@@ -47,6 +47,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.PaintingStyle
@@ -472,6 +473,7 @@ public object RemoteCardDefaults {
  * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
  * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
  */
+@Immutable
 public class RemoteCardColors(
     public val containerColor: RemoteColor,
     public val contentColor: RemoteColor,

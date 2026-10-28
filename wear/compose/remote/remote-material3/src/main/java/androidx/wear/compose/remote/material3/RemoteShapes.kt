@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerSize
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.wear.compose.material3.Shapes
 
@@ -53,6 +54,7 @@ import androidx.wear.compose.material3.Shapes
  * @param extraLarge By default, provides [RemoteShapeDefaults.ExtraLarge], a
  *   [RemoteCornerBasedShape] with 36dp [RemoteCornerSize].
  */
+@Immutable
 public class RemoteShapes(
     public val extraSmall: RemoteCornerBasedShape = RemoteShapeDefaults.ExtraSmall,
     public val small: RemoteCornerBasedShape = RemoteShapeDefaults.Small,

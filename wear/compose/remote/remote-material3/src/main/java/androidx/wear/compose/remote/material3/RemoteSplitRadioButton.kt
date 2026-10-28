@@ -240,6 +240,7 @@ public object RemoteSplitRadioButtonDefaults {
      * colors used in a [RemoteSplitRadioButton].
      */
     @Composable
+    @RemoteComposable
     public fun splitRadioButtonColors(): RemoteSplitRadioButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSplitRadioButtonColors
 
@@ -285,6 +286,7 @@ public object RemoteSplitRadioButtonDefaults {
      * @param disabledUnselectedControlColor The radio control color when disabled and unselected.
      */
     @Composable
+    @RemoteComposable
     public fun splitRadioButtonColors(
         selectedContainerColor: RemoteColor? = null,
         selectedContentColor: RemoteColor? = null,
@@ -351,6 +353,7 @@ public object RemoteSplitRadioButtonDefaults {
 
     private val RemoteColorScheme.defaultSplitRadioButtonColors: RemoteSplitRadioButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteSplitRadioButtonColors(
                 selectedContainerColor = primaryContainer,

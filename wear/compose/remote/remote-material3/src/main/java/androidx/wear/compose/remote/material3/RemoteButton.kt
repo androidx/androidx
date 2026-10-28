@@ -249,7 +249,7 @@ public fun RemoteButton(
     onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    icon: (@Composable @RemoteComposable () -> Unit)? = null,
     enabled: RemoteBoolean = true.rb,
     containerPainter: RemotePainter? = null,
     disabledContainerPainter: RemotePainter? = null,
@@ -357,7 +357,7 @@ public fun RemoteButton(
 public fun RemoteCompactButton(
     onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
-    icon: (@Composable () -> Unit)? = null,
+    icon: (@Composable @RemoteComposable () -> Unit)? = null,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteButtonDefaults.compactButtonShape,
     colors: RemoteButtonColors = RemoteButtonDefaults.buttonColors(),
@@ -594,6 +594,7 @@ public object RemoteButtonDefaults {
      * in a [RemoteButton].
      */
     @Composable
+    @RemoteComposable
     public fun buttonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultButtonColors
 
@@ -613,6 +614,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun buttonColors(
         containerColor: RemoteColor? = null,
         contentColor: RemoteColor? = null,
@@ -648,6 +650,7 @@ public object RemoteButtonDefaults {
      * defaults for medium emphasis buttons.
      */
     @Composable
+    @RemoteComposable
     public fun filledTonalButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultFilledTonalButtonColors
 
@@ -667,6 +670,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun filledTonalButtonColors(
         containerColor: RemoteColor? = null,
         contentColor: RemoteColor? = null,
@@ -693,6 +697,7 @@ public object RemoteButtonDefaults {
 
     /** Creates a [RemoteButtonColors] with higher chroma container colors. */
     @Composable
+    @RemoteComposable
     public fun filledVariantButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultFilledVariantButtonColors
 
@@ -711,6 +716,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun filledVariantButtonColors(
         containerColor: RemoteColor? = null,
         contentColor: RemoteColor? = null,
@@ -737,6 +743,7 @@ public object RemoteButtonDefaults {
 
     /** Creates a [RemoteButtonColors] with a transparent background for outlined buttons. */
     @Composable
+    @RemoteComposable
     public fun outlinedButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultOutlinedButtonColors
 
@@ -753,6 +760,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun outlinedButtonColors(
         contentColor: RemoteColor? = null,
         secondaryContentColor: RemoteColor? = null,
@@ -779,6 +787,7 @@ public object RemoteButtonDefaults {
      * of prominence.
      */
     @Composable
+    @RemoteComposable
     public fun childButtonColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultChildButtonColors
 
@@ -797,6 +806,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun childButtonColors(
         contentColor: RemoteColor? = null,
         secondaryContentColor: RemoteColor? = null,
@@ -822,6 +832,7 @@ public object RemoteButtonDefaults {
      * painter.
      */
     @Composable
+    @RemoteComposable
     public fun buttonWithContainerPainterColors(): RemoteButtonColors =
         RemoteMaterialTheme.colorScheme.defaultButtonWithContainerPainterColors
 
@@ -839,6 +850,7 @@ public object RemoteButtonDefaults {
      * @param disabledIconColor The icon color of this [RemoteButton] when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun buttonWithContainerPainterColors(
         contentColor: RemoteColor? = null,
         secondaryContentColor: RemoteColor? = null,
@@ -864,6 +876,7 @@ public object RemoteButtonDefaults {
      * [buttonColors] if painter is null, else return [defaultButtonWithContainerPainterColors]
      */
     @Composable
+    @RemoteComposable
     internal fun buttonWithNullableContainerPainterColors(
         containerPainter: RemotePainter?
     ): RemoteButtonColors =
@@ -954,6 +967,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultButtonColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = primary,
@@ -969,6 +983,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultButtonWithContainerPainterColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = Color.Transparent.rc,
@@ -984,6 +999,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultFilledTonalButtonColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = surfaceContainer,
@@ -999,6 +1015,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultFilledVariantButtonColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = primaryContainer,
@@ -1014,6 +1031,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultOutlinedButtonColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = Color.Transparent.rc,
@@ -1029,6 +1047,7 @@ public object RemoteButtonDefaults {
 
     private val RemoteColorScheme.defaultChildButtonColors: RemoteButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteButtonColors(
                 containerColor = Color.Transparent.rc,
@@ -1060,6 +1079,7 @@ public object RemoteButtonDefaults {
      *   layout
      */
     @Composable
+    @RemoteComposable
     public fun containerPainter(
         image: RemoteImageBitmap,
         scrim: RemoteBrush? = scrimBrush(),
@@ -1081,6 +1101,7 @@ public object RemoteButtonDefaults {
      *   [RemoteButton].
      */
     @Composable
+    @RemoteComposable
     public fun disabledContainerPainter(containerPainter: RemotePainter): RemotePainter {
         return disabledRemoteContainerPainter(
             painter = containerPainter,
@@ -1093,6 +1114,7 @@ public object RemoteButtonDefaults {
      * backgrounds.
      */
     @Composable
+    @RemoteComposable
     public fun scrimBrush(): RemoteBrush {
         val startColor = scrimGradientStartColor.rc
         val endColor = scrimGradientEndColor.rc
@@ -1106,6 +1128,7 @@ public object RemoteButtonDefaults {
      * @param size The size of the scrim brush gradient.
      */
     @Composable
+    @RemoteComposable
     public fun scrimBrush(size: RemoteSize): RemoteBrush {
         val startColor = scrimGradientStartColor.rc
         val endColor = scrimGradientEndColor.rc

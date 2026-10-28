@@ -245,6 +245,7 @@ public object RemoteSplitCheckboxButtonDefaults {
      * colors used in a [RemoteSplitCheckboxButton].
      */
     @Composable
+    @RemoteComposable
     public fun splitCheckboxButtonColors(): RemoteSplitCheckboxButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSplitCheckboxButtonColors
 
@@ -298,6 +299,7 @@ public object RemoteSplitCheckboxButtonDefaults {
      *   disabled and unchecked.
      */
     @Composable
+    @RemoteComposable
     public fun splitCheckboxButtonColors(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,
@@ -368,6 +370,7 @@ public object RemoteSplitCheckboxButtonDefaults {
 
     private val RemoteColorScheme.defaultSplitCheckboxButtonColors: RemoteSplitCheckboxButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteSplitCheckboxButtonColors(
                 checkedContainerColor = primaryContainer,

@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.wear.compose.material3.Typography
 
@@ -94,6 +95,7 @@ import androidx.wear.compose.material3.Typography
  *   tabular spacing by default. They are for numbers that need to accommodate longer strings of
  *   digits, where no localization is required like in-workout metrics.
  */
+@Immutable
 public class RemoteTypography(
     public val displayLarge: RemoteTextStyle,
     public val displayMedium: RemoteTextStyle,

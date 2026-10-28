@@ -39,12 +39,14 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 
 /** An interface for connection between Pager and remote page indicators. */
+@Stable
 public interface RemotePageIndicatorState {
     /** Total number of pages. */
     public val pageCount: Int
@@ -79,6 +81,7 @@ internal class DefaultRemotePageIndicatorState(
  *   width.
  */
 @Composable
+@RemoteComposable
 public fun rememberRemotePageIndicatorState(
     pageCount: Int,
     selectedPage: RemoteInt = 0.ri,

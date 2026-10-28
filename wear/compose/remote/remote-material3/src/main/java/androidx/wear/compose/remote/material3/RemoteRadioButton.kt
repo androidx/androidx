@@ -150,6 +150,7 @@ public object RemoteRadioButtonDefaults {
 
     /** Creates a [RemoteRadioButtonColors] with default values for [RemoteRadioButton]. */
     @Composable
+    @RemoteComposable
     public fun radioButtonColors(): RemoteRadioButtonColors =
         RemoteMaterialTheme.colorScheme.defaultRadioButtonColors
 
@@ -180,6 +181,7 @@ public object RemoteRadioButtonDefaults {
      * @param disabledUnselectedControlColor Control color when unselected and disabled.
      */
     @Composable
+    @RemoteComposable
     public fun radioButtonColors(
         selectedContainerColor: RemoteColor? = null,
         selectedContentColor: RemoteColor? = null,
@@ -243,6 +245,7 @@ public object RemoteRadioButtonDefaults {
 
     private val RemoteColorScheme.defaultRadioButtonColors: RemoteRadioButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteRadioButtonColors(
                 selectedContainerColor = primaryContainer,
