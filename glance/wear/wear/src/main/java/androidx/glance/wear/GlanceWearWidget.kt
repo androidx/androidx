@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.intSetOf
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.cache.WearWidgetCache.WidgetCacheMissException
@@ -93,7 +94,7 @@ internal constructor(
      *   can be sent to the Host in a single Binder transaction.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OptIn(androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi::class)
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     public suspend fun provideWidgetDataAsRawContent(
         context: Context,
         params: WearWidgetParams,

@@ -2,7 +2,10 @@
 // - surface=public
 package androidx.compose.remote.creation.compose {
 
-  @SuppressCompatibility public final class RemoteComposeCreationComposeFlags {
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ExperimentalRemoteCreationComposeApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi public final class RemoteComposeCreationComposeFlags {
     property public boolean allowSendingEmptyFontAxis;
     property public boolean isEnforceCleanRecompositionEnabled;
     field public static final androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags INSTANCE;
@@ -170,7 +173,6 @@ package androidx.compose.remote.creation.compose.capture {
   public final class RemoteWriterEvents {
     ctor public RemoteWriterEvents();
     method @InaccessibleFromKotlin public androidx.collection.IntObjectMap<android.app.PendingIntent> getPendingIntents();
-    method public int storePendingIntent(android.app.PendingIntent pendingIntent);
     property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
@@ -919,10 +921,7 @@ package androidx.compose.remote.creation.compose.shapes {
   }
 
   public static final class RemoteOutline.Generic extends androidx.compose.remote.creation.compose.shapes.RemoteOutline {
-    ctor public RemoteOutline.Generic(androidx.compose.remote.creation.RemotePath path);
     ctor public RemoteOutline.Generic(kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.vector.RemotePathScope,kotlin.Unit> block);
-    method @InaccessibleFromKotlin public androidx.compose.remote.creation.RemotePath? getPath();
-    property public androidx.compose.remote.creation.RemotePath? path;
   }
 
   public static final class RemoteOutline.Rectangle extends androidx.compose.remote.creation.compose.shapes.RemoteOutline {
@@ -1553,10 +1552,6 @@ package androidx.compose.remote.creation.compose.state {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.capture.RemoteDensity getRemoteDensity();
     property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
     property public abstract androidx.compose.remote.creation.compose.capture.RemoteDensity remoteDensity;
-  }
-
-  public final class RemoteStateScopeKt {
-    method public static androidx.compose.remote.creation.RemotePath remotePath(androidx.compose.remote.creation.compose.state.RemoteStateScope, kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.vector.RemotePathScope,kotlin.Unit> fn);
   }
 
   @androidx.compose.runtime.Stable public abstract class RemoteString extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.String> {

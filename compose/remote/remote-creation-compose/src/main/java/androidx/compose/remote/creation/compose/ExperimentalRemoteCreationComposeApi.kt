@@ -16,10 +16,7 @@
 
 package androidx.compose.remote.creation.compose
 
-import androidx.annotation.RestrictTo
-
 /** Annotation indicating experimental API for Remote Compose Creation Compose. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)
 @Target(

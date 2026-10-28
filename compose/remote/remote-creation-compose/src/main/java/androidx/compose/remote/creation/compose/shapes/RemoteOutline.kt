@@ -70,9 +70,10 @@ public sealed class RemoteOutline {
 
     /** An area defined as a path. */
     public class Generic : RemoteOutline {
-        public val path: RemotePath?
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val path: RemotePath?
         internal val block: (RemotePathScope.() -> Unit)?
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(path: RemotePath) : super() {
             this.path = path
             this.block = null
