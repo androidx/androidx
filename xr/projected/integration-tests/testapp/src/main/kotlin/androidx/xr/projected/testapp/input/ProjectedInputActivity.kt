@@ -52,6 +52,11 @@ class ProjectedInputActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!::viewModel.isInitialized) {
+            Log.w(TAG, "ViewModel not initialized by host activity; finishing.")
+            finish()
+            return
+        }
         setContent { ProjectedInputScreen(viewModel) }
     }
 
@@ -103,15 +108,17 @@ class ProjectedInputActivity : ComponentActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val actionName =
-            when (event.action) {
-                KeyEvent.ACTION_DOWN -> "ACTION_DOWN"
-                KeyEvent.ACTION_UP -> "ACTION_UP"
-                else -> "ACTION(${event.action})"
-            }
-        val keyName = KeyEvent.keyCodeToString(event.keyCode)
-        val desc = "$keyName: $actionName"
-        viewModel.addEventLog(desc)
+        if (::viewModel.isInitialized) {
+            val actionName =
+                when (event.action) {
+                    KeyEvent.ACTION_DOWN -> "ACTION_DOWN"
+                    KeyEvent.ACTION_UP -> "ACTION_UP"
+                    else -> "ACTION(${event.action})"
+                }
+            val keyName = KeyEvent.keyCodeToString(event.keyCode)
+            val desc = "$keyName: $actionName"
+            viewModel.addEventLog(desc)
+        }
 
         return super.dispatchKeyEvent(event)
     }

@@ -45,6 +45,10 @@ class ProjectedActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!::viewModel.isInitialized) {
+            finish()
+            return
+        }
         setContent { ProjectedScreen(viewModel) }
     }
 
