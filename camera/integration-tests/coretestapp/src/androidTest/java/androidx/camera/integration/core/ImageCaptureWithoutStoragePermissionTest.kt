@@ -34,6 +34,7 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +53,7 @@ private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 
 @LargeTest
 @RunWith(Parameterized::class)
+@SdkSuppress(maxSdkVersion = 28)
 class ImageCaptureWithoutStoragePermissionTest(
     implName: String,
     private val cameraXConfig: CameraXConfig,
