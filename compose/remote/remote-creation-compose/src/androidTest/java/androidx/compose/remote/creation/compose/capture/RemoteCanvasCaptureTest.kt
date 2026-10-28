@@ -35,8 +35,6 @@ import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.drawRoundedPolygon
-import androidx.compose.remote.creation.compose.layout.drawRoundedPolygonMorph
 import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.RemoteSweepShader
 import androidx.compose.remote.creation.compose.state.RemoteBlendMode
@@ -65,10 +63,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode.Companion.Multiply
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.graphics.shapes.CornerRounding
-import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.circle
-import androidx.graphics.shapes.star
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -128,16 +122,6 @@ class RemoteCanvasCaptureTest {
                 ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
                 timeZone,
             )
-        )
-    val shapeCircle = RoundedPolygon.circle(10, centerX = 300f, centerY = 300f, radius = 200f)
-    val shapeStar =
-        RoundedPolygon.star(
-            numVerticesPerRadius = 9,
-            radius = 200f,
-            innerRadius = 160f,
-            centerX = 300f,
-            centerY = 300f,
-            rounding = CornerRounding(radius = .5f),
         )
 
     @Test
@@ -714,56 +698,6 @@ class RemoteCanvasCaptureTest {
     }
 
     @Test
-    fun drawRoundedPolygon_circle() {
-        remoteCanvas.drawRoundedPolygon(
-            shapeCircle,
-            RemotePaint { color = Color.Green.rc },
-        )
-
-        val document = constructDocument()
-        assertScreenshot(document, "drawRoundedPolygon")
-    }
-
-    @Test
-    fun morphCircleToStar_progress_0() {
-        remoteCanvas.drawRoundedPolygonMorph(
-            shapeCircle,
-            shapeStar,
-            RemoteFloat(0f),
-            RemotePaint { color = Color.Red.rc },
-        )
-
-        val document = constructDocument()
-        assertScreenshot(document, "morphCircleToStar_progress_0")
-    }
-
-    @Test
-    fun morphCircleToStar_progress_0_5() {
-        remoteCanvas.drawRoundedPolygonMorph(
-            shapeCircle,
-            shapeStar,
-            RemoteFloat(0.5f),
-            RemotePaint { color = Color.Red.rc },
-        )
-
-        val document = constructDocument()
-        assertScreenshot(document, "morphCircleToStar_progress_0_5")
-    }
-
-    @Test
-    fun morphCircleToStar_progress_1() {
-        remoteCanvas.drawRoundedPolygonMorph(
-            shapeCircle,
-            shapeStar,
-            RemoteFloat(1f),
-            RemotePaint { color = Color.Red.rc },
-        )
-
-        val document = constructDocument()
-        assertScreenshot(document, "morphCircleToStar_progress_1")
-    }
-
-    @Test
     fun drawConditionally_colorFilterState() {
         val flag = createNamedRemoteBoolean("flag", true)
 
@@ -834,64 +768,6 @@ class RemoteCanvasCaptureTest {
         // The third paint (after conditional) should EXPLICITLY clear the color filter
         // because forceSendingPaint(true) was called after the conditional block.
         assertThat(paintOps[2].mPaintData.toString()).contains("clearColorFilter")
-    }
-
-    @Test
-    fun testNestedOffscreenMask_golden() {
-        val outerBitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
-        val maskBitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
-
-        val starShape =
-            RoundedPolygon.star(
-                numVerticesPerRadius = 5,
-                radius = 180f,
-                innerRadius = 80f,
-                centerX = WIDTH / 2f,
-                centerY = HEIGHT / 2f,
-            )
-        val circleShape =
-            RoundedPolygon.circle(
-                numVertices = 32,
-                radius = 120f,
-                centerX = WIDTH / 2f,
-                centerY = HEIGHT / 2f,
-            )
-
-        remoteCanvas.drawToOffscreenBitmap(outerBitmap, AndroidColor.TRANSPARENT) {
-            remoteCanvas.drawRoundedPolygon(
-                starShape,
-                RemotePaint { color = Color.Red.rc },
-            )
-
-            remoteCanvas.drawToOffscreenBitmap(maskBitmap, AndroidColor.TRANSPARENT) {
-                remoteCanvas.drawRoundedPolygon(
-                    circleShape,
-                    RemotePaint { color = Color.White.rc },
-                )
-            }
-
-            val maskPaint = RemotePaint { remoteBlendMode = RemoteBlendMode.DstIn }
-            remoteCanvas.drawBitmap(
-                maskBitmap,
-                0f.rf,
-                0f.rf,
-                WIDTH.rf,
-                HEIGHT.rf,
-                maskPaint,
-            )
-        }
-
-        remoteCanvas.drawBitmap(
-            outerBitmap,
-            0f.rf,
-            0f.rf,
-            WIDTH.rf,
-            HEIGHT.rf,
-            RemotePaint(),
-        )
-
-        val document = constructDocument()
-        assertScreenshot(document, "testNestedOffscreenMask_golden")
     }
 
     @Test

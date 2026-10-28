@@ -59,7 +59,6 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.11.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.10.0")
     implementation("androidx.tracing:tracing:2.0.0")
-    implementation("androidx.graphics:graphics-shapes:1.1.0")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":compose:remote:foundation:foundation"))
