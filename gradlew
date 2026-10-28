@@ -274,13 +274,13 @@ else
   # determine the memory total
   if (( TOTAL_MEM_KB >= MEDIUM_MEM_THRESHOLD_KB && TOTAL_MEM_KB < HIGH_MEM_THRESHOLD_KB )); then
     MAX_MEMORY_OVERRIDE=19g
-  elif (( TOTAL_MEM_KB >= LARGE_MEM_THRESHOLD_KB )); then
+  elif (( TOTAL_MEM_KB >= HIGH_MEM_THRESHOLD_KB )); then
     MAX_MEMORY_OVERRIDE=38g
   fi
 fi
 
 if [[ " ${@} " =~ " -Pandroidx.lowMemory " ]]; then
-  if [ "$raiseMemory" == "true" ]; then
+  if [[ " ${@} " =~ " -Pandroidx.highMemory " ]]; then
     echo "androidx.lowMemory overriding androidx.highMemory"
     echo
   fi
@@ -294,7 +294,7 @@ if [[ -n "${MAX_MEMORY_OVERRIDE+x}" ]]; then
   # by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
 
   # First sed command replaces Gradle daemon -Xmx and second replaces Kotlin compliler deamon -Xmx
-  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEMORY_OVERRIDE -Xmx$MAX_MEMORY_OVERRIDE/" | sed "s/,-Xmx\([^ ]*\)/,-Xms$MAX_MEMORY_OVERRIDE,-Xmx$MAX_MEMORY_OVERRIDE/")"
+  ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s/-Xmx\([^ ]*\)/-Xms$MAX_MEMORY_OVERRIDE -Xmx$MAX_MEMORY_OVERRIDE/" | sed "s/,-Xmx\([^, ]*\)/,-Xms$MAX_MEMORY_OVERRIDE,-Xmx$MAX_MEMORY_OVERRIDE/")"
 
   # Increase the compiler cache size: b/260643754 . Remove when updating to JDK 20 ( https://bugs.openjdk.org/browse/JDK-8295724 )
   ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:ReservedCodeCacheSize=576M|")"
