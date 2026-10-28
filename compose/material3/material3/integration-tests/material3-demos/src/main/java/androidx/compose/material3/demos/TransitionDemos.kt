@@ -41,11 +41,11 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FadeThroughNavigationTransition
+import androidx.compose.material3.HorizontalSharedAxisNavigationTransition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTransitionDefaults
-import androidx.compose.material3.MaterialTransitions
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -106,7 +106,7 @@ fun HorizontalSharedAxisTransitionDemo() {
         }
     }
 
-    val scrimColor = MaterialTransitionDefaults.scrimColor
+    val scrimColor = HorizontalSharedAxisNavigationTransition.scrimColor
     val density = LocalDensity.current
 
     // Outer canvas frame surrounding the padded area
@@ -127,14 +127,14 @@ fun HorizontalSharedAxisTransitionDemo() {
                 modifier = Modifier.fillMaxSize(),
                 transitionSpec = {
                     if (targetState > initialState) {
-                        MaterialTransitions.HorizontalSharedAxis.forwardTransform()
+                        HorizontalSharedAxisNavigationTransition.forwardTransform()
                     } else {
-                        MaterialTransitions.HorizontalSharedAxis.backwardTransform()
+                        HorizontalSharedAxisNavigationTransition.backwardTransform()
                     }
                 },
                 mutableTransformSpec = {
                     if (initialState > targetState) {
-                        MaterialTransitions.HorizontalSharedAxis.predictiveBackTransform(
+                        HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
                             backEvent = { backEvent },
                             density = density,
                             scrimColor = scrimColor,
@@ -221,10 +221,10 @@ fun FadeThroughTransitionDemo() {
         ) { innerPadding ->
             transition.DeferredAnimatedContent(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
-                transitionSpec = { MaterialTransitions.FadeThrough.transform() },
+                transitionSpec = { FadeThroughNavigationTransition.transform() },
                 mutableTransformSpec = {
                     if (targetState == DemoTab.Home && initialState != DemoTab.Home) {
-                        MaterialTransitions.FadeThrough.predictiveBackTransform(
+                        FadeThroughNavigationTransition.predictiveBackTransform(
                             backEvent = { backEvent },
                             density = density,
                         )
@@ -356,10 +356,7 @@ private fun DetailScreen(onBack: () -> Unit) {
                 title = { Text("Detail View (Screen 2)") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors =

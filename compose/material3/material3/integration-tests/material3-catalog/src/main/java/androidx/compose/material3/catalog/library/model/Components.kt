@@ -594,8 +594,8 @@ private val Transitions =
                 "predictive back.",
         preview = { TransitionsPreview() },
         guidelinesUrl = "$StyleGuidelinesUrl/motion",
-        docsUrl = "$PackageSummaryUrl#materialtransitions",
-        sourceUrl = "$Material3SourceUrl/MaterialTransitions.kt",
+        docsUrl = "", // No docs yet
+        sourceUrl = "$Material3SourceUrl/NavigationTransitions.kt",
         examples = TransitionExamples,
     )
 
