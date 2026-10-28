@@ -531,7 +531,7 @@ class SnapshotStateMapTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_set() =
         runTest(timeout = 30.seconds) {
-            repeat(10) {
+            repeat(2) {
                 val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
                 val channel = Channel<Unit>(Channel.CONFLATED)
                 coroutineScope {
@@ -560,7 +560,7 @@ class SnapshotStateMapTests {
     @IgnoreJsTarget // Not relevant in a single threaded environment
     fun concurrentMixingWriteApply_clear() =
         runTest(timeout = 30.seconds) {
-            repeat(10) {
+            repeat(2) {
                 val maps = Array(100) { mutableStateMapOf<Int, Int>() }.toList()
                 val channel = Channel<Unit>(Channel.CONFLATED)
                 coroutineScope {

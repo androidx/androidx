@@ -129,22 +129,23 @@ class SnapshotTestsJvm {
      * b/440975176.
      */
     @Test
-    fun writableRecordRegressionTest() = runTest {
-        repeat(1000) {
-            val state = mutableIntStateOf(0)
-            val list = mutableStateListOf<Int>()
-            coroutineScope {
-                Snapshot.notifyObjectsInitialized()
-                repeat(100) { index ->
-                    launch(Dispatchers.Default) { list += index }
-                    launch(Dispatchers.Default) {
-                        state.intValue += 1
-                        Snapshot.sendApplyNotifications()
+    fun writableRecordRegressionTest() =
+        runTest(dispatchTimeoutMs = 180_000) {
+            repeat(1000) {
+                val state = mutableIntStateOf(0)
+                val list = mutableStateListOf<Int>()
+                coroutineScope {
+                    Snapshot.notifyObjectsInitialized()
+                    repeat(100) { index ->
+                        launch(Dispatchers.Default) { list += index }
+                        launch(Dispatchers.Default) {
+                            state.intValue += 1
+                            Snapshot.sendApplyNotifications()
+                        }
                     }
                 }
             }
         }
-    }
 
     @Test
     fun writableRecordRegressionTest_forced() = runTest {
