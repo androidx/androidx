@@ -106,7 +106,6 @@ public fun RemoteStepper(
                 backgroundColor = colors.buttonContainerColor(enabled),
                 enabled = enabled,
                 border = null,
-                borderColor = null,
                 shape = RemoteStepperDefaults.buttonShape,
                 content =
                     provideScopeContent(
@@ -145,7 +144,6 @@ public fun RemoteStepper(
                 backgroundColor = colors.buttonContainerColor(enabled),
                 enabled = enabled,
                 border = null,
-                borderColor = null,
                 shape = RemoteStepperDefaults.buttonShape,
                 content =
                     provideScopeContent(

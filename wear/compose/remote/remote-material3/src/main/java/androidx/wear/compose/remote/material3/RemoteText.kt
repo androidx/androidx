@@ -60,8 +60,8 @@ import androidx.wear.compose.material3.LocalTextConfiguration
  *   [androidx.compose.ui.text.TextStyle.textAlign].
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text to span.
- * @param style Style configuration for the text such as color, font, line height etc.
  * @param fontVariationSettings The font variation settings to be applied to the text.
+ * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
 @RemoteComposable
@@ -76,8 +76,8 @@ public fun RemoteText(
     textAlign: TextAlign? = LocalTextConfiguration.current.textAlign,
     overflow: TextOverflow = LocalTextConfiguration.current.overflow,
     maxLines: Int = LocalTextConfiguration.current.maxLines,
-    style: RemoteTextStyle = LocalRemoteTextStyle.current,
     fontVariationSettings: FontVariation.Settings? = null,
+    style: RemoteTextStyle = LocalRemoteTextStyle.current,
 ) {
     val color = color ?: style.color ?: LocalRemoteContentColor.current
     RemoteBasicText(
@@ -91,8 +91,8 @@ public fun RemoteText(
         textAlign = textAlign,
         overflow = overflow,
         maxLines = maxLines,
-        style = style,
         fontVariationSettings = fontVariationSettings,
+        style = style,
     )
 }
 

@@ -34,6 +34,7 @@ import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.wear.compose.remote.material3.RemoteBorderStroke
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.RemoteTextButton
@@ -98,8 +99,7 @@ private fun RemoteTextButtonTonalDisabledPreview(
 fun RemoteTextButtonOutline() {
     RemoteTextButton(
         testAction,
-        border = 1.rdp,
-        borderColor = RemoteMaterialTheme.colorScheme.outline,
+        border = RemoteBorderStroke(width = 1.rdp, color = RemoteMaterialTheme.colorScheme.outline),
         enabled = true.rb,
         colors = outlineColor(),
     ) {
@@ -118,8 +118,7 @@ private fun RemoteTextButtonOutlinePreview(
 fun RemoteTextButtonOutlineDisabled() {
     RemoteTextButton(
         testAction,
-        border = 1.rdp,
-        borderColor = RemoteMaterialTheme.colorScheme.outline,
+        border = RemoteBorderStroke(width = 1.rdp, color = RemoteMaterialTheme.colorScheme.outline),
         enabled = false.rb,
         colors = outlineColor(),
     ) {

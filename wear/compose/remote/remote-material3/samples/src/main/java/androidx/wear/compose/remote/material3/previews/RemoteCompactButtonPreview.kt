@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -35,6 +35,7 @@ import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.wear.compose.remote.material3.RemoteBorderStroke
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteCompactButton
 import androidx.wear.compose.remote.material3.RemoteIcon
@@ -112,8 +113,7 @@ private fun RemoteCompactButtonWithIconAndLabelPreview(
 fun RemoteCompactButtonWithBorder() {
     RemoteCompactButton(
         onClick = testAction,
-        border = 2.rdp,
-        borderColor = RemoteColor(Color.Cyan),
+        border = RemoteBorderStroke(width = 2.rdp, color = Color.Cyan.rc),
         label = { RemoteText("With border".rs) },
     )
 }

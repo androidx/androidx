@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.semantics.Role
 
@@ -46,8 +45,7 @@ internal fun RemoteRoundButton(
     modifier: RemoteModifier = RemoteModifier,
     backgroundColor: RemoteColor,
     enabled: RemoteBoolean,
-    border: RemoteDp?,
-    borderColor: RemoteColor?,
+    border: RemoteBorderStroke?,
     shape: RemoteShape,
     role: Role = Role.Button,
     content: @Composable @RemoteComposable () -> Unit,
@@ -66,8 +64,7 @@ internal fun RemoteRoundButton(
                             enabled = enabled,
                             containerPainter = null,
                             disabledContainerPainter = null,
-                            borderColor = borderColor,
-                            borderStrokeWidth = border,
+                            border = border,
                         )
                     }
                     if (clipBackgroundToShape) {

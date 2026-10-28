@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -122,8 +123,7 @@ class RemoteButtonTest {
                     RemoteButton(
                         modifier = RemoteModifier.size(100.rdp, 50.rdp),
                         onClick = testAction,
-                        border = 8.rdp,
-                        borderColor = RemoteColor(Color.Red),
+                        border = RemoteBorderStroke(width = 8.rdp, color = Color.Red.rc),
                         colors =
                             RemoteButtonDefaults.buttonColors(
                                 containerColor = RemoteColor(Color.Black)

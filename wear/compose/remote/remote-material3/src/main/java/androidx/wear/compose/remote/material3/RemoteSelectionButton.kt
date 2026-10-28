@@ -43,7 +43,6 @@ import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteAnimationSpec
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
@@ -112,8 +111,7 @@ internal fun RemoteSelectionButtonImpl(
     secondaryContentColor: RemoteColor,
     iconColor: RemoteColor,
     contentPadding: RemotePaddingValues,
-    border: RemoteDp?,
-    borderColor: RemoteColor?,
+    border: RemoteBorderStroke?,
     role: Role,
     icon: (@Composable @RemoteComposable () -> Unit)?,
     secondaryLabel: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
@@ -144,8 +142,7 @@ internal fun RemoteSelectionButtonImpl(
                         enabled = enabled,
                         containerPainter = null,
                         disabledContainerPainter = null,
-                        borderColor = borderColor,
-                        borderStrokeWidth = border,
+                        border = border,
                     )
                     drawContent()
                 }

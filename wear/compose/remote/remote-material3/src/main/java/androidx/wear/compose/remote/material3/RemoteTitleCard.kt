@@ -43,10 +43,10 @@ import androidx.compose.runtime.CompositionLocalProvider
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this component will not
- *   respond to user input
  * @param time An optional slot for displaying the time relevant to the contents of the card
  * @param subtitle An optional slot for displaying the subtitle of the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
  * @param border A [RemoteBorderStroke] used for drawing the card's outline border
@@ -60,9 +60,9 @@ public fun RemoteTitleCard(
     onClick: RemoteAction,
     title: @Composable @RemoteComposable () -> Unit,
     modifier: RemoteModifier = RemoteModifier,
-    enabled: RemoteBoolean = true.rb,
     time: (@Composable @RemoteComposable () -> Unit)? = null,
     subtitle: (@Composable @RemoteComposable () -> Unit)? = null,
+    enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardColors(),
     border: RemoteBorderStroke? = null,
@@ -147,10 +147,10 @@ public fun RemoteTitleCard(
  *   [RemoteTitleCard], such as returned by [RemoteCardDefaults.containerPainter].
  * @param title A slot for displaying the title of the card
  * @param modifier Modifier to be applied to the card
- * @param enabled Controls the enabled state of the card. When false, this component will not
- *   respond to user input
  * @param time An optional slot for displaying the time relevant to the contents of the card
  * @param subtitle An optional slot for displaying the subtitle of the card
+ * @param enabled Controls the enabled state of the card. When false, this component will not
+ *   respond to user input
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
  * @param border A [RemoteBorderStroke] used for drawing the card's outline border
@@ -165,9 +165,9 @@ public fun RemoteTitleCard(
     containerPainter: RemotePainter,
     title: @Composable @RemoteComposable () -> Unit,
     modifier: RemoteModifier = RemoteModifier,
-    enabled: RemoteBoolean = true.rb,
     time: (@Composable @RemoteComposable () -> Unit)? = null,
     subtitle: (@Composable @RemoteComposable () -> Unit)? = null,
+    enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
     colors: RemoteCardColors = RemoteCardDefaults.cardWithContainerPainterColors(),
     border: RemoteBorderStroke? = null,

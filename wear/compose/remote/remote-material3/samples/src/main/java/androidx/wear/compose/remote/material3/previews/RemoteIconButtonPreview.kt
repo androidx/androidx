@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.wear.compose.remote.material3.RemoteBorderStroke
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
 import androidx.wear.compose.remote.material3.RemoteIconButtonDefaults
@@ -174,8 +175,7 @@ private fun RemoteIconButtonTonalPreview(
 fun RemoteIconButtonOutlined() {
     RemoteIconButton(
         testAction,
-        border = 1.rdp,
-        borderColor = RemoteMaterialTheme.colorScheme.outline,
+        border = RemoteBorderStroke(width = 1.rdp, color = RemoteMaterialTheme.colorScheme.outline),
         enabled = true.rb,
         colors = RemoteIconButtonDefaults.outlinedIconButtonColors(),
     ) {

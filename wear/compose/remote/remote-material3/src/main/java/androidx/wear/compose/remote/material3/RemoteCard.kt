@@ -158,11 +158,11 @@ public fun RemoteCard(
  * @param enabled Controls the enabled state of the card. When false, this component will not
  *   respond to user input
  * @param shape Defines the card's shape.
+ * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
+ *   [RemoteCardDefaults.outlinedCardColors].
  * @param border A [RemoteBorderStroke] used for drawing the card's outline border
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
- *   [RemoteCardDefaults.outlinedCardColors].
  * @param content The main slot for the content of this card
  */
 @RemoteComposable
@@ -172,9 +172,9 @@ public fun RemoteOutlinedCard(
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
+    colors: RemoteCardColors = RemoteCardDefaults.outlinedCardColors(),
     border: RemoteBorderStroke = RemoteCardDefaults.outlinedCardBorder(),
     contentPadding: RemotePaddingValues = RemoteCardDefaults.ContentPadding,
-    colors: RemoteCardColors = RemoteCardDefaults.outlinedCardColors(),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     RemoteCardImpl(
@@ -285,15 +285,15 @@ public object RemoteCardDefaults {
     /**
      * Creates a [RemoteBorderStroke] that represents the default border used in Outlined Cards.
      *
-     * @param borderColor The color to be used for drawing an outline.
+     * @param outlineColor The color to be used for drawing an outline.
      * @param borderWidth width of the border in [RemoteDp].
      */
     @Composable
     @RemoteComposable
     public fun outlinedCardBorder(
-        borderColor: RemoteColor = outlinedCardBorderColor,
+        outlineColor: RemoteColor = outlinedCardBorderColor,
         borderWidth: RemoteDp = OutlinedBorderSize,
-    ): RemoteBorderStroke = RemoteBorderStroke(borderWidth, borderColor)
+    ): RemoteBorderStroke = RemoteBorderStroke(width = borderWidth, color = outlineColor)
 
     /** The default content padding used by [RemoteCard] */
     public val ContentPadding: RemotePaddingValues = RemotePaddingValues(12.rdp)

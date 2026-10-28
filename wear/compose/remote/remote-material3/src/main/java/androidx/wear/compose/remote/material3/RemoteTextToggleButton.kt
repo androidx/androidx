@@ -81,8 +81,7 @@ import androidx.compose.ui.semantics.Role
  *   available through [RemoteTextToggleButtonDefaults.animatedShapes] and
  *   [RemoteTextToggleButtonDefaults.variantAnimatedShapes]. The press animation is driven by touch
  *   events on the player, and is not shown by players that don't dispatch them.
- * @param border Optional [RemoteDp] border stroke width for this toggle button.
- * @param borderColor Optional [RemoteColor] for the border of this toggle button.
+ * @param border Optional [RemoteBorderStroke] for this toggle button.
  * @param content The text to be drawn inside the toggle button.
  */
 @Composable
@@ -94,8 +93,7 @@ public fun RemoteTextToggleButton(
     enabled: RemoteBoolean = true.rb,
     colors: RemoteTextToggleButtonColors = RemoteTextToggleButtonDefaults.colors(),
     shapes: RemoteTextToggleButtonShapes = RemoteTextToggleButtonDefaults.shapes(),
-    border: RemoteDp? = null,
-    borderColor: RemoteColor? = null,
+    border: RemoteBorderStroke? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val animatedShape =
@@ -119,7 +117,6 @@ public fun RemoteTextToggleButton(
             ),
         enabled = enabled,
         border = border,
-        borderColor = borderColor,
         shape = animatedShape.shape,
         role = Role.Checkbox,
         content =

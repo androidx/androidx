@@ -222,8 +222,11 @@ class RemoteIconButtonTest {
             ComponentContainer {
                 RemoteIconButton(
                     testAction,
-                    border = 1.rdp,
-                    borderColor = RemoteMaterialTheme.colorScheme.outline,
+                    border =
+                        RemoteBorderStroke(
+                            width = 1.rdp,
+                            color = RemoteMaterialTheme.colorScheme.outline,
+                        ),
                     enabled = RemoteBoolean(false),
                     colors = RemoteIconButtonDefaults.outlinedIconButtonColors(),
                 ) {
