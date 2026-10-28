@@ -49,7 +49,7 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
     )
 
     task.ideBinaryRelativePath.convention(
-        if (task.osName == "linux") "android-studio-with-blaze/ide-update/bin/studio"
+        if (task.osName == "linux") "android-studio-with-blaze/bin/studio"
         else "Contents/MacOS/studio"
     )
 
