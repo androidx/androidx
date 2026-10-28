@@ -18,11 +18,11 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import android.graphics.Typeface
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -564,7 +564,7 @@ class RemoteTextTest {
                 RemoteRow(
                     modifier =
                         RemoteModifier.fillMaxWidth()
-                            .height(IntrinsicSize.Min)
+                            .height(RemoteIntrinsicSize.Min)
                             .padding(bottom = 2.rdp)
                 ) {
                     RemoteText(
@@ -650,7 +650,7 @@ class RemoteTextTest {
         modifier: RemoteModifier = RemoteModifier,
     ) {
         RemoteRow(
-            modifier = RemoteModifier.fillMaxWidth().height(IntrinsicSize.Min).then(modifier)
+            modifier = RemoteModifier.fillMaxWidth().height(RemoteIntrinsicSize.Min).then(modifier)
         ) {
             RemoteColumn(modifier = RemoteModifier.weight(0.7f).padding(top = 6.rdp)) {
                 RemoteText(label.rs, color = textColor, fontSize = 8.rsp)

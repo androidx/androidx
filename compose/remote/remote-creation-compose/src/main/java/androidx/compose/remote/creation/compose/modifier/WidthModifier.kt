@@ -21,6 +21,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -30,6 +31,8 @@ import androidx.compose.remote.creation.modifiers.WidthModifier as RecordingWidt
 
 internal class WidthModifier(public val type: Type, public val value: RemoteFloat) :
     RemoteModifier.Element {
+    internal constructor(typeInt: Int, value: RemoteFloat) : this(Type.fromInt(typeInt), value)
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return RecordingWidthModifier(type, value.floatId)
@@ -86,3 +89,12 @@ public fun RemoteModifier.fillParentMaxWidth(fraction: RemoteFloat = 1f.rf): Rem
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.width(width: Int): RemoteModifier =
     then(WidthModifier(Type.EXACT, width.rf))
+
+/**
+ * Sets the width of the content to be its intrinsic size.
+ *
+ * @param intrinsicSize The intrinsic size to apply.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.width(intrinsicSize: RemoteIntrinsicSize): RemoteModifier =
+    then(WidthModifier(intrinsicSize.value, 0f.rf))

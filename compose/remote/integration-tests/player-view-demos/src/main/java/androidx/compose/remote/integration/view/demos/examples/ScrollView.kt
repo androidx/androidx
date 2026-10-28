@@ -17,13 +17,13 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -110,7 +110,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
             fontSize = 32.rsp,
             modifier = RemoteModifier.padding(bottom = 24.rdp),
         )
-        RemoteRow(modifier = RemoteModifier.height(IntrinsicSize.Min)) {
+        RemoteRow(modifier = RemoteModifier.height(RemoteIntrinsicSize.Min)) {
             var done = false
             for (j in 0 until 7) {
                 if (j == 1 || j == 6) {

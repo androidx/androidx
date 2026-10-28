@@ -21,14 +21,8 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
-import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.width(width: IntrinsicSize): RemoteModifier {
-    return if (width == IntrinsicSize.Min) {
-        then(WidthModifier(Type.INTRINSIC_MIN, 0f.rf))
-    } else {
-        then(WidthModifier(Type.INTRINSIC_MAX, 0f.rf))
-    }
-}
+public fun RemoteModifier.width(width: IntrinsicSize): RemoteModifier =
+    width(if (width == IntrinsicSize.Min) RemoteIntrinsicSize.Min else RemoteIntrinsicSize.Max)

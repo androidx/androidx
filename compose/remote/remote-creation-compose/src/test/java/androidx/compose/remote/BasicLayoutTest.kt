@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.view.View
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
@@ -39,6 +38,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteIntrinsicSize
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
@@ -807,7 +807,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
         testLayout(result) {
             RemoteRow(
-                modifier = RemoteModifier.background(Color.Cyan.rc).height(IntrinsicSize.Min)
+                modifier = RemoteModifier.background(Color.Cyan.rc).height(RemoteIntrinsicSize.Min)
             ) {
                 RemoteBox(
                     modifier =
@@ -863,7 +863,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         testLayout(result) {
             RemoteColumn {
                 RemoteRow(
-                    modifier = RemoteModifier.background(Color.Cyan.rc).height(IntrinsicSize.Min)
+                    modifier =
+                        RemoteModifier.background(Color.Cyan.rc).height(RemoteIntrinsicSize.Min)
                 ) {
                     RemoteBox(
                         modifier =
