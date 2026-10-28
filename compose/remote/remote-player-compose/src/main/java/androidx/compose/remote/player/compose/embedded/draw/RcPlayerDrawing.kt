@@ -66,9 +66,6 @@ import androidx.compose.remote.core.operations.MatrixSkew
 import androidx.compose.remote.core.operations.MatrixTranslate
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.PaintData
-import androidx.compose.remote.core.operations.ParticlesCompare
-import androidx.compose.remote.core.operations.ParticlesCreate
-import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.PathAppend
 import androidx.compose.remote.core.operations.PathCombine
 import androidx.compose.remote.core.operations.PathCreate
@@ -278,18 +275,6 @@ private fun DrawScope.executeOperationsInPass(
                         ?.trustedContent == true
                 )
                 op.apply(remoteContext)
-            }
-            // Re-seeds on every paint, as in the View player; wrap it in an impulse to seed once.
-            is ParticlesCreate -> drawParticlesCreate(op, evalPaintContext(), graph)
-            is ParticlesLoop -> {
-                // Particle system: bridged to the core (View player) implementation. Needs the
-                // graph for seed state + frame-clock observation; without it skip.
-                if (graph != null) drawParticles(op, remoteContext, paintState, graph)
-            }
-            is ParticlesCompare -> {
-                // Particle interaction pass: bridged to the core implementation like
-                // ParticlesLoop.
-                if (graph != null) drawParticlesCompare(op, remoteContext, paintState, graph)
             }
             is ImpulseOperation -> {
                 // Impulse: the body only runs inside the [startAt, startAt + duration] window

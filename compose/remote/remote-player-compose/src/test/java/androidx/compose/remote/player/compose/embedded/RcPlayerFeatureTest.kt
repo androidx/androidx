@@ -19,6 +19,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.IntSet
+import androidx.collection.MutableIntSet
 import androidx.collection.emptyIntSet
 import androidx.collection.intSetOf
 import androidx.compose.foundation.layout.Box
@@ -130,14 +131,21 @@ class RcPlayerFeatureTest {
     }
 
     @Test
-    fun builtInProfilesNeedOnlyTheMatrixFeature() {
-        val matrix = RcPlayerFeatureSet(MatrixFeature)
+    fun builtInProfilesNeedOnlyTheMatrixAndParticlesFeatures() {
+        val features = RcPlayerFeatureSet(MatrixFeature, ParticlesFeature)
 
-        assertThat(matrix.unsupportedOpcodes(RcProfiles.PROFILE_BASELINE)).isEqualTo(emptyIntSet())
-        assertThat(matrix.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX)).isEqualTo(emptyIntSet())
-        // Matrix ops are in the baseline profile, but left to MatrixFeature.
+        assertThat(features.unsupportedOpcodes(RcProfiles.PROFILE_BASELINE))
+            .isEqualTo(emptyIntSet())
+        assertThat(features.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX))
+            .isEqualTo(emptyIntSet())
+        // Matrix and particle ops are in the built-in profiles, but left to their features.
         assertThat(RcPlayerFeatureSet.Empty.unsupportedOpcodes(RcProfiles.PROFILE_ANDROIDX))
-            .isEqualTo(MatrixFeature.opcodes)
+            .isEqualTo(
+                MutableIntSet().apply {
+                    addAll(MatrixFeature.opcodes)
+                    addAll(ParticlesFeature.opcodes)
+                }
+            )
     }
 
     @Test
