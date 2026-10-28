@@ -58,7 +58,7 @@ public class SpatialInputEvent(
         if (pointerType != other.pointerType) return false
         if (action != other.action) return false
         if (timestamp != other.timestamp) return false
-        if (hitPosition == other.hitPosition) return false
+        if (hitPosition != other.hitPosition) return false
         if (origin != other.origin) return false
         if (direction != other.direction) return false
         return true
