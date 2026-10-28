@@ -101,33 +101,6 @@
     </issue>
 
     <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
-    </issue>
-
-    <issue
-        id="CoroutineCreationDuringComposition"
-        message="Calls to launch should happen inside a LaunchedEffect and not composition"
-        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/androidDeviceTest/kotlin/androidx/compose/ui/AndroidComposeViewAccessibilityDelegateCompatTest.kt"/>
-    </issue>
-
-    <issue
         id="ModifierFactoryExtensionFunction"
         message="Modifier factory functions should be extensions on Modifier"
         errorLine1="    private inline fun &lt;reified T : Modifier.Node> elementOf("

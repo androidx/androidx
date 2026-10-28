@@ -57,6 +57,7 @@ import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -178,7 +179,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.junit.Assume.assumeTrue
@@ -433,9 +433,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
             val clipboard = LocalClipboard.current
-            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {
-                clipboard.setClipEntry(testClipEntry("test"))
-            }
+            LaunchedEffect(clipboard) { clipboard.setClipEntry(testClipEntry("test")) }
             Box(
                 Modifier.size(10.dp).semantics(mergeDescendants = true) {
                     testTag = tag
@@ -1831,9 +1829,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
             val clipboard = LocalClipboard.current
-            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {
-                clipboard.setClipEntry(testClipEntry("test"))
-            }
+            LaunchedEffect(clipboard) { clipboard.setClipEntry(testClipEntry("test")) }
             Box(
                 Modifier.size(10.dp).semantics(mergeDescendants = true) {
                     testTag = tag
@@ -1861,9 +1857,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {
             val clipboard = LocalClipboard.current
-            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {
-                clipboard.setClipEntry(testClipEntry("test"))
-            }
+            LaunchedEffect(clipboard) { clipboard.setClipEntry(testClipEntry("test")) }
             Box(
                 Modifier.size(10.dp).semantics(mergeDescendants = true) {
                     testTag = tag
