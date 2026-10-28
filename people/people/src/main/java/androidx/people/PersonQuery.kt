@@ -18,6 +18,8 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * An immutable set of criteria for looking up people in one People Directory application.
  *
@@ -33,6 +35,7 @@ package androidx.people
  * }
  * ```
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonQuery
 internal constructor(
     /** Package name of the People Directory application this query reads from. */
@@ -76,6 +79,7 @@ internal constructor(
  * Only globally identifiable criteria (such as phone numbers and email addresses) can be queried
  * across multiple directory applications.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public open class MultiDirectoryPersonQueryScope internal constructor() {
     internal val phones = mutableListOf<String>()
@@ -130,6 +134,7 @@ public open class MultiDirectoryPersonQueryScope internal constructor() {
  * In addition to global criteria ([phones] and [emails]), single-directory queries may match
  * directory-specific [lookupKeys] and [groupLookupKeys].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class PersonQueryScope internal constructor(private val directoryPackage: String) :
     MultiDirectoryPersonQueryScope() {
@@ -207,6 +212,7 @@ public class PersonQueryScope internal constructor(private val directoryPackage:
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQuery(
     directoryPackage: String,
     block: PersonQueryScope.() -> Unit,
@@ -218,6 +224,7 @@ public fun personQuery(
  * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
  *   criterion.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQueries(
     vararg directoryPackages: String,
     block: MultiDirectoryPersonQueryScope.() -> Unit,
@@ -232,6 +239,7 @@ public fun personQueries(
  * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
  *   criterion.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQueries(
     directoryPackages: Iterable<String>,
     block: MultiDirectoryPersonQueryScope.() -> Unit,

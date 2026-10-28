@@ -16,7 +16,10 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /** Unique identifier for a person record within a specific People Directory application. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonId(
     /** Stable, opaque string key provided by the originating People Directory. */
     public val lookupKey: String,

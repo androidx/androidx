@@ -16,6 +16,8 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * A single query input that a result record matched, reported through [Person.matchedCriteria] and
  * [Group.matchedCriteria].
@@ -35,6 +37,7 @@ package androidx.people
  * the type must include an `else` branch. Each new type documents the minimum platform version that
  * supports it; on older platforms it is never reported.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class Criterion private constructor() {
 
     /**

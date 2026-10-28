@@ -18,6 +18,8 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /**
  * An immutable set of criteria for looking up groups in one People Directory application.
  *
@@ -29,6 +31,7 @@ package androidx.people
  * }
  * ```
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupQuery
 internal constructor(
     /** Package name of the People Directory application this query reads from. */
@@ -49,6 +52,7 @@ internal constructor(
 }
 
 /** Receiver scope for configuring a [GroupQuery]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
 public class GroupQueryScope internal constructor(private val directoryPackage: String) {
     private val lookupKeys = mutableListOf<String>()
@@ -90,5 +94,6 @@ public class GroupQueryScope internal constructor(private val directoryPackage: 
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun groupQuery(directoryPackage: String, block: GroupQueryScope.() -> Unit): GroupQuery =
     GroupQueryScope(directoryPackage).apply(block).build()

@@ -16,7 +16,10 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /** Metadata describing a registered People Directory application. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DirectoryInfo(
     /** Package name of the directory application. */
     public val packageName: String,

@@ -16,7 +16,10 @@
 
 package androidx.people
 
+import androidx.annotation.RestrictTo
+
 /** Unique identifier for a group record within a specific People Directory application. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupId(
     /** Stable, opaque string key identifying the group. */
     public val lookupKey: String,
