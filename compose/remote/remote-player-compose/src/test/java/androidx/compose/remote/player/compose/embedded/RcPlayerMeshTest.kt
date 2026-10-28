@@ -33,6 +33,8 @@ import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.utilities.Mesh2DGenerator
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.embedded.draw.UnknownOperationPolicy
+import androidx.compose.remote.player.compose.embedded.draw.UnknownOperations
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -164,6 +166,7 @@ class RcPlayerMeshTest {
 
     @Test
     fun explicitFeatureSetWithoutMeshFeatureSkipsMeshes() {
+        UnknownOperations.policy = UnknownOperationPolicy.Log
         val bitmap = rule.renderDocument(redQuadDocument(), RcPlayerFeatureSet.Empty)
 
         assertNotRed(bitmap, 50, 50)

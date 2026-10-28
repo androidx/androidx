@@ -81,11 +81,14 @@ import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.UpdateDynamicFloatList
+import androidx.compose.remote.core.operations.WakeIn
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.ContainerEnd
 import androidx.compose.remote.core.operations.layout.ImpulseOperation
 import androidx.compose.remote.core.operations.layout.ImpulseProcess
 import androidx.compose.remote.core.operations.layout.LoopOperation
 import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.matrix.MatrixConstant
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.RcFeatureDrawScope
@@ -537,8 +540,19 @@ private fun DrawScope.executeOperationsInPass(
             // RcPlayerHapticEffect). It fires each time the stream runs it, so documents gate it
             // with an impulse or conditional.
             is HapticFeedback -> op.apply(remoteContext)
-            // Anything else may belong to an optional feature (see RcPlayerFeature).
-            else -> features.paint(op, featureScope())
+            // Layout is realised as Compose nodes and modifiers, not drawn by this pass.
+            is Component,
+            is ComponentModifiers -> Unit
+            // Repaint scheduling is read when the document is set up.
+            is WakeIn -> Unit
+            else ->
+                // Anything else may belong to an optional feature (see RcPlayerFeature). Any
+                // other paint op is a gap relative to the View player. Data and setup ops
+                // (headers, constants, text, bitmaps, themes) are applied when the document is
+                // set up or resolved through GraphContext.
+                if (!features.paint(op, featureScope()) && op is PaintOperation) {
+                    UnknownOperations.onUnknown(op)
+                }
         }
     }
     // If a DRAW_TO_BITMAP redirect was left active (document didn't reset with bitmapId 0), restore
