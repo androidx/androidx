@@ -22,13 +22,11 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CollapsiblePriorityModifier(
-    public val orientation: Int,
-    public val priority: RemoteFloat,
+internal class CollapsiblePriorityModifier(
+    val orientation: Int,
+    val priority: RemoteFloat,
 ) : RemoteModifier.Element {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.CollapsiblePriorityModifier(
             orientation,

@@ -21,10 +21,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RippleModifier() : RemoteModifier.Element {
+internal class RippleModifier : RemoteModifier.Element {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.RippleModifier()
     }
