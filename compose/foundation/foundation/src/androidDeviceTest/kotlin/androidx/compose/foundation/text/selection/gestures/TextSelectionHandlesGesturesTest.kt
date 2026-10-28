@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
-import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.SelectionState
@@ -38,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import kotlin.test.fail
@@ -46,7 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(ContextMenuFlagFlipperRunner::class)
+@RunWith(AndroidJUnit4::class)
 internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest() {
 
     override val pointerAreaTag = "selectionContainer"
