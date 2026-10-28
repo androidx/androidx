@@ -45,15 +45,17 @@ internal class OffscreenDrawState {
         val alpha: Float,
     )
 
-    private val stack = ArrayList<SavedTarget>()
+    // Created on the first push: most draw passes never draw to a bitmap, and a state is created
+    // per executeOperations call.
+    private var stack: ArrayList<SavedTarget>? = null
 
     /** True while draw operations are redirected to an offscreen bitmap. */
     val isDrawingToOffscreen: Boolean
-        get() = stack.isNotEmpty()
+        get() = depth > 0
 
     /** The number of redirected targets currently on the stack. */
     val depth: Int
-        get() = stack.size
+        get() = stack?.size ?: 0
 
     /**
      * Redirects [drawScope] to [target], saving the current canvas, graphics layer, and paint alpha
@@ -62,6 +64,7 @@ internal class OffscreenDrawState {
      */
     fun push(drawScope: DrawScope, paintState: ComposeLocalPaint, target: Canvas) {
         val drawContext = drawScope.drawContext
+        val stack = stack ?: ArrayList<SavedTarget>(2).also { stack = it }
         stack.add(SavedTarget(drawContext.canvas, drawContext.graphicsLayer, paintState.alpha))
         drawContext.canvas = target
         drawContext.graphicsLayer = null
@@ -70,7 +73,7 @@ internal class OffscreenDrawState {
 
     /** Restores the target saved by the matching [push]. No-op if the stack is empty. */
     fun pop(drawScope: DrawScope, paintState: ComposeLocalPaint) {
-        val saved = stack.removeLastOrNull() ?: return
+        val saved = stack?.removeLastOrNull() ?: return
         val drawContext = drawScope.drawContext
         drawContext.canvas = saved.canvas
         drawContext.graphicsLayer = saved.graphicsLayer
@@ -79,7 +82,7 @@ internal class OffscreenDrawState {
 
     /** Pops until [depth] is at most [targetDepth]. */
     fun popTo(targetDepth: Int, drawScope: DrawScope, paintState: ComposeLocalPaint) {
-        while (stack.size > targetDepth) pop(drawScope, paintState)
+        while (depth > targetDepth) pop(drawScope, paintState)
     }
 }
 
@@ -154,11 +157,11 @@ internal fun DrawScope.drawToBitmapOp(
  * The content is drawn directly when no group effect is set, when there is no [contentLayer] (the
  * root and canvas draw passes, where [onDrawContent] is a no-op), or while drawing to an offscreen
  * bitmap, where a hardware [GraphicsLayer] can't be drawn and the effect is instead applied when
- * the bitmap is drawn back.
+ * the bitmap is drawn back. The layer itself is only created when a group effect is drawn.
  */
 internal fun DrawScope.drawContentWithPaint(
     paintState: ComposeLocalPaint,
-    contentLayer: GraphicsLayer?,
+    contentLayer: LazyGraphicsLayer?,
     isDrawingToOffscreen: Boolean,
     contentOrigin: Offset,
     onDrawContent: () -> Unit,
@@ -183,19 +186,20 @@ internal fun DrawScope.drawContentWithPaint(
         }
         return
     }
-    contentLayer.alpha = paintState.alpha
-    contentLayer.blendMode = paintState.blendMode
-    contentLayer.colorFilter = paintState.colorFilter
-    contentLayer.record { onDrawContent() }
+    val layer = contentLayer.obtain()
+    layer.alpha = paintState.alpha
+    layer.blendMode = paintState.blendMode
+    layer.colorFilter = paintState.colorFilter
+    layer.record { onDrawContent() }
     if (contentOrigin != Offset.Zero) {
         drawContext.canvas.save()
         drawContext.canvas.translate(contentOrigin.x, contentOrigin.y)
         try {
-            drawLayer(contentLayer)
+            drawLayer(layer)
         } finally {
             drawContext.canvas.restore()
         }
     } else {
-        drawLayer(contentLayer)
+        drawLayer(layer)
     }
 }

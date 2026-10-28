@@ -60,8 +60,10 @@ import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScop
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.LazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.draw.OffscreenDrawState
 import androidx.compose.remote.player.compose.embedded.draw.executeOperations
+import androidx.compose.remote.player.compose.embedded.draw.rememberLazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -76,9 +78,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.TextMeasurer
@@ -367,7 +367,8 @@ private fun Modifier.visibilityAnimationDraw(
         } else {
             null
         }
-    val contentLayer = rememberGraphicsLayer()
+    // Only ROTATE and CUSTOM draw through a layer, and only while animating.
+    val contentLayer = rememberLazyGraphicsLayer()
 
     return this.drawWithContent {
         val visProgress = visProgressProvider()
@@ -398,11 +399,11 @@ private fun Modifier.visibilityAnimationDraw(
                 }
                 AnimationSpec.ANIMATION.ROTATE -> {
                     // A full turn, fading in on enter and out on exit.
-                    contentLayer.alpha = if (isEntering) progress else 1f - progress
-                    contentLayer.rotationZ =
-                        if (isEntering) (1f - progress) * 360f else -progress * 360f
-                    contentLayer.record { this@drawWithContent.drawContent() }
-                    drawLayer(contentLayer)
+                    val layer = contentLayer.obtain()
+                    layer.alpha = if (isEntering) progress else 1f - progress
+                    layer.rotationZ = if (isEntering) (1f - progress) * 360f else -progress * 360f
+                    layer.record { this@drawWithContent.drawContent() }
+                    drawLayer(layer)
                 }
                 else -> {
                     drawContent()
@@ -423,7 +424,7 @@ private fun ContentDrawScope.executeCustomVisibilityAnimation(
     remoteContext: RemoteContext,
     graph: GraphContext?,
     textMeasurer: TextMeasurer,
-    contentLayer: GraphicsLayer,
+    contentLayer: LazyGraphicsLayer,
 ) {
     if (functionId == -1) {
         drawContent()

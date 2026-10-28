@@ -97,7 +97,6 @@ import androidx.compose.remote.player.compose.embedded.resources.resolveImageAtt
 import androidx.compose.remote.player.compose.embedded.state.MaybeVariableFloat
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.util.fastForEach
 import androidx.tracing.trace
@@ -136,7 +135,7 @@ internal fun DrawScope.executeOperations(
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
     offscreenState: OffscreenDrawState = OffscreenDrawState(),
-    contentLayer: GraphicsLayer? = null,
+    contentLayer: LazyGraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
 ): Unit =
     trace("RcPlayer:executeOperations") {
@@ -164,7 +163,7 @@ private fun DrawScope.executeOperationsInPass(
     onDrawContent: () -> Unit = {},
     graph: GraphContext? = null,
     offscreenState: OffscreenDrawState,
-    contentLayer: GraphicsLayer? = null,
+    contentLayer: LazyGraphicsLayer? = null,
     contentOrigin: Offset = Offset.Zero,
     loopScope: Long = 0L,
 ) {
