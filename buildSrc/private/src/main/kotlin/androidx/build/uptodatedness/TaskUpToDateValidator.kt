@@ -59,11 +59,8 @@ val ALLOW_RERUNNING_TASKS =
          * https://github.com/GradleUp/shadow/issues/561
          */
         "relocateShadowJar",
-        "testDebugUnitTest",
         "verifyDependencyVersions",
         "zipTestConfigsWithApks",
-        "zipHtmlResultsOfTestDebugUnitTest",
-        "zipXmlResultsOfTestDebugUnitTest",
         ":camera:integration-tests:camera-testapp-core:mergeLibDexDebug",
         ":camera:integration-tests:camera-testapp-core:packageDebug",
         ":camera:integration-tests:camera-testapp-extensions:mergeLibDexDebug",
