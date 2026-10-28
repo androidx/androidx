@@ -1271,4 +1271,54 @@ class NavDisplayScreenshotTest {
                 "testNavDisplayPredictiveBackSharedElementListDetail",
             )
     }
+
+    @Test
+    fun testSharedElementInterruptedPopByPush() {
+        lateinit var backStack: MutableList<Any>
+        val testDuration = DEFAULT_TRANSITION_DURATION_MILLISECOND.toLong()
+        composeTestRule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(1280.dp, 800.dp))
+            ) {
+                backStack = remember { mutableStateListOf(first, second) }
+                SharedTransitionLayout {
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = { backStack.removeAt(backStack.lastIndex) },
+                        sharedTransitionScope = this,
+                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
+                        entryProvider =
+                            entryProvider {
+                                entry(first, metadata = ListDetailScene.listPane()) {
+                                    RedBox("first")
+                                }
+                                entry(second, metadata = ListDetailScene.detailPane()) {
+                                    BlueBox("second")
+                                }
+                            },
+                        modifier = Modifier.testTag(navHostTag),
+                    )
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.autoAdvance = false
+
+        // Pop to single-pane [first], then interrupt halfway by re-pushing [second]
+        composeTestRule.runOnIdle { backStack.removeLastOrNull() }
+        composeTestRule.mainClock.advanceTimeBy(testDuration / 2)
+        composeTestRule.runOnIdle { backStack.add(second) }
+
+        composeTestRule.mainClock.advanceTimeBy(testDuration / 2)
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "testSharedElementInterruptedPopByPush",
+            )
+    }
 }
