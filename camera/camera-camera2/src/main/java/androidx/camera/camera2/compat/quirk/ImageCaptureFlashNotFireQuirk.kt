@@ -27,8 +27,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * QuirkSummary
  * - Bug Id: 228800360, b/443619467
  * - Description: The flash doesn't fire while taking picture with flash ON/AUTO mode.
- * - Device(s): Itel w6004, Samsung Galaxy J7 (sm-j700m), Samsung Galaxy J7 (sm-j700f, sm-j710f)
- *   front camera
+ * - Device(s): Itel w6004, Samsung Galaxy J7 (sm-j700m), Zebra TC77, Samsung Galaxy J7 (sm-j700f,
+ *   sm-j710f) front camera
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -37,12 +37,13 @@ public class ImageCaptureFlashNotFireQuirk : UseTorchAsFlashQuirk {
 
     public companion object {
         // List of devices with the issue. See b/228800360, b/443619467.
-        private val BUILD_MODELS =
+        internal val BUILD_MODELS: List<String> =
             listOf(
                 "itel w6004", // Itel W6004
                 "sm-j700m", // Samsung Galaxy J7
+                "tc77", // Zebra TC77
             )
-        private val BUILD_MODELS_FRONT_CAMERA =
+        internal val BUILD_MODELS_FRONT_CAMERA: List<String> =
             listOf(
                 "sm-j700f", // Samsung Galaxy J7
                 "sm-j710f", // Samsung Galaxy J7
