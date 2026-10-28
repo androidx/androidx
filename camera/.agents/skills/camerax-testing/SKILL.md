@@ -69,16 +69,31 @@ CameraX involves complex hardware interactions, making robust testing essential.
     <max_dim>x<max_dim>> -quality 85`) to stay within a `<= 3 MB` cumulative
     session budget.
 - **On-Demand Lab Diagnostic Testing (`@LabTestRule.LabTestOnly`)**:
-  When triaging suspected lab fixture failures (e.g. pitch-black 0-lux frames or
-  camera orientation mismatches), execute on-demand diagnostic test suites
-  annotated with `@LabTestRule.LabTestOnly` (such as
-  `LabEnvironmentDiagnosticTest`). Diagnostic tests capture multi-camera frames
-  (front/rear), compute relative luminance
-  (`LabTestUtil.calculateBitmapLuminance`), log structured `[LAB_DIAGNOSTIC]`
-  summaries, export photos via `LabTestUtil.saveTestBitmap`, and complete with
-  PASS status so test runners automatically pull and attach artifacts for
-  visual or AI inspection (see `AGENTS_INTERNAL.md` for internal lab runner
-  details).
+  When triaging suspected lab fixture or camera hardware failures (e.g.
+  pitch-black 0-lux frames, front/rear orientation mismatches, or blurry test
+  charts), execute on-demand diagnostic suites annotated with
+  `@LabTestRule.LabTestOnly` (such as `LabEnvironmentDiagnosticTest`), which
+  complete with PASS status so test runners automatically pull and attach saved
+  bitmaps (`LabTestUtil.saveTestBitmap`) for visual or AI inspection (see
+  `AGENTS_INTERNAL.md` for internal runner details):
+  - **Multi-Lens Lighting & Torch Self-Illumination
+    (`captureLabEnvironmentPhotosAndCheckLighting`)**: Captures Rear and Front
+    frames (`lab_diagnostic_rear_camera.png`, `lab_diagnostic_front_camera.png`)
+    and logs `[LAB_DIAGNOSTIC]` luminance (`calculateBitmapLuminance`). When a
+    camera with `hasFlashUnit()` sees a dark frame (`!isLightON`), it
+    automatically enables `enableTorch(true)` and saves `${testName}_torch_on`
+    to help distinguish whether the lens faces the chart inside an unlit
+    enclosure (dead fixture LED or relay controller) versus being obstructed or
+    misaligned.
+  - **Optical Focus & `ImageCapture` Max-Quality vs. Manual Diopter Sweep
+    (`diagnoseFocusAndImageCaptureQuality`)**: When a fixture is lit and the
+    camera faces the chart but vision/barcode tests fail due to blur, captures
+    `ImageCapture` (`CAPTURE_MODE_MAXIMIZE_QUALITY`) frames (Auto AF and
+    explicit center `startFocusAndMetering`) plus a manual
+    `CaptureRequest.LENS_FOCUS_DISTANCE` diopter sweep (`0.0f..minFocusDist`),
+    logging `[LAB_FOCUS_DIAGNOSTIC]` center gradient sharpness to isolate
+    CameraX/HAL autofocus issues from physical lens obstruction, mount
+    distance, or VCM actuator defects.
 - **Internal Guidelines & Testing**: When operating in an environment where
   internal tools are configured, refer to `AGENTS_INTERNAL.md` (located in the
   directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment variable,
