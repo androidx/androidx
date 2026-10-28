@@ -28,6 +28,7 @@ import android.graphics.RenderEffect
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.ActionMode
+import android.view.MotionEvent
 import android.view.OnReceiveContentListener
 import android.view.PointerIcon
 import android.view.View
@@ -116,7 +117,7 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
-        message = "Use conditional composition or Modifier.alpha instead of View visibility.",
+        message = "Use conditional composition instead of View visibility.",
         level = DeprecationLevel.WARNING,
     )
     override fun setVisibility(visibility: Int) {
@@ -125,7 +126,7 @@ public open class WebViewBridge : WebContentView {
 
     @RequiresApi(29)
     @Deprecated(
-        message = "Use conditional composition or Modifier.alpha instead of View visibility.",
+        message = "Use conditional composition instead of View visibility.",
         level = DeprecationLevel.WARNING,
     )
     override fun setTransitionVisibility(visibility: Int) {
@@ -377,19 +378,11 @@ public open class WebViewBridge : WebContentView {
     @RequiresApi(29)
     @Deprecated(
         message =
-            "View force dark is not supported by WebSurface. Configure dark mode via WebSettings or Compose theme instead.",
+            "View force dark is not supported by WebSurface. Configure dark mode via the Activity theme instead.",
         level = DeprecationLevel.WARNING,
     )
     override fun setForceDarkAllowed(allow: Boolean) {
         super.setForceDarkAllowed(allow)
-    }
-
-    @Deprecated(
-        message = "Use Modifier.background instead of View background color.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun setBackgroundColor(color: Int) {
-        super.setBackgroundColor(color)
     }
 
     @Deprecated(
@@ -869,11 +862,39 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
-        message = "Use Compose pointer input Modifiers on WebSurface instead of touch listeners.",
+        message =
+            "Use Compose pointer input Modifiers on WebSurface instead of touch listeners. Observe events without consuming them, or the page may not receive them.",
         level = DeprecationLevel.WARNING,
     )
     override fun setOnTouchListener(l: OnTouchListener?) {
         super.setOnTouchListener(l)
+    }
+
+    @Deprecated(
+        message =
+            "Not called in WebSurface, which delivers touch input to the page directly. Use Compose pointer input Modifiers on WebSurface instead. Observe events without consuming them, or the page may not receive them.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        return super.dispatchTouchEvent(ev)
+    }
+
+    @Deprecated(
+        message =
+            "Not called in WebSurface, which delivers touch input to the page directly. Use Compose pointer input Modifiers on WebSurface instead. Observe events without consuming them, or the page may not receive them.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        return super.onInterceptTouchEvent(ev)
+    }
+
+    @Deprecated(
+        message =
+            "Not called in WebSurface, which delivers touch input to the page directly. Use Compose pointer input Modifiers on WebSurface instead. Observe events without consuming them, or the page may not receive them.",
+        level = DeprecationLevel.WARNING,
+    )
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return super.onTouchEvent(event)
     }
 
     @Deprecated(
@@ -885,8 +906,11 @@ public open class WebViewBridge : WebContentView {
         super.setFilterTouchesWhenObscured(enabled)
     }
 
+    // WebView never dispatched View click events for taps on web content, so there is no
+    // replacement.
     @Deprecated(
-        message = "Use Modifier.clickable or pointer input Modifiers instead of click listeners.",
+        message =
+            "WebView doesn't dispatch View click events for taps on web content. Handle taps in the page instead, for example with a WebMessageListener.",
         level = DeprecationLevel.WARNING,
     )
     override fun setOnClickListener(l: OnClickListener?) {
@@ -894,7 +918,8 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
-        message = "Use Modifier.clickable on WebSurface instead of View clickable.",
+        message =
+            "WebView doesn't dispatch View click events for taps on web content. Handle taps in the page instead, for example with a WebMessageListener.",
         level = DeprecationLevel.WARNING,
     )
     override fun setClickable(clickable: Boolean) {
@@ -902,7 +927,8 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
-        message = "Use Modifier.clickable on WebSurface instead of View performClick.",
+        message =
+            "WebView doesn't dispatch View click events for taps on web content. Handle taps in the page instead, for example with a WebMessageListener.",
         level = DeprecationLevel.WARNING,
     )
     override fun performClick(): Boolean {
@@ -910,35 +936,12 @@ public open class WebViewBridge : WebContentView {
     }
 
     @Deprecated(
-        message = "Use Modifier.clickable on WebSurface instead of View callOnClick.",
+        message =
+            "WebView doesn't dispatch View click events for taps on web content. Handle taps in the page instead, for example with a WebMessageListener.",
         level = DeprecationLevel.WARNING,
     )
     override fun callOnClick(): Boolean {
         return super.callOnClick()
-    }
-
-    @Deprecated(
-        message = "Use Compose context menu APIs instead of View context menu listeners.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun setOnCreateContextMenuListener(l: OnCreateContextMenuListener?) {
-        super.setOnCreateContextMenuListener(l)
-    }
-
-    @Deprecated(
-        message = "Use Compose context menu APIs instead of View context menus.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun showContextMenu(): Boolean {
-        return super.showContextMenu()
-    }
-
-    @Deprecated(
-        message = "Use Compose context menu APIs instead of View context menus.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun showContextMenu(x: Float, y: Float): Boolean {
-        return super.showContextMenu(x, y)
     }
 
     @Deprecated(
@@ -1071,7 +1074,7 @@ public open class WebViewBridge : WebContentView {
 
     @Deprecated(
         message =
-            "Use Modifier.overscroll or Modifier.nestedScroll on WebSurface instead of View overScrollMode.",
+            "WebSurface passes overscroll to parents through nested scrolling. Use Modifier.nestedScroll on a parent instead of View overScrollMode.",
         level = DeprecationLevel.WARNING,
     )
     override fun setOverScrollMode(mode: Int) {
@@ -1209,7 +1212,7 @@ public open class WebViewBridge : WebContentView {
 
     @Deprecated(
         message =
-            "Use Compose pointer input Modifiers on WebSurface instead of View generic motion listeners.",
+            "Use Compose pointer input Modifiers on WebSurface instead of View generic motion listeners. Observe events without consuming them, or the page may not receive them.",
         level = DeprecationLevel.WARNING,
     )
     override fun setOnGenericMotionListener(l: OnGenericMotionListener?) {
@@ -1241,42 +1244,6 @@ public open class WebViewBridge : WebContentView {
     )
     override fun setOnCapturedPointerListener(l: OnCapturedPointerListener?) {
         super.setOnCapturedPointerListener(l)
-    }
-
-    @Deprecated(
-        message =
-            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View long click listeners.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun setOnLongClickListener(l: OnLongClickListener?) {
-        super.setOnLongClickListener(l)
-    }
-
-    @Deprecated(
-        message =
-            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View longClickable.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun setLongClickable(longClickable: Boolean) {
-        super.setLongClickable(longClickable)
-    }
-
-    @Deprecated(
-        message =
-            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View performLongClick.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun performLongClick(): Boolean {
-        return super.performLongClick()
-    }
-
-    @Deprecated(
-        message =
-            "Use Modifier.combinedClickable or pointer input Modifiers on WebSurface instead of View performLongClick.",
-        level = DeprecationLevel.WARNING,
-    )
-    override fun performLongClick(x: Float, y: Float): Boolean {
-        return super.performLongClick(x, y)
     }
 
     @Deprecated(
@@ -1469,8 +1436,8 @@ public open class WebViewBridge : WebContentView {
     // =========================================================================================
     // 2. View APIs that currently DO work via the headless View, but NOT yet via Compose.
     // TODO: Support programmatic scrolling, the nested scrolling opt-out, selection ActionMode,
-    // rich content, stylus handwriting, autofill, and content capture in WebSurface / WebContent
-    // and deprecate these methods.
+    // rich content, stylus handwriting, autofill, content capture, long press, context menus, and
+    // the page background color in WebSurface / WebContent and deprecate these methods.
     // =========================================================================================
 
     override fun scrollTo(x: Int, y: Int) {
@@ -1569,5 +1536,40 @@ public open class WebViewBridge : WebContentView {
     @RequiresApi(29)
     override fun setContentCaptureSession(contentCaptureSession: ContentCaptureSession?) {
         super.setContentCaptureSession(contentCaptureSession)
+    }
+
+    // Chromium offers long presses to the container View via performLongClick before handling them
+    // itself, so long click listeners and context menus work like they do on WebView.
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        super.setOnLongClickListener(l)
+    }
+
+    override fun setLongClickable(longClickable: Boolean) {
+        super.setLongClickable(longClickable)
+    }
+
+    override fun performLongClick(): Boolean {
+        return super.performLongClick()
+    }
+
+    override fun performLongClick(x: Float, y: Float): Boolean {
+        return super.performLongClick(x, y)
+    }
+
+    override fun setOnCreateContextMenuListener(l: OnCreateContextMenuListener?) {
+        super.setOnCreateContextMenuListener(l)
+    }
+
+    override fun showContextMenu(): Boolean {
+        return super.showContextMenu()
+    }
+
+    override fun showContextMenu(x: Float, y: Float): Boolean {
+        return super.showContextMenu(x, y)
+    }
+
+    // On WebView this sets the page's base background color rather than the View background.
+    override fun setBackgroundColor(color: Int) {
+        super.setBackgroundColor(color)
     }
 }

@@ -37,13 +37,14 @@ package androidx.web.compose {
     method @Deprecated public void clearAnimation();
     method @Deprecated public void clearFocus();
     method @Deprecated public void destroy();
+    method @Deprecated public boolean dispatchTouchEvent(android.view.MotionEvent? ev);
     method @Deprecated public void invalidateOutline();
     method @Deprecated public void invokeZoomPicker();
     method @Deprecated public void offsetLeftAndRight(int offset);
     method @Deprecated public void offsetTopAndBottom(int offset);
+    method @Deprecated public boolean onInterceptTouchEvent(android.view.MotionEvent? ev);
+    method @Deprecated public boolean onTouchEvent(android.view.MotionEvent event);
     method @Deprecated public boolean performClick();
-    method @Deprecated public boolean performLongClick();
-    method @Deprecated public boolean performLongClick(float x, float y);
     method @Deprecated public void removeAllViews();
     method @Deprecated public void removeAllViewsInLayout();
     method @Deprecated public void removeOnAttachStateChangeListener(android.view.View.OnAttachStateChangeListener listener);
@@ -68,7 +69,6 @@ package androidx.web.compose {
     method @Deprecated public void setAnimation(android.view.animation.Animation? animation);
     method @Deprecated @RequiresApi(29) public void setAnimationMatrix(android.graphics.Matrix? matrix);
     method @Deprecated public void setBackground(android.graphics.drawable.Drawable? background);
-    method @Deprecated public void setBackgroundColor(int color);
     method @Deprecated public void setBackgroundResource(int resid);
     method @Deprecated @RequiresApi(29) public void setBackgroundTintBlendMode(android.graphics.BlendMode? blendMode);
     method @Deprecated public void setBackgroundTintList(android.content.res.ColorStateList? tint);
@@ -109,7 +109,6 @@ package androidx.web.compose {
     method @Deprecated public void setLayerPaint(android.graphics.Paint? paint);
     method @Deprecated public void setLayerType(int layerType, android.graphics.Paint? paint);
     method @Deprecated public void setLayoutParams(android.view.ViewGroup.LayoutParams? params);
-    method @Deprecated public void setLongClickable(boolean longClickable);
     method @Deprecated public void setMinimumHeight(int minHeight);
     method @Deprecated public void setMinimumWidth(int minWidth);
     method @Deprecated @RequiresApi(26) public void setNextClusterForwardId(int nextClusterForwardId);
@@ -122,14 +121,12 @@ package androidx.web.compose {
     method @Deprecated @RequiresApi(26) public void setOnCapturedPointerListener(android.view.View.OnCapturedPointerListener? l);
     method @Deprecated public void setOnClickListener(android.view.View.OnClickListener? l);
     method @Deprecated public void setOnContextClickListener(android.view.View.OnContextClickListener? l);
-    method @Deprecated public void setOnCreateContextMenuListener(android.view.View.OnCreateContextMenuListener? l);
     method @Deprecated public void setOnDragListener(android.view.View.OnDragListener? l);
     method @Deprecated public void setOnFocusChangeListener(android.view.View.OnFocusChangeListener? l);
     method @Deprecated public void setOnGenericMotionListener(android.view.View.OnGenericMotionListener? l);
     method @Deprecated public void setOnHierarchyChangeListener(android.view.ViewGroup.OnHierarchyChangeListener? listener);
     method @Deprecated public void setOnHoverListener(android.view.View.OnHoverListener? l);
     method @Deprecated public void setOnKeyListener(android.view.View.OnKeyListener? l);
-    method @Deprecated public void setOnLongClickListener(android.view.View.OnLongClickListener? l);
     method @Deprecated public void setOnTouchListener(android.view.View.OnTouchListener? l);
     method @Deprecated @RequiresApi(28) public void setOutlineAmbientShadowColor(int color);
     method @Deprecated public void setOutlineProvider(android.view.ViewOutlineProvider? provider);
@@ -176,8 +173,6 @@ package androidx.web.compose {
     method @Deprecated public void setX(float x);
     method @Deprecated public void setY(float y);
     method @Deprecated public void setZ(float z);
-    method @Deprecated public boolean showContextMenu();
-    method @Deprecated public boolean showContextMenu(float x, float y);
     method @Deprecated public void startAnimation(android.view.animation.Animation? animation);
     method @Deprecated public void updateViewLayout(android.view.View? view, android.view.ViewGroup.LayoutParams? params);
   }
