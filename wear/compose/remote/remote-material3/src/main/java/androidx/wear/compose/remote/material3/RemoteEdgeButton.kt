@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -124,7 +124,7 @@ import androidx.wear.compose.material3.TextConfiguration
 @RemoteComposable
 @Suppress("RestrictedApiAndroidX")
 public fun RemoteEdgeButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     buttonSize: RemoteEdgeButtonSize = RemoteEdgeButtonSize.Small,
     enabled: RemoteBoolean = true.rb,

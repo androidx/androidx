@@ -39,7 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 
 /**
- * Creates an [Action] that sends a [PendingIntent], filling in [extras] when the action runs.
+ * Creates an [RemoteAction] that sends a [PendingIntent], filling in [extras] when the action runs.
  *
  * The [PendingIntent] is not serialized into the document. It is stored in
  * [androidx.compose.remote.creation.compose.capture.CapturedDocument.pendingIntents], keyed by its
@@ -68,10 +68,10 @@ import androidx.compose.ui.platform.LocalInspectionMode
 public fun pendingIntentAction(
     vararg extras: Pair<String, RemoteString>,
     pendingIntent: (Context) -> PendingIntent,
-): Action = rememberPendingIntentAction(extras.toList(), pendingIntent)
+): RemoteAction = rememberPendingIntentAction(extras.toList(), pendingIntent)
 
 /**
- * Creates an [Action] that triggers a [PendingIntent].
+ * Creates an [RemoteAction] that triggers a [PendingIntent].
  *
  * The [PendingIntent] is not serialized into the document. It is stored in
  * [androidx.compose.remote.creation.compose.capture.CapturedDocument.pendingIntents], keyed by its
@@ -81,17 +81,17 @@ public fun pendingIntentAction(
  *   provided to the lambda to ensure it's available during serialization.
  */
 @Composable
-public fun pendingIntentAction(pendingIntent: (Context) -> PendingIntent): Action =
+public fun pendingIntentAction(pendingIntent: (Context) -> PendingIntent): RemoteAction =
     rememberPendingIntentAction(emptyList(), pendingIntent)
 
 @Composable
 private fun rememberPendingIntentAction(
     extras: List<Pair<String, RemoteString>>,
     pendingIntent: (Context) -> PendingIntent,
-): Action {
+): RemoteAction {
     if (LocalInspectionMode.current) {
         // Use the dedicated empty action for IDE previews as a safe no-op.
-        return Action.Empty
+        return RemoteAction.Empty
     }
 
     // Using a lambda defers PendingIntent access until serialization, preventing potential
@@ -119,7 +119,7 @@ private fun rememberPendingIntentAction(
 public class PendingIntentAction(
     public val pendingIntent: () -> PendingIntent,
     public val extras: List<Pair<String, RemoteString>> = emptyList(),
-) : RemoteAction() {
+) : RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {

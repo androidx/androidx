@@ -25,27 +25,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 
 /**
- * Creates an [Action] that triggers a lambda on the host.
+ * Creates an [RemoteAction] that triggers a lambda on the host.
  *
  * @param content The lambda to execute.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-public fun lambdaAction(content: () -> Unit): Action {
+public fun lambdaAction(content: () -> Unit): RemoteAction {
     // Using hashCode as recommended for Int conversion of CompositeKeyHashCode
     val actionId = currentCompositeKeyHashCode.hashCode()
     return LambdaAction(actionId, content)
 }
 
 /**
- * An [Action] that triggers a lambda on the host.
+ * An [RemoteAction] that triggers a lambda on the host.
  *
  * @property actionId The unique ID of the action, derived from Compose composition key.
  * @property content The lambda to execute.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class LambdaAction(public val actionId: Int, public val content: () -> Unit) :
-    RemoteAction() {
+public class LambdaAction(public val actionId: Int, public val content: () -> Unit) : RemoteAction {
 
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val action = CreationHostAction(LambdaAction.actionName(actionId))

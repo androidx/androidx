@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -74,7 +74,7 @@ import androidx.compose.ui.layout.ContentScale
 @RemoteComposable
 @Composable
 public fun RemoteCard(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
@@ -125,7 +125,7 @@ public fun RemoteCard(
 @RemoteComposable
 @Composable
 public fun RemoteCard(
-    onClick: Action,
+    onClick: RemoteAction,
     containerPainter: RemotePainter,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
@@ -168,7 +168,7 @@ public fun RemoteCard(
 @RemoteComposable
 @Composable
 public fun RemoteOutlinedCard(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteCardDefaults.shape,
@@ -516,7 +516,7 @@ internal fun RemoteModifier.remoteCardSizeModifier(): RemoteModifier =
 @Composable
 @RemoteComposable
 internal fun RemoteCardImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier,
     colors: RemoteCardColors,
     enabled: RemoteBoolean,

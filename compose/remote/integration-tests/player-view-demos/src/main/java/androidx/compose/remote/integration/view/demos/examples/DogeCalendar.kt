@@ -20,6 +20,7 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -353,7 +354,7 @@ private fun rememberDogeBitmaps(): Array<ImageBitmap> {
 private fun DogeFullScreenList(
     entries: Array<DogeListEntry>,
     scrollState: RemoteScrollState,
-    toggleDetailAction: androidx.compose.remote.creation.compose.action.Action,
+    toggleDetailAction: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
 ) {
     RemoteColumn(
@@ -426,7 +427,7 @@ private fun DogeFullScreenList(
 private fun DogeScrollProgressBar(
     scrollState: RemoteScrollState,
     maxScrollPx: Float,
-    toggleDetailAction: androidx.compose.remote.creation.compose.action.Action,
+    toggleDetailAction: RemoteAction,
 ) {
     // Track inner height inside 370.rdp list area with 6.rdp top/bottom inset = 358.rdp;
     // 46.rdp gold thumb travels smoothly across 312.rdp [0..312] as scroll moves [0..maxScrollPx].
@@ -464,7 +465,7 @@ private fun DogeListItemRow(
     index: Int,
     entry: DogeListEntry,
     scrollState: RemoteScrollState,
-    toggleDetailAction: androidx.compose.remote.creation.compose.action.Action,
+    toggleDetailAction: RemoteAction,
 ) {
     // Highlight whichever pill's vertical center is closest to the top slot (rowTop in [-37, +37])
     val topSlotDelta = (index * 74f).rf - scrollState.positionState

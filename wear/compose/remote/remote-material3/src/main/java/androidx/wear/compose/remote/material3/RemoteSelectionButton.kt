@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -103,7 +103,7 @@ internal fun animateSelectionColorProgress(
 @Composable
 @RemoteComposable
 internal fun RemoteSelectionButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier,
     enabled: RemoteBoolean,
     shape: RemoteShape,
@@ -127,7 +127,7 @@ internal fun RemoteSelectionButtonImpl(
             // the player's generic click haptic.
             .clickable(
                 action = onClick,
-                enabled = (enabled.constantValueOrNull ?: false) && onClick != Action.Empty,
+                enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { this.role = role }

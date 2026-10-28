@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -67,10 +67,10 @@ import androidx.wear.compose.material3.TextConfiguration
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitRadioButtonSample
  * @param selected [RemoteBoolean] flag indicating whether this button is currently selected.
- * @param onSelectionClick Action to be invoked when the selection control is clicked.
+ * @param onSelectionClick RemoteAction to be invoked when the selection control is clicked.
  * @param selectionContentDescription Text used by accessibility services to describe what this
  *   selection control represents.
- * @param onContainerClick Action to be invoked when the container area is clicked.
+ * @param onContainerClick RemoteAction to be invoked when the container area is clicked.
  * @param modifier [RemoteModifier] to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will appear
  *   visually disabled and will not be clickable. Note that only constant values are currently
@@ -87,9 +87,9 @@ import androidx.wear.compose.material3.TextConfiguration
 @Composable
 public fun RemoteSplitRadioButton(
     selected: RemoteBoolean,
-    onSelectionClick: Action,
+    onSelectionClick: RemoteAction,
     selectionContentDescription: RemoteString?,
-    onContainerClick: Action,
+    onContainerClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteSplitRadioButtonDefaults.shape,
@@ -133,7 +133,7 @@ public fun RemoteSplitRadioButton(
                         action = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != Action.Empty,
+                                onContainerClick != RemoteAction.Empty,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -191,7 +191,7 @@ public fun RemoteSplitRadioButton(
                         action = onSelectionClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onSelectionClick != Action.Empty,
+                                onSelectionClick != RemoteAction.Empty,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

@@ -28,7 +28,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -76,7 +76,7 @@ class RcPlayerHostActionTest {
 
     private fun clickAndCapture(
         profile: Profile = RcPlatformProfiles.ANDROIDX,
-        action: @Composable () -> Action,
+        action: @Composable () -> RemoteAction,
     ): Fired? {
         val captured = runBlocking {
             captureSingleRemoteDocument(context = context, profile = profile) {

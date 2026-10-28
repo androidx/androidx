@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 /** Keep track of lambda to be run when the corresponding id is sent back by the widget */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class WidgetLambdaAction(public val widgetId: Int, public val content: () -> Unit) :
-    RemoteAction() {
+    RemoteAction {
 
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val actionId = widgetId * 1000 + counter

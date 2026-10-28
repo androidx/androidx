@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -66,7 +66,7 @@ import androidx.compose.ui.graphics.Color
 @Composable
 @RemoteComposable
 public fun RemoteTextButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteTextButtonColors = RemoteTextButtonDefaults.textButtonColors(),
     enabled: RemoteBoolean = true.rb,

@@ -18,7 +18,7 @@ package androidx.compose.remote.integration.demos.modifier.scroll
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.scrollBy
 import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -110,7 +110,7 @@ private fun Square(index: Int) {
 @Suppress("RestrictedApiAndroidX") // Referring to RemoteComponentPreview
 @Composable
 @RemoteComposable
-private fun Button(onClick: Action, content: @Composable @RemoteComposable () -> Unit) {
+private fun Button(onClick: RemoteAction, content: @Composable @RemoteComposable () -> Unit) {
     RemoteBox(
         modifier =
             RemoteModifier.padding(5.rdp)

@@ -19,7 +19,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.ui.semantics.Role
 
 // TODO provide an onClickLabel
@@ -38,7 +38,7 @@ import androidx.compose.ui.semantics.Role
  *   the element or do customizations
  */
 public fun RemoteModifier.clickable(
-    action: Action,
+    action: RemoteAction,
     enabled: Boolean = true,
     role: Role? = Role.Button,
 ): RemoteModifier = clickableImpl(action = action, enabled = enabled, role = role?.toRemoteRole())

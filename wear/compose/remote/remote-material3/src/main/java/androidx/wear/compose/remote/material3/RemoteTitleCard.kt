@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -57,7 +57,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 @RemoteComposable
 @Composable
 public fun RemoteTitleCard(
-    onClick: Action,
+    onClick: RemoteAction,
     title: @Composable @RemoteComposable () -> Unit,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
@@ -161,7 +161,7 @@ public fun RemoteTitleCard(
 @RemoteComposable
 @Composable
 public fun RemoteTitleCard(
-    onClick: Action,
+    onClick: RemoteAction,
     containerPainter: RemotePainter,
     title: @Composable @RemoteComposable () -> Unit,
     modifier: RemoteModifier = RemoteModifier,

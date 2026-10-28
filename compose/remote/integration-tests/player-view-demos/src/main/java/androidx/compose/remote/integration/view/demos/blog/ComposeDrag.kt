@@ -16,7 +16,7 @@
 //
 // package androidx.compose.remote.integration.view.demos.blog
 // import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-// import androidx.compose.remote.creation.compose.action.Action.Companion.Empty
+// import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
 // import androidx.compose.remote.creation.compose.action.hostAction
 // import androidx.compose.remote.creation.compose.action.valueChange
 // import androidx.compose.remote.creation.compose.layout.RemoteAlignment

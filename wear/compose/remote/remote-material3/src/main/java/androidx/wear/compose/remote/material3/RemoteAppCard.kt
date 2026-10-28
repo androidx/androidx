@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -59,7 +59,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 @RemoteComposable
 @Composable
 public fun RemoteAppCard(
-    onClick: Action,
+    onClick: RemoteAction,
     appName: @Composable @RemoteComposable () -> Unit,
     title: @Composable @RemoteComposable () -> Unit,
     modifier: RemoteModifier = RemoteModifier,

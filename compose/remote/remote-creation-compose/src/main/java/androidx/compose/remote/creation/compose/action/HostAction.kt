@@ -30,7 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 
 /**
- * Creates an [Action] that triggers a named action on the host.
+ * Creates a [RemoteAction] that triggers a named action on the host.
  *
  * Named actions are delivered to the `onNamedAction` callback of the Compose players. [name] may be
  * a constant or a dynamic [RemoteString]; a dynamic name is resolved to its current value when the
@@ -40,34 +40,36 @@ import androidx.compose.remote.creation.compose.state.RemoteString
  *
  * @param name The name of the action.
  */
-public fun hostAction(name: RemoteString): Action = HostAction(name, HostAction.Type.NONE)
+public fun hostAction(name: RemoteString): RemoteAction = HostAction(name, HostAction.Type.NONE)
 
 /**
- * Creates an [Action] that triggers a named action on the host with a float value.
+ * Creates a [RemoteAction] that triggers a named action on the host with a float value.
  *
  * @param name The name of the action.
  * @param value The float value to pass with the action, delivered to the host as a [Float].
  */
-public fun hostAction(name: RemoteString, value: RemoteFloat): Action = HostAction(name, value)
+public fun hostAction(name: RemoteString, value: RemoteFloat): RemoteAction =
+    HostAction(name, value)
 
 /**
- * Creates an [Action] that triggers a named action on the host with an int value.
+ * Creates a [RemoteAction] that triggers a named action on the host with an int value.
  *
  * @param name The name of the action.
  * @param value The int value to pass with the action, delivered to the host as an [Int].
  */
-public fun hostAction(name: RemoteString, value: RemoteInt): Action = HostAction(name, value)
+public fun hostAction(name: RemoteString, value: RemoteInt): RemoteAction = HostAction(name, value)
 
 /**
- * Creates an [Action] that triggers a named action on the host with a string value.
+ * Creates a [RemoteAction] that triggers a named action on the host with a string value.
  *
  * @param name The name of the action.
  * @param value The string value to pass with the action, delivered to the host as a [String].
  */
-public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAction(name, value)
+public fun hostAction(name: RemoteString, value: RemoteString): RemoteAction =
+    HostAction(name, value)
 
 /**
- * Creates an [Action] that triggers a named action on the host with a boolean value.
+ * Creates a [RemoteAction] that triggers a named action on the host with a boolean value.
  *
  * The document format has no boolean payload, so the value is delivered to the host as an [Int]:
  * `1` for `true` and `0` for `false`.
@@ -76,11 +78,11 @@ public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAct
  * @param value The boolean value to pass with the action.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun hostAction(name: RemoteString, value: RemoteBoolean): Action =
+public fun hostAction(name: RemoteString, value: RemoteBoolean): RemoteAction =
     HostAction(name, value.toRemoteInt())
 
 /**
- * Creates an [Action] that triggers an id action on the host, with optional string [metadata].
+ * Creates a [RemoteAction] that triggers an id action on the host, with optional string [metadata].
  *
  * Id actions are delivered to the `onAction` callback of the Compose players, and are the only host
  * actions that platform `RemoteViews` hosts (launcher widgets, notifications) dispatch: a click
@@ -100,7 +102,7 @@ public fun hostAction(name: RemoteString, value: RemoteBoolean): Action =
  *   from touch positions or other remote state, and is resolved when the action runs.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun hostAction(id: Int, metadata: RemoteString? = null): Action {
+public fun hostAction(id: Int, metadata: RemoteString? = null): RemoteAction {
     require(id != -1) { "-1 is the default component id and cannot be used as a host action id" }
     return HostIdAction(id, metadata)
 }
@@ -110,7 +112,7 @@ internal class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.NONE,
     public val value: RemoteState<*>? = null,
-) : RemoteAction() {
+) : RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public enum class Type(public val value: Int) {
@@ -148,7 +150,7 @@ internal class HostAction(
 
 /** Run the host action with a stable integer [id], and optional [metadata], when invoked. */
 internal class HostIdAction(public val id: Int, public val metadata: RemoteString? = null) :
-    RemoteAction() {
+    RemoteAction {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRemoteAction(): CreationAction {

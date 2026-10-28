@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -50,7 +50,7 @@ class RemoteTitleCardTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     modifier = RemoteModifier.drawWithContent { drawContent() },
                     colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Red.rc),
                 ) {
@@ -74,7 +74,7 @@ class RemoteTitleCardTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteTitleCard(
-                    onClick = Action.Empty,
+                    onClick = RemoteAction.Empty,
                     title = { RemoteText("Title".rs) },
                     modifier =
                         RemoteModifier.drawWithContent {

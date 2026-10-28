@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
@@ -315,7 +315,7 @@ class RemoteIconButtonTest {
                         contentAlignment = RemoteAlignment.Center,
                     ) {
                         RemoteIconButton(
-                            onClick = Action.Empty,
+                            onClick = RemoteAction.Empty,
                             enabled = true.rb,
                             colors = RemoteIconButtonDefaults.filledIconButtonColors(),
                         ) {

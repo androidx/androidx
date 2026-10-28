@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
@@ -64,7 +64,7 @@ import androidx.compose.ui.semantics.Role
 @RemoteComposable
 public fun RemoteRadioButton(
     selected: RemoteBoolean,
-    onSelect: Action,
+    onSelect: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     shape: RemoteShape = RemoteRadioButtonDefaults.radioButtonShape,

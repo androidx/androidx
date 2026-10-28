@@ -25,7 +25,7 @@ import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.modifiers.HeightModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -72,7 +72,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun titleCard_withExplicitWidth_emitsSingleWidthModifier() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteTitleCard(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 title = { RemoteText("Title".rs) },
                 modifier =
                     RemoteModifier.width(172.rdp).semantics {
@@ -91,7 +91,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun appCard_withExplicitWidth_emitsSingleWidthModifier() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteAppCard(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 appName = { RemoteText("App".rs) },
                 title = { RemoteText("Title".rs) },
                 modifier =
@@ -112,7 +112,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun cardAndOutlinedCard_withExplicitSize_emitSingleWidthAndHeightModifiers() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteCard(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.size(172.rdp, 100.rdp).semantics {
                         contentDescription = "card".rs
@@ -121,7 +121,7 @@ class RemoteModifierNonRepeatableModifiersTest {
                 RemoteText("Card".rs)
             }
             RemoteOutlinedCard(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.size(172.rdp, 100.rdp).semantics {
                         contentDescription = "outlinedCard".rs
@@ -146,7 +146,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun iconButtonAndSlider_withExplicitSize_emitSingleWidthAndHeightModifiers() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteIconButton(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.size(60.rdp).semantics {
                         contentDescription = "iconButton".rs

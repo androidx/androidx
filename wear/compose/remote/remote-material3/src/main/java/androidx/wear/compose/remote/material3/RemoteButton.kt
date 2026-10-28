@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -109,7 +109,7 @@ import androidx.wear.compose.remote.material3.RemoteButtonDefaults.defaultButton
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
     colors: RemoteButtonColors = RemoteButtonDefaults.buttonColors(),
@@ -165,7 +165,7 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     containerPainter: RemotePainter,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
@@ -255,7 +255,7 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabel: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)? = null,
     icon: (@Composable () -> Unit)? = null,
@@ -368,7 +368,7 @@ public fun RemoteButton(
 @Composable
 @RemoteComposable
 public fun RemoteCompactButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     icon: (@Composable () -> Unit)? = null,
     enabled: RemoteBoolean = true.rb,
@@ -390,13 +390,13 @@ public fun RemoteCompactButton(
                 .clip(shape = shape)
                 .clickable(
                     onClick,
-                    enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
+                    enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
                 ),
         contentAlignment = RemoteAlignment.Center,
     ) {
         if (label != null) {
             RemoteButtonImpl(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .widthIn(min = RemoteButtonDefaults.CompactButtonVisibleHeight),
@@ -439,7 +439,7 @@ public fun RemoteCompactButton(
             }
         } else {
             RemoteButtonImpl(
-                onClick = Action.Empty,
+                onClick = RemoteAction.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .width(RemoteButtonDefaults.IconOnlyCompactButtonWidth),
@@ -475,7 +475,7 @@ public fun RemoteCompactButton(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteButtonColors,
     containerPainter: RemotePainter?,
@@ -494,7 +494,7 @@ private fun RemoteButtonImpl(
         RemoteModifier.clip(shape = shape)
             .clickable(
                 action = onClick,
-                enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
+                enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)
             .let {
@@ -546,7 +546,7 @@ private fun RemoteButtonImpl(
 @Composable
 @RemoteComposable
 private fun RemoteButtonImpl(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     secondaryLabelContent: (@Composable @RemoteComposable RemoteRowScope.() -> Unit)?,
     icon: (@Composable @RemoteComposable () -> Unit)?,

@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
@@ -42,7 +42,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteCardSample() {
-    RemoteCard(onClick = Action.Empty, modifier = RemoteModifier.padding(16.rdp)) {
+    RemoteCard(onClick = RemoteAction.Empty, modifier = RemoteModifier.padding(16.rdp)) {
         RemoteText("This is a basic card".rs)
     }
 }
@@ -59,7 +59,7 @@ fun RemoteCardWithImageSample() {
     }
     val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
     RemoteCard(
-        onClick = Action.Empty,
+        onClick = RemoteAction.Empty,
         containerPainter = containerPainter,
         modifier = RemoteModifier.padding(16.rdp),
     ) {
@@ -72,7 +72,7 @@ fun RemoteCardWithImageSample() {
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteOutlinedCardSample() {
-    RemoteOutlinedCard(onClick = Action.Empty, modifier = RemoteModifier.padding(16.rdp)) {
+    RemoteOutlinedCard(onClick = RemoteAction.Empty, modifier = RemoteModifier.padding(16.rdp)) {
         RemoteText("This is an outlined card".rs)
     }
 }

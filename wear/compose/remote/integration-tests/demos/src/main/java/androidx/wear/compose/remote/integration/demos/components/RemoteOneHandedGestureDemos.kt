@@ -18,7 +18,7 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteTime
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.rf
@@ -77,7 +77,7 @@ fun RemoteOneHandedGestureDemos(modifier: Modifier = Modifier) {
                 RemotePrimaryGestureIndicator(progress = loopingProgress)
             }
             remoteDemoItem("On RemoteButton") {
-                RemoteButton(onClick = Action.Empty) {
+                RemoteButton(onClick = RemoteAction.Empty) {
                     RemotePrimaryGestureIndicator(progress = loopingProgress)
                 }
             }

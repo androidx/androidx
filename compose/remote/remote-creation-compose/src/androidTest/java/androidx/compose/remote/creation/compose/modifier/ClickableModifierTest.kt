@@ -16,9 +16,9 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.action.CombinedAction
 import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -82,7 +82,7 @@ class ClickableModifierTest {
     }
 
     private fun runActionTest(
-        action: Action,
+        action: RemoteAction,
         enabled: Boolean = true,
         finder: (UiAutomatorTestScope.() -> UiObject2)? = null,
         block: (element: UiObject2) -> Unit,

@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsPathClip
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -42,7 +42,7 @@ import androidx.compose.ui.semantics.Role
 @Composable
 @RemoteComposable
 internal fun RemoteRoundButton(
-    onClick: Action,
+    onClick: RemoteAction,
     modifier: RemoteModifier = RemoteModifier,
     backgroundColor: RemoteColor,
     enabled: RemoteBoolean,

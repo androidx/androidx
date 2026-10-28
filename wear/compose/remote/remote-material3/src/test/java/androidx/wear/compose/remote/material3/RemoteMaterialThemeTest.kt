@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.rc
@@ -91,7 +91,7 @@ class RemoteMaterialThemeTest {
 
         runTest(colorOverrides = mapOf("WearM3.primary" to Color.Yellow)) {
             RemoteMaterialTheme(colorScheme = RemoteColorScheme(ColorScheme())) {
-                RemoteButton(onClick = Action.Empty) { RemoteText("button_enabled".rs) }
+                RemoteButton(onClick = RemoteAction.Empty) { RemoteText("button_enabled".rs) }
             }
         }
 
