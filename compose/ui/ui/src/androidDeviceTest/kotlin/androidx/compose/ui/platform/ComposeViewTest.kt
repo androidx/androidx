@@ -47,7 +47,6 @@ import kotlinx.coroutines.Job
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -793,31 +792,6 @@ class ComposeViewTest {
 
         rule.waitForIdle()
         assertThat(isComposed).isTrue()
-    }
-
-    @Ignore("b/576279516")
-    @Test
-    fun concurrentCreateCompositionFromMultipleThreads() {
-        val attachedView = View(rule.activity)
-        rule.runOnUiThread { rule.activity.setContentView(attachedView) }
-        rule.waitForIdle()
-        val composeViewContext = rule.runOnUiThread { ComposeViewContext(attachedView) }
-        val composeView = ComposeView(rule.activity)
-        var composeCount = 0
-        composeView.setContent {
-            composeCount++
-            Box(Modifier.fillMaxSize())
-        }
-
-        val threadCount = 10
-        val threads =
-            (0 until threadCount).map {
-                kotlin.concurrent.thread { composeView.createComposition(composeViewContext) }
-            }
-        threads.forEach { it.join() }
-
-        rule.waitForIdle()
-        assertThat(composeCount).isGreaterThan(0)
     }
 
     @Test
