@@ -261,7 +261,7 @@ public fun Orbiter(
         }
 
     val holder =
-        remember(parentView) {
+        remember(parentView, session) {
             SpatialOrbiter(
                 context = context,
                 parentView = parentView,
@@ -762,6 +762,27 @@ private constructor(
              */
             public val Center: EdgeAlignment = EdgeAlignment(2)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as OrbiterPosition
+        if (alignment != other.alignment) return false
+        if (horizontalEdgeAlignment != other.horizontalEdgeAlignment) return false
+        if (verticalEdgeAlignment != other.verticalEdgeAlignment) return false
+        if (offset != other.offset) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = alignment.hashCode()
+        result = 31 * result + horizontalEdgeAlignment.hashCode()
+        result = 31 * result + verticalEdgeAlignment.hashCode()
+        result = 31 * result + offset.hashCode()
+
+        return result
     }
 }
 
