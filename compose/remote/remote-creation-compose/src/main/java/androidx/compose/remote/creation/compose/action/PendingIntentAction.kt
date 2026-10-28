@@ -25,6 +25,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.creationState
@@ -63,6 +64,7 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
  *   provided to the lambda to ensure it's available during serialization.
  */
+@RemoteComposable
 @Composable
 public fun rememberPendingIntentAction(
     vararg extras: Pair<String, RemoteString>,

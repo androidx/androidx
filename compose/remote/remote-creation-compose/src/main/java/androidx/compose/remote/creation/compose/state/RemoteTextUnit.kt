@@ -21,6 +21,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit.OperationKey
 import androidx.compose.remote.creation.compose.text.RemoteFontScaleConverter
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
  * @property value The [RemoteFloat] that holds the scalar value.
  * @property type The [TextUnitType] (Sp or Em).
  */
+@Stable
 public class RemoteTextUnit
 internal constructor(public val value: RemoteFloat, public val type: TextUnitType) :
     BaseRemoteState<TextUnit>(RemoteStateInstanceKey()) {

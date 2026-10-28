@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.OperationKey
 import androidx.compose.runtime.Composable
@@ -1133,6 +1134,7 @@ internal constructor(
             "androidx.compose.runtime.remember",
         ),
 )
+@RemoteComposable
 @Composable
 public fun rememberMutableRemoteString(initialValue: String): MutableRemoteString {
     return remember { MutableRemoteString(initialValue) }
@@ -1146,6 +1148,7 @@ public fun rememberMutableRemoteString(initialValue: String): MutableRemoteStrin
  * @param domain The domain of the named string (defaults to [RemoteState.Domain.User]).
  * @return A [RemoteString] representing the named remote string expression.
  */
+@RemoteComposable
 @Composable
 public fun rememberNamedRemoteString(
     name: String,

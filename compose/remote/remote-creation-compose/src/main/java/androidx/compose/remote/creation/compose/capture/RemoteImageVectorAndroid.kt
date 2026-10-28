@@ -22,6 +22,7 @@ package androidx.compose.remote.creation.compose.capture
 import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.toRemotePathFillType
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
@@ -143,6 +144,7 @@ public fun RemoteImageVector.Builder.path(
  * @param id the drawable resource identifier of the vector drawable
  * @return the [RemoteImageVector] associated with the resource
  */
+@RemoteComposable
 @Composable
 public fun RemoteImageVector.Companion.vectorResource(@DrawableRes id: Int): RemoteImageVector {
     val imageVector = ImageVector.vectorResource(id)

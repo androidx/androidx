@@ -22,6 +22,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 private const val LEFT = 101
 private const val CENTER = 102
@@ -32,20 +34,24 @@ private const val RIGHT = 103
  * allows for more than one child. This is a mirror of
  * [androidx.compose.foundation.layout.Arrangement]
  */
+@Immutable
 public object RemoteArrangement {
 
     /** A contract for laying out children horizontally. */
+    @Stable
     public sealed interface Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toRemote(layoutDirection: RemoteLayoutDirection): Int
     }
 
     /** A contract for laying out children vertically. */
+    @Stable
     public sealed interface Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemote(): Int
     }
 
     /** A contract for laying out children horizontally or vertically. */
+    @Stable
     public sealed interface HorizontalOrVertical : Horizontal, Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toRemote(layoutDirection: RemoteLayoutDirection): Int

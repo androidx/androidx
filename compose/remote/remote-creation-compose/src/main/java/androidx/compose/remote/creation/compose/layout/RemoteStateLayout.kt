@@ -90,7 +90,7 @@ internal fun <T> StateLayout(
 public fun <T : Enum<T>> RemoteStateLayout(
     currentState: RemoteEnum<T>,
     modifier: RemoteModifier = RemoteModifier,
-    content: @Composable (T) -> Unit,
+    content: @RemoteComposable @Composable (T) -> Unit,
 ) {
     val stateMachine = remember {
         RemoteStateMachine(currentState.intValue, currentState.enumEntries)
@@ -114,7 +114,7 @@ public fun <T : Enum<T>> RemoteStateLayout(
 public fun RemoteStateLayout(
     currentState: RemoteBoolean,
     modifier: RemoteModifier = RemoteModifier,
-    content: @Composable (Boolean) -> Unit,
+    content: @RemoteComposable @Composable (Boolean) -> Unit,
 ) {
     val stateMachine = remember { RemoteStateMachine(currentState.intValue, listOf(false, true)) }
     StateLayout(stateMachine, modifier, content)
@@ -139,7 +139,7 @@ public fun RemoteStateLayout(
     currentState: RemoteInt,
     vararg states: Int,
     modifier: RemoteModifier = RemoteModifier,
-    content: @Composable (Int) -> Unit,
+    content: @RemoteComposable @Composable (Int) -> Unit,
 ) {
     val stateMachine = remember { RemoteStateMachine(currentState, states.sorted()) }
     StateLayout(stateMachine, modifier, content)

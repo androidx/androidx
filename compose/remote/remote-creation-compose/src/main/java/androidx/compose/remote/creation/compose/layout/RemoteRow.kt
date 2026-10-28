@@ -24,10 +24,12 @@ import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 
 /** Receiver scope used by [RemoteRow] for its content. */
 @RemoteLayoutScopeMarker
+@Immutable
 public class RemoteRowScope {
     /**
      * Sets the horizontal weight of this element relative to its siblings in the [RemoteRow].
@@ -85,7 +87,7 @@ public fun RemoteRow(
     modifier: RemoteModifier = RemoteModifier,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
-    content: @Composable RemoteRowScope.() -> Unit,
+    content: @RemoteComposable @Composable RemoteRowScope.() -> Unit,
 ) {
     val scope = remember { RemoteRowScope() }
     RemoteLayoutNode(

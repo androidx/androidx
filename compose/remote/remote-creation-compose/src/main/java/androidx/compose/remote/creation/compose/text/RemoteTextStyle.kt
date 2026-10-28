@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.util.fastFilter
 import androidx.compose.remote.creation.compose.util.fastFirstOrNull
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
@@ -65,6 +66,7 @@ import androidx.compose.ui.unit.TextUnit
  *   "smcp" or "tnum").
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
+@Immutable
 public class RemoteTextStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(

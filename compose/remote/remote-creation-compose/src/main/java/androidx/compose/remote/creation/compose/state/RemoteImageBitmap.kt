@@ -21,8 +21,10 @@ import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_HEIGHT
 import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
  * `RemoteImageBitmap` represents an image value that can be a constant, a named variable, or an
  * offscreen buffer.
  */
+@Stable
 public abstract class RemoteImageBitmap
 internal constructor(
     public override val constantValueOrNull: ImageBitmap?,
@@ -322,6 +325,7 @@ internal constructor(
             "androidx.compose.runtime.remember",
         ),
 )
+@RemoteComposable
 @Composable
 public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableRemoteImageBitmap {
     return remember { MutableRemoteImageBitmap(initialValue) }
@@ -333,6 +337,7 @@ public fun rememberMutableRemoteImageBitmap(initialValue: ImageBitmap): MutableR
  * @param url The URL of the image.
  * @return A [RemoteImageBitmap] representing the image from the URL.
  */
+@RemoteComposable
 @Composable
 public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
     return remember(url) { RemoteImageBitmap(url) }
@@ -346,6 +351,7 @@ public fun rememberRemoteImageBitmap(url: String): RemoteImageBitmap {
  * @param value A lambda that provides the initial [ImageBitmap].
  * @return A [RemoteImageBitmap] representing the named remote bitmap.
  */
+@RemoteComposable
 @Composable
 public fun rememberNamedRemoteImageBitmap(
     name: String,
@@ -363,6 +369,7 @@ public fun rememberNamedRemoteImageBitmap(
  * @param domain domain for the named state, defaults to [RemoteState.Domain.User]
  * @return a [RemoteImageBitmap] for the named bitmap from [url]
  */
+@RemoteComposable
 @Composable
 public fun rememberNamedRemoteImageBitmap(
     name: String,

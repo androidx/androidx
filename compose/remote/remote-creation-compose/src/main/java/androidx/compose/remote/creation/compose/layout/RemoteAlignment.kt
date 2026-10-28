@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.End
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Start
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion.Top
+import androidx.compose.runtime.Stable
 
 /**
  * A remote equivalent of [androidx.compose.ui.Alignment]. It is used to define how a layout's
@@ -33,6 +34,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteAlignment.Companion
  * - Horizontal: [Start], [CenterHorizontally], [End]
  * - Vertical: [Top], [CenterVertically], [Bottom]
  */
+@Stable
 public interface RemoteAlignment {
     @get:Suppress("HiddenAbstractMethodInInterface")
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -47,6 +49,7 @@ public interface RemoteAlignment {
      *
      * Pre-defined alignment objects are available: [Start], [CenterHorizontally], and [End].
      */
+    @Stable
     public sealed interface Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toRemote(layoutDirection: RemoteLayoutDirection): Int
@@ -60,6 +63,7 @@ public interface RemoteAlignment {
      * @see CenterVertically
      * @see Bottom
      */
+    @Stable
     public sealed interface Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemote(): Int
     }

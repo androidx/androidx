@@ -60,7 +60,7 @@ internal class RemoteBoxNode : RemoteLayoutNode() {
 public fun RemoteBox(
     modifier: RemoteModifier = RemoteModifier,
     contentAlignment: RemoteAlignment = RemoteAlignment.TopStart,
-    content: @Composable () -> Unit,
+    content: @RemoteComposable @Composable () -> Unit,
 ) {
     val scope = remember { RemoteBoxScope() }
     RemoteLayoutNode(

@@ -18,9 +18,11 @@ package androidx.compose.remote.creation.compose.shapes
 
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Defines a generic remote shape. */
+@Stable
 public interface RemoteShape {
     /**
      * Creates [RemoteOutline] of this shape for the given [size].

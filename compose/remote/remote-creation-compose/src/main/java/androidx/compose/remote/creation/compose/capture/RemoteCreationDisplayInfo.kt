@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.Density
 
@@ -56,6 +57,7 @@ public enum class RemoteDensityBehavior(internal val value: Int) {
  *   environment (e.g. inside an IDE preview). Defaults to false.
  * @property densityBehavior The [RemoteDensityBehavior] to use for interpreting dimension values.
  */
+@Immutable
 public class RemoteCreationDisplayInfo
 internal constructor(
     public val size: Size,
