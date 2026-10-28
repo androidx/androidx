@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
@@ -29,7 +30,10 @@ import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.compose.ui.tooling.test.R
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
@@ -916,6 +920,216 @@ class ComposeViewAdapterTest {
                 "Method '$expectedMethod' should be present in FakeOnBackPressedDispatcherOwner",
                 actualMethods.contains(expectedMethod),
             )
+        }
+    }
+
+    /**
+     * Initializes [methodName] with the given [device] spec (by default, one that expands
+     * vertically) and returns the height of the adapter when measured with an UNSPECIFIED height
+     * spec of size [viewportHeightPx], as LayoutLib does in V_SCROLL rendering mode.
+     */
+    private fun measureExpanded(
+        methodName: String,
+        viewportHeightPx: Int,
+        device: String = EXPAND_VERTICAL_DEVICE,
+        heightMode: Int = View.MeasureSpec.UNSPECIFIED,
+    ): Int {
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            methodName,
+            device = device,
+        )
+        var measuredHeight = -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(viewportHeightPx, heightMode),
+            )
+            measuredHeight = composeViewAdapter.measuredHeight
+        }
+        return measuredHeight
+    }
+
+    private fun Dp.toPx(): Int = Density(activityTestRule.activity).run { this@toPx.roundToPx() }
+
+    @Test
+    fun expandVertical_longLazyColumnInScaffold_growsToFitAllItems() {
+        val expectedHeight =
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT +
+                EXPAND_BOTTOM_BAR_HEIGHT.toPx()
+        val height =
+            measureExpanded("ExpandLongLazyColumnInScaffoldPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_shortLazyColumnInScaffold_shrinksToContent() {
+        val expectedHeight =
+            EXPAND_ITEM_HEIGHT.toPx() * EXPAND_SHORT_LIST_ITEM_COUNT +
+                EXPAND_BOTTOM_BAR_HEIGHT.toPx()
+        // With a viewport of 0, a fillMaxSize() Scaffold must not expand to the max height.
+        val height = measureExpanded("ExpandShortLazyColumnInScaffoldPreview", viewportHeightPx = 0)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_shortLazyColumnInScaffold_neverSmallerThanViewport() {
+        val viewportHeight = EXPAND_ITEM_HEIGHT.toPx() * (EXPAND_SHORT_LIST_ITEM_COUNT + 5)
+        val height =
+            measureExpanded(
+                "ExpandShortLazyColumnInScaffoldPreview",
+                viewportHeightPx = viewportHeight,
+            )
+        assertEquals(viewportHeight, height)
+    }
+
+    @Test
+    fun expandVertical_verticalScrollColumn_growsToFitAllItems() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height = measureExpanded("ExpandVerticalScrollColumnPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun expandVertical_heightIsCappedAtMaxHeight() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=300px",
+            )
+        assertEquals(300, height)
+    }
+
+    @Test
+    fun expandVertical_heightIsCappedAtMaxHeightInDp() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=150dp",
+            )
+        assertEquals(150.dp.toPx(), height)
+    }
+
+    @Test
+    fun expandVertical_maxWidthIsIgnored() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height =
+            measureExpanded(
+                "ExpandVerticalScrollColumnPreview",
+                viewportHeightPx = 100,
+                device = "$EXPAND_VERTICAL_DEVICE,maxWidth=300px",
+            )
+        assertEquals(expectedHeight, height)
+    }
+
+    @Test
+    fun noExpand_unspecifiedHeight_isNotExpanded() {
+        val viewportHeight = EXPAND_ITEM_HEIGHT.toPx() * 3
+        val expandedHeight =
+            measureExpanded("ExpandFixedHeightPreview", viewportHeightPx = viewportHeight)
+        // When expanded, the adapter is never smaller than the viewport.
+        assertEquals(viewportHeight, expandedHeight)
+        // Otherwise, it wraps its content, as with any other UNSPECIFIED spec.
+        val height =
+            measureExpanded(
+                "ExpandFixedHeightPreview",
+                viewportHeightPx = viewportHeight,
+                device = "spec:width=411dp,height=891dp",
+            )
+        assertEquals(EXPAND_ITEM_HEIGHT.toPx(), height)
+    }
+
+    @Test
+    fun expandVertical_mediaQueriesSeeTheScreenHeight() {
+        val expectedHeight = activityTestRule.activity.resources.configuration.screenHeightDp.dp
+        observedMediaQueryWindowHeight = null
+        // Use a spec without an explicit height (spec:parent=...) so the fallback screen height is
+        // reported.
+        measureExpanded(
+            "MediaQueryHeightPreview",
+            viewportHeightPx = 100,
+            device = "spec:parent=pixel_7,expand=vertical",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedHeight, observedMediaQueryWindowHeight)
+        }
+
+        // When the spec specifies an explicit height, that height takes precedence over the
+        // host screen height.
+        observedMediaQueryWindowHeight = null
+        measureExpanded(
+            "MediaQueryHeightPreview",
+            viewportHeightPx = 100,
+            device = "spec:width=411dp,height=900dp,expand=vertical",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(900.dp, observedMediaQueryWindowHeight)
+        }
+    }
+
+    @Test
+    fun expandVertical_exactlySpecIsHonored() {
+        val height =
+            measureExpanded(
+                "ExpandLongLazyColumnInScaffoldPreview",
+                viewportHeightPx = 250,
+                heightMode = View.MeasureSpec.EXACTLY,
+            )
+        assertEquals(250, height)
+    }
+
+    @Test
+    fun expandVertical_repeatedRenderMeasures_retainsExpandedHeightWithoutRecomputing() {
+        val expectedHeight = EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT
+        val height = measureExpanded("ExpandVerticalScrollColumnPreview", viewportHeightPx = 100)
+        assertEquals(expectedHeight, height)
+
+        // Simulate LayoutLib's subsequent RenderSessionImpl.render() passes, which measure the
+        // root view with EXACTLY (pair11) followed by the content root with UNSPECIFIED (pair12).
+        // Both passes must return the cached expanded height so calcSize does not add
+        // (pair12 - pair11) again or shrink the view back to the viewport height.
+        activityTestRule.runOnUiThread {
+            val widthSpec =
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                )
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            composeViewAdapter.measure(
+                widthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
+
+            // Measuring with a different width invalidates the cached expanded height, so an
+            // EXACTLY height spec is honored and an UNSPECIFIED height spec re-expands for the new
+            // width.
+            val narrowerWidthSpec =
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width / 2,
+                    View.MeasureSpec.EXACTLY,
+                )
+            composeViewAdapter.measure(
+                narrowerWidthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.EXACTLY),
+            )
+            assertEquals(454, composeViewAdapter.measuredHeight)
+
+            composeViewAdapter.measure(
+                narrowerWidthSpec,
+                View.MeasureSpec.makeMeasureSpec(454, View.MeasureSpec.UNSPECIFIED),
+            )
+            assertEquals(expectedHeight, composeViewAdapter.measuredHeight)
         }
     }
 

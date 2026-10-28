@@ -32,5 +32,5 @@ private object PreviewDeviceSpec {
      */
     // Must be `const` so its value is stored in the `.class` constant pool.
     const val SUPPORTED_PARAMETERS: String =
-        "windowPosture,pointerPrecision,keyboardKind,hasCamera,hasMicrophone,viewingDistance"
+        "windowPosture,pointerPrecision,keyboardKind,hasCamera,hasMicrophone,viewingDistance,expand,maxHeight"
 }

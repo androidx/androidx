@@ -35,6 +35,8 @@ class PreviewDeviceSpecTest {
                 "hasCamera",
                 "hasMicrophone",
                 "viewingDistance",
+                "expand",
+                "maxHeight",
             ),
             supportedParameters.split(',').toSet(),
         )

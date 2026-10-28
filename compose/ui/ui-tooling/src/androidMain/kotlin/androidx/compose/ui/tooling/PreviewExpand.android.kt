@@ -16,6 +16,13 @@
 
 package androidx.compose.ui.tooling
 
+import android.view.View
+import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getAllSemanticsNodes
+import androidx.compose.ui.semantics.getOrNull
 import kotlin.math.roundToInt
 
 // Spec parameter keys (normalized lowercase for lookup)
@@ -32,6 +39,9 @@ private const val EXPAND_HORIZONTAL = "horizontal"
  * does not specify a valid `maxHeight` / `maxWidth`.
  */
 internal const val DEFAULT_EXPAND_MAX_SIZE_PX = 4096
+
+/** Remaining scroll range, in pixels, below which a scrollable container is considered to fit. */
+private const val SCROLL_OVERFLOW_TOLERANCE_PX = 0.5f
 
 /** Axis along which a preview grows to display all its scrollable content. */
 internal enum class PreviewExpandAxis {
@@ -94,4 +104,114 @@ private fun parseSizePx(value: String?, density: Float): Int? {
         } ?: return null
     if (!px.isFinite()) return null
     return px.roundToInt().takeIf { it >= 1 }
+}
+
+/**
+ * Updates `view.resources.configuration.windowConfiguration` and `ViewRootImpl`'s merged
+ * configurations to have bounds `[0, 0, width, height]` when running under LayoutLib, so
+ * `ViewRootImpl.relayoutWindow` takes the async relayout path with the expanded window bounds
+ * instead of shrinking `mWinFrame` back to the initial screen bounds or triggering a full
+ * configuration change during `performTraversals()`.
+ */
+internal fun updateWindowConfigurationBounds(view: View, width: Int, height: Int) {
+    WindowConfigurationBoundsSupport.instance?.updateBounds(
+        view,
+        view.resources.configuration,
+        width,
+        height,
+    )
+}
+
+/**
+ * Marks ancestors above [View.getParent] as needing layout when measured with `UNSPECIFIED`. In
+ * LayoutLib's `RenderSessionImpl.measureLayout`, the first pass measures `mViewRoot` (clearing its
+ * `PFLAG_FORCE_LAYOUT` flag) and the second pass only measures `mContentRoot` (the direct parent,
+ * whose `measure()` is currently executing and will clear its own flag on return). Marking the
+ * ancestors above `parent` ensures `ViewRootImpl.performTraversals()` re-measures and lays out the
+ * full hierarchy from `mViewRoot` down at the expanded size.
+ */
+internal fun forceAncestorLayouts(view: View) {
+    var ancestor = view.parent?.parent
+    while (ancestor is View) {
+        ancestor.forceLayout()
+        ancestor = ancestor.parent
+    }
+}
+
+internal fun layoutComposeView(composeView: ComposeView) {
+    composeView.layout(0, 0, composeView.measuredWidth, composeView.measuredHeight)
+}
+
+/**
+ * Composes the preview from scratch, then measures and lays it out at exactly [height], so the
+ * positions and scroll ranges of its content are those of a device that is [height] tall.
+ *
+ * Re-composing is needed since measuring the same composition at different heights leaves state
+ * behind. For example, a lazy list measured at a small height and scrolled to its end stays
+ * scrolled when measured again at a larger height: it reports it can not scroll forward although
+ * the start of its content is not visible anymore, and the end of its content padding (e.g. the
+ * space reserved for Wear's `EdgeButton`) may still be cut off.
+ */
+private fun composeAndLayoutAt(
+    composeView: ComposeView,
+    height: Int,
+    measureExactly: (Int) -> Unit,
+    recreateComposition: () -> Unit,
+) {
+    recreateComposition()
+    measureExactly(height)
+    layoutComposeView(composeView)
+}
+
+/**
+ * Returns the smallest height in `[minHeight, maxHeight]` at which the content of every vertically
+ * scrollable container in the composition is visible, leaving the preview freshly composed,
+ * measured at that exact height and laid out. If the content still overflows at [maxHeight],
+ * [maxHeight] is returned. If everything fits at [minHeight], [minHeight] is returned.
+ */
+internal fun findExpandedHeight(
+    composeView: ComposeView,
+    minHeight: Int,
+    maxHeight: Int,
+    measureExactly: (Int) -> Unit,
+    recreateComposition: () -> Unit,
+): Int {
+    measureExactly(maxHeight)
+    layoutComposeView(composeView)
+    if (minHeight >= maxHeight || hasVerticalScrollOverflow(composeView)) return maxHeight
+
+    composeAndLayoutAt(composeView, minHeight, measureExactly, recreateComposition)
+    if (!hasVerticalScrollOverflow(composeView)) return minHeight
+
+    // Invariant: overflow at lo, no overflow at hi.
+    var lo = minHeight
+    var hi = maxHeight
+    var lastProbedHeight = minHeight
+    while (hi - lo > 1) {
+        val mid = lo + (hi - lo) / 2
+        composeAndLayoutAt(composeView, mid, measureExactly, recreateComposition)
+        lastProbedHeight = mid
+        if (hasVerticalScrollOverflow(composeView)) lo = mid else hi = mid
+    }
+    if (lastProbedHeight != hi) {
+        composeAndLayoutAt(composeView, hi, measureExactly, recreateComposition)
+    }
+    return hi
+}
+
+private fun SemanticsNode.canScrollForward(): Boolean {
+    val range = config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) ?: return false
+    return range.maxValue() - range.value() > SCROLL_OVERFLOW_TOLERANCE_PX
+}
+
+/**
+ * Returns true if any vertically scrollable container in the composition can still scroll forward
+ * according to its [SemanticsProperties.VerticalScrollAxisRange] (exposed by `verticalScroll`,
+ * `LazyColumn`, Wear `ScalingLazyColumn` and `TransformingLazyColumn`).
+ */
+private fun hasVerticalScrollOverflow(composeView: ComposeView): Boolean {
+    val root = composeView.getChildAt(0) as? RootForTest ?: return false
+    return root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = false).any {
+        it.canScrollForward()
+    }
 }
