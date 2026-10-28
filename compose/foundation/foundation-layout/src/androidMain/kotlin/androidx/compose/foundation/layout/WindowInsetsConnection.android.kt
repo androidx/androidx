@@ -36,6 +36,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
+import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireDensity
+import androidx.compose.ui.node.requireView
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -73,6 +80,9 @@ public fun Modifier.imeNestedScroll(): Modifier {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         return this
     }
+    if (ComposeFoundationLayoutFlags.isNewImeNestedScrollNodeEnabled) {
+        return this then ImeNestedScrollElement
+    }
     return composed(debugInspectorInfo { name = "imeNestedScroll" }) {
         val nestedScrollConnection =
             rememberWindowInsetsConnection(
@@ -80,6 +90,55 @@ public fun Modifier.imeNestedScroll(): Modifier {
                 WindowInsetsSides.Bottom,
             )
         nestedScroll(nestedScrollConnection)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+private object ImeNestedScrollElement : ModifierNodeElement<ImeNestedScrollNode>() {
+    override fun create(): ImeNestedScrollNode = ImeNestedScrollNode()
+
+    override fun update(node: ImeNestedScrollNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "imeNestedScroll"
+    }
+
+    override fun hashCode(): Int = 0
+
+    override fun equals(other: Any?): Boolean = other === this
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@RequiresApi(Build.VERSION_CODES.R)
+private class ImeNestedScrollNode : DelegatingNode() {
+    private var windowInsetsHolder: WindowInsetsHolder? = null
+    private var connection: WindowInsetsNestedScrollConnection? = null
+    private var nestedScrollNode: DelegatableNode? = null
+
+    override fun onAttach() {
+        val view = requireView()
+        val holder = WindowInsetsHolder.getOrCreateFor(view)
+        holder.incrementAccessors(view)
+        windowInsetsHolder = holder
+
+        // SideCalculator.chooseCalculator(WindowInsetsSides.Bottom, layoutDirection) always returns
+        // SideCalculator.BottomSideCalculator regardless of layoutDirection (layoutDirection is
+        // only used for Start/End).
+        val sideCalculator =
+            SideCalculator.chooseCalculator(WindowInsetsSides.Bottom, LayoutDirection.Ltr)
+        val newConnection =
+            WindowInsetsNestedScrollConnection(holder.ime, view, sideCalculator, requireDensity())
+        connection = newConnection
+        nestedScrollNode = delegate(nestedScrollModifierNode(newConnection, null))
+    }
+
+    override fun onDetach() {
+        nestedScrollNode?.let { undelegate(it) }
+        nestedScrollNode = null
+        connection?.dispose()
+        connection = null
+        windowInsetsHolder?.decrementAccessors(requireView())
+        windowInsetsHolder = null
     }
 }
 
