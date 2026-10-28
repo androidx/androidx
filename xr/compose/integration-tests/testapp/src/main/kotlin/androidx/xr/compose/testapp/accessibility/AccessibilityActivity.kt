@@ -360,7 +360,7 @@ class AccessibilityActivity : ComponentActivity() {
 
                     // Surface will be transparent if we don't add a solid color.
                     val canvas = newSurfaceEntity.getSurface().lockHardwareCanvas()
-                    canvas.drawColor(Color.BLACK)
+                    canvas.drawColor(Color.BLUE)
                     newSurfaceEntity.getSurface().unlockCanvasAndPost(canvas)
 
                     surfaceEntity = newSurfaceEntity
