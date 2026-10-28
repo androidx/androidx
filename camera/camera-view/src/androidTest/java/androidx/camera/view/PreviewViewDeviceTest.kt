@@ -1017,20 +1017,6 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
 
     private fun setContentView(view: View?) {
         activityScenario!!.onActivity { activity: FakeActivity ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                activity.setShowWhenLocked(true)
-                activity.setTurnScreenOn(true)
-                activity.window.addFlags(
-                    android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                activity.window.addFlags(
-                    android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                        android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                )
-            }
             activity.setContentView(view)
         }
     }

@@ -16,15 +16,10 @@
 
 package androidx.camera.testing.impl
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
-import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
-import androidx.camera.testing.impl.Api27Impl.setTurnScreenOn
 import androidx.camera.testing.impl.activity.EmptyActivity
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,7 +28,13 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A rule that opens an empty Activity and wakes the device to prevent test failures.
+ * A rule that wakes the device and launches an [EmptyActivity] before the test, to prevent failures
+ * caused by the screen turning off or the keyguard showing. The activity is finished after the
+ * test.
+ *
+ * [EmptyActivity] turns the screen on, shows over the keyguard, requests keyguard dismissal and
+ * keeps the screen on via its window flags. Unlike [WakelockRule], no [android.os.PowerManager]
+ * wake lock is acquired.
  *
  * By default, all brands will be enabled (brandsToEnable == null). Caller can specify the brand
  * list to enable the rule via the [brandsToEnable] parameter.
@@ -57,37 +58,19 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                 try {
                     activityRef =
                         CoreAppTestUtil.launchActivity(
-                                instrumentation,
-                                EmptyActivity::class.java,
-                                Intent(Intent.ACTION_MAIN).apply {
-                                    setClassName(
-                                        ApplicationProvider.getApplicationContext<Context>()
-                                            .packageName,
-                                        EmptyActivity::class.java.name,
-                                    )
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                },
-                            )
-                            ?.also { activity ->
-                                instrumentation.runOnMainSync {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                                        activity.setShowWhenLocked()
-                                        activity.setTurnScreenOn()
-                                        activity.window.addFlags(
-                                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                                        )
-                                    } else {
-                                        @Suppress("DEPRECATION")
-                                        activity.window.addFlags(
-                                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                                                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                                                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                                        )
-                                    }
-                                }
-                            }
+                            instrumentation,
+                            EmptyActivity::class.java,
+                            Intent(Intent.ACTION_MAIN).apply {
+                                setClassName(
+                                    ApplicationProvider.getApplicationContext<Context>()
+                                        .packageName,
+                                    EmptyActivity::class.java.name,
+                                )
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            },
+                        )
                 } catch (_: Exception) {
-                    Logger.w("WakelockEmptyActivityRule", "Fail to open Activity + wakelock")
+                    Logger.w("WakelockEmptyActivityRule", "Failed to launch EmptyActivity")
                 }
 
                 try {
@@ -100,15 +83,4 @@ public class WakelockEmptyActivityRule(private val brandsToEnable: List<String>?
                 }
             }
         }
-}
-
-@RequiresApi(Build.VERSION_CODES.O_MR1)
-public object Api27Impl {
-    public fun Activity.setShowWhenLocked() {
-        setShowWhenLocked(true)
-    }
-
-    public fun Activity.setTurnScreenOn() {
-        setTurnScreenOn(true)
-    }
 }
