@@ -35,10 +35,10 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 359062845, 259335612
+ *     Bug Id: 359062845, 259335612, 578276420
  *     Description: Quirk required to check whether still image capture can run failed when a
  *     specific combination of UseCases are bound together.
- *     Device(s): OnePlus 12, Pixel 4a, 5, 5a
+ *     Device(s): OnePlus 12, Pixel 4a, 5, 5a, Sony Xperia 10 III (SO-52B)
  */
 public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quirk {
     private static final Set<String> PIXEL_MODELS = new HashSet<>(Arrays.asList(
@@ -49,7 +49,7 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
     ));
 
     static boolean load() {
-        return isOnePlus12() || isPixelProblematicDevice();
+        return isOnePlus12() || isPixelProblematicDevice() || isSonySo52b();
     }
 
     private static boolean isOnePlus12() {
@@ -59,6 +59,13 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
     private static boolean isPixelProblematicDevice() {
         return "google".equalsIgnoreCase(Build.BRAND) && PIXEL_MODELS.contains(
                 Build.MODEL.toLowerCase());
+    }
+
+    private static boolean isSonySo52b() {
+        return ("sony".equalsIgnoreCase(Build.BRAND)
+                || "sony".equalsIgnoreCase(Build.MANUFACTURER)
+                || "docomo".equalsIgnoreCase(Build.BRAND))
+                && "so-52b".equalsIgnoreCase(Build.MODEL);
     }
 
     /**
@@ -71,6 +78,8 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
             return shouldForceEnableStreamSharingForOnePlus12(cameraId, appUseCases);
         } else if (isPixelProblematicDevice()) {
             return shouldForceEnableStreamSharingForPixelDevice(cameraId, appUseCases);
+        } else if (isSonySo52b()) {
+            return shouldForceEnableStreamSharingForSonySo52b(cameraId, appUseCases);
         }
         return false;
     }
@@ -91,6 +100,15 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
     private boolean shouldForceEnableStreamSharingForPixelDevice(@NonNull String cameraId,
             @NonNull Collection<UseCase> appUseCases) {
         return cameraId.equals("1") && isVideoCapturePreviewImageCaptureCombination(appUseCases);
+    }
+
+    /**
+     * On Sony Xperia 10 III (SO-52B), still image capture fails on the back camera when the
+     * UseCase combination is Preview + VideoCapture + ImageCapture.
+     */
+    private boolean shouldForceEnableStreamSharingForSonySo52b(@NonNull String cameraId,
+            @NonNull Collection<UseCase> appUseCases) {
+        return cameraId.equals("0") && isVideoCapturePreviewImageCaptureCombination(appUseCases);
     }
 
     private boolean isVideoCapturePreviewImageCaptureCombination(
