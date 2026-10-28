@@ -465,13 +465,13 @@ public class RemoteEdgeButtonShape(
     @Suppress("RestrictedApiAndroidX")
     override fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
+        density: RemoteDensity,
     ): RemoteOutline {
         return createOutline(
             size = size,
-            density = density,
             layoutDirection = layoutDirection,
+            density = density,
             strokeWidth = 0f.rf,
         )
     }
@@ -480,8 +480,8 @@ public class RemoteEdgeButtonShape(
      * Creates a [RemoteOutline] for this shape, optionally configured for drawing a stroked border.
      *
      * @param size the outer size of the component boundary
-     * @param density the remote density to apply to the shape
      * @param layoutDirection the current layout direction
+     * @param density the remote density to apply to the shape
      * @param strokeWidth the stroke width of the border (0 if drawing a solid background fill).
      *   When positive, the outline is inset by `strokeWidth / 2` to keep the centered stroke within
      *   component bounds.
@@ -490,8 +490,8 @@ public class RemoteEdgeButtonShape(
     @Suppress("RestrictedApiAndroidX")
     public fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
+        density: RemoteDensity,
         strokeWidth: RemoteFloat,
     ): RemoteOutline {
         val w = size.width

@@ -32,7 +32,7 @@ public interface RemoteShape {
      */
     public fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
+        density: RemoteDensity,
     ): RemoteOutline
 }

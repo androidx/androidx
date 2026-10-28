@@ -73,7 +73,12 @@ private class DefaultRemoteContainerPainter(
                 with(it) { applyTo(this@RemotePaint, size) }
                 color = color.copy(alpha = color.alpha * this@DefaultRemoteContainerPainter.alpha)
             }
-            val outline = shape.createOutline(size, remoteDensity, layoutDirection)
+            val outline =
+                shape.createOutline(
+                    size = size,
+                    layoutDirection = layoutDirection,
+                    density = remoteDensity,
+                )
             drawOutline(outline, paint)
         }
     }
@@ -94,7 +99,12 @@ internal class ShapedBitmapPainter(
             color = color.copy(alpha = color.alpha * this@ShapedBitmapPainter.alpha)
         }
 
-        val outline = shape.createOutline(size, remoteDensity, layoutDirection)
+        val outline =
+            shape.createOutline(
+                size = size,
+                layoutDirection = layoutDirection,
+                density = remoteDensity,
+            )
         drawOutline(outline, paint)
     }
 

@@ -677,7 +677,11 @@ public class RemoteSplitCheckboxButtonColors(
 /** Draws a solid color fill for [shape] using [color]. */
 internal fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: RemoteColor) =
     drawOutline(
-        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        shape.createOutline(
+            size = RemoteSize(width, height),
+            layoutDirection = layoutDirection,
+            density = remoteDensity,
+        ),
         RemotePaint {
             style = PaintingStyle.Fill
             this.color = color

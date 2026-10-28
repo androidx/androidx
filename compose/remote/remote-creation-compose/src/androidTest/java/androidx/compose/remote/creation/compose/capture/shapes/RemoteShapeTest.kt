@@ -169,7 +169,14 @@ class RemoteShapeTest {
                 val h = height
                 val size = RemoteSize(w, h)
                 val paint = RemotePaint { color = Color.Red.rc }
-                drawOutline(shape.createOutline(size, remoteDensity, layoutDirection), paint)
+                drawOutline(
+                    shape.createOutline(
+                        size = size,
+                        layoutDirection = layoutDirection,
+                        density = remoteDensity,
+                    ),
+                    paint,
+                )
             }
         }
     }

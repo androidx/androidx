@@ -44,16 +44,22 @@ public abstract class RemoteCornerBasedShape(
 
     final override fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
-    ): RemoteOutline = createOutline(size, density, layoutDirection, 0f.rf)
+        density: RemoteDensity,
+    ): RemoteOutline =
+        createOutline(
+            size = size,
+            layoutDirection = layoutDirection,
+            density = density,
+            strokeWidth = 0f.rf,
+        )
 
     /**
      * Creates a [RemoteOutline] for this shape, optionally configured for drawing a stroked border.
      *
      * @param size the outer size of the component boundary
-     * @param density the remote density to apply to the shape
      * @param layoutDirection the current layout direction
+     * @param density the remote density to apply to the shape
      * @param strokeWidth the stroke width of the border (0 if drawing a solid background fill).
      *   When positive, each corner radius is inset by `strokeWidth / 2` and the outline bounds are
      *   inset by `strokeWidth / 2` to keep the centered stroke within component bounds.
@@ -62,8 +68,8 @@ public abstract class RemoteCornerBasedShape(
      */
     public fun createOutline(
         size: RemoteSize,
-        density: RemoteDensity,
         layoutDirection: LayoutDirection,
+        density: RemoteDensity,
         strokeWidth: RemoteFloat = 0f.rf,
         offset: RemoteOffset = RemoteOffset(strokeWidth / 2f, strokeWidth / 2f),
     ): RemoteOutline {

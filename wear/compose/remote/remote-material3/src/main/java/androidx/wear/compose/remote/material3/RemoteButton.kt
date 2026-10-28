@@ -1257,21 +1257,25 @@ private fun RemoteDrawScope.drawBorder(
             is RemoteCornerBasedShape -> {
                 shape.createOutline(
                     size = RemoteSize(width, height),
-                    density = remoteDensity,
                     layoutDirection = layoutDirection,
+                    density = remoteDensity,
                     strokeWidth = strokeWidthPx,
                 )
             }
             is RemoteEdgeButtonShape -> {
                 shape.createOutline(
                     size = RemoteSize(width, height),
-                    density = remoteDensity,
                     layoutDirection = layoutDirection,
+                    density = remoteDensity,
                     strokeWidth = strokeWidthPx,
                 )
             }
             else -> {
-                shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+                shape.createOutline(
+                    size = RemoteSize(width, height),
+                    layoutDirection = layoutDirection,
+                    density = remoteDensity,
+                )
             }
         }
     drawOutline(
@@ -1291,13 +1295,17 @@ private fun RemoteDrawScope.drawBorder(
 @Suppress("RestrictedApiAndroidX") // clipOutline
 internal fun RemoteDrawScope.clipToShape(shape: RemoteShape, block: RemoteDrawScope.() -> Unit) =
     clipOutline(
-        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        shape.createOutline(RemoteSize(width, height), layoutDirection, remoteDensity),
         block,
     )
 
 private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: RemoteColor? = null) =
     drawOutline(
-        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        shape.createOutline(
+            size = RemoteSize(width, height),
+            layoutDirection = layoutDirection,
+            density = remoteDensity,
+        ),
         RemotePaint {
             style = PaintingStyle.Fill
             color?.let { this.color = it }

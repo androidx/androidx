@@ -129,8 +129,8 @@ class GraphicsLayerModifierTest {
             object : RemoteShape {
                 override fun createOutline(
                     size: RemoteSize,
-                    density: RemoteDensity,
                     layoutDirection: LayoutDirection,
+                    density: RemoteDensity,
                 ): RemoteOutline {
                     throw UnsupportedOperationException()
                 }
