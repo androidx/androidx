@@ -270,6 +270,11 @@ public abstract class VideoRecordEvent {
          * will be finalized with this error, and the output will be generated, containing the
          * frames produced before camera closing. Attempting to start a new recording will be
          * finalized immediately if the source remains inactive and no output will be generated.
+         *
+         * <p>Another case is that the source is reconfigured during the recording to a
+         * configuration that the recording can't continue with, e.g. a different video
+         * resolution after the camera is switched for a persistent recording. The output will be
+         * generated, containing the frames produced before the reconfiguration.
          */
         public static final int ERROR_SOURCE_INACTIVE = 4;
 
