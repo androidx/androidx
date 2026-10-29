@@ -320,4 +320,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_QUANTIZATION_SCORING_OPTIMIZATION)
                 .isEqualTo("com.android.appsearch.flags.enable_quantization_scoring_optimization");
     }
+
+    @Test
+    public void testFlagValue_enableIcingTermIndexFlushFix() {
+        assertThat(Flags.FLAG_ENABLE_ICING_TERM_INDEX_FLUSH_FIX)
+                .isEqualTo("com.android.appsearch.flags.enable_icing_term_index_flush_fix");
+    }
 }
