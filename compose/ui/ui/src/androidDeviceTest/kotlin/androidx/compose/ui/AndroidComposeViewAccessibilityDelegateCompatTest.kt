@@ -40,6 +40,7 @@ import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTE
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,6 +64,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -3753,27 +3756,77 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    fun scroll_whenKeyboardFocused_dispatchesAccessibilityFocusEventPostScroll() {
+    fun scroll_whenFocusedNodeStaysVisible_doesNotDispatchFocusEvents() {
+        val scrollState = ScrollState(0)
+        val focusRequester = FocusRequester()
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(50.dp).focusRequester(focusRequester).focusable())
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents.map { it.eventType })
+                .contains(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // Scroll while the focused node remains (partially) visible.
+        rule.runOnIdle { scrollState.dispatchRawDelta(50f) }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
+            assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_SCROLLED)
+            assertThat(eventTypes).doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            assertThat(eventTypes)
+                .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+        }
+    }
+
+    @Test
+    fun scroll_whenAccessibilityFocusIsNotOnFocusedNode_doesNotDispatchFocusEvents() {
+        // Regression test for b/575338844: input focus stays on a node outside the scrolling
+        // container while TalkBack moves its own focus through the container's items. The bug
+        // only reproduced in keyboard (non-touch) mode.
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.setInTouchMode(false)
         try {
             val scrollState = ScrollState(0)
-            var isFocused by mutableStateOf(false)
+            val focusRequester = FocusRequester()
             lateinit var inputModeManager: InputModeManager
-
             rule.setContentWithAccessibilityEnabled {
                 inputModeManager = LocalInputModeManager.current
-                Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
-                    Box(Modifier.size(50.dp).semantics { focused = isFocused })
-                    Box(Modifier.size(200.dp))
+                Column {
+                    Box(Modifier.size(50.dp).focusRequester(focusRequester).focusable())
+                    Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                        Box(Modifier.size(50.dp).testTag("item1").semantics {})
+                        Box(Modifier.size(200.dp))
+                    }
                 }
             }
 
             rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
-            assumeTrue("Device must support non-touch mode", !androidComposeView.isInTouchMode)
+            val isInTouchMode = rule.runOnIdle { androidComposeView.isInTouchMode }
+            assumeTrue("Device must support non-touch mode", !isInTouchMode)
 
-            rule.runOnIdle { isFocused = true }
+            rule.runOnIdle { focusRequester.requestFocus() }
             rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+            val item1Id = rule.onNodeWithTag("item1").semanticsId()
+            rule.runOnIdle {
+                androidComposeView.composeAccessibilityDelegate
+                    .getAccessibilityNodeProvider(androidComposeView)
+                    .performAction(
+                        item1Id,
+                        AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS,
+                        null,
+                    )
+                dispatchedAccessibilityEvents.clear()
+            }
 
             rule.runOnIdle { scrollState.dispatchRawDelta(50f) }
             rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
@@ -3781,10 +3834,124 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             rule.runOnIdle {
                 val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
                 assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_SCROLLED)
-                assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+                assertThat(eventTypes).doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+                assertThat(eventTypes)
+                    .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
             }
         } finally {
             instrumentation.setInTouchMode(true)
+        }
+    }
+
+    @Test
+    fun focus_whenNodeIsOffScreen_dispatchesTypeViewFocusedOnceItScrollsIntoView() {
+        // Regression test for b/447669491: the node is fully clipped by its scroll container when
+        // it gains focus, so it is not part of the accessibility tree and no Focused property
+        // change can be observed for it.
+        val scrollState = ScrollState(0)
+        val focusRequester = FocusRequester()
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(150.dp))
+                Box(Modifier.size(50.dp).testTag("item").focusRequester(focusRequester).focusable())
+            }
+        }
+        val itemId = rule.onNodeWithTag("item").semanticsId()
+
+        // Pause the clock so the bringIntoView scroll triggered by the focus gain does not run yet.
+        rule.mainClock.autoAdvance = false
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            val nodeInfo = androidComposeView.createAccessibilityNodeInfoIfPossible(itemId)
+            assertThat(nodeInfo?.isVisibleToUser ?: false).isFalse()
+            assertThat(dispatchedAccessibilityEvents.map { it.eventType })
+                .doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        }
+
+        // Let the scroll bring the node into the viewport.
+        rule.mainClock.autoAdvance = true
+        rule.runOnIdle { assertThat(scrollState.value).isGreaterThan(0) }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            assertThat(androidComposeView.createAccessibilityNodeInfo(itemId).isVisibleToUser)
+                .isTrue()
+            val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
+            assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            assertThat(eventTypes)
+                .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun focus_whenNodeIsOffScreenAndFlagDisabled_doesNotDispatchTypeViewFocused() {
+        val originalFlag = AndroidComposeUiFlags.isScrollAccessibilityFocusEventEnabled
+        AndroidComposeUiFlags.isScrollAccessibilityFocusEventEnabled = false
+        try {
+            val scrollState = ScrollState(0)
+            val focusRequester = FocusRequester()
+            rule.setContentWithAccessibilityEnabled {
+                Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                    Box(Modifier.size(150.dp))
+                    Box(Modifier.size(50.dp).focusRequester(focusRequester).focusable())
+                }
+            }
+
+            rule.runOnIdle { focusRequester.requestFocus() }
+            rule.runOnIdle { assertThat(scrollState.value).isGreaterThan(0) }
+            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+            rule.runOnIdle {
+                assertThat(dispatchedAccessibilityEvents.map { it.eventType })
+                    .doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            }
+        } finally {
+            AndroidComposeUiFlags.isScrollAccessibilityFocusEventEnabled = originalFlag
+        }
+    }
+
+    @Test
+    fun scroll_whenFocusedNodeReentersViewport_doesNotDispatchTypeViewFocusedAgain() {
+        val scrollState = ScrollState(0)
+        val focusRequester = FocusRequester()
+        rule.setContentWithAccessibilityEnabled {
+            Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(50.dp).testTag("item").focusRequester(focusRequester).focusable())
+                Box(Modifier.size(300.dp))
+            }
+        }
+        val itemId = rule.onNodeWithTag("item").semanticsId()
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents.map { it.eventType })
+                .contains(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+        }
+
+        // Scroll the focused node completely out of the viewport, so it leaves the tree...
+        val scrollDeltaPx = with(rule.density) { 60.dp.toPx() }
+        rule.runOnIdle { scrollState.dispatchRawDelta(scrollDeltaPx) }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+        rule.runOnIdle {
+            val nodeInfo = androidComposeView.createAccessibilityNodeInfoIfPossible(itemId)
+            assertThat(nodeInfo?.isVisibleToUser ?: false).isFalse()
+            dispatchedAccessibilityEvents.clear()
+        }
+
+        // ...and back into it while it still holds input focus.
+        rule.runOnIdle { scrollState.dispatchRawDelta(-scrollDeltaPx) }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            assertThat(androidComposeView.createAccessibilityNodeInfo(itemId).isVisibleToUser)
+                .isTrue()
+            val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
+            assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_SCROLLED)
+            assertThat(eventTypes).doesNotContain(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            assertThat(eventTypes)
+                .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
         }
     }
 

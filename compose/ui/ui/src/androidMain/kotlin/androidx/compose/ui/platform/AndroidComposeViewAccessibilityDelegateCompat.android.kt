@@ -349,6 +349,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private var accessibilityFocusedVirtualViewId = InvalidId
     private var focusedVirtualViewId = InvalidId
+    // Virtual view id of the node whose input focus gain was last reported with TYPE_VIEW_FOCUSED
+    // while the node was visible to the user. Reset as soon as that node no longer holds input
+    // focus, so a node that keeps focus while it scrolls out of and back into the viewport is
+    // reported only once.
+    private var reportedFocusedVirtualViewId = InvalidId
     private var currentlyAccessibilityFocusedANI: AccessibilityNodeInfoCompat? = null
     private var currentlyFocusedANI: AccessibilityNodeInfoCompat? = null
     private var sendingFocusAffectingEvent = false
@@ -2681,22 +2686,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
         scope?.pixelScrollDelta = Offset.Zero
         sendEvent(event)
-
-        // When navigating with a hardware keyboard, scrolling moves the currently focused item
-        // on screen. Dispatching TYPE_VIEW_ACCESSIBILITY_FOCUSED post-scroll ensures TalkBack
-        // recalculates and synchronizes its accessibility focus bounds ("green box") with the
-        // newly scrolled position of the focused item.
-        if (
-            AndroidComposeUiFlags.isScrollAccessibilityFocusEventEnabled &&
-                !view.isInTouchMode &&
-                focusedVirtualViewId != InvalidId &&
-                currentSemanticsNodes.containsKey(focusedVirtualViewId)
-        ) {
-            sendEventForVirtualView(
-                focusedVirtualViewId,
-                AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED,
-            )
-        }
     }
 
     private fun sendSubtreeChangeAccessibilityEvents(
@@ -3100,7 +3089,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         val virtualId = semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id)
                         if (value as Boolean) {
                             focusedVirtualViewId = virtualId
-                            sendEvent(createEvent(virtualId, AccessibilityEvent.TYPE_VIEW_FOCUSED))
+                            sendTypeViewFocusedEvent(virtualId, newNode)
                         } else {
                             if (focusedVirtualViewId == virtualId) {
                                 focusedVirtualViewId = InvalidId
@@ -3158,6 +3147,57 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 )
             }
         }
+        sendTypeViewFocusedEventIfNeeded(newSemanticsNodes)
+    }
+
+    /**
+     * Sends TYPE_VIEW_FOCUSED for [node], which just gained input focus, and records it in
+     * [reportedFocusedVirtualViewId] if the node is visible to the user. Nodes with empty touch
+     * bounds are reported as not visible (see [setInvisibleIfEmptyBounds]) and accessibility
+     * services ignore focus events for them, so they stay unreported and are reported again by
+     * [sendTypeViewFocusedEventIfNeeded] once they become visible.
+     */
+    private fun sendTypeViewFocusedEvent(virtualId: Int, node: SemanticsNode) {
+        if (!node.touchBoundsInRoot.isEmpty) {
+            reportedFocusedVirtualViewId = virtualId
+        }
+        sendEvent(createEvent(virtualId, AccessibilityEvent.TYPE_VIEW_FOCUSED))
+    }
+
+    /**
+     * Reports input focus that the [SemanticsProperties.Focused] diff in
+     * [sendSemanticsPropertyChangeEvents] could not observe: the node gained focus while it was
+     * outside the pruned semantics tree (for example a lazy list item composed by
+     * BeyondBoundsLayout, which is only uncovered once it scrolls into the viewport) or while it
+     * was not visible to the user. Screen readers only follow input focus they are told about, so
+     * without this event TalkBack never moves to an item that was focused with a keyboard while it
+     * was off-screen.
+     *
+     * The event is sent at most once per focus gain: [reportedFocusedVirtualViewId] is reset
+     * whenever input focus is no longer on the reported node, which also covers focus changes that
+     * happened while that node was outside the tree.
+     */
+    private fun sendTypeViewFocusedEventIfNeeded(
+        newSemanticsNodes: IntObjectMap<AdjustedSemanticsNode>
+    ) {
+        val virtualId = inputFocusedVirtualViewId()
+        if (virtualId == reportedFocusedVirtualViewId) return
+        reportedFocusedVirtualViewId = InvalidId
+        if (!AndroidComposeUiFlags.isScrollAccessibilityFocusEventEnabled) return
+        val node = newSemanticsNodes[virtualId]?.semanticsNode ?: return
+        if (node.unmergedConfig.getOrNull(SemanticsProperties.Focused) != true) return
+        if (node.touchBoundsInRoot.isEmpty) return
+        focusedVirtualViewId = virtualId
+        sendTypeViewFocusedEvent(virtualId, node)
+    }
+
+    /** The virtual view id of the node that currently holds input focus, or [InvalidId]. */
+    private fun inputFocusedVirtualViewId(): Int {
+        val focusTarget =
+            view.focusOwner.activeFocusTargetNode?.takeIf { it.isAttached } ?: return InvalidId
+        return semanticsNodeIdToAccessibilityVirtualNodeId(
+            focusTarget.requireLayoutNode().semanticsId
+        )
     }
 
     // List of visible scrollable nodes (which are observing scroll state snapshot writes).
