@@ -1261,8 +1261,7 @@ class RecorderTest {
 
         // Rebind and unbind again before the first recording is finalized. The new video encoder
         // can't be set up until the old one is released, which happens after it stops, so the
-        // Recorder stays in CONFIGURING. The INACTIVE source still reports an error for the
-        // in-progress recording since mActiveSurface is not cleared when the encoder is released.
+        // Recorder stays in CONFIGURING.
         recorder.sendSurfaceRequest()
         recorder.onSourceStateChanged(ACTIVE_STREAMING)
         idleMainLooper()
@@ -1370,6 +1369,61 @@ class RecorderTest {
         } finally {
             sRetrySetupVideoMaxCount = originalRetrySetupVideoMaxCount
         }
+    }
+
+    @Test
+    fun startRecording_afterSurfaceReleasedBeforeSourceInactive_starts() {
+        val recorder = createRecorder()
+        val firstSurfaceRequest = checkNotNull(latestSurfaceRequest)
+
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+
+        // Simulate surface termination completing on mSequentialExecutor before
+        // onSourceStateChanged(INACTIVE) arrives during rapid lifecycle/session transitions.
+        firstSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+        recorder.onSourceStateChanged(INACTIVE)
+        idleMainLooper()
+
+        // Rebind with a new surface request and verify the next recording starts instead of
+        // remaining stuck in PENDING_RECORDING with mNeedsResetBeforeNextStart = true.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
+    }
+
+    @Test
+    fun persistentRecording_surfaceReleasedBeforeSourceInactive_retainsAudioAndContinues() {
+        val recorder = createRecorder()
+        val firstSurfaceRequest = checkNotNull(latestSurfaceRequest)
+
+        val recording =
+            createRecording(recorder = recorder, withAudio = true, asPersistentRecording = true)
+                .startAndVerify()
+                .sendFrames(3)
+        val initialAudioSource = checkNotNull(recorder.mAudioSource)
+
+        // Simulate surface termination completing before onSourceStateChanged(INACTIVE).
+        firstSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+        recorder.onSourceStateChanged(INACTIVE)
+        idleMainLooper()
+
+        // Audio source should be retained for the persistent recording.
+        assertThat(recorder.mAudioSource).isSameInstanceAs(initialAudioSource)
+
+        // Rebind with a new surface request and verify the persistent recording continues.
+        recorder.sendSurfaceRequest()
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        recording.sendFrames(3).stopAndVerify()
+
+        // Verify a subsequent recording can also start cleanly without being blocked by
+        // mNeedsResetBeforeNextStart.
+        createRecording(recorder = recorder).startAndVerify().sendFrames(3).stopAndVerify()
     }
 
     private data class FinalizingRecordingSetup(

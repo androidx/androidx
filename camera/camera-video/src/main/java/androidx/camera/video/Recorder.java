@@ -1358,7 +1358,7 @@ public final class Recorder implements VideoOutput {
                 // If we're inactive and have no active surface, we'll reset the encoder directly.
                 // Otherwise, we'll wait for the active surface's surface request listener to
                 // reset the encoder.
-                requestReset(ERROR_SOURCE_INACTIVE, null, false);
+                requestReset(ERROR_SOURCE_INACTIVE, null, shouldRetainRecording());
             } else {
                 // The source becomes inactive, the incoming new surface request has to be cached
                 // and be serviced after the Recorder is reset when receiving the previous
@@ -1614,14 +1614,20 @@ public final class Recorder implements VideoOutput {
         mVideoEncoderBitrateRange.setState(
                 ((VideoEncoderInfo) mVideoEncoder.getEncoderInfo()).getSupportedBitrateRange());
         mFirstRecordingVideoBitrate = mVideoEncoder.getConfiguredBitrate();
-        mActiveSurface = videoEncoderSession.getActiveSurface();
-        setLatestSurface(mActiveSurface);
+        final Surface activeSurface = videoEncoderSession.getActiveSurface();
+        mActiveSurface = activeSurface;
+        setLatestSurface(activeSurface);
 
         Futures.addCallback(videoEncoderSession.getReadyToReleaseFuture(),
                 new FutureCallback<Encoder>() {
                     @Override
                     public void onSuccess(@Nullable Encoder result) {
                         Logger.d(TAG, "VideoEncoder can be released: " + result);
+                        // Null out the active surface so a subsequent INACTIVE source state can
+                        // reset the Recorder directly instead of waiting for surface termination.
+                        if (mActiveSurface == activeSurface) {
+                            mActiveSurface = null;
+                        }
                         if (result == null) {
                             return;
                         }
@@ -1639,6 +1645,9 @@ public final class Recorder implements VideoOutput {
                     @Override
                     public void onFailure(@NonNull Throwable t) {
                         Logger.d(TAG, "Error in ReadyToReleaseFuture: " + t);
+                        if (mActiveSurface == activeSurface) {
+                            mActiveSurface = null;
+                        }
                     }
                 }, mSequentialExecutor);
     }
