@@ -154,7 +154,7 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                                         )
                                     }
                                     RemoteImage(
-                                        remoteBitmap = bitmap,
+                                        bitmap = bitmap,
                                         contentDescription = "Image $i".rs,
                                         modifier =
                                             RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),
@@ -173,7 +173,7 @@ class RemotePlayerImageLoadingActivity : ComponentActivity() {
                                         )
                                     }
                                     RemoteImage(
-                                        remoteBitmap = bitmap,
+                                        bitmap = bitmap,
                                         contentDescription = "Image $i".rs,
                                         modifier =
                                             RemoteModifier.size(100.rdp, 100.rdp).padding(4.rdp),

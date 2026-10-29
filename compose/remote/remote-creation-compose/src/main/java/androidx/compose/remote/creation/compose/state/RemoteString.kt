@@ -239,22 +239,22 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
     /**
      * Concatenates this [RemoteString] with another [RemoteString].
      *
-     * @param v The other [RemoteString] to concatenate.
+     * @param other The other [RemoteString] to concatenate.
      * @return A new [RemoteString] representing the concatenated string.
      */
-    public operator fun plus(v: RemoteString): RemoteString {
-        if (constantValueOrNull != null && v.constantValueOrNull != null) {
-            return RemoteString(constantValueOrNull!! + v.constantValueOrNull!!)
+    public operator fun plus(other: RemoteString): RemoteString {
+        if (constantValueOrNull != null && other.constantValueOrNull != null) {
+            return RemoteString(constantValueOrNull!! + other.constantValueOrNull!!)
         }
 
         return MutableRemoteString(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.Concat, this, v),
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.Concat, this, other),
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textMerge(
                         getIdForCreationState(creationState),
-                        v.getIdForCreationState(creationState),
+                        other.getIdForCreationState(creationState),
                     )
 
                 override fun computeRequiredCodePointSet(
@@ -262,7 +262,7 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
                 ) =
                     mergeSets(
                         this@RemoteString.computeRequiredCodePointSet(creationState),
-                        v.computeRequiredCodePointSet(creationState),
+                        other.computeRequiredCodePointSet(creationState),
                     )
             },
         )
@@ -271,12 +271,12 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
     /**
      * Concatenates this [RemoteString] with a [String].
      *
-     * @param v The [String] to concatenate.
+     * @param other The [String] to concatenate.
      * @return A new [RemoteString] representing the concatenated string.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun plus(v: String): RemoteString {
-        return this + RemoteString(v)
+    public operator fun plus(other: String): RemoteString {
+        return this + RemoteString(other)
     }
 
     /**
@@ -1142,8 +1142,8 @@ public fun rememberMutableRemoteString(initialValue: String): MutableRemoteStrin
  * Remembers a named remote string expression.
  *
  * @param name The unique name for this remote string.
- * @param domain The domain of the named string (defaults to [RemoteState.Domain.User]).
  * @param defaultValue The initial [String] value for this remote string.
+ * @param domain The domain of the named string (defaults to [RemoteState.Domain.User]).
  * @return A [RemoteString] representing the named remote string expression.
  */
 @Composable

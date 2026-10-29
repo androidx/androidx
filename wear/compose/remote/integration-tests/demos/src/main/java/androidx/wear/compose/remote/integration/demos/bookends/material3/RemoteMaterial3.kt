@@ -324,7 +324,7 @@ fun RemoteIcon(
         // RemoteMaterial3's RemoteIcon defaults to RemoteIconDefaults.SmallIconSize (24.rdp) and
         // takes an ImageVector/RemoteImageVector rather than a RemoteImageBitmap.
         RemoteImage(
-            remoteBitmap = bitmap,
+            bitmap = bitmap,
             contentDescription = contentDescription,
             modifier =
                 modifier

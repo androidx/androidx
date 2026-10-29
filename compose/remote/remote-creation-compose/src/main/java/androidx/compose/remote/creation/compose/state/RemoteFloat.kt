@@ -476,135 +476,135 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         return binaryOp(this, -1f, OperationKey.UnaryMinus, directEval = { a, b -> a * b })
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun rem(v: Float): RemoteFloat =
-        binaryOp(this, v, OperationKey.Rem) { a, b -> a % b }
+    public operator fun rem(other: Float): RemoteFloat =
+        binaryOp(this, other, OperationKey.Rem) { a, b -> a % b }
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [v].
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [other].
      *
-     * @param v The divisor [RemoteFloat].
+     * @param other The divisor [RemoteFloat].
      */
-    public operator fun rem(v: RemoteFloat): RemoteFloat =
-        binaryOp(this, v, OperationKey.Rem) { a, b -> a % b }
+    public operator fun rem(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, OperationKey.Rem) { a, b -> a % b }
 
-    /** Returns a new [RemoteFloat] that evaluates to minimum of this [RemoteFloat] and [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to minimum of this [RemoteFloat] and [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun min(v: Float): RemoteFloat =
-        binaryOp(this, v, OperationKey.Min, directEval = { a, b -> kotlin.math.min(a, b) })
+    public fun min(other: Float): RemoteFloat =
+        binaryOp(this, other, OperationKey.Min, directEval = { a, b -> kotlin.math.min(a, b) })
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to the minimum of this [RemoteFloat] and [v].
+     * Returns a new [RemoteFloat] that evaluates to the minimum of this [RemoteFloat] and [other].
      *
-     * @param v The [RemoteFloat] to compare with.
+     * @param other The [RemoteFloat] to compare with.
      */
-    public fun min(v: RemoteFloat): RemoteFloat =
-        binaryOp(this, v, OperationKey.Min) { a, b -> kotlin.math.min(a, b) }
+    public fun min(other: RemoteFloat): RemoteFloat =
+        binaryOp(this, other, OperationKey.Min) { a, b -> kotlin.math.min(a, b) }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun plus(v: Float): RemoteFloat {
-        if (v == 0f) {
+    public operator fun plus(other: Float): RemoteFloat {
+        if (other == 0f) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Plus, directEval = { a, b -> a + b })
+        return binaryOp(this, other, OperationKey.Plus, directEval = { a, b -> a + b })
     }
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v].
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [other].
      *
-     * @param v The [RemoteFloat] to add.
+     * @param other The [RemoteFloat] to add.
      */
-    public operator fun plus(v: RemoteFloat): RemoteFloat {
-        v.constantValueOrNull?.let {
+    public operator fun plus(other: RemoteFloat): RemoteFloat {
+        other.constantValueOrNull?.let {
             return plus(it)
         }
         constantValueOrNull?.let {
-            return v.plus(it)
+            return other.plus(it)
         }
-        return binaryOp(this, v, OperationKey.Plus) { a, b -> a + b }
+        return binaryOp(this, other, OperationKey.Plus) { a, b -> a + b }
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun minus(v: Float): RemoteFloat {
-        if (v == 0f) {
+    public operator fun minus(other: Float): RemoteFloat {
+        if (other == 0f) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Minus, directEval = { a, b -> a - b })
+        return binaryOp(this, other, OperationKey.Minus, directEval = { a, b -> a - b })
     }
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v].
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [other].
      *
-     * @param v The [RemoteFloat] to subtract.
+     * @param other The [RemoteFloat] to subtract.
      */
-    public operator fun minus(v: RemoteFloat): RemoteFloat {
-        v.constantValueOrNull?.let {
+    public operator fun minus(other: RemoteFloat): RemoteFloat {
+        other.constantValueOrNull?.let {
             return minus(it)
         }
         constantValueOrNull?.let {
-            return (-v).plus(it)
+            return (-other).plus(it)
         }
-        return binaryOp(this, v, OperationKey.Minus) { a, b -> a - b }
+        return binaryOp(this, other, OperationKey.Minus) { a, b -> a - b }
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun times(v: Float): RemoteFloat {
-        if (v == 0f) {
+    public operator fun times(other: Float): RemoteFloat {
+        if (other == 0f) {
             return RemoteFloat(0f)
         }
-        if (v == 1f) {
+        if (other == 1f) {
             return this
         }
         if (constantValueOrNull != null && constantValueOrNull == 1f) {
-            return RemoteFloat(v)
+            return RemoteFloat(other)
         }
-        return binaryOp(this, v, OperationKey.Times, directEval = { a, b -> a * b })
+        return binaryOp(this, other, OperationKey.Times, directEval = { a, b -> a * b })
     }
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v].
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [other].
      *
-     * @param v The [RemoteFloat] to multiply by.
+     * @param other The [RemoteFloat] to multiply by.
      */
-    public operator fun times(v: RemoteFloat): RemoteFloat {
-        v.constantValueOrNull?.let {
+    public operator fun times(other: RemoteFloat): RemoteFloat {
+        other.constantValueOrNull?.let {
             return times(it)
         }
         constantValueOrNull?.let {
-            return v.times(it)
+            return other.times(it)
         }
-        return binaryOp(this, v, OperationKey.Times) { a, b -> a * b }
+        return binaryOp(this, other, OperationKey.Times) { a, b -> a * b }
     }
 
-    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] div [v]. */
+    /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] div [other]. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public operator fun div(v: Float): RemoteFloat {
+    public operator fun div(other: Float): RemoteFloat {
         if (constantValueOrNull != null && constantValueOrNull == 0f) {
             return RemoteFloat(0f)
         }
-        if (v == 1f) {
+        if (other == 1f) {
             return this
         }
-        return binaryOp(this, v, OperationKey.Div, directEval = { a, b -> a / b })
+        return binaryOp(this, other, OperationKey.Div, directEval = { a, b -> a / b })
     }
 
     /**
-     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] divided by [v].
+     * Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] divided by [other].
      *
-     * @param v The divisor [RemoteFloat].
+     * @param other The divisor [RemoteFloat].
      */
-    public operator fun div(v: RemoteFloat): RemoteFloat {
+    public operator fun div(other: RemoteFloat): RemoteFloat {
         if (constantValueOrNull != null && constantValueOrNull == 0f) {
             return RemoteFloat(0f)
         }
-        v.constantValueOrNull?.let {
+        other.constantValueOrNull?.let {
             return div(it)
         }
-        return binaryOp(this, v, OperationKey.Div) { aVal: Float, bVal: Float -> aVal / bVal }
+        return binaryOp(this, other, OperationKey.Div) { aVal: Float, bVal: Float -> aVal / bVal }
     }
 
     /**

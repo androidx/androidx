@@ -79,8 +79,8 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = 0,
-                        darkMode = 0,
+                        lightColorRes = 0,
+                        darkColorRes = 0,
                         lightFallback = lightColor,
                         darkFallback = darkColor,
                     )
@@ -275,8 +275,8 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = 0,
-                        darkMode = 0,
+                        lightColorRes = 0,
+                        darkColorRes = 0,
                         lightFallback = lightFallback,
                         darkFallback = darkFallback,
                     )
@@ -312,8 +312,8 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = R.color.background_light,
-                        darkMode = R.color.background_dark,
+                        lightColorRes = R.color.background_light,
+                        darkColorRes = R.color.background_dark,
                         lightFallback = lightFallback,
                         darkFallback = darkFallback,
                     )
@@ -350,22 +350,22 @@ class RcColorThemePlayerTest {
             captureRule.captureDocument(context = context) {
                 val color1 =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = R.color.background_light,
-                        darkMode = R.color.background_dark,
+                        lightColorRes = R.color.background_light,
+                        darkColorRes = R.color.background_dark,
                         lightFallback = Color.White,
                         darkFallback = Color.Black,
                     )
                 val color2 =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = R.color.background_light,
-                        darkMode = R.color.background_dark,
+                        lightColorRes = R.color.background_light,
+                        darkColorRes = R.color.background_dark,
                         lightFallback = Color.White,
                         darkFallback = Color.Black,
                     )
                 val color3 =
                     RemoteColor.createThemedRemoteColor(
-                        lightMode = R.color.darker_gray,
-                        darkMode = R.color.black,
+                        lightColorRes = R.color.darker_gray,
+                        darkColorRes = R.color.black,
                         lightFallback = Color.Gray,
                         darkFallback = Color.Black,
                     )

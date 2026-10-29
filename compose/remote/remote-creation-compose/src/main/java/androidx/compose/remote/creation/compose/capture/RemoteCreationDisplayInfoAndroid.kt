@@ -20,6 +20,8 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
@@ -53,9 +55,10 @@ public val RemoteCreationDisplayInfo.heightDp: Dp
  */
 @Composable
 public fun createCreationDisplayInfo(
-    width: Int = LocalResources.current.displayMetrics.widthPixels,
-    height: Int = LocalResources.current.displayMetrics.heightPixels,
-    densityDpi: Int = LocalConfiguration.current.densityDpi,
+    @IntRange(from = 1) width: Int = LocalResources.current.displayMetrics.widthPixels,
+    @IntRange(from = 1) height: Int = LocalResources.current.displayMetrics.heightPixels,
+    @IntRange(from = 1) densityDpi: Int = LocalConfiguration.current.densityDpi,
+    @FloatRange(from = 0.0, fromInclusive = false)
     fontScale: Float = LocalConfiguration.current.fontScale,
     isInspectionMode: Boolean = LocalInspectionMode.current,
     densityBehavior: RemoteDensityBehavior = RemoteDensityBehavior.Legacy,

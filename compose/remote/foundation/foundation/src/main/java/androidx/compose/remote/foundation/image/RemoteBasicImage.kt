@@ -50,7 +50,7 @@ public fun RemoteBasicImage(
     alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
     RemoteImage(
-        remoteBitmap = bitmap,
+        bitmap = bitmap,
         contentDescription = contentDescription,
         modifier = modifier,
         contentScale = contentScale,

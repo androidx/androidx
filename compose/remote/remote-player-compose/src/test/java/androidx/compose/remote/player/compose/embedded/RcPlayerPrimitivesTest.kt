@@ -912,7 +912,7 @@ class RcPlayerPrimitivesTest {
 
         rule.setRemoteContent(modifier = Modifier.size(100.dp).testTag("canvasParent")) {
             RemoteImage(
-                remoteBitmap = remoteBitmap,
+                bitmap = remoteBitmap,
                 contentDescription = "Test Image".rs,
                 modifier = RemoteModifier.size(100.rdp),
             )

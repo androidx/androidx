@@ -16,6 +16,8 @@
 
 package androidx.compose.remote.creation.compose.text
 
+import androidx.annotation.IntRange
+
 /**
  * A sealed interface that represent the concept of a Typeface in Remote Compose.
  *
@@ -60,7 +62,7 @@ public sealed interface RemoteTypeface {
      */
     public class Named(
         private val fontName: String,
-        public val weight: Int = 400,
+        @IntRange(from = 1, to = 1000) public val weight: Int = 400,
         public val isItalic: Boolean = false,
     ) : RemoteTypeface {
         override val name: String = fontName

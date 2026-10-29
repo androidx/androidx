@@ -19,6 +19,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.annotation.IntRange
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -56,10 +57,10 @@ import androidx.compose.ui.text.style.TextOverflow
  * @param textAlign The alignment of the text within its container.
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text.
- * @param style The [RemoteTextStyle] to be applied to the text.
  * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
  *   "smcp" or "tnum").
  * @param fontVariationSettings The font variation settings to be applied to the text.
+ * @param style The [RemoteTextStyle] to be applied to the text.
  */
 @Composable
 @RemoteComposable
@@ -73,10 +74,10 @@ public fun RemoteText(
     fontFamily: RemoteFontFamily? = null,
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
-    maxLines: Int = Int.MAX_VALUE,
-    style: RemoteTextStyle = RemoteTextStyle.Default,
+    @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
     fontFeatureSettings: String? = null,
     fontVariationSettings: FontVariation.Settings? = null,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     RemoteText(
         text = text,

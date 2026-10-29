@@ -152,16 +152,16 @@ public fun RemoteModifier.padding(
 ): RemoteModifier = padding(start = horizontal, top = vertical, end = horizontal, bottom = vertical)
 
 /**
- * Adds padding defined by the [padding] object.
+ * Adds padding defined by the [paddingValues] object.
  *
- * @param padding The [RemotePaddingValues] describing the padding for each edge.
+ * @param paddingValues The [RemotePaddingValues] describing the padding for each edge.
  */
-public fun RemoteModifier.padding(padding: RemotePaddingValues): RemoteModifier =
+public fun RemoteModifier.padding(paddingValues: RemotePaddingValues): RemoteModifier =
     padding(
-        start = padding.leftPadding,
-        top = padding.topPadding,
-        end = padding.rightPadding,
-        bottom = padding.bottomPadding,
+        start = paddingValues.leftPadding,
+        top = paddingValues.topPadding,
+        end = paddingValues.rightPadding,
+        bottom = paddingValues.bottomPadding,
     )
 
 /**

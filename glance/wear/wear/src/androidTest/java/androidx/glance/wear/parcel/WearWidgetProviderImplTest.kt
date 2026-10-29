@@ -162,7 +162,7 @@ class WearWidgetProviderImplTest {
         val noiseBitmap = createNoiseBitmap(width = 500, height = 500).asImageBitmap()
         testWidget.content = {
             RemoteImage(
-                remoteBitmap = RemoteImageBitmap(noiseBitmap),
+                bitmap = RemoteImageBitmap(noiseBitmap),
                 contentDescription = null,
                 modifier = RemoteModifier.size(60.rdp),
             )

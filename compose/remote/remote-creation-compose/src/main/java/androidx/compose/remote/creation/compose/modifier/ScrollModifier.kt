@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
+import androidx.annotation.IntRange
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -40,7 +41,10 @@ import androidx.compose.runtime.remember
 @Stable
 public class RemoteScrollState
 @RememberInComposition
-constructor(public val positionState: MutableRemoteFloat, public val notches: Int) {
+constructor(
+    public val positionState: MutableRemoteFloat,
+    @IntRange(from = 0) public val notches: Int,
+) {
     /**
      * Creates a [RemoteScrollState] with an initial [position] and number of [notches].
      *
@@ -49,7 +53,10 @@ constructor(public val positionState: MutableRemoteFloat, public val notches: In
      *   continuous scrolling.
      */
     @RememberInComposition
-    public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
+    public constructor(
+        position: Float,
+        @IntRange(from = 0) notches: Int,
+    ) : this(MutableRemoteFloat(position), notches)
 
     /**
      * Creates a [RemoteScrollState] with an optional number of [notches].
@@ -58,7 +65,7 @@ constructor(public val positionState: MutableRemoteFloat, public val notches: In
      *   continuous scrolling.
      */
     @RememberInComposition
-    public constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
+    public constructor(@IntRange(from = 0) notches: Int = 0) : this(MutableRemoteFloat(), notches)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -88,7 +95,7 @@ constructor(public val positionState: MutableRemoteFloat, public val notches: In
  * @return remembered [RemoteScrollState]
  */
 @Composable
-public fun rememberRemoteScrollState(notches: Int = 0): RemoteScrollState {
+public fun rememberRemoteScrollState(@IntRange(from = 0) notches: Int = 0): RemoteScrollState {
     return remember(notches) { RemoteScrollState(notches) }
 }
 

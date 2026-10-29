@@ -19,6 +19,7 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalFontWeightAdjustment
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -69,10 +70,10 @@ import androidx.compose.ui.text.font.FontVariation
  * @param textAlign The alignment of the text within its container.
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text.
- * @param style The [RemoteTextStyle] to be applied to the text.
  * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
  *   "smcp" or "tnum").
  * @param fontVariationSettings The font variation settings to be applied to the text.
+ * @param style The [RemoteTextStyle] to be applied to the text.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -87,10 +88,10 @@ public fun RemoteText(
     fontFamily: RemoteFontFamily? = null,
     textAlign: RemoteTextAlign? = null,
     overflow: RemoteTextOverflow,
-    maxLines: Int = Int.MAX_VALUE,
-    style: RemoteTextStyle = RemoteTextStyle.Default,
+    @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
     fontFeatureSettings: String? = null,
     fontVariationSettings: FontVariation.Settings? = null,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     val resolvedFontSize = fontSize ?: style.fontSize ?: 12.rsp
     // TODO handles dynamic letter spacing and line height in CoreText
