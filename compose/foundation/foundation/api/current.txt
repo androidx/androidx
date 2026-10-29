@@ -3309,11 +3309,13 @@ package androidx.compose.foundation.text.contextmenu.data {
     method @InaccessibleFromKotlin public Object getAutofillKey();
     method @InaccessibleFromKotlin public Object getCopyKey();
     method @InaccessibleFromKotlin public Object getCutKey();
+    method @InaccessibleFromKotlin public Object getLookUpKey();
     method @InaccessibleFromKotlin public Object getPasteKey();
     method @InaccessibleFromKotlin public Object getSelectAllKey();
     property public Object AutofillKey;
     property public Object CopyKey;
     property public Object CutKey;
+    property public Object LookUpKey;
     property public Object PasteKey;
     property public Object SelectAllKey;
     field public static final androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys INSTANCE;

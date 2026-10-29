@@ -18,6 +18,7 @@ package androidx.compose.foundation.text
 
 import android.R
 import android.content.res.Resources
+import android.os.Build
 import androidx.compose.runtime.Immutable
 
 @Immutable
@@ -35,6 +36,19 @@ internal actual value class ContextMenuIcons actual constructor(actual val value
 
         actual val ActionModeSelectAllDrawable: ContextMenuIcons
             get() = ContextMenuIcons(R.attr.actionModeSelectAllDrawable)
+
+        actual val ActionModeLookUpDrawable: ContextMenuIcons
+            get() =
+                ContextMenuIcons(
+                    if (Build.VERSION.SDK_INT >= 37) {
+                        // TODO(b/578168517): Replace with android.R.attr.actionModeLookUpDrawable
+                        //  once it is available in the compile SDK.
+                        Resources.getSystem()
+                            .getIdentifier("actionModeLookUpDrawable", "attr", "android")
+                    } else {
+                        Resources.ID_NULL
+                    }
+                )
 
         actual val ID_NULL: ContextMenuIcons
             get() = ContextMenuIcons(Resources.ID_NULL)

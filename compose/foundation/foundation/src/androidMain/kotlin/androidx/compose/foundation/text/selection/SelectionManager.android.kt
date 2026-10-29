@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection
 
+import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierNode
@@ -25,10 +27,13 @@ import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.TextContextMenuItems
 import androidx.compose.foundation.text.TextContextMenuItems.Copy
+import androidx.compose.foundation.text.TextContextMenuItems.LookUp
 import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
+import androidx.compose.foundation.text.canShowLookUp
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithContext
 import androidx.compose.foundation.text.platformDefaultKeyMapping
+import androidx.compose.foundation.text.startLookUpActivity
 import androidx.compose.foundation.text.textItem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,6 +133,11 @@ internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
                     onRelease()
                 }
             }
+            if (Build.VERSION.SDK_INT >= 37) {
+                selectionContainerItem(LookUp, enabled = canShowLookUpMenuItem(context)) {
+                    lookUp(context)
+                }
+            }
             selectionContainerItem(
                 item = SelectAll,
                 enabled = !isEntireContainerSelected(),
@@ -138,4 +148,15 @@ internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
             separator()
         }
     }
+}
+
+internal fun SelectionManager.canShowLookUpMenuItem(context: Context): Boolean {
+    if (!isNonEmptySelection()) return false
+    val selectedText = getSelectedText()?.text ?: return false
+    return canShowLookUp(context, selectedText)
+}
+
+internal fun SelectionManager.lookUp(context: Context) {
+    val selectedText = getSelectedText()?.text ?: return
+    startLookUpActivity(context, selectedText)
 }

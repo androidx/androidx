@@ -1615,6 +1615,8 @@ final object androidx.compose.foundation.text.contextmenu.data/TextContextMenuKe
         final fun <get-CopyKey>(): kotlin/Any // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.CopyKey.<get-CopyKey>|<get-CopyKey>(){}[0]
     final val CutKey // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.CutKey|{}CutKey[0]
         final fun <get-CutKey>(): kotlin/Any // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.CutKey.<get-CutKey>|<get-CutKey>(){}[0]
+    final val LookUpKey // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.LookUpKey|{}LookUpKey[0]
+        final fun <get-LookUpKey>(): kotlin/Any // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.LookUpKey.<get-LookUpKey>|<get-LookUpKey>(){}[0]
     final val PasteKey // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.PasteKey|{}PasteKey[0]
         final fun <get-PasteKey>(): kotlin/Any // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.PasteKey.<get-PasteKey>|<get-PasteKey>(){}[0]
     final val SelectAllKey // androidx.compose.foundation.text.contextmenu.data/TextContextMenuKeys.SelectAllKey|{}SelectAllKey[0]

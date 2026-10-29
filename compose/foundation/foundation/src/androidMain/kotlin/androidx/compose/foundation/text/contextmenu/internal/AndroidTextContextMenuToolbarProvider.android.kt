@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.contextmenu.internal
 
 import android.app.RemoteAction
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Rect as AndroidRect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -293,6 +294,14 @@ internal class AndroidTextContextMenuToolbarProvider(
                                 TextContextMenuKeys.PasteKey -> android.R.id.paste
                                 TextContextMenuKeys.SelectAllKey -> android.R.id.selectAll
                                 TextContextMenuKeys.AutofillKey -> android.R.id.autofill
+                                TextContextMenuKeys.LookUpKey -> {
+                                    // TODO(b/578168517): Replace with android.R.id.lookUpText once
+                                    //  it is available in the compile SDK.
+                                    val id =
+                                        Resources.getSystem()
+                                            .getIdentifier("lookUpText", "id", "android")
+                                    if (id != 0) id else orderId
+                                }
                                 else -> orderId
                             }
                         val menuItem =

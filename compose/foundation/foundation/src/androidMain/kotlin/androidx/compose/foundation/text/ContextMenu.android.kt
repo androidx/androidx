@@ -16,7 +16,13 @@
 
 package androidx.compose.foundation.text
 
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.os.Build
+import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.builder.item
@@ -65,4 +71,65 @@ internal fun TextContextMenuBuilderScope.textItem(
             onClick = onClick,
         )
     }
+}
+
+/**
+ * Returns whether the "Look Up" context menu item should be shown for [selectedText] on the current
+ * device.
+ *
+ * The item is shown on Android 17 (API 37) and above when [selectedText] is not blank and an
+ * activity can resolve the [LookUpText.ACTION_LOOK_UP_TEXT] intent.
+ *
+ * @param context the [Context] used to resolve the Look Up activity via [Context.getPackageManager]
+ * @param selectedText the currently selected text to look up
+ */
+internal fun canShowLookUp(context: Context, selectedText: String): Boolean {
+    if (Build.VERSION.SDK_INT < 37) return false
+    if (selectedText.isBlank()) return false
+    val intent = createLookUpTextIntent(selectedText)
+    return LookUpText.canResolveLookUpActivity(context, intent)
+}
+
+/**
+ * Starts the activity that handles the [LookUpText.ACTION_LOOK_UP_TEXT] intent for [selectedText]
+ * if [selectedText] is not blank.
+ *
+ * @param context the [Context] used to launch the Look Up activity via [Context.startActivity].
+ *   Must be an Activity [Context] (such as the one provided by
+ *   [androidx.compose.ui.platform.LocalContext] in a Compose hierarchy) since the intent does not
+ *   set [Intent.FLAG_ACTIVITY_NEW_TASK].
+ * @param selectedText the currently selected text to pass in [Intent.EXTRA_TEXT]
+ */
+internal fun startLookUpActivity(context: Context, selectedText: String) {
+    if (selectedText.isNotBlank()) {
+        val intent = createLookUpTextIntent(selectedText)
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            // The Look Up handler may have been disabled after the menu was shown.
+            Log.w(LookUpText.TAG, "No activity found to handle $intent", e)
+        }
+    }
+}
+
+private fun createLookUpTextIntent(selectedText: String): Intent {
+    return Intent(LookUpText.ACTION_LOOK_UP_TEXT).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, selectedText)
+    }
+}
+
+internal object LookUpText {
+    internal const val TAG = "LookUpText"
+
+    // TODO(b/578168517): Replace with Intent.ACTION_LOOK_UP_TEXT once it is available in the
+    //  compile SDK.
+    internal const val ACTION_LOOK_UP_TEXT = "android.intent.action.LOOK_UP_TEXT"
+
+    /** Returns whether an activity can handle the given Look Up [Intent]. */
+    @VisibleForTesting
+    var canResolveLookUpActivity: (context: Context, intent: Intent) -> Boolean =
+        { context, intent ->
+            intent.resolveActivity(context.packageManager) != null
+        }
 }

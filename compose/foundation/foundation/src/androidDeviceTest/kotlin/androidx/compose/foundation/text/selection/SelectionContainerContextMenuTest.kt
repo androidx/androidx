@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.contextmenu.ContextMenuItemLabels
 import androidx.compose.foundation.contextmenu.ContextMenuItemState
+import androidx.compose.foundation.contextmenu.LookUpItemOverrideRule
 import androidx.compose.foundation.contextmenu.ProcessTextItemOverrideRule
 import androidx.compose.foundation.contextmenu.assertContextMenuItem
 import androidx.compose.foundation.contextmenu.assertContextMenuItems
@@ -75,6 +76,8 @@ open class SelectionContainerContextMenuTest {
         )
 
     @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
+
+    @get:Rule val lookUpRule = LookUpItemOverrideRule()
 
     private val textTag = "text"
     private val defaultText = "Text Text Text"

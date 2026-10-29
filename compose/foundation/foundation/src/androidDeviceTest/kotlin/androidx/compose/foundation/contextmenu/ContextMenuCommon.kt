@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.Build
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
+import androidx.compose.foundation.text.LookUpText
 import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -248,6 +249,28 @@ class ProcessTextItemOverrideRule(private vararg val itemLabels: String) : TestR
         return object : ResolveInfo() {
             override fun loadLabel(pm: PackageManager): CharSequence {
                 return label
+            }
+        }
+    }
+}
+
+/**
+ * The test rule that overrides whether a "Look Up" activity can be resolved, so that tests do not
+ * depend on whether the device has a Look Up handler installed.
+ *
+ * @param isLookUpAvailable whether the "Look Up" item should be available in the context menu.
+ */
+class LookUpItemOverrideRule(var isLookUpAvailable: Boolean = false) : TestRule {
+    override fun apply(base: Statement, description: Description): Statement {
+        return object : Statement() {
+            override fun evaluate() {
+                val oldResolver = LookUpText.canResolveLookUpActivity
+                LookUpText.canResolveLookUpActivity = { _, _ -> isLookUpAvailable }
+                try {
+                    base.evaluate()
+                } finally {
+                    LookUpText.canResolveLookUpActivity = oldResolver
+                }
             }
         }
     }

@@ -16,19 +16,24 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
+import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.TextContextMenuItems
 import androidx.compose.foundation.text.TextContextMenuItems.Autofill
 import androidx.compose.foundation.text.TextContextMenuItems.Copy
 import androidx.compose.foundation.text.TextContextMenuItems.Cut
+import androidx.compose.foundation.text.TextContextMenuItems.LookUp
 import androidx.compose.foundation.text.TextContextMenuItems.Paste
 import androidx.compose.foundation.text.TextContextMenuItems.SelectAll
 import androidx.compose.foundation.text.TextDragObserver
+import androidx.compose.foundation.text.canShowLookUp
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithContext
+import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
 import androidx.compose.foundation.text.selection.addPlatformTextContextMenuItems
+import androidx.compose.foundation.text.startLookUpActivity
 import androidx.compose.foundation.text.textItem
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -81,6 +86,9 @@ internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
                 copy(cancelSelection = textToolbarShown)
             }
             textFieldSuspendItem(Paste, enabled = canShowPasteMenuItem()) { paste() }
+            if (Build.VERSION.SDK_INT >= 37) {
+                textFieldItem(LookUp, enabled = canShowLookUpMenuItem(context)) { lookUp(context) }
+            }
             textFieldItem(
                 item = SelectAll,
                 enabled = canShowSelectAllMenuItem(),
@@ -140,4 +148,16 @@ internal actual class ClipboardPasteState actual constructor(private val clipboa
                 false
             }
     }
+}
+
+internal fun TextFieldSelectionState.canShowLookUpMenuItem(context: Context): Boolean {
+    if (!isCopyAllowed()) return false
+
+    val selectedText = textFieldState.visualText.getSelectedText().toString()
+    return canShowLookUp(context, selectedText)
+}
+
+internal fun TextFieldSelectionState.lookUp(context: Context) {
+    val selectedText = textFieldState.visualText.getSelectedText().toString()
+    startLookUpActivity(context, selectedText)
 }

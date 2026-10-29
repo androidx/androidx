@@ -20,6 +20,7 @@ package androidx.compose.foundation.textfield
 
 import androidx.compose.foundation.contextmenu.ContextMenuItemLabels
 import androidx.compose.foundation.contextmenu.ContextMenuItemState
+import androidx.compose.foundation.contextmenu.LookUpItemOverrideRule
 import androidx.compose.foundation.contextmenu.ProcessTextItemOverrideRule
 import androidx.compose.foundation.contextmenu.assertContextMenuItem
 import androidx.compose.foundation.contextmenu.assertContextMenuItems
@@ -84,6 +85,8 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         )
 
     @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
+
+    @get:Rule val lookUpRule = LookUpItemOverrideRule()
 
     // region BTF1 Context Menu Gesture Tests
     @Test

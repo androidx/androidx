@@ -71,4 +71,7 @@ public object TextContextMenuKeys {
 
     /** Key for the context menu "Autofill" item. */
     public val AutofillKey: Any = Any()
+
+    /** Key for the context menu "Look Up" item. */
+    public val LookUpKey: Any = Any()
 }
