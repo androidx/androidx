@@ -322,17 +322,24 @@ applicable. Prioritize clarity and conciseness.
              (`verifier-r1`) at both Checkpoint 1 and Checkpoint 2 to the
              **opposite** model family from the author so correlated same-family
              blind spots are broken immediately on the first pass.
-        - **Zero-Cost Live Catalog & Quota Query:** When the harness provides a
-          lightweight model-catalog or quota query (zero token cost), always
-          query the live catalog before Round 1 to dynamically select the latest
-          available quota-sustainable model in each model family. For daily
-          quota-limited model families, match the reasoning tier to task
-          complexity: select a high-reasoning tier for complex code changes,
-          concurrency/lifecycle audits, deep root-cause investigations, or
-          architectural plans, and select a medium/standard tier for routine or
-          lightweight tasks (e.g., documentation edits, simple test/quirk
-          updates, or numeric test report fact-checking), while avoiding
-          quota-heavy maximum tiers unless explicitly requested.
+        - **Zero-Cost Live Catalog, Auto-Discovery & Quota-Floor Stability:**
+          When the harness provides a lightweight model-catalog or quota query
+          (zero token cost), always query the live catalog before Round 1 to
+          dynamically discover and select the highest-capability available
+          frontier model in each model family without hardcoding static model
+          versions. Gate eligibility using boolean quota health floors rather
+          than sorting by fluctuating remaining-quota percentages, and order
+          eligible frontier candidates deterministically by capability tier,
+          semantic generation, and output token capacity (strictly excluding
+          lightweight/lite, image, non-thinking, or untiered redirect aliases)
+          so default selections remain stable across runs for reproducible
+          comparison. For daily quota-limited model families, match the
+          reasoning tier to task complexity: select a high-reasoning tier for
+          complex code changes, concurrency/lifecycle audits, deep root-cause
+          investigations, or architectural plans, and select a medium/standard
+          tier for routine or lightweight tasks (e.g., documentation edits,
+          simple test/quirk updates, or numeric test report fact-checking),
+          while avoiding quota-heavy maximum tiers unless explicitly requested.
         - **Automatic User Notification:** Inform the user of the active
           verification mode and the models/tiers selected:
           - `CROSS_FAMILY_MULTI_MODEL` (`MULTI_MODEL`): Spawning independent
