@@ -1269,18 +1269,26 @@ public fun ScreenScaffold(
         overscrollEffect = overscrollEffect,
         content = { innerContentPadding ->
             var intrinsicButtonHeight by remember(edgeButton) { mutableStateOf<Float?>(null) }
-            val currentEdgeButtonTargetHeight by
+            // Shared between derivedStateOf (for the animation snapshotFlow below) and
+            // dynamicHeight (which calls it directly in inspection mode because subcomposing
+            // SlotsEnum.Main after measuring SlotsEnum.EdgeButton advances the global snapshot
+            // mid-measure and drops DynamicHeightNode's subscription to derivedStateOf).
+            val calculateEdgeButtonTargetHeightFn =
                 remember(scrollInfoProvider, lastItemOffsetCorrection) {
-                    derivedStateOf {
+                    {
                         (scrollInfoProvider.lastItemOffset - lastItemOffsetCorrection)
                             .coerceAtLeast(0f)
                     }
+                }
+            val currentEdgeButtonTargetHeight by
+                remember(calculateEdgeButtonTargetHeightFn) {
+                    derivedStateOf(calculateEdgeButtonTargetHeightFn)
                 }
             val edgeButtonAnimatedHeight = remember { Animatable(currentEdgeButtonTargetHeight) }
 
             // Remember lambdas to avoid re-evaluations on recomposition.
             val edgeButtonContent: @Composable () -> Unit =
-                remember(edgeButton, scrollInfoProvider, isInspectionMode) {
+                remember(edgeButton, calculateEdgeButtonTargetHeightFn, isInspectionMode) {
                     {
                         Box(
                             contentAlignment = Alignment.BottomCenter,
@@ -1293,8 +1301,11 @@ public fun ScreenScaffold(
                                         }
                                     }
                                 ) {
-                                    if (isInspectionMode) currentEdgeButtonTargetHeight
-                                    else edgeButtonAnimatedHeight.value
+                                    if (isInspectionMode) {
+                                        calculateEdgeButtonTargetHeightFn()
+                                    } else {
+                                        edgeButtonAnimatedHeight.value
+                                    }
                                 },
                         )
                     }
@@ -1330,40 +1341,42 @@ public fun ScreenScaffold(
                 }
             }
 
-            LaunchedEffect(
-                scrollInfoProvider,
-                lastItemOffsetCorrection,
-                edgeButtonAnimatedHeight,
-                edgeButtonHeightAnimationThresholdPx,
-            ) {
-                snapshotFlow {
-                    Pair(scrollInfoProvider.isScrollInProgress, currentEdgeButtonTargetHeight)
-                }
-                    .collectLatest { (isScrollInProgress, edgeButtonTargetHeight) ->
-                        if (isScrollInProgress) {
-                            // During a scroll, we add no animations, just keep the animated height
-                            // updated with the target.
-                            edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
-                        } else if (
-                            // Start an animation if we are far off the required target, or retarget
-                            // an animation if we have one already in progress, to ensure we end
-                            // where we need.
-                            abs(edgeButtonTargetHeight - edgeButtonAnimatedHeight.value) >
-                                edgeButtonHeightAnimationThresholdPx ||
-                                edgeButtonAnimatedHeight.isRunning
-                        ) {
-                            launch {
-                                edgeButtonAnimatedHeight.animateTo(
-                                    targetValue = edgeButtonTargetHeight,
-                                    animationSpec = DEFAULT_EDGE_BUTTON_ANIMATION_SPEC,
-                                )
-                            }
-                        } else if (edgeButtonAnimatedHeight.value != edgeButtonTargetHeight) {
-                            // We are close enough, and no animation is running, just snap to the
-                            // target value.
-                            edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
-                        }
+            if (!isInspectionMode) {
+                LaunchedEffect(
+                    scrollInfoProvider,
+                    lastItemOffsetCorrection,
+                    edgeButtonAnimatedHeight,
+                    edgeButtonHeightAnimationThresholdPx,
+                ) {
+                    snapshotFlow {
+                        Pair(scrollInfoProvider.isScrollInProgress, currentEdgeButtonTargetHeight)
                     }
+                        .collectLatest { (isScrollInProgress, edgeButtonTargetHeight) ->
+                            if (isScrollInProgress) {
+                                // During a scroll, we add no animations, just keep the animated
+                                // height updated with the target.
+                                edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
+                            } else if (
+                                // Start an animation if we are far off the required target, or
+                                // retarget an animation if we have one already in progress, to
+                                // ensure we end where we need.
+                                abs(edgeButtonTargetHeight - edgeButtonAnimatedHeight.value) >
+                                    edgeButtonHeightAnimationThresholdPx ||
+                                    edgeButtonAnimatedHeight.isRunning
+                            ) {
+                                launch {
+                                    edgeButtonAnimatedHeight.animateTo(
+                                        targetValue = edgeButtonTargetHeight,
+                                        animationSpec = DEFAULT_EDGE_BUTTON_ANIMATION_SPEC,
+                                    )
+                                }
+                            } else if (edgeButtonAnimatedHeight.value != edgeButtonTargetHeight) {
+                                // We are close enough, and no animation is running, just snap to
+                                // the target value.
+                                edgeButtonAnimatedHeight.snapTo(edgeButtonTargetHeight)
+                            }
+                        }
+                }
             }
         },
     )
