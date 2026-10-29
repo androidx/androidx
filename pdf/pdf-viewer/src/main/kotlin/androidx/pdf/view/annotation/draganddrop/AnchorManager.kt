@@ -17,7 +17,9 @@
 package androidx.pdf.view.annotation.draganddrop
 
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.R
 import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
@@ -46,10 +48,15 @@ internal class AnchorManager(
     private val anchors =
         mapOf(DOCK_STATE_START to left, DOCK_STATE_END to right, DOCK_STATE_BOTTOM to bottom)
 
+    private val alphaActive =
+        ResourcesCompat.getFloat(left.resources, R.dimen.toolbar_anchor_alpha_active)
+    private val alphaInactive =
+        ResourcesCompat.getFloat(left.resources, R.dimen.toolbar_anchor_alpha_inactive)
+
     fun showAnchors() {
         anchors.values.forEach { view ->
             // Reset to inactive state initially
-            view.alpha = ALPHA_INACTIVE
+            view.alpha = alphaInactive
             view.visibility = View.VISIBLE
         }
     }
@@ -70,11 +77,11 @@ internal class AnchorManager(
 
         val closestEntry = anchors.minByOrNull { (_, view) -> getDistance(centerX, centerY, view) }
 
-        anchors.values.forEach { it.alpha = ALPHA_INACTIVE }
+        anchors.values.forEach { it.alpha = alphaInactive }
 
         // Highlight the closest one and return its state.
         closestEntry?.let { (state, view) ->
-            view.alpha = ALPHA_ACTIVE
+            view.alpha = alphaActive
             return state
         }
 
@@ -87,11 +94,5 @@ internal class AnchorManager(
         val x2 = target.x + target.width / 2
         val y2 = target.y + target.height / 2
         return hypot(x1 - x2, y1 - y2)
-    }
-
-    companion object {
-        // Opacity values for visual feedback
-        private const val ALPHA_ACTIVE = 0.8f
-        private const val ALPHA_INACTIVE = 0.3f
     }
 }

@@ -16,10 +16,15 @@
 
 package androidx.pdf.view.annotation
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.MotionEvent
 import android.view.View
+import android.widget.FrameLayout
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.material.R as MaterialR
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -90,5 +95,107 @@ class ViewExtensionsTest {
         val touchEvent = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 150f, 200f, 0)
 
         assertThat(view.isTouchInView(touchEvent)).isFalse()
+    }
+
+    @Test
+    fun findHighestLayoutRequestedAncestor_returnsSelf_whenDetachedOrParentIsNotLayoutRequested() {
+        val detachedView = View(context)
+        assertThat(detachedView.findHighestLayoutRequestedAncestor()).isSameInstanceAs(detachedView)
+        detachedView.propagateRequestLayoutToRoot()
+
+        val parent = FrameLayout(context)
+        val child = View(context)
+        parent.addView(child)
+        parent.layout(0, 0, 500, 500)
+        child.layout(0, 0, 100, 100)
+
+        assertThat(parent.isLayoutRequested).isFalse()
+        assertThat(child.findHighestLayoutRequestedAncestor()).isSameInstanceAs(child)
+    }
+
+    @Test
+    fun findHighestLayoutRequestedAncestor_returnsTopmostLayoutRequestedParent() {
+        val grandParent = FrameLayout(context)
+        val interceptingParent =
+            object : FrameLayout(context) {
+                @SuppressLint("MissingSuperCall")
+                override fun requestLayout() {
+                    // Simulates Compose AndroidViewsHandler swallowing requestLayout()
+                }
+            }
+        val holder = FrameLayout(context)
+        val child = View(context)
+
+        grandParent.addView(interceptingParent)
+        interceptingParent.addView(holder)
+        holder.addView(child)
+
+        grandParent.layout(0, 0, 500, 500)
+        interceptingParent.layout(0, 0, 500, 500)
+        holder.layout(0, 0, 500, 500)
+        child.layout(0, 0, 100, 100)
+
+        child.requestLayout()
+
+        assertThat(child.isLayoutRequested).isTrue()
+        assertThat(holder.isLayoutRequested).isTrue()
+        assertThat(interceptingParent.isLayoutRequested).isFalse()
+        assertThat(grandParent.isLayoutRequested).isFalse()
+        assertThat(child.findHighestLayoutRequestedAncestor()).isSameInstanceAs(holder)
+    }
+
+    @Test
+    fun propagateRequestLayoutToRoot_propagatesPastInterceptingParentToRoot() {
+        val rootContainer = FrameLayout(context)
+        val composeHost = FrameLayout(context)
+        val interceptingHandler =
+            object : FrameLayout(context) {
+                @SuppressLint("MissingSuperCall")
+                override fun requestLayout() {
+                    // Simulates Compose AndroidViewsHandler swallowing requestLayout()
+                }
+            }
+        val holder = FrameLayout(context)
+        val child = View(context)
+
+        rootContainer.addView(composeHost)
+        composeHost.addView(interceptingHandler)
+        interceptingHandler.addView(holder)
+        holder.addView(child)
+
+        rootContainer.layout(0, 0, 500, 500)
+        composeHost.layout(0, 0, 500, 500)
+        interceptingHandler.layout(0, 0, 500, 500)
+        holder.layout(0, 0, 500, 500)
+        child.layout(0, 0, 100, 100)
+
+        // Standard requestLayout() stops at holder because interceptingHandler swallows it
+        child.requestLayout()
+        assertThat(composeHost.isLayoutRequested).isFalse()
+        assertThat(rootContainer.isLayoutRequested).isFalse()
+
+        // Propagating past the intercepting container marks ancestors up to rootContainer as dirty
+        child.propagateRequestLayoutToRoot()
+        assertThat(composeHost.isLayoutRequested).isTrue()
+        assertThat(rootContainer.isLayoutRequested).isTrue()
+    }
+
+    @Test
+    fun withMaterial3ThemeFallback_wrapsContextOnlyWhenMaterial3ThemeIsMissing() {
+        val fallbackContext = context.withMaterial3ThemeFallback()
+        assertThat(fallbackContext).isNotSameInstanceAs(context)
+        assertThat(
+                fallbackContext.theme.resolveAttribute(
+                    MaterialR.attr.colorSurfaceContainer,
+                    TypedValue(),
+                    true,
+                )
+            )
+            .isTrue()
+
+        val existingMaterial3Context =
+            ContextThemeWrapper(context, MaterialR.style.Theme_Material3_DayNight)
+        assertThat(existingMaterial3Context.withMaterial3ThemeFallback())
+            .isSameInstanceAs(existingMaterial3Context)
     }
 }

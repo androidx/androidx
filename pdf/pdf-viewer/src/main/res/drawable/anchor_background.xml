@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   Copyright 2025 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +17,11 @@
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="16dp" />
-    <solid android:color="?attr/colorSurfaceContainerLow" />
+    <corners android:radius="@dimen/toolbar_anchor_corner_radius" />
+    <solid android:color="@color/toolbar_anchor_fill_color" />
     <stroke
-        android:width="2dp"
-        android:color="?attr/colorOutlineVariant"
-        android:dashGap="5dp"
-        android:dashWidth="10dp" />
+        android:width="@dimen/toolbar_anchor_stroke_width"
+        android:color="@color/toolbar_anchor_stroke_color"
+        android:dashGap="@dimen/toolbar_anchor_stroke_dash_gap"
+        android:dashWidth="@dimen/toolbar_anchor_stroke_dash_width" />
 </shape>

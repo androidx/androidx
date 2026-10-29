@@ -33,6 +33,8 @@ import androidx.constraintlayout.widget.ConstraintSet.VISIBILITY_MODE_IGNORE
 import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
+import androidx.pdf.view.annotation.AnnotationToolbarAnimationDefaults.SNAP_DURATION_MS
+import androidx.pdf.view.annotation.AnnotationToolbarAnimationDefaults.SNAP_OVERSHOOT_TENSION
 import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
@@ -69,6 +71,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
 
     private var toolbar: AnnotationToolbarView? = null
+
+    private val onDockChangedListener =
+        AnnotationToolbarView.OnDockStateChangedListener { dockState ->
+            applyDockLayoutParams(dockState)
+        }
 
     private val anchorManager: AnchorManager
 
@@ -131,11 +138,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
 
         // Remove if already added
-        toolbar?.let { container.removeView(it) }
+        detachToolbar()
 
         this.toolbar = child
         child.areAnimationsEnabled = areAnimationsEnabled
-        child.addOnDockChangedListener { dockState -> applyDockLayoutParams(dockState) }
+        child.addOnDockChangedListener(onDockChangedListener)
 
         container.addView(child, -1, params)
         initializeDragAndDrop()
@@ -151,9 +158,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * @param view The [View] to remove.
      */
     override fun removeView(view: View?) {
-        if (view == toolbar) {
-            container.removeView(view)
-            this.toolbar = null
+        if (view != null && view == toolbar) {
+            detachToolbar()
         } else if (view == container) {
             super.removeView(view)
         }
@@ -175,8 +181,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * Removes the attached [AnnotationToolbarView] from this coordinator and clears internal state.
      */
     override fun removeAllViews() {
+        detachToolbar()
+    }
+
+    private fun detachToolbar() {
         toolbar?.let {
+            it.removeOnDockChangedListener(onDockChangedListener)
             container.removeView(it)
+            setOnDragListener(null)
+            anchorManager.hideAnchors()
             this.toolbar = null
         }
     }
@@ -268,8 +281,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 .animate()
                 .x(targetX)
                 .y(targetY)
-                .setDuration(SNAP_ANIMATION_DURATION)
-                .setInterpolator(OvershootInterpolator(SNAP_BOUNCE_TENSION)) // The "Snap" bounce
+                .setDuration(SNAP_DURATION_MS.toLong())
+                .setInterpolator(OvershootInterpolator(SNAP_OVERSHOOT_TENSION)) // The "Snap" bounce
                 .withEndAction {
                     applyDockLayoutParams(state)
                     toolbar.post { toolbar.expandToolbar() }
@@ -344,8 +357,5 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         connect(viewId, ConstraintSet.BOTTOM, parentId, ConstraintSet.BOTTOM)
     }
 
-    public companion object {
-        private const val SNAP_ANIMATION_DURATION = 250L
-        private const val SNAP_BOUNCE_TENSION = 1.0f
-    }
+    public companion object
 }

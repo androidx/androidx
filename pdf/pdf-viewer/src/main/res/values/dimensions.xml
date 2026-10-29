@@ -73,6 +73,12 @@
 
     <dimen name="toolbar_anchor_length">388dp</dimen>
     <dimen name="toolbar_anchor_width">72dp</dimen>
+    <dimen name="toolbar_anchor_corner_radius">16dp</dimen>
+    <dimen name="toolbar_anchor_stroke_width">2dp</dimen>
+    <dimen name="toolbar_anchor_stroke_dash_width">10dp</dimen>
+    <dimen name="toolbar_anchor_stroke_dash_gap">5dp</dimen>
+    <item name="toolbar_anchor_alpha_active" type="dimen" format="float">0.8</item>
+    <item name="toolbar_anchor_alpha_inactive" type="dimen" format="float">0.3</item>
     <!-- Annotation Toolbar dimens - END -->
 
     <!-- Signature Handling -->
