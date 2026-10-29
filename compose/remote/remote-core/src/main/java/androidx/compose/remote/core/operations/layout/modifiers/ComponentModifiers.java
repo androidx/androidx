@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixSave;
 import androidx.compose.remote.core.operations.layout.ClickHandler;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
+import androidx.compose.remote.core.operations.layout.ClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.DecoratorComponent;
 import androidx.compose.remote.core.operations.layout.MultiClickModifier;
@@ -164,6 +165,10 @@ public class ComponentModifiers extends PaintOperation
                 context.translate(-tx, -ty);
                 ((ClickModifierOperation) op).paint(context);
                 context.translate(tx, ty);
+            } else if (op instanceof ClickModifierOperation2) {
+                context.translate(-tx, -ty);
+                ((ClickModifierOperation2) op).paint(context);
+                context.translate(tx, ty);
             } else if (op instanceof MultiClickModifier) {
                 context.translate(-tx, -ty);
                 ((MultiClickModifier) op).paint(context);
@@ -195,6 +200,8 @@ public class ComponentModifiers extends PaintOperation
                 h -= pop.getTop() + pop.getBottom();
             }
             if (op instanceof ClickModifierOperation) {
+                ((DecoratorComponent) op).layout(context, component, width, height);
+            } else if (op instanceof ClickModifierOperation2) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
             } else if (op instanceof MultiClickModifier) {
                 ((DecoratorComponent) op).layout(context, component, width, height);
@@ -254,6 +261,14 @@ public class ComponentModifiers extends PaintOperation
                 float lx = x - mPaddingOffset[0];
                 float ly = y - mPaddingOffset[1];
                 if (((ClickHandler) op).onClick(context, document, component, lx, ly)) {
+                    handled = true;
+                }
+            } else if (op instanceof ClickModifierOperation2) {
+                // This click does not come from the pointer input router (for example an
+                // accessibility click), so there are no pointer events to send.
+                // TODO(b/586559163): send an event of a new type for accessibility instead,
+                //  and remove this check.
+                if (((ClickModifierOperation2) op).performClick(context, document)) {
                     handled = true;
                 }
             }

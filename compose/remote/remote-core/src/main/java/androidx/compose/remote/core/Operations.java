@@ -121,6 +121,7 @@ import androidx.compose.remote.core.operations.WakeIn;
 import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.CanvasOperations;
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation;
+import androidx.compose.remote.core.operations.layout.ClickModifierOperation2;
 import androidx.compose.remote.core.operations.layout.ComponentStart;
 import androidx.compose.remote.core.operations.layout.ContainerEnd;
 import androidx.compose.remote.core.operations.layout.ImpulseOperation;
@@ -677,6 +678,8 @@ public class Operations {
         customMap.putAll(baseMap);
 
         // Replace specific opcodes with your alternative Operation readers:
+        customMap.remove(Operations.MODIFIER_CLICK);
+        customMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation2::read);
         return customMap;
     }
 
