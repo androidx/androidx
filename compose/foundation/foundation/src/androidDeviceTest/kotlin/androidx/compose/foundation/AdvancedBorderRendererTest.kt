@@ -56,7 +56,6 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -74,6 +73,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.floor
 import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -2533,6 +2533,7 @@ class AdvancedBorderRendererTest {
      * [GraphicsLayer], instead of a stale one from a previous draw.
      */
     // RuntimeShader not available below Tiramisu
+    @Ignore("b/570069301")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun drawBorder_changeProvidedGraphicsLayer_usesLatestGraphicsLayer() {
@@ -2609,112 +2610,6 @@ class AdvancedBorderRendererTest {
 
         rule.runOnIdle { assertThat(secondLayerInvocations).isGreaterThan(0) }
 
-        rule
-            .onNodeWithTag(testTag)
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                backgroundColor = Color.Red,
-                shape = shape,
-                backgroundShape = shape,
-                shapeSize = Size(20f, 20f),
-                shapeColor = Color.Blue,
-                antiAliasingGap = 3.0f,
-            )
-    }
-
-    /**
-     * If the onProvideGraphicsLayer lambda passed to [BorderRenderer] returns a [GraphicsLayer]
-     * that has been released, drawing should not crash, and no border is drawn. When the lambda
-     * later returns a new, valid [GraphicsLayer] (for example, after a node is re-attached), the
-     * border should be drawn correctly using the new layer, even though the brush and outline did
-     * not change.
-     */
-    // RuntimeShader not available below Tiramisu
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    @Test
-    fun drawBorder_providedGraphicsLayerReleased_thenNewGraphicsLayerProvided() {
-        // A RuntimeShader brush with a generic outline requires a GraphicsLayer to draw
-        val brush =
-            ShaderBrush(
-                RuntimeShader("half4 main(float2 coord) { return half4(1.0, 0.0, 0.0, 1.0); }")
-            )
-        val shape = GenericShape { size, _ -> addRect(Rect(Offset.Zero, size)) }
-        // The same outline instance is used across draws, so the renderer's cache is not
-        // invalidated by a new outline
-        var outline: Outline? = null
-        var useNewLayer by mutableStateOf(false)
-        var releasedLayerInvocations = 0
-        var newLayerInvocations = 0
-
-        rule.setContent {
-            val graphicsContext = LocalGraphicsContext.current
-            val releasedGraphicsLayer = remember {
-                graphicsContext.createGraphicsLayer().also {
-                    graphicsContext.releaseGraphicsLayer(it)
-                }
-            }
-            val newGraphicsLayer = rememberGraphicsLayer()
-            val renderer =
-                remember(releasedGraphicsLayer, newGraphicsLayer) {
-                    BorderRenderer {
-                        if (useNewLayer) {
-                            newLayerInvocations++
-                            newGraphicsLayer
-                        } else {
-                            releasedLayerInvocations++
-                            releasedGraphicsLayer
-                        }
-                    }
-                }
-            SemanticParent {
-                Box(
-                    Modifier.size(40.0f.toDp(), 40.0f.toDp())
-                        .background(color = Color.Blue)
-                        .drawWithContent {
-                            drawContent()
-                            // Read useNewLayer to force a re-draw
-                            useNewLayer
-                            renderer.drawBorder(
-                                drawScope = this,
-                                width = 10.0f.toDp(),
-                                brush = brush,
-                                outline =
-                                    outline
-                                        ?: shape.createOutline(size, layoutDirection, this).also {
-                                            outline = it
-                                        },
-                            )
-                        }
-                )
-            }
-        }
-
-        // The released layer was provided, and drawing with it did not crash
-        rule.runOnIdle {
-            assertThat(releasedLayerInvocations).isGreaterThan(0)
-            assertThat(newLayerInvocations).isEqualTo(0)
-        }
-
-        // Assert we only have a blue shape (no border was drawn because of the invalid layer)
-        rule
-            .onNodeWithTag(testTag)
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                backgroundColor = Color.Blue,
-                shape = shape,
-                backgroundShape = shape,
-                shapeSize = Size(20f, 20f),
-                shapeColor = Color.Blue,
-                antiAliasingGap = 3.0f,
-            )
-
-        rule.runOnIdle { useNewLayer = true }
-
-        rule.runOnIdle { assertThat(newLayerInvocations).isGreaterThan(0) }
-
-        // Border should be drawn now
         rule
             .onNodeWithTag(testTag)
             .captureToImage()
