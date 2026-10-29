@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core;
 
+import static androidx.compose.remote.core.Operations.createMapWithNewPointerInputOperations;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.AddMesh2D;
 import androidx.compose.remote.core.operations.BinaryData;
@@ -1044,6 +1046,7 @@ public class RemoteComposeBuffer {
     public void inflateFromBuffer(
             @NonNull ArrayList<Operation> operations, @NonNull RemapContext ctx) {
         mBuffer.setIndex(0);
+        boolean unifiedPointerInput = false;
         if (mBuffer.available() && (mBuffer.mBuffer[mBuffer.mIndex] & 0xFF) == Operations.HEADER) {
             mApiLevel = Header.peekApiLevel(mBuffer);
             int profiles = 0;
@@ -1051,6 +1054,8 @@ public class RemoteComposeBuffer {
                 try {
                     Header header = Header.readDirect(mBuffer);
                     profiles = header.getProfiles();
+                    unifiedPointerInput = header.getInt(Header.FEATURE_UNIFIED_POINTER_INPUT, 0)
+                            == 1;
                     Object compression = header.get(Header.COMPRESS);
                     if (compression != null
                             && !Integer.valueOf(Header.COMPRESSION_NONE).equals(compression)) {
@@ -1075,6 +1080,10 @@ public class RemoteComposeBuffer {
         if (companionOperations == null) {
             // Invalid operations map
             return;
+        }
+        // Use the new pointer input system if the flag is enabled.
+        if (unifiedPointerInput) {
+            companionOperations = createMapWithNewPointerInputOperations(companionOperations);
         }
         mBuffer.setSystemInfo(getBuffer().mSystemInfo);
         WireBuffer wrapped = ctx.wrap(mBuffer);

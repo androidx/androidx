@@ -666,6 +666,21 @@ public class Operations {
     }
 
     /**
+     * Creates an operations map overriding pointer input operations with unified implementations.
+     *
+     * @param baseMap base operations map to copy
+     * @return map with alternative pointer input operation readers
+     */
+    public static @NonNull UniqueIntMap<CompanionOperation> createMapWithNewPointerInputOperations(
+            @NonNull UniqueIntMap<CompanionOperation> baseMap) {
+        UniqueIntMap<CompanionOperation> customMap = new UniqueIntMap<>();
+        customMap.putAll(baseMap);
+
+        // Replace specific opcodes with your alternative Operation readers:
+        return customMap;
+    }
+
+    /**
      * Returns a map holding exactly the given opcodes, bound to the companion operations the api
      * level knows for them. Opcodes unknown at that api level are skipped. This is how a player
      * with its own set of supported operations, rather than a built-in profile, obtains its
