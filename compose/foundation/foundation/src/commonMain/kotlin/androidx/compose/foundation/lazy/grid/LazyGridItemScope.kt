@@ -29,17 +29,21 @@ import androidx.compose.ui.unit.IntOffset
 @LazyGridScopeMarker
 public sealed interface LazyGridItemScope {
     /**
-     * The number of cells on the cross axis resolved from [GridCells].
+     * Returns the number of cross-axis cells resolved from [GridCells].
      *
-     * This represents the number of columns in [LazyVerticalGrid] or rows in [LazyHorizontalGrid],
-     * and corresponds to [LazyGridItemSpanScope.maxLineSpan] and [LazyGridLayoutInfo.maxSpan].
+     * Equals the number of columns in [LazyVerticalGrid] or rows in [LazyHorizontalGrid], matching
+     * [LazyGridItemSpanScope.maxLineSpan] and [LazyGridLayoutInfo.maxSpan]. For example, in a
+     * 3-column [LazyVerticalGrid], this value is `3` for every item regardless of its
+     * [GridItemSpan].
      *
-     * This value is always at least `1`. Reading this property in composition observes changes to
-     * the grid's resolved cross-axis cell count and triggers recomposition when the count changes
-     * (for example, when a grid using [GridCells.Adaptive] is resized).
+     * [LazyVerticalGrid] and [LazyHorizontalGrid] resolve [GridCells] constraints before
+     * subcomposing items, so this property returns the resolved count (always at least `1`) on the
+     * first frame.
      *
-     * For example, if [LazyVerticalGrid] has 3 columns, this value is `3` for each item, regardless
-     * of the item's individual [GridItemSpan].
+     * Backed by snapshot [androidx.compose.runtime.State]: reading this property during item
+     * composition, layout (such as [androidx.compose.ui.layout.layout]), or draw (such as
+     * [androidx.compose.ui.draw.drawBehind]) invalidates only that phase when the resolved count
+     * changes (for example, when resizing a [GridCells.Adaptive] grid).
      *
      * @sample androidx.compose.foundation.samples.LazyGridCrossAxisCellCountSample
      */
