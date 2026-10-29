@@ -425,7 +425,7 @@ class ModifierChainActivity : ComponentActivity() {
                 SpatialExternalSurface(stereoMode = StereoMode.Mono, modifier = modifier) {
                     onSurfaceCreated { surface ->
                         val canvas = surface.lockCanvas(null)
-                        canvas.drawColor(AndroidColor.BLACK)
+                        canvas.drawColor(AndroidColor.BLUE)
                         surface.unlockCanvasAndPost(canvas)
                     }
                 }
