@@ -1,13 +1,15 @@
 ---
 name: camerax-testing
 description: >-
-  Guides authoring, running, and answering technical questions about CameraX
-  Robolectric unit tests and instrumentation device tests, Truth/fakes
-  conventions, leak debugging, and Test Pyramid migration. Use when answering
-  CameraX testing questions, writing, running, or migrating CameraX unit or
-  androidTest tests, or debugging test resource leaks. Don't use for OEM
-  hardware quirk scoping (use camerax-triage-and-quirks) or multi-model code
-  review (use camerax-code-review).
+  Guides pre-coding CameraX codebase/call-path/internal-API research, existing
+  test and fake case studies, authoring and running Robolectric unit tests and
+  instrumentation device tests, Truth/fakes conventions, leak debugging, and
+  Test Pyramid migration. Use when researching CameraX call paths, internal
+  functions, or existing test cases before modifying code, answering CameraX
+  testing questions, writing/running/migrating unit or androidTest tests, or
+  debugging test resource leaks. Don't use for OEM hardware quirk scoping (use
+  camerax-triage-and-quirks) or multi-model code review (use
+  camerax-code-review).
 ---
 
 # CameraX Testing, Troubleshooting & Test Pyramid Guide
@@ -116,7 +118,7 @@ CameraX involves complex hardware interactions, making robust testing essential.
 
 ### Workflow:
 
-#### 1. Research & Context Gathering (Before Modifying Code)
+#### 1. Research, Code Structure & Context Gathering (Before Modifying Code)
 - **Read Documentation & API Contracts**: Carefully read the JavaDoc and API
   contracts of the class/interface you are modifying. Understand the design
   intent and constraints.
@@ -138,19 +140,165 @@ CameraX involves complex hardware interactions, making robust testing essential.
   `git --no-lazy-fetch blame -L <start>,<end> <file>` followed by
   `git --no-lazy-fetch show <sha> -- <path>` over unbounded `git log -L` or
   `git log -S` scans, which traverse the full commit graph and time out.
-- **API Change Check**: Verify if your change introduces public API
-  modifications. Remember:
+- **4-Layer Package Responsibility ("Object Job") & Code-Placement Map**:
+  Understand the durable architectural contract of each layer and sub-package
+  before placing new code or calling internal helpers (treat class names below
+  as representative `e.g.` anchors and always inspect current package siblings
+  and KDoc):
+  1. **Layer 1 — App Entry, UI & Extension Surfaces (`camera-lifecycle`,
+     `camera-view`, `camera-compose`, `camera-viewfinder`,
+     `camera-extensions`)**:
+     - Owns lifecycle binding (e.g., `ProcessCameraProvider`,
+       `LifecycleCamera`), high-level UI controllers/widgets (e.g.,
+       `CameraController`, `PreviewView` in `camera-view`, `CameraXViewfinder`
+       in `camera-compose`, and `Viewfinder` in `camera-viewfinder`), and OEM
+       extension session delegation (e.g., `ExtensionsManager`,
+       `VendorExtender` vending a `camera-core` `SessionProcessor` via
+       `createSessionProcessor()`, such as `Camera2ExtensionsSessionProcessor`).
+     - *Placement Rule*: Never place core session state machines, stream
+       calculators, or Camera2 HAL workarounds in Layer 1 UI/lifecycle
+       wrappers.
+  2. **Layer 2 — Hardware-Agnostic Core Abstractions, Stream Graph & Media
+     Pipelines (`camera-core`, `camera-video`, `camera-effects`)**:
+     - `core/`: Public developer APIs tracked in `api/current.txt` (e.g.,
+       `UseCase`, `Preview`, `ImageCapture`, `ImageAnalysis`, `CameraControl`,
+       `CameraInfo`, `ResolutionSelector`, `DynamicRange`).
+     - `core/impl/`: `@RestrictTo(LIBRARY_GROUP)` cross-module SPI contracts
+       and configs tracked in `api/restricted_current.txt` (e.g.,
+       `CameraInternal`, `CameraControlInternal`, `CameraInfoInternal`,
+       `SessionConfig`, `UseCaseConfig`, `DeferrableSurface`,
+       `SessionProcessor`, `Quirk`, `Quirks`).
+     - `core/internal/`: Cross-UseCase binding orchestration, stream spec
+       calculation, and capability simulation (e.g., `CameraUseCaseAdapter`,
+       `StreamSpecsCalculator`).
+     - Domain pipelines: `core/imagecapture/` (still capture pipeline, e.g.,
+       `ImagePipeline`, `TakePictureManager`, `CaptureNode`, `ProcessingNode`),
+       `core/processing/` & `camera-effects` (OpenGL/shader surface graph,
+       e.g., `SurfaceEdge`, `SurfaceProcessorNode`), `core/streamsharing/`
+       (multi-UseCase stream sharing, e.g., `StreamSharing`,
+       `VirtualCameraAdapter`), `core/featuregroup/` &
+       `core/resolutionselector/` (feature/resolution negotiation), and
+       `camera-video` (`Recorder`, `VideoCapture`, and
+       `video/internal/{encoder,audio,muxer,compat,workaround}`).
+  3. **Layer 3 — Camera2 Adaptation, Session Control, Dagger Scopes & Quirks
+     (`camera-camera2`)**:
+     - `config/`: Dagger component and scope wiring (e.g., `CameraConfig` for
+       `@CameraScope` camera-lifetime bindings vs. `UseCaseCameraConfig` for
+       `@UseCaseCameraScope` session-lifetime bindings).
+     - `adapter/`: Bridges `camera-core/impl` SPIs to Camera2/CameraPipe
+       controls and surface calculators (e.g., `CameraInternalAdapter`,
+       `CameraInfoAdapter`, `CameraControlAdapter`,
+       `SupportedSurfaceCombination`, and
+       `camera2.adapter.CameraUseCaseAdapter` which provides
+       `UseCaseConfigFactory` default configs—do not confuse with
+       `core.internal.CameraUseCaseAdapter`).
+     - `impl/` & `internal/`: In `impl/`, `@UseCaseCameraScope` per-session
+       objects (e.g., `UseCaseCamera`, `UseCaseCameraRequestControl`,
+       `CapturePipeline`, `UseCaseSurfaceManager`) alongside `@CameraScope`
+       camera-lifetime owners that re-attach to each session (e.g.,
+       `UseCaseManager`, `StillCaptureRequestControl`, `ComboRequestListener`);
+       in `internal/`, unscoped Camera2 capability resolvers (e.g.,
+       `DynamicRangeResolver`, `StreamUseCaseUtil`, `HighSpeedResolver`).
+     - `compat/quirk/` & `compat/workaround/`: Hardware quirk predicates and
+       registries vs. encapsulated workaround consumers. Place device-wide
+       (`Build`-based) quirks in the owning module's `DeviceQuirks` (e.g.,
+       `camera-core`, `camera-video`, `camera-view`, `camera-compose`,
+       `camera-extensions`, `camera-viewfinder`, or `camera-camera2`),
+       per-camera (`CameraCharacteristics`-based) quirks in `camera-camera2`'s
+       `CameraQuirks`, and workaround logic in a dedicated `compat/workaround/`
+       collaborator rather than scattering raw `Quirk` checks across core
+       pipeline classes.
+     - `interop/`: `@ExperimentalCamera2Interop` public Camera2 escape hatches
+       (e.g., `Camera2CameraInfo`, `Camera2CameraControl`, `Camera2Interop`).
+  4. **Layer 4 — Low-Level CameraPipe Engine (`camera-camera2-pipe`)**:
+     - Owns low-level Camera2 graph and request execution (`pipe/graph/`,
+       `pipe/framegraph/`, `pipe/compat/`, `pipe/media/`, e.g., `CameraGraph`,
+       `GraphLoop` / `CaptureSequenceProcessor`, `Camera2DeviceManager`,
+       `Camera2DeviceCloser`). Fix CameraX UseCase, surface, and lifecycle
+       contracts in Layers 2–3 before modifying general-purpose Layer 4
+       primitives.
+- **Multi-Path End-to-End Call-Chain Tracing Anchors**:
+  Trace the relevant functional pipeline end-to-end across layers rather than
+  inspecting a single class in isolation (treat class names below as
+  representative `e.g.` anchors and inspect current package siblings):
+  - *Bind & Session Setup*: `ProcessCameraProvider` / `LifecycleCamera` ->
+    `core.internal.CameraUseCaseAdapter` (`StreamSpecsCalculator`,
+    `StreamSharing`) -> `CameraInternalAdapter` -> `UseCaseManager`
+    (`@CameraScope`) -> `UseCaseCamera` / `UseCaseSurfaceManager`
+    (`@UseCaseCameraScope`) -> `CameraGraph`.
+  - *Still Capture*: `ImageCapture` -> `ImagePipeline` / `TakePictureManager`
+    -> `CameraControlInternal` (`CameraControlAdapter`) ->
+    `StillCaptureRequestControl` -> `UseCaseCameraRequestControl` ->
+    `CapturePipeline` -> `CameraGraph.acquireSession()`.
+  - *Stream Processing / Effects / Sharing*: `UseCase` / `CameraEffect` ->
+    `SurfaceEdge` -> `SurfaceProcessorNode` / `DualSurfaceProcessorNode` ->
+    `StreamSharing` (`VirtualCameraAdapter`) -> `DeferrableSurface`.
+  - *Video Recording*: `VideoCapture` -> `Recorder` -> `VideoEncoderSession`
+    -> `EncoderImpl` (`MediaCodec`) / `AudioSource` -> `MediaMuxer`.
+  - *View & Extensions*: `CameraController` -> `PreviewView`; and
+    `ExtensionsManager` -> `VendorExtender` (`camera-extensions`) ->
+    `SessionProcessor` (`camera-core/impl`, e.g.,
+    `Camera2ExtensionsSessionProcessor`) -> `UseCaseManager` -> `CameraGraph`.
+- **Mandatory Pre-Placement & Internal Function Pre-Use Checklist**:
+  Before calling an internal function, modifying a method, or placing new code:
+  1. *Fast Codebase & Caller Scan*: In local AOSP checkouts, use path-scoped
+     `git --no-lazy-fetch grep -- camera/<module>/src/...` and
+     `git ls-files 'camera/*' | grep ...` (avoiding slow recursive `find`/`grep`
+     from the repo root) to inspect all production and test callers.
+  2. *Disambiguate Same-Named Classes & Check API Surface*: Confirm exact
+     package imports for similarly named classes across modules (e.g.,
+     `core.internal.CameraUseCaseAdapter` vs.
+     `camera2.adapter.CameraUseCaseAdapter`, or per-module `DeviceQuirks` vs.
+     `CameraQuirks`), and check `camera/<module>/api/current.txt` and
+     `restricted_current.txt` plus `@RestrictTo(LIBRARY_GROUP)` / `@OptIn`
+     boundaries.
+  3. *Verify Scope Lifetime, Thread Confinement & Hook Intent*: Check whether
+     the owning class is `@CameraScope` (`CameraConfig`) or
+     `@UseCaseCameraScope` (`UseCaseCameraConfig`—never cache a
+     `@UseCaseCameraScope` reference inside a `@CameraScope` owner without
+     invalidating on session re-bind), verify thread/dispatcher confinement
+     (`@MainThread`, `@WorkerThread`, `@ExecutedBy`, `@GuardedBy`,
+     `UseCaseThreads`), and read KDoc + existing callers to confirm whether a
+     method is a general-purpose helper or a single-quirk workaround hook.
+  4. *Study Existing Unit & Instrumentation Tests Before Coding*: Read existing
+     `src/test/` and `src/androidTest/` tests and `camera-testing` fakes for the
+     target class before designing or placing code changes.
+- **API Surface & Pre-Call Contract Check (`api/current.txt` &
+  `restricted_current.txt`)**: Verify whether your change modifies or calls
+  public or restricted APIs by inspecting `camera/<module>/api/current.txt` and
+  `restricted_current.txt`:
   - Do not introduce public API changes in a bug fix CL.
-  - If a new API is necessary, mark it
+  - If a new API is necessary in a non-alpha cycle, mark it
     `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` with a bug
     ID to make it public in the next alpha.
-- **Reference Existing Tests**: Search for existing tests targeting the
-  component you are modifying. They serve as "Case Studies" for how the
-  component is expected to behave and how to verify it. Key directories:
-  - `camera/integration-tests/coretestapp/src/androidTest/`
-  - `camera/camera-core/src/androidTest/`
-  - `camera/camera-camera2/src/androidTest/`
-  - `camera/camera-video/src/androidTest/`
+  - Before calling any existing internal or `@RestrictTo` function, check its
+    KDoc, `@OptIn` / `@Experimental*` requirements, thread confinement
+    annotations (`@MainThread`, `@WorkerThread`, `@ExecutedBy`, `@GuardedBy`),
+    and all existing callers across `camera/`.
+- **Reference Existing Tests & Fakes (Mandatory Pre-Coding Case Study)**:
+  Before modifying production code or designing a fix, locate and read existing
+  unit and instrumentation tests targeting the class (`git ls-files 'camera/*'
+  | grep <ClassName>`). Existing tests serve as executable specifications for
+  expected behavior, edge cases, and fake wiring; when a bug is
+  deterministically reproducible, write or run a failing reproduction test
+  first to prove the root cause before implementing the production fix. Key
+  directories:
+  - **Host Unit / Robolectric Tests (`src/test/`)**:
+    `camera/camera-*/src/test/` (e.g., `camera-core`, `camera-camera2`,
+    `camera-camera2-pipe`, `camera-video`, `camera-view`, `camera-extensions`,
+    `camera-effects`, `camera-lifecycle`, `camera-compose`)
+  - **Device Instrumentation Tests (`src/androidTest/`)**:
+    - `camera/integration-tests/coretestapp/src/androidTest/` (plus
+      `extensionstestapp`, `viewtestapp`, `uiwidgetstestapp`,
+      `camerapipetestapp`)
+    - `camera/camera-core/src/androidTest/`
+    - `camera/camera-camera2/src/androidTest/`
+    - `camera/camera-video/src/androidTest/` (and all sibling
+      `camera/camera-*/src/androidTest/` modules)
+  - **Shared Fakes & Test Doubles**: `camera-testing` (`FakeCamera`,
+    `FakeUseCase`, `FakeCameraControl`, `FakeCameraInfoInternal`,
+    `FakeSurfaceProcessorInternal`), `camera-common-testing`, and
+    `camera-camera2-pipe-testing`.
 - **Multi-Model Root-Cause & Solution Finding (Step 6 Checkpoint 1 Gate)**:
   For any non-trivial bug investigation, subtle concurrency/HAL issue, or
   architectural design decision, **MUST** (by default) execute **Step 6

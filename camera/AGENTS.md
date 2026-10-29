@@ -22,11 +22,14 @@ description: >-
 >    1-5)* -> Read `camera/.agents/skills/camerax-code-review/SKILL.md`
 >    ([`camerax-code-review`][skill-review]).
 > 2. **Writing/Modifying Code, API/Design Questions, Refactoring, Preparing
->    Commits / CLs, or Updating Docs** *(Standards Hierarchy, Development
->    Workflow, Git Commit / Amend Rules, & `Skill: CameraX Agent Guidelines &
->    Experience Capture`)* -> Read
+>    Commits / CLs, or Updating Docs** *(Standards Hierarchy, 4-Layer
+>    Package/Object-Job Map, Pre-Placement Checklist, Development Workflow,
+>    Git Commit Rules, & `Skill: CameraX Agent Guidelines & Experience
+>    Capture`)* -> Read
 >    `camera/.agents/skills/camerax-guidelines-governance/SKILL.md`
->    ([`camerax-guidelines-governance`][skill-gov]).
+>    ([`camerax-guidelines-governance`][skill-gov]) (and when modifying code
+>    or fixing bugs, also read `camerax-testing/SKILL.md` Section 1 for
+>    mandatory pre-coding test case study).
 > 3. **Writing/Running Unit (Robolectric) or Device (`androidTest`) Tests, Test
 >    Strategy Questions, Debugging Leaks, or Migrating Tests Across the Test
 >    Pyramid** *(`Testing` & `Skill: CameraX Troubleshooting & Code
@@ -61,14 +64,19 @@ no code edit is requested—agents **MUST** operate with the rigor and full-stac
 knowledge of a **Senior CameraX SWE** and **NEVER** reply quickly from memory or
 isolated search snippets:
 
-1. **Full-Stack Call-Chain & Lifecycle Study**: Read complete target classes,
-   callers, and sibling implementations across all layers (`public API / UseCase
-   / View / Video / Extensions / Compose / Effects` -> `CameraInternal /
-   CameraUseCaseAdapter / StreamSharing` -> `camera-camera2` (`UseCaseCamera`,
-   `CapturePipeline`) -> `camera-camera2-pipe` (`CameraGraph`,
-   `RequestProcessor`)). Verify `@CameraScope` vs. `@UseCaseCameraScope`
-   boundaries and partial re-bind (`hasUseCases == true`) vs. full unbind
-   (`hasUseCases == false`).
+1. **Full-Stack Call-Chain, Package Responsibility & Test Study**: Scan callers
+   and tests (`git --no-lazy-fetch grep -- camera/<module>/src/...`) and read
+   complete target classes, sibling implementations, and `src/test/` +
+   `src/androidTest/` test cases across all 4 layers (`public API / UseCase /
+   View / Video / Extensions / Compose / Effects` -> `CameraInternal /
+   core.internal.CameraUseCaseAdapter / StreamSharing` -> `camera-camera2`
+   (`UseCaseCamera`, `CapturePipeline`, `adapter/`, `impl/`, `internal/`,
+   `config/`, `compat/`) -> `camera-camera2-pipe` (`CameraGraph`,
+   `RequestProcessor`); full map in [`camerax-testing`][skill-test] Section 1).
+   Verify package responsibility ("object job"), `@CameraScope` vs.
+   `@UseCaseCameraScope` boundaries, and partial re-bind (`hasUseCases == true`)
+   vs. full unbind (`hasUseCases == false`) before proposing any solution,
+   calling internal APIs, or placing code changes.
 2. **Historical Intent & Guidelines Check (`git blame` / `git log` / KDoc)**:
    Inspect KDoc, inline comments, and git history (`git --no-lazy-fetch blame`,
    `git --no-lazy-fetch log`) to verify *why* existing ordering, state checks,
@@ -167,14 +175,18 @@ invariants:
   `aosp/androidx-main`; in CoG workspaces, follow `manage_cl_workspaces`).
 - **CameraPipe Backend & Lifecycle Scopes**: `camera-camera2` now runs on top of
   `camera-camera2-pipe` (`CameraPipe`). Never conflate:
-  - `@CameraScope` (`CameraInternal`, `CameraControlInternal`,
-    `CameraUseCaseAdapter`): survives across use-case binds/unbinds
-    (`setActiveResumeMode`, zoom/torch, `Closing -> Closed` teardown).
+  - `@CameraScope` (`CameraInternalAdapter`, `CameraControlAdapter`,
+    `UseCaseManager` in `camera-camera2`, wired via `CameraConfig` and backing
+    `camera-core`'s `CameraInternal` / `CameraControlInternal`): survives across
+    use-case binds/unbinds (`setActiveResumeMode`, zoom/torch,
+    `Closing -> Closed` teardown). Never retain a `@UseCaseCameraScope`
+    reference inside a `@CameraScope` owner without invalidating on re-bind.
   - `@UseCaseCameraScope` (`UseCaseCamera`, `UseCaseCameraRequestControl`,
-    `CapturePipeline`): recreated whenever the active use-case set or session
-    config changes. Distinguish **partial re-bind** (`hasUseCases == true`)
-    from **full unbind** (`hasUseCases == false`, tearing down `UseCaseCamera`
-    and closing the underlying `CameraGraph` / `CameraDevice`).
+    `CapturePipeline`, `UseCaseSurfaceManager`, and per-session `CameraGraph`,
+    wired via `UseCaseCameraConfig`): recreated whenever the active use-case set
+    or session config changes. Distinguish **partial re-bind** (`hasUseCases ==
+    true`) from **full unbind** (`hasUseCases == false`, tearing down
+    `UseCaseCamera` and closing the underlying `CameraGraph` / `CameraDevice`).
 - **Public API Contract Fidelity & Idiomatic Kotlin**:
   - Honor explicit caller configurations (`ImageCapture`, `Preview`,
     `VideoCapture`, `ResolutionSelector`, `DynamicRange`) unless hardware or
@@ -285,8 +297,10 @@ invariants:
 >    Baseline**: Defer to repo-wide `AGENTS.md` and `.agents/skills/*` when
 >    present, documenting only CameraX-specific overrides.
 > 3. **Prompt Update Precedence — 3rd: CameraX Project Prompt Governance**:
->    Apply **The 3-Tier Signal Filter** and **The 1-Year Litmus Test** (exclude
->    Tier-1 transient noise and Tier-2 class-private mechanics; wrap prose at
+>    Apply **The 3-Tier Signal Filter**, **The 1-Year Litmus Test**, and the
+>    **All-Stage `.md`, `SKILL.md` & Tool/Script Update Checklist** (split/move
+>    to a sibling `SKILL.md` with headroom instead of deleting knowledge; design
+>    scripts for multi-env fallbacks and unit tests; wrap prose at
 >    **`<= 80` characters** with 100% public purity), keep `camera/AGENTS.md`
 >    under **`24,000 bytes`** (no `@`-prefixed `[label](path)` inline includes),
 >    keep every `SKILL.md` file under **`45,000 bytes` and `780 lines`**, and
