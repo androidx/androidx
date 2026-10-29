@@ -159,8 +159,6 @@ internal fun AndroidXExtension.defaultDeviceTestTags(): Provider<List<String>> {
     val pathTags =
         when {
             project.path.startsWith(":compose:") -> listOf("compose")
-            project.path.startsWith(":privacysandbox:ads:") ->
-                listOf("privacysandbox", "privacysandbox_ads")
             project.path.startsWith(":wear:watchface") -> listOf("wear_optin")
             project.path.startsWith(":xr:") -> listOf("xr_optin")
             else -> listOf()

@@ -304,8 +304,6 @@ dependencies {
     docs(project(":photopicker:photopicker-embedded-testing"))
     docs(project(":preference:preference"))
     docs(project(":print:print"))
-    docs(project(":privacysandbox:ads:ads-adservices"))
-    docs(project(":privacysandbox:ads:ads-adservices-java"))
     docs(project(":profileinstaller:profileinstaller"))
     docs(project(":recyclerview:recyclerview"))
     docs(project(":recyclerview:recyclerview-selection"))
