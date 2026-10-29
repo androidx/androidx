@@ -314,4 +314,10 @@ public class FlagsTest {
                 .isEqualTo(
                         "com.android.appsearch.flags.enable_pcc_data_encapsulation");
     }
+
+    @Test
+    public void testFlagValue_enableQuantizationScoringOptimization() {
+        assertThat(Flags.FLAG_ENABLE_QUANTIZATION_SCORING_OPTIMIZATION)
+                .isEqualTo("com.android.appsearch.flags.enable_quantization_scoring_optimization");
+    }
 }

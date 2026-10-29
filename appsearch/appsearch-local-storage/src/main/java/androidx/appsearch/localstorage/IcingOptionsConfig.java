@@ -332,6 +332,8 @@ public interface IcingOptionsConfig {
                 .setEnableOptimizeResultStates(Flags.enableOptimizeResultStates())
                 .setEnableIndexRestorationCriticalErrorHandlingFix(
                         Flags.enableIndexRestorationCriticalErrorHandlingFix())
+                .setEnableQuantizationScoringOptimization(
+                        Flags.enableQuantizationScoringOptimization())
                 .build();
     }
 }
