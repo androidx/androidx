@@ -24,6 +24,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.compose.remote.material3.previews.RemoteEdgeButtonExtraSmall
@@ -97,6 +98,19 @@ class RemoteMaterial3DataPassTest {
                             state =
                                 DefaultRemotePageIndicatorState(pageCount = 5, selectedPage = 2.ri)
                         )
+                    }
+                    .bytes
+
+            val doc = initDocument(documentBytes)
+            assertTrue(doc.docInfo.mNumberOfOps > 0)
+        }
+
+    @Test
+    fun remoteStepper_initializeContext_doesNotCrashDuringDataPass() =
+        runTest(UnconfinedTestDispatcher()) {
+            val documentBytes =
+                captureSingleRemoteDocument(context) {
+                        RemoteStepper(value = 5f.rf) { RemoteText("5".rs) }
                     }
                     .bytes
 
