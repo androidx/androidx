@@ -36,6 +36,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.MediaCodecInfoBuilder
+import org.robolectric.shadows.ShadowLog
 import org.robolectric.shadows.ShadowMediaCodec
 import org.robolectric.shadows.ShadowMediaCodecList
 
@@ -110,6 +111,7 @@ class EncoderImplTest {
     @After
     fun tearDown() {
         if (::encoder.isInitialized) {
+            encoderCallback.heldData.forEach { it.close() }
             encoder.release()
             idle()
         }
@@ -281,6 +283,119 @@ class EncoderImplTest {
             .inOrder()
     }
 
+    @Test
+    fun encodeErrorWhileStopping_notifiesErrorOnlyAndCanRestart() {
+        // Arrange: stop the encoder. It keeps stopping until the data reaches the stop time.
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+
+        // Act.
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+        idle()
+
+        // Assert: the error is notified instead of the stop.
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+
+        // Act: restart the encoder.
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+
+        // Assert.
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    @Test
+    fun stopAfterPendingStart_staysStoppingUntilStopIsDone() {
+        // Arrange: stop the encoder, then start it while it is still stopping.
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+        encoder.start()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.PENDING_START)
+
+        // Act: stop the pending start.
+        encoder.stop()
+
+        // Assert: the encoder is still stopping rather than configured.
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.STOPPING)
+
+        // Act: let the data reach the stop time.
+        feedInputUntil { encoderCallback.stopCount > 0 }
+
+        // Assert: the stop is done once.
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+    }
+
+    @Test
+    fun stopMediaCodecWhileStopping_handlesStoppedCodecOnce() {
+        // Arrange: an error occurs while the encoded data is held, so the codec is being stopped.
+        val heldData = startAndHoldEncodedData()
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+
+        // Act: stop the codec again while it is being stopped, e.g. the end of stream is reached,
+        // then return the data.
+        encoder.stopMediaCodec()
+        heldData.close()
+        idle()
+
+        // Assert: the stopped codec is handled once. Handling it again would act on a codec that
+        // has already been reset, which throws on the encoder executor.
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+        assertNoExceptionOnEncoderExecutor()
+    }
+
+    @Test
+    fun endOfStreamWhileEncoding_notifiesStopAndCanRestart() {
+        // Arrange.
+        encoder.start()
+        feedInput(5)
+
+        // Act: the codec emits an end-of-stream buffer without being stopped.
+        feedInput(1, endOfStream = true)
+
+        // Assert: the codec is stopped as if the encoder were stopped.
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.CONFIGURED)
+        assertNoExceptionOnEncoderExecutor()
+
+        // Act: restart the encoder.
+        encoderCallback.encodedData.clear()
+        encoder.start()
+        feedInput(5)
+
+        // Assert.
+        assertThat(encoderCallback.encodedData).isNotEmpty()
+    }
+
+    /**
+     * Starts the encoder and holds the first encoded data without closing it.
+     *
+     * Note that the fake codec only keeps one input buffer in rotation: an input buffer becomes
+     * available again only when its output buffer is released. So no more data is encoded while the
+     * data is held.
+     */
+    private fun startAndHoldEncodedData(): EncodedData {
+        encoderCallback.holdFirstData = true
+        encoder.start()
+        feedInputUntil { encoderCallback.heldData.isNotEmpty() }
+        return encoderCallback.heldData.single()
+    }
+
+    /**
+     * Asserts that no task threw on the encoder executor. The sequential executor of the encoder
+     * catches and logs the exceptions thrown by its tasks.
+     */
+    private fun assertNoExceptionOnEncoderExecutor() {
+        assertThat(ShadowLog.getLogsForTag("SequentialExecutor")).isEmpty()
+    }
+
     private fun idle(millis: Long = 0) {
         shadowOf(getMainLooper()).idleFor(millis, TimeUnit.MILLISECONDS)
     }
@@ -297,11 +412,11 @@ class EncoderImplTest {
     }
 
     /**
-     * Submits [count] input buffers, 10ms apart, and lets the codec process them. Stops early once
-     * the encoder doesn't provide input buffers anymore, e.g. before it is started or after the
-     * codec is stopping.
+     * Submits [count] input buffers, 10ms apart, and lets the codec process them. The buffers are
+     * marked as the end of stream if [endOfStream] is true. Stops early once the encoder doesn't
+     * provide input buffers anymore, e.g. before it is started or after the codec is stopping.
      */
-    private fun feedInput(count: Int) {
+    private fun feedInput(count: Int, endOfStream: Boolean = false) {
         val input = encoder.input as Encoder.ByteBufferInput
         repeat(count) {
             idle(10)
@@ -321,6 +436,7 @@ class EncoderImplTest {
                 }
             inputBuffer.byteBuffer.put(ByteArray(BUFFER_SIZE / 2)).flip()
             inputBuffer.setPresentationTimeUs(TimeUnit.NANOSECONDS.toMicros(System.nanoTime()))
+            inputBuffer.setEndOfStream(endOfStream)
             inputBuffer.submit()
             idle()
         }
@@ -332,6 +448,9 @@ class EncoderImplTest {
         val errors = mutableListOf<EncodeException>()
         var stopCount = 0
         var pauseCount = 0
+        /** Whether to hold the first encoded data instead of closing it. */
+        var holdFirstData = false
+        val heldData = mutableListOf<EncodedData>()
 
         override fun onEncodeStart() {}
 
@@ -350,7 +469,11 @@ class EncoderImplTest {
         override fun onEncodedData(encodedData: EncodedData) {
             this.encodedData.add(encodedData)
             encodedDataTimestampsUs.add(encodedData.presentationTimeUs)
-            encodedData.close()
+            if (holdFirstData && heldData.isEmpty()) {
+                heldData.add(encodedData)
+            } else {
+                encodedData.close()
+            }
         }
 
         override fun onOutputConfigUpdate(outputConfig: OutputConfig) {}
