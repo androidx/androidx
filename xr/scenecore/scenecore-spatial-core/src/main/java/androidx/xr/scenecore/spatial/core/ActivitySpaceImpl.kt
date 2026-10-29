@@ -471,14 +471,11 @@ public class ActivitySpaceImpl(
     ): HitTestResult {
 
         // Get the Translation of the origin relative to the ActivitySpace.
-        val originInActivitySpace = scenePose.transformPoseTo(Pose(origin), this).translation
+        val originInActivitySpace = scenePose.transformPositionTo(origin, this)
 
-        // Get the Translation of the direction pose relative to the ActivitySpace.
-        val directionPoseInActivitySpace = scenePose.transformPoseTo(Pose(direction), this)
-
-        // Convert the direction pose to a direction vector relative to the ActivitySpace.
+        // Convert the direction vector to be relative to the ActivitySpace.
         val directionInActivitySpace =
-            directionPoseInActivitySpace.compose(scenePose.activitySpacePose.inverse).translation
+            scenePose.transformDirectionTo(direction, this).toNormalized()
 
         // Perform the hit test then convert the result to be relative to the provided ScenePose.
         val result = hitTest(originInActivitySpace, directionInActivitySpace, hitTestFilter)
@@ -488,21 +485,11 @@ public class ActivitySpaceImpl(
             return result
         }
 
-        // Update the hit position and surface normal to be relative to the
-        // ScenePose.
-        val updatedHitPosition =
-            if (result.hitPosition == null) {
-                null
-            } else {
-                transformPoseTo(Pose(result.hitPosition!!), scenePose).translation
-            }
+        // Update the hit position and surface normal to be relative to the ScenePose.
+        val updatedHitPosition = result.hitPosition?.let { this.transformPositionTo(it, scenePose) }
         val updatedSurfaceNormal =
-            if (result.surfaceNormal == null) {
-                null
-            } else {
-                transformPoseTo(Pose(Vector3(result.surfaceNormal!!)), scenePose)
-                    .compose(this.transformPoseTo(Pose.Identity, scenePose).inverse)
-                    .translation
+            result.surfaceNormal?.let {
+                this.transformDirectionTo(it.toNormalized(), scenePose).toNormalized()
             }
         return HitTestResult(
             updatedHitPosition,

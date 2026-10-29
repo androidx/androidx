@@ -289,6 +289,55 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         }
     }
 
+    @Test
+    fun hitTestRelativeToActivityPose_transformsHitPositionAndNormal() = runBlocking {
+        val distance = 2.0f
+        val hitPositionInActivity = Vec3(0.0f, 0.0f, 0.0f)
+        val surfaceNormalInActivity = Vec3(0.0f, 0.0f, 1.0f)
+        val surfaceType = com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL
+        @ScenePose.HitTestFilterValue val hitTestFilter = ScenePose.HitTestFilter.SELF_SCENE
+
+        val hitTestResultBuilder =
+            com.android.extensions.xr.space.HitTestResult.Builder(
+                distance,
+                hitPositionInActivity,
+                true,
+                surfaceType,
+            )
+        val extensionsHitTestResult =
+            hitTestResultBuilder.setSurfaceNormal(surfaceNormalInActivity).build()
+        ShadowXrExtensions.extract(xrExtensions).setHitTestResult(activity, extensionsHitTestResult)
+
+        // Create a child entity at (0, 0, 2) rotated 90 degrees around Y with 2x scale
+        val childPose = Pose(Vector3(0f, 0f, 2f), Quaternion.fromEulerAngles(0f, 90f, 0f))
+        val childEntity =
+            testRuntime.createEntity(childPose, "child", activitySpace) as AndroidXrEntity
+        childEntity.setScale(Vector3(2f, 2f, 2f), Space.PARENT)
+
+        val deferredHitTestResult =
+            async(start = CoroutineStart.UNDISPATCHED) {
+                activitySpace.hitTestRelativeToActivityPose(
+                    origin = Vector3(0f, 0f, 0f),
+                    direction = Vector3(0f, 0f, -1f),
+                    hitTestFilter = hitTestFilter,
+                    scenePose = childEntity,
+                )
+            }
+        fakeExecutor.runAll()
+        val hitTestResult = deferredHitTestResult.await()
+
+        assertThat(hitTestResult.distance).isEqualTo(distance)
+        // Hit position (0, 0, 0) in ActivitySpace relative to childEntity at (0, 0, 2) with 90 deg
+        // yaw and 2x scale should be (1, 0, 0)
+        assertVector3(hitTestResult.hitPosition!!, Vector3(1f, 0f, 0f))
+        // Surface normal (0, 0, 1) in ActivitySpace relative to childEntity rotated +90 deg around
+        // Y should be (-1, 0, 0) and remain unit length despite the 2x entity scale
+        assertVector3(hitTestResult.surfaceNormal!!, Vector3(-1f, 0f, 0f))
+        assertThat(hitTestResult.surfaceNormal!!.length).isWithin(1e-5f).of(1.0f)
+        assertThat(hitTestResult.surfaceType)
+            .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE)
+    }
+
     private class TestSpatialModeChangeListener : SpatialModeChangeListener {
         var lastRecommendedPose: Pose? = null
         var lastRecommendedScale: Vector3? = null
