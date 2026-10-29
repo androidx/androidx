@@ -22,7 +22,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 
-internal class RemoteFlowRowNode : RemoteComposeNode() {
+internal class RemoteFlowRowNode : RemoteLayoutNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
     var maxItemsInEachRow: Int = Int.MAX_VALUE
@@ -74,7 +74,7 @@ public fun RemoteFlowRow(
     maxLines: Int = Int.MAX_VALUE,
     content: @Composable () -> Unit,
 ) {
-    RemoteComposeNode(
+    RemoteLayoutNode(
         factory = ::RemoteFlowRowNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }

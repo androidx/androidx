@@ -42,7 +42,7 @@ public class RemoteRowScope {
         then(WidthModifier(Type.WEIGHT, RemoteFloat(weight)))
 }
 
-internal class RemoteRowNode : RemoteComposeNode() {
+internal class RemoteRowNode : RemoteLayoutNode() {
     var horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
 
@@ -88,7 +88,7 @@ public fun RemoteRow(
     content: @Composable RemoteRowScope.() -> Unit,
 ) {
     val scope = remember { RemoteRowScope() }
-    RemoteComposeNode(
+    RemoteLayoutNode(
         factory = ::RemoteRowNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }

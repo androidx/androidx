@@ -43,7 +43,6 @@ internal abstract class RemoteComposeNode {
     val children = mutableListOf<RemoteComposeNode>()
     var modifier: RemoteModifier = RemoteModifier
     var remoteDensity: RemoteDensity = RemoteDensity.Host
-    var layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr
 
     fun overriddenScope(creationState: RemoteComposeCreationState): RemoteStateScope {
         return OverriddenScope(creationState, remoteDensity, creationState.remoteLayoutDirection)
@@ -222,6 +221,10 @@ internal class RemoteRootNode : RemoteComposeNode() {
     }
 }
 
+internal abstract class RemoteLayoutNode : RemoteComposeNode() {
+    var layoutDirection: RemoteLayoutDirection = RemoteLayoutDirection.Ltr
+}
+
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
@@ -229,11 +232,9 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
 ) {
     val remoteDensity = LocalRemoteDensity.current
-    val layoutDirection = LocalRemoteLayoutDirection.current
     ComposeNode<T, RemoteComposeApplier>(factory) {
         update()
         set(remoteDensity) { this.remoteDensity = it }
-        set(layoutDirection) { this.layoutDirection = it }
     }
 }
 
@@ -245,15 +246,30 @@ internal inline fun <T : RemoteComposeNode> RemoteComposeNode(
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     val remoteDensity = LocalRemoteDensity.current
-    val layoutDirection = LocalRemoteLayoutDirection.current
     ComposeNode<T, RemoteComposeApplier>(
         factory,
         {
             update()
             set(remoteDensity) { this.remoteDensity = it }
-            set(layoutDirection) { this.layoutDirection = it }
         },
         content,
+    )
+}
+
+@Composable
+internal inline fun <T : RemoteLayoutNode> RemoteLayoutNode(
+    noinline factory: () -> T,
+    update: @DisallowComposableCalls Updater<T>.() -> Unit,
+    content: @Composable @RemoteComposable () -> Unit,
+) {
+    val layoutDirection = LocalRemoteLayoutDirection.current
+    RemoteComposeNode(
+        factory = factory,
+        update = {
+            update()
+            set(layoutDirection) { this.layoutDirection = it }
+        },
+        content = content,
     )
 }
 
