@@ -45,10 +45,14 @@ import java.io.IOException
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.intercepted
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,6 +62,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
@@ -907,6 +912,220 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
     }
 
     @Test
+    fun withWriteTransaction_threadStarvation_truncate() = runTest {
+        testWriteTransactionThreadStarvation(RoomDatabase.JournalMode.TRUNCATE)
+    }
+
+    @Test
+    fun withWriteTransaction_threadStarvation_wal() = runTest {
+        testWriteTransactionThreadStarvation(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+    }
+
+    private suspend fun CoroutineScope.testWriteTransactionThreadStarvation(
+        journalMode: RoomDatabase.JournalMode
+    ) {
+        val executor = Executors.newFixedThreadPool(2)
+        val localDatabase =
+            createLocalDatabase(
+                name = "test_starvation_${journalMode.name}.db",
+                journalMode = journalMode,
+                queryContext = executor.asCoroutineDispatcher(),
+            )
+
+        val transaction1Started = CompletableDeferred<Unit>()
+        val transaction1Proceed = CompletableDeferred<Unit>()
+        // Launch first write transaction
+        val job1 =
+            launch(Dispatchers.IO) {
+                localDatabase.withWriteTransaction {
+                    localDatabase
+                        .booksDao()
+                        .insertPublisherSuspend(
+                            TestUtil.PUBLISHER.publisherId,
+                            TestUtil.PUBLISHER.name,
+                        )
+                    transaction1Started.complete(Unit)
+                    // Wait until transaction 2 is launched
+                    transaction1Proceed.await()
+                    // Perform auxiliary work on the query context while holding transaction 1
+                    withContext(localDatabase.getQueryContext()) {
+                        delay(100.milliseconds)
+                    }
+                }
+            }
+
+        // Wait for transaction 1 to start and acquire the single write connection
+        transaction1Started.await()
+
+        // Launch second write transaction. With writeMutex, this transaction suspends in
+        // coroutine space and does not consume thread 2 while waiting for the write
+        // connection.
+        val job2 =
+            launch(Dispatchers.IO) {
+                localDatabase.withWriteTransaction {
+                    localDatabase.booksDao().insertBookSuspend(TestUtil.BOOK_1)
+                }
+            }
+
+        delay(200.milliseconds)
+
+        // Release transaction 1 to execute its `withContext(localDatabase.getQueryContext())`.
+        // If thread 2 is blocked by transaction 2, the query context is starved and deadlocks.
+        transaction1Proceed.complete(Unit)
+
+        job1.join()
+        job2.join()
+
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
+
+        localDatabase.close()
+        executor.shutdownNow()
+    }
+
+    @Test
+    fun withReadTransaction_threadStarvation_wal() = runTest {
+        // 5 threads: 4 for readers + 1 for auxiliary work
+        val executor = Executors.newFixedThreadPool(5)
+        val localDatabase =
+            createLocalDatabase(
+                name = "test_wal_read_starvation.db",
+                journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
+                queryContext = executor.asCoroutineDispatcher(),
+            )
+
+        localDatabase
+            .booksDao()
+            .insertPublisherSuspend(
+                TestUtil.PUBLISHER.publisherId,
+                TestUtil.PUBLISHER.name,
+            )
+
+        val readersStarted = List(4) { CompletableDeferred<Unit>() }
+        val readersProceed = CompletableDeferred<Unit>()
+
+        // Launch 4 read transactions that acquire the 4 read permits and hold them
+        val readerJobs =
+            List(4) { index ->
+                launch(Dispatchers.IO) {
+                    localDatabase.withReadTransaction {
+                        localDatabase.booksDao().getPublishers()
+                        readersStarted[index].complete(Unit)
+                        readersProceed.await()
+                    }
+                }
+            }
+
+        // Wait for all 4 readers to start and acquire their permits
+        readersStarted.forEach { it.await() }
+
+        // Launch 5th read transaction. With transactionReadSemaphore(4), this reader
+        // suspends in coroutine space without occupying thread 5 from the 5-thread pool.
+        val fifthReaderJob =
+            launch(Dispatchers.IO) {
+                localDatabase.withReadTransaction {
+                    localDatabase.booksDao().getPublishers()
+                }
+            }
+
+        delay(200.milliseconds)
+
+        // While 4 readers are active and the 5th is queued on the semaphore,
+        // execute work on the query context (requiring the 5th thread).
+        // If thread 5 was consumed by the 5th reader, this would deadlock.
+        withContext(localDatabase.getQueryContext()) {
+            delay(100.milliseconds)
+        }
+
+        // Release the 4 readers so the 5th reader can acquire a permit and finish
+        readersProceed.complete(Unit)
+
+        readerJobs.joinAll()
+        fifthReaderJob.join()
+
+        localDatabase.close()
+        executor.shutdownNow()
+    }
+
+    @Test
+    fun withTransaction_cancellationAndException_releasesLocks() = runTest {
+        val localDatabase = createLocalDatabase("test_releases_locks.db")
+
+        // 1. Exception in withWriteTransaction releases writeMutex
+        assertThrows<IllegalStateException> {
+            localDatabase.withWriteTransaction {
+                localDatabase
+                    .booksDao()
+                    .insertPublisherSuspend(
+                        TestUtil.PUBLISHER.publisherId,
+                        TestUtil.PUBLISHER.name,
+                    )
+                error("Boom in write transaction")
+            }
+        }
+        // Subsequent write transaction must succeed (lock is not leaked)
+        localDatabase.withWriteTransaction {
+            localDatabase
+                .booksDao()
+                .insertPublisherSuspend(
+                    TestUtil.PUBLISHER.publisherId,
+                    TestUtil.PUBLISHER.name,
+                )
+        }
+        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+
+        // 2. Cancellation in withWriteTransaction releases writeMutex
+        val writeStarted = CompletableDeferred<Unit>()
+        val writeJob =
+            launch(Dispatchers.IO) {
+                localDatabase.withWriteTransaction {
+                    writeStarted.complete(Unit)
+                    delay(10_000.milliseconds)
+                }
+            }
+        writeStarted.await()
+        writeJob.cancelAndJoin()
+
+        // Subsequent write transaction must succeed
+        localDatabase.withWriteTransaction {
+            localDatabase.booksDao().insertBookSuspend(TestUtil.BOOK_1)
+        }
+        assertThat(localDatabase.booksDao().getAllBooks().size).isEqualTo(1)
+
+        // 3. Exception in withReadTransaction releases readSemaphore permit
+        assertThrows<IllegalStateException> {
+            localDatabase.withReadTransaction {
+                error("Boom in read transaction")
+            }
+        }
+
+        // 4. Cancellation in withReadTransaction releases readSemaphore permit
+        val readStarted = CompletableDeferred<Unit>()
+        val readJob =
+            launch(Dispatchers.IO) {
+                localDatabase.withReadTransaction {
+                    readStarted.complete(Unit)
+                    delay(10_000.milliseconds)
+                }
+            }
+        readStarted.await()
+        readJob.cancelAndJoin()
+
+        // Subsequent read transactions must all succeed
+        val readers =
+            List(4) {
+                launch(Dispatchers.IO) {
+                    localDatabase.withReadTransaction {
+                        assertThat(localDatabase.booksDao().getPublishers().size).isEqualTo(1)
+                    }
+                }
+            }
+        readers.joinAll()
+
+        localDatabase.close()
+    }
+
+    @Test
     fun queryAfterCloseThrowsProperException() = runTest {
         booksDao.insertPublisherSuspend(TestUtil.PUBLISHER.publisherId, TestUtil.PUBLISHER.name)
 
@@ -937,5 +1156,31 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
     private suspend fun suspendHere(): Unit = suspendCoroutineUninterceptedOrReturn {
         it.intercepted().resume(Unit)
         COROUTINE_SUSPENDED
+    }
+
+    private fun createLocalDatabase(
+        name: String,
+        journalMode: RoomDatabase.JournalMode? = null,
+        queryContext: CoroutineContext? = null,
+    ): TestDatabase {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        context.deleteDatabase(name)
+
+        return Room.databaseBuilder<TestDatabase>(context, name)
+            .setDriver(
+                when (useDriver) {
+                    UseDriver.ANDROID -> AndroidSQLiteDriver()
+                    UseDriver.BUNDLED -> BundledSQLiteDriver()
+                }
+            )
+            .apply {
+                if (journalMode != null) {
+                    setJournalMode(journalMode)
+                }
+                if (queryContext != null) {
+                    setQueryCoroutineContext(queryContext)
+                }
+            }
+            .build()
     }
 }
