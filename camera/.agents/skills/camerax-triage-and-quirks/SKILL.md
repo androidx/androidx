@@ -1,12 +1,14 @@
 ---
 name: camerax-triage-and-quirks
 description: >-
-  Diagnoses CameraX device-specific test failures and guides root-cause
-  classification, Simulation Rubric evaluation, Quirk scoping, and the 6-Phase
-  Capability Framework. Use when triaging device-specific failures, deciding
-  between core fixes and device quirks, or designing hardware capability
-  abstractions. Don't use for general unit test execution (use camerax-testing)
-  or formatting/commit workflows (use camerax-guidelines-governance).
+  Diagnoses CameraX device-specific test failures, answers behavioral/HAL/quirk
+  inquiries, and guides root-cause classification, Simulation Rubric evaluation,
+  Quirk scoping, and the 6-Phase Capability Framework. Use when answering
+  CameraX behavior/failure/capability questions, triaging device-specific
+  failures, deciding between core fixes and device quirks, or designing hardware
+  capability abstractions. Don't use for general unit test execution (use
+  camerax-testing) or formatting/commit workflows (use
+  camerax-guidelines-governance).
 ---
 
 # CameraX Device-Specific Triage, Root-Cause Rubric & Capability Framework

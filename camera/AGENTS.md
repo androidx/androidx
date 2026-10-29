@@ -13,28 +13,29 @@ description: >-
 > (each sized `< 45,000 bytes` and `<= 780 lines` so **1 single `read_file`
 > call** loads 100% of any file).
 >
-> **Before starting ANY task**, identify all matching domains below and call
-> `read_file` (or `view_file`) on each corresponding `SKILL.md` in full:
+> **Before starting ANY task or answering ANY CameraX question**, identify all
+> matching domains below and call `read_file` (or `view_file`) on each
+> corresponding `SKILL.md` in full:
 >
-> 1. **Code Review, PR Audit, Plan/Report Audit, or Multi-Model Verification**
->    *(Steps 1-7 & Modes 1-5)* -> Read
->    `camera/.agents/skills/camerax-code-review/SKILL.md`
+> 1. **Technical/Architectural Questions, Codebase Explanations, Code Review, PR
+>    Audit, Plan/Report Audit, or Multi-Model Verification** *(Steps 1-7 & Modes
+>    1-5)* -> Read `camera/.agents/skills/camerax-code-review/SKILL.md`
 >    ([`camerax-code-review`][skill-review]).
-> 2. **Writing/Modifying Code, API Changes, Refactoring, or Updating Docs**
->    *(Standards Hierarchy, Development Workflow, & `Skill: CameraX Agent
+> 2. **Writing/Modifying Code, API/Design Questions, Refactoring, or Updating
+>    Docs** *(Standards Hierarchy, Development Workflow, & `Skill: CameraX Agent
 >    Guidelines & Experience Capture`)* -> Read
 >    `camera/.agents/skills/camerax-guidelines-governance/SKILL.md`
 >    ([`camerax-guidelines-governance`][skill-gov]).
-> 3. **Writing/Running Unit (Robolectric) or Device (`androidTest`) Tests,
->    Debugging Leaks, or Migrating Tests Across the Test Pyramid**
->    *(`Testing` & `Skill: CameraX Troubleshooting & Code Verification`
->    Sections 1-4 & Section 9)* -> Read
+> 3. **Writing/Running Unit (Robolectric) or Device (`androidTest`) Tests, Test
+>    Strategy Questions, Debugging Leaks, or Migrating Tests Across the Test
+>    Pyramid** *(`Testing` & `Skill: CameraX Troubleshooting & Code
+>    Verification` Sections 1-4 & Section 9)* -> Read
 >    `camera/.agents/skills/camerax-testing/SKILL.md`
 >    ([`camerax-testing`][skill-test]).
-> 4. **Bug Triage, Device-Specific Failures, `Quirk` Scoping, or Hardware
->    Capability Abstraction** *(`Skill: CameraX Troubleshooting & Code
->    Verification` Sections 5, 6 (`6.A`-`6.G`), 7, & 8)* -> Read
->    `camera/.agents/skills/camerax-triage-and-quirks/SKILL.md`
+> 4. **Bug Triage, Behavioral/HAL Inquiries, Device-Specific Failures, `Quirk`
+>    Scoping, or Hardware Capability Abstraction** *(`Skill: CameraX
+>    Troubleshooting & Code Verification` Sections 5, 6 (`6.A`-`6.G`), 7, & 8)*
+>    -> Read `camera/.agents/skills/camerax-triage-and-quirks/SKILL.md`
 >    ([`camerax-triage-and-quirks`][skill-triage]).
 >
 > **Zero-Checkout / Remote Fallback**: If operating without a local checkout of
@@ -51,9 +52,44 @@ description: >-
 
 # Project: CameraX
 
+## Senior CameraX SWE Deep Study Protocol (Questions & Proposals)
+
+Whenever answering any question about CameraX, explaining codebase behavior,
+evaluating feasibility, diagnosing an issue, or proposing a solution—even when
+no code edit is requested—agents **MUST** operate with the rigor and full-stack
+knowledge of a **Senior CameraX SWE** and **NEVER** reply quickly from memory or
+isolated search snippets:
+
+1. **Full-Stack Call-Chain & Lifecycle Study**: Read complete target classes,
+   callers, and sibling implementations across all layers (`public API / UseCase
+   / View / Video / Extensions / Compose / Effects` -> `CameraInternal /
+   CameraUseCaseAdapter / StreamSharing` -> `camera-camera2` (`UseCaseCamera`,
+   `CapturePipeline`) -> `camera-camera2-pipe` (`CameraGraph`,
+   `RequestProcessor`)). Verify `@CameraScope` vs. `@UseCaseCameraScope`
+   boundaries and partial re-bind (`hasUseCases == true`) vs. full unbind
+   (`hasUseCases == false`).
+2. **Historical Intent & Guidelines Check (`git blame` / `git log` / KDoc)**:
+   Inspect KDoc, inline comments, and git history (`git --no-lazy-fetch blame`,
+   `git --no-lazy-fetch log`) to verify *why* existing ordering, state checks,
+   or workarounds exist before forming a conclusion, and cross-check the
+   **Standards Hierarchy** (AndroidX -> Android Platform/Camera2 -> Google-wide)
+   plus the **Simulation Rubric (`Section 6.A`)**, **3-Step Root-Cause Hierarchy
+   (`Section 6.B-6.F`)**, and **6-Phase Capability Framework (`Section 8`)**.
+3. **Evidence Citations & Conditional Clean-Context Multi-Model Plan/Verify
+   Gate**: Ground every claim in exact `file:line` references (and commit SHAs /
+   guideline sections). Whenever a question or problem is **not** a trivial
+   flash single-fact lookup (e.g., root-cause "why" inquiries, concurrency or
+   lifecycle analysis, design/feasibility trade-offs, `Quirk` scoping, or
+   solution proposals), write the candidate answer/plan and raw evidence paths
+   to `<scratch_or_tmp>/draft_deliverable.md` and run the **Clean-Context
+   Multi-Model Verification Gate** ([`camerax-code-review`][skill-review] Modes
+   2, 3, or 5 with the Two-Turn Blind Read Barrier) **before** presenting the
+   final answer to the user.
+
 ## Standards & Guidelines Hierarchy
 
-When writing new code, reviewing existing code, or fixing bugs in CameraX,
+When answering technical questions, writing new code, reviewing existing code,
+or fixing bugs in CameraX,
 agents **MUST** actively read and strictly adhere to the relevant guidelines,
 style guides, and correctness checks in this precedence order (full recursive
 traversal protocol in [`camerax-guidelines-governance`][skill-gov]):

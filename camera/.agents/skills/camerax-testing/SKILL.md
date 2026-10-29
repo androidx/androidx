@@ -1,10 +1,11 @@
 ---
 name: camerax-testing
 description: >-
-  Guides authoring and running CameraX Robolectric unit tests and
-  instrumentation device tests, Truth/fakes conventions, leak debugging, and
-  Test Pyramid migration. Use when writing, running, or migrating CameraX unit
-  or androidTest tests, or debugging test resource leaks. Don't use for OEM
+  Guides authoring, running, and answering technical questions about CameraX
+  Robolectric unit tests and instrumentation device tests, Truth/fakes
+  conventions, leak debugging, and Test Pyramid migration. Use when answering
+  CameraX testing questions, writing, running, or migrating CameraX unit or
+  androidTest tests, or debugging test resource leaks. Don't use for OEM
   hardware quirk scoping (use camerax-triage-and-quirks) or multi-model code
   review (use camerax-code-review).
 ---

@@ -2,8 +2,9 @@
 name: camerax-guidelines-governance
 description: >-
   Enforces CameraX coding standards hierarchy, recursive guideline traversal,
-  CameraPipe lifecycle scope invariants, pre-upload verification gates, and
-  long-term prompt/skill governance rules. Use when writing or refactoring
+  Senior CameraX SWE deep codebase study, CameraPipe lifecycle scope invariants,
+  pre-upload verification gates, and long-term prompt/skill governance rules.
+  Use when answering CameraX API/architecture questions, writing or refactoring
   CameraX code, preparing a commit for upload, or updating AGENTS.md and
   SKILL.md files. Don't use for device-specific failure triage (use
   camerax-triage-and-quirks) or test writing mechanics (use camerax-testing).
@@ -13,10 +14,18 @@ description: >-
 
 ## Standards & Guidelines Hierarchy
 
-When writing new code, reviewing existing code, or fixing bugs in
-CameraX, agents **MUST** actively read and strictly adhere to the relevant
-guidelines, style guides, and correctness checks before modifying code,
-following the precedence order (AndroidX → Android Platform → Google-Wide).
+When answering technical/API questions, writing new code, reviewing existing
+code, or fixing bugs in CameraX, agents **MUST** operate as a **Senior CameraX
+SWE**: trace the full end-to-end call chain (`UseCase / View / Video /
+Extensions` -> `CameraInternal / CameraUseCaseAdapter / StreamSharing` ->
+`camera-camera2` -> `camera-camera2-pipe`), verify `@CameraScope` vs.
+`@UseCaseCameraScope` and partial re-bind vs. full unbind, inspect KDoc and
+`git --no-lazy-fetch blame` / `log` history, and actively read and adhere to
+the relevant guidelines, style guides, and correctness checks before proposing
+answers or modifying code (and for any non-flash question or solution proposal,
+stage `<scratch_or_tmp>/draft_deliverable.md` and run the Step 6 Clean-Context
+Multi-Model Verification Gate in `camerax-code-review`), following the
+precedence order (AndroidX → Android Platform → Google-Wide).
 
 ### Automatic Recursive Index & Reference Traversal Protocol:
 When directed to an index page, directory list, or guide linking to sub-guides
