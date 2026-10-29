@@ -20,3 +20,30 @@ configs: {
   }
   automatic: false
 }
+
+configs: {
+  id: "androidx-api-review"
+  display_name: "AndroidX API Review"
+  description: "Reviews public and restricted API changes against AndroidX and Jetpack Compose API design guidelines."
+  skills: ".agents/skills/code_review/api_review"
+  include_filters: {
+    project: "platform/frameworks/support"
+    path_regex: "(^|.*/)api/.*\\.txt$"
+  }
+  automatic: true
+}
+
+configs: {
+  id: "androidx-ktdoc-review"
+  display_name: "AndroidX KDoc Quality Review"
+  description: "Checks KDoc comments on public Kotlin APIs for clarity, active voice, symbol linking, and complete behavior contracts."
+  skills: ".agents/skills/ktdoc_quality"
+  include_filters: {
+    project: "platform/frameworks/support"
+    path_regex: "(^|.*/)src/(main|[^/]+Main)/.*\\.kt$"
+  }
+  exclude_filters: {
+    path_regex: "(^|.*/)(samples|integration-tests)/.*"
+  }
+  automatic: false
+}
