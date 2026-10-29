@@ -60,8 +60,10 @@ import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScop
 import androidx.compose.remote.player.compose.embedded.doc.GraphContext
 import androidx.compose.remote.player.compose.embedded.doc.mapEasing
 import androidx.compose.remote.player.compose.embedded.draw.ComposeLocalPaint
+import androidx.compose.remote.player.compose.embedded.draw.LazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.draw.OffscreenDrawState
 import androidx.compose.remote.player.compose.embedded.draw.executeOperations
+import androidx.compose.remote.player.compose.embedded.draw.rememberLazyGraphicsLayer
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -76,9 +78,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.text.TextMeasurer
@@ -357,8 +357,18 @@ private fun Modifier.visibilityAnimationDraw(
 ): Modifier {
     val remoteContext = LocalRemoteContext.current
     val graph = LocalGraphContext.current
-    val textMeasurer = rememberTextMeasurer()
-    val contentLayer = rememberGraphicsLayer()
+    // Only custom animations execute document draw operations that may measure text.
+    val textMeasurer =
+        if (
+            animSpec.enterAnimation == AnimationSpec.ANIMATION.CUSTOM ||
+                animSpec.exitAnimation == AnimationSpec.ANIMATION.CUSTOM
+        ) {
+            rememberTextMeasurer()
+        } else {
+            null
+        }
+    // Only ROTATE and CUSTOM draw through a layer, and only while animating.
+    val contentLayer = rememberLazyGraphicsLayer()
 
     return this.drawWithContent {
         val visProgress = visProgressProvider()
@@ -372,23 +382,28 @@ private fun Modifier.visibilityAnimationDraw(
             val progress = (if (isEntering) visProgress else 1f - visProgress).coerceIn(0f, 1f)
             when (anim) {
                 AnimationSpec.ANIMATION.CUSTOM -> {
-                    executeCustomVisibilityAnimation(
-                        component = component,
-                        functionId = fnId,
-                        progress = progress,
-                        remoteContext = remoteContext,
-                        graph = graph,
-                        textMeasurer = textMeasurer,
-                        contentLayer = contentLayer,
-                    )
+                    // textMeasurer is always remembered when either animation is CUSTOM.
+                    if (textMeasurer != null) {
+                        executeCustomVisibilityAnimation(
+                            component = component,
+                            functionId = fnId,
+                            progress = progress,
+                            remoteContext = remoteContext,
+                            graph = graph,
+                            textMeasurer = textMeasurer,
+                            contentLayer = contentLayer,
+                        )
+                    } else {
+                        drawContent()
+                    }
                 }
                 AnimationSpec.ANIMATION.ROTATE -> {
                     // A full turn, fading in on enter and out on exit.
-                    contentLayer.alpha = if (isEntering) progress else 1f - progress
-                    contentLayer.rotationZ =
-                        if (isEntering) (1f - progress) * 360f else -progress * 360f
-                    contentLayer.record { this@drawWithContent.drawContent() }
-                    drawLayer(contentLayer)
+                    val layer = contentLayer.obtain()
+                    layer.alpha = if (isEntering) progress else 1f - progress
+                    layer.rotationZ = if (isEntering) (1f - progress) * 360f else -progress * 360f
+                    layer.record { this@drawWithContent.drawContent() }
+                    drawLayer(layer)
                 }
                 else -> {
                     drawContent()
@@ -409,7 +424,7 @@ private fun ContentDrawScope.executeCustomVisibilityAnimation(
     remoteContext: RemoteContext,
     graph: GraphContext?,
     textMeasurer: TextMeasurer,
-    contentLayer: GraphicsLayer,
+    contentLayer: LazyGraphicsLayer,
 ) {
     if (functionId == -1) {
         drawContent()
@@ -534,6 +549,15 @@ private fun AnimationSpec.ANIMATION.isFade(): Boolean =
 
 private fun AnimationSpec.ANIMATION.isDrawn(): Boolean =
     this == AnimationSpec.ANIMATION.ROTATE || this == AnimationSpec.ANIMATION.CUSTOM
+
+/**
+ * Whether this enabled spec runs a custom (document function) enter or exit animation, which needs
+ * the component's position and a text measurer for its draw operations.
+ */
+internal fun AnimationSpec.hasCustomAnimation(): Boolean =
+    isAnimationEnabled &&
+        (enterAnimation == AnimationSpec.ANIMATION.CUSTOM ||
+            exitAnimation == AnimationSpec.ANIMATION.CUSTOM)
 
 /**
  * This component's own animation spec if it runs a non-fade enter/exit (slide, rotate or custom)
