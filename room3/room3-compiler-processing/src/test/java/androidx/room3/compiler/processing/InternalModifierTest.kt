@@ -111,12 +111,14 @@ class InternalModifierTest {
         }
 
         fun traverse(env: XProcessingEnv) = buildList {
-            listOf("main.Subject", "lib.Subject").flatMap {
+            listOf("main.Subject", "lib.Subject").forEach {
                 val subject = env.requireTypeElement(it)
                 add(subject.name)
                 add(subject.qualifiedName)
                 subject.getDeclaredMethods().forEach { add(it.toSignature()) }
-                subject.getAllFieldsIncludingPrivateSupers().map { add(it.toSignature()) }
+                subject.getAllFieldsIncludingPrivateSupers().forEach {
+                    add(it.toSignature())
+                }
             }
         }
             .sorted()
