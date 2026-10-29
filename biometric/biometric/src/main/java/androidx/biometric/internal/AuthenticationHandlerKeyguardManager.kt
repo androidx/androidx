@@ -47,4 +47,8 @@ internal class AuthenticationHandlerKeyguardManager(
     override fun cancelAuthentication(canceledFrom: CanceledFrom) {
         authenticationManager.cancelAuthentication(canceledFrom)
     }
+
+    override fun destroy() {
+        authenticationManager.destroy()
+    }
 }

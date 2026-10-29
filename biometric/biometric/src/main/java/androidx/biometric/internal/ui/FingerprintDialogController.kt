@@ -527,7 +527,7 @@ private fun Context.canShowDialog(): Boolean {
     return this !is Application
 }
 
-private fun LifecycleOwner.isChangingConfigurations(context: Context): Boolean {
+internal fun LifecycleOwner.isChangingConfigurations(context: Context): Boolean {
     val hostActivity = context.findActivity()
     return when (this) {
         is Activity -> isChangingConfigurations
