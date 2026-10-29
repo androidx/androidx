@@ -252,18 +252,22 @@ implications of their dependencies, including:
 
 #### Kotlin {#dependencies-kotlin}
 
-Kotlin is *strongly recommended* for new libraries and the Kotlin stdlib will
-already be present in the transitive dependencies of any library that depends on
-`androidx.annotations`.
+Kotlin is enabled by default for all Android libraries and the Kotlin stdlib is
+added to the dependencies.
 
 ```
 plugins {
     id("AndroidXPlugin")
-    id("kotlin-android")
+    id("com.android.library")
 }
+```
 
-dependencies {
-    implementation(libs.kotlinStdlib)
+If you have a strong product reason, you can disable Kotlin. That will remove
+Kotlin stdlib dependency as well.
+
+```
+android {
+    enableKotlin = false
 }
 ```
 
