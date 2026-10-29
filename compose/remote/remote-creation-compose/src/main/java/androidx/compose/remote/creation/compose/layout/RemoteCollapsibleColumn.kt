@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -30,7 +29,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 
 /** Scope for the children of [RemoteCollapsibleColumn]. */
-@LayoutScopeMarker
+@RemoteLayoutScopeMarker
 @Immutable
 public class RemoteCollapsibleColumnScope {
     /**
