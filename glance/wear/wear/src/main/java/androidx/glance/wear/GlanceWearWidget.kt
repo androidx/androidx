@@ -73,6 +73,7 @@ internal constructor(
      *
      * @param context the context from which this method is called
      * @param params the parameters that describe the widget for which the data is being provided.
+     * @return the widget data for this Widget.
      */
     @MainThread
     public abstract suspend fun provideWidgetData(
@@ -132,14 +133,14 @@ internal constructor(
      * This method is called from the main thread.
      *
      * @param context the context from which this method is called
-     * @param widgetHandle the handle of the widget.
+     * @param widgetHandle the handle of the active widget.
      */
     @MainThread
     public open suspend fun onRemoved(context: Context, widgetHandle: ActiveWearWidgetHandle) {}
 
     /**
      * Called when the system sends a batch of interaction events. The time between calls to this
-     * method may vary, do not depend on it for time-sensitive or critical tasks.
+     * method may vary; do not depend on it for time-sensitive or critical tasks.
      *
      * Interaction events represent user direct interaction with a widget, for example when a widget
      * was visible.
@@ -150,13 +151,13 @@ internal constructor(
      * This method is called from the main thread.
      *
      * @param context the context from which this method is called
-     * @param events A list [WearWidgetEvent] representing interactions that occurred.
+     * @param events A list of [WearWidgetEvent] representing interactions that occurred.
      */
     @MainThread public open suspend fun onEvents(context: Context, events: List<WearWidgetEvent>) {}
 
     /**
      * Triggers a content update for the given widget [instanceId], resulting in a call to
-     * [provideWidgetData], after which the results to the Host.
+     * [provideWidgetData], after which the results are pushed to the Host.
      *
      * All [WidgetInstanceId] for active widgets associated with this class can be retrieved from
      * [GlanceWearWidgetManager.fetchActiveWidgets(KClass)].
