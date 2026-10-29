@@ -33,7 +33,7 @@ import kotlin.reflect.KClass
  *     // SongDao is a class annotated with @Dao.
  *     abstract fun getSongDao(): SongDao
  *
- *     // AlbumDao is a class annotated with @Dao.
+ *     // ArtistDao is a class annotated with @Dao.
  *     abstract fun getArtistDao(): ArtistDao
  *
  *     // SongAlbumDao is a class annotated with @Dao.
