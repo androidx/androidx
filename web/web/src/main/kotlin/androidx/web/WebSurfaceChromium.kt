@@ -33,7 +33,7 @@ import org.chromium.support_lib_boundary.web.util.WebSurfaceEventPacker
 public class WebSurfaceChromium
 private constructor(private val boundary: WebSurfaceBoundaryInterface) {
     public interface EventListener {
-        public fun onInvalidate()
+        public fun onInvalidate(insideVSync: Boolean)
 
         public fun onOverScroll(deltaX: Float, deltaY: Float, velocityX: Float, velocityY: Float)
     }
@@ -42,7 +42,11 @@ private constructor(private val boundary: WebSurfaceBoundaryInterface) {
         BiConsumer<@WebSurfaceEvent Int, Any?> {
         override fun accept(event: @WebSurfaceEvent Int, payload: Any?) {
             when (event) {
-                WebSurfaceEvent.INVALIDATE -> listener.onInvalidate()
+                WebSurfaceEvent.INVALIDATE -> {
+                    val insideVSync =
+                        WebSurfaceEventPacker.unpackInvalidate(requireNotNull(payload))
+                    listener.onInvalidate(insideVSync)
+                }
                 WebSurfaceEvent.OVER_SCROLL -> {
                     val (deltaX, deltaY, velocityX, velocityY) =
                         WebSurfaceEventPacker.unpackOverScroll(requireNotNull(payload))

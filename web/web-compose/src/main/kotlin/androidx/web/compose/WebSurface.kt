@@ -359,12 +359,19 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     /** Connects our drags to nested scroll parents. */
     private val nestedScrollHandover = delegate(NestedScrollHandoverNode())
 
-    override fun onInvalidate() {
+    private val invalidateOnAnimation = Runnable { onInvalidate(insideVSync = true) }
+
+    override fun onInvalidate(insideVSync: Boolean) {
         if (!isAttached) return
-        if (isDrawing) {
-            requireView().postOnAnimation(::onInvalidate)
-        } else {
+        val hostView = requireView()
+        if (!hostView.isAttachedToWindow) return
+        hostView.removeCallbacks(invalidateOnAnimation)
+        // Out-of-VSync invalidations must wait for the next animation frame so an already-scheduled
+        // traversal (e.g. a parent LazyColumn scrolling) doesn't draw Chromium before BeginFrame.
+        if (insideVSync && !isDrawing) {
             invalidateDraw()
+        } else {
+            hostView.postOnAnimation(invalidateOnAnimation)
         }
     }
 
@@ -551,6 +558,9 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
     }
 
     private fun releaseSurface() {
+        if (isAttached) {
+            requireView().removeCallbacks(invalidateOnAnimation)
+        }
         val surface = webSurface ?: return
         webSurface = null
         transitionTo(TouchState.Idle)
