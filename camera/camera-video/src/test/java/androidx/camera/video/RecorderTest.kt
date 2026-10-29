@@ -72,8 +72,11 @@ import androidx.camera.video.internal.OutputStorage
 import androidx.camera.video.internal.audio.AudioStreamFactory
 import androidx.camera.video.internal.audio.FakeAudioStream
 import androidx.camera.video.internal.encoder.EncodeException
+import androidx.camera.video.internal.encoder.EncodedData
 import androidx.camera.video.internal.encoder.Encoder
+import androidx.camera.video.internal.encoder.EncoderCallback
 import androidx.camera.video.internal.encoder.EncoderFactory
+import androidx.camera.video.internal.encoder.FakeEncodedData
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import androidx.camera.video.internal.muxer.MuxerException
 import androidx.camera.video.internal.muxer.MuxerFactory
@@ -1943,6 +1946,59 @@ class RecorderTest {
     }
 
     @Test
+    fun persistentRecording_releaseVideoEncoderBeforeMuxerStarted_closesCachedKeyFrame() {
+        // Arrange: start a persistent recording with audio. Without audio data yet, the muxer
+        // isn't started and the first video keyframe is cached.
+        val videoEncoderCallbacks = mutableListOf<Pair<EncoderCallback, Executor>>()
+        val recorder =
+            createRecorder(
+                videoEncoderFactory =
+                    createCallbackCapturingVideoEncoderFactory(videoEncoderCallbacks)
+            )
+        createRecording(recorder, asPersistentRecording = true, withAudio = true).startAndVerify()
+        val keyFrame = createVideoEncodedData(isKeyFrame = true)
+        videoEncoderCallbacks.last().deliver(keyFrame)
+        idleMainLooper()
+        assertThat(keyFrame.closedFuture.isDone).isFalse()
+
+        // Act: unbind, which releases the video encoder of the retained recording.
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        // Assert: the cached keyframe is returned so that the video encoder can be released.
+        assertThat(keyFrame.closedFuture.isDone).isTrue()
+    }
+
+    @Test
+    fun persistentRecording_videoDataAfterVideoEncoderReleased_isClosed() {
+        // Arrange: start a persistent recording with audio, so the muxer isn't started, then
+        // unbind, which releases the video encoder of the retained recording.
+        val videoEncoderCallbacks = mutableListOf<Pair<EncoderCallback, Executor>>()
+        val recorder =
+            createRecorder(
+                videoEncoderFactory =
+                    createCallbackCapturingVideoEncoderFactory(videoEncoderCallbacks)
+            )
+        createRecording(recorder, asPersistentRecording = true, withAudio = true).startAndVerify()
+        val releasedEncoderCallback = videoEncoderCallbacks.last()
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+
+        // Act: the released video encoder delivers data that was dispatched before the release.
+        val keyFrame = createVideoEncodedData(isKeyFrame = true)
+        val nonKeyFrame = createVideoEncodedData(isKeyFrame = false)
+        releasedEncoderCallback.deliver(keyFrame)
+        releasedEncoderCallback.deliver(nonKeyFrame)
+        idleMainLooper()
+
+        // Assert: the data is returned so that the video encoder can be released.
+        assertThat(keyFrame.closedFuture.isDone).isTrue()
+        assertThat(nonKeyFrame.closedFuture.isDone).isTrue()
+    }
+
+    @Test
     fun persistentRecording_canContinueRecordingPausedAfterRebind() {
         val recorder = createRecorder()
         val recording =
@@ -2065,6 +2121,47 @@ class RecorderTest {
                 )
                 .also { latestVideoEncoder = it }
         }
+
+    /**
+     * Creates a video encoder factory that records the callbacks the [Recorder] sets on the video
+     * encoders, so that a test can deliver its own [EncodedData] and check that it's closed.
+     */
+    private fun createCallbackCapturingVideoEncoderFactory(
+        callbacks: MutableList<Pair<EncoderCallback, Executor>>
+    ): EncoderFactory = EncoderFactory { _, config, _ ->
+        val fakeEncoder =
+            FakeEncoder(
+                    encoderInfo =
+                        FakeVideoEncoderInfo(supportedBitrateRange = Range(1, 100_000_000)),
+                    encoderConfig = config,
+                )
+                .also { latestVideoEncoder = it }
+        object : Encoder by fakeEncoder {
+            override fun setEncoderCallback(encoderCallback: EncoderCallback, executor: Executor) {
+                callbacks.add(encoderCallback to executor)
+                fakeEncoder.setEncoderCallback(encoderCallback, executor)
+            }
+        }
+    }
+
+    private fun Pair<EncoderCallback, Executor>.deliver(encodedData: EncodedData) {
+        val (callback, executor) = this
+        executor.execute { callback.onEncodedData(encodedData) }
+    }
+
+    private fun createVideoEncodedData(isKeyFrame: Boolean): FakeEncodedData {
+        currentTimestampUs += 100_000L
+        val bufferInfo =
+            MediaCodec.BufferInfo().apply {
+                set(
+                    0,
+                    1024,
+                    currentTimestampUs,
+                    if (isKeyFrame) MediaCodec.BUFFER_FLAG_KEY_FRAME else 0,
+                )
+            }
+        return FakeEncodedData(ByteBuffer.allocateDirect(1024), bufferInfo)
+    }
 
     private fun createFailingVideoEncoderFactory(failCreationTimes: Int = 2): EncoderFactory {
         var createEncoderRequestCount = 0

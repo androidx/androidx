@@ -374,6 +374,149 @@ class EncoderImplTest {
         assertThat(encoderCallback.encodedData).isNotEmpty()
     }
 
+    @Test
+    fun releaseStartedEncoder_waitsForOutstandingEncodedData() {
+        // Arrange.
+        val heldData = startAndHoldEncodedData()
+
+        // Act.
+        encoder.release()
+        idle()
+
+        // Assert: the codec is not released while the encoded data is held.
+        assertThat(encoder.releasedFuture.isDone).isFalse()
+
+        // Act.
+        heldData.close()
+        idle()
+
+        // Assert: the codec is released without notifying the stop or an error.
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+        assertThat(encoderCallback.errors).isEmpty()
+    }
+
+    @Test
+    fun releaseInErrorState_waitsForOutstandingEncodedDataWithoutNotifyingError() {
+        // Arrange: an error occurs while encoding and the encoded data is held.
+        val heldData = startAndHoldEncodedData()
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+
+        // Act.
+        encoder.release()
+        idle()
+
+        // Assert: the codec is not released while the encoded data is held.
+        assertThat(encoder.releasedFuture.isDone).isFalse()
+
+        // Act.
+        heldData.close()
+        idle()
+
+        // Assert: the codec is released. The encoder is released without a requested stop, so
+        // the error isn't notified. See Encoder#release().
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoderCallback.errors).isEmpty()
+    }
+
+    @Test
+    fun releaseInErrorStateAfterStop_notifiesError() {
+        // Arrange: an error occurs while stopping and the encoded data is held.
+        val heldData = startAndHoldEncodedData()
+        encoder.stop()
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+
+        // Act.
+        encoder.release()
+        heldData.close()
+        idle()
+
+        // Assert: the codec is released, and the error is notified as the result of the stop.
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoderCallback.errors).hasSize(1)
+    }
+
+    @Test
+    fun releaseInErrorStateWithoutStoppingCodec_releasesEncoderImmediately() {
+        // Arrange: simulate an encoder left in the ERROR state without a stop in progress, e.g.
+        // resetting the codec failed after the error.
+        encoder.mState = EncoderImpl.InternalState.ERROR
+
+        // Act.
+        encoder.release()
+        idle()
+
+        // Assert.
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.RELEASED)
+    }
+
+    @Test
+    fun encodeErrorWhileReleasingStartedEncoder_releasesEncoderWithoutNotifyingError() {
+        // Arrange: release the started encoder while the encoded data is held.
+        val heldData = startAndHoldEncodedData()
+        encoder.release()
+        idle()
+
+        // Act: an error occurs while the release is pending, then the data is returned.
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+        heldData.close()
+        idle()
+
+        // Assert: the codec is released rather than reset. An encoder released while encoding
+        // doesn't report the error, e.g. the encoder of a persistent recording.
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.RELEASED)
+        assertThat(encoderCallback.errors).isEmpty()
+        assertThat(encoderCallback.stopCount).isEqualTo(0)
+        assertNoExceptionOnEncoderExecutor()
+    }
+
+    @Test
+    fun encodeErrorWhileReleasingStoppingEncoder_releasesEncoderAndNotifiesError() {
+        // Arrange: stop the encoder while the encoded data is held, then release it before the
+        // stop is done.
+        val heldData = startAndHoldEncodedData()
+        encoder.stop()
+        encoder.release()
+        idle()
+
+        // Act: an error occurs while the release is pending.
+        encoder.handleEncodeError(EncodeException.ERROR_UNKNOWN, "Fake error", null)
+
+        // Assert: the release doesn't wait for the end of stream anymore, so the pending stop is
+        // cancelled and its timeout can't act on the codec.
+        assertThat(encoder.mPendingCodecStop).isFalse()
+        assertThat(encoder.mStopTimeoutFuture).isNull()
+
+        // Act: the data is returned.
+        heldData.close()
+        idle()
+
+        // Assert: the codec is released rather than reset, and the error is notified once as the
+        // result of the stop.
+        assertThat(encoder.releasedFuture.isDone).isTrue()
+        assertThat(encoder.mState).isEqualTo(EncoderImpl.InternalState.RELEASED)
+        assertThat(encoderCallback.errors).hasSize(1)
+        assertNoExceptionOnEncoderExecutor()
+    }
+
+    @Test
+    fun releaseWhileStopping_notifiesStopAndReleasesEncoder() {
+        // Arrange: stop the encoder. It keeps stopping until the data reaches the stop time.
+        encoder.start()
+        feedInput(5)
+        encoder.stop()
+
+        // Act: release the encoder, then let the data reach the stop time.
+        encoder.release()
+        feedInputUntil { encoder.releasedFuture.isDone }
+
+        // Assert: the stop is notified before the codec is released.
+        assertThat(encoderCallback.stopCount).isEqualTo(1)
+        assertThat(encoderCallback.errors).isEmpty()
+    }
+
     /**
      * Starts the encoder and holds the first encoded data without closing it.
      *

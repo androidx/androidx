@@ -625,18 +625,43 @@ public class EncoderImpl implements Encoder {
      *
      * <p>Once the encoder is released, it cannot be used anymore. Any other method call after
      * the encoder is released will get {@link IllegalStateException}. If it is in encoding, make
-     * sure call {@link #stop} before {@code release} to normally end the stream, or it may get
-     * uncertain result if call {@code release} while encoding.
+     * sure call {@link #stop} before {@code release} to normally end the stream. Releasing the
+     * encoder while encoding aborts the encoding without notifying
+     * {@link EncoderCallback#onEncodeStop()} or {@link EncoderCallback#onEncodeError}.
      */
     @Override
     public void release() {
         mEncoderExecutor.execute(() -> {
+            if (!isStopRequested()) {
+                // Releasing the encoder without a requested stop aborts the encoding, e.g. the
+                // encoder of a persistent recording, so don't notify the stop or an error
+                // anymore. See Encoder#release().
+                setEncoderCallback(EncoderCallback.EMPTY, CameraXExecutors.directExecutor());
+            }
             switch (mState) {
                 case CONFIGURED:
+                    releaseInternal();
+                    break;
+                case ERROR:
+                    if (mIsStoppingMediaCodec) {
+                        // The codec is already being stopped after the error. Release the codec
+                        // once the dispatched buffers are returned. See handleStopped().
+                        setState(PENDING_RELEASE);
+                        stopDispatchingBuffers();
+                    } else {
+                        // No stop is in progress, e.g. resetting the codec failed after the
+                        // error. No buffers are dispatched in ERROR, so release it directly.
+                        releaseInternal();
+                    }
+                    break;
                 case STARTED:
                 case PAUSED:
-                case ERROR:
-                    releaseInternal();
+                    // The encoder is released without being stopped, e.g. the encoder of a
+                    // persistent recording. Stop dispatching new buffers, then release the codec
+                    // once the dispatched buffers are returned. See handleStopped().
+                    setState(PENDING_RELEASE);
+                    stopDispatchingBuffers();
+                    stopMediaCodec();
                     break;
                 case STOPPING:
                 case PENDING_START:
@@ -651,6 +676,50 @@ public class EncoderImpl implements Encoder {
                     throw new IllegalStateException("Unknown state: " + mState);
             }
         });
+    }
+
+    /**
+     * Stops dispatching new {@link InputBuffer}s and {@link EncodedData}, and gives up the end of
+     * stream, so that {@link #stopMediaCodec()} waits for all the buffers dispatched before the
+     * codec is released.
+     */
+    @ExecutedBy("mEncoderExecutor")
+    private void stopDispatchingBuffers() {
+        if (mEncoderInput instanceof ByteBufferInput) {
+            ((ByteBufferInput) mEncoderInput).setActive(false);
+        }
+        if (mMediaCodecCallback != null) {
+            mMediaCodecCallback.stop();
+        }
+        // Don't provide the input buffers that are already available or being acquired, e.g. to
+        // signal the end of stream.
+        mFreeInputBufferIndexQueue.clear();
+        for (Completer<InputBuffer> completer : mAcquisitionQueue) {
+            completer.setCancelled();
+        }
+        mAcquisitionQueue.clear();
+        // The codec won't wait for the end of stream anymore.
+        cancelStopTimeouts();
+    }
+
+    /** Cancels the pending codec stop and the end of stream timeout. */
+    @ExecutedBy("mEncoderExecutor")
+    private void cancelStopTimeouts() {
+        mPendingCodecStop = false;
+        if (mStopTimeoutFuture != null) {
+            mStopTimeoutFuture.cancel(false);
+            mStopTimeoutFuture = null;
+        }
+        if (mSignalEosTimeoutFuture != null) {
+            mSignalEosTimeoutFuture.cancel(false);
+            mSignalEosTimeoutFuture = null;
+        }
+    }
+
+    /** Returns whether a stop is requested, i.e. {@link #stop} is called since the last start. */
+    @ExecutedBy("mEncoderExecutor")
+    private boolean isStopRequested() {
+        return mStartStopTimeRangeUs.getUpper() != NO_LIMIT_LONG;
     }
 
     /** {@inheritDoc} */
@@ -685,6 +754,9 @@ public class EncoderImpl implements Encoder {
     @ExecutedBy("mEncoderExecutor")
     private void releaseInternal() {
         Logger.d(mTag, "releaseInternal");
+        // The encoder may be released while it is stopping, so cancel the stop timeouts to avoid
+        // acting on the released codec, as reset() does.
+        cancelStopTimeouts();
         // Must be evaluated before the flush handling below, which resets
         // mIsFlushedAfterEndOfStream.
         boolean startCodecBeforeRelease = shouldStartCodecBeforeRelease();
@@ -914,9 +986,18 @@ public class EncoderImpl implements Encoder {
             case STOPPING:
             case PENDING_START_PAUSED:
             case PENDING_START:
-            case PENDING_RELEASE:
                 setState(ERROR);
                 mStopError = new EncodeException(error, message, throwable);
+                stopMediaCodec();
+                break;
+            case PENDING_RELEASE:
+                // Keep the PENDING_RELEASE state so that the encoder is released rather than
+                // reset once the codec is stopped. The release won't wait for the end of stream
+                // anymore, so stop dispatching new buffers.
+                if (mStopError == null) {
+                    mStopError = new EncodeException(error, message, throwable);
+                }
+                stopDispatchingBuffers();
                 stopMediaCodec();
                 break;
             case ERROR:
@@ -950,7 +1031,7 @@ public class EncoderImpl implements Encoder {
      *
      * <p>Only one stop is in progress at a time. Calling this method while a stop is in progress
      * has no effect, since the encoder doesn't dispatch new buffers once it starts stopping the
-     * codec, e.g. after the end of stream or an error.
+     * codec, e.g. after the end of stream, an error, or while a release is pending.
      */
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     @ExecutedBy("mEncoderExecutor")
@@ -994,10 +1075,13 @@ public class EncoderImpl implements Encoder {
      *
      * <ul>
      *   <li>{@link InternalState#ERROR}: notifies the error and resets the codec.
-     *   <li>{@link InternalState#STOPPING} and its extensions: stops the codec, notifies the
-     *   stop, then resets the codec or releases it if {@link #release()} is pending.
+     *   <li>{@link InternalState#STOPPING}, {@link InternalState#PENDING_START} and
+     *   {@link InternalState#PENDING_START_PAUSED}: stops the codec, notifies the stop, then
+     *   resets the codec and starts it again if a start is pending.
      *   <li>{@link InternalState#STARTED} and {@link InternalState#PAUSED}: the codec reached the
      *   end of stream on its own, so it is handled like {@link InternalState#STOPPING}.
+     *   <li>{@link InternalState#PENDING_RELEASE}: notifies the error or the stop, if any, then
+     *   releases the codec.
      *   <li>{@link InternalState#RELEASED}: nothing to do.
      * </ul>
      */
@@ -1040,8 +1124,15 @@ public class EncoderImpl implements Encoder {
                 break;
             }
             case PENDING_RELEASE:
-                stopOrFlushMediaCodec();
-                notifyStopped();
+                // The codec is released directly, without stopping it. Notify the result of the
+                // stop if there is one: the error, or the stop if the end of stream was reached.
+                // An encoder released without a requested stop, e.g. the encoder of a persistent
+                // recording, has no callback anymore, see release().
+                if (stopError != null) {
+                    notifyError(stopError);
+                } else if (mMediaCodecCallback != null && mMediaCodecCallback.mHasEndData) {
+                    notifyStopped();
+                }
                 releaseInternal();
                 break;
             case RELEASED:

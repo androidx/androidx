@@ -47,11 +47,13 @@ import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -334,6 +336,53 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
 
         // The native thread exits asynchronously after the codec is released.
         assertThat(awaitLeakProneCodecThreadCount(baseline)).isEqualTo(baseline)
+    }
+
+    @Test
+    fun releaseStartedVideoEncoder_waitsForOutstandingEncodedDataToBeClosed() {
+        // Arrange: hold the first encoded data without closing it.
+        initVideoEncoder()
+        val heldEncodedData = holdFirstEncodedData()
+        videoEncoder.start()
+        val encodedData = heldEncodedData.get(15, TimeUnit.SECONDS)
+
+        try {
+            // Act: release the started encoder while the encoded data is still held.
+            videoEncoder.release()
+
+            // Assert: the codec is not released until the encoded data is closed.
+            assertThrows(TimeoutException::class.java) {
+                videoEncoder.releasedFuture.get(500, TimeUnit.MILLISECONDS)
+            }
+        } finally {
+            // Act: close the held encoded data. Always close it so that the codec is released
+            // even if the assertion fails.
+            encodedData.close()
+        }
+
+        // Assert: the output buffer is returned to the codec before it is released.
+        encodedData.closedFuture.get(5, TimeUnit.SECONDS)
+        videoEncoder.releasedFuture.get(5, TimeUnit.SECONDS)
+    }
+
+    /**
+     * Makes the encoder callback hold the first encoded data without closing it, and closes the
+     * rest.
+     *
+     * @return a future that completes with the held encoded data.
+     */
+    private fun holdFirstEncodedData(): ResolvableFuture<EncodedData> {
+        val heldEncodedData = ResolvableFuture.create<EncodedData>()
+        doAnswer { args: InvocationOnMock ->
+                val encodedData: EncodedData = args.getArgument(0)
+                if (!heldEncodedData.set(encodedData)) {
+                    encodedData.close()
+                }
+                null
+            }
+            .`when`(videoEncoderCallback)
+            .onEncodedData(any())
+        return heldEncodedData
     }
 
     private fun createVideoEncoderConfig(): VideoEncoderConfig {
