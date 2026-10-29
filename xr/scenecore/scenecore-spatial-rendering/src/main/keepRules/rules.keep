@@ -1,8 +1,35 @@
 -if class androidx.xr.runtime.Session
 -keep class androidx.xr.scenecore.spatial.rendering.SpatialRenderingRuntimeFactory { *; }
 
--if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
--keep class androidx.xr.scenecore.spatial.rendering.impress.AssetLoader { *; }
+# Keep AssetLoader and AssetAnimator callbacks for native Impress JNI (asset_loader.cc,
+# asset_animator.cc):
+# - Native code resolves these callbacks via GetMethodID on the concrete object, so R8 must keep
+#   both the interfaces and every implementation's callback methods.
+# - Condition on ImpressApiImpl instead of ImpressApi: R8 merges ImpressApi into its sole
+#   implementation, causing `-if class ...ImpressApi` to never match.
+# - FakeImpressApiImpl is 100% Kotlin, so no C++ code is present to call these callbacks via JNI.
+# - Google3 Marshalling tests exercise the production ImpressApiImpl, so R8 can safely strip these
+#   interfaces whenever ImpressApiImpl is not used.
+#
+# TODO(b/579081048): Introduce an @UsedByNative annotation in the Kotlin code and check for it in
+# Proguard keep rules.
 
--if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApi
--keep class androidx.xr.scenecore.spatial.rendering.impress.AssetAnimator{ *; }
+-if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApiImpl
+-keep interface androidx.xr.scenecore.spatial.rendering.impress.AssetLoader { *; }
+
+-if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApiImpl
+-keepclassmembers class * implements androidx.xr.scenecore.spatial.rendering.impress.AssetLoader {
+    public void onSuccess(long);
+    public void onFailure(java.lang.String);
+    public void onCancelled(java.lang.String);
+}
+
+-if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApiImpl
+-keep interface androidx.xr.scenecore.spatial.rendering.impress.AssetAnimator { *; }
+
+-if class androidx.xr.scenecore.spatial.rendering.impress.ImpressApiImpl
+-keepclassmembers class * implements androidx.xr.scenecore.spatial.rendering.impress.AssetAnimator {
+    public void onComplete();
+    public void onFailure(java.lang.String);
+    public void onCancelled(java.lang.String);
+}
