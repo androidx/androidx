@@ -402,6 +402,87 @@ When directed to an index page, directory list, or guide linking to sub-guides
     clean git review histories.
 
 
+## Git Commit Messages
+
+When the repo-wide `manage_commits` skill is auto-discovered, follow its
+commit/amend and workspace rules (`repo upload` in standard Git checkouts vs.
+`gob_vcs` in CoG workspaces) alongside CameraX's stricter length limits (`<= 50`
+char title, `<= 72` char body lines), with each section separated by a blank
+line:
+
+```
+<Commit Title>
+
+<Additional details about the change.>
+
+RelNote: <release note text>
+Bug: <bug id>
+Test: <test instructions>
+```
+
+**Commit Title:**
+- A short, descriptive summary of the change.
+- Use the imperative mood (e.g., "Add feature" not "Added feature").
+- Strictly <= 50 characters (or < 60 characters) to prevent Gerrit upload
+  warnings.
+
+**Additional Details (Optional):**
+- Keep commit messages simple, direct, and easy to scan.
+- Explain the problem the change solves and the approach taken.
+- Provide context for the change.
+- Prefer concise, clear, and readable messages without losing any required
+  info. Using bullet points to summarize specific changes can help with
+  readability.
+
+**RelNote:**
+- Focus on the observable impact for developers using the library (the "What",
+  not the "How"). Do not mention implementation details or internal test apps
+  (like `core-test-app`) in the RelNote.
+- This will be used to generate release notes.
+- **Requirement**: Should only be added for public API changes (e.g., changes
+  in `camera/**/api/` directories) or bugs impacting public users.
+- **When to omit** (CameraX override over generic `manage_commits`): If a change
+  is an internal bug fix, a fix/follow-up for an unreleased feature or API not
+  yet released to developers, refactoring, test/doc update, or change to
+  restricted APIs marked with `@RestrictTo` (without a public API or
+  user-facing behavior change), **do not add the RelNote tag at all**.
+- **Edge cases**: `RelNote: N/A` can be used if a release note is explicitly
+  not applicable despite a public API change, e.g. when reverting a CL that had
+  a public API change meant for release.
+- Refer to https://developer.android.com/jetpack/androidx/releases/camera for
+  previous examples.
+
+**Bug:**
+- The ID(s) of the bug(s) this commit fixes. List each bug ID on a new line,
+  prefixed with 'Bug:'.
+  Example:
+  ```
+  Bug: 123456
+  Bug: 123457
+  ```
+
+**Test:**
+- Describe the tests that were added or modified to verify the change.
+- Mention any manual testing steps if applicable. Use project names like
+  `core-test-app` instead of specific activity names where appropriate.
+
+### Git Commit Amend
+
+Some git commit messages contain a `Change-Id:` line (usually as the last line)
+required by the Gerrit code review system. This ID is essential for updating
+existing CLs.
+
+When amending a previous commit (e.g., with `git commit --amend`):
+- **Do not modify or remove this line.**
+- **CRITICAL: NEVER use the `-m` flag** alone when amending. It replaces the
+  *entire* message, stripping the `Change-Id` and causing CL upload to create a
+  duplicate CL.
+- **Best Practice**: Run `git log -1` first to capture the existing message/ID.
+  When using `-m`, ensure you manually append the correct `Change-Id` to the
+  end of the new message.
+- **Recovery**: If the ID is lost, find it in the previous commit via
+  `git reflog` and `git log`, then re-amend to restore it.
+
 
 ## Skill: CameraX Agent Guidelines & Experience Capture
 
