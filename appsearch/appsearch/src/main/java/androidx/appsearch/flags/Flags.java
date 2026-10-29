@@ -304,6 +304,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_PCC_DATA_ENCAPSULATION =
             FLAG_PREFIX + "enable_pcc_data_encapsulation";
 
+    /** Whether to enable optimized scoring of 8-bit quantized embeddings in Icing. */
+    public static final String FLAG_ENABLE_QUANTIZATION_SCORING_OPTIMIZATION =
+            FLAG_PREFIX + "enable_quantization_scoring_optimization";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -668,6 +672,12 @@ public final class Flags {
      * <p>PCC is a framework-side feature so this should remain false in Jetpack
      */
     public static boolean enablePccDataEncapsulation() {
+        return false;
+    }
+
+    /** Whether to enable optimized scoring of 8-bit quantized embeddings in Icing. */
+    public static boolean enableQuantizationScoringOptimization() {
+        // TODO(b/520391841): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 }
