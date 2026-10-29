@@ -201,6 +201,8 @@ internal class ComposeViewAdapter : FrameLayout {
     private var lookaheadAnimationVisualDebuggingKeyLabelEnabled: Boolean = false
 
     /** Device specification string (e.g. "spec:width=411dp,...") used for media query values. */
+    // Keep the list of supported `spec:` parameters in sync with
+    // `PreviewDeviceSpec.SUPPORTED_PARAMETERS`.
     private var device: String? = null
 
     private val debugBoundsPaint =

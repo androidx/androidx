@@ -73,6 +73,8 @@ public annotation class Preview(
     public val showBackground: Boolean = false,
     public val backgroundColor: Long = 0,
     @AndroidUiMode public val uiMode: Int = 0,
+    // Keep the list of supported `spec:` parameters in sync with
+    // `androidx.compose.ui.tooling.PreviewDeviceSpec.SUPPORTED_PARAMETERS`.
     @Device public val device: String = Devices.DEFAULT,
     @Wallpaper public val wallpaper: Int = Wallpapers.NONE,
 )
