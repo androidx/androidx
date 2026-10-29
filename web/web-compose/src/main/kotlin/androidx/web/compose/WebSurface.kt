@@ -520,7 +520,8 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
             hostView.viewTreeObserver.also { it.addOnGlobalFocusChangeListener(this) }
         (hostView as? ViewGroup)?.let { host ->
             installHostAccessibilityDelegate(host)
-            holder = HeadlessViewHolder(host.context, this).also(host::addView)
+            // Add ahead of AndroidViewsHandler so FOCUS_AFTER_DESCENDANTS checks holders first.
+            holder = HeadlessViewHolder(host.context, this).also { host.addView(it, 0) }
         }
         state.bridge?.let { onBridgeAttached(it) }
     }
