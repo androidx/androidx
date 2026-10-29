@@ -18,6 +18,7 @@ package androidx.glance.wear.parcel
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.collection.IntSet
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -25,11 +26,16 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.GlanceWearProfiles
+import androidx.glance.wear.WearWidgetContentTooLargeException
+import androidx.glance.wear.WearWidgetContentTooLargeException.Companion.MAX_CONTENT_SIZE_BYTES
+import androidx.glance.wear.WearWidgetContentTooLargeException.Companion.WARNING_CONTENT_SIZE_BYTES
 import androidx.glance.wear.core.WearWidgetRawContent
 
 internal object WearWidgetCapture {
     const val PENDING_INTENT_KEY = "pending_intents"
     const val CREATION_UPTIME_MILLIS_KEY = "creation_uptime_millis"
+
+    private const val TAG = "WearWidgetCapture"
 
     /**
      * Directly capture a RemoteCompose document and gather the pending intents used in the layout.
@@ -51,6 +57,26 @@ internal object WearWidgetCapture {
             rcDocument = remoteDocument.bytes,
             extras = remoteDocument.toBundle(),
         )
+    }
+
+    /**
+     * Checks that a captured document of [sizeBytes] can be sent to the host.
+     *
+     * Logs a warning if [sizeBytes] is above [WARNING_CONTENT_SIZE_BYTES], or throws
+     * [WearWidgetContentTooLargeException] if it is above [MAX_CONTENT_SIZE_BYTES].
+     */
+    internal fun checkContentSize(sizeBytes: Int) {
+        if (sizeBytes > MAX_CONTENT_SIZE_BYTES) {
+            throw WearWidgetContentTooLargeException(sizeBytes)
+        }
+        if (sizeBytes > WARNING_CONTENT_SIZE_BYTES) {
+            Log.w(
+                TAG,
+                "Wear widget content is $sizeBytes bytes, which is close to the maximum of " +
+                    "$MAX_CONTENT_SIZE_BYTES bytes. If you use bitmaps in RemoteImage, scale " +
+                    "them down to their displayed size (e.g. Bitmap.createScaledBitmap).",
+            )
+        }
     }
 
     fun CapturedDocument.toBundle(): Bundle {

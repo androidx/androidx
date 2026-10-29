@@ -18,17 +18,22 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WearWidgetCapture
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
@@ -528,6 +533,214 @@ class GlanceWearWidgetTest {
         }
     }
 
+    @Test
+    fun triggerUpdate_contentTooLarge_throws() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val mockWidgetCache = mock<WearWidgetCache>()
+        val widget =
+            TestWidget(
+                mockUpdateClient,
+                mockWidgetCache,
+                oversizedInstanceIds = setOf(TEST_INSTANCE_ID),
+            )
+        val context = getApplicationContext<Context>()
+
+        whenever(mockWidgetCache.getContainerTypeForInstance(eq(TEST_INSTANCE_ID)))
+            .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+        whenever(
+                mockWidgetCache.getWidgetParams(
+                    eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                    eq(TEST_INSTANCE_ID),
+                )
+            )
+            .thenReturn(testWidgetParams(TEST_INSTANCE_ID))
+
+        val exception =
+            assertThrows(WearWidgetContentTooLargeException::class.java) {
+                runBlocking { widget.triggerUpdate(context, TEST_INSTANCE_ID) }
+            }
+
+        assertThat(exception.contentSizeBytes).isEqualTo(OVERSIZED_CONTENT_SIZE_BYTES)
+        verify(mockUpdateClient, never()).pushUpdate(any(), any(), any())
+    }
+
+    @Test
+    fun triggerUpdateAll_contentTooLargeForOneInstance_updatesOthersAndThrows() = runTest {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val mockWidgetCache = mock<WearWidgetCache>()
+        val oversizedInstanceId = WidgetInstanceId("ns", 456)
+        val handle1 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = oversizedInstanceId,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val handle2 =
+            ActiveWearWidgetHandle(
+                provider = TEST_COMPONENT,
+                instanceId = TEST_INSTANCE_ID,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+            )
+        val widget =
+            TestWidget(
+                mockUpdateClient,
+                mockWidgetCache,
+                activeWidgets = listOf(handle1, handle2),
+                oversizedInstanceIds = setOf(oversizedInstanceId),
+            )
+        val context = getApplicationContext<Context>()
+
+        for (instanceId in listOf(oversizedInstanceId, TEST_INSTANCE_ID)) {
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(instanceId)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(instanceId),
+                    )
+                )
+                .thenReturn(testWidgetParams(instanceId))
+        }
+
+        val exception =
+            assertThrows(WearWidgetContentTooLargeException::class.java) {
+                runBlocking { widget.triggerUpdateAll(context) }
+            }
+
+        assertThat(exception.contentSizeBytes).isEqualTo(OVERSIZED_CONTENT_SIZE_BYTES)
+        verify(mockUpdateClient)
+            .pushUpdate(eq(context), argThat { instanceId == TEST_INSTANCE_ID }, any())
+        verify(mockUpdateClient, never())
+            .pushUpdate(any(), argThat { instanceId == oversizedInstanceId }, any())
+    }
+
+    @Test
+    fun triggerUpdateAll_contentTooLargeForMultipleInstances_throwsWithOthersSuppressed() =
+        runTest {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val oversizedInstanceIds =
+                listOf(
+                    WidgetInstanceId("ns", 456),
+                    WidgetInstanceId("ns", 789),
+                    WidgetInstanceId("ns", 1011),
+                )
+            val handles =
+                (oversizedInstanceIds + TEST_INSTANCE_ID).map {
+                    ActiveWearWidgetHandle(
+                        provider = TEST_COMPONENT,
+                        instanceId = it,
+                        containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                    )
+                }
+            val widget =
+                TestWidget(
+                    mockUpdateClient,
+                    mockWidgetCache,
+                    activeWidgets = handles,
+                    oversizedInstanceIds = oversizedInstanceIds.toSet(),
+                )
+            val context = getApplicationContext<Context>()
+
+            for (handle in handles) {
+                whenever(mockWidgetCache.getContainerTypeForInstance(eq(handle.instanceId)))
+                    .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+                whenever(
+                        mockWidgetCache.getWidgetParams(
+                            eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                            eq(handle.instanceId),
+                        )
+                    )
+                    .thenReturn(testWidgetParams(handle.instanceId))
+            }
+
+            val exception =
+                assertThrows(WearWidgetContentTooLargeException::class.java) {
+                    runBlocking { widget.triggerUpdateAll(context) }
+                }
+
+            assertThat(exception.suppressedExceptions).hasSize(oversizedInstanceIds.size - 1)
+            for (suppressed in exception.suppressedExceptions) {
+                assertThat(suppressed).isInstanceOf(WearWidgetContentTooLargeException::class.java)
+            }
+            verify(mockUpdateClient)
+                .pushUpdate(eq(context), argThat { instanceId == TEST_INSTANCE_ID }, any())
+        }
+
+    @Test
+    fun provideWidgetDataAsRawContent_customWearWidgetDataTooLarge_throws() = runTest {
+        val widget =
+            TestWidget(mock<WidgetUpdateClient>(), oversizedInstanceIds = setOf(TEST_INSTANCE_ID))
+        val context = getApplicationContext<Context>()
+
+        val exception =
+            assertThrows(WearWidgetContentTooLargeException::class.java) {
+                runBlocking {
+                    widget.provideWidgetDataAsRawContent(
+                        context,
+                        testWidgetParams(TEST_INSTANCE_ID),
+                    )
+                }
+            }
+
+        assertThat(exception.contentSizeBytes).isEqualTo(OVERSIZED_CONTENT_SIZE_BYTES)
+    }
+
+    @Test
+    fun provideWidgetDataAsRawContent_inInspectionMode_customWearWidgetDataTooLarge_throws() =
+        runTest {
+            val widget =
+                TestWidget(
+                    mock<WidgetUpdateClient>(),
+                    oversizedInstanceIds = setOf(TEST_INSTANCE_ID),
+                )
+            val context = getApplicationContext<Context>()
+
+            assertThrows(WearWidgetContentTooLargeException::class.java) {
+                runBlocking {
+                    widget.provideWidgetDataAsRawContent(
+                        context,
+                        testWidgetParams(TEST_INSTANCE_ID),
+                        isInspectionMode = true,
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun provideWidgetDataAsRawContent_withinLimit_returnsContent() = runTest {
+        val widget = TestWidget(mock<WidgetUpdateClient>())
+        val context = getApplicationContext<Context>()
+
+        val rawContent =
+            widget.provideWidgetDataAsRawContent(context, testWidgetParams(TEST_INSTANCE_ID))
+
+        assertThat(rawContent.rcDocument.size)
+            .isAtMost(WearWidgetContentTooLargeException.WARNING_CONTENT_SIZE_BYTES)
+    }
+
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
+    @Test
+    fun provideWidgetDataAsRawContent_inInspectionMode_doesNotChangeFontAxisFlag() = runTest {
+        val widget = TestWidget(mock<WidgetUpdateClient>())
+        val context = getApplicationContext<Context>()
+        val params = testWidgetParams(TEST_INSTANCE_ID)
+        val originalValue = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
+        try {
+            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = true
+
+            widget.provideWidgetDataAsRawContent(context, params, isInspectionMode = true)
+            assertThat(RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis).isTrue()
+
+            // Without a renderer installed, the renderer version falls back to the initial one,
+            // which doesn't support empty font axes.
+            widget.provideWidgetDataAsRawContent(context, params, isInspectionMode = false)
+            assertThat(RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis).isFalse()
+        } finally {
+            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalValue
+        }
+    }
+
     private suspend fun withDebuggableBuild(
         context: Context,
         debuggable: Boolean,
@@ -593,10 +806,18 @@ class GlanceWearWidgetTest {
         updateClient: WidgetUpdateClient,
         widgetCache: WearWidgetCache? = null,
         private val activeWidgets: List<ActiveWearWidgetHandle> = emptyList(),
+        private val oversizedInstanceIds: Set<WidgetInstanceId> = emptySet(),
     ) : GlanceWearWidget(updateClient, widgetCache) {
 
-        override suspend fun provideWidgetData(context: Context, params: WearWidgetParams) =
-            WearWidgetDocument(background = WearWidgetBrush) {}
+        override suspend fun provideWidgetData(
+            context: Context,
+            params: WearWidgetParams,
+        ): WearWidgetData =
+            if (params.instanceId in oversizedInstanceIds) {
+                OversizedWidgetData()
+            } else {
+                WearWidgetDocument(background = WearWidgetBrush) {}
+            }
 
         override suspend fun findActiveWidgetById(context: Context, instanceId: WidgetInstanceId) =
             activeWidgets.find {
@@ -606,9 +827,27 @@ class GlanceWearWidgetTest {
         override suspend fun fetchActiveWidgets(context: Context) = activeWidgets
     }
 
+    /**
+     * A custom [WearWidgetData] implementation, not based on [WearWidgetDocument], whose content is
+     * always too large to be sent to the host.
+     */
+    private class OversizedWidgetData : WearWidgetData {
+        override suspend fun captureRawContent(
+            context: Context,
+            params: WearWidgetParams,
+            isInspectionMode: Boolean,
+        ): WearWidgetRawContent =
+            WearWidgetRawContent(
+                rcDocument = ByteArray(OVERSIZED_CONTENT_SIZE_BYTES),
+                extras = Bundle(),
+            )
+    }
+
     private companion object {
         val TEST_COMPONENT = ComponentName("my.package", "my.package.MyClass")
         val TEST_INSTANCE_ID = WidgetInstanceId("ns", 123)
+        const val OVERSIZED_CONTENT_SIZE_BYTES =
+            WearWidgetContentTooLargeException.MAX_CONTENT_SIZE_BYTES + 1
 
         fun testWidgetParams(instanceId: WidgetInstanceId) =
             WearWidgetParams(
