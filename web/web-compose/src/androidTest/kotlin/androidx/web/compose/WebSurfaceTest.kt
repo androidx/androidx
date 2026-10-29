@@ -985,6 +985,8 @@ class WebSurfaceTest {
             (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
         }
         val pageBottom = bridge.evaluateJs("Math.round(window.scrollY)").toInt()
+        // Make sure the drag starts from the new scroll position.
+        bridge.awaitVisualState()
 
         // Drag up past the bottom of the page, so the list takes the overscroll...
         val surface = composeTestRule.onNodeWithTag("surface")
@@ -1102,6 +1104,8 @@ class WebSurfaceTest {
         composeTestRule.waitUntil(TIMEOUT_MS) {
             (bridge.evaluateJs("Math.round(window.scrollY)").toIntOrNull() ?: 0) > 0
         }
+        // Make sure the drag starts from the new scroll position.
+        bridge.awaitVisualState()
 
         // Drag up past the bottom of the page so it overscrolls, then keep dragging up in the same
         // gesture. The parent didn't take the overscroll, so it isn't offered the drag.

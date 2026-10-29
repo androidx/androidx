@@ -65,6 +65,26 @@ internal fun WebContentView.evaluateJs(script: String): String {
     return result!!
 }
 
+/**
+ * Waits until the page's current state is ready to be drawn. Chromium handles touch scrolling on
+ * its compositor thread, which only sees changes like a scroll from JavaScript once they're
+ * committed.
+ */
+internal fun WebContentView.awaitVisualState() {
+    val latch = CountDownLatch(1)
+    InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        postVisualStateCallback(
+            /* requestId= */ 0L,
+            object : WebView.VisualStateCallback() {
+                override fun onComplete(requestId: Long) {
+                    latch.countDown()
+                }
+            },
+        )
+    }
+    assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS))
+}
+
 internal class TestWebViewBridge(context: Context) : WebViewBridge(context) {
     var onCreateInputConnectionCallback: (() -> Unit)? = null
     var inputConnection: InputConnection? = null
