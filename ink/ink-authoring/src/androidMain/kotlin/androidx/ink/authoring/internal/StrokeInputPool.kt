@@ -126,6 +126,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         motionEventToStrokeTransform: Matrix,
         strokeStartTimeMillis: Long,
         strokeUnitLengthCm: Float = StrokeInput.NO_STROKE_UNIT_LENGTH,
+        forceHasBarrelTwist: Boolean? = null,
     ): StrokeInput {
         return obtainHistoricalValueForMotionEvent(
             event,
@@ -137,6 +138,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
             motionEventToStrokeTransform,
             strokeStartTimeMillis,
             strokeUnitLengthCm,
+            forceHasBarrelTwist = forceHasBarrelTwist,
         )
     }
 
@@ -203,7 +205,14 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
                     forceHasPressure,
                     forceHasTilt,
                     forceHasOrientation,
-                    forceHasBarrelTwist,
+                    // TODO(b/555755656): See comment in
+                    // `MotionEvent.getOptionalHistoricalStylusAxisValue`;
+                    // remove this barrel-twist-specific behavior once `device.getMotionRange`
+                    // returns more
+                    // consistent results for `AXIS_RZ`.
+                    forceHasBarrelTwist =
+                        forceHasBarrelTwist
+                            ?: if (outBatch.isEmpty()) null else outBatch.hasBarrelTwist(),
                 )
             runCatching { outBatch.add(input) }
             recycle(input)
@@ -343,6 +352,17 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
     /**
      * Like [getMaybeHistoricalAxisValue], but for a stylus-specific [MotionEvent] axis that may not
      * be present.
+     *
+     * Normally, this method use `device.getMotionRange(axis, source)` to detect if the input device
+     * supports this axis value, but sometimes `AXIS_RZ` specifically has real data even when
+     * `device.getMotionRange(AXIS_RZ, source)` returns null. To work around this,
+     * `InProgressStrokesManager` will always set `forceHasValue` for barrel twist for all but the
+     * first input of the stroke, and for that first input (where `forceHasValue` is null), this
+     * method returns `absentValue` if the raw axis value is zero (the default value when no data is
+     * available). This ultimately gets us the correct result, AS LONG AS the first barrel twist
+     * value doesn't happen to be EXACTLY zero (which so far appears to be difficult or impossible
+     * to do even on purpose when testing this manually, and so should be quite rare). That said,
+     * this is still a bit of a hack, and we should retire it when possible.
      */
     private inline fun MotionEvent.getOptionalHistoricalStylusAxisValue(
         axis: Int,
@@ -355,10 +375,25 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
         if (getToolType(pointerIndex) != MotionEvent.TOOL_TYPE_STYLUS) {
             return absentValue
         }
+        if (forceHasValue == false) {
+            return absentValue
+        }
+        // TODO(b/555755656): Remove this `AXIS_RZ`-specific behavior once `device.getMotionRange`
+        // returns more consistent results for `AXIS_RZ`.
+        if (axis == MotionEvent.AXIS_RZ) {
+            val rawValue =
+                getMaybeHistoricalAxisValue(
+                    axis = axis,
+                    pointerIndex = pointerIndex,
+                    historyIndex = historyIndex,
+                )
+            if (forceHasValue == null && rawValue == 0f) {
+                return absentValue
+            }
+            return convertValue(rawValue)
+        }
         if (
-            forceHasValue == false ||
-                (forceHasValue == null &&
-                    (device == null || device.getMotionRange(axis, source) == null))
+            forceHasValue == null && (device == null || device.getMotionRange(axis, source) == null)
         ) {
             return absentValue
         }

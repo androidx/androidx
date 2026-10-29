@@ -18,12 +18,14 @@ package androidx.ink.authoring.internal
 
 import android.graphics.Matrix
 import android.os.Build
+import android.view.InputDevice
 import android.view.MotionEvent
 import androidx.ink.authoring.ExperimentalInkCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalInkLatencyDataApi
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.latencyDataEqual
+import androidx.ink.brush.ExperimentalInkBarrelTwistApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.ImmutableBox
 import androidx.ink.geometry.MutableBox
@@ -39,6 +41,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.fail
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -57,7 +60,11 @@ import org.junit.runner.RunWith
  * by running async requests synchronously, or by queueing those async requests for the test code to
  * run at a specific time of the test.
  */
-@OptIn(ExperimentalInkLatencyDataApi::class, ExperimentalInkCustomShapeWorkflowApi::class)
+@OptIn(
+    ExperimentalInkLatencyDataApi::class,
+    ExperimentalInkCustomShapeWorkflowApi::class,
+    ExperimentalInkBarrelTwistApi::class,
+)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @UiThreadTest
@@ -1022,6 +1029,138 @@ internal class InProgressStrokesManagerTest {
     }
 
     @Test
+    fun onAllStrokesFinished_stylusWithZeroInitialBarrelTwist_omitsBarrelTwistForEntireStroke() {
+        val latencyDataRecorder = LatencyDataRecorder()
+        val clock = FakeClock()
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(latencyDataRecorder, clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downTime = clock.getNextMillisTime()
+        val downEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = downTime,
+                action = MotionEvent.ACTION_DOWN,
+                x = 10f,
+                y = 20f,
+                axisRz = 0f,
+            )
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+        val moveEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = clock.getNextMillisTime(),
+                action = MotionEvent.ACTION_MOVE,
+                x = 30f,
+                y = 40f,
+                axisRz = -0.25f,
+            )
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+        val upEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = clock.getNextMillisTime(),
+                action = MotionEvent.ACTION_UP,
+                x = 50f,
+                y = 60f,
+                axisRz = -0.5f,
+            )
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        assertThat(finishedStrokes).hasSize(1)
+        val stroke = finishedStrokes[0].stroke
+        assertThat(stroke.size).isEqualTo(3)
+        assertThat(stroke.hasBarrelTwist()).isFalse()
+        assertThat(stroke[0].hasBarrelTwist()).isFalse()
+        assertThat(stroke[1].hasBarrelTwist()).isFalse()
+        assertThat(stroke[2].hasBarrelTwist()).isFalse()
+    }
+
+    @Test
+    fun onAllStrokesFinished_stylusWithNonZeroInitialBarrelTwist_populatesBarrelTwistForEntireStroke() {
+        val latencyDataRecorder = LatencyDataRecorder()
+        val clock = FakeClock()
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManagerAndHelper(latencyDataRecorder, clock)
+        val finishedStrokes = mutableListOf<FinishedStroke<ImmutableStrokeInputBatch>>()
+        manager.addListener { strokes -> finishedStrokes.addAll(strokes) }
+
+        val downTime = clock.getNextMillisTime()
+        val downEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = downTime,
+                action = MotionEvent.ACTION_DOWN,
+                x = 10f,
+                y = 20f,
+                axisRz = -0.5f,
+            )
+        val strokeId =
+            manager.startStroke(
+                downEvent,
+                downEvent.getPointerId(0),
+                Matrix(),
+                Matrix(),
+                FakeShapeSpec(),
+                0f,
+            )
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+        val moveEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = clock.getNextMillisTime(),
+                action = MotionEvent.ACTION_MOVE,
+                x = 30f,
+                y = 40f,
+                axisRz = 0f,
+            )
+        manager.addToStroke(moveEvent, moveEvent.getPointerId(0), strokeId, null)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+        val upEvent =
+            obtainStylusMotionEventWithAxisRz(
+                downTime = downTime,
+                eventTime = clock.getNextMillisTime(),
+                action = MotionEvent.ACTION_UP,
+                x = 50f,
+                y = 60f,
+                axisRz = 0f,
+            )
+        manager.finishStroke(upEvent, upEvent.getPointerId(0), strokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        assertThat(finishedStrokes).hasSize(1)
+        val stroke = finishedStrokes[0].stroke
+        assertThat(stroke.size).isEqualTo(3)
+        assertThat(stroke.hasBarrelTwist()).isTrue()
+        assertThat(stroke[0].getBarrelTwistRadians()).isWithin(0.001f).of(0.5f * Math.PI.toFloat())
+        assertThat(stroke[1].getBarrelTwistRadians()).isWithin(0.001f).of(0f)
+        assertThat(stroke[2].getBarrelTwistRadians()).isWithin(0.001f).of(0f)
+    }
+
+    @Test
     fun onAllStrokesFinished_getsFinishedStrokeWithAllInputs_strokeInputApi() {
         val latencyDataRecorder = LatencyDataRecorder()
         val clock = FakeClock()
@@ -1805,19 +1944,19 @@ internal class InProgressStrokesManagerTest {
         // shouldn't be canceled. It does need to wait for handoffs to be unpaused to attempt
         // another
         // handoff, though.
-        var resumed = false
+        val resumed = AtomicBoolean(false)
         renderHelper.executeOnRenderThread {
             assertThat(manager.countDownWhenFlushInProgressTestLatch?.await(1, TimeUnit.SECONDS))
                 .isTrue()
+            resumed.set(true)
             manager.resumeStrokeCohortHandoffs()
-            resumed = true
         }
         runRenderThreadToIdleAfterFlushStarts(manager, renderHelper)
         // Still waiting on resume before flush.
-        assertThat(resumed).isFalse()
+        assertThat(resumed.get()).isFalse()
         // Flush works when unpause happens during flush.
         assertThat(manager.flush(1000, TimeUnit.MILLISECONDS, cancelAllInProgress = true)).isTrue()
-        assertThat(resumed).isTrue()
+        assertThat(resumed.get()).isTrue()
         assertThat(finishedStrokes).containsExactly(inProgressStrokeId1, inProgressStrokeId2)
     }
 
@@ -2001,6 +2140,42 @@ internal class InProgressStrokesManagerTest {
             renderHelper.runRenderThreadToIdle()
         }
     }
+
+    private fun obtainStylusMotionEventWithAxisRz(
+        downTime: Long,
+        eventTime: Long,
+        action: Int,
+        x: Float,
+        y: Float,
+        axisRz: Float,
+    ): MotionEvent =
+        MotionEvent.obtain(
+            /* downTime = */ downTime,
+            /* eventTime = */ eventTime,
+            /* action = */ action,
+            /* pointerCount = */ 1,
+            /* pointerProperties = */ arrayOf(
+                MotionEvent.PointerProperties().apply {
+                    id = 0
+                    toolType = MotionEvent.TOOL_TYPE_STYLUS
+                }
+            ),
+            /* pointerCoords = */ arrayOf(
+                MotionEvent.PointerCoords().apply {
+                    this.x = x
+                    this.y = y
+                    setAxisValue(MotionEvent.AXIS_RZ, axisRz)
+                }
+            ),
+            /* metaState = */ 0,
+            /* buttonState = */ 0,
+            /* xPrecision = */ 1f,
+            /* yPrecision = */ 1f,
+            /* deviceId = */ 0,
+            /* edgeFlags = */ 0,
+            /* source = */ InputDevice.SOURCE_STYLUS,
+            /* flags = */ 0,
+        )
 }
 
 private class FakeClock(var timeNanos: Long = 0L) {
