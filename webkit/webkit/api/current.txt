@@ -84,6 +84,7 @@ package androidx.webkit {
     method public default void onNavigationRedirected(androidx.webkit.NavigationState, androidx.webkit.NavigationRedirectParameters);
     method @Deprecated public default void onNavigationStarted(androidx.webkit.Navigation);
     method public default void onNavigationStarted(androidx.webkit.NavigationState);
+    method @SuppressCompatibility @androidx.webkit.NavigationListener.ExperimentalOnNavigationVisible public default void onNavigationVisible(androidx.webkit.NavigationState);
     method @Deprecated public default void onPageDeleted(androidx.webkit.Page);
     method public default void onPageDeleted(androidx.webkit.PageState);
     method @Deprecated public default void onPageDomContentLoadedEvent(androidx.webkit.Page);
@@ -92,6 +93,9 @@ package androidx.webkit {
     method public default void onPageLoadEvent(androidx.webkit.PageState);
     method @Deprecated public default void onPerformanceMarkMillis(androidx.webkit.Page, String, long);
     method public default void onPerformanceMarkMillis(androidx.webkit.PageState, String, long);
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public static @interface NavigationListener.ExperimentalOnNavigationVisible {
   }
 
   @SuppressCompatibility @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_NAVIGATE_EXPERIMENTAL_V1, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebViewCompat.ExperimentalNavigate public final class NavigationParameters {
@@ -789,6 +793,7 @@ package androidx.webkit {
     field public static final String NAVIGATION_GET_WEB_RESOURCE_ERROR = "NAVIGATION_GET_WEB_RESOURCE_ERROR";
     field public static final String NAVIGATION_LISTENER = "NAVIGATION_LISTENER";
     field public static final String NAVIGATION_LISTENER_NAVIGATION_STATE = "NAVIGATION_LISTENER_NAVIGATION_STATE";
+    field @SuppressCompatibility @androidx.webkit.NavigationListener.ExperimentalOnNavigationVisible public static final String NAVIGATION_LISTENER_NAVIGATION_VISIBLE = "WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE";
     field @Deprecated public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS = "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
     field @Deprecated public static final String NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED = "NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED";
     field @Deprecated public static final String NAVIGATION_LISTENER_V1 = "NAVIGATION_LISTENER_V1";

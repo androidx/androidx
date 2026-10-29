@@ -1062,7 +1062,6 @@ public class WebViewFeature {
      * {@link NavigationListener#onNavigationVisible(NavigationState)}
      */
     @NavigationListener.ExperimentalOnNavigationVisible
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_LISTENER_NAVIGATION_VISIBLE =
             "WEB_VIEW_NAVIGATION_LISTENER_NAVIGATION_VISIBLE";
 

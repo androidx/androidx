@@ -123,4 +123,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.NAVIGATION_GET_NAVIGATION_START_UPTIME_MILLIS to "https://crrev.com/c/8545882",
         WF.NAVIGATION_LISTENER_NAVIGATION_STATE to "https://crrev.com/c/8549000",
         WF.NAVIGATION_GET_RESPONSE_HEADERS to "https://crrev.com/c/8552417",
+        WF.NAVIGATION_LISTENER_NAVIGATION_VISIBLE to "https://crrev.com/c/8028169",
     )

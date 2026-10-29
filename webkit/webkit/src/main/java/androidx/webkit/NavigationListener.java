@@ -60,7 +60,6 @@ public interface NavigationListener {
     @Retention(RetentionPolicy.CLASS)
     @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
     @RequiresOptIn(level = RequiresOptIn.Level.ERROR)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @interface ExperimentalOnNavigationVisible {
     }
 
@@ -155,7 +154,6 @@ public interface NavigationListener {
      * Navigation is visible.
      */
     @ExperimentalOnNavigationVisible
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     default void onNavigationVisible(@NonNull NavigationState navigationState) {
 
     }
