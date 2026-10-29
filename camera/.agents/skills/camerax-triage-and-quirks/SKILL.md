@@ -162,6 +162,15 @@ could perform, or is it purely an artifact of test harness mechanics?**
      awaiting `PreviewView` layout readiness via `waitUntilPreviewViewIsReady()`
      before querying view dimensions in Fragment tests).
 
+4. **External Developer Bug Reports & App Misuse vs. Library Defect Triage**:
+   - When triaging a developer-reported issue without an existing failing test,
+     first verify whether the caller's code honors the documented public API
+     contract (distinguishing app contract misuse that warrants a KDoc/guide
+     clarification from a genuine CameraX defect), reproduce the issue in a host
+     unit test (`src/test/`) or `coretestapp` test, and evaluate whether any
+     proposed fix changes observable behavior for existing apps (weighing
+     backward compatibility and `RelNote` requirements).
+
 ##### B. The 3-Step Root Cause & Prevention Hierarchy (The Deep "Why" Chain)
 When investigating why an operation failed, systematically investigate these
 three layers in order:
@@ -236,16 +245,21 @@ three layers in order:
      or UseCase format and resolution routing.
    - **Action**: Fix directly in core framework abstractions (`camera-core` or
      `camera-camera2`).
-2. **Device Quirk**:
+2. **Device Quirk (`DeviceQuirks` vs. `CameraQuirks` & `compat/workaround/`)**:
    - **When**: The issue stems from OEM vendor HAL non-compliance, driver
      limitations, or hardware capabilities advertised in `CameraCharacteristics`
      that fail at runtime during camera session creation or streaming, and
      impacts real-world applications.
-   - **Action**: Implement a `DeviceQuirk` (under `camera-core` or
-     `camera-camera2` compat quirks) to gracefully adapt pipeline behavior or
-     filter unsupported modes from public capability queries (e.g.,
-     `ImageCaptureCapabilities`). **Avoid** adding ad-hoc test assumptions
-     (`assumeFalse`) when a quirk can protect production applications.
+   - **Action**: Implement a `Quirk` in the proper module and registry: place
+     device-wide (`Build`-based) quirks in the owning module's `DeviceQuirks`
+     (e.g., `camera-core`, `camera-video`, `camera-view`, `camera-compose`,
+     `camera-extensions`, `camera-viewfinder`, or `camera-camera2`), place
+     per-camera (`CameraCharacteristics`-based) quirks in `camera-camera2`'s
+     `CameraQuirks`, and encapsulate workaround behavior inside a dedicated
+     `compat/workaround/` collaborator class rather than scattering raw `Quirk`
+     checks across core pipeline classes. **Avoid** adding ad-hoc test
+     assumptions (`assumeFalse`) when a quirk can protect production
+     applications.
    - *Case Study*: Exclude unsupported simultaneous multi-stream combinations
      via a quirk on devices where HAL rejects concurrent maximum-resolution
      streams.

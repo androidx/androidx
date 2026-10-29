@@ -86,20 +86,28 @@ applicable. Prioritize clarity and conciseness.
     `aosp/androidx-main`, or the user-provided patch/diff.
 2.  **Gather Wide Architectural Context:** Do **NOT** limit inspection to the
     changed lines. For each modified file (especially in CameraX modules), read
-    the full file, surrounding package classes, class hierarchy, and callers to
-    understand:
-    - **Structural Design:** How the layer fits into CameraX's architecture
-      (public API / `UseCase` → internal core / `CameraInternal` →
-      `camera-camera2` / `camera-camera2-pipe` adapter).
-    - **Object Job & Code Placement:** Each class's exact responsibility and
-      whether new logic, state, or helpers are placed in the right object for
-      an elegant, cohesive design.
+    the full file, surrounding package classes, class hierarchy, callers, and
+    existing `src/test/` + `src/androidTest/` tests (`git --no-lazy-fetch grep
+    -- camera/<module>/src/...`) to understand:
+    - **4-Layer Structural Design:** How the layer and sub-package fit into
+      CameraX's 4-layer architecture (Layer 1 public API / `UseCase` / UI /
+      lifecycle / extensions → Layer 2 internal core `camera-core` `core/` API,
+      `impl/` `CameraInternal` SPI, `internal/` orchestration, & domain
+      pipelines → Layer 3 `camera-camera2` `config/` Dagger scopes, `adapter/`,
+      `impl/`, `internal/`, `compat/quirk/` + `compat/workaround/` → Layer 4
+      `camera-camera2-pipe` adapter).
+    - **Object Job, Package Disambiguation & Code Placement:** Each package and
+      class's exact responsibility (disambiguating similarly named classes like
+      `core.internal.CameraUseCaseAdapter` vs.
+      `camera2.adapter.CameraUseCaseAdapter`, and verifying `@CameraScope` vs.
+      `@UseCaseCameraScope` lifetime retention) and whether new logic, state, or
+      helpers are placed in the right object for an elegant, cohesive design.
     - **Intentional Code & Workarounds:** Check comments, KDoc, git history
       (e.g., `git --no-lazy-fetch blame -L <start>,<end> <file>`), and sibling
       implementations to verify whether existing ordering, defensive checks, or
       workarounds are intentional before modifying or flagging them.
-    - Also read relevant sections in this `AGENTS.md` and, when internal
-      tooling is configured, `AGENTS_INTERNAL.md` (located at
+    - Also read `camera/AGENTS.md`, `camerax-guidelines-governance/SKILL.md`,
+      and, when internal tooling is configured, `AGENTS_INTERNAL.md` (located at
       `$CAMERAX_INTERNAL_TOOLS_DIR/AGENTS_INTERNAL.md`).
 3.  **Analyze for Issues (Deep Diagnostic Pass):**
     *   **Standards Hierarchy Compliance:** Does the change adhere to the
