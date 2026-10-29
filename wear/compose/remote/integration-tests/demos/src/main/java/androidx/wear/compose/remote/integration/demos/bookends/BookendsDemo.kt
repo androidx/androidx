@@ -23,7 +23,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -65,9 +65,9 @@ import androidx.wear.compose.remote.integration.demos.bookends.player.WearMateri
 @Composable
 fun BookendsDemoContent() {
     val clicks = remember { MutableRemoteInt(0) }
-    val increment = valueChange(clicks, clicks + 1)
+    val increment = valueChangeAction(clicks, clicks + 1)
     val checked = remember { MutableRemoteBoolean(false) }
-    val toggle = valueChange(checked, !checked)
+    val toggle = valueChangeAction(checked, !checked)
     val icon = remember { RemoteImageBitmap(bookendsIconBitmap()) }
 
     RemoteAppScaffold {

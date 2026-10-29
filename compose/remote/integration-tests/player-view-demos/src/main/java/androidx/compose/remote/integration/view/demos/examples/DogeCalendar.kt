@@ -21,7 +21,7 @@ package androidx.compose.remote.integration.view.demos.examples
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.remote.creation.compose.action.RemoteAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -259,7 +259,7 @@ fun DogeCalendar(initialSelectedIndex: Int = -1) {
     val scrollState = rememberRemoteScrollState(notches = 24)
     val isExpanded = remember { MutableRemoteInt(if (initialSelectedIndex >= 0) 1 else 0) }
     val nextExpanded = isExpanded.isEqualTo(0.ri).select(1.ri, 0.ri)
-    val toggleDetailAction = valueChange(isExpanded, nextExpanded)
+    val toggleDetailAction = valueChangeAction(isExpanded, nextExpanded)
 
     val scrimOffsetX = isExpanded.isEqualTo(1.ri).select(0f.rf, 2000f.rf).asRemoteDp()
 

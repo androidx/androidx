@@ -18,7 +18,7 @@ package androidx.glance.wear.samples
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -50,7 +50,7 @@ fun PendingIntentPreview(
                 RemoteModifier.fillMaxSize()
                     .background(Color.Cyan.rc)
                     .clickable(
-                        pendingIntentAction { context ->
+                        rememberPendingIntentAction { context ->
                             PendingIntent.getActivity(
                                 context,
                                 0,

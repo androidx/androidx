@@ -48,32 +48,32 @@ class RemoteMotionTokensTest {
     @Test
     fun easing_tokens_match_wear_motion_tokens() {
         assertEquals(
-            RemoteEasing.Cubic(0.3f, 0.0f, 0.8f, 0.15f),
+            RemoteEasing.cubic(0.3f, 0.0f, 0.8f, 0.15f),
             RemoteMotionTokens.EasingEmphasizedAccelerate,
         )
         assertEquals(
-            RemoteEasing.Cubic(0.05f, 0.7f, 0.1f, 1.0f),
+            RemoteEasing.cubic(0.05f, 0.7f, 0.1f, 1.0f),
             RemoteMotionTokens.EasingEmphasizedDecelerate,
         )
         assertEquals(
-            RemoteEasing.Cubic(0.4f, 0.0f, 1.0f, 1.0f),
+            RemoteEasing.cubic(0.4f, 0.0f, 1.0f, 1.0f),
             RemoteMotionTokens.EasingLegacyAccelerate,
         )
         assertEquals(
-            RemoteEasing.Cubic(0.0f, 0.0f, 0.2f, 1.0f),
+            RemoteEasing.cubic(0.0f, 0.0f, 0.2f, 1.0f),
             RemoteMotionTokens.EasingLegacyDecelerate,
         )
         assertEquals(
-            RemoteEasing.Cubic(0.4f, 0.0f, 0.2f, 1.0f),
+            RemoteEasing.cubic(0.4f, 0.0f, 0.2f, 1.0f),
             RemoteMotionTokens.EasingLegacyStandard,
         )
-        assertEquals(RemoteEasing.Cubic(0.2f, 0.0f, 0.0f, 1.0f), RemoteMotionTokens.EasingStandard)
+        assertEquals(RemoteEasing.cubic(0.2f, 0.0f, 0.0f, 1.0f), RemoteMotionTokens.EasingStandard)
         assertEquals(
-            RemoteEasing.Cubic(0.3f, 0.0f, 1.0f, 1.0f),
+            RemoteEasing.cubic(0.3f, 0.0f, 1.0f, 1.0f),
             RemoteMotionTokens.EasingStandardAccelerate,
         )
         assertEquals(
-            RemoteEasing.Cubic(0.0f, 0.0f, 0.0f, 1.0f),
+            RemoteEasing.cubic(0.0f, 0.0f, 0.0f, 1.0f),
             RemoteMotionTokens.EasingStandardDecelerate,
         )
     }

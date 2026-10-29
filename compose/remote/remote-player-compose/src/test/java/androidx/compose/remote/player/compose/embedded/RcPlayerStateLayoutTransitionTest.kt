@@ -21,7 +21,7 @@ package androidx.compose.remote.player.compose.embedded
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
@@ -86,7 +86,7 @@ class RcPlayerStateLayoutTransitionTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "toggle".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(checked, !checked))
+                            .clickable(onClick = valueChangeAction(checked, !checked))
                 )
                 RemoteStateLayout(currentState = checked) { state -> branch(state) }
             }

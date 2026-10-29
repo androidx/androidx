@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
@@ -45,7 +45,7 @@ fun RemoteEdgeButtonSample(modifier: RemoteModifier = RemoteModifier) {
     val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
 
     RemoteEdgeButton(
-        onClick = valueChange(tapCount, tapCount + 1),
+        onClick = valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
         buttonSize = RemoteEdgeButtonSize.Small,
     ) {
@@ -61,7 +61,7 @@ fun RemoteEdgeButtonIconSample(modifier: RemoteModifier = RemoteModifier) {
     val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
-        onClick = valueChange(tapCount, tapCount + 1),
+        onClick = valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
         buttonSize = RemoteEdgeButtonSize.ExtraSmall,
     ) {
@@ -84,7 +84,7 @@ fun RemoteEdgeButtonFilledTonalSample(modifier: RemoteModifier = RemoteModifier)
     val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
-        onClick = valueChange(tapCount, tapCount + 1),
+        onClick = valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
         buttonSize = RemoteEdgeButtonSize.Medium,
         colors = RemoteEdgeButtonDefaults.filledTonalButtonColors(),
@@ -101,7 +101,7 @@ fun RemoteEdgeButtonMultiLineSample(modifier: RemoteModifier = RemoteModifier) {
     val tapCount = remember { MutableRemoteInt(0) }
 
     RemoteEdgeButton(
-        onClick = valueChange(tapCount, tapCount + 1),
+        onClick = valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
         buttonSize = RemoteEdgeButtonSize.Large,
     ) {

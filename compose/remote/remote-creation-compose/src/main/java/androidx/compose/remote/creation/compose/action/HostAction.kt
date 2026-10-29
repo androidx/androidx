@@ -77,7 +77,6 @@ public fun hostAction(name: RemoteString, value: RemoteString): RemoteAction =
  * @param name The name of the action.
  * @param value The boolean value to pass with the action.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(name: RemoteString, value: RemoteBoolean): RemoteAction =
     HostAction(name, value.toRemoteInt())
 
@@ -101,7 +100,6 @@ public fun hostAction(name: RemoteString, value: RemoteBoolean): RemoteAction =
  * @param metadata Optional metadata delivered with the action. May be dynamic, for example built
  *   from touch positions or other remote state, and is resolved when the action runs.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun hostAction(id: Int, metadata: RemoteString? = null): RemoteAction {
     require(id != -1) { "-1 is the default component id and cannot be used as a host action id" }
     return HostIdAction(id, metadata)

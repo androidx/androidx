@@ -49,30 +49,30 @@ internal class ClickableModifier(
  * If you need to support double click or long click alongside the single click, consider using
  * [combinedClickable].
  *
- * @param action will be called when user clicks on the element
- * @param enabled Controls the enabled state. When `false`, [action], and this modifier will appear
+ * @param onClick will be called when user clicks on the element
+ * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clickable(
-    action: RemoteAction,
+    onClick: RemoteAction,
     enabled: Boolean = true,
     role: RemoteRole,
-): RemoteModifier = clickableImpl(action = action, enabled = enabled, role = role)
+): RemoteModifier = clickableImpl(onClick = onClick, enabled = enabled, role = role)
 
 internal fun RemoteModifier.clickableImpl(
-    action: RemoteAction,
+    onClick: RemoteAction,
     enabled: Boolean = true,
     role: RemoteRole? = RemoteRole.Button,
 ): RemoteModifier =
     then(
             if (enabled) {
                 val actions =
-                    when (action) {
-                        is CombinedAction -> action.actions.toList()
-                        else -> listOfNotNull(action)
+                    when (onClick) {
+                        is CombinedAction -> onClick.actions.toList()
+                        else -> listOfNotNull(onClick)
                     }
                 if (actions.isNotEmpty()) ClickableModifier(actions) else RemoteModifier
             } else {

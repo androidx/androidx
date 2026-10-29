@@ -30,7 +30,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetada
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.core.types.IntegerConstant
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -127,7 +127,9 @@ class WearWidgetPendingIntentContractTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.clickable(
-                        pendingIntentAction("taps" to taps.toRemoteString()) { pendingIntent }
+                        rememberPendingIntentAction("taps" to taps.toRemoteString()) {
+                            pendingIntent
+                        }
                     )
             )
         }
@@ -138,7 +140,9 @@ class WearWidgetPendingIntentContractTest {
 
     @Composable
     private fun ClickableBox(pendingIntent: PendingIntent) {
-        RemoteBox(modifier = RemoteModifier.clickable(pendingIntentAction { pendingIntent }))
+        RemoteBox(
+            modifier = RemoteModifier.clickable(rememberPendingIntentAction { pendingIntent })
+        )
     }
 
     private fun testPendingIntent(requestCode: Int): PendingIntent =

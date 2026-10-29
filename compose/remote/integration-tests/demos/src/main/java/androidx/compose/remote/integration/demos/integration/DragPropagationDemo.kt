@@ -34,7 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -161,7 +161,7 @@ fun DragPropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
                                 RemoteModifier.background(Color(0xFFC8E6C9).rc)
                                     .padding(horizontal = 12.rdp, vertical = 8.rdp)
                                     .clickable(
-                                        valueChange(valueChangeClicks, valueChangeClicks + 1)
+                                        valueChangeAction(valueChangeClicks, valueChangeClicks + 1)
                                     ),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
@@ -192,7 +192,9 @@ fun DragPropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
                                 RemoteModifier.background(Color(0xFFE1BEE7).rc)
                                     .padding(horizontal = 12.rdp, vertical = 8.rdp)
                                     .onTouchDown(hostAction("host_touch_down_action".rs))
-                                    .onTouchUp(valueChange(touchValueClicks, touchValueClicks + 1)),
+                                    .onTouchUp(
+                                        valueChangeAction(touchValueClicks, touchValueClicks + 1)
+                                    ),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
                             RemoteText(

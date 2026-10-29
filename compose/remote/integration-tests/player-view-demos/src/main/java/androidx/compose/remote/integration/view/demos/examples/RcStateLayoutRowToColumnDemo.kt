@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -227,7 +227,7 @@ fun StateLayoutRowToColumnDemo() {
                     .height(48.rdp)
                     .clip(RemoteRoundedCornerShape(12.rdp))
                     .background(androidx.compose.ui.graphics.Color.DarkGray.rc)
-                    .clickable(valueChange(isEndState, !isEndState)),
+                    .clickable(valueChangeAction(isEndState, !isEndState)),
             contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText(

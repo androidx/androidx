@@ -22,7 +22,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -104,7 +104,7 @@ class WearWidgetCaptureTest {
                     text = "text-0".rs,
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction { localContext ->
+                            rememberPendingIntentAction { localContext ->
                                 createTestPendingIntent(localContext, requestCode0)
                             }
                         ),
@@ -113,7 +113,7 @@ class WearWidgetCaptureTest {
                     text = "text-1".rs,
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction { localContext ->
+                            rememberPendingIntentAction { localContext ->
                                 createTestPendingIntent(localContext, requestCode1)
                             }
                         ),

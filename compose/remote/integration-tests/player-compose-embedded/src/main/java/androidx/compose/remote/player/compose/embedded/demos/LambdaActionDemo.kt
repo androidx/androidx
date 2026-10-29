@@ -64,7 +64,7 @@ public fun LambdaActionDemo() {
             modifier =
                 RemoteModifier.size(100.rdp)
                     .background(Color.Blue.rc)
-                    .clickable(action = lambdaAction { clickCount++ })
+                    .clickable(onClick = lambdaAction { clickCount++ })
         )
     }
 

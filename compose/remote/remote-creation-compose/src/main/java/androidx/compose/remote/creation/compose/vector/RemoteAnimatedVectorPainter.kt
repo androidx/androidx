@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.selectIfLt
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.PathParser
@@ -670,7 +669,7 @@ private fun evaluateAnimatorColor(
         val from = (anim.keyframes[0].value as? Number)?.toInt() ?: baseColor ?: return null
         val to = (anim.keyframes[1].value as? Number)?.toInt() ?: from
         if (from == to) return RemoteColor(from)
-        return tween(from, to, localProgress)
+        return lerp(from, to, localProgress)
     }
     val kf = anim.keyframes
     var kfResult: RemoteColor = run {
@@ -682,7 +681,7 @@ private fun evaluateAnimatorColor(
             if (frac1 > frac0) {
                 clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
             } else 1f.rf
-        tween(last0, last1, segmentProgress)
+        lerp(last0, last1, segmentProgress)
     }
     for (j in (kf.size - 3) downTo 0) {
         val val0 = (kf[j].value as? Number)?.toInt() ?: baseColor ?: return null
@@ -693,7 +692,7 @@ private fun evaluateAnimatorColor(
             if (frac1 > frac0) {
                 clamp((localProgress - frac0.rf) / (frac1 - frac0).rf, 0f, 1f)
             } else 1f.rf
-        val stageExpr = tween(val0, val1, segmentProgress)
+        val stageExpr = lerp(val0, val1, segmentProgress)
         kfResult = localProgress.isLessThan(frac1.rf).select(stageExpr, kfResult)
     }
     return kfResult

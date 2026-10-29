@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -76,9 +76,9 @@ fun RemoteSplitSwitchButtonDemos(modifier: Modifier = Modifier) {
                 val checked = remember { MutableRemoteBoolean(false) }
                 RemoteSplitSwitchButton(
                     checked = checked,
-                    onCheckedChange = valueChange(checked, !checked),
+                    onCheckedChange = valueChangeAction(checked, !checked),
                     toggleContentDescription = "Toggle animation".rs,
-                    onContainerClick = valueChange(checked, !checked),
+                    onContainerClick = valueChangeAction(checked, !checked),
                     secondaryLabel = {
                         RemoteText(checked.select("State: Checked".rs, "State: Unchecked".rs))
                     },

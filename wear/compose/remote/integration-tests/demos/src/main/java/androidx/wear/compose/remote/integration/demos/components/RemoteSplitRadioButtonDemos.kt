@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -76,9 +76,9 @@ fun RemoteSplitRadioButtonDemos(modifier: Modifier = Modifier) {
                 val selected = remember { MutableRemoteBoolean(false) }
                 RemoteSplitRadioButton(
                     selected = selected,
-                    onSelectionClick = valueChange(selected, !selected),
+                    onSelectionClick = valueChangeAction(selected, !selected),
                     selectionContentDescription = "Toggle animation".rs,
-                    onContainerClick = valueChange(selected, !selected),
+                    onContainerClick = valueChangeAction(selected, !selected),
                     secondaryLabel = {
                         RemoteText(selected.select("State: Selected".rs, "State: Unselected".rs))
                     },

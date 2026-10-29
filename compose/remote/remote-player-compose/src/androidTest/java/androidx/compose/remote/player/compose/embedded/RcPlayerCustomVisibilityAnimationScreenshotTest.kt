@@ -22,7 +22,7 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -144,7 +144,7 @@ class RcPlayerCustomVisibilityAnimationScreenshotTest(private val case: Case) {
                     RemoteModifier.size(WIDTH_DP.rdp, 24.rdp)
                         .background(Color.DarkGray.rc)
                         .clickable(
-                            valueChange(
+                            valueChangeAction(
                                 remoteState = shown.remoteInt,
                                 updatedValue = (shown.remoteInt + 1) % 2,
                             )

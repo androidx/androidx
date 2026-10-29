@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.currentProfileSupportsTouchModifiers
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -34,10 +34,10 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -152,9 +152,9 @@ internal fun animatedToggleButtonShape(
                 bottomStart = LerpCornerSize(shape.bottomStart, pressedShape.bottomStart, progress),
             ),
         modifier =
-            RemoteModifier.onTouchDown(valueChange(pressed, 1f.rf))
-                .onTouchUp(valueChange(pressed, 0f.rf))
-                .onTouchCancel(valueChange(pressed, 0f.rf)),
+            RemoteModifier.onTouchDown(valueChangeAction(pressed, 1f.rf))
+                .onTouchUp(valueChangeAction(pressed, 0f.rf))
+                .onTouchCancel(valueChangeAction(pressed, 0f.rf)),
     )
 }
 
@@ -218,7 +218,7 @@ internal fun checkedColor(
     if (checkedProgress == null) {
         checked.select(checkedColor, uncheckedColor)
     } else {
-        tween(uncheckedColor, checkedColor, checkedProgress)
+        lerp(uncheckedColor, checkedColor, checkedProgress)
     }
 
 /**

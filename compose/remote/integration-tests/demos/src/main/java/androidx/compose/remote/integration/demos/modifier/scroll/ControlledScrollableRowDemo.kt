@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.scrollBy
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -72,7 +72,7 @@ private fun ControlledScrollableRowDemoContent() {
         }
         RemoteRow(verticalAlignment = RemoteAlignment.CenterVertically) {
             RemoteText("Scroll".rs, color = Color.Black.rc)
-            Button(onClick = valueChange(useLargeScroll, !useLargeScroll)) {
+            Button(onClick = valueChangeAction(useLargeScroll, !useLargeScroll)) {
                 RemoteText(
                     useLargeScroll.select("Mode: 10000".rs, "Mode: 1000".rs),
                     color = Color.Black.rc,

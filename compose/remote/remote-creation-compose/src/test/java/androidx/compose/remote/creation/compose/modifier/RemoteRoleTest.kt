@@ -45,11 +45,11 @@ class RemoteRoleTest {
     @Test
     fun clickableAndCombinedClickable_acceptRemoteRole() {
         val clickableModifier =
-            RemoteModifier.clickable(action = RemoteAction.Empty, role = RemoteRole.Checkbox)
+            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = RemoteRole.Checkbox)
         val clickableComposeRole =
-            RemoteModifier.clickable(action = RemoteAction.Empty, role = Role.Checkbox)
+            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = Role.Checkbox)
         val clickableNullRole =
-            RemoteModifier.clickable(action = RemoteAction.Empty, role = null as Role?)
+            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = null as Role?)
         val combinedModifier =
             RemoteModifier.combinedClickable(
                 onClick = RemoteAction.Empty,

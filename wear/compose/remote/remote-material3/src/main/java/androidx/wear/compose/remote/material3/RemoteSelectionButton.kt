@@ -54,7 +54,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.sin
 import androidx.compose.remote.creation.compose.state.toRad
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -124,7 +123,7 @@ internal fun RemoteSelectionButtonImpl(
             // changes, as Wear Material 3 selection controls do. A click currently triggers only
             // the player's generic click haptic.
             .clickable(
-                action = onClick,
+                onClick = onClick,
                 enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)
@@ -217,7 +216,7 @@ internal fun RemoteCheckboxControl(
         val strokePaint = RemotePaint {
             style = PaintingStyle.Stroke
             strokeWidth = strokeWidthPx
-            color = tween(boxColor, Color.Transparent.rc, progress)
+            color = lerp(boxColor, Color.Transparent.rc, progress)
         }
         drawRoundRect(
             paint = strokePaint,
@@ -233,7 +232,7 @@ internal fun RemoteCheckboxControl(
 
         val fillPaint = RemotePaint {
             style = PaintingStyle.Fill
-            color = tween(Color.Transparent.rc, boxColor, progress)
+            color = lerp(Color.Transparent.rc, boxColor, progress)
         }
         drawRoundRect(
             paint = fillPaint,
@@ -246,7 +245,7 @@ internal fun RemoteCheckboxControl(
             style = PaintingStyle.Stroke
             strokeWidth = strokeWidthPx
             strokeCap = StrokeCap.Round
-            color = tween(Color.Transparent.rc, checkmarkColor, progress)
+            color = lerp(Color.Transparent.rc, checkmarkColor, progress)
         }
         val tickCenter =
             RemoteOffset(TICK_DESIGN_CENTER_DP.rdp.toPx(), TICK_DESIGN_CENTER_DP.rdp.toPx())
@@ -311,7 +310,7 @@ internal fun RemoteRadioControl(
 
         val dotPaint = RemotePaint {
             style = PaintingStyle.Fill
-            color = tween(Color.Transparent.rc, controlColor, progress)
+            color = lerp(Color.Transparent.rc, controlColor, progress)
         }
         drawCircle(paint = dotPaint, radius = innerRadiusPx, center = centerOffset)
     }

@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.creation.compose.previews
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -52,7 +52,7 @@ private fun RemoteFitBoxPreview() {
             modifier =
                 RemoteModifier.padding(10.rdp)
                     .size(150.rdp, 50.rdp)
-                    .clickable(valueChange(useLargeSize, !useLargeSize))
+                    .clickable(valueChangeAction(useLargeSize, !useLargeSize))
                     .background(Color.Blue.rc),
             contentAlignment = RemoteAlignment.Center,
         ) {

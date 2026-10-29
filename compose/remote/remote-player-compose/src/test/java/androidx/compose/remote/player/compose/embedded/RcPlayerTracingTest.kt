@@ -24,7 +24,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -170,7 +170,7 @@ class RcPlayerTracingTest {
                         RemoteBox(
                             modifier =
                                 RemoteModifier.semantics { contentDescription = "clickTarget".rs }
-                                    .clickable(valueChange(state, 50f.rf))
+                                    .clickable(valueChangeAction(state, 50f.rf))
                                     .width(state)
                                     .height(20.rdp)
                         )

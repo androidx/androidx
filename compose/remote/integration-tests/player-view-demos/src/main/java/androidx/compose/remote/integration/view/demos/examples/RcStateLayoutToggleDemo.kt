@@ -18,7 +18,7 @@
 
 package androidx.compose.remote.integration.view.demos.examples
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -111,7 +111,7 @@ fun StateLayoutToggleDemo() {
                     .height(48.rdp)
                     .clip(RemoteRoundedCornerShape(12.rdp))
                     .background(Color.DarkGray.rc)
-                    .clickable(valueChange(isEndState, !isEndState)),
+                    .clickable(valueChangeAction(isEndState, !isEndState)),
             contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText("Toggle State".rs, color = Color.White.rc, fontSize = 18.rsp)

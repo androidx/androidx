@@ -411,7 +411,7 @@ class RemoteStateVisitorTest {
     @Test
     fun testTweenInt_withOneOrBothColorsReplaced() {
         val tweenProgress = RemoteFloat.createNamedRemoteFloat("tween_p", 0.5f)
-        val tweenColor = tween(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), tweenProgress)
+        val tweenColor = lerp(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), tweenProgress)
 
         // 1. Replace only 'from' with a RemoteColor
         val resultFrom = tweenColor.transform { node ->
@@ -442,7 +442,7 @@ class RemoteStateVisitorTest {
     @Test
     fun testTweenInt_withDynamicRemoteInt_throwsDescriptiveError() {
         val tweenProgress = RemoteFloat.createNamedRemoteFloat("tween_p", 0.5f)
-        val tweenColor = tween(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), tweenProgress)
+        val tweenColor = lerp(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), tweenProgress)
         val dynamicInt = RemoteInt.createNamedRemoteInt("dynamic_color", 0)
 
         var exceptionThrown = false

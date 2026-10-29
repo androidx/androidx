@@ -118,7 +118,7 @@ public constructor(
                     )
                 Multiply -> asRemoteColor(args[0]) * asRemoteColor(args[1])
                 Tween ->
-                    tween(asRemoteColor(args[0]), asRemoteColor(args[1]), args[2] as RemoteFloat)
+                    lerp(asRemoteColor(args[0]), asRemoteColor(args[1]), args[2] as RemoteFloat)
                 TweenInt -> {
                     val from = args[0]
                     val to = args[1]
@@ -126,9 +126,9 @@ public constructor(
                     val fromInt = (from.constantValueOrNull as? Number)?.toInt()
                     val toInt = (to.constantValueOrNull as? Number)?.toInt()
                     if (fromInt != null && toInt != null) {
-                        tween(fromInt, toInt, t)
+                        lerp(fromInt, toInt, t)
                     } else {
-                        tween(asRemoteColor(from), asRemoteColor(to), t)
+                        lerp(asRemoteColor(from), asRemoteColor(to), t)
                     }
                 }
                 Component -> {
@@ -610,33 +610,33 @@ public constructor(
 }
 
 /**
- * Creates a remote color that interpolates between two integer ARGB colors based on a tween factor.
+ * Creates a remote color that interpolates between two integer ARGB colors based on [fraction].
  *
  * @param from The starting color (ARGB integer).
  * @param to The ending color (ARGB integer).
- * @param tween A [RemoteFloat] representing the interpolation factor in range [0..1].
- * @return A new [RemoteColor] representing the tweened color.
+ * @param fraction A [RemoteFloat] representing the interpolation factor in range [0..1].
+ * @return A new [RemoteColor] representing the interpolated color.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): RemoteColor {
+public fun lerp(@ColorInt from: Int, @ColorInt to: Int, fraction: RemoteFloat): RemoteColor {
     if (from == to) {
         return RemoteColor(from)
     }
-    tween.constantValueOrNull?.let {
+    fraction.constantValueOrNull?.let {
         return RemoteColor(Utils.interpolateColor(from, to, it))
     }
 
     return RemoteColor(
-        cacheKey = RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, tween),
+        cacheKey = RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, fraction),
         idProvider = { creationState ->
             creationState.getOrPutVariableId(
-                RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, tween)
+                RemoteOperationCacheKey.create(OperationKey.TweenInt, from, to, fraction)
             ) {
                 creationState.document
                     .addColorExpression(
                         from,
                         to,
-                        Utils.asNan(tween.getIdForCreationState(creationState)),
+                        Utils.asNan(fraction.getIdForCreationState(creationState)),
                     )
                     .toInt()
             }
@@ -645,37 +645,37 @@ public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): Re
 }
 
 /**
- * Creates a remote color that interpolates between two [RemoteColor]s based on a tween factor. This
+ * Creates a remote color that interpolates between two [RemoteColor]s based on [fraction]. This
  * allows for dynamic color transitions where both the start/end colors and the interpolation factor
  * can be remote expressions.
  *
  * @param from The starting [RemoteColor].
  * @param to The ending [RemoteColor].
- * @param tween A [RemoteFloat] representing the interpolation factor in range [0..1].
- * @return A new [RemoteColor] representing the tweened color.
+ * @param fraction A [RemoteFloat] representing the interpolation factor in range [0..1].
+ * @return A new [RemoteColor] representing the interpolated color.
  */
-public fun tween(from: RemoteColor, to: RemoteColor, tween: RemoteFloat): RemoteColor {
+public fun lerp(from: RemoteColor, to: RemoteColor, fraction: RemoteFloat): RemoteColor {
     if (from.cacheKey == to.cacheKey) {
         return from
     }
     val constFrom = from.constantValueOrNull
     val constTo = to.constantValueOrNull
-    val constTween = tween.constantValueOrNull
+    val constTween = fraction.constantValueOrNull
     if (constFrom != null && constTo != null && constTween != null) {
         return RemoteColor(Utils.interpolateColor(constFrom, constTo, constTween))
     }
 
     return RemoteColor(
-        cacheKey = RemoteOperationCacheKey.create(OperationKey.Tween, from, to, tween),
+        cacheKey = RemoteOperationCacheKey.create(OperationKey.Tween, from, to, fraction),
         idProvider = { creationState ->
             creationState.getOrPutVariableId(
-                RemoteOperationCacheKey.create(OperationKey.Tween, from, to, tween)
+                RemoteOperationCacheKey.create(OperationKey.Tween, from, to, fraction)
             ) {
                 creationState.document
                     .addColorExpression(
                         from.getIdForCreationState(creationState).toShort(),
                         to.getIdForCreationState(creationState).toShort(),
-                        Utils.asNan(tween.getIdForCreationState(creationState)),
+                        Utils.asNan(fraction.getIdForCreationState(creationState)),
                     )
                     .toInt()
             }

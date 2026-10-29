@@ -40,7 +40,7 @@ import java.io.ByteArrayInputStream
 
 @Composable
 public fun rememberRemoteDocument(
-    creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(),
+    creationDisplayInfo: RemoteCreationDisplayInfo = rememberRemoteCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     writerEvents: WriterEvents = WriterEvents(),

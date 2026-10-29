@@ -18,7 +18,7 @@
 // import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 // import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
 // import androidx.compose.remote.creation.compose.action.hostAction
-// import androidx.compose.remote.creation.compose.action.valueChange
+// import androidx.compose.remote.creation.compose.action.valueChangeAction
 // import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 // import androidx.compose.remote.creation.compose.layout.RemoteBox
 // import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -196,7 +196,7 @@
 ////                    .height(rad * 2)
 ////                    .background(RemoteColor(Color.Yellow))
 ////                    .onClick {
-////                        valueChange(selected, idx)
+////                        valueChangeAction(selected, idx)
 ////                        hostAction(RemoteString(" select "), selected)
 ////                    }
 ////            ) {
@@ -204,7 +204,7 @@
 //                    modifier = RemoteModifier.fillMaxSize()
 //
 //                        .onClick {
-//                            valueChange(selected, idx.toRemoteFloat())
+//                            valueChangeAction(selected, idx.toRemoteFloat())
 //                            hostAction(RemoteString(" select $objIndex"), RemoteString(" select
 // $objIndex"))
 //                        }
@@ -365,7 +365,7 @@
 //                    .height(rad * 2)
 //                    .background(RemoteColor(Color.Yellow))
 //                    .onClick {
-//                        valueChange(selected, idx)
+//                        valueChangeAction(selected, idx)
 //                        hostAction(RemoteString(" select "), selected)
 //                    }
 //            ) {
@@ -373,7 +373,7 @@
 //                    modifier = RemoteModifier.fillMaxSize()
 //                        .background(RemoteColor(Color.Red))
 //                        .onClick {
-//                            valueChange(selected, idx)
+//                            valueChangeAction(selected, idx)
 //                            hostAction(RemoteString(" select $objIndex"), RemoteString(" select
 // $objIndex"))
 //                        }

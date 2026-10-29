@@ -24,7 +24,7 @@ import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -308,7 +308,7 @@ class RcPlayerRecompositionAndRepaintTest {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.semantics { contentDescription = "animBox".rs }
-                                        .clickable(valueChange(target, 150f.rf))
+                                        .clickable(valueChangeAction(target, 150f.rf))
                                         .width(animated)
                                         .height(10.rdp)
                             )
@@ -412,7 +412,7 @@ class RcPlayerRecompositionAndRepaintTest {
                                     RemoteModifier.semantics {
                                             contentDescription = "interactiveSecBox".rs
                                         }
-                                        .clickable(valueChange(interactiveExtra, 40f.rf))
+                                        .clickable(valueChangeAction(interactiveExtra, 40f.rf))
                                         .width(secWidth)
                                         .height(10.rdp)
                             )

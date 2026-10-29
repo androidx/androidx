@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -48,8 +48,8 @@ public fun RemoteStepperDefault() {
     RemoteStepper(
         value = value,
         steps = 4,
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     ) {
         RemoteText(value.toRemoteInt().toRemoteString())
     }
@@ -91,8 +91,8 @@ public fun RemoteStepperCustomColors() {
                 buttonContainerColor = RemoteColor(Color(0xFFFF6F61)),
                 buttonIconColor = RemoteColor(Color.Black),
             ),
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     ) {
         RemoteText(value.toRemoteInt().toRemoteString())
     }

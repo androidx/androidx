@@ -218,7 +218,7 @@ class RemoteColorTest {
     fun tween0() {
         val red = RemoteColor(AndroidColor.RED)
         val green = RemoteColor(AndroidColor.GREEN)
-        val result = tween(red, green, RemoteFloat(0f))
+        val result = lerp(red, green, RemoteFloat(0f))
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -245,10 +245,10 @@ class RemoteColorTest {
             }
         val green = RemoteColor(AndroidColor.GREEN)
 
-        val result0 = tween(green, red, RemoteFloat(0.26f))
+        val result0 = lerp(green, red, RemoteFloat(0.26f))
         val result0Id = result0.getIdForCreationState(creationState)
 
-        val result = tween(red, green, RemoteFloat(0.25f))
+        val result = lerp(red, green, RemoteFloat(0.25f))
         val resultId = result.getIdForCreationState(creationState)
 
         makeAndPaintCoreDocument()
@@ -261,7 +261,7 @@ class RemoteColorTest {
     fun tween0_25() {
         val red = RemoteColor(AndroidColor.RED)
         val green = RemoteColor(AndroidColor.GREEN)
-        val result = tween(red, green, RemoteFloat(0.25f))
+        val result = lerp(red, green, RemoteFloat(0.25f))
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -272,7 +272,7 @@ class RemoteColorTest {
     fun tween0_75() {
         val red = RemoteColor(AndroidColor.RED)
         val green = RemoteColor(AndroidColor.GREEN)
-        val result = tween(red, green, RemoteFloat(0.75f))
+        val result = lerp(red, green, RemoteFloat(0.75f))
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -283,7 +283,7 @@ class RemoteColorTest {
     fun tween1() {
         val red = RemoteColor(AndroidColor.RED)
         val green = RemoteColor(AndroidColor.GREEN)
-        val result = tween(red, green, RemoteFloat(1f))
+        val result = lerp(red, green, RemoteFloat(1f))
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -292,7 +292,7 @@ class RemoteColorTest {
 
     @Test
     fun tweenColorInt() {
-        val result = tween(AndroidColor.RED, AndroidColor.GREEN, RemoteFloat(0.25f))
+        val result = lerp(AndroidColor.RED, AndroidColor.GREEN, RemoteFloat(0.25f))
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
 
@@ -636,7 +636,7 @@ class RemoteColorTest {
         val color = createNamedRemoteColor("color", Color.Red)
         val tweenFactor = 0.5f.rf
 
-        val tweened = tween(color, color, tweenFactor)
+        val tweened = lerp(color, color, tweenFactor)
         assertThat(tweened).isSameInstanceAs(color)
     }
 
@@ -645,7 +645,7 @@ class RemoteColorTest {
         val colorInt = Color.Red.toArgb()
         val tweenFactor = 0.5f.rf
 
-        val tweened = tween(colorInt, colorInt, tweenFactor)
+        val tweened = lerp(colorInt, colorInt, tweenFactor)
         assertThat(tweened.asConstantColorOrNull()).isEqualTo(Color.Red)
     }
 

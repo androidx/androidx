@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -79,7 +79,7 @@ class RcPlayerDrawAnimationTest {
             val paint = RemotePaint { style = PaintingStyle.Fill }
             RemoteBox(
                 RemoteModifier.size(100.rdp)
-                    .clickable(valueChange(toggled, toggled.select(false.rb, true.rb)))
+                    .clickable(valueChangeAction(toggled, toggled.select(false.rb, true.rb)))
                     .drawWithContent {
                         paint.color = Color.Black.rc.copy(green = progress)
                         drawRect(paint)

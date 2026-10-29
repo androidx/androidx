@@ -1333,16 +1333,16 @@ class RemoteFloatTest {
     @Test
     fun remoteEasing_spline_defensiveCopy() {
         val points = floatArrayOf(0f, 0f, 1f, 1f)
-        val easing = RemoteEasing.Spline(points)
+        val easing = RemoteEasing.spline(points)
         points[0] = 99f
         assertThat(easing.spec!![0]).isEqualTo(0f)
     }
 
     @Test
     fun remoteEasing_equalsAndHashCode() {
-        val easing1 = RemoteEasing.Cubic(0.2f, 0.4f, 0.6f, 0.8f)
-        val easing2 = RemoteEasing.Cubic(0.2f, 0.4f, 0.6f, 0.8f)
-        val easing3 = RemoteEasing.Cubic(0.1f, 0.4f, 0.6f, 0.8f)
+        val easing1 = RemoteEasing.cubic(0.2f, 0.4f, 0.6f, 0.8f)
+        val easing2 = RemoteEasing.cubic(0.2f, 0.4f, 0.6f, 0.8f)
+        val easing3 = RemoteEasing.cubic(0.1f, 0.4f, 0.6f, 0.8f)
 
         assertThat(easing1).isEqualTo(easing2)
         assertThat(easing1.hashCode()).isEqualTo(easing2.hashCode())

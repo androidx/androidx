@@ -43,11 +43,11 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -131,7 +131,7 @@ public fun RemoteSplitSwitchButton(
                     .heightIn(min = RemoteSplitSwitchButtonDefaults.Height)
                     .clip(startSectionShape)
                     .clickable(
-                        action = onContainerClick,
+                        onClick = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onContainerClick != RemoteAction.Empty,
@@ -189,7 +189,7 @@ public fun RemoteSplitSwitchButton(
                     .heightIn(min = RemoteSplitSwitchButtonDefaults.Height)
                     .clip(endSectionShape)
                     .clickable(
-                        action = onCheckedChange,
+                        onClick = onCheckedChange,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onCheckedChange != RemoteAction.Empty,
@@ -615,7 +615,7 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedContainerColor, checkedContainerColor, it) }
+                progress?.let { lerp(uncheckedContainerColor, checkedContainerColor, it) }
                     ?: checked.select(checkedContainerColor, uncheckedContainerColor),
             ifFalse =
                 checked.select(disabledCheckedContainerColor, disabledUncheckedContainerColor),
@@ -629,7 +629,7 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedContentColor, checkedContentColor, it) }
+                progress?.let { lerp(uncheckedContentColor, checkedContentColor, it) }
                     ?: checked.select(checkedContentColor, uncheckedContentColor),
             ifFalse = checked.select(disabledCheckedContentColor, disabledUncheckedContentColor),
         )
@@ -643,7 +643,7 @@ public class RemoteSplitSwitchButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(uncheckedSecondaryContentColor, checkedSecondaryContentColor, it)
+                    lerp(uncheckedSecondaryContentColor, checkedSecondaryContentColor, it)
                 } ?: checked.select(checkedSecondaryContentColor, uncheckedSecondaryContentColor),
             ifFalse =
                 checked.select(
@@ -661,7 +661,7 @@ public class RemoteSplitSwitchButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(uncheckedSplitContainerColor, checkedSplitContainerColor, it)
+                    lerp(uncheckedSplitContainerColor, checkedSplitContainerColor, it)
                 } ?: checked.select(checkedSplitContainerColor, uncheckedSplitContainerColor),
             ifFalse =
                 checked.select(
@@ -678,7 +678,7 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedThumbColor, checkedThumbColor, it) }
+                progress?.let { lerp(uncheckedThumbColor, checkedThumbColor, it) }
                     ?: checked.select(checkedThumbColor, uncheckedThumbColor),
             ifFalse = checked.select(disabledCheckedThumbColor, disabledUncheckedThumbColor),
         )
@@ -691,10 +691,10 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(Color.Transparent.rc, checkedThumbIconColor, it) }
+                progress?.let { lerp(Color.Transparent.rc, checkedThumbIconColor, it) }
                     ?: checked.select(checkedThumbIconColor, Color.Transparent.rc),
             ifFalse =
-                progress?.let { tween(Color.Transparent.rc, disabledCheckedThumbIconColor, it) }
+                progress?.let { lerp(Color.Transparent.rc, disabledCheckedThumbIconColor, it) }
                     ?: checked.select(disabledCheckedThumbIconColor, Color.Transparent.rc),
         )
 
@@ -706,10 +706,10 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedTrackColor, checkedTrackColor, it) }
+                progress?.let { lerp(uncheckedTrackColor, checkedTrackColor, it) }
                     ?: checked.select(checkedTrackColor, uncheckedTrackColor),
             ifFalse =
-                progress?.let { tween(Color.Transparent.rc, disabledCheckedTrackColor, it) }
+                progress?.let { lerp(Color.Transparent.rc, disabledCheckedTrackColor, it) }
                     ?: checked.select(disabledCheckedTrackColor, Color.Transparent.rc),
         )
 
@@ -721,7 +721,7 @@ public class RemoteSplitSwitchButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedTrackBorderColor, checkedTrackBorderColor, it) }
+                progress?.let { lerp(uncheckedTrackBorderColor, checkedTrackBorderColor, it) }
                     ?: checked.select(checkedTrackBorderColor, uncheckedTrackBorderColor),
             ifFalse =
                 checked.select(disabledCheckedTrackBorderColor, disabledUncheckedTrackBorderColor),

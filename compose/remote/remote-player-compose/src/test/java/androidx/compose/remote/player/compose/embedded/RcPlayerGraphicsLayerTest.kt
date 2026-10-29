@@ -30,7 +30,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -232,7 +232,7 @@ class RcPlayerGraphicsLayerTest {
                     modifier =
                         RemoteModifier.size(20.rdp)
                             .semantics { contentDescription = "movePivot".rs }
-                            .clickable(action = valueChange(origin, 1f.rf))
+                            .clickable(onClick = valueChangeAction(origin, 1f.rf))
                 )
             }
         }
@@ -289,7 +289,7 @@ class RcPlayerGraphicsLayerTest {
                     modifier =
                         RemoteModifier.size(20.rdp)
                             .semantics { contentDescription = "scaleButton".rs }
-                            .clickable(action = valueChange(scaleVar, 3f.rf))
+                            .clickable(onClick = valueChangeAction(scaleVar, 3f.rf))
                 )
             }
         }

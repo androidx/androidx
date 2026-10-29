@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
@@ -42,8 +42,8 @@ fun RemoteStepperSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteStepper(
         value = value,
         steps = 4,
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
         modifier = modifier,
     ) {
         RemoteText(value.toRemoteInt().toRemoteString())
@@ -59,8 +59,8 @@ fun RemoteStepperIntegerSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteStepper(
         value = value,
         steps = 4,
-        decreaseAction = valueChange(value, max(value - 1.ri, 0.ri)),
-        increaseAction = valueChange(value, min(value + 1.ri, 5.ri)),
+        decreaseAction = valueChangeAction(value, max(value - 1.ri, 0.ri)),
+        increaseAction = valueChangeAction(value, min(value + 1.ri, 5.ri)),
         modifier = modifier,
     ) {
         RemoteText(value.toRemoteString())

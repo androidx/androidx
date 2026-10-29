@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.a11y
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -124,7 +124,7 @@ class BasicA11yTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .clickable(valueChange(text, "Updated".rs))
+                        .clickable(valueChangeAction(text, "Updated".rs))
                         .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -149,7 +149,7 @@ class BasicA11yTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .clickable(valueChange(remoteInt, remoteInt + 1))
+                        .clickable(valueChangeAction(remoteInt, remoteInt + 1))
                         .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {
