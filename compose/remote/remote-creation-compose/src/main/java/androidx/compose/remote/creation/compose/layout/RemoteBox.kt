@@ -26,7 +26,7 @@ import androidx.compose.runtime.remember
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @Stable public class RemoteBoxScope
 
-internal class RemoteBoxNode : RemoteComposeNode() {
+internal class RemoteBoxNode : RemoteLayoutNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
 
@@ -63,7 +63,7 @@ public fun RemoteBox(
     content: @Composable () -> Unit,
 ) {
     val scope = remember { RemoteBoxScope() }
-    RemoteComposeNode(
+    RemoteLayoutNode(
         factory = ::RemoteBoxNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }

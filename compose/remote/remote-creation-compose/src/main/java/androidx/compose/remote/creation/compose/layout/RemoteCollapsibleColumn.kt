@@ -63,7 +63,7 @@ public class RemoteCollapsibleColumnScope {
         then(CollapsiblePriorityModifier(CollapsiblePriority.VERTICAL, RemoteFloat(priority)))
 }
 
-internal class RemoteCollapsibleColumnNode : RemoteComposeNode() {
+internal class RemoteCollapsibleColumnNode : RemoteLayoutNode() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
 
@@ -110,7 +110,7 @@ public fun RemoteCollapsibleColumn(
     content: @Composable RemoteCollapsibleColumnScope.() -> Unit,
 ) {
     val scope = remember { RemoteCollapsibleColumnScope() }
-    RemoteComposeNode(
+    RemoteLayoutNode(
         factory = ::RemoteCollapsibleColumnNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }

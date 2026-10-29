@@ -21,7 +21,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 
-internal class RemoteFitBoxNode : RemoteComposeNode() {
+internal class RemoteFitBoxNode : RemoteLayoutNode() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
 
@@ -63,7 +63,7 @@ public fun RemoteFitBox(
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Center,
     content: @RemoteComposable @Composable () -> Unit = {},
 ) {
-    RemoteComposeNode(
+    RemoteLayoutNode(
         factory = ::RemoteFitBoxNode,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }
