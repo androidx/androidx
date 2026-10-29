@@ -540,6 +540,41 @@ class StatusBarTest {
     }
 
     @Test
+    fun appScaffold_withInitialScreenDisablingStatusBar_neverShowsStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                AppScaffold {
+                    ScreenScaffold(timeText = {}) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        Assert.assertEquals(
+            "show() should never be called when initial screen disables status bar",
+            0,
+            testView.testController.showCount,
+        )
+        Assert.assertEquals(
+            "hide() should be called upon initialization",
+            1,
+            testView.testController.hideCount,
+        )
+    }
+
+    @Test
     fun screenScaffold_padding_isolatedFromOverlayScreenWithDisabledMode() {
         var backgroundScreenTopPadding = 0.dp
         var expectedStatusBarTopPadding = 0.dp
@@ -1019,6 +1054,38 @@ class StatusBarTest {
         orchestrator.restoreInitialStatusBarState()
         Assert.assertEquals(
             "restoreInitialStatusBarState() should invoke show() to restore initial state",
+            1,
+            testView.testController.showCount,
+        )
+    }
+
+    @Test
+    fun statusBarOrchestrator_consecutiveCalls_isIdempotent() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        Assert.assertNull(testView.rootWindowInsets)
+
+        val orchestrator = StatusBarOrchestrator(testView)
+
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+
+        orchestrator.hide()
+        orchestrator.hide()
+        orchestrator.hide()
+
+        Assert.assertEquals(
+            "hide() should only be invoked once for redundant calls",
+            1,
+            testView.testController.hideCount,
+        )
+
+        orchestrator.show()
+        orchestrator.show()
+
+        Assert.assertEquals(
+            "show() should only be invoked once for redundant calls",
             1,
             testView.testController.showCount,
         )
