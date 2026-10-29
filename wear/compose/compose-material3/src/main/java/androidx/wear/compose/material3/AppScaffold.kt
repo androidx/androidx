@@ -23,12 +23,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -136,34 +134,9 @@ public fun AppScaffold(
     // the orchestrator to actively hide the system bar when disabled and honor per-screen
     // overrides.
     if (LocalStatusBarEnabled.current) {
-        val showStatusBarOverlay by remember {
-            derivedStateOf {
-                val screenContent = scaffoldState.screenContent
-                if (!screenContent.shouldActiveWindowShowStatusBar.value)
-                    return@derivedStateOf false
-
-                val stage = screenContent.screenStage.value
-                val provider = screenContent.currentScrollInfoProvider.value
-                val offset = screenContent.currentAnchorItemOffset.value
-
-                stage != ScreenStage.Scrolling ||
-                    provider?.isScrollAwayValid != true ||
-                    (!offset.isNaN() && offset <= 0f)
-            }
-        }
-
         // Restores all status bar states when AppScaffold leaves composition.
         DisposableEffect(scaffoldState) {
             onDispose { scaffoldState.screenContent.cleanupAllOrchestrators() }
-        }
-
-        LaunchedEffect(scaffoldState) {
-            snapshotFlow {
-                scaffoldState.screenContent.currentActiveOrchestrator.value to showStatusBarOverlay
-            }
-                .collect { (orchestrator, show) ->
-                    if (show) orchestrator.show() else orchestrator.hide()
-                }
         }
     }
 
@@ -191,6 +164,44 @@ public fun AppScaffold(
                 }
             }
         }
+    }
+
+    if (LocalStatusBarEnabled.current) {
+        StatusBarVisibilitySynchronization(scaffoldState)
+    }
+}
+
+@Composable
+private fun StatusBarVisibilitySynchronization(scaffoldState: AppScaffoldState) {
+    val showStatusBarOverlay by
+        remember(scaffoldState) {
+            derivedStateOf {
+                val screenContent = scaffoldState.screenContent
+                if (!screenContent.shouldActiveWindowShowStatusBar.value) {
+                    return@derivedStateOf false
+                }
+
+                val stage = screenContent.screenStage.value
+                val provider = screenContent.currentScrollInfoProvider.value
+                val offset = screenContent.currentAnchorItemOffset.value
+
+                stage != ScreenStage.Scrolling ||
+                    provider?.isScrollAwayValid != true ||
+                    (!offset.isNaN() && offset <= 0f)
+            }
+        }
+
+    val orchestrator = scaffoldState.screenContent.currentActiveOrchestrator.value
+    DisposableEffect(orchestrator, showStatusBarOverlay) {
+        if (showStatusBarOverlay) {
+            orchestrator.show()
+        } else {
+            orchestrator.hide()
+        }
+        // Intentionally empty: restoring here would cause a flicker on every key change.
+        // Teardown is already handled by cleanupAllOrchestrators() when AppScaffold
+        // leaves composition.
+        onDispose {}
     }
 }
 

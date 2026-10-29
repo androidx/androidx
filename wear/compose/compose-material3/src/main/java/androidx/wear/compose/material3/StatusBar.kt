@@ -566,6 +566,12 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
     private var hasMutatedStatusBar: Boolean = false
 
     /**
+     * Tracks the last visibility successfully applied by this orchestrator to prevent redundant
+     * mutations to [View.getWindowInsetsController].
+     */
+    private var appliedStatusBarVisibility: Boolean? = null
+
+    /**
      * Listener attached to [view] when initialized before window attachment.
      *
      * Lifecycle & Management:
@@ -742,6 +748,7 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
             } else {
                 v.windowInsetsController?.hide(WindowInsets.Type.statusBars())
             }
+            appliedStatusBarVisibility = visible
             hasMutatedStatusBar = false
         } catch (e: Exception) {
             // Swallowing exceptions here as WindowInsetsController is a newer API whose
@@ -776,12 +783,15 @@ private class StatusBarOrchestratorImpl(view: View) : StatusBarOrchestrator {
             val targetVisibility = desiredStatusBarVisibility ?: return
             val controller = v.windowInsetsController ?: return
 
+            if (targetVisibility == appliedStatusBarVisibility) return
+
             try {
                 if (targetVisibility) {
                     controller.show(WindowInsets.Type.statusBars())
                 } else {
                     controller.hide(WindowInsets.Type.statusBars())
                 }
+                appliedStatusBarVisibility = targetVisibility
                 hasMutatedStatusBar = true
             } catch (e: Exception) {
                 // Swallowing exceptions here as WindowInsetsController is a newer API whose
