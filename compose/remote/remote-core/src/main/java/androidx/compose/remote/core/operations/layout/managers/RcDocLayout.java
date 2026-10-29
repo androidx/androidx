@@ -993,6 +993,26 @@ public class RcDocLayout extends LayoutManager implements VariableSupport, Touch
         }
 
         @Override
+        public float getTouchSlop() {
+            return mHostContext.getTouchSlop();
+        }
+
+        @Override
+        public float getDoubleTapSlop() {
+            return mHostContext.getDoubleTapSlop();
+        }
+
+        @Override
+        public long getLongPressTimeoutMillis() {
+            return mHostContext.getLongPressTimeoutMillis();
+        }
+
+        @Override
+        public long getDoubleTapTimeoutMillis() {
+            return mHostContext.getDoubleTapTimeoutMillis();
+        }
+
+        @Override
         public @Nullable RcResolver getRcResolver() {
             return mHostContext.getRcResolver();
         }
