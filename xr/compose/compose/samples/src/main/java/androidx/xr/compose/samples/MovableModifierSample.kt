@@ -25,14 +25,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy
 import androidx.xr.compose.subspace.layout.MovePolicy
+import androidx.xr.compose.subspace.layout.PlaneOrientation
+import androidx.xr.compose.subspace.layout.PlaneSemantic
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.rotate
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.math.Quaternion
 
 /** A sample demonstrating a simple movable component. */
@@ -73,5 +79,31 @@ public fun CustomMovableSample() {
                 .rotate(rotation)
     ) {
         Text("The user can move me around!")
+    }
+}
+
+/** A sample demonstrating a movable component that anchors to real-world planes. */
+@OptIn(ExperimentalMoveAnchorPolicy::class)
+@Sampled
+@SubspaceComposable
+@Composable
+public fun AnchorMovableSample() {
+    val session = LocalSession.current ?: return
+    session.configure(
+        Config.Builder(session.config)
+            .setPlaneTracking(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+            .build()
+    )
+    SpatialPanel(
+        modifier =
+            SubspaceModifier.movable(
+                movePolicy =
+                    MovePolicy.anchor(
+                        anchorPlaneOrientations = setOf(PlaneOrientation.Horizontal),
+                        anchorPlaneSemantics = setOf(PlaneSemantic.Table),
+                    )
+            )
+    ) {
+        Text("Snap me to a table!")
     }
 }
