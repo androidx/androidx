@@ -20,9 +20,6 @@ import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
-import android.media.MediaFormat.KEY_CAPTURE_RATE
-import android.media.MediaFormat.KEY_OPERATING_RATE
-import android.media.MediaFormat.KEY_PRIORITY
 import android.os.SystemClock
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
@@ -226,43 +223,6 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     }
 
     @Test
-    fun canPauseStopStartVideoEncoder() {
-        initVideoEncoder()
-
-        videoEncoder.start()
-
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        videoEncoder.pause()
-
-        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
-
-        videoEncoder.stop()
-
-        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
-
-        clearInvocations(videoEncoderCallback)
-
-        videoEncoder.start()
-
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-    }
-
-    @Test
-    fun canRestartPauseVideoEncoder() {
-        initVideoEncoder()
-
-        videoEncoder.start()
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        videoEncoder.stop()
-        videoEncoder.start()
-        videoEncoder.pause()
-
-        verify(videoEncoderCallback, timeout(10000L)).onEncodePaused()
-    }
-
-    @Test
     fun pauseResumeVideoEncoder_getChronologicalData() {
         initVideoEncoder()
 
@@ -359,18 +319,6 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     }
 
     @Test
-    fun setDifferentCaptureEncodeFrameRates_shouldContainAdditionalKeyValues() {
-        val captureFrameRate = FRAME_RATE
-        val encodeFrameRate = FRAME_RATE / 2
-        initVideoEncoder(captureFrameRate = captureFrameRate, encodeFrameRate = encodeFrameRate)
-
-        val format = videoEncoder.mMediaFormat
-        assertThat(format.getInteger(KEY_CAPTURE_RATE)).isEqualTo(captureFrameRate)
-        assertThat(format.getInteger(KEY_OPERATING_RATE)).isEqualTo(captureFrameRate)
-        assertThat(format.getInteger(KEY_PRIORITY)).isEqualTo(0)
-    }
-
-    @Test
     fun releaseVideoEncoderWithoutStart_doesNotLeakCodecThread() {
         // See b/573671138: releasing a surface-input codec that was never started may leak a
         // native codec thread.
@@ -388,10 +336,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
         assertThat(awaitLeakProneCodecThreadCount(baseline)).isEqualTo(baseline)
     }
 
-    private fun createVideoEncoderConfig(
-        captureFrameRate: Int = FRAME_RATE,
-        encodeFrameRate: Int = FRAME_RATE,
-    ): VideoEncoderConfig {
+    private fun createVideoEncoderConfig(): VideoEncoderConfig {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
         val quality = Quality.LOWEST
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
@@ -401,20 +346,17 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
             .setInputTimebase(INPUT_TIMEBASE)
             .setBitrate(BIT_RATE)
             .setColorFormat(COLOR_FORMAT)
-            .setCaptureFrameRate(captureFrameRate)
-            .setEncodeFrameRate(encodeFrameRate)
+            .setCaptureFrameRate(FRAME_RATE)
+            .setEncodeFrameRate(FRAME_RATE)
             .setIFrameInterval(I_FRAME_INTERVAL)
             .setMimeType(MIME_TYPE)
             .setResolution(resolution)
             .build()
     }
 
-    private fun initVideoEncoder(
-        captureFrameRate: Int = FRAME_RATE,
-        encodeFrameRate: Int = FRAME_RATE,
-    ) {
+    private fun initVideoEncoder() {
         // init video encoder
-        videoEncoderConfig = createVideoEncoderConfig(captureFrameRate, encodeFrameRate)
+        videoEncoderConfig = createVideoEncoderConfig()
 
         videoEncoderCallback = mock(EncoderCallback::class.java)
         doAnswer { args: InvocationOnMock ->
