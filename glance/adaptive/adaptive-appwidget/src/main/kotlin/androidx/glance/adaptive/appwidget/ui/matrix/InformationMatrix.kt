@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.adaptive.appwidget.ui.components.estimateTextWidthDp
+import androidx.glance.adaptive.appwidget.ui.components.fitMetric
+import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
+import androidx.glance.adaptive.appwidget.ui.selection.from
 import androidx.glance.adaptive.core.ui.selection.HeightTier
 import androidx.glance.adaptive.core.ui.selection.SizeTiers
 import androidx.glance.adaptive.core.ui.selection.WidthTier
@@ -33,6 +37,21 @@ import androidx.glance.adaptive.core.ui.selection.WidthTier
  * radius, and the header's width budget. Each backend's matrix renderer then draws the resolved
  * matrix, so a new template writes one mapping that works on every backend.
  */
+
+/**
+ * Largest share of a row header's content width the secondary text may take, so a long secondary
+ * text is ellipsized before it squeezes out the primary text.
+ */
+private const val MATRIX_SECONDARY_MAX_WIDTH_FRACTION = 0.4f
+
+/** Least padding a stacked card gives up to keep its leading component at its full size. */
+private const val MIN_STACKED_PADDING_DP = 8f
+
+/**
+ * Smallest diameter of the bulb's circle, so a newly pinned widget the host has not sized yet still
+ * draws a valid bulb rather than collapsing.
+ */
+private const val MIN_BULB_CONTAINER_DP = 48f
 
 /** Defaults every Information Matrix shares, which a card may override. */
 internal object MatrixDefaults {
@@ -160,6 +179,8 @@ internal class MatrixBulbContent(val component: BulbComponent) : MatrixContent
  *   when empty.
  * @property primaryTextSize Type size of [primary].
  * @property secondary Component in the secondary slot, or `null` when hidden.
+ * @property secondaryMaxWidth Widest [secondary] may be drawn before it is ellipsized, or `null`
+ *   when it has the whole content width to itself.
  * @property hero Component in the hero slot, or `null` when hidden.
  * @property actions The action positions of the bottom row; empty when hidden.
  */
@@ -174,6 +195,7 @@ internal class ResolvedMatrixCard(
     val primary: PrimaryComponent?,
     val primaryTextSize: TextUnit,
     val secondary: SecondaryComponent?,
+    val secondaryMaxWidth: Dp?,
     val hero: HeroComponent?,
     val actions: List<ActionComponent?>,
 )
@@ -185,3 +207,161 @@ internal class ResolvedMatrixCard(
  * @property containerSize Diameter of the circle the component sits in.
  */
 internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSize: Dp)
+
+/**
+ * Lays [content] out for its placement on [surface].
+ *
+ * The tiers decide the defaults; the container's width decides the header's horizontal budget: a
+ * stacked header's leading component is alone across the content width, so a column narrower than
+ * it gives up padding first (down to 8 dp) and only then shrinks the leading component. In a row,
+ * the primary text gets what the leading component, the secondary text and the gaps leave, and is
+ * shortened to fit it; the secondary text takes at most 40% of the row, and is ellipsized past it.
+ * On the lock screen, sensitive text is replaced first.
+ *
+ * @param content The components to lay out.
+ * @param surface The target surface, carrying the container size as
+ *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions].
+ * @return The laid out card.
+ */
+internal fun resolve(
+    content: MatrixCardContent,
+    surface: AppWidgetSurface,
+): ResolvedMatrixCard {
+    val dimensions = surface.dimensions
+    val tiers = SizeTiers.from(dimensions, surface)
+    val widthDp = dimensions.widthDp.toFloat()
+    val stacked = MatrixDefaults.isStacked(tiers)
+    val spacingDp = (content.slotSpacing ?: MatrixDefaults.slotSpacing(tiers)).value
+    val leading = content.leading
+    // TODO(b/578041570): Keep both the value and its sensitive replacement and let the renderer
+    //  pick, so a RemoteCompose renderer can redact at runtime. fitTo must then keep the
+    //  replacement too, and fit it separately.
+    val locked = surface == AppWidgetSurface.MOBILE_LOCK_SCREEN
+    val leadingDefaultDp = MatrixDefaults.LeadingSize.value
+
+    var paddingDp = (content.padding ?: MatrixDefaults.padding(tiers)).value
+    if (stacked && leading != null && widthDp > 0f && content.padding == null) {
+        paddingDp =
+            paddingDp.coerceAtMost(
+                ((widthDp - leadingDefaultDp) / 2f).coerceAtLeast(MIN_STACKED_PADDING_DP)
+            )
+    }
+    val contentWidthDp = widthDp - 2 * paddingDp
+    val leadingSizeDp =
+        when {
+            leading == null -> 0f
+            stacked && widthDp > 0f ->
+                leadingDefaultDp.coerceAtMost(contentWidthDp).coerceAtLeast(0f)
+            else -> leadingDefaultDp
+        }
+
+    val secondary = content.secondary?.shownOn(locked)
+    // A stacked secondary text has a line to itself, and an unsized container has no width to
+    // share.
+    val secondaryMaxWidthDp =
+        if (!stacked && secondary != null && widthDp > 0f) {
+            (contentWidthDp * MATRIX_SECONDARY_MAX_WIDTH_FRACTION).coerceAtLeast(0f)
+        } else {
+            null
+        }
+    val primaryTextSize = MatrixDefaults.primaryTextSize(tiers)
+    var primaryMaxWidthDp = contentWidthDp
+    if (!stacked) {
+        if (leading != null) primaryMaxWidthDp -= leadingSizeDp + MatrixDefaults.HeaderSpacing.value
+        secondary?.let {
+            val secondaryWidthDp = it.estimatedWidthDp()
+            primaryMaxWidthDp -=
+                MatrixDefaults.HeaderSpacing.value +
+                    secondaryWidthDp.coerceAtMost(secondaryMaxWidthDp ?: secondaryWidthDp)
+        }
+    }
+    primaryMaxWidthDp = primaryMaxWidthDp.coerceAtLeast(0f)
+
+    return ResolvedMatrixCard(
+        tiers = tiers,
+        padding = paddingDp.dp,
+        slotSpacing = spacingDp.dp,
+        cornerRadius = content.cornerRadius ?: MatrixDefaults.CornerRadius,
+        stacked = stacked,
+        leading = leading,
+        leadingSize = leadingSizeDp.dp,
+        primary = content.primary?.shownOn(locked)?.fitTo(primaryMaxWidthDp, primaryTextSize),
+        primaryTextSize = primaryTextSize,
+        secondary = secondary,
+        secondaryMaxWidth = secondaryMaxWidthDp?.dp,
+        hero = content.hero,
+        actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) },
+    )
+}
+
+/** This component shortened to fit [maxWidthDp] at [textSize]. */
+private fun PrimaryComponent.fitTo(
+    maxWidthDp: Float,
+    textSize: TextUnit,
+): PrimaryComponent =
+    when (this) {
+        is TemplateText -> TemplateText(fitMetric(value, maxWidthDp, textSize))
+    }
+
+/** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
+private fun PrimaryComponent.shownOn(locked: Boolean): PrimaryComponent =
+    when (this) {
+        is TemplateText -> redactedIf(locked)
+    }
+
+/** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
+private fun SecondaryComponent.shownOn(locked: Boolean): SecondaryComponent =
+    when (this) {
+        is TemplateText -> redactedIf(locked)
+    }
+
+/** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
+private fun ActionComponent.shownOn(locked: Boolean): ActionComponent =
+    when (this) {
+        is TemplateText -> redactedIf(locked)
+        is Badge -> this
+    }
+
+/** This text, or its sensitive replacement when [locked]. */
+private fun TemplateText.redactedIf(locked: Boolean): TemplateText {
+    val replacement = sensitiveReplacement
+    return if (locked && replacement != null) TemplateText(replacement) else this
+}
+
+/** Width this component takes beside the primary slot, in DP. */
+private fun SecondaryComponent.estimatedWidthDp(): Float =
+    when (this) {
+        is TemplateText -> estimateTextWidthDp(value, MatrixDefaults.SecondaryTextSize.value)
+    }
+
+/**
+ * Lays [content] out for its placement on [surface]: the circle spans the container's shorter side.
+ * On the lock screen, a sensitive value is replaced first.
+ *
+ * @param content The component to lay out.
+ * @param surface The target surface, carrying the container size as
+ *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions].
+ * @return The laid out bulb.
+ */
+internal fun resolve(
+    content: MatrixBulbContent,
+    surface: AppWidgetSurface,
+): ResolvedMatrixBulb {
+    // TODO(b/578041570): As for the card, keep both values for a runtime-redacting renderer.
+    val locked = surface == AppWidgetSurface.MOBILE_LOCK_SCREEN
+    val dimensions = surface.dimensions
+    val containerDp =
+        minOf(dimensions.widthDp, dimensions.heightDp)
+            .toFloat()
+            .coerceAtLeast(MIN_BULB_CONTAINER_DP)
+    return ResolvedMatrixBulb(content.component.shownOn(locked), containerDp.dp)
+}
+
+/** This component as the surface shows it: on the lock screen, a sensitive value is replaced. */
+private fun BulbComponent.shownOn(locked: Boolean): BulbComponent =
+    when (this) {
+        is ContainedRing -> {
+            val replacement = sensitiveReplacement
+            if (locked && replacement != null) ContainedRing(progress, replacement, icon) else this
+        }
+    }
