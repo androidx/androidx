@@ -90,7 +90,9 @@ constructor(
      *
      * When a non-null [session] is provided, the slow path starts with
      * [CoroutineStart.UNDISPATCHED] so that synchronous operations on [session] execute immediately
-     * before the caller closes the session.
+     * before the caller closes the session. If the returned [Deferred] is cancelled while waiting
+     * on the slow path, cancellation is propagated to the underlying [Deferred] created by
+     * [action].
      */
     private inline fun <T> runOnSequential(
         session: CameraGraph.Session? = null,
@@ -103,7 +105,15 @@ constructor(
 
         // Slow path: initialize on background thread (or undispatched if holding an active session)
         val start = if (session != null) CoroutineStart.UNDISPATCHED else CoroutineStart.DEFAULT
-        return threads.sequentialScope.async(start = start) { getOrCreateImpl().action().await() }
+        return threads.sequentialScope.async(start = start) {
+            val deferred = getOrCreateImpl().action()
+            try {
+                deferred.await()
+            } catch (e: CancellationException) {
+                deferred.cancel(e)
+                throw e
+            }
+        }
     }
 
     /** Utility for methods returning List<Deferred<T>> (e.g. issueSingleCaptureAsync). */
@@ -230,8 +240,12 @@ constructor(
         )
     }
 
-    override fun cancelFocusAndMeteringAsync(): Deferred<Result3A> = runOnSequential {
-        cancelFocusAndMeteringAsync()
+    override fun cancelFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A> = runOnSequential {
+        cancelFocusAndMeteringAsync(aeRegions, afRegions, awbRegions)
     }
 
     override fun update3aRegions(

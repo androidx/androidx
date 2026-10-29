@@ -1441,6 +1441,82 @@ class FocusMeteringControlTest {
     }
 
     @Test
+    fun cancelFocusAndMetering_onlyAfSupported_unsupportedRegionsNotReset() = runTest {
+        // camera 5 supports 3 AF and 0 AE/AWB regions
+        focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_5)
+
+        focusMeteringControl.cancelFocusAndMeteringAsync().await()
+        advanceUntilIdle()
+
+        with(fakeRequestControl) {
+            assertWithMessage("AF regions should be reset to default")
+                .that(cancelAfRegions)
+                .isEqualTo(METERING_REGIONS_DEFAULT.toList())
+            assertWithMessage("Unsupported AE regions should not be reset")
+                .that(cancelAeRegions)
+                .isNull()
+            assertWithMessage("Unsupported AWB regions should not be reset")
+                .that(cancelAwbRegions)
+                .isNull()
+        }
+    }
+
+    @Test
+    fun cancelFocusAndMetering_no3ARegionsSupported_noRegionsReset() = runTest {
+        // camera 3 supports 0 AF/AE/AWB regions
+        focusMeteringControl = initFocusMeteringControl(cameraId = CAMERA_ID_3)
+
+        focusMeteringControl.cancelFocusAndMeteringAsync().await()
+        advanceUntilIdle()
+
+        with(fakeRequestControl) {
+            assertWithMessage("Unsupported AF regions should not be reset")
+                .that(cancelAfRegions)
+                .isNull()
+            assertWithMessage("Unsupported AE regions should not be reset")
+                .that(cancelAeRegions)
+                .isNull()
+            assertWithMessage("Unsupported AWB regions should not be reset")
+                .that(cancelAwbRegions)
+                .isNull()
+        }
+    }
+
+    @Test
+    fun startFocusAndMetering_afterCancelFocusAndMetering_doesNotCancelInFlightUnlockResult() =
+        runTest {
+            val pendingCancelResult = CompletableDeferred<Result3A>()
+            fakeRequestControl.cancelFocusMeteringResult = pendingCancelResult
+
+            focusMeteringControl.cancelFocusAndMeteringAsync()
+            assertThat(pendingCancelResult.isActive).isTrue()
+
+            focusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder(point1).build())
+
+            assertThat(pendingCancelResult.isCancelled).isFalse()
+        }
+
+    @Test
+    fun startFocusAndMetering_autoCancelTriggered_cancelsInFlightFocusMeteringResult() = runTest {
+        fakeRequestControl.focusMeteringResult = CompletableDeferred()
+        fakeRequestControl.focusAutoCompletesAfterTimeout = false
+
+        val action =
+            FocusMeteringAction.Builder(point1)
+                .setAutoCancelDuration(500, TimeUnit.MILLISECONDS)
+                .build()
+        val future = focusMeteringControl.startFocusAndMetering(action, autoFocusTimeoutMs = 1000L)
+        val inFlightResult = fakeRequestControl.lastFocusMeteringResult!!
+        assertThat(inFlightResult.isActive).isTrue()
+
+        advanceUntilIdle()
+        delay(1000)
+
+        assertFutureFailedWithOperationCancellation(future)
+        assertThat(inFlightResult.isCancelled).isTrue()
+    }
+
+    @Test
     fun startFocusAndMetering_lockingModeAeAfAwb_focusCallsWithCorrectLockBehaviors() = runTest {
         startFocusMeteringAndAwait(
             FocusMeteringAction.Builder(point1)

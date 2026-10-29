@@ -208,9 +208,13 @@ open class FakeUseCaseCameraRequestControl(
     var aeRegions: List<MeteringRectangle>? = null
     var afRegions: List<MeteringRectangle>? = null
     var awbRegions: List<MeteringRectangle>? = null
+    var cancelAeRegions: List<MeteringRectangle>? = null
+    var cancelAfRegions: List<MeteringRectangle>? = null
+    var cancelAwbRegions: List<MeteringRectangle>? = null
 
     val focusMeteringCalls = mutableListOf<FocusMeteringParams>()
     var focusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    var lastFocusMeteringResult: Deferred<Result3A>? = null
     var cancelFocusMeteringCallCount = 0
     var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
@@ -245,6 +249,7 @@ open class FakeUseCaseCameraRequestControl(
         )
 
         val currentResult = CompletableDeferred<Result3A>()
+        lastFocusMeteringResult = currentResult
         focusMeteringResult.propagateTo(currentResult)
 
         if (focusAutoCompletesAfterTimeout) {
@@ -269,7 +274,14 @@ open class FakeUseCaseCameraRequestControl(
         return currentResult
     }
 
-    override fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+    override fun cancelFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A> {
+        this.cancelAeRegions = aeRegions
+        this.cancelAfRegions = afRegions
+        this.cancelAwbRegions = awbRegions
         cancelFocusMeteringCallCount++
         return cancelFocusMeteringResult
     }

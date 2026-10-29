@@ -61,6 +61,24 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
 
     val submittedRequests = mutableListOf<Request>()
+    var lock3ACallCount = 0
+        private set
+
+    var lock3ASuspendGate: Deferred<Unit>? = null
+    var lock3AResult: Deferred<Result3A> = CompletableDeferred(Result3A(Result3A.Status.OK))
+    var unlock3ACallCount = 0
+        private set
+
+    var unlock3AResult: Deferred<Result3A> = CompletableDeferred(Result3A(Result3A.Status.OK))
+
+    data class Update3ACall(
+        val aeRegions: List<MeteringRectangle>?,
+        val afRegions: List<MeteringRectangle>?,
+        val awbRegions: List<MeteringRectangle>?,
+    )
+
+    val update3ACalls = mutableListOf<Update3ACall>()
+    val callOrder = mutableListOf<String>()
     var closeCount = 0
         private set
 
@@ -105,7 +123,10 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         convergedTimeLimitNs: Long,
         lockedTimeLimitNs: Long,
     ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
+        lock3ACallCount++
+        callOrder.add("lock3A")
+        lock3ASuspendGate?.await()
+        return lock3AResult
     }
 
     override suspend fun lock3AForCapture(
@@ -203,7 +224,9 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         frameLimit: Int,
         timeLimitNs: Long,
     ): Deferred<Result3A> {
-        throw NotImplementedError("Not used in testing")
+        unlock3ACallCount++
+        callOrder.add("unlock3A")
+        return unlock3AResult
     }
 
     override suspend fun unlock3APostCapture(cancelAf: Boolean): Deferred<Result3A> {
@@ -221,6 +244,8 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         awbRegions: List<MeteringRectangle>?,
         retainLocks: Boolean,
     ): Deferred<Result3A> {
+        update3ACalls.add(Update3ACall(aeRegions, afRegions, awbRegions))
+        callOrder.add("update3A")
         return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 

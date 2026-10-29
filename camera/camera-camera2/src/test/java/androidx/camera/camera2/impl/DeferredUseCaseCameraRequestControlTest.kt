@@ -285,4 +285,32 @@ class DeferredUseCaseCameraRequestControlImplTest {
                 )
             session.close()
         }
+
+    @Test
+    fun runOnSequential_cancelledBeforeExecution_doesNotInitializeOrCallImpl() = testScope.runTest {
+        useCaseThreads.sequentialExecutor.execute {
+            val outerDeferred = deferredControl.setTorchOnAsync()
+            outerDeferred.cancel()
+        }
+        advanceUntilIdle()
+
+        verify(mockImplProvider, never()).get()
+        verify(mockImpl, never()).setTorchOnAsync()
+    }
+
+    @Test
+    fun runOnSequential_cancelledWhileAwaitingOnSlowPath_cancelsUnderlyingDeferred() =
+        testScope.runTest {
+            val innerDeferred = CompletableDeferred<Result3A>()
+            `when`(mockImpl.setTorchOnAsync()).thenReturn(innerDeferred)
+
+            val outerDeferred = deferredControl.setTorchOnAsync()
+            advanceUntilIdle()
+            assertThat(innerDeferred.isActive).isTrue()
+
+            outerDeferred.cancel()
+            advanceUntilIdle()
+
+            assertThat(innerDeferred.isCancelled).isTrue()
+        }
 }

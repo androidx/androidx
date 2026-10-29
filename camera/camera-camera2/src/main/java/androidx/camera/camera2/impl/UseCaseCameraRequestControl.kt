@@ -22,13 +22,13 @@ import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.AnyThread
 import androidx.camera.camera2.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
+import androidx.camera.camera2.adapter.completeFailing
 import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.config.UseCaseCameraScope
 import androidx.camera.camera2.interop.configureWithUnchecked
 import androidx.camera.camera2.interop.getCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
@@ -53,11 +53,16 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
@@ -259,6 +264,7 @@ public interface UseCaseCameraRequestControl {
      *   actual AF triggering. See [androidx.camera.camera2.pipe.graph.Controller3A.lock3A] code
      *   flow for details.
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
+     *   Cancelling the returned [Deferred] cancels the in-flight 3A operation.
      */
     @AnyThread
     public fun startFocusAndMeteringAsync(
@@ -276,9 +282,20 @@ public interface UseCaseCameraRequestControl {
     /**
      * Asynchronously cancels any ongoing focus and metering operations.
      *
+     * @param aeRegions The auto-exposure regions to reset to, or `null` to leave the current AE
+     *   regions unchanged (e.g., when AE regions are not supported on this camera).
+     * @param afRegions The auto-focus regions to reset to, or `null` to leave the current AF
+     *   regions unchanged (e.g., when AF regions are not supported on this camera).
+     * @param awbRegions The auto-white balance regions to reset to, or `null` to leave the current
+     *   AWB regions unchanged (e.g., when AWB regions are not supported on this camera).
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    @AnyThread public fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
+    @AnyThread
+    public fun cancelFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A>
 
     // Capture
     /**
@@ -300,6 +317,10 @@ public interface UseCaseCameraRequestControl {
 
     /**
      * Updates the 3A regions and applies to the repeating request.
+     *
+     * A `null` region parameter leaves the corresponding 3A region unchanged (e.g., when that 3A
+     * region type is not supported on this camera). Cancelling the returned [Deferred] cancels the
+     * in-flight 3A operation.
      *
      * Note that camera-pipe may invalidate the CameraGraph and update the repeating request
      * parameters for this operations.
@@ -599,44 +620,42 @@ constructor(
         convergedCondition: ((FrameMetadata) -> Boolean)?,
     ): Deferred<Result3A> =
         runIfNotClosed {
-            runOnSequential {
+            runCancellableOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#startFocusAndMeteringAsync" }
                 // CameraPipe evaluates 3A timeLimitNs reactively via CaptureResult.SENSOR_TIMESTAMP
                 // when frames arrive, and Listener3A only cancels tasks on stopRepeating or
-                // CameraGraph stop/close. Wrap both Stage 1 (pre-trigger AE/AWB convergence inside
-                // useGraphSessionOrFailed) and Stage 2 (post-trigger AF lockDeferred.await()
-                // outside the session lock) in wall-clock timeouts so a stalled HAL while the
-                // camera stays open cannot deadlock CameraGraph.Session or block sequentialScope.
+                // CameraGraph stop/close. Bound Stage 1 (pre-trigger AE/AWB convergence inside
+                // useGraphSessionOrFailed) with withTimeoutOrNull and Stage 2 (the returned
+                // post-trigger AF lock Deferred) with a non-blocking wall-clock timer via
+                // withTimeoutMillis, so a stalled HAL while the camera stays open cannot deadlock
+                // CameraGraph.Session or block sequentialScope.
                 val timeoutMillis =
                     TimeUnit.NANOSECONDS.toMillis(timeLimitNs) + CHECK_3A_TIMEOUT_BUFFER_IN_MS
-                val lockDeferred = useGraphSessionOrFailed {
-                    withTimeoutOrNull(timeoutMillis) {
-                        it.lock3A(
-                            aeRegions = aeRegions,
-                            afRegions = afRegions,
-                            awbRegions = awbRegions,
-                            aeLockBehavior = aeLockBehavior,
-                            afLockBehavior = afLockBehavior,
-                            awbLockBehavior = awbLockBehavior,
-                            afTriggerStartAeMode = afTriggerStartAeMode,
-                            convergedTimeLimitNs = timeLimitNs,
-                            lockedTimeLimitNs = timeLimitNs,
-                            convergedCondition = convergedCondition,
-                        )
-                    } ?: timeLimitReachedResult
-                }
-                if (lockDeferred.isCompleted) {
-                    lockDeferred
-                } else {
-                    CompletableDeferred(
-                        withTimeoutOrNull(timeoutMillis) { lockDeferred.await() }
-                            ?: Result3A(Result3A.Status.TIME_LIMIT_REACHED)
-                    )
-                }
+                useGraphSessionOrFailed {
+                        withTimeoutOrNull(timeoutMillis) {
+                            it.lock3A(
+                                aeRegions = aeRegions,
+                                afRegions = afRegions,
+                                awbRegions = awbRegions,
+                                aeLockBehavior = aeLockBehavior,
+                                afLockBehavior = afLockBehavior,
+                                awbLockBehavior = awbLockBehavior,
+                                afTriggerStartAeMode = afTriggerStartAeMode,
+                                convergedTimeLimitNs = timeLimitNs,
+                                lockedTimeLimitNs = timeLimitNs,
+                                convergedCondition = convergedCondition,
+                            )
+                        } ?: timeLimitReachedResult
+                    }
+                    .withTimeoutMillis(timeoutMillis)
             }
         } ?: submitFailedResult
 
-    override fun cancelFocusAndMeteringAsync(): Deferred<Result3A> =
+    override fun cancelFocusAndMeteringAsync(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+    ): Deferred<Result3A> =
         runIfNotClosed {
             runOnSequential {
                 Camera2Logger.debug {
@@ -644,23 +663,39 @@ constructor(
                 }
 
                 // Bound unlock3A with a wall-clock timeout in case the HAL stops delivering frames
-                // while the CameraGraph remains open, ensuring update3A still runs to reset
-                // metering regions.
-                withTimeoutOrNull(
+                // while the CameraGraph remains open, ensuring update3A still runs inside the same
+                // session to reset metering regions and the returned Deferred completes.
+                val timeoutMillis =
                     TimeUnit.NANOSECONDS.toMillis(CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS) +
                         CHECK_3A_TIMEOUT_BUFFER_IN_MS
-                ) {
-                    useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }
-                        .await()
+                var unlockResult: Deferred<Result3A>? = null
+                val result = useGraphSessionOrFailed { session ->
+                    unlockResult =
+                        withTimeoutOrNull(timeoutMillis) {
+                            session.unlock3A(ae = true, af = true, awb = true)
+                        } ?: timeLimitReachedResult
+                    if (aeRegions != null || afRegions != null || awbRegions != null) {
+                        session.update3A(
+                            aeRegions = aeRegions,
+                            afRegions = afRegions,
+                            awbRegions = awbRegions,
+                        )
+                    } else {
+                        unlockResult!!
+                    }
                 }
-
-                useGraphSessionOrFailed {
-                    it.update3A(
-                        aeRegions = METERING_REGIONS_DEFAULT.asList(),
-                        afRegions = METERING_REGIONS_DEFAULT.asList(),
-                        awbRegions = METERING_REGIONS_DEFAULT.asList(),
-                    )
+                val timedResult = result.withTimeoutMillis(timeoutMillis)
+                if (unlockResult != null && unlockResult !== result) {
+                    try {
+                        withTimeoutOrNull(timeoutMillis) { unlockResult!!.await() }
+                    } catch (e: CancellationException) {
+                        coroutineContext.ensureActive()
+                        Camera2Logger.debug(e) {
+                            "unlock3A was cancelled during cancelFocusAndMeteringAsync"
+                        }
+                    }
                 }
+                timedResult
             }
         } ?: submitFailedResult
 
@@ -717,13 +752,13 @@ constructor(
         awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> =
         runIfNotClosed {
-            runOnSequential {
+            runCancellableOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#update3aRegions" }
                 useGraphSessionOrFailed {
                     it.update3A(
-                        aeRegions = aeRegions ?: METERING_REGIONS_DEFAULT.asList(),
-                        afRegions = afRegions ?: METERING_REGIONS_DEFAULT.asList(),
-                        awbRegions = awbRegions ?: METERING_REGIONS_DEFAULT.asList(),
+                        aeRegions = aeRegions,
+                        afRegions = afRegions,
+                        awbRegions = awbRegions,
                     )
                 }
             }
@@ -858,6 +893,44 @@ constructor(
                 threads.determineStartStrategy()
             }
         return threads.confineDeferredSuspend(start = start, block = block)
+    }
+
+    private fun <T> runCancellableOnSequential(block: suspend () -> Deferred<T>): Deferred<T> =
+        threads.confineDeferredSuspendCancellable(
+            start = threads.determineStartStrategy(),
+            block = block,
+        )
+
+    private fun Deferred<Result3A>.withTimeoutMillis(timeoutMillis: Long): Deferred<Result3A> {
+        if (isCompleted) return this
+        val source = this
+        val timedDeferred = CompletableDeferred<Result3A>()
+        val timeoutJob =
+            threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                delay(timeoutMillis)
+                timedDeferred.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED))
+            }
+        source.invokeOnCompletion { throwable ->
+            if (throwable == null) {
+                @OptIn(ExperimentalCoroutinesApi::class)
+                timedDeferred.complete(source.getCompleted())
+            } else {
+                timedDeferred.completeFailing(throwable)
+            }
+            timeoutJob.cancel()
+        }
+        timeoutJob.invokeOnCompletion { throwable ->
+            if (throwable != null) {
+                timedDeferred.completeFailing(throwable)
+            }
+        }
+        timedDeferred.invokeOnCompletion { throwable ->
+            if (throwable is CancellationException) {
+                timeoutJob.cancel(throwable)
+                source.cancel(throwable)
+            }
+        }
+        return timedDeferred
     }
 
     /**
