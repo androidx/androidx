@@ -20,7 +20,9 @@ import android.app.Instrumentation
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.FragmentScenario
-import com.google.common.truth.Truth.assertThat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
@@ -38,13 +40,34 @@ internal object TestUtil {
         instrumentation: Instrumentation,
     ) {
         val previewStreaming = Semaphore(0)
-        instrumentation.runOnMainSync {
-            previewView.previewStreamState.observe(this) {
+        val observer =
+            Observer<PreviewView.StreamState> {
                 if (it == streamState) {
                     previewStreaming.release()
                 }
             }
+        instrumentation.runOnMainSync {
+            previewView.previewStreamState.observe(this, observer)
         }
-        assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        try {
+            val acquired = previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            if (!acquired) {
+                var lifecycleState: Lifecycle.State? = null
+                var hasWindowFocus: Boolean? = null
+                instrumentation.runOnMainSync {
+                    lifecycleState = lifecycle.currentState
+                    hasWindowFocus = previewView.hasWindowFocus()
+                }
+                assertWithMessage(
+                        "PreviewView failed to reach $streamState within $TIMEOUT_SECONDS " +
+                            "seconds (lifecycle=$lifecycleState, windowFocus=$hasWindowFocus)"
+                    )
+                    .fail()
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                previewView.previewStreamState.removeObserver(observer)
+            }
+        }
     }
 }

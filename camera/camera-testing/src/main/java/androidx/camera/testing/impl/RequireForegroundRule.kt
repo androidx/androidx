@@ -28,11 +28,21 @@ import androidx.camera.testing.impl.activity.ForegroundTestActivity
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleCallback
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import java.io.IOException
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
+import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -44,9 +54,11 @@ import org.junit.runners.model.Statement
  * 1. **Device Preparation**: Wakes the screen, dismisses the keyguard, and enables "stay on."
  * 2. **Orientation Lock**: Freezes the device in natural orientation to prevent unexpected
  *    recreations.
- * 3. **Foreground Verification**: Verifies that the app can actually obtain window focus. If a
- *    system dialog or notification shade is blocking the foreground, the rule throws a
- *    [ForegroundOccupiedError] (or skips the test in non-lab environments).
+ * 3. **Foreground Verification**: Verifies that the app can actually obtain window focus before the
+ *    test starts, and monitors mid-test activity lifecycle transitions for unsolicited foreign
+ *    packages stealing window focus. If a system dialog, notification shade, or third-party/OEM app
+ *    blocks or steals the foreground, the rule throws a [ForegroundOccupiedError] in lab
+ *    environments (or skips the test via [AssumptionViolatedException] outside the lab).
  *
  * ### Why use this instead of @Before/@After?
  * Standard `@After` blocks execute while the test Activity might still be visible or active. If you
@@ -60,8 +72,10 @@ import org.junit.runners.model.Statement
  * 1. **Rule Setup**: [preTestCheck] runs (Kotlin suspend or Java Runnable).
  * 2. **Device Prep**: Screen wakes -> Orientation locked -> Navigates to Home.
  * 3. **Focus Check**: Launches a hidden activity to verify foreground focus is obtainable.
- * 4. **Test Body**: Your actual test code (and any `@Before` methods) executes.
- * 5. **Rule Reset**: Device returns Home and rotation is unfrozen.
+ * 4. **Test Body**: Your actual test code (and any `@Before` methods) executes while monitoring for
+ *    mid-test foreground loss to foreign packages.
+ * 5. **Rule Reset**: Any foreign foreground occupier is force-stopped (in lab environments), the
+ *    device returns Home, and rotation is unfrozen.
  * 6. **Cleanup Tasks**: All tasks registered via [withCleanup] are executed in **LIFO** (Last-In,
  *    First-Out) order.
  *
@@ -162,12 +176,87 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                     device.waitForIdle(INITIAL_IDLE_TIMEOUT_MS)
                     prepareDeviceUI(instrumentation)
 
+                    val testPackage = instrumentation.context.packageName
+                    val targetPackage = instrumentation.targetContext.packageName
+                    val launcherPackage =
+                        try {
+                            device.launcherPackageName
+                        } catch (_: Throwable) {
+                            null
+                        }
+                    val midTestOccupier = AtomicReference<String?>(null)
+                    val resumeGeneration = AtomicLong(0)
+                    val pendingForegroundCheck = AtomicReference<Future<*>?>(null)
+                    val foregroundCheckExecutor =
+                        Executors.newSingleThreadScheduledExecutor { runnable ->
+                            Thread(runnable, "RequireForegroundRule-Monitor").apply {
+                                isDaemon = true
+                            }
+                        }
+                    val lifecycleMonitor = ActivityLifecycleMonitorRegistry.getInstance()
+                    val lifecycleCallback = ActivityLifecycleCallback { activity, stage ->
+                        onActivityLifecycleChanged(
+                            stage = stage,
+                            isFinishing = activity.isFinishing,
+                            isChangingConfigurations = activity.isChangingConfigurations,
+                            midTestOccupier = midTestOccupier,
+                            resumeGeneration = resumeGeneration,
+                            pendingCheck = pendingForegroundCheck,
+                            scheduleDelayedCheck = { task ->
+                                try {
+                                    // Query rootInActiveWindow off the main thread after a brief
+                                    // settle window so:
+                                    // 1. UiAutomation accessibility IPC never blocks or
+                                    //    self-deadlocks the Main Looper during activity pause/stop
+                                    //    transitions, and
+                                    // 2. ActivityTaskManagerService has transferred window focus to
+                                    //    the incoming window (including PAUSED-only dialogs).
+                                    foregroundCheckExecutor.schedule(
+                                        task,
+                                        FOREGROUND_CHECK_DELAY_MS,
+                                        TimeUnit.MILLISECONDS,
+                                    )
+                                } catch (_: RejectedExecutionException) {
+                                    null
+                                }
+                            },
+                            activePackageProvider = {
+                                try {
+                                    instrumentation.uiAutomation.rootInActiveWindow
+                                        ?.packageName
+                                        ?.toString()
+                                } catch (_: Throwable) {
+                                    null
+                                }
+                            },
+                            testPackage = testPackage,
+                            targetPackage = targetPackage,
+                            launcherPackage = launcherPackage,
+                        )
+                    }
+                    lifecycleMonitor.addLifecycleCallback(lifecycleCallback)
+
                     try {
                         base.evaluate()
                     } catch (t: Throwable) {
-                        // Capture the test failure so it isn't swallowed
-                        testError = t
+                        // Capture the test failure so it isn't swallowed, mapping mid-test
+                        // foreground theft by a foreign package to ForegroundOccupiedError / skip.
+                        testError =
+                            try {
+                                handlePotentialForegroundTheft(
+                                    testError = t,
+                                    instrumentation = instrumentation,
+                                    device = device,
+                                    launcherPackage = launcherPackage,
+                                    recordedOccupierPackage = midTestOccupier.get(),
+                                )
+                            } catch (mappingError: Throwable) {
+                                t.also { it.addSuppressed(mappingError) }
+                            }
                     } finally {
+                        lifecycleMonitor.removeLifecycleCallback(lifecycleCallback)
+                        pendingForegroundCheck.getAndSet(null)?.cancel(false)
+                        foregroundCheckExecutor.shutdownNow()
                         try {
                             backToHome(instrumentation)
                             device.unfreezeRotation()
@@ -209,8 +298,10 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
 
     public companion object {
         private const val TAG = "RequireForegroundRule"
+        private const val MH_TAG = "MH"
         private const val INITIAL_IDLE_TIMEOUT_MS: Long = 2000
         private const val UI_STABILIZATION_TIMEOUT_MS: Long = 3000
+        private const val FOREGROUND_CHECK_DELAY_MS: Long = 200
         private const val DISMISS_LOCK_SCREEN_CODE = 82
         private const val ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE = "wm dismiss-keyguard"
         private const val ADB_SHELL_SCREEN_ALWAYS_ON = "svc power stayon true"
@@ -218,10 +309,18 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
             "cmd sensor_privacy disable 0 camera"
         private const val ADB_SHELL_DISABLE_MICROPHONE_SENSOR_PRIVACY_API31_AND_ABOVE =
             "cmd sensor_privacy disable 0 microphone"
+        private const val ADB_SHELL_FORCE_STOP_HEYTAP_MARKET = "am force-stop com.heytap.market"
         private const val XIAOMI_OP_BACKGROUND_START_ACTIVITY = 10021
+        private val SAFE_PACKAGE_NAME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]+)+$")
+        private val SYSTEM_ALLOWED_FOREGROUND_PACKAGES =
+            setOf("android", "com.android.systemui", "com.android.settings")
+        private val NEVER_FORCE_STOP_PACKAGES =
+            setOf("com.google.android.gms", "com.google.android.gsf", "com.android.vending")
 
         /** The display foreground of the device is occupied that cannot execute UI related test. */
-        public class ForegroundOccupiedError(message: String) : Exception(message)
+        public class ForegroundOccupiedError
+        @JvmOverloads
+        public constructor(message: String, cause: Throwable? = null) : Exception(message, cause)
 
         /**
          * Navigates to the home screen using an Intent.
@@ -303,7 +402,7 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
 
             // Throw AssumptionViolatedException to skip the test if not in the CameraX lab
             // environment. The loggable tag will be set when running the CameraX daily testing.
-            assumeTrue(Log.isLoggable("MH", Log.DEBUG))
+            assumeTrue(Log.isLoggable(MH_TAG, Log.DEBUG))
             throw ForegroundOccupiedError("CameraX_fail_to_start_foreground, model: ${Build.MODEL}")
         }
 
@@ -343,6 +442,15 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
                         )
                     } catch (_: IOException) {}
                 }
+            }
+
+            // ColorOS/OxygenOS/Realme UI pre-installed HeyTap App Market can launch unsolicited
+            // exported activities (e.g. com.heytap.market/.activity.TranslateActivity) mid-test
+            // and steal window focus from the test Activity. Force-stop it in lab environments.
+            if (isOplusDevice() && Log.isLoggable(MH_TAG, Log.DEBUG)) {
+                try {
+                    device.executeShellCommand(ADB_SHELL_FORCE_STOP_HEYTAP_MARKET)
+                } catch (_: IOException) {}
             }
 
             backToHome(instrumentation)
@@ -397,6 +505,191 @@ public class RequireForegroundRule(private val preTestCheck: suspend () -> Unit)
             }
             throw IllegalStateException("Failed to get UiDevice after retries", lastException)
         }
+
+        internal fun onActivityLifecycleChanged(
+            stage: Stage,
+            isFinishing: Boolean,
+            isChangingConfigurations: Boolean,
+            midTestOccupier: AtomicReference<String?>,
+            resumeGeneration: AtomicLong,
+            pendingCheck: AtomicReference<Future<*>?>,
+            scheduleDelayedCheck: (Runnable) -> Future<*>?,
+            activePackageProvider: () -> String?,
+            testPackage: String,
+            targetPackage: String,
+            launcherPackage: String?,
+        ) {
+            if (stage == Stage.RESUMED) {
+                resumeGeneration.incrementAndGet()
+                pendingCheck.getAndSet(null)?.cancel(false)
+                midTestOccupier.set(null)
+                return
+            }
+            if (
+                (stage == Stage.PAUSED || stage == Stage.STOPPED) &&
+                    !isFinishing &&
+                    !isChangingConfigurations &&
+                    midTestOccupier.get() == null
+            ) {
+                val generationAtPause = resumeGeneration.get()
+                val checkTask = Runnable {
+                    if (
+                        resumeGeneration.get() != generationAtPause || midTestOccupier.get() != null
+                    ) {
+                        return@Runnable
+                    }
+                    val activePkg = activePackageProvider()
+                    if (
+                        resumeGeneration.get() == generationAtPause &&
+                            isForeignForegroundPackage(
+                                currentPackage = activePkg,
+                                testPackage = testPackage,
+                                targetPackage = targetPackage,
+                                launcherPackage = launcherPackage,
+                            )
+                    ) {
+                        midTestOccupier.compareAndSet(null, activePkg)
+                        if (resumeGeneration.get() != generationAtPause) {
+                            midTestOccupier.compareAndSet(activePkg, null)
+                        }
+                    }
+                }
+                pendingCheck.getAndSet(scheduleDelayedCheck(checkTask))?.cancel(false)
+            }
+        }
+
+        private fun handlePotentialForegroundTheft(
+            testError: Throwable,
+            instrumentation: Instrumentation,
+            device: UiDevice,
+            launcherPackage: String?,
+            recordedOccupierPackage: String?,
+        ): Throwable {
+            if (isNonRemappable(testError)) {
+                return testError
+            }
+            val currentPackage =
+                recordedOccupierPackage
+                    ?: try {
+                        device.currentPackageName
+                    } catch (t: Throwable) {
+                        Logger.d(TAG, "Failed to query currentPackageName after test failure", t)
+                        null
+                    }
+            return mapFailureOnForegroundLoss(
+                testError = testError,
+                currentPackage = currentPackage,
+                testPackage = instrumentation.context.packageName,
+                targetPackage = instrumentation.targetContext.packageName,
+                launcherPackage = launcherPackage,
+                isLabEnvironment = Log.isLoggable(MH_TAG, Log.DEBUG),
+                onForceStopPackage = { pkg -> device.executeShellCommand("am force-stop $pkg") },
+            )
+        }
+
+        internal fun mapFailureOnForegroundLoss(
+            testError: Throwable,
+            currentPackage: String?,
+            testPackage: String,
+            targetPackage: String,
+            launcherPackage: String?,
+            isLabEnvironment: Boolean,
+            onForceStopPackage: (String) -> Unit,
+        ): Throwable {
+            if (isNonRemappable(testError)) {
+                return testError
+            }
+            if (
+                !isForeignForegroundPackage(
+                    currentPackage = currentPackage,
+                    testPackage = testPackage,
+                    targetPackage = targetPackage,
+                    launcherPackage = launcherPackage,
+                )
+            ) {
+                return testError
+            }
+            val occupierPkg = currentPackage!!
+            Logger.w(
+                TAG,
+                "Test failed while foreign package '$occupierPkg' occupied the foreground",
+                testError,
+            )
+            if (
+                isLabEnvironment &&
+                    isSafePackageName(occupierPkg) &&
+                    occupierPkg !in NEVER_FORCE_STOP_PACKAGES
+            ) {
+                try {
+                    onForceStopPackage(occupierPkg)
+                } catch (e: Exception) {
+                    Logger.w(TAG, "Failed to force-stop foreground occupier $occupierPkg", e)
+                }
+            }
+            val message =
+                "CameraX_fail_to_start_foreground (occupied by $occupierPkg), model: ${Build.MODEL}"
+            return if (isLabEnvironment) {
+                ForegroundOccupiedError(message, testError)
+            } else {
+                AssumptionViolatedException(message, testError)
+            }
+        }
+
+        @Suppress("DEPRECATION")
+        internal fun isNonRemappable(testError: Throwable): Boolean =
+            testError is ForegroundOccupiedError ||
+                testError is AssumptionViolatedException ||
+                testError is org.junit.internal.AssumptionViolatedException ||
+                testError is VirtualMachineError
+
+        internal fun isForeignForegroundPackage(
+            currentPackage: String?,
+            testPackage: String,
+            targetPackage: String,
+            launcherPackage: String?,
+        ): Boolean {
+            if (currentPackage.isNullOrBlank()) {
+                return false
+            }
+            if (
+                currentPackage == testPackage ||
+                    currentPackage == targetPackage ||
+                    currentPackage == launcherPackage ||
+                    currentPackage in SYSTEM_ALLOWED_FOREGROUND_PACKAGES
+            ) {
+                return false
+            }
+            if (
+                currentPackage.startsWith("androidx.camera.") ||
+                    currentPackage.startsWith("androidx.test.")
+            ) {
+                return false
+            }
+            if (
+                currentPackage.contains("launcher", ignoreCase = true) ||
+                    currentPackage.endsWith(".home", ignoreCase = true) ||
+                    currentPackage.contains(".home.", ignoreCase = true) ||
+                    currentPackage.contains("permissioncontroller", ignoreCase = true) ||
+                    currentPackage.contains("packageinstaller", ignoreCase = true)
+            ) {
+                return false
+            }
+            return true
+        }
+
+        internal fun isSafePackageName(packageName: String): Boolean =
+            SAFE_PACKAGE_NAME_REGEX.matches(packageName)
+
+        internal fun isOplusDevice(
+            manufacturer: String = Build.MANUFACTURER,
+            brand: String = Build.BRAND,
+        ): Boolean =
+            manufacturer.equals("OPPO", ignoreCase = true) ||
+                manufacturer.equals("OnePlus", ignoreCase = true) ||
+                manufacturer.equals("Realme", ignoreCase = true) ||
+                brand.equals("OPPO", ignoreCase = true) ||
+                brand.equals("OnePlus", ignoreCase = true) ||
+                brand.equals("Realme", ignoreCase = true)
 
         private fun isXiaomiDevice(): Boolean =
             Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true) ||
