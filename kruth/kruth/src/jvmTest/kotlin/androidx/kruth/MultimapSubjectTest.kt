@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NULL_FOR_NONNULL_TYPE")
+
 package androidx.kruth
 
 import com.google.common.collect.ArrayListMultimap

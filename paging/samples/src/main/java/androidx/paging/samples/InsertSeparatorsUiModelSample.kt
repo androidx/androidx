@@ -139,7 +139,7 @@ fun insertSeparatorsUiModelFutureSample() {
             .insertSeparatorsAsync(
                 AsyncFunction<AdjacentItems<ItemUiModel>, UiModel?> {
                     Futures.submit(
-                        Callable<UiModel> {
+                        Callable<UiModel?> {
                             val (before, after) = it!!
                             if (
                                 after != null &&

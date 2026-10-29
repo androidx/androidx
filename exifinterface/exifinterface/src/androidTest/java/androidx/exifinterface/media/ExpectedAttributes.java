@@ -706,6 +706,7 @@ final class ExpectedAttributes {
      *
      * <p>Returns null if no expected XMP data was set.
      */
+    @SuppressWarnings("deprecation")
     public @Nullable String getXmp(Resources resources) throws IOException {
         if (mMemoizedXmp == null && mXmpResourceId != null) {
             try (InputStreamReader inputStreamReader =
