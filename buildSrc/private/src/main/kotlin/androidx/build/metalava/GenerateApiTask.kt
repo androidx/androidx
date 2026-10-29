@@ -105,8 +105,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             levelsArgs,
             multiplatform.get(),
-            // b/570135466
-            generateTrace = false,
+            generateTrace = true,
         )
     }
 
