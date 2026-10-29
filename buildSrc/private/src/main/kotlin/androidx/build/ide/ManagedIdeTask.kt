@@ -19,6 +19,7 @@ package androidx.build.ide
 import androidx.build.BuildEnvironment
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
 import java.util.Locale
 import javax.inject.Inject
@@ -295,20 +296,33 @@ abstract class ManagedIdeTask : DefaultTask() {
                     )
                 }
 
-                // rename the inner directory to remove the version information
-                // this allows the launch command to be the same no matter the version of aswb
-                val tmpDir = File("$toPath/tmp")
+                // Sometimes, ASWB will package things into further nested directories
+                // (for example, "tmp/ide-update/..."). We want to move everything to the top level
+                // so we can consistently open with a predictable path
 
-                // Find the folder starting with the expected prefix
+                val installParent = File("$toPath")
+
+                // Find the inner directory that directly contains the unpacked ide contents without
+                // any inner nested dirs
                 val sourceDir =
-                    tmpDir.listFiles()?.find {
-                        it.name.startsWith("android-studio-with-blaze") && it.isDirectory
-                    }
+                    installParent
+                        .walkTopDown()
+                        .filter { it.isFile && it.name == "studio" && it.parentFile?.name == "bin" }
+                        .firstOrNull()
+                        ?.parentFile
+                        ?.parentFile
 
                 if (sourceDir != null) {
-                    val targetDir = File(tmpDir, "android-studio-with-blaze")
+                    sourceDir.listFiles()?.forEach { child ->
+                        val destination = File(installParent, child.name)
+                        Files.move(
+                            child.toPath(),
+                            destination.toPath(),
+                            StandardCopyOption.ATOMIC_MOVE,
+                        )
+                    }
 
-                    sourceDir.renameTo(targetDir)
+                    File(installParent, "bin/studio").setExecutable(true)
                 } else {
                     throw GradleException("Extracting the aswb archive failed")
                 }
