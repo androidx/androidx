@@ -47,4 +47,4 @@ import javax.`annotation`.processing.Generated
   ],
 )
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
-public class `$Main_SerializableComponentRegistry`
+public class `$Main_SerializableComponentRegistry_ab3f0fb32333c4fd`

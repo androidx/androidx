@@ -44,4 +44,4 @@ import javax.`annotation`.processing.Generated
   ],
 )
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
-public class `$Main_SchemaDefinitionComponentRegistry`
+public class `$Main_SchemaDefinitionComponentRegistry_924bdc11bc82c72b`

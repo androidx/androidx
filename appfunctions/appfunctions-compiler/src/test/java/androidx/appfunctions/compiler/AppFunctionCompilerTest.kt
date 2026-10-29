@@ -983,7 +983,8 @@ class AppFunctionCompilerTest {
 
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}Main_SerializableComponentRegistry.kt",
+            expectGeneratedSourceFileName =
+                "${'$'}Main_SerializableComponentRegistry_ab3f0fb32333c4fd.kt",
             goldenFileName = "registry/${'$'}Main_SerializableComponentRegistry.KT",
         )
     }
@@ -999,7 +1000,7 @@ class AppFunctionCompilerTest {
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
             expectGeneratedSourceFileName =
-                "${'$'}MyGroupMyModule_SerializableComponentRegistry.kt",
+                "${'$'}MyGroupMyModule_SerializableComponentRegistry_f94c6f7782c6925a.kt",
             goldenFileName = "registry/${'$'}MyGroupMyModule_SerializableComponentRegistry.KT",
         )
     }
@@ -1019,7 +1020,8 @@ class AppFunctionCompilerTest {
 
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}Main_SchemaDefinitionComponentRegistry.kt",
+            expectGeneratedSourceFileName =
+                "${'$'}Main_SchemaDefinitionComponentRegistry_924bdc11bc82c72b.kt",
             goldenFileName = "registry/${'$'}Main_SchemaDefinitionComponentRegistry.KT",
         )
     }
@@ -1281,6 +1283,36 @@ class AppFunctionCompilerTest {
             compilationTestHelper.compileAll(
                 sourceFileNames = listOf("entrypoints/valid/MultiModuleAppService.KT"),
                 additionalClasspath = libraryReport.outputClasspath,
+            )
+
+        compilationTestHelper.assertSuccessWithResourceContent(
+            report = appReport,
+            expectGeneratedResourceFileName = "multi_module_app.xml",
+            goldenFileName = "xml/multi_module_app.xml",
+        )
+    }
+
+    @Test
+    fun testMultiModuleSameModuleName_generateXml() {
+        val lib1Report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("serializable/valid/InputSerializable.KT"),
+                moduleName = "app-functions_debug",
+            )
+        assertThat(lib1Report.isSuccess).isTrue()
+
+        val lib2Report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("serializable/valid/MultiModuleLibrarySerializable.KT"),
+                moduleName = "app-functions_debug",
+            )
+        assertThat(lib2Report.isSuccess).isTrue()
+
+        val appReport =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/valid/MultiModuleAppService.KT"),
+                additionalClasspath = lib1Report.outputClasspath + lib2Report.outputClasspath,
+                moduleName = "app_debug",
             )
 
         compilationTestHelper.assertSuccessWithResourceContent(
