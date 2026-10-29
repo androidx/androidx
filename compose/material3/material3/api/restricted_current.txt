@@ -1342,6 +1342,12 @@ package androidx.compose.material3 {
     property public androidx.compose.material3.FabPosition Start;
   }
 
+  public final class FadeThroughNavigationTransition {
+    method public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.animation.ContentTransform transform();
+    field public static final androidx.compose.material3.FadeThroughNavigationTransition INSTANCE;
+  }
+
   public final class FilledTonalToggleButtonDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors colors();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors colors(androidx.compose.runtime.Composer?, int);
@@ -1647,6 +1653,16 @@ package androidx.compose.material3 {
     method @BytecodeOnly public int getTop-dDJPGzU();
     property public androidx.compose.material3.FloatingToolbarVerticalFabPosition Bottom;
     property public androidx.compose.material3.FloatingToolbarVerticalFabPosition Top;
+  }
+
+  public final class HorizontalSharedAxisNavigationTransition {
+    method public androidx.compose.animation.ContentTransform backwardTransform();
+    method public androidx.compose.animation.ContentTransform forwardTransform();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getScrimColor(androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Color scrimColor);
+    method @BytecodeOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform-mxwnekA(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent!>, androidx.compose.ui.unit.Density, long);
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color scrimColor;
+    field public static final androidx.compose.material3.HorizontalSharedAxisNavigationTransition INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
@@ -2302,30 +2318,6 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void MaterialTheme(androidx.compose.material3.ColorScheme?, androidx.compose.material3.MotionScheme?, androidx.compose.material3.Shapes?, androidx.compose.material3.Typography?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.compose.material3.ColorScheme colorScheme, optional androidx.compose.material3.Shapes shapes, optional androidx.compose.material3.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void MaterialTheme(androidx.compose.material3.ColorScheme?, androidx.compose.material3.Shapes?, androidx.compose.material3.Typography?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  public final class MaterialTransitionDefaults {
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getScrimColor(androidx.compose.runtime.Composer?, int);
-    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.graphics.Color scrimColor;
-    field public static final androidx.compose.material3.MaterialTransitionDefaults INSTANCE;
-  }
-
-  public final class MaterialTransitions {
-    field public static final androidx.compose.material3.MaterialTransitions INSTANCE;
-  }
-
-  public static final class MaterialTransitions.FadeThrough {
-    method public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density);
-    method public androidx.compose.animation.ContentTransform transform();
-    field public static final androidx.compose.material3.MaterialTransitions.FadeThrough INSTANCE;
-  }
-
-  public static final class MaterialTransitions.HorizontalSharedAxis {
-    method public androidx.compose.animation.ContentTransform backwardTransform();
-    method public androidx.compose.animation.ContentTransform forwardTransform();
-    method @KotlinOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent> backEvent, androidx.compose.ui.unit.Density density, androidx.compose.ui.graphics.Color scrimColor);
-    method @BytecodeOnly public androidx.compose.animation.MutableContentTransform predictiveBackTransform-mxwnekA(kotlin.jvm.functions.Function0<androidx.navigationevent.NavigationEvent!>, androidx.compose.ui.unit.Density, long);
-    field public static final androidx.compose.material3.MaterialTransitions.HorizontalSharedAxis INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class MenuAnchorPosition {

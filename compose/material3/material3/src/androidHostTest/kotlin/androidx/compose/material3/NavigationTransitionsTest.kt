@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class MaterialTransitionsTest {
+class NavigationTransitionsTest {
 
     @Test
     fun dampedVerticalOffset_zeroDelta_returnsZero() {
@@ -136,7 +136,7 @@ class MaterialTransitionsTest {
 
     @Test
     fun horizontalSharedAxisForwardTransform_configuresSlideAndFade() {
-        val spec = MaterialTransitions.HorizontalSharedAxis.forwardTransform()
+        val spec = HorizontalSharedAxisNavigationTransition.forwardTransform()
         val fullSize = IntSize(width = 1000, height = 2000)
 
         assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
@@ -150,7 +150,7 @@ class MaterialTransitionsTest {
 
     @Test
     fun horizontalSharedAxisBackwardTransform_configuresSlideFadeScaleAndZIndex() {
-        val spec = MaterialTransitions.HorizontalSharedAxis.backwardTransform()
+        val spec = HorizontalSharedAxisNavigationTransition.backwardTransform()
         val fullSize = IntSize(width = 1000, height = 2000)
 
         assertThat(spec.targetContentEnter.config.slide?.slideOffset?.invoke(fullSize))
@@ -178,7 +178,7 @@ class MaterialTransitionsTest {
             )
 
         val mutableTransform =
-            MaterialTransitions.HorizontalSharedAxis.predictiveBackTransform(
+            HorizontalSharedAxisNavigationTransition.predictiveBackTransform(
                 backEvent = { backEventState.value },
                 density = Density(1f),
                 scrimColor = Color.Black.copy(alpha = 0.8f),
@@ -188,7 +188,7 @@ class MaterialTransitionsTest {
 
     @Test
     fun fadeThroughTransform_configuresFadeAndScale() {
-        val spec = MaterialTransitions.FadeThrough.transform()
+        val spec = FadeThroughNavigationTransition.transform()
         assertThat(spec.targetContentEnter.config.fade?.alpha).isEqualTo(0f)
         assertThat(spec.initialContentExit.config.fade?.alpha).isEqualTo(0f)
         assertThat(spec.targetContentEnter.config.scale?.scale).isEqualTo(0.8f)
@@ -208,7 +208,7 @@ class MaterialTransitionsTest {
             )
 
         val mutableTransform =
-            MaterialTransitions.FadeThrough.predictiveBackTransform(
+            FadeThroughNavigationTransition.predictiveBackTransform(
                 backEvent = { backEventState.value },
                 density = Density(1f),
             )
