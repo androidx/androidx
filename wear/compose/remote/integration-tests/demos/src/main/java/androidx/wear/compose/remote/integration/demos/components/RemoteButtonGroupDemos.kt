@@ -29,7 +29,9 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupThreeButtons
+import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupThreeButtonsAnimated
 import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupTwoButtons
+import androidx.wear.compose.remote.material3.previews.RemoteButtonGroupTwoButtonsAnimated
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
@@ -58,6 +60,8 @@ fun RemoteButtonGroupDemos(modifier: Modifier = Modifier) {
             }
             remoteDemoItem("Two buttons") { RemoteButtonGroupTwoButtons() }
             remoteDemoItem("Three buttons") { RemoteButtonGroupThreeButtons() }
+            remoteDemoItem("Two buttons (Animated)") { RemoteButtonGroupTwoButtonsAnimated() }
+            remoteDemoItem("Three buttons (Animated)") { RemoteButtonGroupThreeButtonsAnimated() }
         }
     }
 }

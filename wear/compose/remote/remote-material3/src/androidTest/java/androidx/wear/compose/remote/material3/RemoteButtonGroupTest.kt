@@ -18,9 +18,24 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.collection.buildObjectIntMap
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.remote.creation.compose.action.hostAction
+import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.player.view.RemoteComposePlayer
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -76,6 +91,21 @@ class RemoteButtonGroupTest {
     }
 
     @Test
+    fun buttonGroup_threeButton_firstButtonPressed() {
+        runPressedScreenshotTest { ThreeButtonGroup(pressedItem = 0) }
+    }
+
+    @Test
+    fun buttonGroup_threeButton_middleButtonPressed() {
+        runPressedScreenshotTest { ThreeButtonGroup(pressedItem = 1) }
+    }
+
+    @Test
+    fun buttonGroup_twoButton_firstButtonPressed() {
+        runPressedScreenshotTest { TwoButtonGroup(pressedItem = 0) }
+    }
+
+    @Test
     fun buttonGroup_dynamicColor() {
         val colorOverrides = buildObjectIntMap {
             put("WearM3.primary", Color(0xFFB8D0A0).toArgb())
@@ -94,5 +124,95 @@ class RemoteButtonGroupTest {
         ) {
             ComponentContainer { RemoteButtonGroupThreeButtons() }
         }
+    }
+
+    /**
+     * Runs a screenshot test of a group that starts in a pressed state. Players animate to it from
+     * the rest state, on their own clock, so the screenshot waits until the document stops
+     * requesting repaints.
+     */
+    private fun runPressedScreenshotTest(content: @Composable @RemoteComposable () -> Unit) {
+        lateinit var player: RemoteComposePlayer
+        remoteComposeTestRule.setContent(
+            remoteCreationDisplayInfo = creationDisplayInfo,
+            update = { player = it },
+        ) {
+            ComponentContainer { content() }
+        }
+        remoteComposeTestRule.composeTestRule.waitUntil(AnimationTimeoutMillis) {
+            player.document.document.needsRepaint() < 0
+        }
+        remoteComposeTestRule.verifyScreenshot()
+    }
+
+    /** A group of 3 animated buttons, with the button at [pressedItem] pressed. */
+    @Composable
+    @RemoteComposable
+    private fun ThreeButtonGroup(pressedItem: Int) {
+        RemoteButtonGroupImpl(
+            modifier = RemoteModifier.fillMaxWidth(),
+            initialPressedItem = pressedItem,
+        ) {
+            Button(
+                Icons.Filled.MailOutline.toRemoteImageVector(),
+                RemoteModifier.weight(1f.rf).animateWidth(),
+            )
+            Button(
+                Icons.Filled.Favorite.toRemoteImageVector(),
+                RemoteModifier.weight(1.5f.rf).animateWidth(),
+            )
+            Button(
+                Icons.Filled.Call.toRemoteImageVector(),
+                RemoteModifier.weight(1f.rf).animateWidth(),
+            )
+        }
+    }
+
+    /** A group of 2 animated buttons, with the button at [pressedItem] pressed. */
+    @Composable
+    @RemoteComposable
+    private fun TwoButtonGroup(pressedItem: Int) {
+        RemoteButtonGroupImpl(
+            modifier = RemoteModifier.fillMaxWidth(),
+            initialPressedItem = pressedItem,
+        ) {
+            Button(
+                Icons.Filled.MailOutline.toRemoteImageVector(),
+                RemoteModifier.weight(1f.rf).animateWidth(),
+            )
+            Button(
+                Icons.Filled.Call.toRemoteImageVector(),
+                RemoteModifier.weight(1f.rf).animateWidth(),
+            )
+        }
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
+        RemoteIconButton(
+            onClick = testAction,
+            modifier = modifier,
+            enabled = true.rb,
+            colors =
+                RemoteIconButtonDefaults.iconButtonColors()
+                    .copy(
+                        containerColor = RemoteMaterialTheme.colorScheme.primary,
+                        contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor =
+                            RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
+                        disabledContentColor =
+                            RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
+                    ),
+            shape = RemoteButtonDefaults.shape,
+        ) {
+            RemoteIcon(imageVector = imageVector, contentDescription = null)
+        }
+    }
+
+    private val testAction = hostAction("testAction".rs, 1.rf)
+
+    private companion object {
+        const val AnimationTimeoutMillis = 5_000L
     }
 }

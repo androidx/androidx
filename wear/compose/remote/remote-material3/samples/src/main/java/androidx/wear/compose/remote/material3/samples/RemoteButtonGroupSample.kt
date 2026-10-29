@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
@@ -29,7 +27,6 @@ import androidx.compose.remote.creation.compose.capture.toRemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
@@ -37,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteButtonGroup
-import androidx.wear.compose.remote.material3.RemoteButtonGroupDefaults
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
 import androidx.wear.compose.remote.material3.RemoteIconButtonDefaults
@@ -47,13 +43,33 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
 @Composable
+@RemoteComposable
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
-        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1f))
-        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+    }
+}
+
+@Sampled
+@Composable
+@RemoteComposable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteButtonGroupAnimatedSample(modifier: RemoteModifier = RemoteModifier) {
+    RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
+        Button(
+            Icons.Filled.MailOutline.toRemoteImageVector(),
+            RemoteModifier.weight(1f.rf).animateWidth(),
+        )
+        Button(
+            Icons.Filled.Favorite.toRemoteImageVector(),
+            RemoteModifier.weight(1.5f.rf).animateWidth(),
+        )
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf).animateWidth())
     }
 }
 
@@ -62,7 +78,7 @@ fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier
 private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
     RemoteIconButton(
         testAction,
-        modifier = modifier.widthIn(RemoteButtonGroupDefaults.MinWidth),
+        modifier = modifier,
         enabled = true.rb,
         colors = tonalColors,
         shape = RemoteButtonDefaults.shape,

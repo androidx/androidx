@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.material.icons.Icons
@@ -31,18 +29,16 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteButtonGroup
-import androidx.wear.compose.remote.material3.RemoteButtonGroupDefaults
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
 import androidx.wear.compose.remote.material3.RemoteIconButtonDefaults
@@ -54,9 +50,9 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @RemoteComposable
 fun RemoteButtonGroupThreeButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
-        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1.5f))
-        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+        Button(Icons.Filled.Favorite.toRemoteImageVector(), RemoteModifier.weight(1.5f.rf))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
     }
 }
 
@@ -70,8 +66,8 @@ private fun RemoteButtonGroupThreeButtonsPreview(
 @RemoteComposable
 fun RemoteButtonGroupTwoButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
-        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f))
-        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f))
+        Button(Icons.Filled.MailOutline.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf))
     }
 }
 
@@ -83,22 +79,58 @@ private fun RemoteButtonGroupTwoButtonsPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteButtonGroupTwoButtonsAnimated() {
+    RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
+        Button(
+            Icons.Filled.MailOutline.toRemoteImageVector(),
+            RemoteModifier.weight(1f.rf).animateWidth(),
+        )
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf).animateWidth())
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonGroupTwoButtonsAnimatedPreview() =
+    RemoteContentPreview(profile = RcPlatformProfiles.ANDROIDX) {
+        Container { RemoteButtonGroupTwoButtonsAnimated() }
+    }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonGroupThreeButtonsAnimated() {
+    RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
+        Button(
+            Icons.Filled.MailOutline.toRemoteImageVector(),
+            RemoteModifier.weight(1f.rf).animateWidth(),
+        )
+        Button(
+            Icons.Filled.Favorite.toRemoteImageVector(),
+            RemoteModifier.weight(1.5f.rf).animateWidth(),
+        )
+        Button(Icons.Filled.Call.toRemoteImageVector(), RemoteModifier.weight(1f.rf).animateWidth())
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonGroupThreeButtonsAnimatedPreview() =
+    RemoteContentPreview(profile = RcPlatformProfiles.ANDROIDX) {
+        Container { RemoteButtonGroupThreeButtonsAnimated() }
+    }
+
+@Composable
+@RemoteComposable
 private fun Button(imageVector: RemoteImageVector, modifier: RemoteModifier) {
     RemoteIconButton(
         testAction,
-        modifier = modifier.widthIn(RemoteButtonGroupDefaults.MinWidth),
+        modifier = modifier,
         enabled = true.rb,
         colors = tonalColors,
         shape = RemoteButtonDefaults.shape,
     ) {
         RemoteIcon(imageVector = imageVector, contentDescription = null)
     }
-}
-
-@Composable
-@RemoteComposable
-private fun Spacer() {
-    RemoteBox(RemoteModifier.size(RemoteButtonGroupDefaults.Spacing))
 }
 
 @Composable
