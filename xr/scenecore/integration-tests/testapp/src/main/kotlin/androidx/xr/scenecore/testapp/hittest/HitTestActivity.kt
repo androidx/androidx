@@ -112,56 +112,45 @@ class HitTestActivity : AppCompatActivity() {
             val buttonHitTest: Button = panelContentView.findViewById(R.id.buttonHitTest)
             buttonHitTest.text = "Hit Test"
             buttonHitTest.setOnClickListener {
-                device.state.value.devicePose.let { headPose ->
-                    lifecycleScope.launch {
-                        val headScenePose =
-                            session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
-                        val hitTest = headScenePose.hitTest(Vector3(), Vector3(0f, 0f, -1f))
-                        if (hitTest != null && hitTest.surfaceNormal != null) {
-                            val devicePose = device.state.value.devicePose
-                            val updatedRotation =
-                                Quaternion.fromLookTowards(
-                                    hitTest.surfaceNormal!!,
-                                    session!!
-                                        .scene
-                                        .perceptionSpace
-                                        .getScenePoseFromPerceptionPose(devicePose)
-                                        .transformPoseTo(
-                                            Pose(Vector3(0f, 1f, 0f)),
-                                            session!!.scene.activitySpace,
-                                        )
-                                        .translation,
+                lifecycleScope.launch {
+                    val headPose = device.state.value.devicePose
+                    val headScenePose =
+                        session!!.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)
+                    val hitTest = headScenePose.hitTest(Vector3(), Vector3(0f, 0f, -1f))
+                    if (hitTest?.hitPosition != null && hitTest.surfaceNormal != null) {
+                        val normalInHead = hitTest.surfaceNormal!!.toNormalized()
+                        val updatedRotation =
+                            Quaternion.fromLookTowards(
+                                normalInHead,
+                                Vector3.Up,
+                            )
+                        // Offset slightly along surface normal so the 3D widget does not clip
+                        // inside the hit surface.
+                        val offsetHitPosition = hitTest.hitPosition!! + normalInHead * 0.05f
+                        val hitTestPose =
+                            headScenePose.transformPoseTo(
+                                Pose(offsetHitPosition, updatedRotation),
+                                session!!.scene.activitySpace,
+                            )
+                        transformWidgetModel?.let {
+                            val gltfEntity =
+                                GltfModelEntity.create(
+                                    session!!,
+                                    it,
+                                    hitTestPose,
+                                    parent = session!!.scene.activitySpace,
                                 )
-                            val hitTestPose =
-                                session!!
-                                    .scene
-                                    .perceptionSpace
-                                    .getScenePoseFromPerceptionPose(devicePose)
-                                    .transformPoseTo(
-                                        Pose(hitTest.hitPosition!!, updatedRotation),
-                                        session!!.scene.activitySpace,
-                                    )
-                            transformWidgetModel?.let {
-                                val gltfEntity =
-                                    GltfModelEntity.create(
-                                        session!!,
-                                        it,
-                                        hitTestPose,
-                                        parent = session!!.scene.activitySpace,
-                                    )
-                                gltfEntity.parent = session!!.scene.activitySpace
-                            }
-                            resultTextView.text =
-                                getHitTestLog(
-                                    xyzArrLoaded,
-                                    dragonLoaded,
-                                    hitTestPose.translation,
-                                    true,
-                                )
-                        } else {
-                            resultTextView.text =
-                                getHitTestLog(xyzArrLoaded, dragonLoaded, null, true)
+                            gltfEntity.parent = session!!.scene.activitySpace
                         }
+                        resultTextView.text =
+                            getHitTestLog(
+                                xyzArrLoaded,
+                                dragonLoaded,
+                                hitTestPose.translation,
+                                true,
+                            )
+                    } else {
+                        resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded, null, true)
                     }
                 }
             }
