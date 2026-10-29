@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.gesture
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -32,32 +33,37 @@ import java.util.WeakHashMap
  *
  * The value only identifies the action within Remote Compose, for example in generated experience
  * IDs. It is not a Wear SDK value: the host maps each action to the Wear SDK action itself, as Wear
- * Compose does.
+ * Compose does. The host side, the one-handed gesture manager in `remote-material3`, uses the same
+ * type.
  *
  * @property value The value that identifies the action.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
 @JvmInline
-internal value class RemoteOneHandedGestureAction private constructor(internal val value: Int) {
+public value class RemoteOneHandedGestureAction private constructor(internal val value: Int) {
     override fun toString(): String = if (this == Primary) "Primary" else "Unknown($value)"
 
-    internal companion object {
+    public companion object {
         /** The primary gesture: a double pinch. */
-        val Primary: RemoteOneHandedGestureAction = RemoteOneHandedGestureAction(1)
+        public val Primary: RemoteOneHandedGestureAction = RemoteOneHandedGestureAction(1)
     }
 }
 
 /**
  * The action and experience ID of a one-handed gesture, like Wear Compose's
- * `OneHandedGestureConfiguration`. Create it with [rememberRemoteOneHandedGestureConfiguration].
+ * `OneHandedGestureConfiguration`. In a document, create it with
+ * [rememberRemoteOneHandedGestureConfiguration]. The host side, the one-handed gesture manager in
+ * `remote-material3`, uses the same type for the gestures that it reads from a document.
  *
  * @property action The gesture action.
  * @property gestureId The experience ID. The Wear SDK keeps the hint history per ID.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-internal class RemoteOneHandedGestureConfiguration(
-    val action: RemoteOneHandedGestureAction,
-    val gestureId: String,
+public class RemoteOneHandedGestureConfiguration(
+    public val action: RemoteOneHandedGestureAction,
+    public val gestureId: String,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
