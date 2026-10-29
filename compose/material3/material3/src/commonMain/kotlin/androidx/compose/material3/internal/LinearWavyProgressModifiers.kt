@@ -18,13 +18,29 @@ package androidx.compose.material3.internal
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationScope
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.DecreasingAmplitudeAnimationSpec
+import androidx.compose.material3.FirstLineTailDelay
+import androidx.compose.material3.FirstLineTailDuration
 import androidx.compose.material3.IncreasingAmplitudeAnimationSpec
+import androidx.compose.material3.LinearAnimationDuration
+import androidx.compose.material3.SecondLineHeadDelay
+import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.material3.animateIndeterminateCycle
+import androidx.compose.material3.linearIndeterminateFirstLineHeadAnimationSpec
+import androidx.compose.material3.linearIndeterminateFirstLineTailAnimationSpec
+import androidx.compose.material3.linearIndeterminateSecondLineHeadAnimationSpec
+import androidx.compose.material3.linearIndeterminateSecondLineTailAnimationSpec
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
@@ -50,38 +66,44 @@ import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * A [Modifier] that draws a determinate wavy linear progress indicator.
+ * A [Modifier] that draws a wavy linear progress indicator.
  *
- * @param progress a lambda that returns the progress of the indicator (e.g. 0 to 1).
- * @param amplitude a lambda that returns the amplitude of the indicator as a function of the
- *   progress. The value here represents a fraction of the height of the indicator (e.g. 0 to 1).
+ * @param progress a lambda that returns the progress of the indicator (e.g. 0 to 1), or a
+ *   non-finite value for an indeterminate indicator.
  * @param color the color of the indicator.
  * @param trackColor the color of the track.
  * @param stroke the stroke of the indicator.
  * @param trackStroke the stroke of the track.
  * @param gapSize the gap size between the indicator and the track.
  * @param stopSize the size of the stop indicator.
- * @param wavelength the wavelength of the indicator.
- * @param waveSpeed the speed of the wave.
+ * @param amplitude a lambda that returns the amplitude of the indicator as a function of the
+ *   progress. The value here represents a fraction of the height of the indicator (e.g. 0 to 1).
+ * @param wavelength the wavelength of the determinate indicator.
+ * @param waveSpeed the speed of the wave of the determinate indicator.
+ * @param indeterminateWavelength the wavelength of the indeterminate indicator.
+ * @param indeterminateWaveSpeed the speed of the wave of the indeterminate indicator.
  */
 internal fun Modifier.linearWavyProgressIndicator(
     progress: () -> Float,
-    amplitude: (progress: Float) -> Float,
     color: Color,
     trackColor: Color,
     stroke: Stroke,
     trackStroke: Stroke,
     gapSize: Dp,
     stopSize: Dp,
+    amplitude: (progress: Float) -> Float,
     wavelength: Dp,
     waveSpeed: Dp,
+    indeterminateWavelength: Dp = WavyProgressIndicatorDefaults.LinearIndeterminateWavelength,
+    indeterminateWaveSpeed: Dp = indeterminateWavelength,
 ): Modifier =
     this.then(
-        DeterminateLinearWavyProgressElement(
+        LinearWavyProgressElement(
             progress = progress,
             amplitude = amplitude,
             color = color,
@@ -92,135 +114,133 @@ internal fun Modifier.linearWavyProgressIndicator(
             stopSize = stopSize,
             wavelength = wavelength,
             waveSpeed = waveSpeed,
+            indeterminateWavelength = indeterminateWavelength,
+            indeterminateWaveSpeed = indeterminateWaveSpeed,
         )
     )
 
-/**
- * A [Modifier] that draws an indeterminate wavy linear progress indicator.
- *
- * @param firstLineHeadProgress the animated head progress (0..1) of the first line.
- * @param firstLineTailProgress the animated tail progress (0..1) of the first line.
- * @param secondLineHeadProgress the animated head progress (0..1) of the second line.
- * @param secondLineTailProgress the animated tail progress (0..1) of the second line.
- * @param color the color of the indicator.
- * @param trackColor the color of the track.
- * @param stroke the stroke of the indicator.
- * @param trackStroke the stroke of the track.
- * @param gapSize the gap size between the indicator and the track.
- * @param amplitude the fixed amplitude (0..1) relative to half height.
- * @param wavelength the wavelength of the indicator.
- * @param waveSpeed the speed of the wave.
- */
-internal fun Modifier.linearWavyProgressIndicator(
-    firstLineHeadProgress: () -> Float,
-    firstLineTailProgress: () -> Float,
-    secondLineHeadProgress: () -> Float,
-    secondLineTailProgress: () -> Float,
-    color: Color,
-    trackColor: Color,
-    stroke: Stroke,
-    trackStroke: Stroke,
-    gapSize: Dp,
-    amplitude: Float,
-    wavelength: Dp,
-    waveSpeed: Dp,
-): Modifier =
-    this.then(
-        IndeterminateLinearWavyProgressElement(
-            firstLineHeadProgress = firstLineHeadProgress,
-            firstLineTailProgress = firstLineTailProgress,
-            secondLineHeadProgress = secondLineHeadProgress,
-            secondLineTailProgress = secondLineTailProgress,
-            color = color,
-            trackColor = trackColor,
-            stroke = stroke,
-            trackStroke = trackStroke,
-            gapSize = gapSize,
-            wavelength = wavelength,
-            waveSpeed = waveSpeed,
-            amplitude = amplitude,
-        )
-    )
-
-/** A base class for linear wavy progress [ModifierNodeElement]s. */
 @Suppress("ModifierNodeInspectableProperties")
-private abstract class BaseLinearWavyProgressElement<N : BaseLinearWavyProgressNode>(
-    open val color: Color,
-    open val trackColor: Color,
-    open val stroke: Stroke,
-    open val trackStroke: Stroke,
-    open val gapSize: Dp,
-    open val wavelength: Dp,
-    open val waveSpeed: Dp,
-) : ModifierNodeElement<N>() {
+private class LinearWavyProgressElement(
+    val progress: () -> Float,
+    val amplitude: (progress: Float) -> Float,
+    val color: Color,
+    val trackColor: Color,
+    val stroke: Stroke,
+    val trackStroke: Stroke,
+    val gapSize: Dp,
+    val stopSize: Dp,
+    val wavelength: Dp,
+    val waveSpeed: Dp,
+    val indeterminateWavelength: Dp,
+    val indeterminateWaveSpeed: Dp,
+) : ModifierNodeElement<LinearWavyProgressNode>() {
 
-    override fun update(node: N) {
+    override fun create(): LinearWavyProgressNode =
+        LinearWavyProgressNode(
+            progress = progress,
+            amplitude = amplitude,
+            colorParameter = color,
+            trackColorParameter = trackColor,
+            strokeParameter = stroke,
+            trackStrokeParameter = trackStroke,
+            gapSizeParameter = gapSize,
+            stopSizeParameter = stopSize,
+            wavelengthParameter = wavelength,
+            waveSpeedParameter = waveSpeed,
+            indeterminateWavelengthParameter = indeterminateWavelength,
+            indeterminateWaveSpeedParameter = indeterminateWaveSpeed,
+        )
+
+    override fun update(node: LinearWavyProgressNode) {
         node.color = color
         node.trackColor = trackColor
         node.stroke = stroke
         node.trackStroke = trackStroke
         node.gapSize = gapSize
+        node.stopSize = stopSize
         node.wavelength = wavelength
         node.waveSpeed = waveSpeed
+        node.indeterminateWavelength = indeterminateWavelength
+        node.indeterminateWaveSpeed = indeterminateWaveSpeed
+        if (node.progress !== progress || node.amplitude !== amplitude) {
+            node.progress = progress
+            node.amplitude = amplitude
+            node.invalidateDrawCache()
+        }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is BaseLinearWavyProgressElement<*>) return false
-
-        if (color != other.color) return false
-        if (trackColor != other.trackColor) return false
-        if (stroke != other.stroke) return false
-        if (trackStroke != other.trackStroke) return false
-        if (gapSize != other.gapSize) return false
-        if (wavelength != other.wavelength) return false
-        if (waveSpeed != other.waveSpeed) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = color.hashCode()
-        result = 31 * result + trackColor.hashCode()
-        result = 31 * result + stroke.hashCode()
-        result = 31 * result + trackStroke.hashCode()
-        result = 31 * result + gapSize.hashCode()
-        result = 31 * result + wavelength.hashCode()
-        result = 31 * result + waveSpeed.hashCode()
-        return result
-    }
-
-    /**
-     * Base implementation of [InspectorInfo.inspectableProperties] that can be called from the
-     * implementation of [InspectorInfo.inspectableProperties] override.
-     */
-    protected fun InspectorInfo.baseInspectableProperties() {
+    override fun InspectorInfo.inspectableProperties() {
+        name = "linearWavyProgressIndicator"
         properties["color"] = color
         properties["trackColor"] = trackColor
         properties["stroke"] = stroke
         properties["trackStroke"] = trackStroke
         properties["gapSize"] = gapSize
+        properties["stopSize"] = stopSize
         properties["wavelength"] = wavelength
         properties["waveSpeed"] = waveSpeed
+        properties["indeterminateWavelength"] = indeterminateWavelength
+        properties["indeterminateWaveSpeed"] = indeterminateWaveSpeed
+        // Excluding the amplitude and progress lambdas
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LinearWavyProgressElement) return false
+
+        if (progress !== other.progress) return false
+        if (amplitude !== other.amplitude) return false
+        if (color != other.color) return false
+        if (trackColor != other.trackColor) return false
+        if (stroke != other.stroke) return false
+        if (trackStroke != other.trackStroke) return false
+        if (gapSize != other.gapSize) return false
+        if (stopSize != other.stopSize) return false
+        if (wavelength != other.wavelength) return false
+        if (waveSpeed != other.waveSpeed) return false
+        if (indeterminateWavelength != other.indeterminateWavelength) return false
+        if (indeterminateWaveSpeed != other.indeterminateWaveSpeed) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = progress.hashCode()
+        result = 31 * result + amplitude.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + trackColor.hashCode()
+        result = 31 * result + stroke.hashCode()
+        result = 31 * result + trackStroke.hashCode()
+        result = 31 * result + gapSize.hashCode()
+        result = 31 * result + stopSize.hashCode()
+        result = 31 * result + wavelength.hashCode()
+        result = 31 * result + waveSpeed.hashCode()
+        result = 31 * result + indeterminateWavelength.hashCode()
+        result = 31 * result + indeterminateWaveSpeed.hashCode()
+        return result
     }
 }
 
-/** A base class for linear wavy progress [Modifier] nodes. */
-private abstract class BaseLinearWavyProgressNode(
+private class LinearWavyProgressNode(
+    var progress: () -> Float,
+    var amplitude: (progress: Float) -> Float,
     colorParameter: Color,
     trackColorParameter: Color,
     strokeParameter: Stroke,
     trackStrokeParameter: Stroke,
     gapSizeParameter: Dp,
+    stopSizeParameter: Dp,
     wavelengthParameter: Dp,
     waveSpeedParameter: Dp,
+    indeterminateWavelengthParameter: Dp,
+    indeterminateWaveSpeedParameter: Dp,
 ) : DelegatingNode() {
 
     var color: Color = colorParameter
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                cacheDrawNode.invalidateDraw()
             }
         }
 
@@ -228,7 +248,7 @@ private abstract class BaseLinearWavyProgressNode(
         set(value) {
             if (field != value) {
                 field = value
-                invalidateDraw()
+                cacheDrawNode.invalidateDraw()
             }
         }
 
@@ -256,11 +276,19 @@ private abstract class BaseLinearWavyProgressNode(
             }
         }
 
+    var stopSize: Dp = stopSizeParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                cacheDrawNode.invalidateDraw()
+            }
+        }
+
     var wavelength: Dp = wavelengthParameter
         set(value) {
             if (field != value) {
                 field = value
-                updateOffsetAnimation() // Restart animation
+                if (!indeterminate) updateOffsetAnimation() // Restart animation
                 invalidateDrawCache()
             }
         }
@@ -269,38 +297,95 @@ private abstract class BaseLinearWavyProgressNode(
         set(value) {
             if (field != value) {
                 field = value
-                updateOffsetAnimation() // Restart animation
+                if (!indeterminate) updateOffsetAnimation() // Restart animation
                 invalidateDrawCache()
             }
         }
 
+    var indeterminateWavelength: Dp = indeterminateWavelengthParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                if (indeterminate) updateOffsetAnimation() // Restart animation
+                invalidateDrawCache()
+            }
+        }
+
+    var indeterminateWaveSpeed: Dp = indeterminateWaveSpeedParameter
+        set(value) {
+            if (field != value) {
+                field = value
+                if (indeterminate) updateOffsetAnimation() // Restart animation
+                invalidateDrawCache()
+            }
+        }
+
+    private var indeterminate = false
+    private var indeterminateJob: Job? = null
+    private var cyclePlayTimeMillis = 0f
+    private var drawSecondLine = true
+    private var handoffFraction = 1f
+
+    private val waveOffset = mutableFloatStateOf(0f)
+    private var offsetAnimationJob: Job? = null
+
+    private var amplitudeAnimatable: Animatable<Float, AnimationVector1D>? = null
+    private var amplitudeAnimationJob: Job? = null
+    private var currentTargetAmplitude = -1f
+
+    private val progressDrawingCache = LinearProgressDrawingCache()
+    private val determinateFractions = FloatArray(2)
+    private val indeterminateFractions = FloatArray(4)
+    private val firstLineHead =
+        linearIndeterminateFirstLineHeadAnimationSpec.vectorize(Float.VectorConverter)
+    private val firstLineTail =
+        linearIndeterminateFirstLineTailAnimationSpec.vectorize(Float.VectorConverter)
+    private val secondLineHead =
+        linearIndeterminateSecondLineHeadAnimationSpec.vectorize(Float.VectorConverter)
+    private val secondLineTail =
+        linearIndeterminateSecondLineTailAnimationSpec.vectorize(Float.VectorConverter)
+
+    private val activeWavelength: Dp
+        get() = if (indeterminate) indeterminateWavelength else wavelength
+
+    private val activeWaveSpeed: Dp
+        get() = if (indeterminate) indeterminateWaveSpeed else waveSpeed
+
     override fun onAttach() {
-        // Potentially start the wave offset animation.
-        updateOffsetAnimation()
+        if (!progress().isFinite()) {
+            startIndeterminateAnimation()
+        } else {
+            // Potentially start the wave offset animation.
+            updateOffsetAnimation()
+        }
+        // The draw cache outlives a detach, so rebuild it to restart what onDetach() reset.
+        invalidateDrawCache()
     }
 
     override fun onDetach() {
         amplitudeAnimatable = null
+        currentTargetAmplitude = -1f
+        indeterminateJob = null
+        indeterminate = false
+        handoffFraction = 1f
     }
 
-    protected val waveOffset = mutableFloatStateOf(0f)
-    private var offsetAnimationJob: Job? = null
-
-    protected var amplitudeAnimatable: Animatable<Float, AnimationVector1D>? = null
-    protected var amplitudeAnimationJob: Job? = null
-
-    protected val progressDrawingCache = LinearProgressDrawingCache()
+    fun invalidateDrawCache() {
+        cacheDrawNode.invalidateDrawCache()
+    }
 
     /** Updates the wave offset animation, potentially starting it if it is not already running. */
-    protected fun updateOffsetAnimation() {
+    private fun updateOffsetAnimation() {
         offsetAnimationJob?.cancel()
         offsetAnimationJob = null
 
         if (!isAttached) return
 
-        if (waveSpeed > 0.dp && wavelength > 0.dp) {
+        val currentWavelength = activeWavelength
+        val currentWaveSpeed = activeWaveSpeed
+        if (currentWaveSpeed > 0.dp && currentWavelength > 0.dp) {
             val durationMillis =
-                ((wavelength / waveSpeed) * 1000)
+                ((currentWavelength / currentWaveSpeed) * 1000)
                     .fastRoundToInt()
                     .coerceAtLeast(MinAnimationDuration)
             offsetAnimationJob = coroutineScope.launch {
@@ -329,23 +414,22 @@ private abstract class BaseLinearWavyProgressNode(
     /**
      * Updates an amplitude change animation, potentially starting it if it is not already running.
      */
-    protected fun updateAmplitudeAnimation(targetAmplitudePx: Float) {
+    private fun updateAmplitudeAnimation(targetAmplitude: Float) {
         val currentAmplitudeAnimatable =
             amplitudeAnimatable
-                ?: Animatable(initialValue = targetAmplitudePx).also { amplitudeAnimatable = it }
+                ?: Animatable(initialValue = targetAmplitude).also {
+                    amplitudeAnimatable = it
+                    currentTargetAmplitude = targetAmplitude
+                }
 
-        // Check if the amplitude target has changed AND animation is not already running
-        // towards it. If so, launch the amplitude animation within the node's scope
-        if (
-            isAttached &&
-                currentAmplitudeAnimatable.targetValue != targetAmplitudePx &&
-                (amplitudeAnimationJob == null || amplitudeAnimationJob?.isCompleted == true)
-        ) {
+        if (isAttached && currentTargetAmplitude != targetAmplitude) {
+            currentTargetAmplitude = targetAmplitude
+            amplitudeAnimationJob?.cancel()
             amplitudeAnimationJob = coroutineScope.launch {
                 currentAmplitudeAnimatable.animateTo(
-                    targetValue = targetAmplitudePx,
+                    targetValue = targetAmplitude,
                     animationSpec =
-                        if (currentAmplitudeAnimatable.value < targetAmplitudePx) {
+                        if (currentAmplitudeAnimatable.value < targetAmplitude) {
                             IncreasingAmplitudeAnimationSpec
                         } else {
                             DecreasingAmplitudeAnimationSpec
@@ -355,161 +439,106 @@ private abstract class BaseLinearWavyProgressNode(
         }
     }
 
-    /** Provides the progress fractions (2 for determinate, 4 for indeterminate). */
-    protected abstract fun getProgressFractions(): FloatArray
-
-    /**
-     * Invalidates this modifier's draw layer, ensuring that a draw pass will be run on the next
-     * frame.
-     */
-    protected abstract fun invalidateDraw()
-
-    /**
-     * Invalidate the draw cache for changes in things like stroke width, amplitude, etc. This call
-     * may also start or stop animations that update the wave drawings.
-     */
-    protected abstract fun invalidateDrawCache()
-}
-
-private class DeterminateLinearWavyProgressElement(
-    val progress: () -> Float,
-    val amplitude: (progress: Float) -> Float,
-    override val color: Color,
-    override val trackColor: Color,
-    override val stroke: Stroke,
-    override val trackStroke: Stroke,
-    override val gapSize: Dp,
-    val stopSize: Dp,
-    override val wavelength: Dp,
-    override val waveSpeed: Dp,
-) :
-    BaseLinearWavyProgressElement<DeterminateLinearWavyProgressNode>(
-        color,
-        trackColor,
-        stroke,
-        trackStroke,
-        gapSize,
-        wavelength,
-        waveSpeed,
-    ) {
-
-    override fun create(): DeterminateLinearWavyProgressNode =
-        DeterminateLinearWavyProgressNode(
-            progress = progress,
-            amplitude = amplitude,
-            stopSizeParameter = stopSize,
-            colorParameter = color,
-            trackColorParameter = trackColor,
-            strokeParameter = stroke,
-            trackStrokeParameter = trackStroke,
-            gapSizeParameter = gapSize,
-            wavelengthParameter = wavelength,
-            waveSpeedParameter = waveSpeed,
-        )
-
-    override fun update(node: DeterminateLinearWavyProgressNode) {
-        super.update(node)
-        node.stopSize = stopSize
-        if (node.progress !== progress || node.amplitude !== amplitude) {
-            node.progress = progress
-            node.amplitude = amplitude
-            node.cacheDrawNodeDelegate.invalidateDrawCache()
-        }
+    private fun determinateProgress(): Float {
+        val currentProgress = progress()
+        return if (!currentProgress.isFinite()) 0f else currentProgress.fastCoerceIn(0f, 1f)
     }
 
-    override fun InspectorInfo.inspectableProperties() {
-        name = "determinateLinearWavyProgressIndicator"
-        properties["stopSize"] = stopSize
-        baseInspectableProperties()
-        // Excluding the amplitude and progress lambdas
+    private fun targetAmplitude(): Float {
+        val value = amplitude(if (indeterminate) Float.NaN else determinateProgress())
+        return if (value.isNaN()) 1f else value.fastCoerceIn(0f, 1f)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (!super.equals(other)) return false
-        if (other !is DeterminateLinearWavyProgressElement) return false
-        if (
-            stopSize != other.stopSize ||
-                progress !== other.progress ||
-                amplitude !== other.amplitude
-        )
-            return false
-        return true
-    }
+    private fun startIndeterminateAnimation() {
+        indeterminate = true
+        cyclePlayTimeMillis = 0f
+        drawSecondLine = true
+        handoffFraction = 1f
+        updateOffsetAnimation()
+        indeterminateJob?.cancel()
+        indeterminateJob = coroutineScope.launch {
+            val clock = AnimationState(0f)
+            val onFrame: AnimationScope<Float, AnimationVector1D>.() -> Unit = {
+                val playTimeMillis = value % LinearAnimationDuration
+                if (playTimeMillis < cyclePlayTimeMillis) drawSecondLine = true
+                cyclePlayTimeMillis = playTimeMillis
+                cacheDrawNode.invalidateDraw()
+            }
+            do {
+                clock.animateIndeterminateCycle(
+                    cycleDurationMillis = LinearAnimationDuration,
+                    isIndeterminate = { !progress().isFinite() },
+                    onFrame = onFrame,
+                )
+                drawSecondLine = drawSecondLine && cyclePlayTimeMillis > SecondLineHeadDelay
+                val exitDistanceMillis =
+                    (if (drawSecondLine) LinearAnimationDuration else FirstLineExitMillis) -
+                        cyclePlayTimeMillis
+                if (exitDistanceMillis > 0f) {
+                    clock.animateTo(
+                        targetValue = clock.value + exitDistanceMillis,
+                        animationSpec = handoffExitAnimationSpec(exitDistanceMillis),
+                        sequentialAnimation = true,
+                    ) {
+                        onFrame()
+                        if (!progress().isFinite()) cancelAnimation()
+                    }
+                }
+            } while (!progress().isFinite())
 
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + stopSize.hashCode()
-        result = 31 * result + progress.hashCode()
-        result = 31 * result + amplitude.hashCode()
-        return result
-    }
-}
-
-private class DeterminateLinearWavyProgressNode(
-    var progress: () -> Float,
-    var amplitude: (progress: Float) -> Float,
-    stopSizeParameter: Dp,
-    colorParameter: Color,
-    trackColorParameter: Color,
-    strokeParameter: Stroke,
-    trackStrokeParameter: Stroke,
-    gapSizeParameter: Dp,
-    wavelengthParameter: Dp,
-    waveSpeedParameter: Dp,
-) :
-    BaseLinearWavyProgressNode(
-        colorParameter,
-        trackColorParameter,
-        strokeParameter,
-        trackStrokeParameter,
-        gapSizeParameter,
-        wavelengthParameter,
-        waveSpeedParameter,
-    ) {
-
-    var stopSize: Dp = stopSizeParameter
-        set(value) {
-            if (field != value) {
-                field = value
-                cacheDrawNodeDelegate.invalidateDraw()
+            indeterminate = false
+            cyclePlayTimeMillis = 0f
+            handoffFraction = 0f
+            val determinateAmplitude = targetAmplitude()
+            currentTargetAmplitude = determinateAmplitude
+            amplitudeAnimationJob?.cancel()
+            amplitudeAnimatable?.snapTo(determinateAmplitude)
+            updateOffsetAnimation()
+            cacheDrawNode.invalidateDrawCache()
+            Animatable(0f).animateTo(
+                targetValue = 1f,
+                animationSpec = WavyProgressIndicatorDefaults.ProgressAnimationSpec,
+            ) {
+                handoffFraction = value
+                cacheDrawNode.invalidateDraw()
             }
         }
-
-    private val progressFractionsArray = floatArrayOf(0f, 0f)
-
-    override fun getProgressFractions(): FloatArray {
-        progressFractionsArray[0] = 0f // Start is always 0f for determinate
-        progressFractionsArray[1] = progress().fastCoerceIn(0f, 1f)
-        return progressFractionsArray
     }
 
-    override fun invalidateDraw() {
-        cacheDrawNodeDelegate.invalidateDraw()
-    }
+    private fun progressFractions(): FloatArray =
+        if (indeterminate) {
+            indeterminateFractions[0] = firstLineTail.valueAt(cyclePlayTimeMillis)
+            indeterminateFractions[1] = firstLineHead.valueAt(cyclePlayTimeMillis)
+            indeterminateFractions[2] =
+                if (drawSecondLine) secondLineTail.valueAt(cyclePlayTimeMillis) else 0f
+            indeterminateFractions[3] =
+                if (drawSecondLine) secondLineHead.valueAt(cyclePlayTimeMillis) else 0f
+            indeterminateFractions
+        } else {
+            determinateFractions[1] = determinateProgress() * handoffFraction
+            determinateFractions
+        }
 
-    override fun invalidateDrawCache() {
-        cacheDrawNodeDelegate.invalidateDrawCache()
-    }
-
-    val cacheDrawNodeDelegate: CacheDrawModifierNode =
+    private val cacheDrawNode: CacheDrawModifierNode =
         delegate(
             CacheDrawModifierNode {
-                val coercedProgress = progress().fastCoerceIn(0f, 1f)
-                val targetAmplitudePx = amplitude(coercedProgress).fastCoerceIn(0f, 1f)
+                val currentProgress = progress()
+                if (!currentProgress.isFinite() && !indeterminate) {
+                    startIndeterminateAnimation()
+                }
 
-                // In case the amplitude was updated, update the animation that will transition it
-                // smoothly.
-                updateAmplitudeAnimation(targetAmplitudePx)
+                updateAmplitudeAnimation(targetAmplitude())
 
                 onDrawWithContent {
                     // Read from the states here and update the LinearProgressDrawingCache inside
                     // the onDrawWithContent to avoid voiding the cache at this
                     // CacheDrawModifierNode.
                     val currentAmplitude = amplitudeAnimatable?.value ?: 0f
+                    val fractions = progressFractions()
                     progressDrawingCache.updatePaths(
                         size = size,
-                        wavelength = wavelength.toPx(),
-                        progressFractions = getProgressFractions(),
+                        wavelength = activeWavelength.toPx(),
+                        progressFractions = fractions,
                         amplitude = currentAmplitude,
                         waveOffset = if (currentAmplitude > 0f) waveOffset.floatValue else 0f,
                         gapSize = gapSize.toPx(),
@@ -535,185 +564,15 @@ private class DeterminateLinearWavyProgressNode(
                                 }
                             }
 
-                            // Draw a stop indicator
-                            drawStopIndicator(
-                                progressEnd = getProgressFractions()[1],
-                                progressIndicatorSize = size,
-                                maxStopIndicatorSize = stopSize,
-                                horizontalInsets = currentStrokeCapWidth,
-                                trackStroke = trackStroke,
-                                color = color,
-                            )
-                        }
-                    }
-                }
-            }
-        )
-}
-
-private class IndeterminateLinearWavyProgressElement(
-    val firstLineHeadProgress: () -> Float,
-    val firstLineTailProgress: () -> Float,
-    val secondLineHeadProgress: () -> Float,
-    val secondLineTailProgress: () -> Float,
-    override val color: Color,
-    override val trackColor: Color,
-    override val stroke: Stroke,
-    override val trackStroke: Stroke,
-    override val gapSize: Dp,
-    override val wavelength: Dp,
-    override val waveSpeed: Dp,
-    val amplitude: Float,
-) :
-    BaseLinearWavyProgressElement<IndeterminateLinearWavyProgressNode>(
-        color,
-        trackColor,
-        stroke,
-        trackStroke,
-        gapSize,
-        wavelength,
-        waveSpeed,
-    ) {
-
-    override fun create(): IndeterminateLinearWavyProgressNode =
-        IndeterminateLinearWavyProgressNode(
-            firstLineHeadProgress = firstLineHeadProgress,
-            firstLineTailProgress = firstLineTailProgress,
-            secondLineHeadProgress = secondLineHeadProgress,
-            secondLineTailProgress = secondLineTailProgress,
-            amplitudeParameter = amplitude,
-            // Pass common parameters to base node constructor
-            colorParameter = color,
-            trackColorParameter = trackColor,
-            strokeParameter = stroke,
-            trackStrokeParameter = trackStroke,
-            gapSizeParameter = gapSize,
-            wavelengthParameter = wavelength,
-            waveSpeedParameter = waveSpeed,
-        )
-
-    override fun update(node: IndeterminateLinearWavyProgressNode) {
-        super.update(node)
-        node.firstLineHeadProgress = firstLineHeadProgress
-        node.firstLineTailProgress = firstLineTailProgress
-        node.secondLineHeadProgress = secondLineHeadProgress
-        node.secondLineTailProgress = secondLineTailProgress
-        node.amplitude = amplitude
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "indeterminateLinearWavyProgressIndicator"
-        properties["amplitude"] = amplitude
-        baseInspectableProperties()
-        // Exclude the lambdas for head and tail progress
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (!super.equals(other)) return false
-        if (other !is IndeterminateLinearWavyProgressElement) return false
-        if (amplitude != other.amplitude) return false
-        // Exclude the lambdas for head and tail progress
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + amplitude.hashCode()
-        // Exclude the lambdas for head and tail progress
-        return result
-    }
-}
-
-private class IndeterminateLinearWavyProgressNode(
-    var firstLineHeadProgress: () -> Float,
-    var firstLineTailProgress: () -> Float,
-    var secondLineHeadProgress: () -> Float,
-    var secondLineTailProgress: () -> Float,
-    amplitudeParameter: Float,
-    colorParameter: Color,
-    trackColorParameter: Color,
-    strokeParameter: Stroke,
-    trackStrokeParameter: Stroke,
-    gapSizeParameter: Dp,
-    wavelengthParameter: Dp,
-    waveSpeedParameter: Dp,
-) :
-    BaseLinearWavyProgressNode(
-        colorParameter,
-        trackColorParameter,
-        strokeParameter,
-        trackStrokeParameter,
-        gapSizeParameter,
-        wavelengthParameter,
-        waveSpeedParameter,
-    ) {
-
-    var amplitude: Float = amplitudeParameter.fastCoerceIn(0f, 1f)
-        set(value) {
-            val coerced = value.fastCoerceIn(0f, 1f)
-            if (field != coerced) {
-                field = coerced
-                invalidateDrawCache()
-            }
-        }
-
-    private val progressFractionsArray = floatArrayOf(0f, 0f, 0f, 0f)
-
-    override fun getProgressFractions(): FloatArray {
-        progressFractionsArray[0] = firstLineTailProgress()
-        progressFractionsArray[1] = firstLineHeadProgress()
-        progressFractionsArray[2] = secondLineTailProgress()
-        progressFractionsArray[3] = secondLineHeadProgress()
-        return progressFractionsArray
-    }
-
-    override fun invalidateDraw() {
-        cacheDrawNodeDelegate.invalidateDraw()
-    }
-
-    override fun invalidateDrawCache() {
-        cacheDrawNodeDelegate.invalidateDrawCache()
-    }
-
-    private val cacheDrawNodeDelegate: CacheDrawModifierNode =
-        delegate(
-            CacheDrawModifierNode {
-                // In case the amplitude was updated, update the animation that will transition it
-                // smoothly.
-                updateAmplitudeAnimation(amplitude)
-
-                onDrawWithContent {
-                    // Read from the states here and update the LinearProgressDrawingCache inside
-                    // the onDrawWithContent to avoid voiding the cache at this
-                    // CacheDrawModifierNode.
-                    val currentAmplitude = amplitudeAnimatable?.value ?: 0f
-                    progressDrawingCache.updatePaths(
-                        size = size,
-                        wavelength = wavelength.toPx(),
-                        progressFractions = getProgressFractions(),
-                        amplitude = currentAmplitude,
-                        waveOffset = if (currentAmplitude > 0f) waveOffset.floatValue else 0f,
-                        gapSize = gapSize.toPx(),
-                        stroke = stroke,
-                        trackStroke = trackStroke,
-                    )
-
-                    // Draw
-                    with(progressDrawingCache) {
-                        rotate(if (layoutDirection == LayoutDirection.Ltr) 0f else 180f) {
-                            // Draw track
-                            drawPath(
-                                path = trackPathToDraw,
-                                color = trackColor,
-                                style = trackStroke,
-                            )
-
-                            // Draw progress
-                            val progressPaths = progressPathsToDraw
-                            if (progressPaths != null) {
-                                for (i in progressPaths.indices) {
-                                    drawPath(path = progressPaths[i], color = color, style = stroke)
-                                }
+                            if (!indeterminate) {
+                                drawStopIndicator(
+                                    progressEnd = fractions[1],
+                                    progressIndicatorSize = size,
+                                    maxStopIndicatorSize = stopSize * handoffFraction,
+                                    horizontalInsets = currentStrokeCapWidth,
+                                    trackStroke = trackStroke,
+                                    color = color,
+                                )
                             }
                         }
                     }
@@ -721,6 +580,59 @@ private class IndeterminateLinearWavyProgressNode(
             }
         )
 }
+
+private const val FirstLineExitMillis = FirstLineTailDelay + FirstLineTailDuration
+private const val HandoffMaxPlaybackSpeed = 2.5f
+private const val HandoffPlaybackRampMillis = 150f
+private const val HandoffPlaybackAcceleration =
+    (HandoffMaxPlaybackSpeed - 1f) / HandoffPlaybackRampMillis
+private const val HandoffPlaybackRampDistanceMillis =
+    (1f + HandoffMaxPlaybackSpeed) / 2f * HandoffPlaybackRampMillis
+
+private val ZeroVector = AnimationVector1D(0f)
+private val OneVector = AnimationVector1D(1f)
+
+// Keyframes truncate the play time to whole milliseconds, so round away the float error first.
+private fun VectorizedAnimationSpec<AnimationVector1D>.valueAt(playTimeMillis: Float): Float =
+    getValueFromNanos(
+            playTimeMillis.fastRoundToInt() * 1_000_000L,
+            ZeroVector,
+            OneVector,
+            ZeroVector,
+        )
+        .value
+
+/**
+ * Plays [distanceMillis] of the indeterminate cycle at a speed that ramps up linearly from 1x to
+ * [HandoffMaxPlaybackSpeed] over [HandoffPlaybackRampMillis].
+ */
+private fun handoffExitAnimationSpec(distanceMillis: Float): AnimationSpec<Float> {
+    val durationMillis =
+        if (distanceMillis <= HandoffPlaybackRampDistanceMillis) {
+            (sqrt(1f + 2f * HandoffPlaybackAcceleration * distanceMillis) - 1f) /
+                HandoffPlaybackAcceleration
+        } else {
+            HandoffPlaybackRampMillis +
+                (distanceMillis - HandoffPlaybackRampDistanceMillis) / HandoffMaxPlaybackSpeed
+        }
+    return tween(
+        durationMillis = durationMillis.fastRoundToInt().coerceAtLeast(1),
+        easing = { fraction ->
+            handoffExitDistanceMillis(fraction * durationMillis) / distanceMillis
+        },
+    )
+}
+
+/**
+ * The distance in the indeterminate cycle that [handoffExitAnimationSpec] covers in [timeMillis].
+ */
+private fun handoffExitDistanceMillis(timeMillis: Float): Float =
+    if (timeMillis <= HandoffPlaybackRampMillis) {
+        timeMillis + HandoffPlaybackAcceleration / 2f * timeMillis * timeMillis
+    } else {
+        HandoffPlaybackRampDistanceMillis +
+            HandoffMaxPlaybackSpeed * (timeMillis - HandoffPlaybackRampMillis)
+    }
 
 /**
  * Draws an indicator at the end of the track. The size of the dot will remain constant until the
@@ -848,8 +760,9 @@ private class LinearProgressDrawingCache {
         stroke: Stroke,
         trackStroke: Stroke,
     ) {
-        if (currentProgressFractions == null) {
-            // Just create FloatArray to match the size of the given progressFractions array.
+        val sizeChanged = currentProgressFractions?.size != progressFractions.size
+        if (sizeChanged) {
+            // Create a FloatArray to match the size of the given progressFractions array.
             // We will later call copyInto to copy the incoming values into this cache.
             currentProgressFractions = FloatArray(progressFractions.size)
             progressPathsToDraw = Array(progressFractions.size / 2) { Path() }
@@ -857,7 +770,7 @@ private class LinearProgressDrawingCache {
         val pathsUpdates =
             updateFullPaths(size, wavelength, amplitude, gapSize, stroke, trackStroke)
         updateDrawPaths(
-            forceUpdate = pathsUpdates,
+            forceUpdate = pathsUpdates || sizeChanged,
             progressFractions = progressFractions,
             amplitude = amplitude,
             waveOffset = waveOffset,
