@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
@@ -495,6 +496,28 @@ class WebSurfaceTest {
             }
         } finally {
             composeTestRule.runOnIdle { secondContent.close() }
+        }
+    }
+
+    @Test
+    fun testSiblingAndroidViewDoesNotStealFocus() {
+        lateinit var bridge: WebViewBridge
+        val focusRequester = FocusRequester()
+
+        composeTestRule.setContent {
+            Column {
+                AndroidView(factory = ::EditText)
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp).focusRequester(focusRequester),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            focusRequester.requestFocus()
+            assertTrue(bridge.hasFocus())
         }
     }
 
