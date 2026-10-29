@@ -974,6 +974,7 @@ private constructor(
         val typeElement = typeMirror.typeElement
         if (
             typeElement != null &&
+                !typeElement.isValueClass() &&
                 !typeMirror.asTypeName().isPrimitive &&
                 !typeMirror.isKotlinUnit()
         ) {

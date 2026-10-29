@@ -3474,6 +3474,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                   @Query("SELECT uuidData FROM MyEntity")
                   fun getValueClass(): UUIDValueClass
 
+                  @Query("SELECT pk, genericData AS data FROM MyEntity")
+                  fun getValueClassMap(): Map<@MapColumn("pk") LongValueClass, @MapColumn("data") GenericValueClass<String>>
+
                   @Insert
                   fun addEntity(item: MyEntity)
                 }

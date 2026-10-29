@@ -69,7 +69,7 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
         return false
     }
 
-    if (typeElement.isDataClass()) {
+    if (typeElement.isDataClass() || typeElement.isValueClass()) {
         return true
     }
     val hasEquals =
@@ -83,7 +83,7 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
         typeElement.getDeclaredMethods().any {
             it.jvmName == "hashCode" &&
                 it.returnType.asTypeName() == XTypeName.PRIMITIVE_INT &&
-                it.parameters.count() == 0
+                it.parameters.isEmpty()
         }
 
     if (hasEquals && hasHashCode) return true

@@ -32,10 +32,13 @@ import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.RoomTypeNames.STRING_UTIL
 import androidx.room3.ext.implementsEqualsAndHashcode
 import androidx.room3.parser.SQLTypeAffinity
+import androidx.room3.parser.SqlParser
 import androidx.room3.processor.Context
 import androidx.room3.processor.CustomColumnConverterProcessor
 import androidx.room3.processor.ProcessorErrors
 import androidx.room3.solver.query.parameter.CollectionQueryParameterAdapter
+import androidx.room3.solver.query.result.DataClassRowAdapter
+import androidx.room3.solver.query.result.SingleNamedColumnRowAdapter
 import androidx.room3.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room3.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room3.solver.types.ColumnTypeAdapter
@@ -49,6 +52,8 @@ import androidx.room3.solver.types.StringColumnTypeAdapter
 import androidx.room3.solver.types.UuidColumnTypeAdapter
 import androidx.room3.solver.types.ValueClassConverterWrapper
 import androidx.room3.testing.context
+import androidx.room3.verifier.ColumnInfo
+import androidx.room3.verifier.QueryResultInfo
 import androidx.room3.vo.BuiltInConverterFlags
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.`is`
@@ -335,6 +340,97 @@ class TypeAdapterStoreTest {
                     skipDefaultConverter = false,
                 )
             assertThat(result).isNull()
+        }
+    }
+
+    @Test
+    fun testValueClassRowAdapter() {
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
+                @JvmInline
+                value class Foo(val value: String)
+                """
+                    .trimIndent(),
+            )
+
+        runKspTest(sources = listOf(source)) { invocation ->
+            val store =
+                TypeAdapterStore.create(
+                    context = invocation.context,
+                    builtInConverterFlags = BuiltInConverterFlags.DEFAULT,
+                )
+            val typeElement = invocation.processingEnv.requireTypeElement("Foo")
+            val query =
+                SqlParser.parse("SELECT value, otherValue FROM MyTable").apply {
+                    resultInfo =
+                        QueryResultInfo(
+                            listOf(
+                                ColumnInfo("value", SQLTypeAffinity.TEXT, "MyTable"),
+                                ColumnInfo("otherValue", SQLTypeAffinity.TEXT, "MyTable"),
+                            )
+                        )
+                }
+            val result =
+                store.findRowAdapter(
+                    typeMirror = typeElement.type,
+                    query = query,
+                    columnName = "otherValue",
+                )
+            assertThat(result).isInstanceOf<SingleNamedColumnRowAdapter>()
+            assertThat((result as SingleNamedColumnRowAdapter).columnName).isEqualTo("otherValue")
+        }
+    }
+
+    @Test
+    fun testDataClassWithColumnTypeConverterRowAdapter() {
+        val source =
+            Source.kotlin(
+                "Result.kt",
+                """
+                package foo.bar
+                import androidx.room3.*
+
+                data class Result(val data: String)
+
+                object ResultConverters {
+                    @ColumnTypeConverter
+                    fun toResult(text: String) = Result("result is: ${'$'}text")
+                }
+                """
+                    .trimIndent(),
+            )
+
+        runKspTest(sources = listOf(source)) { invocation ->
+            val context = invocation.context
+            val converters =
+                CustomColumnConverterProcessor(
+                        context = context,
+                        element =
+                            invocation.processingEnv.requireTypeElement("foo.bar.ResultConverters"),
+                    )
+                    .process()
+                    .map(::CustomColumnTypeConverterWrapper)
+            val store =
+                TypeAdapterStore.create(
+                    context,
+                    BuiltInConverterFlags.DEFAULT,
+                    converters,
+                )
+            val typeElement = invocation.processingEnv.requireTypeElement("foo.bar.Result")
+            val query =
+                SqlParser.parse("SELECT data FROM Foo").apply {
+                    resultInfo =
+                        QueryResultInfo(listOf(ColumnInfo("data", SQLTypeAffinity.TEXT, "Foo")))
+                }
+            val result =
+                store.findRowAdapter(
+                    typeMirror = typeElement.type,
+                    query = query,
+                    columnName = "data",
+                )
+            assertThat(result).isInstanceOf<DataClassRowAdapter>()
         }
     }
 
@@ -814,6 +910,16 @@ class TypeAdapterStoreTest {
                 """
                     .trimIndent(),
             )
+        val valueClass =
+            Source.kotlin(
+                "foo/bar/Value.kt",
+                """
+                package foo.bar
+                @JvmInline
+                value class Value(val value: Int)
+                """
+                    .trimIndent(),
+            )
         val classWithWrongFncs =
             Source.java(
                 "foo.bar.UsernameWithWrongFncs",
@@ -838,16 +944,19 @@ class TypeAdapterStoreTest {
                     classWithFncs,
                     classWithoutFncs,
                     enumClass,
+                    valueClass,
                     classWithWrongFncs,
                 )
         ) { invocation ->
             val enumCase = invocation.processingEnv.requireTypeElement("foo.bar.Names")
+            val valueCase = invocation.processingEnv.requireTypeElement("foo.bar.Value")
             val inheritedCase = invocation.processingEnv.requireTypeElement("foo.bar.Human")
             val wrongFunctionsCase =
                 invocation.processingEnv.requireTypeElement("foo.bar.UsernameWithWrongFncs")
             val noEqualsOrHashcodeCase =
                 invocation.processingEnv.requireTypeElement("foo.bar.Person")
             assertThat(enumCase.type.implementsEqualsAndHashcode()).isTrue()
+            assertThat(valueCase.type.implementsEqualsAndHashcode()).isTrue()
             assertThat(inheritedCase.type.implementsEqualsAndHashcode()).isTrue()
             assertThat(wrongFunctionsCase.type.implementsEqualsAndHashcode()).isFalse()
             assertThat(noEqualsOrHashcodeCase.type.implementsEqualsAndHashcode()).isFalse()
