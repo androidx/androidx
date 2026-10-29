@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.xr.compose.material3.integration.testapp.components.BasicAlertDialog
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.SpatialDialog
 
@@ -45,7 +47,30 @@ internal fun DetailPaneDialog() {
     ) {
         SimpleDialog()
         MaterialAlertDialog()
+        MaterialBasicAlertDialog()
         XrElevatedDialog()
+    }
+}
+
+@Composable
+private fun MaterialBasicAlertDialog() {
+    DialogWithShowButton(text = "Material Basic Alert Dialog") { showDialog ->
+        BasicAlertDialog(onDismissRequest = { showDialog.value = false }) {
+            Card {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    Text("This is a Material BasicAlertDialog.")
+                    Button(
+                        onClick = { showDialog.value = false },
+                        modifier = Modifier.align(Alignment.End),
+                    ) {
+                        Text("Dismiss")
+                    }
+                }
+            }
+        }
     }
 }
 
