@@ -1,12 +1,13 @@
 ---
 name: camerax-code-review
 description: >-
-  Reviews and audits CameraX code changes, root-cause investigations,
-  implementation plans, test reports, and design syntheses (Steps 1-7 & Modes
-  1-5) using the Universal Clean-Context Multi-Model Verification Loop. Use when
-  reviewing a CameraX CL or commit, auditing a triage report or implementation
-  plan, or running multi-model verification. Don't use for executing Gradle test
-  tasks (use camerax-testing) or device quirk decision trees (use
+  Reviews and audits CameraX code changes, technical/architectural questions,
+  root-cause investigations, implementation plans, test reports, and design
+  syntheses (Steps 1-7 & Modes 1-5) using the Universal Clean-Context
+  Multi-Model Verification Loop. Use when answering non-trivial CameraX
+  codebase/design questions, reviewing a CL or commit, auditing a triage report
+  or plan, or running multi-model verification. Don't use for executing Gradle
+  test tasks (use camerax-testing) or device quirk decision trees (use
   camerax-triage-and-quirks).
 ---
 
@@ -34,12 +35,14 @@ guide and its **Universal Multi-Model Clean-Context Verification Gate** (Step 5
 1. **Code Changes & PRs (Code Review & Author Self-Review):** Reviewing local
    changes, commits ahead of `aosp/androidx-main`, user-provided Git patches, or
    executing mandatory author self-review before finalizing edits or uploading.
-2. **Issue Investigation & Root-Cause Analysis (Triage Audit):** Diagnosing
-   bugs, test failures, HAL crashes, or architectural questions before
-   delivering a root-cause conclusion.
-3. **Implementation & Architectural Planning (Plan Audit):** Producing an
-   implementation plan, refactoring design, API proposal, or test strategy
-   before presenting it to the user or executing complex changes.
+2. **Issue Investigation, Root-Cause Analysis & Non-Trivial Technical Q&A
+   (Triage & Question Audit):** Diagnosing bugs, test failures, HAL crashes, or
+   answering non-trivial codebase/architectural/behavioral questions (anything
+   beyond a flash single-fact lookup) before delivering a conclusion or answer.
+3. **Implementation, Solution Proposal & Architectural Planning (Plan Audit):**
+   Producing an implementation plan, solution path, refactoring design, API
+   proposal, or test strategy before presenting it to the user or executing
+   complex changes.
 4. **Test / Verification Result Retrieval & Report Generation (Report
    Fact-Checking & Accuracy Audit):** Generating analytical reports from device
    or lab test executions, continuous integration histories, log analyses, or
@@ -173,24 +176,37 @@ applicable. Prioritize clarity and conciseness.
           each issue, verifying wide codebase context, single responsibility
           ("object job"), preservation of intentional workarounds, AndroidX /
           Kotlin guidelines, and concurrency/lifecycle safety.
-    *   **Mode 2 — Issue Investigation & Root-Cause Triage (Triage Audit):**
-        - **Anti-Confirmation-Bias Check**: Verify the raw logcat, stack trace,
-          or test log slice from the beginning; confirm the claimed root cause
-          is the *first* causal failure, not a downstream symptom.
+    *   **Mode 2 — Issue Investigation, Root-Cause Triage & Behavioral
+        Questions (Triage & Question Audit):**
+        - **Anti-Confirmation-Bias & End-to-End Call-Chain Check**: Verify the
+          raw logcat, stack trace, or test log slice from the beginning; for
+          codebase "why / how does X work" questions, trace the full call chain
+          (`UseCase/View/Video/Extensions` ->
+          `CameraInternal/CameraUseCaseAdapter/StreamSharing` ->
+          `camera-camera2` -> `camera-camera2-pipe`) to confirm the claimed
+          root cause is the *first* causal failure (not a downstream symptom)
+          and the behavior explanation is complete and accurate.
         - **Code & Blame Verification**: Open every cited `file:line` in CameraX
-          and surrounding callers to verify the code actually behaves as
-          claimed.
-        - **Rubric Classification Audit**: Verify whether the diagnosis properly
-          maps to Section 6 (Step 1 Internal Contract vs. Step 2 Platform Spec
-          vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B Test-Only Constraint) or
-          a physical test fixture/environment defect.
-    *   **Mode 3 — Implementation & Architectural Planning (Plan Audit):**
-        - **Architectural Fit & Object Job**: Read all target classes, callers,
-          and sibling implementations; verify each proposed change belongs in
-          the right layer and class.
-        - **Completeness & Edge Cases**: Check lifecycle teardown, multi-stream
-          combinations (`StreamSharing`, RAW+JPEG), thread/dispatcher
-          confinement, public API/ABI compatibility, and missing test coverage.
+          and surrounding callers (plus `git --no-lazy-fetch blame` /
+          `git --no-lazy-fetch log` when explaining why code exists) to verify
+          the code actually behaves as claimed.
+        - **Rubric Classification Audit**: Verify whether the diagnosis or
+          explanation properly maps to Section 6 (Step 1 Internal Contract vs.
+          Step 2 Platform Spec vs. Step 3 Hardware/HAL Quirk vs. Sub-case 3B
+          Test-Only Constraint) or a physical test fixture/environment defect.
+    *   **Mode 3 — Implementation, Solution Proposal & Architectural Planning
+        (Plan Audit):**
+        - **Architectural Fit, Object Job & Public Contract Fidelity**: Read all
+          target classes, callers, public entry-point Javadocs, and sibling
+          implementations; verify each proposed change or solution belongs in
+          the right layer/class and honors all documented public API contracts
+          (Section 6.F) and the Standards Hierarchy (AndroidX -> Android
+          Platform -> Google-Wide).
+        - **Completeness & Edge Cases**: Check `@CameraScope` vs.
+          `@UseCaseCameraScope`, partial UseCase re-binding vs. full
+          unbind/teardown, multi-stream combinations (`StreamSharing`,
+          RAW+JPEG), thread/dispatcher confinement, public API/ABI
+          compatibility, and missing test coverage.
     *   **Mode 4 — Test / Verification Result Reports & Data Summaries (Report
         Fact-Checking & Accuracy Audit):**
         - **Strict Numeric & Math Reconciliation**: Re-count total targets,
@@ -232,11 +248,13 @@ applicable. Prioritize clarity and conciseness.
     *   **Smart & Flexible Trigger Scope (When to Auto-Invoke vs. Skip):**
         - **Auto-Trigger at Both Investigation/Design Time AND Pre-Delivery Time
           (Mandatory by Default)**: Automatically trigger for (1) Code Review /
-          Pre-Upload Self-Review, (2) Issue Investigation / Root-Cause Triage,
-          (3) Implementation & Architectural Planning, (4) Test / Verification
+          Pre-Upload Self-Review, (2) Issue Investigation, Root-Cause Triage &
+          Non-Trivial Technical/Behavioral Questions, (3) Implementation,
+          Solution Proposals & Architectural Planning, (4) Test / Verification
           Reports & Data Summaries, and (5) Open-Ended Design Trade-Offs, Quirk
-          Scoping, Complex Test Synthesis, or any task where high quality or
-          multiple independent perspectives can uncover a better solution.
+          Scoping, Complex Test Synthesis, or any question/task where high
+          quality or multiple independent perspectives can uncover a better
+          solution.
           - *Checkpoint 1 — Hard Pre-Coding Investigation & Design Gate (Before
             Implementing Production Fixes or Finalizing Any Plan/Triage):*
             When investigating a non-trivial bug, race condition, HAL failure,
@@ -262,11 +280,18 @@ applicable. Prioritize clarity and conciseness.
             convergence exit gate is satisfied (`0` `OPEN`
             `Critical`/`High`/`Medium` or factual/architectural issues, `0`
             `REGRESSED` issues, and `0` `PATCHED_PENDING_REAUDIT` items).
-        - **Skip (Lightweight Direct Execution)**: Skip for simple, single-step
-          operational commands or status checks (e.g., listing devices, checking
-          device status, initializing a workspace, or answering a trivial
-          factual question) where no analytical report, plan, root-cause
-          conclusion, or code diff is being delivered.
+        - **Skip (Lightweight Flash Single-Fact Lookup or Direct Status
+          Check)**: Skip **only** for simple, single-step operational commands
+          or status checks (e.g., listing devices, checking device status, or
+          initializing a workspace) or a flash single-fact lookup (e.g., a
+          single file path, constant value, or exact method signature verified
+          via `read_file`) where no root-cause analysis, concurrency/lifecycle
+          reasoning, architectural trade-off, solution proposal, or code diff is
+          being delivered. Whenever a user question asks *why* a CameraX
+          behavior occurs, how to solve/design a feature or fix, or spans
+          multiple interacting layers, do **not** skip—stage
+          `<scratch_or_tmp>/draft_deliverable.md` and run Modes 2, 3, or 5
+          before replying.
     *   **Runtime Capability Detection, Live Model Query & Notification:** Check
         whether the agent console/harness supports spawning independent
         sub-agents across distinct model families or tiers (see
