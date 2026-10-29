@@ -80,7 +80,7 @@ class GetMethodsScenarioTest {
         profile(processingConfig) { getEnclosedElements().toList() }
     }
 
-    fun profile(processingConfig: XProcessingEnvConfig, block: XTypeElement.() -> Unit) {
+    fun profile(processingConfig: XProcessingEnvConfig, block: XTypeElement.() -> Any?) {
         val methodCount = 1000
         val contents = buildString {
             appendLine("class Subject {")

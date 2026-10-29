@@ -1816,7 +1816,7 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                         .that((it as JavacMethodElement).kotlinMetadata)
                         .isNotNull()
                 }
-                subject.companionObject!!.getDeclaredFields().isEmpty()
+                assertThat(subject.companionObject!!.getDeclaredFields()).isEmpty()
                 subject.companionObject!!.getDeclaredMethods().forEach {
                     assertWithMessage("Companion method: ${it.jvmName}")
                         .that((it as JavacMethodElement).kotlinMetadata)

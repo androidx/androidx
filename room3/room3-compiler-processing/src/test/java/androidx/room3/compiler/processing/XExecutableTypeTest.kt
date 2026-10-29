@@ -19,7 +19,6 @@ package androidx.room3.compiler.processing
 import androidx.kruth.assertThat
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.codegen.asMutableClassName
-import androidx.room3.compiler.processing.ksp.KspProcessingEnv
 import androidx.room3.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.UNIT_JCLASS_NAME
@@ -590,7 +589,6 @@ class XExecutableTypeTest {
             )
 
         fun handler(invocation: XTestInvocation) {
-            invocation.isKsp && (invocation.processingEnv as KspProcessingEnv).isKsp2
             listOf("KotlinSubject", "JavaSubject").forEach { subjectFqn ->
                 val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
                 subject.getMethodByJvmName("oneTypeVar").let {
@@ -661,7 +659,13 @@ class XExecutableTypeTest {
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
                         .containsExactly(XTypeName.ANY_OBJECT)
                         .inOrder()
-                    assertThat(typeVar.superTypes.single().nullability).equals(XNullability.NONNULL)
+                    if (invocation.isKsp) {
+                        assertThat(typeVar.superTypes.single().nullability)
+                            .isEqualTo(XNullability.NONNULL)
+                    } else {
+                        assertThat(typeVar.superTypes.single().nullability)
+                            .isEqualTo(XNullability.UNKNOWN)
+                    }
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }

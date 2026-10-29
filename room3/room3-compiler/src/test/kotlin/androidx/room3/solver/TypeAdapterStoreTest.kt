@@ -590,7 +590,7 @@ class TypeAdapterStoreTest {
             )
 
             val cursorScope = testCodeGenScope()
-            adapter.readFromStatement("res", "curs", "11", cursorScope).toString()
+            adapter.readFromStatement("res", "curs", "11", cursorScope)
             assertThat(
                 cursorScope.generate().toString(CodeLanguage.KOTLIN).trim(),
                 `is`(
