@@ -2085,8 +2085,19 @@ public class RemoteComposeWriter {
      * @return id of the path object to be used by drawPath, etc.
      */
     public int addPathData(float @NonNull [] pathData) {
-        int id = mState.cacheData(pathData);
-        return mBuffer.addPathData(id, pathData);
+        return addPathData(pathData, 0);
+    }
+
+    /**
+     * Add path data with an explicit winding rule.
+     *
+     * @param pathData encoded path data array
+     * @param winding winding rule (0 = non-zero, 1 = even-odd)
+     * @return id of the path object to be used by drawPath, etc.
+     */
+    public int addPathData(float @NonNull [] pathData, int winding) {
+        int id = mState.createNextAvailableId();
+        return mBuffer.addPathData(id, pathData, winding);
     }
 
     public int addPathData(RcPlatformServices.@NonNull RcPathArrayCreator path) {
