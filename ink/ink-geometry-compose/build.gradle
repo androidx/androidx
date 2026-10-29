@@ -63,4 +63,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Create rich interactions with strokes"
+    deviceTests {
+        maxShardCount = 1
+    }
 }
