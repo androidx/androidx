@@ -15,11 +15,17 @@
  */
 package androidx.compose.ui.layout
 
+import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.ReusableContentHost
@@ -605,6 +611,78 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
         rule.runOnIdle { assertThat(lastVisibilityState).isTrue() }
     }
 
+    @Test
+    fun testComposeViewBelowTheWindow_isVisibleOnlyOnceScrolledIntoIt() {
+        // A ComposeView below two screens of other views, like an item of a RecyclerView that isn't
+        // shown yet: its content is inside the window's size relative to the ComposeView, but below
+        // the window.
+        var isVisible: Boolean? = null
+        val screenHeight = rule.activity.resources.displayMetrics.heightPixels
+        val viewsAbove = View(rule.activity)
+        val composeView =
+            ComposeView(rule.activity).apply {
+                setContent {
+                    Box(Modifier.size(100.dp).onVisibilityChangedTestImpl { isVisible = it })
+                }
+            }
+        val scrollView =
+            ScrollView(rule.activity).apply {
+                addView(
+                    LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        addView(
+                            viewsAbove,
+                            LinearLayout.LayoutParams(MATCH_PARENT, screenHeight * 2),
+                        )
+                        addView(composeView)
+                    }
+                )
+            }
+        rule.setContent { AndroidView(factory = { scrollView }, Modifier.fillMaxSize()) }
+
+        rule.runOnIdle {
+            assertThat(isVisible).isNull()
+            // Scrolls the ComposeView to the top of the window.
+            scrollView.scrollTo(0, composeView.top)
+        }
+
+        rule.runOnIdle { assertThat(isVisible).isTrue() }
+    }
+
+    /**
+     * A square rotated by 45 degrees is bounded in the window by its four corners. Its top left and
+     * bottom right corners alone are one above the other, so they bound no area:
+     * ```
+     *      TL              +------TL------+
+     *     /  \             |     /  \     |
+     *   BL    TR           |   BL    TR   |
+     *     \  /             |     \  /     |
+     *      BR              +------BR------+
+     *
+     *  TL and BR only:     all four corners
+     *  a vertical line
+     * ```
+     */
+    @Test
+    fun testSquareRotatedBy45Degrees_isVisible() {
+        var isVisible: Boolean? = null
+        val composeView =
+            ComposeView(rule.activity).apply {
+                rotation = 45f
+                setContent {
+                    Box(Modifier.size(100.dp).onVisibilityChangedTestImpl { isVisible = it })
+                }
+            }
+        // The padding keeps the corners of the rotated square inside the window.
+        rule.setContent { AndroidView(factory = { composeView }, Modifier.padding(50.dp)) }
+
+        rule.runOnIdle { assertThat(isVisible).isTrue() }
+    }
+
+    /**
+     * [onVisibilityChanged], or a node that delegates to [onVisibilityChangedNode] when
+     * [useDelegation], so that every test covers both.
+     */
     fun Modifier.onVisibilityChangedTestImpl(
         @IntRange(from = 0) minDurationMs: Long = 0,
         @FloatRange(from = 0.0, to = 1.0) minFractionVisible: Float = 1f,

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.spatial
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.DelegatableNode
@@ -24,6 +25,9 @@ import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.util.fastMaxOf
+import androidx.compose.ui.util.fastMinOf
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 import kotlin.math.min
 
@@ -217,25 +221,17 @@ internal constructor(
      * @see fractionVisibleIn
      * @see fractionVisibleInWindowWithInsets
      */
-    public fun fractionVisibleInRect(left: Int, top: Int, right: Int, bottom: Int): Float {
-        val l = unpackX(topLeft)
-        val clippedLeft = min(max(l, left), right)
-
-        val t = unpackY(topLeft)
-        val clippedTop = min(max(t, top), bottom)
-
-        val r = unpackX(bottomRight)
-        val clippedRight = max(min(r, right), left)
-
-        val b = unpackY(bottomRight)
-        val clippedBottom = max(min(b, bottom), top)
-
-        val viewportArea = (right - left) * (bottom - top)
-        val rectArea = (r - l) * (b - t)
-        val clippedArea = max((clippedRight - clippedLeft) * (clippedBottom - clippedTop), 0)
-        val maxArea = min(viewportArea, rectArea)
-        return clippedArea.toFloat() / maxArea.toFloat()
-    }
+    public fun fractionVisibleInRect(left: Int, top: Int, right: Int, bottom: Int): Float =
+        fractionOfElementInside(
+            elementLeft = unpackX(topLeft),
+            elementTop = unpackY(topLeft),
+            elementRight = unpackX(bottomRight),
+            elementBottom = unpackY(bottomRight),
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+        )
 
     /**
      * Used to determine the fraction of pixels that are inside the bounds of the window.
@@ -250,7 +246,7 @@ internal constructor(
      */
     public fun fractionVisibleInWindow(): Float {
         val windowSize = windowSize
-        return fractionVisibleInRect(0, 0, unpackX(windowSize), unpackY(windowSize))
+        return fractionVisibleInWindowRect(0, 0, unpackX(windowSize), unpackY(windowSize))
     }
 
     /**
@@ -270,13 +266,98 @@ internal constructor(
         bottomRightInset: IntOffset,
     ): Float {
         val windowSize = windowSize
-        val x = windowOffset.x
-        val y = windowOffset.y
-        return fractionVisibleInRect(
-            x + topLeftInset.x,
-            y + topLeftInset.y,
-            x + unpackX(windowSize) - bottomRightInset.x,
-            y + unpackY(windowSize) - bottomRightInset.y,
+        return fractionVisibleInWindowRect(
+            topLeftInset.x,
+            topLeftInset.y,
+            unpackX(windowSize) - bottomRightInset.x,
+            unpackY(windowSize) - bottomRightInset.y,
+        )
+    }
+
+    /**
+     * The fraction of pixels of this element inside the rectangle of the window from ([left],
+     * [top]) to ([right], [bottom]).
+     *
+     * This element's bounds are relative to the root of its compose hierarchy, which isn't always
+     * at the window's origin, for example in an item of a RecyclerView:
+     * ```
+     * +--------- window ---------+
+     * |                          |
+     * |  (x, y)                  |
+     * |    +------ root ------+  |
+     * |    |  +- element -+   |  |
+     * |    |  |           |   |  |
+     * +----|--|-----------|---|--+
+     *      |  +-----------+   |
+     *      +------------------+
+     * ```
+     *
+     * So the element's bounds are moved by (x, y) into the window's coordinates, where they can be
+     * compared with the rectangle.
+     */
+    private fun fractionVisibleInWindowRect(left: Int, top: Int, right: Int, bottom: Int): Float {
+        val viewToWindowMatrix = viewToWindowMatrix
+        if (viewToWindowMatrix == null) {
+            val x = screenOffset.x - windowOffset.x
+            val y = screenOffset.y - windowOffset.y
+            return fractionOfElementInside(
+                elementLeft = unpackX(topLeft) + x,
+                elementTop = unpackY(topLeft) + y,
+                elementRight = unpackX(bottomRight) + x,
+                elementBottom = unpackY(bottomRight) + y,
+                left = left,
+                top = top,
+                right = right,
+                bottom = bottom,
+            )
+        }
+        // The root is also scaled or rotated in the window: the element is bounded there by its
+        // four corners.
+        val l = unpackX(topLeft).toFloat()
+        val t = unpackY(topLeft).toFloat()
+        val r = unpackX(bottomRight).toFloat()
+        val b = unpackY(bottomRight).toFloat()
+        val topLeftInWindow = viewToWindowMatrix.map(Offset(l, t))
+        val topRightInWindow = viewToWindowMatrix.map(Offset(r, t))
+        val bottomLeftInWindow = viewToWindowMatrix.map(Offset(l, b))
+        val bottomRightInWindow = viewToWindowMatrix.map(Offset(r, b))
+        val minX =
+            fastMinOf(
+                topLeftInWindow.x,
+                topRightInWindow.x,
+                bottomLeftInWindow.x,
+                bottomRightInWindow.x,
+            )
+        val minY =
+            fastMinOf(
+                topLeftInWindow.y,
+                topRightInWindow.y,
+                bottomLeftInWindow.y,
+                bottomRightInWindow.y,
+            )
+        val maxX =
+            fastMaxOf(
+                topLeftInWindow.x,
+                topRightInWindow.x,
+                bottomLeftInWindow.x,
+                bottomRightInWindow.x,
+            )
+        val maxY =
+            fastMaxOf(
+                topLeftInWindow.y,
+                topRightInWindow.y,
+                bottomLeftInWindow.y,
+                bottomRightInWindow.y,
+            )
+        return fractionOfElementInside(
+            elementLeft = minX.fastRoundToInt(),
+            elementTop = minY.fastRoundToInt(),
+            elementRight = maxX.fastRoundToInt(),
+            elementBottom = maxY.fastRoundToInt(),
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
         )
     }
 
@@ -307,4 +388,34 @@ internal constructor(
         result = 31 * result + node.hashCode()
         return result
     }
+}
+
+/**
+ * The fraction of the pixels of an element, from ([elementLeft], [elementTop]) to ([elementRight],
+ * [elementBottom]), that are inside the rectangle from ([left], [top]) to ([right], [bottom]). It
+ * is 1f when the rectangle is entirely inside the element.
+ */
+private fun fractionOfElementInside(
+    elementLeft: Int,
+    elementTop: Int,
+    elementRight: Int,
+    elementBottom: Int,
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int,
+): Float {
+    val clippedWidth = min(elementRight, right) - max(elementLeft, left)
+    val clippedHeight = min(elementBottom, bottom) - max(elementTop, top)
+    if (clippedWidth <= 0 || clippedHeight <= 0) return 0f
+
+    val clippedArea = clippedWidth * clippedHeight
+    val rectangleArea = (right - left) * (bottom - top)
+    val elementArea = (elementRight - elementLeft) * (elementBottom - elementTop)
+    val maxArea = min(rectangleArea, elementArea)
+
+    // One rectangle contains the other.
+    if (clippedArea == maxArea) return 1f
+
+    return clippedArea.toFloat() / maxArea.toFloat()
 }
