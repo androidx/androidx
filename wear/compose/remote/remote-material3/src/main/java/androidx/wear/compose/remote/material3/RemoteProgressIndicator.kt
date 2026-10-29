@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 
 /**
  * Returns [progress] animated by [animationSpec] (by default the slow effects spec of
@@ -220,6 +221,7 @@ public object RemoteProgressIndicatorDefaults {
  * @param disabledOverflowTrackBrush The [RemoteBrush] used to draw the overflow track when
  *   disabled.
  */
+@Immutable
 public class RemoteProgressIndicatorColors(
     public val indicatorBrush: RemoteBrush,
     public val trackBrush: RemoteBrush,

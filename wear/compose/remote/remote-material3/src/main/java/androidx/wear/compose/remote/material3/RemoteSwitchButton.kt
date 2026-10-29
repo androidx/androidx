@@ -168,6 +168,7 @@ public object RemoteSwitchButtonDefaults {
 
     /** Creates a [RemoteSwitchButtonColors] with default values for [RemoteSwitchButton]. */
     @Composable
+    @RemoteComposable
     public fun switchButtonColors(): RemoteSwitchButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSwitchButtonColors
 
@@ -207,6 +208,7 @@ public object RemoteSwitchButtonDefaults {
      * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled.
      */
     @Composable
+    @RemoteComposable
     public fun switchButtonColors(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,
@@ -292,6 +294,7 @@ public object RemoteSwitchButtonDefaults {
 
     private val RemoteColorScheme.defaultSwitchButtonColors: RemoteSwitchButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteSwitchButtonColors(
                 checkedContainerColor = primaryContainer,

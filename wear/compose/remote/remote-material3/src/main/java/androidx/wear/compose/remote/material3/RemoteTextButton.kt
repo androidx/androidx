@@ -99,6 +99,7 @@ public object RemoteTextButtonDefaults {
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
      */
     @Composable
+    @RemoteComposable
     public fun textButtonColors(): RemoteTextButtonColors =
         RemoteMaterialTheme.colorScheme.defaultTextButtonColors
 
@@ -113,6 +114,7 @@ public object RemoteTextButtonDefaults {
      * @param disabledContentColor the content color of this text button when not enabled
      */
     @Composable
+    @RemoteComposable
     public fun textButtonColors(
         containerColor: RemoteColor? = null,
         contentColor: RemoteColor? = null,
@@ -139,18 +141,19 @@ public object RemoteTextButtonDefaults {
 
     /** The recommended text style for a small button. */
     public val smallButtonTextStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelMedium
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelMedium
 
     /** The default text style applied for buttons. */
     public val defaultButtonTextStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelMedium
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelMedium
 
     /** The recommended text style for a large button. */
     public val largeButtonTextStyle: RemoteTextStyle
-        @Composable get() = RemoteMaterialTheme.typography.labelLarge
+        @Composable @RemoteComposable get() = RemoteMaterialTheme.typography.labelLarge
 
     private val RemoteColorScheme.defaultTextButtonColors: RemoteTextButtonColors
         @Composable
+        @RemoteComposable
         get() =
             RemoteTextButtonColors(
                 containerColor = RemoteColor(Color.Transparent),

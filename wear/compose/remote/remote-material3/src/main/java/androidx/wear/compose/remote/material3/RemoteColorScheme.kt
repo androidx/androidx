@@ -20,6 +20,7 @@ import android.R
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.wear.compose.material3.ColorScheme
 import androidx.wear.compose.remote.material3.internal.RemoteColorRole
 import androidx.wear.compose.remote.material3.internal.RemoteColorSource
@@ -83,6 +84,7 @@ import androidx.wear.compose.remote.material3.internal.dynamicRemoteColorSource
  * @property onError Color used for text and icons displayed on top of the error color.
  * @property onErrorContainer Color used for text and icons on the errorContainer color.
  */
+@Immutable
 public class RemoteColorScheme(
     public val primary: RemoteColor,
     public val primaryDim: RemoteColor,

@@ -244,6 +244,7 @@ public object RemoteSplitSwitchButtonDefaults {
      * colors used in a [RemoteSplitSwitchButton].
      */
     @Composable
+    @RemoteComposable
     public fun splitSwitchButtonColors(): RemoteSplitSwitchButtonColors =
         RemoteMaterialTheme.colorScheme.defaultSplitSwitchButtonColors
 
@@ -311,6 +312,7 @@ public object RemoteSplitSwitchButtonDefaults {
      *   [RemoteSplitSwitchButton] when disabled and unchecked.
      */
     @Composable
+    @RemoteComposable
     public fun splitSwitchButtonColors(
         checkedContainerColor: RemoteColor? = null,
         checkedContentColor: RemoteColor? = null,
@@ -400,6 +402,7 @@ public object RemoteSplitSwitchButtonDefaults {
 
     private val RemoteColorScheme.defaultSplitSwitchButtonColors: RemoteSplitSwitchButtonColors
         @Composable
+        @RemoteComposable
         get() {
             return RemoteSplitSwitchButtonColors(
                 checkedContainerColor = primaryContainer,
