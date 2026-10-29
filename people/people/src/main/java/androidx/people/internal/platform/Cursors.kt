@@ -18,23 +18,26 @@ package androidx.people.internal.platform
 
 import android.database.Cursor
 import android.database.MatrixCursor
-import android.util.Log
-import androidx.core.database.getIntOrNull
+import android.os.Bundle
 import androidx.core.database.getStringOrNull
 import androidx.core.net.toUri
 import androidx.people.Criterion
 import androidx.people.DirectoryInfo
 import androidx.people.Group
 import androidx.people.GroupId
+import androidx.people.GroupMatch
 import androidx.people.GroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupResult
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonResult
 import androidx.people.Person
 import androidx.people.PersonId
+import androidx.people.PersonMatch
 import androidx.people.PersonQuery
+import androidx.people.groupQueryOf
 import androidx.people.internal.platform.PeopleContractCompat.Directory
 import androidx.people.internal.platform.PeopleContractCompat.Groups
 import androidx.people.internal.platform.PeopleContractCompat.Persons
-
-private const val TAG = "PeopleCursors"
+import androidx.people.personQueryOf
 
 /** The columns written for persons when the caller does not request a projection. */
 internal val DEFAULT_PERSON_PROJECTION: Array<String> =
@@ -60,29 +63,26 @@ internal val DEFAULT_GROUP_PROJECTION: Array<String> =
     )
 
 /**
- * Serializes these persons into a [Cursor] according to [projection].
+ * Serializes this result of the People Directory application [directoryPackage] into a [Cursor]
+ * according to [projection].
  *
- * Each person is written as one row per matched [Criterion], or as a single row with `null`
- * selection columns if it reports none. When [query] is non-null, criteria that do not appear in
- * [query] are dropped, which enforces the [Criterion] echo contract. Criterion types that have no
- * person selection type are also dropped.
+ * Each match is written as one row per matched [Criterion]. Unhandled criteria are written to the
+ * cursor extras under [PeopleContractCompat.EXTRA_UNHANDLED_QUERIES]. Criteria that are not in
+ * [askedCriteria] are dropped, which enforces the [Criterion] echo contract, so a match left with
+ * no criterion writes no row.
  */
-@JvmName("personsToCursor")
-internal fun List<Person>.toCursor(
-    projection: Array<out String>? = null,
-    query: PersonQuery? = null,
+internal fun DirectoryPersonResult.toCursor(
+    directoryPackage: String,
+    projection: Array<out String>?,
+    askedCriteria: Set<Criterion>,
 ): Cursor {
     val columns = projection ?: DEFAULT_PERSON_PROJECTION
-    val allowedCriteria = query?.toCriteria()?.toSet()
-    var dropped = 0
-    val cursor = MatrixCursor(columns, size)
-    for (person in this) {
+    val cursor = MatrixCursor(columns, matches.size)
+    for (match in matches) {
+        val person = match.person
         val selections =
-            person.matchedCriteria
-                .filter { allowedCriteria == null || it in allowedCriteria }
-                .mapNotNull { it.toPersonSelection() }
-        dropped += person.matchedCriteria.size - selections.size
-        for (selection in selections.ifEmpty { listOf(null) }) {
+            match.criteria.filter { it in askedCriteria }.map { it.toPersonSelection() }
+        for (selection in selections) {
             cursor.addRow(
                 columns.map { column ->
                     when (column) {
@@ -91,8 +91,8 @@ internal fun List<Person>.toCursor(
                         Persons.PHOTO_URI -> person.photoUri?.toString()
                         Persons.CAPABILITY -> person.capabilities.toReachabilityBitmask()
                         Persons.IS_KNOWN -> if (person.isKnown) 1 else 0
-                        PeopleContractCompat.QUERY_ARG_SELECTION_TYPE -> selection?.type
-                        PeopleContractCompat.QUERY_ARG_SELECTION_VALUE -> selection?.value
+                        PeopleContractCompat.QUERY_ARG_SELECTION_TYPE -> selection.type
+                        PeopleContractCompat.QUERY_ARG_SELECTION_VALUE -> selection.value
                         Directory.PACKAGE_NAME -> person.id.directoryPackage
                         else -> null
                     }
@@ -100,41 +100,35 @@ internal fun List<Person>.toCursor(
             )
         }
     }
-    logDropped(dropped)
+    val unhandled = unhandledCriteria.filterTo(mutableSetOf()) { it in askedCriteria }
+    if (unhandled.isNotEmpty()) {
+        cursor.extras = unhandledExtrasOf(personQueryArgsOf(mapOf(directoryPackage to unhandled)))
+    }
     return cursor
 }
 
 /**
- * Serializes these groups into a [Cursor] according to [projection].
- *
- * Each group is written as one row per matched [Criterion], or as a single row with `null`
- * selection columns if it reports none. When [query] is non-null, criteria that do not appear in
- * [query] are dropped, which enforces the [Criterion] echo contract. Criterion types that have no
- * group selection type are also dropped.
+ * Serializes this result of the People Directory application [directoryPackage] into a [Cursor]
+ * according to [projection], following the same rules as the person overload.
  */
-@JvmName("groupsToCursor")
-internal fun List<Group>.toCursor(
-    projection: Array<out String>? = null,
-    query: GroupQuery? = null,
+internal fun DirectoryGroupResult.toCursor(
+    directoryPackage: String,
+    projection: Array<out String>?,
+    askedCriteria: Set<Criterion>,
 ): Cursor {
     val columns = projection ?: DEFAULT_GROUP_PROJECTION
-    val allowedCriteria = query?.toCriteria()?.toSet()
-    var dropped = 0
-    val cursor = MatrixCursor(columns, size)
-    for (group in this) {
-        val selections =
-            group.matchedCriteria
-                .filter { allowedCriteria == null || it in allowedCriteria }
-                .mapNotNull { it.toGroupSelection() }
-        dropped += group.matchedCriteria.size - selections.size
-        for (selection in selections.ifEmpty { listOf(null) }) {
+    val cursor = MatrixCursor(columns, matches.size)
+    for (match in matches) {
+        val group = match.group
+        val selections = match.criteria.filter { it in askedCriteria }.map { it.toGroupSelection() }
+        for (selection in selections) {
             cursor.addRow(
                 columns.map { column ->
                     when (column) {
                         Groups.LOOKUP_KEY -> group.id.lookupKey
                         Groups.DISPLAY_NAME -> group.displayName
-                        PeopleContractCompat.QUERY_ARG_SELECTION_TYPE -> selection?.type
-                        PeopleContractCompat.QUERY_ARG_SELECTION_VALUE -> selection?.value
+                        PeopleContractCompat.QUERY_ARG_SELECTION_TYPE -> selection.type
+                        PeopleContractCompat.QUERY_ARG_SELECTION_VALUE -> selection.value
                         Directory.PACKAGE_NAME -> group.id.directoryPackage
                         else -> null
                     }
@@ -142,117 +136,106 @@ internal fun List<Group>.toCursor(
             )
         }
     }
-    logDropped(dropped)
+    val unhandled = unhandledCriteria.filterTo(mutableSetOf()) { it in askedCriteria }
+    if (unhandled.isNotEmpty()) {
+        cursor.extras = unhandledExtrasOf(groupQueryArgsOf(mapOf(directoryPackage to unhandled)))
+    }
     return cursor
 }
 
 /**
- * Parses this [Cursor], formatted by [PeopleContractCompat.Persons], into [Person] records.
+ * Reads the matches in this [Cursor], formatted by [PeopleContractCompat.Persons].
  *
- * Rows that share a [PersonId] are merged into a single [Person] whose [Person.matchedCriteria] is
- * the union of every row's criterion. Non-criterion fields are taken from the first row for that
- * person, and persons are returned in the order they first appear. Rows whose selection type is not
- * recognized still contribute the person, but no criterion.
+ * The cursor has one row per matched criterion, so the rows of a person are combined into one
+ * [PersonMatch].
  */
-internal fun Cursor.toPersons(): List<Person> {
+internal fun Cursor.toPersonMatches(): Set<PersonMatch> {
     val lookupKeyIndex = getColumnIndexOrThrow(Persons.LOOKUP_KEY)
     val packageIndex = getColumnIndexOrThrow(Directory.PACKAGE_NAME)
     val displayNameIndex = getColumnIndexOrThrow(Persons.DISPLAY_NAME)
     val photoUriIndex = getColumnIndexOrThrow(Persons.PHOTO_URI)
     val capabilityIndex = getColumnIndexOrThrow(Persons.CAPABILITY)
     val isKnownIndex = getColumnIndexOrThrow(Persons.IS_KNOWN)
-    val selectionTypeIndex = getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_TYPE)
-    val selectionValueIndex = getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_VALUE)
-
-    val firstRows = LinkedHashMap<PersonId, Person>()
-    val criteria = HashMap<PersonId, MutableSet<Criterion>>()
-    while (moveToNext()) {
-        val lookupKey = getStringOrNull(lookupKeyIndex)?.takeIf { it.isNotBlank() } ?: continue
-        val id = PersonId(lookupKey, getStringOrNull(packageIndex).orEmpty())
-        firstRows.getOrPut(id) {
+    val rows = readRows {
+        val person =
             Person(
-                id = id,
+                id = PersonId(getString(lookupKeyIndex), getString(packageIndex)),
                 displayName = getStringOrNull(displayNameIndex),
                 photoUri = getStringOrNull(photoUriIndex)?.toUri(),
-                capabilities =
-                    capabilitiesFromReachabilityBitmask(getIntOrNull(capabilityIndex) ?: 0),
-                isKnown = (getIntOrNull(isKnownIndex) ?: 0) != 0,
-                matchedCriteria = emptySet(),
+                capabilities = capabilitiesFromReachabilityBitmask(getInt(capabilityIndex)),
+                isKnown = getInt(isKnownIndex) != 0,
+            )
+        PersonMatch(person, setOf(checkNotNull(readSelection().toPersonCriterion())))
+    }
+    return rows
+        .groupBy { it.person.id }
+        .values
+        .mapTo(mutableSetOf()) { personRows ->
+            PersonMatch(
+                personRows.first().person,
+                personRows.flatMapTo(mutableSetOf()) { it.criteria },
             )
         }
-        val personCriteria = criteria.getOrPut(id) { mutableSetOf() }
-        selectionOrNull(selectionTypeIndex, selectionValueIndex)
-            ?.toPersonCriterion()
-            ?.let(personCriteria::add)
-    }
-    return firstRows.values.map { person ->
-        Person(
-            id = person.id,
-            displayName = person.displayName,
-            photoUri = person.photoUri,
-            capabilities = person.capabilities,
-            isKnown = person.isKnown,
-            matchedCriteria = criteria.getValue(person.id),
-        )
-    }
 }
 
 /**
- * Parses this [Cursor], formatted by [PeopleContractCompat.Groups], into [Group] records.
- *
- * Rows that share a [GroupId] are merged the same way as [toPersons].
+ * Reads the matches in this [Cursor], formatted by [PeopleContractCompat.Groups], following the
+ * same rules as [toPersonMatches].
  */
-internal fun Cursor.toGroups(): List<Group> {
+internal fun Cursor.toGroupMatches(): Set<GroupMatch> {
     val lookupKeyIndex = getColumnIndexOrThrow(Groups.LOOKUP_KEY)
     val packageIndex = getColumnIndexOrThrow(Directory.PACKAGE_NAME)
     val displayNameIndex = getColumnIndexOrThrow(Groups.DISPLAY_NAME)
-    val selectionTypeIndex = getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_TYPE)
-    val selectionValueIndex = getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_VALUE)
-
-    val displayNames = LinkedHashMap<GroupId, String?>()
-    val criteria = HashMap<GroupId, MutableSet<Criterion>>()
-    while (moveToNext()) {
-        val lookupKey = getStringOrNull(lookupKeyIndex)?.takeIf { it.isNotBlank() } ?: continue
-        val id = GroupId(lookupKey, getStringOrNull(packageIndex).orEmpty())
-        if (id !in displayNames) displayNames[id] = getStringOrNull(displayNameIndex)
-        val groupCriteria = criteria.getOrPut(id) { mutableSetOf() }
-        selectionOrNull(selectionTypeIndex, selectionValueIndex)
-            ?.toGroupCriterion()
-            ?.let(groupCriteria::add)
+    val rows = readRows {
+        val group =
+            Group(
+                id = GroupId(getString(lookupKeyIndex), getString(packageIndex)),
+                displayName = getStringOrNull(displayNameIndex),
+            )
+        GroupMatch(group, setOf(checkNotNull(readSelection().toGroupCriterion())))
     }
-    return displayNames.map { (id, displayName) ->
-        Group(id = id, displayName = displayName, matchedCriteria = criteria.getValue(id))
-    }
+    return rows
+        .groupBy { it.group.id }
+        .values
+        .mapTo(mutableSetOf()) { groupRows ->
+            GroupMatch(groupRows.first().group, groupRows.flatMapTo(mutableSetOf()) { it.criteria })
+        }
 }
+
+/** Returns the unhandled person criteria in this cursor's extras, as a [PersonQuery]. */
+internal fun Cursor.unhandledPersonQuery(): PersonQuery =
+    personQueryOf(unhandledExtra().personCriteriaByPackage())
+
+/** Returns the unhandled group criteria in this cursor's extras, as a [GroupQuery]. */
+internal fun Cursor.unhandledGroupQuery(): GroupQuery =
+    groupQueryOf(unhandledExtra().groupCriteriaByPackage())
 
 /** Parses this [Cursor], formatted by [PeopleContractCompat.Directory], into directory records. */
 internal fun Cursor.toDirectories(): List<DirectoryInfo> {
     val packageIndex = getColumnIndexOrThrow(Directory.PACKAGE_NAME)
     val authorityIndex = getColumnIndexOrThrow(Directory.DIRECTORY_AUTHORITY)
-    return buildList {
-        while (moveToNext()) {
-            val packageName = getStringOrNull(packageIndex)?.takeIf { it.isNotBlank() }
-            val authority = getStringOrNull(authorityIndex)?.takeIf { it.isNotBlank() }
-            if (packageName != null && authority != null) {
-                add(DirectoryInfo(packageName = packageName, authority = authority))
-            }
-        }
-    }
+    return readRows { DirectoryInfo(getString(packageIndex), getString(authorityIndex)) }
 }
+
+/** Reads every row of this cursor with [readRow]. */
+private inline fun <T> Cursor.readRows(readRow: Cursor.() -> T): List<T> = buildList {
+    while (moveToNext()) add(readRow())
+}
+
+/** Reads the current row's selection columns. */
+private fun Cursor.readSelection(): Selection =
+    Selection(
+        getString(getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_TYPE)),
+        getString(getColumnIndexOrThrow(PeopleContractCompat.QUERY_ARG_SELECTION_VALUE)),
+    )
 
 /**
- * Returns the [Selection] in the current row's selection columns, or `null` if either column is
- * `null`.
+ * Returns cursor extras carrying [unhandledQueryArgs] under
+ * [PeopleContractCompat.EXTRA_UNHANDLED_QUERIES].
  */
-private fun Cursor.selectionOrNull(typeIndex: Int, valueIndex: Int): Selection? {
-    val type = getStringOrNull(typeIndex) ?: return null
-    val value = getStringOrNull(valueIndex) ?: return null
-    return Selection(type, value)
-}
+private fun unhandledExtrasOf(unhandledQueryArgs: Bundle): Bundle =
+    Bundle().apply { putBundle(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES, unhandledQueryArgs) }
 
-/** Logs that [count] matched criteria were dropped from a result cursor, if any were. */
-private fun logDropped(count: Int) {
-    if (count > 0) {
-        Log.w(TAG, "Dropped $count matched criteria that are not present in the query")
-    }
-}
+/** Returns the unhandled criteria query arguments in this cursor's extras, or `null`. */
+private fun Cursor.unhandledExtra(): Bundle? =
+    extras?.getBundle(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES)

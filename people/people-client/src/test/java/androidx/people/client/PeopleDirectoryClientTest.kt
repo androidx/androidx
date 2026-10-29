@@ -17,15 +17,22 @@
 package androidx.people.client
 
 import androidx.people.Capability
+import androidx.people.Criterion
 import androidx.people.DirectoryInfo
 import androidx.people.Group
 import androidx.people.GroupId
-import androidx.people.PeopleInteraction
+import androidx.people.GroupMatch
+import androidx.people.GroupQueryResult
 import androidx.people.Person
 import androidx.people.PersonId
+import androidx.people.PersonMatch
+import androidx.people.PersonQueryResult
 import androidx.people.client.internal.FakePeopleBackend
 import androidx.people.client.internal.PeopleDirectoryClientImpl
 import androidx.people.groupQuery
+import androidx.people.internal.groupQueryResultOf
+import androidx.people.internal.personQueryResultOf
+import androidx.people.peopleInteraction
 import androidx.people.personQuery
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -40,50 +47,29 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class PeopleDirectoryClientTest {
 
-    private val alice =
-        Person(
-            id = PersonId("user_1", "com.example.voip"),
-            displayName = "Alice",
-            photoUri = null,
-            capabilities = emptySet(),
-            isKnown = false,
-            matchedCriteria = emptySet(),
-        )
-    private val family =
-        Group(
-            id = GroupId("g1", "com.example.chat"),
-            displayName = "Family",
-            matchedCriteria = emptySet(),
-        )
-
     private fun clientFor(backend: FakePeopleBackend): PeopleDirectoryClient =
         PeopleDirectoryClientImpl {
             backend
         }
 
     @Test
-    fun queryPersons_forwardsEveryQuery() = runTest {
-        val backend = FakePeopleBackend(persons = listOf(alice))
-        val client = clientFor(backend)
-        val voip = personQuery("com.example.voip") { addPhones("+16505550100") }
-        val chat = personQuery("com.example.chat") { addEmails("alice@example.com") }
+    fun queryPersons_forwardsTheQueryAndReturnsTheBackendResult() = runTest {
+        val backend = FakePeopleBackend(personResult = PERSON_RESULT)
 
-        val result = client.queryPersons(voip, chat)
+        val result = clientFor(backend).queryPersons(PERSON_QUERY)
 
-        assertThat(result).containsExactly(alice)
-        assertThat(backend.personQueries).containsExactly(listOf(voip, chat))
+        assertThat(result).isSameInstanceAs(PERSON_RESULT)
+        assertThat(backend.personQueries).containsExactly(PERSON_QUERY)
     }
 
     @Test
-    fun observePersons_forwardsEveryQuery() = runTest {
-        val backend = FakePeopleBackend(persons = listOf(alice))
-        val client = clientFor(backend)
-        val query = personQuery("com.example.voip") { addPhones("+16505550100") }
+    fun observePersons_forwardsTheQueryAndEmitsTheBackendResult() = runTest {
+        val backend = FakePeopleBackend(personResult = PERSON_RESULT)
 
-        val result = client.observePersons(query).first()
+        val result = clientFor(backend).observePersons(PERSON_QUERY).first()
 
-        assertThat(result).containsExactly(alice)
-        assertThat(backend.personQueries).containsExactly(listOf(query))
+        assertThat(result).isSameInstanceAs(PERSON_RESULT)
+        assertThat(backend.personQueries).containsExactly(PERSON_QUERY)
     }
 
     @Test
@@ -91,11 +77,10 @@ class PeopleDirectoryClientTest {
         var resolutions = 0
         val client = PeopleDirectoryClientImpl {
             resolutions++
-            FakePeopleBackend(persons = listOf(alice))
+            FakePeopleBackend(personResult = PERSON_RESULT)
         }
-        val query = personQuery("com.example.voip") { addPhones("+16505550100") }
 
-        val flow = client.observePersons(query)
+        val flow = client.observePersons(PERSON_QUERY)
         val before = resolutions
         flow.first()
 
@@ -104,15 +89,23 @@ class PeopleDirectoryClientTest {
     }
 
     @Test
-    fun queryGroups_forwardsEveryQuery() = runTest {
-        val backend = FakePeopleBackend(groups = listOf(family))
-        val client = clientFor(backend)
-        val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
+    fun queryGroups_forwardsTheQueryAndReturnsTheBackendResult() = runTest {
+        val backend = FakePeopleBackend(groupResult = GROUP_RESULT)
 
-        val result = client.queryGroups(query)
+        val result = clientFor(backend).queryGroups(GROUP_QUERY)
 
-        assertThat(result).containsExactly(family)
-        assertThat(backend.groupQueries).containsExactly(listOf(query))
+        assertThat(result).isSameInstanceAs(GROUP_RESULT)
+        assertThat(backend.groupQueries).containsExactly(GROUP_QUERY)
+    }
+
+    @Test
+    fun observeGroups_forwardsTheQueryAndEmitsTheBackendResult() = runTest {
+        val backend = FakePeopleBackend(groupResult = GROUP_RESULT)
+
+        val result = clientFor(backend).observeGroups(GROUP_QUERY).first()
+
+        assertThat(result).isSameInstanceAs(GROUP_RESULT)
+        assertThat(backend.groupQueries).containsExactly(GROUP_QUERY)
     }
 
     @Test
@@ -136,55 +129,6 @@ class PeopleDirectoryClientTest {
     }
 
     @Test
-    fun queryPersons_listOverload_forwardsQueries() = runTest {
-        val backend = FakePeopleBackend(persons = listOf(alice))
-        val client = clientFor(backend)
-        val voip = personQuery("com.example.voip") { addPhones("+16505550100") }
-        val chat = personQuery("com.example.chat") { addEmails("alice@example.com") }
-
-        val result = client.queryPersons(listOf(voip, chat))
-
-        assertThat(result).containsExactly(alice)
-        assertThat(backend.personQueries).containsExactly(listOf(voip, chat))
-    }
-
-    @Test
-    fun observePersons_listOverload_forwardsQueries() = runTest {
-        val backend = FakePeopleBackend(persons = listOf(alice))
-        val client = clientFor(backend)
-        val query = personQuery("com.example.voip") { addPhones("+16505550100") }
-
-        val result = client.observePersons(listOf(query)).first()
-
-        assertThat(result).containsExactly(alice)
-        assertThat(backend.personQueries).containsExactly(listOf(query))
-    }
-
-    @Test
-    fun queryGroups_listOverload_forwardsQueries() = runTest {
-        val backend = FakePeopleBackend(groups = listOf(family))
-        val client = clientFor(backend)
-        val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
-
-        val result = client.queryGroups(listOf(query))
-
-        assertThat(result).containsExactly(family)
-        assertThat(backend.groupQueries).containsExactly(listOf(query))
-    }
-
-    @Test
-    fun observeGroups_listOverload_forwardsQueries() = runTest {
-        val backend = FakePeopleBackend(groups = listOf(family))
-        val client = clientFor(backend)
-        val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
-
-        val result = client.observeGroups(listOf(query)).first()
-
-        assertThat(result).containsExactly(family)
-        assertThat(backend.groupQueries).containsExactly(listOf(query))
-    }
-
-    @Test
     fun isAvailable_exposesBackendAvailability() = runTest {
         val available = clientFor(FakePeopleBackend(isAvailable = true))
         val unavailable = clientFor(FakePeopleBackend(isAvailable = false))
@@ -197,7 +141,8 @@ class PeopleDirectoryClientTest {
     fun createInteractionRequest_forwardsTheInteraction() = runTest {
         val backend = FakePeopleBackend()
         val client = clientFor(backend)
-        val interaction = PeopleInteraction(alice.id, Capability.VIDEO)
+        val interaction =
+            peopleInteraction(PersonId("user_1", "com.example.voip"), Capability.VIDEO)
 
         client.createInteractionRequest(interaction)
 
@@ -213,9 +158,67 @@ class PeopleDirectoryClientTest {
     }
 
     @Test
+    fun create_withoutAnyPeopleProvider_reportsEverythingUnhandled() = runTest {
+        val client = PeopleDirectoryClient.create(RuntimeEnvironment.getApplication())
+
+        val persons = client.queryPersons(PERSON_QUERY)
+        val groups = client.queryGroups(GROUP_QUERY)
+
+        assertThat(persons.matches).isEmpty()
+        assertThat(persons.matchedQuery.isEmpty()).isTrue()
+        assertThat(persons.unmatchedQuery.isEmpty()).isTrue()
+        assertThat(persons.unhandledQuery).isEqualTo(PERSON_QUERY)
+        assertThat(groups.matches).isEmpty()
+        assertThat(groups.unhandledQuery).isEqualTo(GROUP_QUERY)
+    }
+
+    @Test
     fun isAvailable_withoutAnyPeopleProvider_isFalse() = runTest {
         val result = PeopleDirectoryClient.isAvailable(RuntimeEnvironment.getApplication())
 
         assertThat(result).isFalse()
+    }
+
+    private companion object {
+        val PERSON_QUERY = personQuery {
+            directory("com.example.voip") { addPhones("+16505550100") }
+            directory("com.example.chat") { addEmails("alice@example.com") }
+        }
+        val GROUP_QUERY = groupQuery("com.example.chat") { addLookupKeys("g1", "g2") }
+
+        // The client is a pass-through, so the tests check that the backend's result is returned
+        // as is. The results carry a match and an unhandled criterion, so that a client that
+        // rebuilt or filtered them would be caught.
+        val PERSON_RESULT: PersonQueryResult =
+            personQueryResultOf(
+                PERSON_QUERY,
+                matches =
+                    setOf(
+                        PersonMatch(
+                            Person(
+                                id = PersonId("alice", "com.example.chat"),
+                                displayName = "Alice",
+                                photoUri = null,
+                                capabilities = setOf(Capability.MESSAGE),
+                                isKnown = true,
+                            ),
+                            setOf(Criterion.Email("alice@example.com")),
+                        )
+                    ),
+                unhandledQuery = personQuery("com.example.voip") { addPhones("+16505550100") },
+            )
+
+        val GROUP_RESULT: GroupQueryResult =
+            groupQueryResultOf(
+                GROUP_QUERY,
+                matches =
+                    setOf(
+                        GroupMatch(
+                            Group(GroupId("g1", "com.example.chat"), "Family"),
+                            setOf(Criterion.GroupLookupKey("g1")),
+                        )
+                    ),
+                unhandledQuery = groupQuery("com.example.chat") { addLookupKeys("g2") },
+            )
     }
 }

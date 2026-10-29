@@ -17,111 +17,71 @@
 package androidx.people.internal.platform
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.core.os.BundleCompat
 import androidx.people.Criterion
-import androidx.people.GroupQuery
-import androidx.people.PersonQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
+import androidx.people.PeopleInteraction
 
-/** Serializes these queries into a query arguments [Bundle]. */
-internal fun Iterable<PersonQuery>.toQueryArgs(): Bundle =
+/**
+ * Serializes these per-directory queries, keyed by package name, into a query arguments [Bundle].
+ */
+internal fun Map<String, DirectoryPersonQuery>.toPersonQueryArgs(): Bundle =
+    personQueryArgsOf(mapValues { (_, query) -> query.criteria })
+
+/**
+ * Serializes these per-directory queries, keyed by package name, into a query arguments [Bundle].
+ */
+internal fun Map<String, DirectoryGroupQuery>.toGroupQueryArgs(): Bundle =
+    groupQueryArgsOf(mapValues { (_, query) -> query.criteria })
+
+/** Serializes [criteriaByPackage] into a query arguments [Bundle] of person selections. */
+internal fun personQueryArgsOf(criteriaByPackage: Map<String, Set<Criterion>>): Bundle =
     queryArgsOf(
-        flatMap { query ->
-            subQueriesOf(
-                query.directoryPackage,
-                query.toCriteria().mapNotNull { it.toPersonSelection() },
-            )
+        criteriaByPackage.flatMap { (directoryPackage, criteria) ->
+            subQueriesOf(directoryPackage, criteria.map { it.toPersonSelection() })
         }
     )
 
-/** Serializes this query into a query arguments [Bundle]. */
-internal fun PersonQuery.toQueryArgs(): Bundle = listOf(this).toQueryArgs()
-
-/** Serializes these queries into a query arguments [Bundle]. */
-@JvmName("groupQueriesToQueryArgs")
-internal fun Iterable<GroupQuery>.toQueryArgs(): Bundle =
+/** Serializes [criteriaByPackage] into a query arguments [Bundle] of group selections. */
+internal fun groupQueryArgsOf(criteriaByPackage: Map<String, Set<Criterion>>): Bundle =
     queryArgsOf(
-        flatMap { query ->
-            subQueriesOf(
-                query.directoryPackage,
-                query.toCriteria().mapNotNull { it.toGroupSelection() },
-            )
+        criteriaByPackage.flatMap { (directoryPackage, criteria) ->
+            subQueriesOf(directoryPackage, criteria.map { it.toGroupSelection() })
         }
     )
 
-/** Serializes this query into a query arguments [Bundle]. */
-internal fun GroupQuery.toQueryArgs(): Bundle = listOf(this).toQueryArgs()
-
 /**
- * Parses these query arguments into one [PersonQuery] per People Directory application, in the
- * order the applications first appear.
+ * Parses these query arguments into person criteria keyed by package name, in the order the
+ * packages first appear. Packages without a recognized criterion are omitted.
  */
-internal fun Bundle?.toPersonQueries(): List<PersonQuery> =
-    subQueriesByPackage().mapNotNull { (directoryPackage, subQueries) ->
-        val criteria = subQueries.selections().mapNotNull { it.toPersonCriterion() }
-        if (criteria.isEmpty()) null else personQueryOf(directoryPackage, criteria)
-    }
-
-/**
- * Parses these query arguments into the [PersonQuery] for the first People Directory application.
- */
-internal fun Bundle?.toPersonQuery(): PersonQuery? = toPersonQueries().firstOrNull()
-
-/**
- * Parses these query arguments into one [GroupQuery] per People Directory application, in the order
- * the applications first appear.
- */
-internal fun Bundle?.toGroupQueries(): List<GroupQuery> =
-    subQueriesByPackage().mapNotNull { (directoryPackage, subQueries) ->
-        val lookupKeys =
-            subQueries
-                .selections()
-                .mapNotNull { it.toGroupCriterion() }
-                .filterIsInstance<Criterion.GroupLookupKey>()
-                .map(Criterion.GroupLookupKey::key)
-        if (lookupKeys.isEmpty()) {
-            null
-        } else {
-            GroupQuery(directoryPackage = directoryPackage, lookupKeys = lookupKeys)
-        }
-    }
-
-/**
- * Parses these query arguments into the [GroupQuery] for the first People Directory application.
- */
-internal fun Bundle?.toGroupQuery(): GroupQuery? = toGroupQueries().firstOrNull()
-
-/**
- * Returns the single criterion of this interaction target.
- *
- * `PeopleContract.createPeopleInteractionRequest` requires exactly one sub-query targeting a single
- * People Directory application, so this query must carry exactly one criterion value.
- *
- * @throws IllegalArgumentException if this query does not contain exactly one criterion value.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun PersonQuery.requireInteractionTarget(): Criterion {
-    val criteria = toCriteria()
-    require(criteria.size == 1) {
-        "An interaction target must contain exactly one phone number, email address, lookup " +
-            "key, or group lookup key, but was $this"
-    }
-    return criteria.single()
+internal fun Bundle?.personCriteriaByPackage(): Map<String, Set<Criterion>> = criteriaByPackage {
+    it.toPersonCriterion()
 }
 
 /**
- * Serializes this interaction target into an interaction query arguments [Bundle].
- *
- * @throws IllegalArgumentException if this query does not contain exactly one criterion value.
- * @see requireInteractionTarget
+ * Parses these query arguments into group criteria keyed by package name, in the order the packages
+ * first appear. Packages without a recognized criterion are omitted.
  */
-internal fun PersonQuery.toInteractionQueryArgs(): Bundle {
-    val target = listOfNotNull(requireInteractionTarget().toPersonSelection())
-    return queryArgsOf(subQueriesOf(directoryPackage, target)).apply {
+internal fun Bundle?.groupCriteriaByPackage(): Map<String, Set<Criterion>> = criteriaByPackage {
+    it.toGroupCriterion()
+}
+
+/** Serializes this interaction's target criteria into an interaction query arguments [Bundle]. */
+internal fun PeopleInteraction.toInteractionQueryArgs(): Bundle =
+    personQueryArgsOf(mapOf(directoryPackage to targetCriteria)).apply {
         putParcelable(
             PeopleContractCompat.QUERY_ARG_DEPENDENCY_URI,
             PeopleContractCompat.Persons.CONTENT_URI,
         )
+    }
+
+private inline fun Bundle?.criteriaByPackage(
+    toCriterion: (Selection) -> Criterion?
+): Map<String, Set<Criterion>> = buildMap {
+    for ((directoryPackage, subQueries) in subQueriesByPackage()) {
+        val criteria = subQueries.selections().mapNotNullTo(mutableSetOf(), toCriterion)
+        if (criteria.isNotEmpty()) put(directoryPackage, criteria)
     }
 }
 
@@ -168,13 +128,3 @@ private fun List<Bundle>.selections(): List<Selection> = flatMap { subQuery ->
     val values = subQuery.getStringArray(PeopleContractCompat.QUERY_ARG_SELECTION_VALUE)
     if (type == null) emptyList() else values.orEmpty().map { Selection(type, it) }
 }
-
-/** Returns the [PersonQuery] for [directoryPackage] that carries exactly [criteria]. */
-private fun personQueryOf(directoryPackage: String, criteria: List<Criterion>): PersonQuery =
-    PersonQuery(
-        directoryPackage = directoryPackage,
-        phones = criteria.filterIsInstance<Criterion.Phone>().map { it.number },
-        emails = criteria.filterIsInstance<Criterion.Email>().map { it.address },
-        lookupKeys = criteria.filterIsInstance<Criterion.PersonLookupKey>().map { it.key },
-        groupLookupKeys = criteria.filterIsInstance<Criterion.GroupLookupKey>().map { it.key },
-    )

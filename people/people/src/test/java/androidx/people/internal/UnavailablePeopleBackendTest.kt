@@ -18,9 +18,9 @@ package androidx.people.internal
 
 import androidx.people.Capability
 import androidx.people.GroupId
-import androidx.people.PeopleInteraction
 import androidx.people.PersonId
 import androidx.people.groupQuery
+import androidx.people.peopleInteraction
 import androidx.people.personQuery
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -54,45 +54,49 @@ class UnavailablePeopleBackendTest {
     }
 
     @Test
-    fun queryPersons_returnsEmptyList() = runTest {
+    fun queryPersons_reportsEverythingUnhandled() = runTest {
         val query = personQuery("com.example.voip") { addPhones("+16505550100") }
 
-        val result = backend.queryPersons(listOf(query))
+        val result = backend.queryPersons(query)
 
-        assertThat(result).isEmpty()
+        assertThat(result.matches).isEmpty()
+        assertThat(result.unhandledQuery).isEqualTo(query)
     }
 
     @Test
-    fun observePersons_emitsEmptyList() = runTest {
+    fun observePersons_reportsEverythingUnhandled() = runTest {
         val query = personQuery("com.example.voip") { addPhones("+16505550100") }
 
-        val result = backend.observePersons(listOf(query)).first()
+        val result = backend.observePersons(query).first()
 
-        assertThat(result).isEmpty()
+        assertThat(result.matches).isEmpty()
+        assertThat(result.unhandledQuery).isEqualTo(query)
     }
 
     @Test
-    fun queryGroups_returnsEmptyList() = runTest {
+    fun queryGroups_reportsEverythingUnhandled() = runTest {
         val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
 
-        val result = backend.queryGroups(listOf(query))
+        val result = backend.queryGroups(query)
 
-        assertThat(result).isEmpty()
+        assertThat(result.matches).isEmpty()
+        assertThat(result.unhandledQuery).isEqualTo(query)
     }
 
     @Test
-    fun observeGroups_emitsEmptyList() = runTest {
+    fun observeGroups_reportsEverythingUnhandled() = runTest {
         val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
 
-        val result = backend.observeGroups(listOf(query)).first()
+        val result = backend.observeGroups(query).first()
 
-        assertThat(result).isEmpty()
+        assertThat(result.matches).isEmpty()
+        assertThat(result.unhandledQuery).isEqualTo(query)
     }
 
     @Test
     fun createInteractionRequest_withPersonId_returnsNull() = runTest {
         val interaction =
-            PeopleInteraction(PersonId("user_1", "com.example.voip"), Capability.VOICE)
+            peopleInteraction(PersonId("user_1", "com.example.voip"), Capability.VOICE)
 
         val result = backend.createInteractionRequest(interaction)
 
@@ -101,7 +105,7 @@ class UnavailablePeopleBackendTest {
 
     @Test
     fun createInteractionRequest_withGroupId_returnsNull() = runTest {
-        val interaction = PeopleInteraction(GroupId("g1", "com.example.chat"), Capability.MESSAGE)
+        val interaction = peopleInteraction(GroupId("g1", "com.example.chat"), Capability.MESSAGE)
 
         val result = backend.createInteractionRequest(interaction)
 
@@ -109,22 +113,21 @@ class UnavailablePeopleBackendTest {
     }
 
     @Test
-    fun createInteractionRequest_withMultipleCriteria_throwsIllegalArgumentException() = runTest {
-        val target =
-            personQuery("com.example.voip") {
+    fun createInteractionRequest_withMultipleCriteria_returnsNull() = runTest {
+        val interaction =
+            peopleInteraction("com.example.voip", Capability.VOICE) {
                 addPhones("+16505550100")
                 addEmails("alice@example.com")
             }
-        val interaction = PeopleInteraction(target, Capability.VOICE)
 
-        val result = runCatching { backend.createInteractionRequest(interaction) }
+        val result = backend.createInteractionRequest(interaction)
 
-        assertThat(result.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(result).isNull()
     }
 
     @Test
-    fun notifyChange_forPersonQuery_returnsFalse() = runTest {
-        val query = personQuery("com.example.voip") { addPhones("+16505550100") }
+    fun notifyChange_personQuery_returnsFalse() = runTest {
+        val query = directoryPersonQuery { addPhones("+16505550100") }
 
         val result = backend.notifyChange(query)
 
@@ -132,8 +135,8 @@ class UnavailablePeopleBackendTest {
     }
 
     @Test
-    fun notifyChange_forGroupQuery_returnsFalse() = runTest {
-        val query = groupQuery("com.example.chat") { addLookupKeys("g1") }
+    fun notifyChange_groupQuery_returnsFalse() = runTest {
+        val query = directoryGroupQuery { addLookupKeys("g1") }
 
         val result = backend.notifyChange(query)
 

@@ -19,71 +19,94 @@
 package androidx.people
 
 import androidx.annotation.RestrictTo
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
+import androidx.people.internal.addNonEmpty
+import androidx.people.internal.directoryPersonQuery
 
 /**
- * An immutable set of criteria for looking up people in one People Directory application.
+ * A query for people across one or more People Directory applications.
  *
- * Criteria of different kinds are combined with OR: a person is returned if it matches any phone
- * number, any email address, any lookup key, or any group lookup key in the query. Each result
- * reports every criterion that matched it through [Person.matchedCriteria], so a batched lookup can
- * be correlated back to its inputs.
- *
+ * Each People Directory application in the query receives only the criteria addressed to it. Build
+ * one with [personQuery]:
  * ```
- * val query = personQuery("com.example.voip") {
- *     addPhones("+15551234567", "+15557654321")
- *     addEmails("someone@example.com")
+ * val query = personQuery {
+ *     directories(packages) { addPhones("+16505550100") }      // phones and emails only
+ *     directory("com.example.voip") { addLookupKeys("user_1") } // every criterion type
  * }
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PersonQuery
 internal constructor(
-    /** Package name of the People Directory application this query reads from. */
-    public val directoryPackage: String,
-    /** Phone numbers to match, possibly empty. */
-    public val phones: List<String>,
-    /** Email addresses to match, possibly empty. */
-    public val emails: List<String>,
-    /** Person lookup keys to match, possibly empty. */
-    public val lookupKeys: List<String>,
-    /** Lookup keys of groups whose members should be returned, possibly empty. */
-    public val groupLookupKeys: List<String>,
+    /** The criteria addressed to each People Directory application, keyed by package name. */
+    internal val directoryQueries: Map<String, DirectoryPersonQuery>
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PersonQuery) return false
-        return directoryPackage == other.directoryPackage &&
-            phones == other.phones &&
-            emails == other.emails &&
-            lookupKeys == other.lookupKeys &&
-            groupLookupKeys == other.groupLookupKeys
-    }
+    /** The package names of the People Directory applications this query addresses. */
+    public val directoryPackages: Set<String>
+        get() = directoryQueries.keys
 
-    override fun hashCode(): Int {
-        var result = directoryPackage.hashCode()
-        result = 31 * result + phones.hashCode()
-        result = 31 * result + emails.hashCode()
-        result = 31 * result + lookupKeys.hashCode()
-        result = 31 * result + groupLookupKeys.hashCode()
-        return result
-    }
+    /**
+     * Returns the criteria this query addresses to the People Directory application
+     * [directoryPackage], in the order they were added, or an empty set if it addresses none.
+     */
+    public fun criteriaFor(directoryPackage: String): Set<Criterion> =
+        directoryQueries[directoryPackage]?.criteria.orEmpty()
 
-    override fun toString(): String =
-        "PersonQuery(directoryPackage=$directoryPackage, phones=$phones, emails=$emails, " +
-            "lookupKeys=$lookupKeys, groupLookupKeys=$groupLookupKeys)"
+    /**
+     * Returns whether this query contains no criterion. Queries built with [personQuery] are never
+     * empty; the queries reported by a [PersonQueryResult] may be.
+     */
+    public fun isEmpty(): Boolean = directoryQueries.isEmpty()
+
+    /** Returns the union of this query and [other], directory by directory. */
+    internal operator fun plus(other: PersonQuery): PersonQuery =
+        personQueryOf(
+            (directoryQueries.keys + other.directoryQueries.keys).associateWith {
+                criteriaFor(it) + other.criteriaFor(it)
+            }
+        )
+
+    /**
+     * Returns this query without the criteria of [other], directory by directory. Directories left
+     * without criteria are dropped.
+     */
+    internal operator fun minus(other: PersonQuery): PersonQuery =
+        personQueryOf(
+            directoryQueries.mapValues { (directoryPackage, query) ->
+                query.criteria - other.criteriaFor(directoryPackage)
+            }
+        )
+
+    override fun equals(other: Any?): Boolean =
+        this === other || (other is PersonQuery && directoryQueries == other.directoryQueries)
+
+    override fun hashCode(): Int = directoryQueries.hashCode()
+
+    override fun toString(): String = "PersonQuery(directoryQueries=$directoryQueries)"
 }
 
 /**
- * Receiver scope for configuring person queries across multiple directories.
+ * Returns the [PersonQuery] carrying [criteriaByPackage], omitting packages without criteria. The
+ * result is empty if no package has criteria.
+ */
+internal fun personQueryOf(criteriaByPackage: Map<String, Set<Criterion>>): PersonQuery =
+    PersonQuery(
+        criteriaByPackage
+            .filterValues { it.isNotEmpty() }
+            .mapValues { (_, criteria) -> DirectoryPersonQuery(criteria) }
+    )
+
+/**
+ * Receiver scope for person criteria that identify a person across People Directory applications,
+ * such as phone numbers and email addresses.
  *
- * Only globally identifiable criteria (such as phone numbers and email addresses) can be queried
- * across multiple directory applications.
+ * Used by [PersonQueryScope.directories] and [personQuery] to send the same criteria to several
+ * directories. [PersonCriteriaScope] adds the criteria that only make sense within one directory.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
-public open class MultiDirectoryPersonQueryScope internal constructor() {
-    internal val phones = mutableListOf<String>()
-    internal val emails = mutableListOf<String>()
+public open class SharedPersonCriteriaScope internal constructor() {
+    internal val criteria = mutableSetOf<Criterion>()
 
     /**
      * Matches people reachable at any of [phones].
@@ -91,8 +114,7 @@ public open class MultiDirectoryPersonQueryScope internal constructor() {
      * @throws IllegalArgumentException if [phones] is empty.
      */
     public fun addPhones(vararg phones: String) {
-        require(phones.isNotEmpty()) { "At least one phone number is required." }
-        this.phones += phones
+        addPhones(phones.asList())
     }
 
     /**
@@ -101,9 +123,7 @@ public open class MultiDirectoryPersonQueryScope internal constructor() {
      * @throws IllegalArgumentException if [phones] is empty.
      */
     public fun addPhones(phones: Iterable<String>) {
-        val list = phones.toList()
-        require(list.isNotEmpty()) { "At least one phone number is required." }
-        this.phones += list
+        criteria.addNonEmpty(phones.map(Criterion::Phone), "phone number")
     }
 
     /**
@@ -112,8 +132,7 @@ public open class MultiDirectoryPersonQueryScope internal constructor() {
      * @throws IllegalArgumentException if [emails] is empty.
      */
     public fun addEmails(vararg emails: String) {
-        require(emails.isNotEmpty()) { "At least one email address is required." }
-        this.emails += emails
+        addEmails(emails.asList())
     }
 
     /**
@@ -122,24 +141,27 @@ public open class MultiDirectoryPersonQueryScope internal constructor() {
      * @throws IllegalArgumentException if [emails] is empty.
      */
     public fun addEmails(emails: Iterable<String>) {
-        val list = emails.toList()
-        require(list.isNotEmpty()) { "At least one email address is required." }
-        this.emails += list
+        criteria.addNonEmpty(emails.map(Criterion::Email), "email address")
     }
+
+    /**
+     * Builds the criteria-only query.
+     *
+     * @throws IllegalArgumentException if no criterion was added.
+     */
+    internal fun buildDirectoryQuery(): DirectoryPersonQuery = DirectoryPersonQuery(criteria)
 }
 
 /**
- * Receiver scope for configuring a [PersonQuery] for a single directory.
+ * Receiver scope for the person criteria addressed to one People Directory application.
  *
- * In addition to global criteria ([phones] and [emails]), single-directory queries may match
- * directory-specific [lookupKeys] and [groupLookupKeys].
+ * In addition to the criteria of [SharedPersonCriteriaScope], this allows directory-specific lookup
+ * keys. Used by [PersonQueryScope.directory], [personQuery], and
+ * [PeopleDirectoryContentProvider.notifyPersonsChanged].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
-public class PersonQueryScope internal constructor(private val directoryPackage: String) :
-    MultiDirectoryPersonQueryScope() {
-    private val lookupKeys = mutableListOf<String>()
-    private val groupLookupKeys = mutableListOf<String>()
+public class PersonCriteriaScope internal constructor() : SharedPersonCriteriaScope() {
 
     /**
      * Matches the people identified by any of [lookupKeys].
@@ -147,8 +169,7 @@ public class PersonQueryScope internal constructor(private val directoryPackage:
      * @throws IllegalArgumentException if [lookupKeys] is empty.
      */
     public fun addLookupKeys(vararg lookupKeys: String) {
-        require(lookupKeys.isNotEmpty()) { "At least one lookup key is required." }
-        this.lookupKeys += lookupKeys
+        addLookupKeys(lookupKeys.asList())
     }
 
     /**
@@ -157,9 +178,7 @@ public class PersonQueryScope internal constructor(private val directoryPackage:
      * @throws IllegalArgumentException if [lookupKeys] is empty.
      */
     public fun addLookupKeys(lookupKeys: Iterable<String>) {
-        val list = lookupKeys.toList()
-        require(list.isNotEmpty()) { "At least one lookup key is required." }
-        this.lookupKeys += list
+        criteria.addNonEmpty(lookupKeys.map(Criterion::PersonLookupKey), "lookup key")
     }
 
     /**
@@ -168,8 +187,7 @@ public class PersonQueryScope internal constructor(private val directoryPackage:
      * @throws IllegalArgumentException if [groupLookupKeys] is empty.
      */
     public fun addGroupLookupKeys(vararg groupLookupKeys: String) {
-        require(groupLookupKeys.isNotEmpty()) { "At least one group lookup key is required." }
-        this.groupLookupKeys += groupLookupKeys
+        addGroupLookupKeys(groupLookupKeys.asList())
     }
 
     /**
@@ -178,85 +196,99 @@ public class PersonQueryScope internal constructor(private val directoryPackage:
      * @throws IllegalArgumentException if [groupLookupKeys] is empty.
      */
     public fun addGroupLookupKeys(groupLookupKeys: Iterable<String>) {
-        val list = groupLookupKeys.toList()
-        require(list.isNotEmpty()) { "At least one group lookup key is required." }
-        this.groupLookupKeys += list
+        criteria.addNonEmpty(groupLookupKeys.map(Criterion::GroupLookupKey), "group lookup key")
+    }
+}
+
+/** Receiver scope for choosing the People Directory applications of a [PersonQuery]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@PeopleQueryDsl
+public class PersonQueryScope internal constructor() {
+    private val criteriaByPackage = mutableMapOf<String, MutableSet<Criterion>>()
+
+    /**
+     * Adds criteria for the People Directory application [directoryPackage]. Every criterion type
+     * is allowed, including directory-specific lookup keys.
+     *
+     * @throws IllegalArgumentException if [block] adds no criterion.
+     */
+    public fun directory(directoryPackage: String, block: PersonCriteriaScope.() -> Unit) {
+        add(listOf(directoryPackage), directoryPersonQuery(block))
     }
 
     /**
-     * Builds the query.
+     * Adds the same criteria for each of [directoryPackages]. Only criteria that identify a person
+     * across applications, such as phone numbers and email addresses, are allowed.
      *
-     * @throws IllegalArgumentException if no criterion was added.
+     * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
+     *   criterion.
      */
-    internal fun build(): PersonQuery {
-        require(
-            phones.isNotEmpty() ||
-                emails.isNotEmpty() ||
-                lookupKeys.isNotEmpty() ||
-                groupLookupKeys.isNotEmpty()
-        ) {
-            "A PersonQuery needs at least one criterion."
+    public fun directories(
+        vararg directoryPackages: String,
+        block: SharedPersonCriteriaScope.() -> Unit,
+    ) {
+        directories(directoryPackages.asList(), block)
+    }
+
+    /**
+     * Adds the same criteria for each of [directoryPackages]. Only criteria that identify a person
+     * across applications, such as phone numbers and email addresses, are allowed.
+     *
+     * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
+     *   criterion.
+     */
+    public fun directories(
+        directoryPackages: Iterable<String>,
+        block: SharedPersonCriteriaScope.() -> Unit,
+    ) {
+        val packages = directoryPackages.toList()
+        require(packages.isNotEmpty()) { "At least one directory package is required." }
+        add(packages, SharedPersonCriteriaScope().apply(block).buildDirectoryQuery())
+    }
+
+    private fun add(directoryPackages: List<String>, query: DirectoryPersonQuery) {
+        for (directoryPackage in directoryPackages) {
+            require(directoryPackage.isNotEmpty()) { "A directory package must not be empty." }
+            criteriaByPackage.getOrPut(directoryPackage) { mutableSetOf() } += query.criteria
         }
-        return PersonQuery(
-            directoryPackage = directoryPackage,
-            phones = phones.toList(),
-            emails = emails.toList(),
-            lookupKeys = lookupKeys.toList(),
-            groupLookupKeys = groupLookupKeys.toList(),
-        )
+    }
+
+    internal fun build(): PersonQuery {
+        require(criteriaByPackage.isNotEmpty()) { "A PersonQuery needs at least one directory." }
+        return PersonQuery(criteriaByPackage.mapValues { DirectoryPersonQuery(it.value) })
     }
 }
 
 /**
- * Builds a [PersonQuery] against the People Directory application [directoryPackage].
+ * Builds a [PersonQuery] that may address different criteria to different People Directory
+ * applications.
+ *
+ * @throws IllegalArgumentException if [block] adds no directory, or adds a directory without
+ *   criteria.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public fun personQuery(block: PersonQueryScope.() -> Unit): PersonQuery =
+    PersonQueryScope().apply(block).build()
+
+/**
+ * Builds a [PersonQuery] against the single People Directory application [directoryPackage].
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun personQuery(
     directoryPackage: String,
-    block: PersonQueryScope.() -> Unit,
-): PersonQuery = PersonQueryScope(directoryPackage).apply(block).build()
+    block: PersonCriteriaScope.() -> Unit,
+): PersonQuery = personQuery { directory(directoryPackage, block) }
 
 /**
- * Builds [PersonQuery] instances with the same criteria for each of [directoryPackages].
+ * Builds a [PersonQuery] with the same criteria for each of [directoryPackages].
  *
  * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
  *   criterion.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public fun personQueries(
-    vararg directoryPackages: String,
-    block: MultiDirectoryPersonQueryScope.() -> Unit,
-): List<PersonQuery> {
-    require(directoryPackages.isNotEmpty()) { "At least one directory package is required." }
-    return personQueries(directoryPackages.asIterable(), block)
-}
-
-/**
- * Builds [PersonQuery] instances with the same criteria for each of [directoryPackages].
- *
- * @throws IllegalArgumentException if [directoryPackages] is empty, or if [block] adds no
- *   criterion.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public fun personQueries(
+public fun personQuery(
     directoryPackages: Iterable<String>,
-    block: MultiDirectoryPersonQueryScope.() -> Unit,
-): List<PersonQuery> {
-    val packages = directoryPackages.toList()
-    require(packages.isNotEmpty()) { "At least one directory package is required." }
-    val scope = MultiDirectoryPersonQueryScope().apply(block)
-    require(scope.phones.isNotEmpty() || scope.emails.isNotEmpty()) {
-        "A PersonQuery needs at least one criterion."
-    }
-    return packages.map { pkg ->
-        PersonQuery(
-            directoryPackage = pkg,
-            phones = scope.phones.toList(),
-            emails = scope.emails.toList(),
-            lookupKeys = emptyList(),
-            groupLookupKeys = emptyList(),
-        )
-    }
-}
+    block: SharedPersonCriteriaScope.() -> Unit,
+): PersonQuery = personQuery { directories(directoryPackages, block) }

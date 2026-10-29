@@ -17,6 +17,7 @@
 package androidx.people
 
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -30,11 +31,9 @@ class GroupTest {
             Group(
                 id = GroupId("eng_team", "com.example.chat"),
                 displayName = "Engineering Team",
-                matchedCriteria = setOf(Criterion.GroupLookupKey("eng_team")),
             )
 
         assertThat(group.displayName).isEqualTo("Engineering Team")
-        assertThat(group.matchedCriteria).containsExactly(Criterion.GroupLookupKey("eng_team"))
     }
 
     @Test
@@ -43,10 +42,30 @@ class GroupTest {
             Group(
                 id = GroupId("eng_team", "com.example.chat"),
                 displayName = null,
-                matchedCriteria = emptySet(),
             )
 
         assertThat(group.displayName).isNull()
-        assertThat(group.matchedCriteria).isEmpty()
+    }
+
+    @Test
+    fun groupMatch_exposesGroupAndCriteria_andComparesCriteria() {
+        val group = Group(id = GroupId("eng_team", "com.example.chat"), displayName = null)
+        val criteria = setOf<Criterion>(Criterion.GroupLookupKey("eng_team"))
+
+        val match = GroupMatch(group, criteria)
+
+        assertThat(match.group).isEqualTo(group)
+        assertThat(match.criteria).isEqualTo(criteria)
+        assertThat(match).isEqualTo(GroupMatch(group, criteria))
+        assertThat(match.hashCode()).isEqualTo(GroupMatch(group, criteria).hashCode())
+        assertThat(match)
+            .isNotEqualTo(GroupMatch(group, setOf(Criterion.GroupLookupKey("other_team"))))
+    }
+
+    @Test
+    fun groupMatch_withoutCriteria_throws() {
+        val group = Group(id = GroupId("eng_team", "com.example.chat"), displayName = null)
+
+        assertThrows(IllegalArgumentException::class.java) { GroupMatch(group, emptySet()) }
     }
 }

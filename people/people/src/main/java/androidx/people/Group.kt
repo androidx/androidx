@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 /**
  * An aggregated group record returned by a People Directory application.
  *
- * Each [id] appears at most once in a result. [matchedCriteria] reports every query input that
- * matched this group, so that a batched query can be correlated back to its inputs.
+ * Query results wrap each group in a [GroupMatch], which also reports the query criteria that
+ * matched it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Group(
@@ -30,30 +30,14 @@ public class Group(
     public val id: GroupId,
     /** The group's display name, or `null` if the directory did not supply one. */
     public val displayName: String?,
-    /**
-     * The query inputs that matched this group, or an empty set if none were reported.
-     *
-     * Each value is echoed exactly as supplied in the [GroupQuery]. Groups are currently matched
-     * only by their own lookup key, reported as [Criterion.GroupLookupKey]. See [Criterion] for the
-     * full contract.
-     */
-    public val matchedCriteria: Set<Criterion>,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Group) return false
-        return id == other.id &&
-            displayName == other.displayName &&
-            matchedCriteria == other.matchedCriteria
+        return id == other.id && displayName == other.displayName
     }
 
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + (displayName?.hashCode() ?: 0)
-        result = 31 * result + matchedCriteria.hashCode()
-        return result
-    }
+    override fun hashCode(): Int = 31 * id.hashCode() + (displayName?.hashCode() ?: 0)
 
-    override fun toString(): String =
-        "Group(id=$id, displayName=$displayName, matchedCriteria=$matchedCriteria)"
+    override fun toString(): String = "Group(id=$id, displayName=$displayName)"
 }

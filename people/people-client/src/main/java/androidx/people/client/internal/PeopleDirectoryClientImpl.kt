@@ -18,11 +18,11 @@ package androidx.people.client.internal
 
 import android.app.PendingIntent
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupQuery
+import androidx.people.GroupQueryResult
 import androidx.people.PeopleInteraction
-import androidx.people.Person
 import androidx.people.PersonQuery
+import androidx.people.PersonQueryResult
 import androidx.people.client.PeopleDirectoryClient
 import androidx.people.internal.PeopleBackend
 import kotlinx.coroutines.flow.Flow
@@ -48,20 +48,18 @@ internal class PeopleDirectoryClientImpl(private val backend: suspend () -> Peop
         emitAll(backend().observeDirectories())
     }
 
-    override suspend fun queryPersons(vararg queries: PersonQuery): List<Person> =
-        backend().queryPersons(queries.toList())
+    override suspend fun queryPersons(query: PersonQuery): PersonQueryResult =
+        backend().queryPersons(query)
 
-    override fun observePersons(vararg queries: PersonQuery): Flow<List<Person>> {
-        val queryList = queries.toList()
-        return flow { emitAll(backend().observePersons(queryList)) }
+    override fun observePersons(query: PersonQuery): Flow<PersonQueryResult> = flow {
+        emitAll(backend().observePersons(query))
     }
 
-    override suspend fun queryGroups(vararg queries: GroupQuery): List<Group> =
-        backend().queryGroups(queries.toList())
+    override suspend fun queryGroups(query: GroupQuery): GroupQueryResult =
+        backend().queryGroups(query)
 
-    override fun observeGroups(vararg queries: GroupQuery): Flow<List<Group>> {
-        val queryList = queries.toList()
-        return flow { emitAll(backend().observeGroups(queryList)) }
+    override fun observeGroups(query: GroupQuery): Flow<GroupQueryResult> = flow {
+        emitAll(backend().observeGroups(query))
     }
 
     override suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent? =

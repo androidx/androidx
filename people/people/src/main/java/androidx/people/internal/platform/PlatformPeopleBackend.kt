@@ -26,12 +26,18 @@ import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.core.os.BundleCompat
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupQuery
+import androidx.people.GroupQueryResult
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
 import androidx.people.PeopleInteraction
-import androidx.people.Person
 import androidx.people.PersonQuery
+import androidx.people.PersonQueryResult
 import androidx.people.internal.PeopleBackend
+import androidx.people.internal.failedGroupQueryResultOf
+import androidx.people.internal.failedPersonQueryResultOf
+import androidx.people.internal.groupQueryResultOf
+import androidx.people.internal.personQueryResultOf
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -70,24 +76,20 @@ internal class PlatformPeopleBackend(
             read = { QueryResult(readDirectories(), null) },
         )
 
-    override suspend fun queryPersons(queries: List<PersonQuery>): List<Person> {
-        val queryArgs = queries.toQueryArgs()
-        return withContext(coroutineDispatcher) { readPersons(queryArgs).records }
+    override suspend fun queryPersons(query: PersonQuery): PersonQueryResult {
+        return withContext(coroutineDispatcher) { readPersons(query).value }
     }
 
-    override fun observePersons(queries: List<PersonQuery>): Flow<List<Person>> {
-        val queryArgs = queries.toQueryArgs()
-        return observe(read = { readPersons(queryArgs) })
+    override fun observePersons(query: PersonQuery): Flow<PersonQueryResult> {
+        return observe(read = { readPersons(query) })
     }
 
-    override suspend fun queryGroups(queries: List<GroupQuery>): List<Group> {
-        val queryArgs = queries.toQueryArgs()
-        return withContext(coroutineDispatcher) { readGroups(queryArgs).records }
+    override suspend fun queryGroups(query: GroupQuery): GroupQueryResult {
+        return withContext(coroutineDispatcher) { readGroups(query).value }
     }
 
-    override fun observeGroups(queries: List<GroupQuery>): Flow<List<Group>> {
-        val queryArgs = queries.toQueryArgs()
-        return observe(read = { readGroups(queryArgs) })
+    override fun observeGroups(query: GroupQuery): Flow<GroupQueryResult> {
+        return observe(read = { readGroups(query) })
     }
 
     override suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent? {
@@ -99,7 +101,7 @@ internal class PlatformPeopleBackend(
                 )
                 putParcelable(
                     PeopleContractCompat.Intents.EXTRA_PEOPLE_QUERY_ARGS,
-                    interaction.targetQuery.toInteractionQueryArgs(),
+                    interaction.toInteractionQueryArgs(),
                 )
             }
         val result =
@@ -122,11 +124,17 @@ internal class PlatformPeopleBackend(
         }
     }
 
-    override suspend fun notifyChange(query: PersonQuery): Boolean =
-        notifyChange(PeopleContractCompat.Persons.CONTENT_URI, query.toQueryArgs())
+    override suspend fun notifyChange(query: DirectoryPersonQuery): Boolean =
+        notifyChange(
+            PeopleContractCompat.Persons.CONTENT_URI,
+            personQueryArgsOf(mapOf(context.packageName to query.criteria)),
+        )
 
-    override suspend fun notifyChange(query: GroupQuery): Boolean =
-        notifyChange(PeopleContractCompat.Groups.CONTENT_URI, query.toQueryArgs())
+    override suspend fun notifyChange(query: DirectoryGroupQuery): Boolean =
+        notifyChange(
+            PeopleContractCompat.Groups.CONTENT_URI,
+            groupQueryArgsOf(mapOf(context.packageName to query.criteria)),
+        )
 
     override suspend fun requestRefresh(): Boolean = refresh(extras = null)
 
@@ -155,16 +163,16 @@ internal class PlatformPeopleBackend(
     private fun <T> observe(
         uri: () -> Uri = { PeopleContractCompat.CONTENT_NOTIFICATION_URI },
         read: () -> QueryResult<T>,
-    ): Flow<List<T>> = callbackFlow {
+    ): Flow<T> = callbackFlow {
         val resolver = context.contentResolver
 
         val initial = read()
-        trySend(initial.records)
+        trySend(initial.value)
 
         val signals = Channel<Unit>(Channel.CONFLATED)
         launch {
             for (signal in signals) {
-                trySend(read().records)
+                trySend(read().value)
             }
         }
 
@@ -189,15 +197,47 @@ internal class PlatformPeopleBackend(
             ?.use { it.toDirectories() }
             .orEmpty()
 
-    private fun readPersons(queryArgs: Bundle): QueryResult<Person> =
-        queryProvider(PeopleContractCompat.Persons.CONTENT_URI, queryArgs)?.use {
-            QueryResult(it.toPersons(), it.notificationUri())
-        } ?: QueryResult(emptyList(), null)
+    /**
+     * Reads [query] from the platform People Provider. A missing cursor means that no directory
+     * answered, so every criterion is reported as unhandled.
+     */
+    private fun readPersons(query: PersonQuery): QueryResult<PersonQueryResult> {
+        // Nothing to ask: for an empty query, every part of the result is empty.
+        if (query.isEmpty()) return QueryResult(failedPersonQueryResultOf(query), null)
+        return queryProvider(
+                PeopleContractCompat.Persons.CONTENT_URI,
+                query.directoryQueries.toPersonQueryArgs(),
+            )
+            ?.use {
+                QueryResult(
+                    personQueryResultOf(query, it.toPersonMatches(), it.unhandledPersonQuery()),
+                    it.notificationUri(),
+                )
+            }
+            // No answer at all: no criterion was evaluated.
+            ?: QueryResult(failedPersonQueryResultOf(query), null)
+    }
 
-    private fun readGroups(queryArgs: Bundle): QueryResult<Group> =
-        queryProvider(PeopleContractCompat.Groups.CONTENT_URI, queryArgs)?.use {
-            QueryResult(it.toGroups(), it.notificationUri())
-        } ?: QueryResult(emptyList(), null)
+    /**
+     * Reads [query] from the platform People Provider. A missing cursor means that no directory
+     * answered, so every criterion is reported as unhandled.
+     */
+    private fun readGroups(query: GroupQuery): QueryResult<GroupQueryResult> {
+        // Nothing to ask: for an empty query, every part of the result is empty.
+        if (query.isEmpty()) return QueryResult(failedGroupQueryResultOf(query), null)
+        return queryProvider(
+                PeopleContractCompat.Groups.CONTENT_URI,
+                query.directoryQueries.toGroupQueryArgs(),
+            )
+            ?.use {
+                QueryResult(
+                    groupQueryResultOf(query, it.toGroupMatches(), it.unhandledGroupQuery()),
+                    it.notificationUri(),
+                )
+            }
+            // No answer at all: no criterion was evaluated.
+            ?: QueryResult(failedGroupQueryResultOf(query), null)
+    }
 
     private fun queryProvider(uri: Uri, queryArgs: Bundle?): Cursor? = callProvider {
         context.contentResolver.query(uri, null, queryArgs, null)
@@ -220,8 +260,8 @@ internal class PlatformPeopleBackend(
     private fun Cursor.notificationUri(): Uri? =
         extras?.getString(PeopleContractCompat.EXTRA_NOTIFICATION_URI)?.toUri()
 
-    /** Records parsed from a cursor, plus the query-specific notification URI it advertised. */
-    private class QueryResult<T>(val records: List<T>, val notificationUri: Uri?)
+    /** A value parsed from a cursor, plus the query-specific notification URI it advertised. */
+    private class QueryResult<T>(val value: T, val notificationUri: Uri?)
 
     companion object {
         /**

@@ -22,12 +22,8 @@ import androidx.annotation.RestrictTo
 /**
  * An aggregated person record returned by a People Directory application.
  *
- * Each [id] appears at most once in a result. [matchedCriteria] reports every query input that
- * matched this person, so that a batched query, such as a lookup of two hundred phone numbers, can
- * be correlated back to its inputs:
- * ```
- * val person = results.firstOrNull { Criterion.Phone(number) in it.matchedCriteria }
- * ```
+ * Query results wrap each person in a [PersonMatch], which also reports the query criteria that
+ * matched it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Person(
@@ -41,13 +37,6 @@ public class Person(
     public val capabilities: Set<Capability>,
     /** Whether this person is an established contact or connection in the directory. */
     public val isKnown: Boolean,
-    /**
-     * The query inputs that matched this person, or an empty set if none were reported.
-     *
-     * Each value is echoed exactly as supplied in the [PersonQuery]. See [Criterion] for the full
-     * contract.
-     */
-    public val matchedCriteria: Set<Criterion>,
 ) {
     /** Whether [Capability.VOICE] is present in [capabilities]. */
     public val isVoiceSupported: Boolean
@@ -68,8 +57,7 @@ public class Person(
             displayName == other.displayName &&
             photoUri == other.photoUri &&
             capabilities == other.capabilities &&
-            isKnown == other.isKnown &&
-            matchedCriteria == other.matchedCriteria
+            isKnown == other.isKnown
     }
 
     override fun hashCode(): Int {
@@ -78,11 +66,10 @@ public class Person(
         result = 31 * result + (photoUri?.hashCode() ?: 0)
         result = 31 * result + capabilities.hashCode()
         result = 31 * result + isKnown.hashCode()
-        result = 31 * result + matchedCriteria.hashCode()
         return result
     }
 
     override fun toString(): String =
         "Person(id=$id, displayName=$displayName, photoUri=$photoUri, " +
-            "capabilities=$capabilities, isKnown=$isKnown, matchedCriteria=$matchedCriteria)"
+            "capabilities=$capabilities, isKnown=$isKnown)"
 }

@@ -18,6 +18,7 @@ package androidx.people.internal.platform
 
 import androidx.people.Criterion
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class SelectionsTest {
@@ -33,7 +34,7 @@ class SelectionsTest {
             )
 
         for (criterion in criteria) {
-            assertThat(criterion.toPersonSelection()!!.toPersonCriterion()).isEqualTo(criterion)
+            assertThat(criterion.toPersonSelection().toPersonCriterion()).isEqualTo(criterion)
         }
     }
 
@@ -46,14 +47,18 @@ class SelectionsTest {
     fun toGroupSelection_onlySupportsGroupLookupKey() {
         assertThat(Criterion.GroupLookupKey("g").toGroupSelection())
             .isEqualTo(Selection(PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY, "g"))
-        assertThat(Criterion.Phone("+1").toGroupSelection()).isNull()
-        assertThat(Criterion.PersonLookupKey("g").toGroupSelection()).isNull()
+        assertThrows(IllegalArgumentException::class.java) {
+            Criterion.Phone("+1").toGroupSelection()
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            Criterion.PersonLookupKey("g").toGroupSelection()
+        }
     }
 
     @Test
     fun groupSelection_roundTripsGroupLookupKey() {
         val criterion = Criterion.GroupLookupKey("g")
 
-        assertThat(criterion.toGroupSelection()!!.toGroupCriterion()).isEqualTo(criterion)
+        assertThat(criterion.toGroupSelection().toGroupCriterion()).isEqualTo(criterion)
     }
 }

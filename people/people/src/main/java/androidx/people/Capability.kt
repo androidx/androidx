@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo
  * A client can therefore check reachability and launch an interaction using the same value:
  * ```
  * if (Capability.VIDEO in person.capabilities) {
- *     val request = client.createInteractionRequest(PeopleInteraction(person.id, Capability.VIDEO))
+ *     val request = client.createInteractionRequest(peopleInteraction(person.id, Capability.VIDEO))
  * }
  * ```
  *

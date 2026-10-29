@@ -18,6 +18,7 @@ package androidx.people
 
 import android.net.Uri
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,16 +39,12 @@ class PersonTest {
                 photoUri = photoUri,
                 capabilities = setOf(Capability.VOICE, Capability.VIDEO),
                 isKnown = true,
-                matchedCriteria =
-                    setOf(Criterion.Phone("+16505550100"), Criterion.Email("alice@example.com")),
             )
 
         assertThat(person.displayName).isEqualTo("Alice Smith")
         assertThat(person.photoUri).isEqualTo(photoUri)
         assertThat(person.capabilities).containsExactly(Capability.VOICE, Capability.VIDEO)
         assertThat(person.isKnown).isTrue()
-        assertThat(person.matchedCriteria)
-            .containsExactly(Criterion.Phone("+16505550100"), Criterion.Email("alice@example.com"))
     }
 
     @Test
@@ -59,14 +56,12 @@ class PersonTest {
                 photoUri = null,
                 capabilities = emptySet(),
                 isKnown = false,
-                matchedCriteria = emptySet(),
             )
 
         assertThat(person.displayName).isNull()
         assertThat(person.photoUri).isNull()
         assertThat(person.capabilities).isEmpty()
         assertThat(person.isKnown).isFalse()
-        assertThat(person.matchedCriteria).isEmpty()
     }
 
     @Test
@@ -78,7 +73,6 @@ class PersonTest {
                 photoUri = null,
                 capabilities = setOf(Capability.VOICE, Capability.VIDEO),
                 isKnown = false,
-                matchedCriteria = emptySet(),
             )
 
         assertThat(person.isVoiceSupported).isTrue()
@@ -87,22 +81,53 @@ class PersonTest {
     }
 
     @Test
-    fun equals_comparesMatchedCriteria() {
-        val id = PersonId("key_123", "com.example.voip")
-        fun person(criteria: Set<Criterion>) =
+    fun equals_comparesEveryProperty() {
+        fun person(displayName: String?) =
             Person(
-                id = id,
+                id = PersonId("key_123", "com.example.voip"),
+                displayName = displayName,
+                photoUri = null,
+                capabilities = emptySet(),
+                isKnown = false,
+            )
+
+        assertThat(person("Alice")).isEqualTo(person("Alice"))
+        assertThat(person("Alice").hashCode()).isEqualTo(person("Alice").hashCode())
+        assertThat(person("Alice")).isNotEqualTo(person(null))
+    }
+
+    @Test
+    fun personMatch_exposesPersonAndCriteria_andComparesCriteria() {
+        val person =
+            Person(
+                id = PersonId("key_123", "com.example.voip"),
                 displayName = null,
                 photoUri = null,
                 capabilities = emptySet(),
                 isKnown = false,
-                matchedCriteria = criteria,
+            )
+        val criteria = setOf(Criterion.Phone("1"), Criterion.Email("a@b"))
+
+        val match = PersonMatch(person, criteria)
+
+        assertThat(match.person).isEqualTo(person)
+        assertThat(match.criteria).isEqualTo(criteria)
+        assertThat(match).isEqualTo(PersonMatch(person, criteria))
+        assertThat(match.hashCode()).isEqualTo(PersonMatch(person, criteria).hashCode())
+        assertThat(match).isNotEqualTo(PersonMatch(person, setOf(Criterion.Phone("1"))))
+    }
+
+    @Test
+    fun personMatch_withoutCriteria_throws() {
+        val person =
+            Person(
+                id = PersonId("key_123", "com.example.voip"),
+                displayName = null,
+                photoUri = null,
+                capabilities = emptySet(),
+                isKnown = false,
             )
 
-        assertThat(person(setOf(Criterion.Phone("1"))))
-            .isEqualTo(person(setOf(Criterion.Phone("1"))))
-        assertThat(person(setOf(Criterion.Phone("1"))).hashCode())
-            .isEqualTo(person(setOf(Criterion.Phone("1"))).hashCode())
-        assertThat(person(setOf(Criterion.Phone("1")))).isNotEqualTo(person(emptySet()))
+        assertThrows(IllegalArgumentException::class.java) { PersonMatch(person, emptySet()) }
     }
 }
