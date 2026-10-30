@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,11 +45,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -106,9 +109,9 @@ import kotlinx.coroutines.launch
  * bottom of the dialog. It should be used when the user will be presented with a binary decision,
  * to either confirm or dismiss an action.
  *
- * The [AlertDialog] supports one-handed gestures by default, for scrolling down and confirming (if
- * using [AlertDialogDefaults.ConfirmButton]) using the primary gesture (e.g. double pinch) or
- * dismissing using the dismiss gesture (e.g. wrist turn).
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down and
+ * confirming (if using [AlertDialogDefaults.ConfirmButton]) using the primary gesture (e.g. double
+ * pinch) or dismissing using the dismiss gesture (e.g. wrist turn).
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
@@ -205,9 +208,9 @@ public fun AlertDialog(
  * failure message, use [ConfirmationDialog], [SuccessConfirmationDialog] or
  * [FailureConfirmationDialog] instead.
  *
- * The [AlertDialog] supports one-handed gestures by default, for scrolling down and confirming (if
- * using [AlertDialogDefaults.ConfirmButton]) using the primary gesture (e.g. double pinch) or
- * dismissing using the dismiss gesture (e.g. wrist turn).
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down and
+ * confirming (if using [AlertDialogDefaults.ConfirmButton]) using the primary gesture (e.g. double
+ * pinch) or dismissing using the dismiss gesture (e.g. wrist turn).
  *
  * The [transformationSpec] parameter enables the use of a [TransformingLazyColumn] internally for
  * advanced control over transformations of scrolling content, which can not be achieved with
@@ -309,9 +312,10 @@ public fun AlertDialog(
  *
  * This overload doesn't have any dedicated slots for buttons. It has a content slot so that the
  * caller has flexibility in how to seek user input. In most cases, we recommend using other
- * AlertDialog variations with 2 confirm/dismiss buttons or a single confirmation button. This
- * [AlertDialog] also supports one-handed gestures by default for scrolling down using the primary
- * gesture (e.g. double pinch) or dismissing using the dismiss gesture (e.g. wrist turn).
+ * AlertDialog variations with 2 confirm/dismiss buttons or a single confirmation button.
+ *
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down using the
+ * primary gesture (e.g. double pinch) or dismissing using the dismiss gesture (e.g. wrist turn).
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
@@ -383,9 +387,10 @@ public fun AlertDialog(
  *
  * This overload doesn't have any dedicated slots for buttons, but it does have a content slot so
  * that the caller has flexibility in how to seek user input. It uses a [TransformationSpec] for
- * advanced control over transformations of scrolling content. This [AlertDialog] also supports
- * one-handed gestures by default for scrolling down using the primary gesture (e.g. double pinch)
- * or dismissing using the dismiss gesture (e.g. wrist turn).
+ * advanced control over transformations of scrolling content.
+ *
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down using the
+ * primary gesture (e.g. double pinch) or dismissing using the dismiss gesture (e.g. wrist turn).
  *
  * In most cases, we recommend using other AlertDialog variations with 2 confirm/dismiss buttons or
  * a single confirmation button. Where user input is not required, such as displaying a transient
@@ -469,12 +474,15 @@ public fun AlertDialog(
 /**
  * Dialogs provide important prompts in a user flow. They can require an action, communicate
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
- * exceeds the viewport height. This [AlertDialog] supports one-handed gestures by default for
- * scrolling down using the primary gesture (e.g. double pinch) or dismissing using the dismiss
- * gesture (e.g. wrist turn).
+ * exceeds the viewport height.
  *
  * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog, which
  * should be used when the user will be presented with a single acknowledgement.
+ *
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down and
+ * confirming (if using the [AlertDialogDefaults.EdgeButton] overload with
+ * `gestureVisibilityThreshold`) using the primary gesture (e.g. double pinch) or dismissing using
+ * the dismiss gesture (e.g. wrist turn).
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
@@ -566,13 +574,16 @@ public fun AlertDialog(
 /**
  * Dialogs provide important prompts in a user flow. They can require an action, communicate
  * information, or help users accomplish a task. The dialog is scrollable by default if the content
- * exceeds the viewport height. This [AlertDialog] supports one-handed gestures by default for
- * scrolling down using the primary gesture (e.g. double pinch) or dismissing using the dismiss
- * gesture (e.g. wrist turn).
+ * exceeds the viewport height.
  *
  * This overload has a single slot for a confirm [EdgeButton] at the bottom of the dialog, which
  * should be used when the user will be presented with a single acknowledgement. It uses a
  * [TransformationSpec] for advanced control over transformations of scrolling content.
+ *
+ * This [AlertDialog] overload supports one-handed gestures by default, for scrolling down and
+ * confirming (if using the [AlertDialogDefaults.EdgeButton] overload with
+ * `gestureVisibilityThreshold`) using the primary gesture (e.g. double pinch) or dismissing using
+ * the dismiss gesture (e.g. wrist turn).
  *
  * Where user input is not required, such as displaying a transient success or failure message, use
  * [ConfirmationDialog], [SuccessConfirmationDialog] or [FailureConfirmationDialog] instead.
@@ -1119,8 +1130,9 @@ public fun AlertDialogContent(
  * animations and a streamlined API. This composable may be used to provide the content for an alert
  * dialog if custom animations are required.
  *
- * This [AlertDialogContent] supports one-handed gestures by default, for scrolling down using the
- * primary gesture (e.g. double pinch).
+ * This [AlertDialogContent] supports one-handed gestures by default, for scrolling down and
+ * confirming (if using the [AlertDialogDefaults.EdgeButton] overload with
+ * `gestureVisibilityThreshold`) using the primary gesture (e.g. double pinch).
  *
  * AlertDialogContent now additionally offers an equivalent overload using TransformingLazyColumn,
  * which is recommended to achieve a consistent Material 3 scrolling experience throughout your app
@@ -1204,8 +1216,9 @@ public fun AlertDialogContent(
  * This composable may be used to provide the content for an alert dialog if custom animations are
  * required.
  *
- * This [AlertDialogContent] supports one-handed gestures by default, for scrolling down using the
- * primary gesture (e.g. double pinch).
+ * This [AlertDialogContent] supports one-handed gestures by default, for scrolling down and
+ * confirming (if using the [AlertDialogDefaults.EdgeButton] overload with
+ * `gestureVisibilityThreshold`) using the primary gesture (e.g. double pinch).
  *
  * @param edgeButton Slot for an [EdgeButton] indicating positive sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy. It's recommended to use
@@ -1331,10 +1344,128 @@ public object AlertDialogDefaults {
     }
 
     /**
-     * Default composable for the confirm button in an [AlertDialog]. Should be used with
-     * [AlertDialog] overload which has 2 button slots to confirm or dismiss the action.
+     * Composable for the edge button in an [AlertDialog] that supports the primary one-handed
+     * gesture ([OneHandedGestureAction.Primary]). This is a medium sized [EdgeButton] and should be
+     * used with the [AlertDialog] overload that contains a single `edgeButton` slot when primary
+     * gesture activation is desired.
      *
-     * @param onClick The callback to be invoked when the button is clicked.
+     * Note: Gesture recognition can be disabled across a component hierarchy by providing `false`
+     * to [androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled].
+     *
+     * Example of an [AlertDialog] with a bottom [EdgeButton] supporting the primary one-handed
+     * gesture:
+     *
+     * @sample androidx.wear.compose.material3.samples.AlertDialogWithEdgeButtonOneHandedGestureSample
+     * @param onClick The callback to be invoked when the button is clicked or triggered via
+     *   gesture.
+     * @param gestureVisibilityThreshold The minimum fraction of the button's height, between `0.0`
+     *   and `1.0`, that must be visible before the primary one-handed gesture is active. For values
+     *   between `0.0` and `1.0`, the gesture is active once the visible fraction of the button
+     *   exceeds the specified threshold. A value of `1f` requires the button to reach its full
+     *   height, whereas [GestureDisabled] (`0f`) disables the gesture on the button. Because
+     *   [EdgeButton] fades its content out when partially collapsed,
+     *   [EdgeButtonGestureVisibilityThreshold] (or a threshold of at least `0.5f`) is recommended
+     *   so the button content and gesture indicator are visible when triggered.
+     * @param modifier The [Modifier] to be applied to the button.
+     * @param onGestureLabel Semantic label used by accessibility services to describe the purpose
+     *   of the one-handed gesture. Defaults to localized "confirm" text to match [ConfirmIcon], and
+     *   should be customized when [content] represents a different action. This is highly
+     *   recommended for ensuring that users with screen readers understand what action will be
+     *   performed - if `null`, no accessibility announcement is made for the one-handed gesture.
+     * @param colors The [ButtonColors] to be used for the button.
+     * @param content The composable content of the button. Defaults to [ConfirmIcon].
+     */
+    @Composable
+    public fun EdgeButton(
+        onClick: () -> Unit,
+        @FloatRange(from = 0.0, to = 1.0) gestureVisibilityThreshold: Float,
+        modifier: Modifier = Modifier,
+        onGestureLabel: String? =
+            stringResource(
+                R.string.one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+            ),
+        colors: ButtonColors = ButtonDefaults.buttonColors(),
+        content: @Composable RowScope.() -> Unit = ConfirmIcon,
+    ) {
+        require(gestureVisibilityThreshold in 0f..1f) {
+            "gestureVisibilityThreshold should be between 0.0 and 1.0, was $gestureVisibilityThreshold"
+        }
+        val buttonSize = EdgeButtonSize.Medium
+        if (gestureVisibilityThreshold <= GestureDisabled) {
+            EdgeButton(
+                modifier = modifier,
+                onClick = onClick,
+                colors = colors,
+                buttonSize = buttonSize,
+                content = content,
+            )
+            return
+        }
+
+        val density = LocalDensity.current
+        val verticalPaddingPx = with(density) { EdgeButtonVerticalPadding.roundToPx() * 2 }
+        val fullButtonHeightPx = with(density) { buttonSize.maximumHeight.roundToPx() }
+        var isButtonVisible by remember { mutableStateOf(false) }
+
+        val interactionSource = remember { MutableInteractionSource() }
+        val gestureConfig =
+            rememberOneHandedGestureConfiguration(
+                action = OneHandedGestureAction.Primary,
+                priority = OneHandedGesturePriority.Clickable,
+            )
+        val clickIndicatorState = remember { OneHandedGestureClickIndicatorState() }
+        val coroutineScope = rememberCoroutineScope()
+
+        EdgeButton(
+            modifier =
+                modifier.onSizeChanged { size ->
+                    val visibleButtonHeight = (size.height - verticalPaddingPx).coerceAtLeast(0)
+                    isButtonVisible =
+                        visibleButtonHeight > fullButtonHeightPx * gestureVisibilityThreshold ||
+                            visibleButtonHeight >= fullButtonHeightPx
+                } then
+                    if (isButtonVisible) {
+                        Modifier.oneHandedGesture(
+                            gestureConfiguration = gestureConfig,
+                            onGestureLabel = onGestureLabel,
+                            onGestureAvailable = {
+                                coroutineScope.launch { clickIndicatorState.showIndicator() }
+                            },
+                            interactionSource = interactionSource,
+                            onGesture = onClick,
+                        )
+                    } else {
+                        Modifier
+                    },
+            interactionSource = interactionSource,
+            onClick = onClick,
+            colors = colors,
+            buttonSize = buttonSize,
+            content = {
+                OneHandedGestureClickIndicator(
+                    gestureConfiguration = gestureConfig,
+                    state = clickIndicatorState,
+                ) {
+                    // Wrap content() in a Row because EdgeButton's content parameter is
+                    // RowScope.() -> Unit.
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        content = content,
+                    )
+                }
+            },
+        )
+    }
+
+    /**
+     * Default composable for the confirm button in an [AlertDialog], which supports the primary
+     * one-handed gesture ([OneHandedGestureAction.Primary]) when the button is sufficiently
+     * visible. Should be used with [AlertDialog] overload which has 2 button slots to confirm or
+     * dismiss the action.
+     *
+     * @param onClick The callback to be invoked when the button is clicked or triggered via
+     *   gesture.
      * @param modifier The [Modifier] to be applied to the button.
      * @param colors The [IconButtonColors] to be used for the button.
      * @param content The composable content of the button. Defaults to [ConfirmIcon].
@@ -1346,9 +1477,80 @@ public object AlertDialogDefaults {
         colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
         content: @Composable RowScope.() -> Unit = ConfirmIcon,
     ) {
+        ConfirmButton(
+            onClick = onClick,
+            gestureVisibilityThreshold = ConfirmButtonGestureVisibilityThreshold,
+            modifier = modifier,
+            colors = colors,
+            content = content,
+        )
+    }
+
+    /**
+     * Composable for the confirm button in an [AlertDialog] with a configurable visibility
+     * threshold for the primary one-handed gesture ([OneHandedGestureAction.Primary]). Should be
+     * used with the [AlertDialog] overload which has 2 button slots to confirm or dismiss the
+     * action.
+     *
+     * Note: Gesture recognition can also be disabled across a component hierarchy by providing
+     * `false` to [androidx.wear.compose.material3.onehandedgesture.LocalOneHandedGestureEnabled].
+     *
+     * Example of an [AlertDialog] where the one-handed gesture on [ConfirmButton] is disabled by
+     * setting [gestureVisibilityThreshold] to [GestureDisabled]:
+     *
+     * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissGestureDisabledSample
+     * @param onClick The callback to be invoked when the button is clicked or triggered via
+     *   gesture.
+     * @param gestureVisibilityThreshold The minimum fraction of the button, between `0.0` and
+     *   `1.0`, that must be visible in the viewport before the primary one-handed gesture is
+     *   active. For values between `0.0` and `1.0`, the gesture is active once the visible fraction
+     *   of the button exceeds the specified threshold. A value of `1f` requires the entire button
+     *   to be visible, whereas [GestureDisabled] (`0f`) disables the gesture on the button.
+     *   [ConfirmButtonGestureVisibilityThreshold] is used by default in the [ConfirmButton]
+     *   overload that does not take a `gestureVisibilityThreshold` parameter.
+     * @param modifier The [Modifier] to be applied to the button.
+     * @param onGestureLabel Semantic label used by accessibility services to describe the purpose
+     *   of the one-handed gesture. Defaults to localized "confirm" text to match [ConfirmIcon], and
+     *   should be customized when [content] represents a different action. This is highly
+     *   recommended for ensuring that users with screen readers understand what action will be
+     *   performed - if `null`, no accessibility announcement is made for the one-handed gesture.
+     * @param colors The [IconButtonColors] to be used for the button.
+     * @param content The composable content of the button. Defaults to [ConfirmIcon].
+     */
+    @Composable
+    public fun ConfirmButton(
+        onClick: () -> Unit,
+        @FloatRange(from = 0.0, to = 1.0) gestureVisibilityThreshold: Float,
+        modifier: Modifier = Modifier,
+        onGestureLabel: String? =
+            stringResource(
+                R.string.one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
+            ),
+        colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
+        content: @Composable RowScope.() -> Unit = ConfirmIcon,
+    ) {
+        require(gestureVisibilityThreshold in 0f..1f) {
+            "gestureVisibilityThreshold should be between 0.0 and 1.0, was $gestureVisibilityThreshold"
+        }
         val confirmWidth = 63.dp
         val confirmHeight = 54.dp
         val confirmShape = CircleShape
+
+        if (gestureVisibilityThreshold <= GestureDisabled) {
+            FilledIconButton(
+                onClick = onClick,
+                modifier = modifier.rotate(-45f).size(confirmWidth, confirmHeight),
+                colors = colors,
+                shapes = IconButtonDefaults.shapes(confirmShape),
+            ) {
+                Row(
+                    modifier = Modifier.align(Alignment.Center).graphicsLayer { rotationZ = 45f },
+                    content = content,
+                )
+            }
+            return
+        }
+
         val interactionSource = remember { MutableInteractionSource() }
         var buttonVisible by remember { mutableStateOf(false) }
         val gestureConfig =
@@ -1364,7 +1566,7 @@ public object AlertDialogDefaults {
             interactionSource = interactionSource,
             modifier =
                 modifier
-                    .onVisibilityChanged(minFractionVisible = ConfirmButtonMinFractionVisible) {
+                    .onVisibilityChanged(minFractionVisible = gestureVisibilityThreshold) {
                         buttonVisible = it
                     }
                     .rotate(-45f)
@@ -1373,11 +1575,7 @@ public object AlertDialogDefaults {
                         if (buttonVisible) {
                             Modifier.oneHandedGesture(
                                 gestureConfiguration = gestureConfig,
-                                onGestureLabel =
-                                    stringResource(
-                                        R.string
-                                            .one_handed_gesture_alert_dialog_primary_action_confirm_accessibility_text
-                                    ),
+                                onGestureLabel = onGestureLabel,
                                 onGestureAvailable = {
                                     coroutineScope.launch { clickIndicatorState.showIndicator() }
                                 },
@@ -1573,6 +1771,24 @@ public object AlertDialogDefaults {
             modifier = Modifier.size(28.dp).align(Alignment.CenterVertically),
         )
     }
+
+    /**
+     * Recommended `gestureVisibilityThreshold` for [EdgeButton] when the primary one-handed gesture
+     * is enabled.
+     */
+    public const val EdgeButtonGestureVisibilityThreshold: Float = 0.9f
+
+    /**
+     * Default `gestureVisibilityThreshold` for [ConfirmButton], requiring the button to be more
+     * than 90% visible before the primary one-handed gesture is active.
+     */
+    public const val ConfirmButtonGestureVisibilityThreshold: Float = 0.9f
+
+    /**
+     * Value for `gestureVisibilityThreshold` on [EdgeButton] and [ConfirmButton] that disables the
+     * primary one-handed gesture on the button.
+     */
+    public const val GestureDisabled: Float = 0f
 
     @Composable
     private fun calculateTopPadding(hasIcon: Boolean): Dp {
@@ -2119,7 +2335,6 @@ internal const val AlertTitleMaxLines = 3
 private const val TextPaddingFraction = 0.0416f
 private const val TitlePaddingFraction = 0.12f
 private const val ConfirmDismissBetweenButtonsPaddingFraction = 0.03f
-private const val ConfirmButtonMinFractionVisible = 0.9f
 private val AlertScalingParams = ScalingLazyColumnDefaults.scalingParams(minTransitionArea = 0.2f)
 
 private val TopItemTransformationSpec: ResponsiveTransformationSpec =

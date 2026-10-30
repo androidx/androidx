@@ -56,6 +56,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
@@ -102,6 +103,53 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
         rule.onNodeWithTag(ConfirmButtonTestTag).assertExists()
+    }
+
+    @Test
+    fun dialog_supports_testtag_and_click_with_gesture_bottomButton() {
+        var clicked = false
+        rule.setContentWithTheme {
+            AlertDialogHelper(
+                contentContainer = contentContainer,
+                visible = true,
+                onDismissRequest = {},
+                modifier = Modifier.testTag(TEST_TAG),
+                title = {},
+                edgeButton = {
+                    AlertDialogDefaults.EdgeButton(
+                        onClick = { clicked = true },
+                        gestureVisibilityThreshold = 1f,
+                        modifier = Modifier.testTag(ConfirmButtonTestTag),
+                    )
+                },
+            )
+        }
+        rule.onNodeWithTag(TEST_TAG).assertExists()
+        rule.onNodeWithTag(ConfirmButtonTestTag).assertExists().performClick()
+        rule.runOnIdle { Assert.assertTrue(clicked) }
+    }
+
+    @Test
+    fun alert_dialog_gesture_edge_button_custom_text_exists_once_only() {
+        val buttonText = "Share once"
+        rule.setContentWithTheme {
+            AlertDialogHelper(
+                contentContainer = contentContainer,
+                visible = true,
+                onDismissRequest = {},
+                title = {},
+                edgeButton = {
+                    AlertDialogDefaults.EdgeButton(
+                        onClick = {},
+                        gestureVisibilityThreshold = 0.9f,
+                        onGestureLabel = "share once",
+                    ) {
+                        Text(buttonText)
+                    }
+                },
+            )
+        }
+        rule.onNodeWithText(buttonText).assertExists().assertHasClickAction()
     }
 
     @Test
@@ -718,6 +766,40 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     @Test
+    fun override_gesture_confirmButton_color() {
+        var expectedContainerColor: Color = Color.Unspecified
+        var expectedContentColor: Color = Color.Unspecified
+
+        rule.setContentWithTheme {
+            expectedContainerColor = Color.Yellow
+            expectedContentColor = Color.Red
+            AlertDialogContentHelper(
+                contentContainer = contentContainer,
+                modifier = Modifier.testTag(TEST_TAG),
+                title = {},
+                confirmButton = {
+                    AlertDialogDefaults.ConfirmButton(
+                        onClick = {},
+                        gestureVisibilityThreshold = 0.5f,
+                        colors =
+                            IconButtonDefaults.filledIconButtonColors(
+                                containerColor = expectedContainerColor,
+                                contentColor = expectedContentColor,
+                            ),
+                    )
+                },
+                dismissButton = { AlertDialogDefaults.DismissButton(onClick = {}) },
+            )
+        }
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertContainsColor(expectedContainerColor)
+            .assertContainsColor(expectedContentColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @Test
     fun override_edgeButton_color() {
         var expectedEdgeButtonColor: Color = Color.Unspecified
 
@@ -737,6 +819,39 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
             )
         }
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedEdgeButtonColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @Test
+    fun override_gesture_edgeButton_color() {
+        var expectedContainerColor: Color = Color.Unspecified
+        var expectedContentColor: Color = Color.Unspecified
+
+        rule.setContentWithTheme {
+            expectedContainerColor = Color.Yellow
+            expectedContentColor = Color.Red
+            AlertDialogContentHelper(
+                contentContainer = contentContainer,
+                modifier = Modifier.testTag(TEST_TAG),
+                title = {},
+                edgeButton = {
+                    AlertDialogDefaults.EdgeButton(
+                        onClick = {},
+                        gestureVisibilityThreshold = 1f,
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = expectedContainerColor,
+                                contentColor = expectedContentColor,
+                            ),
+                    )
+                },
+            )
+        }
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertContainsColor(expectedContainerColor)
+            .assertContainsColor(expectedContentColor)
     }
 
     @Test
