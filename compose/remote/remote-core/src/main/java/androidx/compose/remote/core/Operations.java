@@ -349,6 +349,24 @@ public class Operations {
     // Layout commands
     /// /////////////////////////////////////
 
+    ////////////////////////////////////////
+    // 3D commands (see remote-core/doc/PROTOCOL_3D.md)
+    /// /////////////////////////////////////
+    public static final int DEFINE_MESH_3D = 110;
+    public static final int SET_CAMERA_3D = 111;
+    public static final int MATRIX_3D_OP = 112;
+    public static final int DRAW_MESH_3D = 113;
+    public static final int PAINT_3D_STATE = 114; // clear-depth / material / depth-bias (sub-op)
+    public static final int SET_LIGHTS_3D = 115; // whole light set in one op
+    public static final int VECTOR_EXPRESSION = 116; // vec2/3/4-valued expression, scatters to ids
+    public static final int MESH_EXPRESSION_3D = 117;
+    public static final int SET_TEXTURE_3D = 118;
+    public static final int MESH_PRIMITIVE_3D = 120;
+
+    // support embedded doc
+    public static final int LAYOUT_RC_DOC = 121;
+    public static final int MAP_RC_DOC_VARIABLES = 122;
+
     public static final int LAYOUT_ROOT = 200;
     public static final int LAYOUT_CONTENT = 201;
     public static final int LAYOUT_BOX = 202;
