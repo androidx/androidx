@@ -24,8 +24,18 @@ public object WearDevices {
     // Make sure to update any @StringDefs that reference this object.
     /** Round device with 227x227dp (454x454px) dimensions, 1.39" size and xhdpi density. */
     public const val LARGE_ROUND: String = "id:wearos_large_round"
+    /**
+     * Round device with 227x227dp (454x454px) dimensions, 1.39" size and xhdpi density, whose
+     * preview render area expands vertically to fit scrollable content.
+     */
+    public const val LARGE_ROUND_EXPANDED: String = "spec:parent=wearos_large_round,expand=vertical"
     /** Round device with 192x192dp (384x384px) dimensions, 1.2" size and xhdpi density. */
     public const val SMALL_ROUND: String = "id:wearos_small_round"
+    /**
+     * Round device with 192x192dp (384x384px) dimensions, 1.2" size and xhdpi density, whose
+     * preview render area expands vertically to fit scrollable content.
+     */
+    public const val SMALL_ROUND_EXPANDED: String = "spec:parent=wearos_small_round,expand=vertical"
     /**
      * Square device with 180x180dp (360x360px) dimensions, 1.2" size and xhdpi density. If you are
      * targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND] instead.
@@ -41,6 +51,8 @@ public object WearDevices {
 
 /** Annotation for defining the device to use. */
 @Retention(AnnotationRetention.SOURCE)
+// This @StringDef is only used by Wear Tiles @Preview, which does not support expand at the
+// moment, so LARGE_ROUND_EXPANDED and SMALL_ROUND_EXPANDED are intentionally not included here.
 @StringDef(open = true, value = [WearDevices.LARGE_ROUND, WearDevices.SMALL_ROUND])
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class WearDevice
