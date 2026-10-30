@@ -27,17 +27,29 @@ import java.io.File
 import java.lang.reflect.Executable
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.time.Duration
+import java.time.Instant
 import java.util.Properties
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.logging.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.AfterEachCallback
+import org.junit.jupiter.api.extension.BeforeAllCallback
+import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Store.CloseableResource
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
+import org.opentest4j.TestAbortedException
 
 /**
  * A JUnit 5 Jupiter extension that resolves [BackupRestoreController] test parameters.
@@ -50,9 +62,20 @@ import org.junit.jupiter.api.extension.ParameterResolver
  *
  * Each controller targets the app named by the test class's [BackupRestoreConfig]. Without one, it
  * targets the tested app that the test suite properties name.
+ *
+ * When a test fails, the extension saves the logs of each device that the test used while it ran,
+ * and names the saved files in the test failure. Logs aren't saved for aborted tests, such as a
+ * failed assumption. To also save them when a `@BeforeAll` or `@AfterAll` method fails, register
+ * the extension on the test class, with `@ExtendWith` or a static `@RegisterExtension` field. To
+ * turn off saving logs, set the system property `androidx.test.backup.device.logs.enabled` to
+ * `false`.
+ *
+ * The files are in `suite-details` in the results directory of the test suite. Outside of a test
+ * suite, they are in a new temporary directory, which the extension keeps after the test run.
  */
 public class BackupRestoreExtension
-internal constructor(private val adbSessionProvider: () -> AdbSession) : ParameterResolver {
+internal constructor(private val adbSessionProvider: () -> AdbSession) :
+    BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     /**
      * Creates an extension, which manages its own ADB session.
@@ -209,6 +232,7 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
                     extensionContext.publishReportEntry(key, value)
                 },
             )
+        track(extensionContext, deviceImpl)
 
         // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
         // task
@@ -232,6 +256,118 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
 
         return deviceImpl
     }
+
+    // JUnit never passes a null context, but its parameters have no nullness annotations.
+    override fun beforeAll(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
+        recordOf(context)
+    }
+
+    // JUnit never passes a null context, but its parameters have no nullness annotations.
+    override fun beforeEach(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
+        recordOf(context)
+    }
+
+    // JUnit never passes a null context, but its parameters have no nullness annotations.
+    override fun afterEach(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
+        saveDeviceLogsOnFailure(context)
+    }
+
+    // JUnit never passes a null context, but its parameters have no nullness annotations.
+    override fun afterAll(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
+        saveDeviceLogsOnFailure(context)
+    }
+
+    /** Records that the test or the test class of [context] uses [controller]. */
+    @VisibleForTesting
+    internal fun track(context: ExtensionContext, controller: BackupRestoreControllerImpl) {
+        recordOf(context).controllers += controller
+    }
+
+    /**
+     * Returns the record of the test or the test class of [context], which starts when it starts,
+     * or when a controller is resolved for it before that, such as for a test class constructor.
+     */
+    private fun recordOf(context: ExtensionContext): TestRecord =
+        context
+            .getStore(NAMESPACE)
+            .getOrComputeIfAbsent(
+                TestRecordKey(context.uniqueId),
+                { TestRecord(Instant.now()) },
+                TestRecord::class.java,
+            )
+
+    /** Returns the record of the test or the test class of [context], if it has one. */
+    private fun recordOrNull(context: ExtensionContext): TestRecord? =
+        context.getStore(NAMESPACE).get(TestRecordKey(context.uniqueId), TestRecord::class.java)
+
+    /**
+     * If the test or the test class of [context] failed, saves the logs of each device that it used
+     * since it started, and names the saved files in its failure. The devices of a test include the
+     * devices of the controllers resolved for its test class, such as for the class constructor.
+     */
+    private fun saveDeviceLogsOnFailure(context: ExtensionContext) {
+        val failure = context.executionException.orElse(null)
+        if (failure == null || failure is TestAbortedException) return
+        if (System.getProperty(PROP_DEVICE_LOGS).equals("false", ignoreCase = true)) return
+        // Without its own record, the test didn't run: another extension's beforeEach failed first.
+        val record = recordOrNull(context) ?: return
+        val controllers =
+            generateSequence(context) { it.parent.orElse(null) }
+                .mapNotNull { recordOrNull(it) }
+                .flatMap { it.controllers }
+                .distinctBy { it.serialNumber }
+                .toList()
+        // The device clock that dates the logs is read to the second.
+        val window = Duration.between(record.start, Instant.now()).plusSeconds(1)
+        for (controller in controllers) {
+            try {
+                val dir = deviceLogsDir(context).resolve(fileNameOf(context.uniqueId))
+                val file =
+                    Files.createDirectories(dir)
+                        .resolve("logcat-${fileSafe(controller.serialNumber)}.txt")
+                runBlocking {
+                    withTimeout(DEVICE_LOGS_TIMEOUT_MS) { controller.fetchDeviceLogs(file, window) }
+                }
+                logger.info("Saved the logs of ${controller.serialNumber} to $file")
+                failure.addSuppressed(DeviceLogsNotice(file))
+            } catch (e: Exception) {
+                logger.warning(
+                    "Failed to save the logs of ${controller.serialNumber}: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Returns the directory for the device logs of failed tests: `suite-details` in the results
+     * directory of the test suite, or else a temporary directory for the test run.
+     */
+    private fun deviceLogsDir(context: ExtensionContext): Path =
+        context.root
+            .getStore(NAMESPACE)
+            .getOrComputeIfAbsent(
+                DEVICE_LOGS_DIR_KEY,
+                {
+                    suiteProperty(suiteProperties(), PROP_RESULTS_DIR)?.let {
+                        Paths.get(it, "suite-details")
+                    } ?: Files.createTempDirectory("backup-test-logs")
+                },
+                Path::class.java,
+            )
+
+    /**
+     * Returns the test or the test class with [uniqueId] as a file name: the names of its class and
+     * method, and the invocation of a repeated or parameterized test, separated by dots.
+     */
+    private fun fileNameOf(uniqueId: String): String =
+        fileSafe(
+            uniqueId.split("]/[").drop(1).joinToString(".") {
+                it.substringAfter(':').substringBefore('(').removeSuffix("]")
+            }
+        )
+
+    /** Returns [name] with each run of characters that file names can't hold replaced by `_`. */
+    private fun fileSafe(name: String): String = name.replace(Regex("[^A-Za-z0-9._-]+"), "_")
 
     /**
      * Returns the devices that the [BackupRestoreController] parameters of [executable] ask for, in
@@ -565,6 +701,23 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
         val apks: List<File>,
     )
 
+    /** The time a test or a test class started, and the controllers resolved for it. */
+    private class TestRecord(val start: Instant) {
+        val controllers = CopyOnWriteArrayList<BackupRestoreControllerImpl>()
+    }
+
+    /** Store key of the [TestRecord] of the test or the test class with [uniqueId]. */
+    private data class TestRecordKey(val uniqueId: String)
+
+    /**
+     * Names the [file] with the logs of a device in a test failure, as a suppressed exception
+     * without a stack trace, which test reports print with the failure.
+     */
+    private class DeviceLogsNotice(file: Path) :
+        Exception("Device logs saved to $file", null, false, false) {
+        override fun toString(): String = message.orEmpty()
+    }
+
     /**
      * The device that a [BackupRestoreController] parameter asks for: the one with [serialNumber],
      * or any device for "", which runs API level [api], or any API level for 0, and an API level
@@ -595,6 +748,12 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
         /** Store key of the [StandaloneSession] that all extensions in a test run share. */
         private const val STANDALONE_SESSION_KEY = "standaloneSession"
 
+        /** Store key of the directory for device logs that all extensions in a test run share. */
+        private const val DEVICE_LOGS_DIR_KEY = "deviceLogsDir"
+
+        /** Timeout limit for saving the logs of a device after a test failed. */
+        private const val DEVICE_LOGS_TIMEOUT_MS = 10000L
+
         /** Property specifying a comma-separated list of device serial numbers. */
         private const val PROP_DEVICE_SERIALS = "androidx.test.backup.device.serials"
 
@@ -609,6 +768,9 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
 
         /** Global property specifying a fallback device API level. */
         private const val PROP_DEVICE_API = "androidx.test.backup.device.api"
+
+        /** Property that turns off saving the device logs of failed tests when set to `false`. */
+        private const val PROP_DEVICE_LOGS = "androidx.test.backup.device.logs.enabled"
 
         /**
          * Environment variable with the path of the properties file in which an Android Gradle
@@ -625,6 +787,9 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) : Paramet
 
         /** Test suite input with the APK files of the test app. */
         private const val PROP_TEST_APKS = "com.android.agp.test.TEST_APKS"
+
+        /** Test suite input with the directory for the results of the tests. */
+        private const val PROP_RESULTS_DIR = "com.android.junit.engine.results.dir"
 
         /** Timeout limit for discovering connected devices via ADB. */
         private const val ADB_TIMEOUT_MS = 30000L

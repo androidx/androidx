@@ -105,8 +105,12 @@ package androidx.test.backup.host {
     property public java.util.List<java.lang.String> DEFAULT_INSTALL_OPTIONS;
   }
 
-  public final class BackupRestoreExtension implements org.junit.jupiter.api.extension.ParameterResolver {
+  public final class BackupRestoreExtension implements org.junit.jupiter.api.extension.AfterAllCallback org.junit.jupiter.api.extension.AfterEachCallback org.junit.jupiter.api.extension.BeforeAllCallback org.junit.jupiter.api.extension.BeforeEachCallback org.junit.jupiter.api.extension.ParameterResolver {
     ctor public BackupRestoreExtension();
+    method public void afterAll(org.junit.jupiter.api.extension.ExtensionContext context);
+    method public void afterEach(org.junit.jupiter.api.extension.ExtensionContext context);
+    method public void beforeAll(org.junit.jupiter.api.extension.ExtensionContext context);
+    method public void beforeEach(org.junit.jupiter.api.extension.ExtensionContext context);
     method public Object resolveParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
     method public boolean supportsParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
   }

@@ -47,6 +47,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.opentest4j.TestAbortedException
 
 class BackupRestoreExtensionTest {
 
@@ -859,6 +860,152 @@ class BackupRestoreExtensionTest {
         assertTrue(BackupRestoreExtension().suiteProperties(suiteFile.path).isEmpty)
     }
 
+    @Test
+    fun aTestThatDoesNotFailSavesNoDeviceLogs() {
+        val extension = BackupRestoreExtension { device.session }
+        for (failure in listOf(null, TestAbortedException("Assumption failed"))) {
+            val testClass = childContext(context, CLASS_ID)
+            val test = childContext(testClass, TEST_ID, failure)
+            extension.beforeAll(testClass)
+            extension.track(testClass, controller())
+            extension.beforeEach(test)
+            extension.track(test, controller())
+
+            extension.afterEach(test)
+            extension.afterAll(testClass)
+        }
+
+        assertEquals(emptyList(), device.commands)
+    }
+
+    /** An extension registered in an instance field gets no callbacks for its test class. */
+    @Test
+    fun aFailedTestSavesTheLogsOfTheDevicesThatItUsed() = withResultsDir { resultsDir ->
+        stubDeviceLogs("I Backup: restore failed\n")
+        val failure = AssertionError("The restored data differs")
+        val test = childContext(childContext(context, CLASS_ID), TEST_ID, failure)
+        val extension = BackupRestoreExtension { device.session }
+        extension.beforeEach(test)
+        extension.track(test, controller())
+
+        extension.afterEach(test)
+
+        val logs = File(resultsDir, "suite-details/$TEST_NAME/logcat-$FAKE_SERIAL.txt")
+        assertEquals("I Backup: restore failed\n", logs.readText())
+        assertEquals("Device logs saved to $logs", failure.suppressed.single().toString())
+    }
+
+    @Test
+    fun aFailedTestSavesTheLogsOfTheDevicesThatItsClassShares() = withResultsDir { resultsDir ->
+        stubDeviceLogs("I Backup: restore failed\n")
+        val failure = AssertionError("The restored data differs")
+        val testClass = childContext(context, CLASS_ID)
+        val test = childContext(testClass, TEST_ID, failure)
+        val extension = BackupRestoreExtension { device.session }
+        extension.beforeAll(testClass)
+        extension.track(testClass, controller())
+        extension.beforeEach(test)
+        extension.track(test, controller())
+
+        extension.afterEach(test)
+
+        assertEquals(1, device.commands.count { it.startsWith("logcat ") })
+        val logs = File(resultsDir, "suite-details/$TEST_NAME/logcat-$FAKE_SERIAL.txt")
+        assertEquals("Device logs saved to $logs", failure.suppressed.single().toString())
+    }
+
+    @Test
+    fun aFailedTestClassSavesTheLogsOfItsDevices() = withResultsDir { resultsDir ->
+        stubDeviceLogs("I Backup: restore failed\n")
+        val failure = IllegalStateException("No online Android devices")
+        val testClass = childContext(context, CLASS_ID, failure)
+        val extension = BackupRestoreExtension { device.session }
+        extension.beforeAll(testClass)
+        extension.track(testClass, controller())
+
+        extension.afterAll(testClass)
+
+        val logs = File(resultsDir, "suite-details/com.example.BackupTest/logcat-$FAKE_SERIAL.txt")
+        assertEquals("I Backup: restore failed\n", logs.readText())
+        assertEquals("Device logs saved to $logs", failure.suppressed.single().toString())
+    }
+
+    @Test
+    fun aFailedTestSavesNoDeviceLogsWhenTheyAreTurnedOff() =
+        withDeviceProperties("$DEVICE_PROPERTY.logs.enabled" to "false") {
+            val failure = AssertionError("The restored data differs")
+            val test = childContext(childContext(context, CLASS_ID), TEST_ID, failure)
+            val extension = BackupRestoreExtension { device.session }
+            extension.beforeEach(test)
+            extension.track(test, controller())
+
+            extension.afterEach(test)
+
+            assertEquals(emptyList(), device.commands)
+            assertEquals(0, failure.suppressed.size)
+        }
+
+    @Test
+    fun aFailureToSaveDeviceLogsKeepsTheFailureOfTheTest() = withResultsDir {
+        // The device prints no time for `date`, so its logs can't be read.
+        val failure = AssertionError("The restored data differs")
+        val test = childContext(childContext(context, CLASS_ID), TEST_ID, failure)
+        val extension = BackupRestoreExtension { device.session }
+        extension.beforeEach(test)
+        extension.track(test, controller())
+
+        extension.afterEach(test)
+
+        assertEquals(listOf("date +%s"), device.commands)
+        assertEquals(0, failure.suppressed.size)
+    }
+
+    /**
+     * Returns a child context of [parent] with [uniqueId] and a store of its own, for a test or a
+     * test class that failed with [failure], unless it is null.
+     */
+    private fun childContext(
+        parent: ExtensionContext,
+        uniqueId: String,
+        failure: Throwable? = null,
+    ): ExtensionContext {
+        val root = parent.root
+        val store = FakeStore()
+        val context = mock(ExtensionContext::class.java)
+        `when`(context.uniqueId).thenReturn(uniqueId)
+        `when`(context.parent).thenReturn(Optional.of(parent))
+        `when`(context.root).thenReturn(root)
+        `when`(context.getStore(any())).thenReturn(store)
+        `when`(context.executionException).thenReturn(Optional.ofNullable(failure))
+        return context
+    }
+
+    /** Runs [block] with a results directory that the system property of a test suite names. */
+    private fun withResultsDir(block: (File) -> Unit) {
+        val resultsDir = tempFolder.newFolder("results")
+        val previous = System.setProperty(RESULTS_DIR, resultsDir.path)
+        try {
+            block(resultsDir)
+        } finally {
+            if (previous == null) {
+                System.clearProperty(RESULTS_DIR)
+            } else {
+                System.setProperty(RESULTS_DIR, previous)
+            }
+        }
+    }
+
+    /** Makes [device] print [logs] for `logcat`, and a time for `date`. */
+    private fun stubDeviceLogs(logs: String) {
+        device.onShell { command ->
+            when {
+                command == "date +%s" -> shellOutput("1700000000\n")
+                command.startsWith("logcat ") -> shellOutput(logs)
+                else -> null
+            }
+        }
+    }
+
     /** Writes [inputs] to a properties file, as an Android Gradle Plugin test suite does. */
     private fun suitePropertiesFile(vararg inputs: Pair<String, String>): File {
         val properties = Properties()
@@ -981,6 +1128,17 @@ class BackupRestoreExtensionTest {
         /** Test suite input with the application ID of the tested app. */
         const val TESTED_APPLICATION_ID = "com.android.junit.engine.tested.application.id"
 
+        /** Test suite input with the directory for the results of the tests. */
+        const val RESULTS_DIR = "com.android.junit.engine.results.dir"
+
+        /** Unique ID of a test class, and of a test method in it. */
+        const val CLASS_ID = "[engine:junit-jupiter]/[class:com.example.BackupTest]"
+        const val TEST_ID =
+            "$CLASS_ID/[method:restoresData(androidx.test.backup.host.BackupRestoreController)]"
+
+        /** The test of [TEST_ID] as a file name. */
+        const val TEST_NAME = "com.example.BackupTest.restoresData"
+
         /** The APKs of a test suite: the app, then the test APK. */
         val APKS = listOf(File("app-debug.apk"), File("app-debug-backupTest.apk"))
 
@@ -988,6 +1146,7 @@ class BackupRestoreExtensionTest {
         fun contextWithRootStore(store: ExtensionContext.Store): ExtensionContext {
             val context = mock(ExtensionContext::class.java)
             `when`(context.root).thenReturn(context)
+            `when`(context.uniqueId).thenReturn("[engine:junit-jupiter]")
             `when`(context.getStore(any())).thenReturn(store)
             return context
         }
