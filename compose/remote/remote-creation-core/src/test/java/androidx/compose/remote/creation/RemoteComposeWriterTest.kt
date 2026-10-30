@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.SystemInfo
 import androidx.compose.remote.core.operations.EventActionOperation
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.TextData
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation
 import androidx.compose.remote.core.operations.utilities.IntMap
@@ -54,6 +55,75 @@ class RemoteComposeWriterTest {
 
         assertThat(id1).isEqualTo(id2)
         assertThat(sizeAfterFirstCall).isEqualTo(sizeAfterSecondCall)
+    }
+
+    @Test
+    fun addPathData_floatArray_writesExpectedOperationsWithoutCachingInState() {
+        val writer = createProfile().create(creationDisplayInfo, "test")
+        val pathDataDefault =
+            floatArrayOf(
+                PathData.MOVE_NAN,
+                0f,
+                0f,
+                PathData.LINE_NAN,
+                5f,
+                15f,
+                PathData.CLOSE_NAN,
+            )
+        val pathData0 =
+            floatArrayOf(
+                PathData.MOVE_NAN,
+                10f,
+                20f,
+                PathData.LINE_NAN,
+                30f,
+                40f,
+                PathData.CLOSE_NAN,
+            )
+        val pathData1 =
+            floatArrayOf(
+                PathData.MOVE_NAN,
+                50f,
+                60f,
+                PathData.LINE_NAN,
+                70f,
+                80f,
+                PathData.CLOSE_NAN,
+            )
+
+        // RcPlatformServices.None throws UnsupportedOperationException if pathToFloatArray
+        // is called. This verifies that addPathData(float[]) and addPathData(float[], int)
+        // directly process the float[] without attempting platform conversion or retaining
+        // the float[] in RemoteComposeState.
+        val idDefault = writer.addPathData(pathDataDefault)
+        val id0 = writer.addPathData(pathData0, 0)
+        val id1 = writer.addPathData(pathData1, 1)
+
+        assertThat(setOf(idDefault, id0, id1)).hasSize(3)
+        assertThat(writer.mState.dataGetId(pathDataDefault)).isEqualTo(-1)
+        assertThat(writer.mState.getFromId(idDefault)).isNull()
+        assertThat(writer.mState.dataGetId(pathData0)).isEqualTo(-1)
+        assertThat(writer.mState.getFromId(id0)).isNull()
+        assertThat(writer.mState.dataGetId(pathData1)).isEqualTo(-1)
+        assertThat(writer.mState.getFromId(id1)).isNull()
+
+        val doc = parseDocument(writer)
+        val pathOps = doc.operations.filterIsInstance<PathData>()
+        assertThat(pathOps).hasSize(3)
+
+        val opDefault = pathOps.first { it.id == idDefault }
+        val op0 = pathOps.first { it.id == id0 }
+        val op1 = pathOps.first { it.id == id1 }
+
+        val windingField =
+            PathData::class.java.getDeclaredField("mWinding").apply { isAccessible = true }
+        assertThat(windingField.getInt(opDefault)).isEqualTo(0)
+        assertThat(windingField.getInt(op0)).isEqualTo(0)
+        assertThat(windingField.getInt(op1)).isEqualTo(1)
+
+        assertThat(opDefault.floatPath).isEqualTo(pathDataDefault)
+        assertThat(op0.floatPath).isEqualTo(pathData0)
+        assertThat(op1.floatPath).isEqualTo(pathData1)
     }
 
     @Test
