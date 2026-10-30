@@ -37,7 +37,6 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -180,7 +179,7 @@ class SceneCorePanelActivity : ComponentActivity() {
     }
 
     /** Brings the live anchors and panels in line with [scene]. */
-    private suspend fun apply(scene: SceneCoreSceneSpec) {
+    private fun apply(scene: SceneCoreSceneSpec) {
         val wantedPanels = scene.panels.associateBy { it.id }
         val wantedAnchors = scene.anchors.map { it.id }.toSet()
         (panels.keys - wantedPanels.keys).toList().forEach { id -> disposePanel(id) }
@@ -206,7 +205,7 @@ class SceneCorePanelActivity : ComponentActivity() {
     }
 
     /** Brings panel [spec] in line: spawns it, attaches it to its anchor, moves and recolors it. */
-    private suspend fun applyPanel(spec: SceneCorePanelSpec) {
+    private fun applyPanel(spec: SceneCorePanelSpec) {
         // The OpenXR runtime sizes a panel once, when it is created (`sizeInPixels` only
         // re-lays out the hosted view), so a new size means a new panel.
         val live = panels[spec.id]
@@ -219,14 +218,12 @@ class SceneCorePanelActivity : ComponentActivity() {
             panel.anchorId = anchorId
             panel.position = null
             logEvent("Panel ${spec.id} attached to Anchor $anchorId.")
-            settleTransactions()
         }
         // The position is relative to the panel's parent, so leave a panel that still waits for its
         // anchor where it is.
         if (panel.anchorId == anchorId && panel.position != spec.position) {
             panel.entity.setPose(Pose(spec.position))
             panel.position = spec.position
-            settleTransactions()
         }
         // Only relabel on change: every new text re-lays out the auto-sized label.
         val label = describePanel(spec, panel)
@@ -247,28 +244,26 @@ class SceneCorePanelActivity : ComponentActivity() {
     }
 
     /** Moves the panels on anchor [anchorId] to the activity space. */
-    private suspend fun releasePanels(anchorId: Int) {
+    private fun releasePanels(anchorId: Int) {
         panels.values.filter { it.anchorId == anchorId }.forEach { moveToActivitySpace(it) }
     }
 
-    private suspend fun moveToActivitySpace(panel: LivePanel) {
+    private fun moveToActivitySpace(panel: LivePanel) {
         panel.entity.parent = session.scene.activitySpace
         logEvent("Panel ${panel.id} moved from Anchor ${panel.anchorId} to the activity space.")
         panel.anchorId = null
         panel.position = null
-        settleTransactions()
     }
 
-    private suspend fun disposePanel(id: Int) {
+    private fun disposePanel(id: Int) {
         val panel = panels.remove(id) ?: return
         // `parent = null` only detaches the entity and the OpenXR runtime keeps rendering a
         // detached panel until the entity is disposed, so dispose it explicitly.
         @Suppress("DEPRECATION") panel.entity.dispose()
         Log.i(TAG, "Panel $id disposed.")
-        settleTransactions()
     }
 
-    private suspend fun spawnPanel(spec: SceneCorePanelSpec): LivePanel {
+    private fun spawnPanel(spec: SceneCorePanelSpec): LivePanel {
         val view = createLabelView(this, spec.sizeInPixels)
         // Entities are only rendered once they are attached to the scene graph, so parent the
         // panel to the activity space explicitly. It moves to its anchor once that is ready.
@@ -280,9 +275,7 @@ class SceneCorePanelActivity : ComponentActivity() {
                 "Panel ${spec.id}",
                 parent = session.scene.activitySpace,
             )
-        settleTransactions()
         applyPanelScale(entity)
-        settleTransactions()
         Log.i(
             TAG,
             "Panel ${spec.id} created (${spec.sizeInPixels.width}x${spec.sizeInPixels.height}).",
@@ -336,15 +329,3 @@ internal fun applyPanelScale(entity: PanelEntity) {
     val size = entity.size
     entity.setScale(Vector3(size.width * PANEL_SCALE, size.height * PANEL_SCALE, 1f))
 }
-
-/**
- * The Vitreous OpenXR runtime only has two scene-transaction slots in flight at a time, and
- * [PanelEntity.create] uses both at once (one to flush the new entity, one to set its parent). When
- * the pool is full, `OpenXrEntity` drops parent, pose and scale changes, so let in-flight
- * transactions finish before sending more.
- */
-internal suspend fun settleTransactions() {
-    delay(TRANSACTION_SETTLE_MILLIS)
-}
-
-private const val TRANSACTION_SETTLE_MILLIS = 50L

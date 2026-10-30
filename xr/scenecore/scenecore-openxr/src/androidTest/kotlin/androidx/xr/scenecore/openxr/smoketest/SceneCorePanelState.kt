@@ -191,7 +191,7 @@ internal fun describeNativeHandle(handle: Long?): String =
  */
 internal object SceneCorePanelStateHolder {
     /** How long to wait by default before attaching panels to a new anchor. */
-    const val DEFAULT_ANCHOR_PARENTING_DELAY_MILLIS = 1000L
+    const val DEFAULT_ANCHOR_PARENTING_DELAY_MILLIS = 0L
 
     private const val MAX_EVENTS = 30
 
@@ -206,8 +206,8 @@ internal object SceneCorePanelStateHolder {
 
     /**
      * How long to wait after creating an AnchorSpace before attaching panels to it. The Vitreous
-     * runtime refuses new scene transactions while it associates a new anchor, and the OpenXR
-     * SceneCore runtime drops parent changes when no transaction is available.
+     * runtime refuses new scene transactions while it associates a new anchor, so the OpenXR
+     * SceneCore runtime commits the panels' parent changes once it has, whatever the delay.
      */
     val anchorParentingDelayMillis = MutableStateFlow(DEFAULT_ANCHOR_PARENTING_DELAY_MILLIS)
 
