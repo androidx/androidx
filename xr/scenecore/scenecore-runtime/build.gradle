@@ -55,6 +55,14 @@ dependencies {
     testImplementation(libs.androidExtensionsXr)
 }
 
+dependencies {
+    constraints {
+        implementation(libs.guavaAndroid) {
+            because("b/578714386 - upgrading to fix vulns")
+        }
+    }
+}
+
 android {
     compileSdk { version = release(36) }
     namespace = "androidx.xr.scenecore.runtime"

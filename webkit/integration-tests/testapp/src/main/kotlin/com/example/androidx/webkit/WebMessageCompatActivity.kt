@@ -166,6 +166,7 @@ class WebMessageCompatActivity : AppCompatActivity() {
             }
 
         assets.open("www/web_message_compat.html").use {
+            @Suppress("DEPRECATION")
             String(ByteStreams.toByteArray(it), Charsets.UTF_8).let { webContent ->
                 webView.loadDataWithBaseURL(
                     "https://example.com",

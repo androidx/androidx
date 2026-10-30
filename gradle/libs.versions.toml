@@ -192,7 +192,7 @@ grpcStub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpcTesting = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
-guavaAndroid = { module = "com.google.guava:guava", version = "32.0.1-android" }
+guavaAndroid = { module = "com.google.guava:guava", version = "33.7.2-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
 guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guavaJre" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }

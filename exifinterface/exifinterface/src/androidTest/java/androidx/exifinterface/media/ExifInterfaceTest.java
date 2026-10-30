@@ -79,6 +79,7 @@ import java.util.concurrent.atomic.AtomicReference;
 // TODO: Add NEF test file from CTS after reducing file size in order to test uncompressed thumbnail
 // image.
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging

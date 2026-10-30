@@ -740,7 +740,7 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onSuccess(
     addCallback(
         this,
         object : FutureCallback<LoadResult<Int, TestItem>> {
-            override fun onSuccess(result: LoadResult<Int, TestItem>?) {
+            override fun onSuccess(result: LoadResult<Int, TestItem>) {
                 onSuccessCallback(result)
             }
 
@@ -763,7 +763,7 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onFailure(
     addCallback(
         this,
         object : FutureCallback<LoadResult<Int, TestItem>> {
-            override fun onSuccess(result: LoadResult<Int, TestItem>?) {
+            override fun onSuccess(result: LoadResult<Int, TestItem>) {
                 assertWithMessage(
                         "Expected onFailure callback instead of onSuccess, " +
                             "received result $result"

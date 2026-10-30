@@ -37,6 +37,7 @@ dependencies {
     implementation(project(":health:connect:connect-client-proto"))
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
+    implementation(libs.findbugs)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.core:core-ktx:1.12.0")
 

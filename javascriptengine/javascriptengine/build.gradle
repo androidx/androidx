@@ -35,6 +35,8 @@ dependencies {
     api(libs.guavaAndroid)
     api(libs.jspecify)
 
+    implementation(libs.findbugs)
+
     androidTestImplementation(libs.junit)
     annotationProcessor(libs.nullaway)
     androidTestImplementation(libs.testExtJunit)

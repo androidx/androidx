@@ -53,6 +53,9 @@ dependencies {
         implementation("org.bouncycastle:bcprov-jdk18on:1.86") {
             because("b/505222436 - upgrading to fix vulns")
         }
+        implementation(libs.guavaAndroid) {
+            because("b/578789391 - upgrading to fix vulns")
+        }
     }
 }
 

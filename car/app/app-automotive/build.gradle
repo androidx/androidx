@@ -33,6 +33,7 @@ dependencies {
     api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.guavaAndroid)
+    implementation(libs.findbugs)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.fragment:fragment:1.3.0")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.2.0")

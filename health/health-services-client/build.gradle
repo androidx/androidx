@@ -34,6 +34,7 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
+    implementation(libs.findbugs)
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(project(":health:health-services-client-proto"))

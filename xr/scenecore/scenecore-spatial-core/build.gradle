@@ -71,6 +71,14 @@ dependencies {
 
 }
 
+dependencies {
+    constraints {
+        implementation(libs.guavaAndroid) {
+            because("b/578745830 - upgrading to fix vulns")
+        }
+    }
+}
+
 android {
     compileSdk { version = release(36) }
     namespace = "androidx.xr.scenecore.spatial.core"
