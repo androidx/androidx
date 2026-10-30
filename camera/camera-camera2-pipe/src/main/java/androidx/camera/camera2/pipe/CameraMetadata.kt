@@ -95,8 +95,10 @@ public interface CameraMetadata : CameraCharacteristicsWrapper {
      * On API 37+, this delegates to
      * [android.hardware.camera2.CameraExtensionCharacteristics.isExtensionSupported]. On API levels
      * below 37, this checks if the extension is present in [supportedExtensions].
+     *
+     * The default implementation checks if the extension is present in [supportedExtensions].
      */
-    public fun isExtensionSupported(extension: Int): Boolean
+    public fun isExtensionSupported(extension: Int): Boolean = extension in supportedExtensions
 
     public suspend fun getPhysicalMetadata(cameraId: CameraId): CameraMetadata
 
