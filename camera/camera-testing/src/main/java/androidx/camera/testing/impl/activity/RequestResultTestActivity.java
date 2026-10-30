@@ -34,6 +34,11 @@ public class RequestResultTestActivity extends Activity {
     public static final String INTENT_EXTRA_INTENT_ACTION = "intent_action";
     /** Used to pass the extra bundle info to launch the target activity. */
     public static final String INTENT_EXTRA_BUNDLE = "intent_extra_bundle";
+    /**
+     * The result error code that is reported when the target activity finishes without returning
+     * any result data, for example, when the target activity's process crashes or is killed.
+     */
+    public static final int RESULT_ERROR_NO_RESULT_DATA = -2;
     private static final String INTENT_EXTRA_RESULT_ERROR_MESSAGE = "result_error_message";
     private static final int REQUEST_CODE_DEFAULT = 0;
     private final CountingIdlingResource mRequestResultReady = new CountingIdlingResource(
@@ -90,10 +95,21 @@ public class RequestResultTestActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mResultErrorCode = resultCode;
-        mResultErrorMessage = data.getStringExtra(INTENT_EXTRA_RESULT_ERROR_MESSAGE);
+        if (data == null) {
+            // The target activity always returns a result Intent when it finishes normally. A null
+            // Intent means that it didn't finish normally, e.g. its process crashed. In that case,
+            // the result code is Activity.RESULT_CANCELED (0), which can't be distinguished from
+            // the success result code used by the target activities (e.g. RESULT_SUCCESS (0) in
+            // the extensions test app's ReleaseTestActivity). Reports a dedicated error code.
+            mResultErrorCode = RESULT_ERROR_NO_RESULT_DATA;
+            mResultErrorMessage = "No result data is returned from the target activity (result "
+                    + "code: " + resultCode + "). The target activity might have crashed.";
+        } else {
+            mResultErrorCode = resultCode;
+            mResultErrorMessage = data.getStringExtra(INTENT_EXTRA_RESULT_ERROR_MESSAGE);
+        }
         mRequestResultReady.decrement();
     }
 }
