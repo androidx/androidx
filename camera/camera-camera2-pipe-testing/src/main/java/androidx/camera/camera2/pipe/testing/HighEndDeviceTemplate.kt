@@ -27,6 +27,7 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.BlackLevelPattern
 import android.hardware.camera2.params.ColorSpaceTransform
 import android.hardware.camera2.params.DynamicRangeProfiles
+import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.media.ImageReader
 import android.os.Build
 import android.util.Range
@@ -34,7 +35,9 @@ import android.util.Rational
 import android.util.Size
 import android.util.SizeF
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.common.CameraId
@@ -57,6 +60,15 @@ public object HighEndDeviceTemplate : DeviceTemplate {
 
     private val frontStreamConfigurationMap: CameraStreamConfigurationMap =
         createFrontCameraStreamConfigurationMap()
+
+    private val defaultMultiResolutionStreamConfigurationMap:
+        CameraMultiResolutionStreamConfigurationMap? by lazy {
+        if (Build.VERSION.SDK_INT >= 31) {
+            createDefaultMultiResolutionStreamConfigurationMap()
+        } else {
+            null
+        }
+    }
 
     private val requiredCharacteristics =
         mapOf(
@@ -4275,13 +4287,23 @@ public object HighEndDeviceTemplate : DeviceTemplate {
             } else {
                 this.defaultStreamConfigurationMap
             }
-        val defaultMetadata =
-            mapOf(CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to defaultStreamConfigurationMap)
-        val allMetadata = (defaultMetadata + metadataOverrides).filterValues { it != null }
         val isLogicalMultiCamera =
             (allCharacteristics[REQUEST_AVAILABLE_CAPABILITIES] as? IntArray)?.contains(
                 REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
             ) == true
+        val defaultMultiResolutionStreamConfigurationMap =
+            if (resolvedLensFacing == LENS_FACING_FRONT || !isLogicalMultiCamera) {
+                null
+            } else {
+                this.defaultMultiResolutionStreamConfigurationMap
+            }
+        val defaultMetadata =
+            mapOf(
+                CameraMetadata.CAMERA_STREAM_CONFIGURATION_MAP to defaultStreamConfigurationMap,
+                CameraMetadata.CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP to
+                    defaultMultiResolutionStreamConfigurationMap,
+            )
+        val allMetadata = (defaultMetadata + metadataOverrides).filterValues { it != null }
 
         return FakeCameraMetadata(
             characteristics = allCharacteristics,
@@ -4352,4 +4374,65 @@ public object HighEndDeviceTemplate : DeviceTemplate {
                 ),
         )
     }
+
+    @RequiresApi(31)
+    private fun createDefaultMultiResolutionStreamConfigurationMap():
+        CameraMultiResolutionStreamConfigurationMap =
+        FakeCameraMultiResolutionStreamConfigurationMap(
+            outputFormats = listOf(StreamFormat.RAW_SENSOR, StreamFormat.RAW10),
+            outputMultiResStreamFormatsByFormat =
+                mapOf(
+                    StreamFormat.RAW_SENSOR to
+                        listOf(
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4080,
+                                /* streamHeight= */ 3072,
+                                /* physicalCameraId= */ "2",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4032,
+                                /* streamHeight= */ 3024,
+                                /* physicalCameraId= */ "3",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4032,
+                                /* streamHeight= */ 3024,
+                                /* physicalCameraId= */ "4",
+                            ),
+                        ),
+                    StreamFormat.RAW10 to
+                        listOf(
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4080,
+                                /* streamHeight= */ 3072,
+                                /* physicalCameraId= */ "2",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 8160,
+                                /* streamHeight= */ 6144,
+                                /* physicalCameraId= */ "2",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4032,
+                                /* streamHeight= */ 3024,
+                                /* physicalCameraId= */ "3",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 4032,
+                                /* streamHeight= */ 3024,
+                                /* physicalCameraId= */ "4",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 8064,
+                                /* streamHeight= */ 6048,
+                                /* physicalCameraId= */ "6",
+                            ),
+                            MultiResolutionStreamInfo(
+                                /* streamWidth= */ 8064,
+                                /* streamHeight= */ 6048,
+                                /* physicalCameraId= */ "9",
+                            ),
+                        ),
+                ),
+        )
 }
