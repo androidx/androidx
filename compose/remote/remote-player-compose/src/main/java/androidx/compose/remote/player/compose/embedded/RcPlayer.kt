@@ -45,7 +45,7 @@ import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.compose.action.LambdaAction
 import androidx.compose.remote.creation.compose.action.PendingIntentActionHandler
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.components.RcPlayerClickAreas
@@ -665,10 +665,10 @@ public fun RcPlayer(
 }
 
 /**
- * A player of a [CapturedDocument].
+ * A player of a [RemoteCapturedDocument].
  *
- * This overload extracts the [CoreDocument] and any associated lambdas from the [CapturedDocument]
- * and forwards them to the underlying [RcPlayer].
+ * This overload extracts the [CoreDocument] and any associated lambdas from the
+ * [RemoteCapturedDocument] and forwards them to the underlying [RcPlayer].
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -676,7 +676,7 @@ public fun RcPlayer(
 @Suppress("PrimitiveInCollection")
 @Composable
 public fun RcPlayer(
-    capturedDocument: CapturedDocument,
+    capturedDocument: RemoteCapturedDocument,
     modifier: Modifier = Modifier,
     imageLoader: RcImageLoader? = null,
     trustedContent: Boolean = false,

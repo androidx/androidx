@@ -28,8 +28,8 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetadataOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
-import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.Profile
+import androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -324,7 +324,7 @@ class HostActionTest {
             PendingIntent.FLAG_IMMUTABLE,
         )
 
-    private fun CapturedDocument.toCoreDocument(): CoreDocument =
+    private fun RemoteCapturedDocument.toCoreDocument(): CoreDocument =
         CoreDocument().apply {
             initFromBuffer(RemoteComposeBuffer.fromInputStream(bytes.inputStream()))
         }

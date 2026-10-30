@@ -17,10 +17,10 @@
 package androidx.compose.remote.creation.compose
 
 /**
- * This is a collection of flags which are used to guard against regressions in some of the
- * "riskier" refactors or new feature support that is added to this module. These flags are always
- * "off" in the published artifact of this module, however these flags allow end consumers of this
- * module to toggle them "on" in case this new path is causing a regression.
+ * Collection of temporary flags used to guard against regressions in refactors or new feature
+ * support added to this module. These flags are always "on" in the published artifact of this
+ * module, however these flags allow end consumers of this module to toggle them "off" in case a new
+ * path is causing a regression.
  *
  * These flags are considered temporary, and there should be no expectation for these flags be
  * around for an extended period of time. If you have a regression that one of these flags fixes, it
@@ -34,7 +34,7 @@ package androidx.compose.remote.creation.compose
  *
  *      class MyApplication : Application() {
  *          override fun onCreate() {
- *              RemoteComposeCreationComposeFlags.SomeFeatureEnabled = true
+ *              RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
  *              super.onCreate()
  *          }
  *      }
@@ -45,7 +45,7 @@ package androidx.compose.remote.creation.compose
  * performance impact.
  *
  *      -assumevalues class androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags {
- *          public static boolean SomeFeatureEnabled return false
+ *          public static boolean isEnforceCleanRecompositionEnabled return false
  *      }
  */
 @ExperimentalRemoteCreationComposeApi

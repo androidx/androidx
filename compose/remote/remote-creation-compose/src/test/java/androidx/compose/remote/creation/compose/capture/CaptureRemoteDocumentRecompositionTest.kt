@@ -80,7 +80,7 @@ class CaptureRemoteDocumentRecompositionTest {
         val flow =
             captureRemoteDocument(
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 context = context,
                 coroutineContext = coroutineContext,
                 content = { RemoteText(state.value.rs) },
@@ -119,7 +119,7 @@ class CaptureRemoteDocumentRecompositionTest {
         val flow =
             captureRemoteDocument(
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 context = context,
                 coroutineContext = coroutineContext,
                 content = {
@@ -169,7 +169,7 @@ class CaptureRemoteDocumentRecompositionTest {
         val flow =
             captureRemoteDocument(
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 context = context,
                 coroutineContext = coroutineContext,
                 content = {
@@ -206,7 +206,7 @@ class CaptureRemoteDocumentRecompositionTest {
         val flow =
             captureRemoteDocument(
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 context = context,
                 coroutineContext = coroutineContext,
                 content = {

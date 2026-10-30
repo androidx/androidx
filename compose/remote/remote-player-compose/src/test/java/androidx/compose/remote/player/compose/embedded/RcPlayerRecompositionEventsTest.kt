@@ -27,7 +27,7 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.CaptureUpdateThrottle
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -119,7 +119,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = { RemoteText(state.value.rs) },
             )
@@ -179,7 +179,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = { RemoteText(derivedText.value.rs) },
             )
@@ -250,7 +250,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     var text by remember { mutableStateOf("Initial") }
@@ -330,7 +330,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
@@ -395,7 +395,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     RemoteBox(modifier = RemoteModifier.testOnClick { lambdaClicked = true }) {}
@@ -462,7 +462,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     if (displayState.value) {
@@ -536,7 +536,7 @@ class RcPlayerRecompositionEventsTest {
                 // 100 back-to-back updates far exceed the default rate limit, and its delay()
                 // never resumes on the paused main looper.
                 updateThrottle = CaptureUpdateThrottle.None,
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     if (displayState.value) {
@@ -618,7 +618,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     state.value
@@ -671,7 +671,7 @@ class RcPlayerRecompositionEventsTest {
             captureRemoteDocument(
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
-                writerEvents = WriterEvents(),
+                writerEvents = RemoteWriterEvents(),
                 coroutineContext = Dispatchers.Main,
                 content = {
                     CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {

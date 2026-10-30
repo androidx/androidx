@@ -22,7 +22,7 @@ import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.PendingIntentAction.Companion.ACTION_NAME
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.geometry.Size
@@ -58,7 +58,7 @@ class PendingIntentActionTest {
 
     @Test
     fun toRemoteAction_withPendingIntentAwareWriter_storeSuccessfully() {
-        val writerEvents = WriterEvents()
+        val writerEvents = RemoteWriterEvents()
         val creationState =
             RemoteComposeCreationState(
                 creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),
@@ -85,7 +85,7 @@ class PendingIntentActionTest {
                 lambdaCalled = true
                 testPendingIntent
             })
-        val writerEvents = WriterEvents()
+        val writerEvents = RemoteWriterEvents()
         val creationState =
             RemoteComposeCreationState(
                 creationDisplayInfo = RemoteCreationDisplayInfo(1, 1, 160, 1.0f),

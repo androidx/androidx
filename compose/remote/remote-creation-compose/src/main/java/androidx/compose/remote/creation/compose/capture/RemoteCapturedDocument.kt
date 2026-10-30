@@ -30,9 +30,17 @@ import androidx.collection.IntObjectMap
  * @property bytes The bytes of the Remote Compose document.
  * @property pendingIntents A map of integer identifiers to `PendingIntent` objects.
  */
-public class CapturedDocument
+public class RemoteCapturedDocument
 internal constructor(
     public val bytes: ByteArray,
     public val pendingIntents: IntObjectMap<PendingIntent>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val lambdas: IntObjectMap<() -> Unit>,
+)
+
+/** Bridge for modules pinned to a prebuilt that still references `CapturedDocument`. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CapturedDocument
+internal constructor(
+    public val bytes: ByteArray,
+    public val pendingIntents: IntObjectMap<PendingIntent>,
 )

@@ -315,7 +315,7 @@ class CaptureRemoteDocumentTest {
         val defaultObserverDestroyed = AtomicBoolean(false)
         val capturedInterceptor = AtomicReference<ContinuationInterceptor?>(null)
         val capturedLifecycle = AtomicReference<Lifecycle?>(null)
-        val capturedDocument = AtomicReference<CapturedDocument?>(null)
+        val capturedDocument = AtomicReference<RemoteCapturedDocument?>(null)
         val failure = AtomicReference<Throwable?>(null)
         val latch = CountDownLatch(1)
 
@@ -1359,7 +1359,7 @@ class CaptureRemoteDocumentTest {
         }
     }
 
-    private fun CapturedDocument.toCoreDocument(): CoreDocument = bytes.toCoreDocument()
+    private fun RemoteCapturedDocument.toCoreDocument(): CoreDocument = bytes.toCoreDocument()
 
     private fun CoreDocument.textValues(): Collection<String> = mTextData.values
 
@@ -1397,10 +1397,10 @@ class CaptureRemoteDocumentTest {
             assertDocumentContainsText(second.toCoreDocument(), "Saved 10")
         }
 
-    // Host actions (e.g. WriterEvents.lambdas or Wear widget lambdaActions) registered during a
-    // one-shot capture are invoked after the capture has finished and disposed its composition,
-    // and then trigger a new capture. Because ParcelableMapHolder keeps the saved MutableState
-    // reference in memory inside SavedState (matching Compose UI's
+    // Host actions (e.g. RemoteWriterEvents.lambdas or Wear widget lambdaActions) registered
+    // during a one-shot capture are invoked after the capture has finished and disposed its
+    // composition, and then trigger a new capture. Because ParcelableMapHolder keeps the saved
+    // MutableState reference in memory inside SavedState (matching Compose UI's
     // DisposableSaveableStateRegistry), mutating a rememberSaveable MutableState inside such an
     // action updates the value restored by the next capture.
     @Test

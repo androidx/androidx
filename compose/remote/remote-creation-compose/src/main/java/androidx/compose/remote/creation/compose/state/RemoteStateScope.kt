@@ -82,6 +82,7 @@ internal interface PlatformRemoteStateScope : RemoteStateScope {
 }
 
 /** Build the [RemotePath], encoding using this [RemoteStateScope]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteStateScope.remotePath(fn: RemotePathScope.() -> Unit): RemotePath {
     return RemotePathScope().apply(fn).nodes.toRemotePath(creationState = this)
 }

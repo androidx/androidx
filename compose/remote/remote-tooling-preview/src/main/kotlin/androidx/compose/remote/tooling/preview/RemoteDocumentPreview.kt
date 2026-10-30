@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.tooling.preview
 
+import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
@@ -37,6 +38,7 @@ import java.io.ByteArrayInputStream
  * @param remoteDocument The [RemoteDocument] containing the content to be displayed.
  * @param modifier The modifier to be applied to the box containing the preview.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun RemoteDocumentPreview(remoteDocument: RemoteDocument, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {

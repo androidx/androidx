@@ -39,7 +39,7 @@ import androidx.collection.IntObjectMap
  * ```
  *
  * The embedded player does this for
- * [androidx.compose.remote.creation.compose.capture.CapturedDocument.pendingIntents].
+ * [androidx.compose.remote.creation.compose.capture.RemoteCapturedDocument.pendingIntents].
  *
  * @param context The context used to send the [PendingIntent]s.
  * @param pendingIntents The [PendingIntent]s, keyed by index.

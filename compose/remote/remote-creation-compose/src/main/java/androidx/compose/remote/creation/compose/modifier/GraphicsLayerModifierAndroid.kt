@@ -57,7 +57,7 @@ import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscree
  * @param shape The shape of the layer.
  * @param compositingStrategy The compositing strategy to use for the layer.
  * @param cameraDistance The camera distance for 3D transforms.
- * @param renderEffect The [RenderEffect] to apply, or null.
+ * @param renderEffect The [RemoteRenderEffect] to apply, or null.
  */
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,
@@ -74,7 +74,7 @@ public fun RemoteModifier.graphicsLayer(
     shape: Shape = RectangleShape,
     compositingStrategy: CompositingStrategy = Auto,
     cameraDistance: RemoteFloat = 8f.rf, // Default Value for Camera Distance
-    renderEffect: RenderEffect? = null,
+    renderEffect: RemoteRenderEffect? = null,
 ): RemoteModifier =
     graphicsLayer(
         scaleX = scaleX,
@@ -95,7 +95,7 @@ public fun RemoteModifier.graphicsLayer(
     )
 
 /** Scope for configuring graphics layer properties in a type-safe builder lambda. */
-public interface GraphicsLayerScope {
+public interface RemoteGraphicsLayerScope {
     /** The horizontal scale factor. */
     public var scaleX: RemoteFloat
 
@@ -138,11 +138,11 @@ public interface GraphicsLayerScope {
     /** The compositing strategy to use for the layer. */
     public var compositingStrategy: CompositingStrategy
 
-    /** The [RenderEffect] to apply to this layer, or null. */
-    public var renderEffect: RenderEffect?
+    /** The [RemoteRenderEffect] to apply to this layer, or null. */
+    public var renderEffect: RemoteRenderEffect?
 }
 
-internal class GraphicsLayerScopeImpl : GraphicsLayerScope {
+internal class GraphicsLayerScopeImpl : RemoteGraphicsLayerScope {
     override var scaleX: RemoteFloat = 1f.rf
     override var scaleY: RemoteFloat = 1f.rf
     override var rotationX: RemoteFloat = 0f.rf
@@ -157,14 +157,14 @@ internal class GraphicsLayerScopeImpl : GraphicsLayerScope {
     override var cameraDistance: RemoteFloat = 8f.rf
     override var shape: Shape = RectangleShape
     override var compositingStrategy: CompositingStrategy = Auto
-    override var renderEffect: RenderEffect? = null
+    override var renderEffect: RemoteRenderEffect? = null
 }
 
 /**
  * Applies a graphics layer modifier to the [RemoteModifier] using a type-safe builder lambda.
  *
- * This overload allows configuring layer properties within a [GraphicsLayerScope] block, which is
- * similar to standard Compose's `graphicsLayer { ... }`.
+ * This overload allows configuring layer properties within a [RemoteGraphicsLayerScope] block,
+ * which is similar to standard Compose's `graphicsLayer { ... }`.
  *
  * Example usage:
  * ```
@@ -174,9 +174,11 @@ internal class GraphicsLayerScopeImpl : GraphicsLayerScope {
  * }
  * ```
  *
- * @param block The lambda block to configure the [GraphicsLayerScope].
+ * @param block The lambda block to configure the [RemoteGraphicsLayerScope].
  */
-public fun RemoteModifier.graphicsLayer(block: GraphicsLayerScope.() -> Unit): RemoteModifier {
+public fun RemoteModifier.graphicsLayer(
+    block: RemoteGraphicsLayerScope.() -> Unit
+): RemoteModifier {
     val scope = GraphicsLayerScopeImpl().apply(block)
     return graphicsLayer(
         scaleX = scope.scaleX,

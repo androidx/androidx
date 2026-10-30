@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.LayoutDirection
 public fun RemoteComposeCreationState(
     creationDisplayInfo: RemoteCreationDisplayInfo,
     profile: Profile,
-    writerEvents: WriterEvents?,
+    writerEvents: RemoteWriterEvents?,
     remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     layoutDirection: LayoutDirection,
 ): RemoteComposeCreationState =
