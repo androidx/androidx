@@ -859,6 +859,9 @@ public class ShortcutManagerCompat {
 
     @SuppressWarnings("deprecation")
     private static List<ShortcutInfoChangeListener> getShortcutInfoListeners(Context context) {
+        if (context.getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.CINNAMON_BUN) {
+            return Collections.emptyList();
+        }
         if (sShortcutInfoChangeListeners == null) {
             List<ShortcutInfoChangeListener> result = new ArrayList<>();
             PackageManager packageManager = context.getPackageManager();

@@ -29,7 +29,10 @@ import java.util.List;
  * Defines a listener for {@link ShortcutInfoCompat} changes in {@link ShortcutManagerCompat}. This
  * class is no-op as is and may be overridden to provide the required functionality.
  *
+ * @deprecated Legacy App Actions shortcut listeners are deprecated and are no longer invoked for
+ * apps targeting API level 38 or higher.
  */
+@Deprecated
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class ShortcutInfoChangeListener {
     @AnyThread

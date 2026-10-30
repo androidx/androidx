@@ -854,7 +854,10 @@ public class ShortcutInfoCompat {
          *
          * @param capability capability associated with the shortcut. e.g. actions.intent
          *                   .START_EXERCISE.
+         * @deprecated Legacy App Actions capability bindings are deprecated and no longer
+         * supported.
          */
+        @Deprecated
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addCapabilityBinding(@NonNull String capability) {
             if (mCapabilityBindings == null) {
@@ -878,7 +881,10 @@ public class ShortcutInfoCompat {
          *                        the primary name, while the rest will be alternative names. If
          *                        the values are empty, then the parameter will not be saved in
          *                        the shortcut.
+         * @deprecated Legacy App Actions capability bindings are deprecated and no longer
+         * supported.
          */
+        @Deprecated
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addCapabilityBinding(@NonNull String capability,
                 @NonNull String parameter, @NonNull List<String> parameterValues) {
