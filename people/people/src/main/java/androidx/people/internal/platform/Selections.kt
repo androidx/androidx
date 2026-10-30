@@ -17,8 +17,6 @@
 package androidx.people.internal.platform
 
 import androidx.people.Criterion
-import androidx.people.GroupQuery
-import androidx.people.PersonQuery
 import androidx.people.internal.platform.PeopleContractCompat.Groups
 import androidx.people.internal.platform.PeopleContractCompat.Persons
 
@@ -29,16 +27,17 @@ import androidx.people.internal.platform.PeopleContractCompat.Persons
 internal data class Selection(val type: String, val value: String)
 
 /**
- * Returns the [PeopleContractCompat.Persons] selection for this criterion, or `null` if the
- * criterion type has no person selection type.
+ * Returns the [PeopleContractCompat.Persons] selection for this criterion.
+ *
+ * @throws IllegalArgumentException if the criterion type has no person selection type.
  */
-internal fun Criterion.toPersonSelection(): Selection? =
+internal fun Criterion.toPersonSelection(): Selection =
     when (this) {
         is Criterion.Phone -> Selection(Persons.Query.SELECTION_TYPE_PHONE, number)
         is Criterion.Email -> Selection(Persons.Query.SELECTION_TYPE_EMAIL, address)
         is Criterion.PersonLookupKey -> Selection(Persons.Query.SELECTION_TYPE_LOOKUP_KEY, key)
         is Criterion.GroupLookupKey -> Selection(Persons.Query.SELECTION_TYPE_GROUP_LOOKUP_KEY, key)
-        else -> null
+        else -> throw IllegalArgumentException("$this has no person selection type")
     }
 
 /**
@@ -55,13 +54,14 @@ internal fun Selection.toPersonCriterion(): Criterion? =
     }
 
 /**
- * Returns the [PeopleContractCompat.Groups] selection for this criterion, or `null` if the
- * criterion type has no group selection type.
+ * Returns the [PeopleContractCompat.Groups] selection for this criterion.
+ *
+ * @throws IllegalArgumentException if the criterion type has no group selection type.
  */
-internal fun Criterion.toGroupSelection(): Selection? =
+internal fun Criterion.toGroupSelection(): Selection =
     when (this) {
         is Criterion.GroupLookupKey -> Selection(Groups.Query.SELECTION_TYPE_LOOKUP_KEY, key)
-        else -> null
+        else -> throw IllegalArgumentException("$this has no group selection type")
     }
 
 /**
@@ -73,16 +73,3 @@ internal fun Selection.toGroupCriterion(): Criterion? =
         Groups.Query.SELECTION_TYPE_LOOKUP_KEY -> Criterion.GroupLookupKey(value)
         else -> null
     }
-
-/**
- * Returns every criterion carried by this [PersonQuery]: phones, then emails, then lookup keys,
- * then group lookup keys, each in query order.
- */
-internal fun PersonQuery.toCriteria(): List<Criterion> =
-    phones.map(Criterion::Phone) +
-        emails.map(Criterion::Email) +
-        lookupKeys.map(Criterion::PersonLookupKey) +
-        groupLookupKeys.map(Criterion::GroupLookupKey)
-
-/** Returns every criterion carried by this [GroupQuery], in query order. */
-internal fun GroupQuery.toCriteria(): List<Criterion> = lookupKeys.map(Criterion::GroupLookupKey)

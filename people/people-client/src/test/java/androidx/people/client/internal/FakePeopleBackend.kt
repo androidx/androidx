@@ -18,31 +18,37 @@ package androidx.people.client.internal
 
 import android.app.PendingIntent
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupQuery
+import androidx.people.GroupQueryResult
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
 import androidx.people.PeopleInteraction
-import androidx.people.Person
 import androidx.people.PersonQuery
+import androidx.people.PersonQueryResult
 import androidx.people.internal.PeopleBackend
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-/** Backend that records what it was asked for and replays canned results. */
+/**
+ * Backend that records what it was asked for and returns the results it was given.
+ *
+ * Querying persons or groups without a result fails.
+ */
 class FakePeopleBackend(
     override val isAvailable: Boolean = true,
     private val directories: List<DirectoryInfo> = emptyList(),
-    private val persons: List<Person> = emptyList(),
-    private val groups: List<Group> = emptyList(),
+    private val personResult: PersonQueryResult? = null,
+    private val groupResult: GroupQueryResult? = null,
     private val interactionRequest: PendingIntent? = null,
     var notifyChangeResult: Boolean = true,
     var requestRefreshResult: Boolean = true,
 ) : PeopleBackend {
 
-    val personQueries = mutableListOf<List<PersonQuery>>()
-    val groupQueries = mutableListOf<List<GroupQuery>>()
+    val personQueries = mutableListOf<PersonQuery>()
+    val groupQueries = mutableListOf<GroupQuery>()
     val interactions = mutableListOf<PeopleInteraction>()
-    val personChangeNotifications = mutableListOf<PersonQuery>()
-    val groupChangeNotifications = mutableListOf<GroupQuery>()
+    val personChangeNotifications = mutableListOf<DirectoryPersonQuery>()
+    val groupChangeNotifications = mutableListOf<DirectoryGroupQuery>()
     var refreshRequestCount = 0
         private set
 
@@ -50,24 +56,24 @@ class FakePeopleBackend(
 
     override fun observeDirectories(): Flow<List<DirectoryInfo>> = flowOf(directories)
 
-    override suspend fun queryPersons(queries: List<PersonQuery>): List<Person> {
-        personQueries.add(queries)
-        return persons
+    override suspend fun queryPersons(query: PersonQuery): PersonQueryResult {
+        personQueries.add(query)
+        return checkNotNull(personResult) { "No person result was given" }
     }
 
-    override fun observePersons(queries: List<PersonQuery>): Flow<List<Person>> {
-        personQueries.add(queries)
-        return flowOf(persons)
+    override fun observePersons(query: PersonQuery): Flow<PersonQueryResult> {
+        personQueries.add(query)
+        return flowOf(checkNotNull(personResult) { "No person result was given" })
     }
 
-    override suspend fun queryGroups(queries: List<GroupQuery>): List<Group> {
-        groupQueries.add(queries)
-        return groups
+    override suspend fun queryGroups(query: GroupQuery): GroupQueryResult {
+        groupQueries.add(query)
+        return checkNotNull(groupResult) { "No group result was given" }
     }
 
-    override fun observeGroups(queries: List<GroupQuery>): Flow<List<Group>> {
-        groupQueries.add(queries)
-        return flowOf(groups)
+    override fun observeGroups(query: GroupQuery): Flow<GroupQueryResult> {
+        groupQueries.add(query)
+        return flowOf(checkNotNull(groupResult) { "No group result was given" })
     }
 
     override suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent? {
@@ -75,12 +81,12 @@ class FakePeopleBackend(
         return interactionRequest
     }
 
-    override suspend fun notifyChange(query: PersonQuery): Boolean {
+    override suspend fun notifyChange(query: DirectoryPersonQuery): Boolean {
         personChangeNotifications.add(query)
         return notifyChangeResult
     }
 
-    override suspend fun notifyChange(query: GroupQuery): Boolean {
+    override suspend fun notifyChange(query: DirectoryGroupQuery): Boolean {
         groupChangeNotifications.add(query)
         return notifyChangeResult
     }

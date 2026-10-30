@@ -18,18 +18,19 @@ package androidx.people.internal
 
 import android.app.PendingIntent
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupQuery
+import androidx.people.GroupQueryResult
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
 import androidx.people.PeopleInteraction
-import androidx.people.Person
 import androidx.people.PersonQuery
-import androidx.people.internal.platform.requireInteractionTarget
+import androidx.people.PersonQueryResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 /**
  * Backend used when neither the platform People Provider nor the Google Play services backport
- * serves this device: reads are empty, and requests are declined.
+ * serves this device: reads report every criterion as unhandled, and requests are declined.
  */
 internal object UnavailablePeopleBackend : PeopleBackend {
 
@@ -39,24 +40,24 @@ internal object UnavailablePeopleBackend : PeopleBackend {
 
     override fun observeDirectories(): Flow<List<DirectoryInfo>> = flowOf(emptyList())
 
-    override suspend fun queryPersons(queries: List<PersonQuery>): List<Person> = emptyList()
+    override suspend fun queryPersons(query: PersonQuery): PersonQueryResult =
+        failedPersonQueryResultOf(query)
 
-    override fun observePersons(queries: List<PersonQuery>): Flow<List<Person>> =
-        flowOf(emptyList())
+    override fun observePersons(query: PersonQuery): Flow<PersonQueryResult> =
+        flowOf(failedPersonQueryResultOf(query))
 
-    override suspend fun queryGroups(queries: List<GroupQuery>): List<Group> = emptyList()
+    override suspend fun queryGroups(query: GroupQuery): GroupQueryResult =
+        failedGroupQueryResultOf(query)
 
-    override fun observeGroups(queries: List<GroupQuery>): Flow<List<Group>> = flowOf(emptyList())
+    override fun observeGroups(query: GroupQuery): Flow<GroupQueryResult> =
+        flowOf(failedGroupQueryResultOf(query))
 
-    override suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent? {
-        // Validate anyway, so that an invalid target fails the same way on every device.
-        interaction.targetQuery.requireInteractionTarget()
-        return null
-    }
+    override suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent? =
+        null
 
-    override suspend fun notifyChange(query: PersonQuery): Boolean = false
+    override suspend fun notifyChange(query: DirectoryPersonQuery): Boolean = false
 
-    override suspend fun notifyChange(query: GroupQuery): Boolean = false
+    override suspend fun notifyChange(query: DirectoryGroupQuery): Boolean = false
 
     override suspend fun requestRefresh(): Boolean = false
 }

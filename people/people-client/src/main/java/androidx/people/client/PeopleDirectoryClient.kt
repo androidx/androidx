@@ -20,11 +20,11 @@ import android.app.PendingIntent
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.people.DirectoryInfo
-import androidx.people.Group
 import androidx.people.GroupQuery
+import androidx.people.GroupQueryResult
 import androidx.people.PeopleInteraction
-import androidx.people.Person
 import androidx.people.PersonQuery
+import androidx.people.PersonQueryResult
 import androidx.people.client.internal.PeopleDirectoryClientImpl
 import androidx.people.internal.PeopleBackendResolver
 import kotlinx.coroutines.flow.Flow
@@ -37,24 +37,25 @@ import kotlinx.coroutines.flow.Flow
  * for a one-shot result, and an `observe*` function returning a [Flow] that emits the current
  * result and re-emits whenever the underlying data changes.
  *
- * People Directory data is served from from a central database that is synced from the People
- * Directory applications. A `query*` call therefore returns whatever that has been synced, which
- * may be incomplete on first use; an `observe*` call returns the database result immediately and
- * emits again once a refresh finishes. Prefer `observe*` whenever the result is displayed in UI.
+ * People Directory data is served from a central database that is synced from the People Directory
+ * applications. A `query*` call therefore returns whatever that has been synced, which may be
+ * incomplete on first use; an `observe*` call returns the database result immediately and emits
+ * again once a refresh finishes. Prefer `observe*` whenever the result is displayed in UI.
  *
- * Reads return an empty list both when nothing matches and when the People Directory is not
- * available on this device — check [isAvailable] to tell the two apart.
+ * Each matched person or group appears at most once per People Directory application, identified by
+ * [androidx.people.PersonId.directoryPackage] or [androidx.people.GroupId.directoryPackage], with
+ * every criterion it matched, echoed exactly as supplied, so results can be correlated back to
+ * their inputs:
+ * ```
+ * val result = client.queryPersons(personQuery(pkg) { addPhones(numbers) })
+ * val byNumber = numbers.associateWith { n -> result.matchesFor(pkg, Criterion.Phone(n)) }
+ * ```
  *
- * Person and group reads return each [Person.id] or [Group.id] at most once, even when the record
- * matches several inputs of a batched query, and the order of the returned list is unspecified.
- * [Person.matchedCriteria] and [Group.matchedCriteria] report every input that matched, echoed
- * exactly as supplied, so results can be correlated back to their inputs:
- * ```
- * val people = client.queryPersons(personQuery(pkg) { addPhones(numbers) })
- * val byNumber = numbers.associateWith { n ->
- *     people.firstOrNull { Criterion.Phone(n) in it.matchedCriteria }
- * }
- * ```
+ * Every queried criterion ends up in exactly one of [PersonQueryResult.matchedQuery],
+ * [PersonQueryResult.unmatchedQuery], or [PersonQueryResult.unhandledQuery], so criteria that a
+ * People Directory application did not evaluate, for example because its data is not cached yet,
+ * can be told apart from criteria that matched nothing. When the People Directory is not available
+ * on this device, every criterion is in [PersonQueryResult.unhandledQuery].
  *
  * [createInteractionRequest] returns a [PendingIntent] that starts a voice call, video call, or
  * messaging session in the People Directory application that owns the record.
@@ -69,8 +70,8 @@ public interface PeopleDirectoryClient {
     /**
      * Returns whether the People Directory can be read on this device.
      *
-     * When `false`, every read returns an empty result and [createInteractionRequest] returns
-     * `null`.
+     * When `false`, every read reports all of its criteria as unhandled and
+     * [createInteractionRequest] returns `null`.
      */
     public suspend fun isAvailable(): Boolean
 
@@ -81,124 +82,52 @@ public interface PeopleDirectoryClient {
     public suspend fun queryDirectories(): List<DirectoryInfo>
 
     /**
-     * Observes the people matching [queries].
+     * Observes the people matching [query].
      *
      * Emits the cached result immediately, then re-emits whenever the matching data changes,
      * including once a background refresh of stale or missing data completes. Consecutive identical
      * results are not re-emitted.
      *
-     * Each [Person.id] appears at most once, with every input it matched in
-     * [Person.matchedCriteria]. The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
+     * @param query the criteria to look up in each People Directory application, batched into a
+     *   single lookup.
      */
-    public fun observePersons(vararg queries: PersonQuery): Flow<List<Person>>
+    public fun observePersons(query: PersonQuery): Flow<PersonQueryResult>
 
     /**
-     * Observes the people matching [queries].
+     * Returns the people matching [query].
+     *
+     * @param query the criteria to look up in each People Directory application, batched into a
+     *   single lookup.
+     */
+    public suspend fun queryPersons(query: PersonQuery): PersonQueryResult
+
+    /**
+     * Observes the groups matching [query].
      *
      * Emits the cached result immediately, then re-emits whenever the matching data changes,
      * including once a background refresh of stale or missing data completes. Consecutive identical
      * results are not re-emitted.
      *
-     * Each [Person.id] appears at most once, with every input it matched in
-     * [Person.matchedCriteria]. The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
+     * @param query the criteria to look up in each People Directory application, batched into a
+     *   single lookup.
      */
-    public fun observePersons(queries: List<PersonQuery>): Flow<List<Person>> =
-        observePersons(*queries.toTypedArray())
+    public fun observeGroups(query: GroupQuery): Flow<GroupQueryResult>
 
     /**
-     * Returns the people matching [queries], or an empty list if none match.
+     * Returns the groups matching [query].
      *
-     * Each [Person.id] appears at most once, with every input it matched in
-     * [Person.matchedCriteria]. The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
+     * @param query the criteria to look up in each People Directory application, batched into a
+     *   single lookup.
      */
-    public suspend fun queryPersons(vararg queries: PersonQuery): List<Person>
-
-    /**
-     * Returns the people matching [queries], or an empty list if none match.
-     *
-     * Each [Person.id] appears at most once, with every input it matched in
-     * [Person.matchedCriteria]. The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
-     */
-    public suspend fun queryPersons(queries: List<PersonQuery>): List<Person> =
-        queryPersons(*queries.toTypedArray())
-
-    /**
-     * Observes the groups matching [queries].
-     *
-     * Emits the cached result immediately, then re-emits whenever the matching data changes,
-     * including once a background refresh of stale or missing data completes. Consecutive identical
-     * results are not re-emitted.
-     *
-     * Each [Group.id] appears at most once, with every input it matched in [Group.matchedCriteria].
-     * The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
-     */
-    public fun observeGroups(vararg queries: GroupQuery): Flow<List<Group>>
-
-    /**
-     * Observes the groups matching [queries].
-     *
-     * Emits the cached result immediately, then re-emits whenever the matching data changes,
-     * including once a background refresh of stale or missing data completes. Consecutive identical
-     * results are not re-emitted.
-     *
-     * Each [Group.id] appears at most once, with every input it matched in [Group.matchedCriteria].
-     * The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
-     */
-    public fun observeGroups(queries: List<GroupQuery>): Flow<List<Group>> =
-        observeGroups(*queries.toTypedArray())
-
-    /**
-     * Returns the groups matching [queries], or an empty list if none match.
-     *
-     * Each [Group.id] appears at most once, with every input it matched in [Group.matchedCriteria].
-     * The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
-     */
-    public suspend fun queryGroups(vararg queries: GroupQuery): List<Group>
-
-    /**
-     * Returns the groups matching [queries], or an empty list if none match.
-     *
-     * Each [Group.id] appears at most once, with every input it matched in [Group.matchedCriteria].
-     * The order of the list is unspecified.
-     *
-     * @param queries one query per People Directory application to read from, batched into a single
-     *   lookup.
-     */
-    public suspend fun queryGroups(queries: List<GroupQuery>): List<Group> =
-        queryGroups(*queries.toTypedArray())
+    public suspend fun queryGroups(query: GroupQuery): GroupQueryResult
 
     /**
      * Creates a [PendingIntent] that starts the interaction described by [interaction].
      *
-     * [PeopleInteraction.targetQuery] must identify exactly one recipient in one People Directory
-     * application, so it must contain exactly one criterion value: one phone number, one email
-     * address, one person lookup key, or one group lookup key.
-     *
      * ```
      * val request =
      *     client.createInteractionRequest(
-     *         PeopleInteraction(person.id, Capability.VIDEO)
+     *         peopleInteraction(person.id, Capability.VIDEO)
      *     )
      * ```
      *
@@ -206,7 +135,6 @@ public interface PeopleDirectoryClient {
      *   mode.
      * @return a [PendingIntent] launching the interaction, or `null` if the People Directory
      *   application declines the request or the People Directory is unavailable.
-     * @throws IllegalArgumentException if the target does not contain exactly one criterion value.
      */
     public suspend fun createInteractionRequest(interaction: PeopleInteraction): PendingIntent?
 

@@ -14,123 +14,98 @@
  * limitations under the License.
  */
 
+@file:JvmName("PeopleInteractions")
+
 package androidx.people
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.core.content.IntentCompat
+import androidx.people.internal.directoryPersonQuery
 import androidx.people.internal.platform.PeopleContractCompat
 import androidx.people.internal.platform.capabilityFromInteractionType
-import androidx.people.internal.platform.toPersonQuery
+import androidx.people.internal.platform.personCriteriaByPackage
 
 /**
- * Represents an incoming interaction request delivered to a People Directory application's
- * Activity.
+ * A request to start a voice call, video call, or messaging session in one People Directory
+ * application, with the recipient identified by [targetCriteria].
  *
- * When a user initiates a voice call, video call, or message with a contact or group through the
- * People Directory (e.g. from the Dialer or Contacts app), the system launches the directory
- * application's Activity matching [ACTION_START_INTERACTION].
- *
- * Use [parse] in `Activity.onCreate` or `Activity.onNewIntent` to extract the target [PersonId],
- * [GroupId], or criteria-based contact information (e.g. phone or email in [targetQuery]) and the
- * requested [Capability]:
+ * Client applications build one with [peopleInteraction] and pass it to
+ * `PeopleDirectoryClient.createInteractionRequest`. When the user starts the interaction, the
+ * system launches the directory application's Activity matching [ACTION_START_INTERACTION], which
+ * uses [parse] in `Activity.onCreate` or `Activity.onNewIntent` to read the request:
  * ```kotlin
  * val interaction = PeopleInteraction.parse(intent) ?: return
- * val targetId = interaction.targetPersonId
- * val targetPhone = interaction.targetQuery.phones.firstOrNull()
+ * val recipient = interaction.targetPersonId ?: findRecipient(interaction.targetCriteria)
  * when (interaction.capability) {
- *     Capability.VOICE -> startVoiceCall(targetId, targetPhone)
- *     Capability.VIDEO -> startVideoCall(targetId, targetPhone)
- *     Capability.MESSAGE -> openChat(targetId, targetPhone)
+ *     Capability.VOICE -> startVoiceCall(recipient)
+ *     Capability.VIDEO -> startVideoCall(recipient)
+ *     Capability.MESSAGE -> openChat(recipient)
  *     else -> finish() // A capability added in a newer release.
  * }
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PeopleInteraction(
-    /** The target query criteria identifying the person or group. */
-    public val targetQuery: PersonQuery,
+public class PeopleInteraction
+internal constructor(
+    /** Package name of the People Directory application that handles the interaction. */
+    public val directoryPackage: String,
+    targetCriteria: Set<Criterion>,
     /** The requested mode of communication. */
     public val capability: Capability,
 ) {
     /**
-     * Constructs a [PeopleInteraction] targeting a known person identity.
-     *
-     * @param targetPersonId The target person identity to communicate with.
-     * @param capability The requested mode of communication.
+     * The criteria identifying the recipient, for example a [Criterion.PersonLookupKey], a
+     * [Criterion.GroupLookupKey], or phone numbers and email addresses. Never empty.
      */
-    public constructor(
-        targetPersonId: PersonId,
-        capability: Capability,
-    ) : this(
-        targetQuery =
-            personQuery(targetPersonId.directoryPackage) {
-                addLookupKeys(targetPersonId.lookupKey)
-            },
-        capability = capability,
-    )
+    public val targetCriteria: Set<Criterion> = targetCriteria.toSet()
+
+    init {
+        require(directoryPackage.isNotEmpty()) { "A directory package must not be empty." }
+        require(this.targetCriteria.isNotEmpty()) {
+            "An interaction needs at least one target criterion."
+        }
+    }
 
     /**
-     * Constructs a [PeopleInteraction] targeting a known group identity.
-     *
-     * @param targetGroupId The target group identity to communicate with.
-     * @param capability The requested mode of communication.
-     */
-    public constructor(
-        targetGroupId: GroupId,
-        capability: Capability,
-    ) : this(
-        targetQuery =
-            personQuery(targetGroupId.directoryPackage) {
-                addGroupLookupKeys(targetGroupId.lookupKey)
-            },
-        capability = capability,
-    )
-
-    /**
-     * The target person identity to communicate with, or `null` if this interaction targets a group
-     * or was initiated via other query criteria such as a phone number or email address. In the
-     * latter case, inspect [targetQuery] directly (for example, [PersonQuery.phones] or
-     * [PersonQuery.emails]).
+     * The target person, from the first [Criterion.PersonLookupKey] in [targetCriteria], or `null`
+     * if there is none. In that case inspect [targetCriteria] directly.
      */
     public val targetPersonId: PersonId?
         get() =
-            targetQuery.lookupKeys.firstOrNull()?.let {
-                PersonId(
-                    lookupKey = it,
-                    directoryPackage = targetQuery.directoryPackage,
-                )
-            }
+            targetCriteria
+                .firstNotNullOfOrNull { it as? Criterion.PersonLookupKey }
+                ?.let { PersonId(it.key, directoryPackage) }
 
     /**
-     * The target group identity to communicate with, or `null` if this interaction targets an
-     * individual person or was initiated without a group lookup key. Inspect [targetQuery] directly
-     * for criteria-based queries.
+     * The target group, from the first [Criterion.GroupLookupKey] in [targetCriteria], or `null` if
+     * there is none.
      */
     public val targetGroupId: GroupId?
         get() =
-            targetQuery.groupLookupKeys.firstOrNull()?.let {
-                GroupId(
-                    lookupKey = it,
-                    directoryPackage = targetQuery.directoryPackage,
-                )
-            }
+            targetCriteria
+                .firstNotNullOfOrNull { it as? Criterion.GroupLookupKey }
+                ?.let { GroupId(it.key, directoryPackage) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PeopleInteraction) return false
-        return targetQuery == other.targetQuery && capability == other.capability
+        return directoryPackage == other.directoryPackage &&
+            targetCriteria == other.targetCriteria &&
+            capability == other.capability
     }
 
     override fun hashCode(): Int {
-        var result = targetQuery.hashCode()
+        var result = directoryPackage.hashCode()
+        result = 31 * result + targetCriteria.hashCode()
         result = 31 * result + capability.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "PeopleInteraction(targetQuery=$targetQuery, capability=$capability)"
+        "PeopleInteraction(directoryPackage=$directoryPackage, targetCriteria=$targetCriteria, " +
+            "capability=$capability)"
 
     public companion object {
         /**
@@ -157,7 +132,8 @@ public class PeopleInteraction(
          *
          * @param intent The intent delivered to the Activity.
          * @return The parsed [PeopleInteraction], or `null` if the intent is not a valid people
-         *   interaction request.
+         *   interaction request, including when it does not address exactly one People Directory
+         *   application.
          */
         @JvmStatic
         public fun parse(intent: Intent): PeopleInteraction? {
@@ -174,8 +150,64 @@ public class PeopleInteraction(
                     Bundle::class.java,
                 ) ?: return null
 
-            val personQuery = queryArgs.toPersonQuery() ?: return null
-            return PeopleInteraction(targetQuery = personQuery, capability = capability)
+            // An interaction targets exactly one People Directory application.
+            val (directoryPackage, criteria) =
+                queryArgs.personCriteriaByPackage().entries.singleOrNull() ?: return null
+            return PeopleInteraction(directoryPackage, criteria, capability)
         }
     }
 }
+
+/**
+ * Builds a [PeopleInteraction] with the person [personId].
+ *
+ * @param personId The person to communicate with.
+ * @param capability The requested mode of communication.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public fun peopleInteraction(personId: PersonId, capability: Capability): PeopleInteraction =
+    PeopleInteraction(
+        personId.directoryPackage,
+        setOf(Criterion.PersonLookupKey(personId.lookupKey)),
+        capability,
+    )
+
+/**
+ * Builds a [PeopleInteraction] with the group [groupId].
+ *
+ * @param groupId The group to communicate with.
+ * @param capability The requested mode of communication.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public fun peopleInteraction(groupId: GroupId, capability: Capability): PeopleInteraction =
+    PeopleInteraction(
+        groupId.directoryPackage,
+        setOf(Criterion.GroupLookupKey(groupId.lookupKey)),
+        capability,
+    )
+
+/**
+ * Builds a [PeopleInteraction] with the recipient identified by the criteria in [block], in the
+ * People Directory application [directoryPackage].
+ *
+ * ```
+ * peopleInteraction("com.example.voip", Capability.VOICE) { addPhones("+16505550100") }
+ * ```
+ *
+ * @param directoryPackage Package name of the People Directory application that handles the
+ *   interaction.
+ * @param capability The requested mode of communication.
+ * @param block adds the criteria identifying the recipient.
+ * @throws IllegalArgumentException if [directoryPackage] is empty or [block] adds no criterion.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public fun peopleInteraction(
+    directoryPackage: String,
+    capability: Capability,
+    block: PersonCriteriaScope.() -> Unit,
+): PeopleInteraction =
+    PeopleInteraction(
+        directoryPackage,
+        directoryPersonQuery(block).criteria,
+        capability,
+    )

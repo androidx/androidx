@@ -34,6 +34,16 @@ internal object PeopleContractCompat {
     // Mirrors android.provider.PeopleContract.EXTRA_NOTIFICATION_URI
     public const val EXTRA_NOTIFICATION_URI: String = "android.provider.extra.NOTIFICATION_URI"
 
+    // TODO(b/562550480): Mirror android.provider.PeopleContract.EXTRA_UNHANDLED_QUERIES once the
+    //  platform adds it in a future release. Until then the platform People Provider never sets it.
+    /**
+     * `Cursor` extra carrying the criteria a People Directory application did not evaluate, as a
+     * [android.os.Bundle] with the same structure as a query arguments bundle
+     * ([QUERY_ARG_QUERIES]). Set both by People Directory applications and by the People Provider
+     * for its clients.
+     */
+    public const val EXTRA_UNHANDLED_QUERIES: String = "android.provider.extra.UNHANDLED_QUERIES"
+
     // Mirrors android.provider.PeopleContract.QUERY_ARG_QUERIES
     public const val QUERY_ARG_QUERIES: String = "android:query-arg-queries"
 

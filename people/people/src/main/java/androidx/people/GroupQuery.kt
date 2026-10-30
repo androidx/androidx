@@ -19,43 +19,90 @@
 package androidx.people
 
 import androidx.annotation.RestrictTo
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.internal.addNonEmpty
+import androidx.people.internal.directoryGroupQuery
 
 /**
- * An immutable set of criteria for looking up groups in one People Directory application.
+ * A query for groups across one or more People Directory applications.
  *
- * Each result reports every criterion that matched it through [Group.matchedCriteria].
- *
+ * Each People Directory application in the query receives only the criteria addressed to it. Build
+ * one with [groupQuery]:
  * ```
- * val query = groupQuery("com.example.voip") {
- *     addLookupKeys("group-1", "group-2")
- * }
+ * val query = groupQuery("com.example.voip") { addLookupKeys("group-1", "group-2") }
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class GroupQuery
 internal constructor(
-    /** Package name of the People Directory application this query reads from. */
-    public val directoryPackage: String,
-    /** Group lookup keys to match. */
-    public val lookupKeys: List<String>,
+    /** The criteria addressed to each People Directory application, keyed by package name. */
+    internal val directoryQueries: Map<String, DirectoryGroupQuery>
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is GroupQuery) return false
-        return directoryPackage == other.directoryPackage && lookupKeys == other.lookupKeys
-    }
+    /** The package names of the People Directory applications this query addresses. */
+    public val directoryPackages: Set<String>
+        get() = directoryQueries.keys
 
-    override fun hashCode(): Int = 31 * directoryPackage.hashCode() + lookupKeys.hashCode()
+    /**
+     * Returns the criteria this query addresses to the People Directory application
+     * [directoryPackage], in the order they were added, or an empty set if it addresses none.
+     */
+    public fun criteriaFor(directoryPackage: String): Set<Criterion> =
+        directoryQueries[directoryPackage]?.criteria.orEmpty()
 
-    override fun toString(): String =
-        "GroupQuery(directoryPackage=$directoryPackage, lookupKeys=$lookupKeys)"
+    /**
+     * Returns whether this query contains no criterion. Queries built with [groupQuery] are never
+     * empty; the queries reported by a [GroupQueryResult] may be.
+     */
+    public fun isEmpty(): Boolean = directoryQueries.isEmpty()
+
+    /** Returns the union of this query and [other], directory by directory. */
+    internal operator fun plus(other: GroupQuery): GroupQuery =
+        groupQueryOf(
+            (directoryQueries.keys + other.directoryQueries.keys).associateWith {
+                criteriaFor(it) + other.criteriaFor(it)
+            }
+        )
+
+    /**
+     * Returns this query without the criteria of [other], directory by directory. Directories left
+     * without criteria are dropped.
+     */
+    internal operator fun minus(other: GroupQuery): GroupQuery =
+        groupQueryOf(
+            directoryQueries.mapValues { (directoryPackage, query) ->
+                query.criteria - other.criteriaFor(directoryPackage)
+            }
+        )
+
+    override fun equals(other: Any?): Boolean =
+        this === other || (other is GroupQuery && directoryQueries == other.directoryQueries)
+
+    override fun hashCode(): Int = directoryQueries.hashCode()
+
+    override fun toString(): String = "GroupQuery(directoryQueries=$directoryQueries)"
 }
 
-/** Receiver scope for configuring a [GroupQuery]. */
+/**
+ * Returns the [GroupQuery] carrying [criteriaByPackage], omitting packages without criteria. The
+ * result is empty if no package has criteria.
+ */
+internal fun groupQueryOf(criteriaByPackage: Map<String, Set<Criterion>>): GroupQuery =
+    GroupQuery(
+        criteriaByPackage
+            .filterValues { it.isNotEmpty() }
+            .mapValues { (_, criteria) -> DirectoryGroupQuery(criteria) }
+    )
+
+/**
+ * Receiver scope for the group criteria addressed to one People Directory application.
+ *
+ * Used by [GroupQueryScope.directory], [groupQuery], and
+ * [PeopleDirectoryContentProvider.notifyGroupsChanged].
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @PeopleQueryDsl
-public class GroupQueryScope internal constructor(private val directoryPackage: String) {
-    private val lookupKeys = mutableListOf<String>()
+public class GroupCriteriaScope internal constructor() {
+    private val criteria = mutableSetOf<Criterion>()
 
     /**
      * Matches the groups identified by any of [lookupKeys].
@@ -63,8 +110,7 @@ public class GroupQueryScope internal constructor(private val directoryPackage: 
      * @throws IllegalArgumentException if [lookupKeys] is empty.
      */
     public fun addLookupKeys(vararg lookupKeys: String) {
-        require(lookupKeys.isNotEmpty()) { "At least one lookup key is required." }
-        this.lookupKeys += lookupKeys
+        addLookupKeys(lookupKeys.asList())
     }
 
     /**
@@ -73,27 +119,58 @@ public class GroupQueryScope internal constructor(private val directoryPackage: 
      * @throws IllegalArgumentException if [lookupKeys] is empty.
      */
     public fun addLookupKeys(lookupKeys: Iterable<String>) {
-        val list = lookupKeys.toList()
-        require(list.isNotEmpty()) { "At least one lookup key is required." }
-        this.lookupKeys += list
+        criteria.addNonEmpty(lookupKeys.map(Criterion::GroupLookupKey), "lookup key")
     }
 
     /**
-     * Builds the query.
+     * Builds the criteria-only query.
      *
      * @throws IllegalArgumentException if no criterion was added.
      */
+    internal fun buildDirectoryQuery(): DirectoryGroupQuery = DirectoryGroupQuery(criteria)
+}
+
+/** Receiver scope for choosing the People Directory applications of a [GroupQuery]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@PeopleQueryDsl
+public class GroupQueryScope internal constructor() {
+    private val criteriaByPackage = mutableMapOf<String, MutableSet<Criterion>>()
+
+    /**
+     * Adds criteria for the People Directory application [directoryPackage].
+     *
+     * @throws IllegalArgumentException if [block] adds no criterion.
+     */
+    public fun directory(directoryPackage: String, block: GroupCriteriaScope.() -> Unit) {
+        require(directoryPackage.isNotEmpty()) { "A directory package must not be empty." }
+        criteriaByPackage.getOrPut(directoryPackage) { mutableSetOf() } +=
+            directoryGroupQuery(block).criteria
+    }
+
     internal fun build(): GroupQuery {
-        require(lookupKeys.isNotEmpty()) { "A GroupQuery needs at least one lookup key." }
-        return GroupQuery(directoryPackage, lookupKeys.toList())
+        require(criteriaByPackage.isNotEmpty()) { "A GroupQuery needs at least one directory." }
+        return GroupQuery(criteriaByPackage.mapValues { DirectoryGroupQuery(it.value) })
     }
 }
 
 /**
- * Builds a [GroupQuery] against the People Directory application [directoryPackage].
+ * Builds a [GroupQuery] that may address different criteria to different People Directory
+ * applications.
+ *
+ * @throws IllegalArgumentException if [block] adds no directory, or adds a directory without
+ *   criteria.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public fun groupQuery(block: GroupQueryScope.() -> Unit): GroupQuery =
+    GroupQueryScope().apply(block).build()
+
+/**
+ * Builds a [GroupQuery] against the single People Directory application [directoryPackage].
  *
  * @throws IllegalArgumentException if [block] adds no criterion.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public fun groupQuery(directoryPackage: String, block: GroupQueryScope.() -> Unit): GroupQuery =
-    GroupQueryScope(directoryPackage).apply(block).build()
+public fun groupQuery(
+    directoryPackage: String,
+    block: GroupCriteriaScope.() -> Unit,
+): GroupQuery = groupQuery { directory(directoryPackage, block) }

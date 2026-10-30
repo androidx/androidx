@@ -18,11 +18,17 @@ package androidx.people.internal.platform
 
 import android.net.Uri
 import androidx.core.os.BundleCompat
+import androidx.people.Capability
 import androidx.people.Criterion
+import androidx.people.GroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryGroupQuery
+import androidx.people.PeopleDirectoryContentProvider.DirectoryPersonQuery
+import androidx.people.PersonId
+import androidx.people.PersonQuery
 import androidx.people.groupQuery
+import androidx.people.peopleInteraction
 import androidx.people.personQuery
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -33,68 +39,95 @@ import org.robolectric.annotation.Config
 class QueryArgsTest {
 
     @Test
-    fun personQuery_roundTrips() {
+    fun personQueryArgs_roundTripEveryCriterionType() {
         val query =
-            personQuery("com.example.voip") {
+            personQuery(VOIP) {
                 addPhones("+16505550100")
                 addEmails("alice@example.com")
+                addLookupKeys("p1")
+                addGroupLookupKeys("g1")
             }
 
-        assertThat(query.toQueryArgs().toPersonQuery()).isEqualTo(query)
-    }
+        val parsed = queriesFor(query).toPersonQueryArgs().personCriteriaByPackage()
 
-    @Test
-    fun personQueries_roundTripPerDirectory() {
-        val queries =
-            listOf(
-                personQuery("com.example.voip") { addPhones("+1") },
-                personQuery("com.example.chat") {
-                    addLookupKeys("p1")
-                    addGroupLookupKeys("g1")
-                },
+        assertThat(parsed)
+            .containsExactly(
+                VOIP,
+                setOf(
+                    Criterion.Phone("+16505550100"),
+                    Criterion.Email("alice@example.com"),
+                    Criterion.PersonLookupKey("p1"),
+                    Criterion.GroupLookupKey("g1"),
+                ),
             )
-
-        assertThat(queries.toQueryArgs().toPersonQueries()).isEqualTo(queries)
     }
 
     @Test
-    fun groupQuery_roundTrips() {
-        val query = groupQuery("com.example.chat") { addLookupKeys("g1", "g2") }
-
-        assertThat(query.toQueryArgs().toGroupQuery()).isEqualTo(query)
-    }
-
-    @Test
-    fun toPersonQueries_nullBundle_returnsEmpty() {
-        assertThat(null.toPersonQueries()).isEmpty()
-        assertThat(null.toGroupQueries()).isEmpty()
-    }
-
-    @Test
-    fun requireInteractionTarget_singleCriterion_returnsIt() {
-        val query = personQuery("com.example.voip") { addPhones("+1") }
-
-        assertThat(query.requireInteractionTarget()).isEqualTo(Criterion.Phone("+1"))
-    }
-
-    @Test
-    fun requireInteractionTarget_multipleCriteria_throws() {
-        val query =
-            personQuery("com.example.voip") {
-                addPhones("+1")
-                addEmails("a@example.com")
+    fun personQueryArgs_roundTripPerDirectory() {
+        val query = personQuery {
+            directory(VOIP) { addPhones("+1") }
+            directory(CHAT) {
+                addLookupKeys("p1")
+                addGroupLookupKeys("g1")
             }
+        }
 
-        assertThrows(IllegalArgumentException::class.java) { query.requireInteractionTarget() }
+        val parsed = queriesFor(query).toPersonQueryArgs().personCriteriaByPackage()
+
+        assertThat(parsed)
+            .containsExactly(
+                VOIP,
+                setOf(Criterion.Phone("+1")),
+                CHAT,
+                setOf(Criterion.PersonLookupKey("p1"), Criterion.GroupLookupKey("g1")),
+            )
+    }
+
+    @Test
+    fun groupQueryArgs_roundTrip() {
+        val query = groupQuery(CHAT) { addLookupKeys("g1", "g2") }
+
+        val parsed = queriesFor(query).toGroupQueryArgs().groupCriteriaByPackage()
+
+        assertThat(parsed)
+            .containsExactly(
+                CHAT,
+                setOf(Criterion.GroupLookupKey("g1"), Criterion.GroupLookupKey("g2")),
+            )
+    }
+
+    @Test
+    fun personQueryArgsOf_matchesTheQueryBasedSerialization() {
+        val query = personQuery(VOIP) { addPhones("+1") }
+
+        assertThat(
+                personQueryArgsOf(mapOf(VOIP to setOf(Criterion.Phone("+1"))))
+                    .personCriteriaByPackage()
+            )
+            .isEqualTo(queriesFor(query).toPersonQueryArgs().personCriteriaByPackage())
+    }
+
+    @Test
+    fun groupCriteriaByPackage_ignoresPersonOnlySelectionTypes() {
+        val args = queriesFor(personQuery(CHAT) { addPhones("+1") }).toPersonQueryArgs()
+
+        assertThat(args.groupCriteriaByPackage()).isEmpty()
+    }
+
+    @Test
+    fun criteriaByPackage_nullBundle_returnsEmpty() {
+        assertThat(null.personCriteriaByPackage()).isEmpty()
+        assertThat(null.groupCriteriaByPackage()).isEmpty()
     }
 
     @Test
     fun toInteractionQueryArgs_carriesTargetAndDependencyUri() {
-        val query = personQuery("com.example.voip") { addLookupKeys("p1") }
+        val interaction = peopleInteraction(PersonId("p1", VOIP), Capability.VOICE)
 
-        val args = query.toInteractionQueryArgs()
+        val args = interaction.toInteractionQueryArgs()
 
-        assertThat(args.toPersonQuery()).isEqualTo(query)
+        assertThat(args.personCriteriaByPackage())
+            .containsExactly(VOIP, setOf(Criterion.PersonLookupKey("p1")))
         assertThat(
                 BundleCompat.getParcelable(
                     args,
@@ -103,5 +136,17 @@ class QueryArgsTest {
                 )
             )
             .isEqualTo(PeopleContractCompat.Persons.CONTENT_URI)
+    }
+
+    /** The per-directory queries a client's [query] sends, built with the public DSL. */
+    private fun queriesFor(query: PersonQuery): Map<String, DirectoryPersonQuery> =
+        query.directoryQueries
+
+    private fun queriesFor(query: GroupQuery): Map<String, DirectoryGroupQuery> =
+        query.directoryQueries
+
+    private companion object {
+        const val VOIP = "com.example.voip"
+        const val CHAT = "com.example.chat"
     }
 }

@@ -28,19 +28,26 @@ import android.os.CancellationSignal
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import androidx.people.internal.PeopleBackendResolver
+import androidx.people.internal.directoryGroupQuery
+import androidx.people.internal.directoryPersonQuery
 import androidx.people.internal.platform.PeopleContractCompat
+import androidx.people.internal.platform.groupCriteriaByPackage
+import androidx.people.internal.platform.personCriteriaByPackage
 import androidx.people.internal.platform.toCursor
-import androidx.people.internal.platform.toGroupQuery
-import androidx.people.internal.platform.toPersonQuery
 
 /**
  * Base [ContentProvider] that a People Directory application extends to publish its people and
  * groups to the Android People Directory.
  *
  * This class implements URI matching for the `persons` and `groups` paths, parsing of the query
- * argument bundle into [PersonQuery] and [GroupQuery], and serialization of [Person] and [Group]
- * into the required cursor shape. Subclasses supply only the data, by implementing [queryPersons]
- * and [queryGroups].
+ * argument bundle into [DirectoryPersonQuery] and [DirectoryGroupQuery], and serialization of
+ * [DirectoryPersonResult] and [DirectoryGroupResult] into the required cursor shape. Subclasses
+ * supply only the data, by implementing [queryPersons] and [queryGroups].
+ *
+ * Inside a subclass body, the nested types and the companion builders can be used without
+ * qualification, for example `DirectoryPersonQuery` and `directoryPersonResult { }`. In the class
+ * header, such as primary constructor parameters, Kotlin requires the qualified name, for example
+ * `PeopleDirectoryContentProvider.DirectoryPersonResult`.
  *
  * **For People Directory applications:** declare exactly one subclass in the manifest. The
  * declaration must be exported, and must carry the [PROPERTY_NAME] marker. Declare the marker as
@@ -63,9 +70,10 @@ import androidx.people.internal.platform.toPersonQuery
  * ```
  *
  * A centralized component reads from this provider using [queryPersons] and [queryGroups] to sync
- * data to its internal database and provide to privileged client applications. Call [notifyChange]
- * or [requestRefresh] whenever the published data changes, so that the internal database is
- * invalidated and clients observing the data are notified.
+ * data to its internal database and provide to privileged client applications. Call
+ * [notifyPersonsChanged], [notifyGroupsChanged], or [requestRefresh] whenever the published data
+ * changes, so that the internal database is invalidated and clients observing the data are
+ * notified.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class PeopleDirectoryContentProvider : ContentProvider() {
@@ -99,24 +107,40 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
         }
     }
 
+    /**
+     * Answers the sub-query of [queryArgs] addressed to this application through [queryPersons] or
+     * [queryGroups], and returns the result in the People Directory cursor format.
+     *
+     * @throws IllegalArgumentException if [queryArgs] contain no criteria addressed to this
+     *   application.
+     */
     override fun query(
         uri: Uri,
         projection: Array<out String>?,
         queryArgs: Bundle?,
         cancellationSignal: CancellationSignal?,
     ): Cursor? {
+        val directoryPackage =
+            requireNotNull(context) { "The provider is not attached" }.packageName
         return when (uriMatcher.match(uri)) {
             MATCH_PERSONS -> {
-                val query = queryArgs.toPersonQuery()
-                val results =
-                    if (query != null) queryPersons(query, cancellationSignal) else emptyList()
-                results.toCursor(projection, query)
+                // Answer only the sub-query addressed to this application.
+                val criteria =
+                    requireNotNull(queryArgs.personCriteriaByPackage()[directoryPackage]) {
+                        "The query arguments contain no person criteria for $directoryPackage"
+                    }
+                val query = DirectoryPersonQuery(criteria)
+                queryPersons(query, cancellationSignal)
+                    .toCursor(directoryPackage, projection, query.criteria)
             }
             MATCH_GROUPS -> {
-                val query = queryArgs.toGroupQuery()
-                val results =
-                    if (query != null) queryGroups(query, cancellationSignal) else emptyList()
-                results.toCursor(projection, query)
+                val criteria =
+                    requireNotNull(queryArgs.groupCriteriaByPackage()[directoryPackage]) {
+                        "The query arguments contain no group criteria for $directoryPackage"
+                    }
+                val query = DirectoryGroupQuery(criteria)
+                queryGroups(query, cancellationSignal)
+                    .toCursor(directoryPackage, projection, query.criteria)
             }
             else -> null
         }
@@ -136,42 +160,43 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
     }
 
     /**
-     * Returns the people matching [query].
+     * Returns this directory's answer to [query].
      *
-     * Called on a background thread, and may block. Return an empty list when nothing matches.
+     * Called on a background thread, and may block. Build the result with [directoryPersonResult]:
+     * - Report each person that matches once, with [DirectoryPersonResultScope.addMatch], naming
+     *   every criterion that matched it, for example both a [Criterion.Phone] and a
+     *   [Criterion.Email] when the same person matches two inputs.
+     * - Report each criterion that was not evaluated, for example because it is not cached yet or
+     *   its type is not supported, with [DirectoryPersonResultScope.addUnhandled]. A criterion is
+     *   either matched or unhandled, not both.
      *
-     * Return each person at most once. Report every input that matched the person in
-     * [Person.matchedCriteria], for example both a [Criterion.Phone] and a [Criterion.Email] when
-     * the same person matches two inputs. Each reported value must be echoed exactly as it appears
-     * in [query]; criteria that do not appear in [query] are dropped. The order of the returned
-     * list is not significant and is not preserved for client applications.
+     * A criterion that is neither matched nor reported as unhandled is treated as evaluated with no
+     * match. Each reported criterion must be echoed exactly as it appears in [query]; criteria that
+     * do not appear in [query] are dropped. The order of matches is not significant and is not
+     * preserved for client applications.
      *
-     * @param query the query criteria. [PersonQuery.phones], [PersonQuery.emails],
-     *   [PersonQuery.lookupKeys], and [PersonQuery.groupLookupKeys] contain the criteria to match.
+     * @param query the criteria addressed to this directory.
      * @param cancellationSignal signals that the caller has abandoned the query, or `null`.
      */
     public abstract fun queryPersons(
-        query: PersonQuery,
+        query: DirectoryPersonQuery,
         cancellationSignal: CancellationSignal?,
-    ): List<Person>
+    ): DirectoryPersonResult
 
     /**
-     * Returns the groups matching [query].
+     * Returns this directory's answer to [query].
      *
-     * Called on a background thread, and may block. Return an empty list when nothing matches.
+     * Called on a background thread, and may block. Build the result with [directoryGroupResult],
+     * following the same rules as [queryPersons]. Groups are matched by their lookup key, reported
+     * as [Criterion.GroupLookupKey].
      *
-     * Return each group at most once, and report the lookup keys that matched it as
-     * [Criterion.GroupLookupKey] values in [Group.matchedCriteria], echoed exactly as they appear
-     * in [query]. Criteria that do not appear in [query] are dropped. The order of the returned
-     * list is not significant and is not preserved for client applications.
-     *
-     * @param query the query criteria. [GroupQuery.lookupKeys] contains the lookup keys to match.
+     * @param query the criteria addressed to this directory.
      * @param cancellationSignal signals that the caller has abandoned the query, or `null`.
      */
     public abstract fun queryGroups(
-        query: GroupQuery,
+        query: DirectoryGroupQuery,
         cancellationSignal: CancellationSignal?,
-    ): List<Group>
+    ): DirectoryGroupResult
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
         throw UnsupportedOperationException(
@@ -196,12 +221,232 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
         )
     }
 
+    /**
+     * The person criteria a client query addresses to this People Directory application.
+     *
+     * A client's person query is made of one [DirectoryPersonQuery] per People Directory
+     * application. Criteria are combined with OR: a person is a match if it matches any criterion.
+     */
+    public class DirectoryPersonQuery internal constructor(criteria: Set<Criterion>) {
+        /** The criteria to evaluate, in the order the client supplied them. Never empty. */
+        public val criteria: Set<Criterion> = criteria.toSet()
+
+        init {
+            require(this.criteria.isNotEmpty()) { "A person query needs at least one criterion." }
+        }
+
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is DirectoryPersonQuery && criteria == other.criteria)
+
+        override fun hashCode(): Int = criteria.hashCode()
+
+        override fun toString(): String = "DirectoryPersonQuery(criteria=$criteria)"
+    }
+
+    /**
+     * This People Directory application's answer to a [DirectoryPersonQuery].
+     *
+     * Build one with [directoryPersonResult]. A client's person query result is made of one
+     * [DirectoryPersonResult] per People Directory application.
+     */
+    public class DirectoryPersonResult
+    internal constructor(
+        /** The matching people, with the criteria each one matched. The order is unspecified. */
+        public val matches: Set<PersonMatch>,
+        /**
+         * The criteria this directory did not evaluate, for example because they were skipped,
+         * timed out, or are not supported.
+         *
+         * This is not an error. A criterion that was evaluated and matched nothing is in neither
+         * [matches] nor [unhandledCriteria].
+         */
+        public val unhandledCriteria: Set<Criterion>,
+    ) {
+        override fun equals(other: Any?): Boolean =
+            this === other ||
+                (other is DirectoryPersonResult &&
+                    matches == other.matches &&
+                    unhandledCriteria == other.unhandledCriteria)
+
+        override fun hashCode(): Int = 31 * matches.hashCode() + unhandledCriteria.hashCode()
+
+        override fun toString(): String =
+            "DirectoryPersonResult(matches=$matches, unhandledCriteria=$unhandledCriteria)"
+    }
+
+    /** Receiver scope for building a [DirectoryPersonResult] with [directoryPersonResult]. */
+    @PeopleQueryDsl
+    public class DirectoryPersonResultScope internal constructor() {
+        private val matches = mutableSetOf<PersonMatch>()
+        private val unhandled = mutableSetOf<Criterion>()
+
+        /** Reports that [person] matched [criterion] and every criterion in [moreCriteria]. */
+        public fun addMatch(person: Person, criterion: Criterion, vararg moreCriteria: Criterion) {
+            addMatch(person, listOf(criterion) + moreCriteria)
+        }
+
+        /**
+         * Reports that [person] matched every criterion in [criteria].
+         *
+         * @throws IllegalArgumentException if [criteria] is empty.
+         */
+        public fun addMatch(person: Person, criteria: Iterable<Criterion>) {
+            matches += PersonMatch(person, criteria.toSet())
+        }
+
+        /** Reports every match in [matches]. */
+        public fun addMatches(vararg matches: PersonMatch) {
+            this.matches += matches
+        }
+
+        /** Reports every match in [matches]. */
+        public fun addMatches(matches: Iterable<PersonMatch>) {
+            this.matches += matches
+        }
+
+        /** Reports that this directory did not evaluate [criteria]. */
+        public fun addUnhandled(vararg criteria: Criterion) {
+            unhandled += criteria
+        }
+
+        /** Reports that this directory did not evaluate [criteria]. */
+        public fun addUnhandled(criteria: Iterable<Criterion>) {
+            unhandled += criteria
+        }
+
+        internal fun build(): DirectoryPersonResult = DirectoryPersonResult(matches, unhandled)
+    }
+
+    /**
+     * The group criteria a client query addresses to this People Directory application.
+     *
+     * A client's group query is made of one [DirectoryGroupQuery] per People Directory application.
+     */
+    public class DirectoryGroupQuery internal constructor(criteria: Set<Criterion>) {
+        /**
+         * The criteria to evaluate, in the order the client supplied them. Never empty, and
+         * currently always [Criterion.GroupLookupKey] values.
+         */
+        public val criteria: Set<Criterion> = criteria.toSet()
+
+        init {
+            require(this.criteria.isNotEmpty()) { "A group query needs at least one criterion." }
+        }
+
+        override fun equals(other: Any?): Boolean =
+            this === other || (other is DirectoryGroupQuery && criteria == other.criteria)
+
+        override fun hashCode(): Int = criteria.hashCode()
+
+        override fun toString(): String = "DirectoryGroupQuery(criteria=$criteria)"
+    }
+
+    /**
+     * This People Directory application's answer to a [DirectoryGroupQuery].
+     *
+     * Build one with [directoryGroupResult].
+     */
+    public class DirectoryGroupResult
+    internal constructor(
+        /** The matching groups, with the criteria each one matched. The order is unspecified. */
+        public val matches: Set<GroupMatch>,
+        /**
+         * The criteria this directory did not evaluate. See
+         * [DirectoryPersonResult.unhandledCriteria].
+         */
+        public val unhandledCriteria: Set<Criterion>,
+    ) {
+        override fun equals(other: Any?): Boolean =
+            this === other ||
+                (other is DirectoryGroupResult &&
+                    matches == other.matches &&
+                    unhandledCriteria == other.unhandledCriteria)
+
+        override fun hashCode(): Int = 31 * matches.hashCode() + unhandledCriteria.hashCode()
+
+        override fun toString(): String =
+            "DirectoryGroupResult(matches=$matches, unhandledCriteria=$unhandledCriteria)"
+    }
+
+    /** Receiver scope for building a [DirectoryGroupResult] with [directoryGroupResult]. */
+    @PeopleQueryDsl
+    public class DirectoryGroupResultScope internal constructor() {
+        private val matches = mutableSetOf<GroupMatch>()
+        private val unhandled = mutableSetOf<Criterion>()
+
+        /** Reports that [group] matched [criterion] and every criterion in [moreCriteria]. */
+        public fun addMatch(group: Group, criterion: Criterion, vararg moreCriteria: Criterion) {
+            addMatch(group, listOf(criterion) + moreCriteria)
+        }
+
+        /**
+         * Reports that [group] matched every criterion in [criteria].
+         *
+         * @throws IllegalArgumentException if [criteria] is empty.
+         */
+        public fun addMatch(group: Group, criteria: Iterable<Criterion>) {
+            matches += GroupMatch(group, criteria.toSet())
+        }
+
+        /** Reports every match in [matches]. */
+        public fun addMatches(vararg matches: GroupMatch) {
+            this.matches += matches
+        }
+
+        /** Reports every match in [matches]. */
+        public fun addMatches(matches: Iterable<GroupMatch>) {
+            this.matches += matches
+        }
+
+        /** Reports that this directory did not evaluate [criteria]. */
+        public fun addUnhandled(vararg criteria: Criterion) {
+            unhandled += criteria
+        }
+
+        /** Reports that this directory did not evaluate [criteria]. */
+        public fun addUnhandled(criteria: Iterable<Criterion>) {
+            unhandled += criteria
+        }
+
+        internal fun build(): DirectoryGroupResult = DirectoryGroupResult(matches, unhandled)
+    }
+
     public companion object {
         /**
          * Name of the manifest property and meta-data tag a `ContentProvider` declares to register
          * itself as a People Directory.
          */
         public const val PROPERTY_NAME: String = "android.content.PeopleDirectory"
+
+        /**
+         * Builds the result of [queryPersons], following the rules described there.
+         *
+         * ```
+         * override fun queryPersons(query: DirectoryPersonQuery, cancellationSignal: CancellationSignal?) =
+         *     directoryPersonResult {
+         *         for (criterion in query.criteria) {
+         *             when (criterion) {
+         *                 is Criterion.Phone -> cache[criterion.number]
+         *                     ?.let { addMatch(it.toPerson(), criterion) }
+         *                     ?: addUnhandled(criterion) // not cached yet
+         *                 else -> addUnhandled(criterion) // not supported
+         *             }
+         *         }
+         *     }
+         * ```
+         */
+        @JvmStatic
+        public fun directoryPersonResult(
+            block: DirectoryPersonResultScope.() -> Unit
+        ): DirectoryPersonResult = DirectoryPersonResultScope().apply(block).build()
+
+        /**
+         * Builds the result of [queryGroups], following the same rules as [directoryPersonResult].
+         */
+        @JvmStatic
+        public fun directoryGroupResult(
+            block: DirectoryGroupResultScope.() -> Unit
+        ): DirectoryGroupResult = DirectoryGroupResultScope().apply(block).build()
 
         /**
          * Requests that the system People Directory refresh its cached records for this
@@ -221,40 +466,53 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
             PeopleBackendResolver.resolve(context).requestRefresh()
 
         /**
-         * Notifies the system People Directory that records matching [query] have changed.
+         * Notifies the system People Directory that the people of this application matching the
+         * criteria in [block] have changed.
          *
-         * Call this when specific person records change.
+         * ```
+         * PeopleDirectoryContentProvider.notifyPersonsChanged(context) { addLookupKeys(changedId) }
+         * ```
          *
          * The first call to this library in a process may take a round trip to Google Play services
          * to find out whether this device supports the People Directory.
          *
          * @param context The application context.
-         * @param query The query identifying the modified persons.
+         * @param block adds the criteria identifying the modified people.
          * @return `true` if the notification was accepted by the system, `false` if the system
          *   People Directory is unavailable or declined the request.
+         * @throws IllegalArgumentException if [block] adds no criterion.
          */
         @JvmStatic
-        public suspend fun notifyChange(context: Context, query: PersonQuery): Boolean =
-            PeopleBackendResolver.resolve(context).notifyChange(query)
+        public suspend fun notifyPersonsChanged(
+            context: Context,
+            block: PersonCriteriaScope.() -> Unit,
+        ): Boolean {
+            val query = directoryPersonQuery(block)
+            return PeopleBackendResolver.resolve(context).notifyChange(query)
+        }
 
         /**
-         * Notifies the system People Directory that groups matching [query] have changed.
-         *
-         * Call this when specific group records change.
+         * Notifies the system People Directory that the groups of this application matching the
+         * criteria in [block] have changed.
          *
          * The first call to this library in a process may take a round trip to Google Play services
          * to find out whether this device supports the People Directory.
          *
          * @param context The application context.
-         * @param query The query identifying the modified groups.
+         * @param block adds the criteria identifying the modified groups.
          * @return `true` if the notification was accepted by the system, `false` if the system
          *   People Directory is unavailable or declined the request.
+         * @throws IllegalArgumentException if [block] adds no criterion.
          */
         @JvmStatic
-        public suspend fun notifyChange(context: Context, query: GroupQuery): Boolean =
-            PeopleBackendResolver.resolve(context).notifyChange(query)
+        public suspend fun notifyGroupsChanged(
+            context: Context,
+            block: GroupCriteriaScope.() -> Unit,
+        ): Boolean {
+            val query = directoryGroupQuery(block)
+            return PeopleBackendResolver.resolve(context).notifyChange(query)
+        }
 
-        private const val TAG = "PeopleDirectoryContentProvider"
         private const val MATCH_PERSONS = 1
         private const val MATCH_GROUPS = 2
     }
