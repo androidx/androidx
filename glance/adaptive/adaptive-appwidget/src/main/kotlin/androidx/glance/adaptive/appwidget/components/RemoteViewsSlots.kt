@@ -200,6 +200,25 @@ internal fun RemoteViews.setHorizontalItemSpacing(
     }
 }
 
+/**
+ * Spaces a weighted vertical item [viewId] by [gap] from the next item while keeping every item's
+ * inner content height equal: the vertical counterpart of [setHorizontalItemSpacing], with
+ * `marginBottom` from API 31 and symmetric `gap / 2` vertical padding below it.
+ */
+internal fun RemoteViews.setVerticalItemSpacing(
+    @IdRes viewId: Int,
+    gap: Dp,
+    isLast: Boolean,
+    density: Float,
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        RemoteViewsSlotsApi31Impl.setMarginBottom(this, viewId, if (isLast) 0f else gap.value)
+    } else {
+        val half = (gap.value / 2f).dpToPx(density)
+        setViewPadding(viewId, 0, half, 0, half)
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.S)
 private object RemoteViewsSlotsApi31Impl {
     fun addStableView(rv: RemoteViews, containerId: Int, child: RemoteViews, stableId: Int) {
@@ -214,6 +233,15 @@ private object RemoteViewsSlotsApi31Impl {
         rv.setViewLayoutMargin(
             viewId,
             RemoteViews.MARGIN_END,
+            marginDp,
+            TypedValue.COMPLEX_UNIT_DIP,
+        )
+    }
+
+    fun setMarginBottom(rv: RemoteViews, viewId: Int, marginDp: Float) {
+        rv.setViewLayoutMargin(
+            viewId,
+            RemoteViews.MARGIN_BOTTOM,
             marginDp,
             TypedValue.COMPLEX_UNIT_DIP,
         )

@@ -30,6 +30,7 @@ import androidx.glance.adaptive.appwidget.components.graph.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.icon.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.iconbutton.IconButtonDefaults
 import androidx.glance.adaptive.appwidget.components.iconbutton.buildRemoteViews
+import androidx.glance.adaptive.appwidget.components.icongrid.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.ring.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.setCornerRadius
 import androidx.glance.adaptive.appwidget.components.setOptionalText
@@ -308,7 +309,7 @@ private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp):
 private fun HeroComponent.toRemoteViews(taps: RemoteViewsActions, tiers: SizeTiers): RemoteViews =
     when (this) {
         is Graph -> buildRemoteViews(taps.context, Graph.barSpacing(tiers))
-        is IconGrid -> notDrawnYet()
+        is IconGrid -> buildRemoteViews(taps)
     }
 
 private fun ActionComponent.toRemoteViews(taps: RemoteViewsActions): RemoteViews =
@@ -336,7 +337,8 @@ private fun BulbComponent.toRemoteViews(taps: RemoteViewsActions, containerSize:
 
 /**
  * Whether this component runs an action when tapped, which decides the stable ID it is added under
- * (see [androidx.glance.adaptive.appwidget.components.tappableStableId]).
+ * (see [androidx.glance.adaptive.appwidget.components.tappableStableId]). An icon grid is not
+ * tappable itself: it keys each of its tiles the same way.
  */
 private fun SlotComponent.isTappable(taps: RemoteViewsActions): Boolean =
     when (this) {
@@ -349,9 +351,3 @@ private fun SlotComponent.isTappable(taps: RemoteViewsActions): Boolean =
         is Icon,
         is IconGrid -> false
     }
-
-// TODO(b/580007927): Draw the icon grid. Until then no selector places it.
-private fun SlotComponent.notDrawnYet(): Nothing =
-    throw UnsupportedOperationException(
-        "${javaClass.simpleName} is not drawn with RemoteViews yet."
-    )

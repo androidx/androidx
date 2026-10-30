@@ -509,6 +509,188 @@ class RemoteViewsMatrixRendererTest {
         assertThat(button.hasOnClickListeners()).isTrue()
     }
 
+    @Test
+    fun iconGrid_drawsItsTilesRowByRowAndKeepsEmptyCells() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero =
+                        IconGrid(
+                            List(5) { IconTile(GLYPH, "Workout $it", RUN) },
+                            columns = 3,
+                            rows = 2,
+                        )
+                ),
+                Dimensions(264, 176),
+            )
+
+        val grid =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid)
+        assertThat(grid.childCount).isEqualTo(2)
+        val rows = List(grid.childCount) { grid.getChildAt(it) as ViewGroup }
+        assertThat(rows.map { it.childCount }).containsExactly(3, 3)
+        assertThat(tile(rows[0], 0).contentDescription.toString()).isEqualTo("Workout 0")
+        assertThat(tile(rows[1], 1).contentDescription.toString()).isEqualTo("Workout 4")
+        // The sixth cell is empty but keeps its place, so the tiles keep their size.
+        assertThat(tile(rows[1], 2).visibility).isEqualTo(View.INVISIBLE)
+        assertThat(rows[1].getChildAt(2).width).isEqualTo(rows[1].getChildAt(1).width)
+    }
+
+    @Test
+    fun iconGrid_rowsShareTheHeroHeightAndTilesShareTheRowWidth() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero = IconGrid(List(6) { IconTile(GLYPH, "Workout $it") }, 3, 2),
+                    padding = 12.dp,
+                ),
+                Dimensions(264, 264),
+            )
+
+        val grid =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid)
+        val rows = List(grid.childCount) { grid.getChildAt(it) as ViewGroup }
+        assertThat(rows[0].height - rows[1].height).isIn(-1..1)
+        val tiles = List(3) { tile(rows[0], it) }
+        assertThat(tiles.maxOf { it.width } - tiles.minOf { it.width }).isAtMost(1)
+        // The rows fill the grid, with the design's gap between them.
+        assertThat(rows[1].bottom).isEqualTo(grid.height)
+        assertThat(rows[1].top - rows[0].bottom).isEqualTo(4f.dpToPx(context.density))
+        assertThat(
+                rows[0]
+                    .getChildAt(0)
+                    .findViewById<ImageView>(
+                        R.id.glance_adaptive_appwidget_remoteviews_icon_tile_glyph
+                    )
+                    .maxWidth
+            )
+            .isEqualTo(30f.dpToPx(context.density))
+    }
+
+    @Test
+    fun iconGrid_cellFilledAgainOnAnUpdateShowsItsTile() {
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(264, 176))
+        fun content(tiles: Int) =
+            MatrixCardContent(hero = IconGrid(List(tiles) { IconTile(GLYPH, "Workout $it") }, 3, 2))
+        val view =
+            RemoteViewsMatrixRenderer.renderRemoteViews(context, template, content(5), surface)
+                .apply(context, FrameLayout(context))
+
+        // The host reapplies an update onto the hierarchy it already has, recycling the cells.
+        RemoteViewsMatrixRenderer.renderRemoteViews(context, template, content(6), surface)
+            .reapply(context, view)
+
+        val grid =
+            view.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid)
+        val lastRow = grid.getChildAt(1) as ViewGroup
+        assertThat(tile(lastRow, 2).visibility).isEqualTo(View.VISIBLE)
+        assertThat(tile(lastRow, 2).contentDescription.toString()).isEqualTo("Workout 5")
+    }
+
+    @Test
+    fun iconGrid_tileShowsItsLabelBeneathItsGlyph() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero = IconGrid(listOf(IconTile(GLYPH, "Rachel", RUN)), columns = 1, rows = 1)
+                ),
+                Dimensions(176, 132),
+            )
+
+        val row =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row)
+        val labelled = tile(row, 0)
+        val label =
+            labelled.findViewById<TextView>(
+                R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label
+            )
+        val glyph =
+            labelled.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_tile_glyph)
+        assertThat(label.visibility).isEqualTo(View.VISIBLE)
+        assertThat(label.text.toString()).isEqualTo("Rachel")
+        assertThat(label.top).isAtLeast(glyph.bottom)
+        assertThat(labelled.contentDescription.toString()).isEqualTo("Rachel")
+    }
+
+    @Test
+    fun iconGrid_withoutLabelsDrawsGlyphsAloneButStillDescribesTiles() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero =
+                        IconGrid(
+                            listOf(IconTile(GLYPH, "Rachel", RUN), IconTile(GLYPH, "Walk")),
+                            columns = 2,
+                            rows = 1,
+                            showLabels = false,
+                        )
+                ),
+                Dimensions(176, 132),
+            )
+
+        val row =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row)
+        for (column in 0 until 2) {
+            val bare = tile(row, column)
+            assertThat(
+                    bare
+                        .findViewById<View>(
+                            R.id.glance_adaptive_appwidget_remoteviews_icon_tile_label
+                        )
+                        .visibility
+                )
+                .isEqualTo(View.GONE)
+        }
+        assertThat(tile(row, 0).contentDescription.toString()).isEqualTo("Rachel")
+        assertThat(tile(row, 1).contentDescription.toString()).isEqualTo("Walk")
+    }
+
+    @Test
+    fun iconGrid_tileTapRunsItsActionAndInertTilesAreNotClickable() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero =
+                        IconGrid(
+                            listOf(IconTile(GLYPH, "Run", RUN), IconTile(GLYPH, "Walk")),
+                            columns = 2,
+                            rows = 1,
+                        )
+                ),
+                Dimensions(176, 132),
+            )
+
+        val row =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row)
+        assertThat(tile(row, 1).isClickable).isFalse()
+        tile(row, 0).performClick()
+        assertThat(shadowOf(context as Application).nextStartedActivity.data)
+            .isEqualTo(Uri.parse(RUN_URI))
+    }
+
+    @Test
+    fun iconGrid_sensitiveTileIsDescribedByItsReplacementOnTheLockScreen() {
+        val root =
+            render(
+                MatrixCardContent(
+                    hero =
+                        IconGrid(
+                            listOf(
+                                IconTile(GLYPH, "Call Alex", RUN, sensitiveReplacement = "Call")
+                            ),
+                            columns = 2,
+                            rows = 1,
+                        )
+                ),
+                Dimensions(176, 132),
+                AppWidgetSurface.MOBILE_LOCK_SCREEN,
+            )
+
+        val row =
+            root.findViewById<ViewGroup>(R.id.glance_adaptive_appwidget_remoteviews_icon_grid_row)
+        assertThat(tile(row, 0).contentDescription.toString()).isEqualTo("Call")
+    }
+
     /** A card with every slot filled. */
     private fun fullCard() =
         MatrixCardContent(
@@ -532,6 +714,9 @@ class RemoteViewsMatrixRendererTest {
 
     private fun iconButtonGlyph(root: View): ImageView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph)
+
+    private fun tile(row: ViewGroup, column: Int): View =
+        row.getChildAt(column).findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_tile)
 
     private fun secondary(root: View): TextView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_secondary)
