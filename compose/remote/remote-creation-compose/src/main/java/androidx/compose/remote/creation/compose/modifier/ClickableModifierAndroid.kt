@@ -31,17 +31,17 @@ import androidx.compose.ui.semantics.Role
  * If you need to support double click or long click alongside the single click, consider using
  * [combinedClickable].
  *
- * @param action will be called when user clicks on the element
- * @param enabled Controls the enabled state. When `false`, [action], and this modifier will appear
+ * @param onClick will be called when user clicks on the element
+ * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations
  */
 public fun RemoteModifier.clickable(
-    action: RemoteAction,
+    onClick: RemoteAction,
     enabled: Boolean = true,
     role: Role? = Role.Button,
-): RemoteModifier = clickableImpl(action = action, enabled = enabled, role = role?.toRemoteRole())
+): RemoteModifier = clickableImpl(onClick = onClick, enabled = enabled, role = role?.toRemoteRole())
 
 private fun Role.toRemoteRole(): RemoteRole =
     when (this) {

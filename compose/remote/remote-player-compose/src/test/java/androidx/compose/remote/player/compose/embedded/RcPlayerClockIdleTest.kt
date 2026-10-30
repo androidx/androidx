@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.TimeAttribute
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -107,7 +107,7 @@ class RcPlayerClockIdleTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "toggle".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(checked, !checked))
+                            .clickable(onClick = valueChangeAction(checked, !checked))
                 )
                 RemoteStateLayout(currentState = checked) { state -> branch(state) }
             }

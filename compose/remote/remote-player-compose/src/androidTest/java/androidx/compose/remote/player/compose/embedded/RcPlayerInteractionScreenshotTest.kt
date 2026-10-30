@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -99,9 +99,10 @@ class RcPlayerInteractionScreenshotTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "ColorToggle".rs }
                             .combinedClickable(
-                                onClick = valueChange(showBlue, Component.Visibility.VISIBLE.ri),
+                                onClick =
+                                    valueChangeAction(showBlue, Component.Visibility.VISIBLE.ri),
                                 onLongClick =
-                                    valueChange(showGreen, Component.Visibility.VISIBLE.ri),
+                                    valueChangeAction(showGreen, Component.Visibility.VISIBLE.ri),
                             )
                 ) {
                     LabeledBox("Not clicked", Color.Red, Color.White)

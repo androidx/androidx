@@ -32,8 +32,8 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -131,7 +131,7 @@ public fun HostActionsDemo() {
             DemoRow(
                 "Id 43 + metadata",
                 combinedAction(
-                    valueChange(taps, taps + 1),
+                    valueChangeAction(taps, taps + 1),
                     hostAction(
                         id = 43,
                         metadata = "screen=home&taps=".rs + taps.toRemoteString(),
@@ -140,7 +140,7 @@ public fun HostActionsDemo() {
             )
             DemoRow(
                 "PendingIntent + metadata",
-                pendingIntentAction("taps" to taps.toRemoteString()) {
+                rememberPendingIntentAction("taps" to taps.toRemoteString()) {
                     pendingIntent
                 },
             )

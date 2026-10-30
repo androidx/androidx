@@ -16,7 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -48,8 +48,8 @@ public fun RemoteSliderDefault() {
     RemoteSlider(
         value = value,
         steps = 4,
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     )
 }
 
@@ -79,8 +79,8 @@ public fun RemoteSliderNotSegmented() {
         value = value,
         steps = 4,
         segmented = false,
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     )
 }
 
@@ -102,8 +102,8 @@ public fun RemoteSliderCustomColors() {
                 selectedBarColor = RemoteColor(Color(0xFFFF6F61)),
                 containerColor = RemoteColor(Color.DarkGray),
             ),
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     )
 }
 
@@ -120,8 +120,8 @@ public fun RemoteSliderMaxValue() {
     RemoteSlider(
         value = value,
         steps = 4,
-        decreaseAction = valueChange(value, max(value - 1f.rf, 0f.rf)),
-        increaseAction = valueChange(value, min(value + 1f.rf, 5f.rf)),
+        decreaseAction = valueChangeAction(value, max(value - 1f.rf, 0f.rf)),
+        increaseAction = valueChangeAction(value, min(value + 1f.rf, 5f.rf)),
     )
 }
 

@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.rememberRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -64,7 +64,7 @@ fun RemoteDemo(
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
-        val creationDisplayInfo = createCreationDisplayInfo()
+        val creationDisplayInfo = rememberRemoteCreationDisplayInfo()
         LaunchedEffect(profile, content) {
             val captured =
                 captureSingleRemoteDocument(

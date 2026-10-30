@@ -24,7 +24,7 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -118,7 +118,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
         setBookendsContent {
             val clicks = remember { MutableRemoteInt(0) }
             RemoteButton(
-                onClick = valueChange(clicks, clicks + 1),
+                onClick = valueChangeAction(clicks, clicks + 1),
                 secondaryLabel = { RemoteText("Clicks: ".rs + clicks.toRemoteString()) },
             ) {
                 RemoteText("Increment".rs)
@@ -180,7 +180,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
             val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
-                onCheckedChange = valueChange(checked, !checked),
+                onCheckedChange = valueChangeAction(checked, !checked),
                 secondaryLabel = { RemoteText(checked.select("On".rs, "Off".rs)) },
             ) {
                 RemoteText("Toggle".rs)
@@ -226,7 +226,7 @@ abstract class BookendsTest(protected val implementation: BookendsImplementation
             val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
-                onCheckedChange = valueChange(checked, !checked),
+                onCheckedChange = valueChangeAction(checked, !checked),
                 enabled = false.rb,
                 secondaryLabel = { RemoteText(checked.select("On".rs, "Off".rs)) },
             ) {
@@ -335,7 +335,7 @@ class WearMaterial3BookendsTest : BookendsTest(BookendsImplementation.WearMateri
             val checked = remember { MutableRemoteBoolean(false) }
             RemoteSwitchButton(
                 checked = checked,
-                onCheckedChange = valueChange(checked, !checked),
+                onCheckedChange = valueChangeAction(checked, !checked),
             ) {
                 RemoteText("Switch".rs)
             }

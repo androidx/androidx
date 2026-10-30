@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
@@ -38,9 +38,9 @@ fun RemoteSplitCheckboxButtonSample(modifier: RemoteModifier = RemoteModifier) {
 
     RemoteSplitCheckboxButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         toggleContentDescription = "Split Checkbox".rs,
-        onContainerClick = valueChange(checked, !checked),
+        onContainerClick = valueChangeAction(checked, !checked),
         modifier = modifier,
         label = { RemoteText("Split Checkbox".rs) },
     )

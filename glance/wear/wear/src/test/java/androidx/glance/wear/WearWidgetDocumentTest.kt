@@ -22,7 +22,7 @@ import android.content.Intent
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -63,7 +63,7 @@ class WearWidgetDocumentTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction { context ->
+                            rememberPendingIntentAction { context ->
                                 PendingIntent.getActivity(
                                     context,
                                     0,
@@ -101,7 +101,7 @@ class WearWidgetDocumentTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction { context ->
+                            rememberPendingIntentAction { context ->
                                 PendingIntent.getActivity(
                                     context,
                                     0,

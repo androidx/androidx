@@ -29,8 +29,8 @@ import androidx.compose.remote.core.operations.layout.modifiers.HostActionMetada
 import androidx.compose.remote.core.operations.layout.modifiers.HostActionOperation
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
+import androidx.compose.remote.creation.compose.capture.Profile
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createProfile
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -142,7 +142,7 @@ class HostActionTest {
     @Test
     fun pendingIntentAction_wearWidgetsProfile_writesNamedAction() = runTest {
         // Wear hosts dispatch this named action, so its encoding must not change.
-        assertWritesNamedAction(createProfile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS))
+        assertWritesNamedAction(Profile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS))
     }
 
     @Test
@@ -160,7 +160,8 @@ class HostActionTest {
         val captured =
             captureSingleRemoteDocument(context = context, profile = profile) {
                 RemoteBox(
-                    modifier = RemoteModifier.clickable(pendingIntentAction { pendingIntent })
+                    modifier =
+                        RemoteModifier.clickable(rememberPendingIntentAction { pendingIntent })
                 )
             }
         val doc = captured.toCoreDocument()
@@ -176,7 +177,8 @@ class HostActionTest {
         val captured =
             captureSingleRemoteDocument(context = context, profile = profile) {
                 RemoteBox(
-                    modifier = RemoteModifier.clickable(pendingIntentAction { pendingIntent })
+                    modifier =
+                        RemoteModifier.clickable(rememberPendingIntentAction { pendingIntent })
                 )
             }
         val doc = captured.toCoreDocument()
@@ -239,7 +241,7 @@ class HostActionTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction(
+                            rememberPendingIntentAction(
                                 "taps" to taps.toRemoteString(),
                                 "screen" to "home".rs,
                             ) {
@@ -261,7 +263,7 @@ class HostActionTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction("screen" to "home".rs) { pendingIntent }
+                            rememberPendingIntentAction("screen" to "home".rs) { pendingIntent }
                         )
                 )
             }
@@ -277,13 +279,15 @@ class HostActionTest {
         val captured =
             captureSingleRemoteDocument(
                 context = context,
-                profile = createProfile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS),
+                profile = Profile(profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS),
             ) {
                 val taps = remember { MutableRemoteInt(3) }
                 RemoteBox(
                     modifier =
                         RemoteModifier.clickable(
-                            pendingIntentAction("taps" to taps.toRemoteString()) { pendingIntent }
+                            rememberPendingIntentAction("taps" to taps.toRemoteString()) {
+                                pendingIntent
+                            }
                         )
                 )
             }

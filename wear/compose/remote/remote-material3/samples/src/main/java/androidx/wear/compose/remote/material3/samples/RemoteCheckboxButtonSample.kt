@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -40,7 +40,7 @@ public fun RemoteCheckboxButtonSample(modifier: RemoteModifier = RemoteModifier)
 
     RemoteCheckboxButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
         label = { RemoteText("Checkbox".rs) },
     )

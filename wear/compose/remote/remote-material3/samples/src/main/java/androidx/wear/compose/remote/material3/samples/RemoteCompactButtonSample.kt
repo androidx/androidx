@@ -19,7 +19,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
@@ -40,7 +40,7 @@ fun RemoteCompactButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
 
     RemoteCompactButton(
-        valueChange(tapCount, tapCount + 1),
+        valueChangeAction(tapCount, tapCount + 1),
         modifier = modifier,
         label = { RemoteText("Tap me!".rs + countSuffix) },
     )

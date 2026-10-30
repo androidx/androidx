@@ -17,7 +17,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.remote.core.operations.layout.Component
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -193,7 +193,10 @@ class RcPlayerSwitchDemoTest {
     fun SwitchWidget(value: MutableRemoteEnum<SwitchState>, description: String? = null) {
         var modifier =
             Modifier.clickable(
-                valueChange(remoteState = value.remoteInt, updatedValue = (value.remoteInt + 1) % 2)
+                valueChangeAction(
+                    remoteState = value.remoteInt,
+                    updatedValue = (value.remoteInt + 1) % 2,
+                )
             )
         if (description != null) {
             modifier = modifier.semantics { contentDescription = description.rs }

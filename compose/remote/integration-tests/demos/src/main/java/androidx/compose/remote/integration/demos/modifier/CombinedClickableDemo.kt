@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -80,9 +80,9 @@ private fun CombinedClickableDemoContent() {
     val clickCounter = remember { MutableRemoteInt(0) }
     val doubleClickCounter = remember { MutableRemoteInt(0) }
     val longClickCounter = remember { MutableRemoteInt(0) }
-    val onClickAction = valueChange(clickCounter, clickCounter + 1)
-    val onLongClickAction = valueChange(longClickCounter, longClickCounter + 1)
-    val onDoubleClickAction = valueChange(doubleClickCounter, doubleClickCounter + 1)
+    val onClickAction = valueChangeAction(clickCounter, clickCounter + 1)
+    val onLongClickAction = valueChangeAction(longClickCounter, longClickCounter + 1)
+    val onDoubleClickAction = valueChangeAction(doubleClickCounter, doubleClickCounter + 1)
 
     RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
         RemoteText("Single: ".rs + clickCounter.toRemoteString(), color = Color.Black.rc)

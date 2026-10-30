@@ -30,9 +30,9 @@ import android.widget.TextView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.rememberRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -147,7 +147,7 @@ private fun GesturePropagationViewDemoContent(applyVerticalScroll: Boolean) {
                 modifier =
                     RemoteModifier.size(80.rdp)
                         .background(RemoteColor(Color.Green))
-                        .clickable(valueChange(clickCount, clickCount + 1)),
+                        .clickable(valueChangeAction(clickCount, clickCount + 1)),
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText("ValueChange.".rs, color = Color.Black.rc)
@@ -175,9 +175,10 @@ private fun GesturePropagationViewDemoContent(applyVerticalScroll: Boolean) {
                     RemoteModifier.size(80.rdp)
                         .background(RemoteColor(Color.Green))
                         .combinedClickable(
-                            onClick = valueChange(clickCount, clickCount + 1),
-                            onDoubleClick = valueChange(doubleClickCount, doubleClickCount + 1),
-                            onLongClick = valueChange(longClickCount, longClickCount + 1),
+                            onClick = valueChangeAction(clickCount, clickCount + 1),
+                            onDoubleClick =
+                                valueChangeAction(doubleClickCount, doubleClickCount + 1),
+                            onLongClick = valueChangeAction(longClickCount, longClickCount + 1),
                         ),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -212,7 +213,7 @@ private fun RemoteFrameLayoutDemo(
 ) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
     val context = LocalContext.current
-    val creationDisplayInfo = createCreationDisplayInfo()
+    val creationDisplayInfo = rememberRemoteCreationDisplayInfo()
 
     LaunchedEffect(Unit) {
         val captured =

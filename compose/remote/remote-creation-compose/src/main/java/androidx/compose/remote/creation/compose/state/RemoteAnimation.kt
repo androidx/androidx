@@ -76,7 +76,7 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
          * @param x2 The x-coordinate of the second control point.
          * @param y2 The y-coordinate of the second control point.
          */
-        public fun Cubic(x1: Float, y1: Float, x2: Float, y2: Float): RemoteEasing =
+        public fun cubic(x1: Float, y1: Float, x2: Float, y2: Float): RemoteEasing =
             RemoteEasing(CUBIC_CUSTOM, floatArrayOf(x1, y1, x2, y2))
 
         /**
@@ -84,7 +84,7 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
          *
          * @param points The control points defining the spline curve.
          */
-        public fun Spline(points: FloatArray): RemoteEasing =
+        public fun spline(points: FloatArray): RemoteEasing =
             RemoteEasing(SPLINE_CUSTOM, points.copyOf())
     }
 

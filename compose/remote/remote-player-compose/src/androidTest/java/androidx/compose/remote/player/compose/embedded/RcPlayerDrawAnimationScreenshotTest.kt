@@ -17,7 +17,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.res.Resources
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -91,7 +91,7 @@ class RcPlayerDrawAnimationScreenshotTest {
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .background(Color.LightGray.rc)
-                        .clickable(valueChange(toggled, toggled.select(false.rb, true.rb)))
+                        .clickable(valueChangeAction(toggled, toggled.select(false.rb, true.rb)))
                         .semantics { contentDescription = TOGGLE.rs }
                         .drawWithContent {
                             fillPaint.color = Color.Blue.rc.copy(red = progress)

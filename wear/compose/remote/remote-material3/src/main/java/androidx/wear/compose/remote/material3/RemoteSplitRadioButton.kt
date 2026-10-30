@@ -43,11 +43,11 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -130,7 +130,7 @@ public fun RemoteSplitRadioButton(
                     .heightIn(min = RemoteSplitRadioButtonDefaults.Height)
                     .clip(startSectionShape)
                     .clickable(
-                        action = onContainerClick,
+                        onClick = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onContainerClick != RemoteAction.Empty,
@@ -188,7 +188,7 @@ public fun RemoteSplitRadioButton(
                     .heightIn(min = RemoteSplitRadioButtonDefaults.Height)
                     .clip(endSectionShape)
                     .clickable(
-                        action = onSelectionClick,
+                        onClick = onSelectionClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onSelectionClick != RemoteAction.Empty,
@@ -506,7 +506,7 @@ public class RemoteSplitRadioButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(unselectedContainerColor, selectedContainerColor, it) }
+                progress?.let { lerp(unselectedContainerColor, selectedContainerColor, it) }
                     ?: selected.select(selectedContainerColor, unselectedContainerColor),
             ifFalse =
                 selected.select(disabledSelectedContainerColor, disabledUnselectedContainerColor),
@@ -520,7 +520,7 @@ public class RemoteSplitRadioButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(unselectedContentColor, selectedContentColor, it) }
+                progress?.let { lerp(unselectedContentColor, selectedContentColor, it) }
                     ?: selected.select(selectedContentColor, unselectedContentColor),
             ifFalse = selected.select(disabledSelectedContentColor, disabledUnselectedContentColor),
         )
@@ -534,7 +534,7 @@ public class RemoteSplitRadioButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(unselectedSecondaryContentColor, selectedSecondaryContentColor, it)
+                    lerp(unselectedSecondaryContentColor, selectedSecondaryContentColor, it)
                 }
                     ?: selected.select(
                         selectedSecondaryContentColor,
@@ -556,7 +556,7 @@ public class RemoteSplitRadioButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(unselectedSplitContainerColor, selectedSplitContainerColor, it)
+                    lerp(unselectedSplitContainerColor, selectedSplitContainerColor, it)
                 } ?: selected.select(selectedSplitContainerColor, unselectedSplitContainerColor),
             ifFalse =
                 selected.select(
@@ -573,7 +573,7 @@ public class RemoteSplitRadioButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(unselectedControlColor, selectedControlColor, it) }
+                progress?.let { lerp(unselectedControlColor, selectedControlColor, it) }
                     ?: selected.select(selectedControlColor, unselectedControlColor),
             ifFalse = selected.select(disabledSelectedControlColor, disabledUnselectedControlColor),
         )

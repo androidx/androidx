@@ -541,7 +541,7 @@ internal fun RemoteCardImpl(
                 drawContent()
             }
             .clip(shape = shape)
-            .clickable(action = onClick, enabled = enabled.constantValueOrNull ?: false)
+            .clickable(onClick = onClick, enabled = enabled.constantValueOrNull ?: false)
             .padding(contentPadding)
 
     RemoteColumn(modifier = containerModifier) {

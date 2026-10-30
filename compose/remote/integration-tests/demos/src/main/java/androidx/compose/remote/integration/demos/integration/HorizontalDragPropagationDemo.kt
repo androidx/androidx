@@ -53,7 +53,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.rememberRemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -375,7 +375,7 @@ private fun HorizontalScrollRowHostDemo(
 private fun HorizontalScrollViewHostDemo(modifier: Modifier = Modifier) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
     val context = LocalContext.current
-    val creationDisplayInfo = createCreationDisplayInfo()
+    val creationDisplayInfo = rememberRemoteCreationDisplayInfo()
 
     LaunchedEffect(Unit) {
         val captured =

@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.IntSet
 import androidx.collection.buildIntSet
-import androidx.compose.remote.creation.compose.capture.createProfile
+import androidx.compose.remote.creation.compose.capture.Profile
 import androidx.compose.remote.creation.profile.Profile
 import androidx.glance.wear.core.RcWearOperations.CORE_TEXT
 import androidx.glance.wear.core.RcWearOperations.DATA_FONT
@@ -95,7 +95,7 @@ public object GlanceWearProfiles {
             } else {
                 WEAR_WIDGETS_ALLOWED_OPERATIONS
             }
-        return createProfile(
+        return Profile(
             profileFlags = PROFILE_WEAR_WIDGETS,
             supportedOperations = operationsToUse,
         )

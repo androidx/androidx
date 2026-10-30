@@ -26,7 +26,7 @@ import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.LocalRemoteDensity
 import androidx.compose.remote.creation.compose.capture.LocalRemoteLayoutDirection
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
@@ -761,9 +761,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     currentState = checked,
                     modifier =
                         RemoteModifier.fillMaxSize()
-                            .onTouchDown(valueChange(checked, RemoteEnum(Checked.Off)))
-                            .onTouchUp(valueChange(checked, RemoteEnum(Checked.On)))
-                            .onTouchCancel(valueChange(checked, RemoteEnum(Checked.On))),
+                            .onTouchDown(valueChangeAction(checked, RemoteEnum(Checked.Off)))
+                            .onTouchUp(valueChangeAction(checked, RemoteEnum(Checked.On)))
+                            .onTouchCancel(valueChangeAction(checked, RemoteEnum(Checked.On))),
                 ) { state ->
                     when (state) {
                         Checked.Off -> {

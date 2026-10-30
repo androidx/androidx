@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -78,7 +78,7 @@ fun RemoteRadioButtonDemos(modifier: Modifier = Modifier) {
                 val selected = remember { MutableRemoteBoolean(false) }
                 RemoteRadioButton(
                     selected = selected,
-                    onSelect = valueChange(selected, !selected),
+                    onSelect = valueChangeAction(selected, !selected),
                     secondaryLabel = {
                         RemoteText(selected.select("State: Selected".rs, "State: Unselected".rs))
                     },

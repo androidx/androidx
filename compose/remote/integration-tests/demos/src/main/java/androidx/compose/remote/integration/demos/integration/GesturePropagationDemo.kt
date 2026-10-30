@@ -35,7 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -197,7 +197,7 @@ fun GesturePropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
                             modifier =
                                 RemoteModifier.size(80.rdp)
                                     .background(RemoteColor(Color.Green))
-                                    .clickable(valueChange(clickCount, clickCount + 1)),
+                                    .clickable(valueChangeAction(clickCount, clickCount + 1)),
                             contentAlignment = RemoteAlignment.Center,
                         ) {
                             RemoteText("ValueChange.".rs, color = Color.Black.rc)
@@ -225,11 +225,14 @@ fun GesturePropagationDemo(onDocument: (CoreDocument) -> Unit = {}) {
                                 RemoteModifier.size(80.rdp)
                                     .background(RemoteColor(Color.Green))
                                     .combinedClickable(
-                                        onClick = valueChange(clickCount, clickCount + 1),
+                                        onClick = valueChangeAction(clickCount, clickCount + 1),
                                         onDoubleClick =
-                                            valueChange(doubleClickCount, doubleClickCount + 1),
+                                            valueChangeAction(
+                                                doubleClickCount,
+                                                doubleClickCount + 1,
+                                            ),
                                         onLongClick =
-                                            valueChange(longClickCount, longClickCount + 1),
+                                            valueChangeAction(longClickCount, longClickCount + 1),
                                     ),
                             contentAlignment = RemoteAlignment.Center,
                         ) {

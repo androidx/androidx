@@ -52,7 +52,7 @@ import androidx.compose.ui.semantics.Role
  *
  * [RemoteTextToggleButton] can be enabled or disabled. A disabled button will not respond to click
  * events. When enabled, the [onCheckedChange] action is triggered on click, and is typically used
- * to flip the [checked] state, for example with `valueChange(checked, !checked)`.
+ * to flip the [checked] state, for example with `valueChangeAction(checked, !checked)`.
  *
  * Example of a simple [RemoteTextToggleButton]:
  *

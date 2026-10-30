@@ -49,14 +49,14 @@ internal object RemoteMotionTokens {
     const val DurationShort4: Int = 200
 
     // Cubic Bezier easings, matching androidx.wear.compose.material3.tokens.MotionTokens
-    val EasingEmphasizedAccelerate: RemoteEasing = RemoteEasing.Cubic(0.3f, 0.0f, 0.8f, 0.15f)
-    val EasingEmphasizedDecelerate: RemoteEasing = RemoteEasing.Cubic(0.05f, 0.7f, 0.1f, 1.0f)
-    val EasingLegacyAccelerate: RemoteEasing = RemoteEasing.Cubic(0.4f, 0.0f, 1.0f, 1.0f)
-    val EasingLegacyDecelerate: RemoteEasing = RemoteEasing.Cubic(0.0f, 0.0f, 0.2f, 1.0f)
-    val EasingLegacyStandard: RemoteEasing = RemoteEasing.Cubic(0.4f, 0.0f, 0.2f, 1.0f)
-    val EasingStandard: RemoteEasing = RemoteEasing.Cubic(0.2f, 0.0f, 0.0f, 1.0f)
-    val EasingStandardAccelerate: RemoteEasing = RemoteEasing.Cubic(0.3f, 0.0f, 1.0f, 1.0f)
-    val EasingStandardDecelerate: RemoteEasing = RemoteEasing.Cubic(0.0f, 0.0f, 0.0f, 1.0f)
+    val EasingEmphasizedAccelerate: RemoteEasing = RemoteEasing.cubic(0.3f, 0.0f, 0.8f, 0.15f)
+    val EasingEmphasizedDecelerate: RemoteEasing = RemoteEasing.cubic(0.05f, 0.7f, 0.1f, 1.0f)
+    val EasingLegacyAccelerate: RemoteEasing = RemoteEasing.cubic(0.4f, 0.0f, 1.0f, 1.0f)
+    val EasingLegacyDecelerate: RemoteEasing = RemoteEasing.cubic(0.0f, 0.0f, 0.2f, 1.0f)
+    val EasingLegacyStandard: RemoteEasing = RemoteEasing.cubic(0.4f, 0.0f, 0.2f, 1.0f)
+    val EasingStandard: RemoteEasing = RemoteEasing.cubic(0.2f, 0.0f, 0.0f, 1.0f)
+    val EasingStandardAccelerate: RemoteEasing = RemoteEasing.cubic(0.3f, 0.0f, 1.0f, 1.0f)
+    val EasingStandardDecelerate: RemoteEasing = RemoteEasing.cubic(0.0f, 0.0f, 0.0f, 1.0f)
 
     /**
      * Evaluates [EasingStandard] at [progress] (in `0..1`). [cubicEasing] takes control points

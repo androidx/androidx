@@ -48,11 +48,11 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -133,7 +133,7 @@ public fun RemoteSplitCheckboxButton(
                     .heightIn(min = RemoteSplitCheckboxButtonDefaults.Height)
                     .clip(startSectionShape)
                     .clickable(
-                        action = onContainerClick,
+                        onClick = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onContainerClick != RemoteAction.Empty,
@@ -191,7 +191,7 @@ public fun RemoteSplitCheckboxButton(
                     .heightIn(min = RemoteSplitCheckboxButtonDefaults.Height)
                     .clip(endSectionShape)
                     .clickable(
-                        action = onCheckedChange,
+                        onClick = onCheckedChange,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
                                 onCheckedChange != RemoteAction.Empty,
@@ -540,7 +540,7 @@ public class RemoteSplitCheckboxButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedContainerColor, checkedContainerColor, it) }
+                progress?.let { lerp(uncheckedContainerColor, checkedContainerColor, it) }
                     ?: checked.select(checkedContainerColor, uncheckedContainerColor),
             ifFalse =
                 checked.select(disabledCheckedContainerColor, disabledUncheckedContainerColor),
@@ -554,7 +554,7 @@ public class RemoteSplitCheckboxButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedContentColor, checkedContentColor, it) }
+                progress?.let { lerp(uncheckedContentColor, checkedContentColor, it) }
                     ?: checked.select(checkedContentColor, uncheckedContentColor),
             ifFalse = checked.select(disabledCheckedContentColor, disabledUncheckedContentColor),
         )
@@ -568,7 +568,7 @@ public class RemoteSplitCheckboxButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(uncheckedSecondaryContentColor, checkedSecondaryContentColor, it)
+                    lerp(uncheckedSecondaryContentColor, checkedSecondaryContentColor, it)
                 } ?: checked.select(checkedSecondaryContentColor, uncheckedSecondaryContentColor),
             ifFalse =
                 checked.select(
@@ -586,7 +586,7 @@ public class RemoteSplitCheckboxButtonColors(
         enabled.select(
             ifTrue =
                 progress?.let {
-                    tween(uncheckedSplitContainerColor, checkedSplitContainerColor, it)
+                    lerp(uncheckedSplitContainerColor, checkedSplitContainerColor, it)
                 } ?: checked.select(checkedSplitContainerColor, uncheckedSplitContainerColor),
             ifFalse =
                 checked.select(
@@ -603,7 +603,7 @@ public class RemoteSplitCheckboxButtonColors(
     ): RemoteColor =
         enabled.select(
             ifTrue =
-                progress?.let { tween(uncheckedBoxColor, checkedBoxColor, it) }
+                progress?.let { lerp(uncheckedBoxColor, checkedBoxColor, it) }
                     ?: checked.select(checkedBoxColor, uncheckedBoxColor),
             ifFalse = checked.select(disabledCheckedBoxColor, disabledUncheckedBoxColor),
         )

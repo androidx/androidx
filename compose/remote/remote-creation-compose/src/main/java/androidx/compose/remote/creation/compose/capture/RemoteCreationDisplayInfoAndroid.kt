@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -38,7 +39,7 @@ public val RemoteCreationDisplayInfo.heightDp: Dp
     get() = with(density) { size.height.toDp() }
 
 /**
- * Creates a [RemoteCreationDisplayInfo] instance from display metrics.
+ * Creates and remembers a [RemoteCreationDisplayInfo] instance from display metrics.
  *
  * This function is used to capture the essential display properties required for remote rendering.
  * By default, it uses the system's current display metrics.
@@ -54,7 +55,7 @@ public val RemoteCreationDisplayInfo.heightDp: Dp
  * @return A [RemoteCreationDisplayInfo] object containing the specified display metrics.
  */
 @Composable
-public fun createCreationDisplayInfo(
+public fun rememberRemoteCreationDisplayInfo(
     @IntRange(from = 1) width: Int = LocalResources.current.displayMetrics.widthPixels,
     @IntRange(from = 1) height: Int = LocalResources.current.displayMetrics.heightPixels,
     @IntRange(from = 1) densityDpi: Int = LocalConfiguration.current.densityDpi,
@@ -63,14 +64,16 @@ public fun createCreationDisplayInfo(
     isInspectionMode: Boolean = LocalInspectionMode.current,
     densityBehavior: RemoteDensityBehavior = RemoteDensityBehavior.Legacy,
 ): RemoteCreationDisplayInfo {
-    return RemoteCreationDisplayInfo(
-        width = width,
-        height = height,
-        densityDpi = densityDpi,
-        densityBehavior = densityBehavior,
-        fontScale = fontScale,
-        isInspectionMode = isInspectionMode,
-    )
+    return remember(width, height, densityDpi, fontScale, isInspectionMode, densityBehavior) {
+        RemoteCreationDisplayInfo(
+            width = width,
+            height = height,
+            densityDpi = densityDpi,
+            densityBehavior = densityBehavior,
+            fontScale = fontScale,
+            isInspectionMode = isInspectionMode,
+        )
+    }
 }
 
 /**

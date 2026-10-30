@@ -100,6 +100,7 @@ import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
@@ -108,7 +109,6 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -1042,7 +1042,7 @@ class RcPlayerPrimitivesTest {
         val emptyAction = combinedAction()
 
         rule.setRemoteContent {
-            RemoteBox(modifier = RemoteModifier.size(100.rdp).clickable(action = emptyAction)) {
+            RemoteBox(modifier = RemoteModifier.size(100.rdp).clickable(onClick = emptyAction)) {
                 RemoteText("Click Content".rs)
             }
         }
@@ -1327,7 +1327,7 @@ class RcPlayerPrimitivesTest {
     fun testColorExpressions() {
         rule.setRemoteContent {
             val colorExpr =
-                tween(
+                lerp(
                     AndroidColor.RED,
                     AndroidColor.BLUE,
                     0.5f.rf,

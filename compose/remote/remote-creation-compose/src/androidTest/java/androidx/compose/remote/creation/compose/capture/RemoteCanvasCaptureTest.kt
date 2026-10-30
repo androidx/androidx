@@ -50,10 +50,10 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTileMode
 import androidx.compose.remote.creation.compose.state.RemoteTimeVariables
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.test.R
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -260,7 +260,7 @@ class RemoteCanvasCaptureTest {
 
     private fun createConditionalHues(flag: RemoteBoolean): Hues {
         val tweenFactor = RemoteTimeVariables.continuousSeconds / 30f % 1f
-        val colorRamp = tween(Color.Red.rc, Color.Blue.rc, tweenFactor)
+        val colorRamp = lerp(Color.Red.rc, Color.Blue.rc, tweenFactor)
         val hue = colorRamp.hue
         val hueString1 = hue.toRemoteString(DecimalFormat("0.00"))
         val hueString2 = RemoteString("hue") + hue.toRemoteString(DecimalFormat("0.00"))

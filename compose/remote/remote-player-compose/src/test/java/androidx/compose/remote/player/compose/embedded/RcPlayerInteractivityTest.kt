@@ -53,7 +53,7 @@ import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.combinedAction
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.action.lambdaAction
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -207,7 +207,8 @@ class RcPlayerInteractivityTest {
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color(0xFF3F51B5).rc)
                             .clickable(
-                                action = valueChange(visibilityState, Component.Visibility.GONE.ri)
+                                onClick =
+                                    valueChangeAction(visibilityState, Component.Visibility.GONE.ri)
                             )
                 )
 
@@ -261,7 +262,8 @@ class RcPlayerInteractivityTest {
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color(0xFF3F51B5).rc)
                             .clickable(
-                                action = valueChange(visibilityState, Component.Visibility.GONE.ri)
+                                onClick =
+                                    valueChangeAction(visibilityState, Component.Visibility.GONE.ri)
                             )
                 )
 
@@ -302,7 +304,7 @@ class RcPlayerInteractivityTest {
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color(0xFF3F51B5).rc)
                             .clickable(
-                                action = valueChange(visibilityState, visibilityState - 1.ri)
+                                onClick = valueChangeAction(visibilityState, visibilityState - 1.ri)
                             )
                 )
 
@@ -348,7 +350,7 @@ class RcPlayerInteractivityTest {
                     modifier =
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color(0xFF3F51B5).rc)
-                            .clickable(action = valueChange(n, 7.ri))
+                            .clickable(onClick = valueChangeAction(n, 7.ri))
                 )
                 RemoteText(label)
             }
@@ -384,7 +386,7 @@ class RcPlayerInteractivityTest {
                     modifier =
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color(0xFF3F51B5).rc)
-                            .clickable(action = valueChange(n, 3.ri))
+                            .clickable(onClick = valueChangeAction(n, 3.ri))
                 )
                 RemoteText(label)
             }
@@ -857,7 +859,7 @@ class RcPlayerInteractivityTest {
         ) {
             RemoteBox(
                 modifier =
-                    RemoteModifier.size(100.rdp).clickable(action = hostAction("nav".rs, 7.ri))
+                    RemoteModifier.size(100.rdp).clickable(onClick = hostAction("nav".rs, 7.ri))
             )
         }
         rule.waitForIdle()
@@ -1013,7 +1015,7 @@ class RcPlayerInteractivityTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
-                            .clickable(action = lambdaAction { /* empty */ })
+                            .clickable(onClick = lambdaAction { /* empty */ })
                 )
             }
 
@@ -1046,7 +1048,7 @@ class RcPlayerInteractivityTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.size(100.rdp)
-                            .clickable(action = lambdaAction { lambdaCalled = true })
+                            .clickable(onClick = lambdaAction { lambdaCalled = true })
                 )
             }
 
@@ -1096,7 +1098,7 @@ class RcPlayerInteractivityTest {
                                             contentDescription = "P${pageIndex}_Opt_Correct".rs
                                         }
                                         .clickable(
-                                            valueChange(
+                                            valueChangeAction(
                                                 choices[pageIndex],
                                                 answers[pageIndex].ri,
                                             )
@@ -1105,11 +1107,11 @@ class RcPlayerInteractivityTest {
                             val nextAction =
                                 if (pageIndex < 2) {
                                     combinedAction(
-                                        valueChange(currentPage, (pageIndex + 1).ri),
-                                        valueChange(choices[pageIndex + 1], (-1).ri),
+                                        valueChangeAction(currentPage, (pageIndex + 1).ri),
+                                        valueChangeAction(choices[pageIndex + 1], (-1).ri),
                                     )
                                 } else {
-                                    valueChange(currentPage, (pageIndex + 1).ri)
+                                    valueChangeAction(currentPage, (pageIndex + 1).ri)
                                 }
                             RemoteBox(
                                 modifier =
@@ -1123,8 +1125,8 @@ class RcPlayerInteractivityTest {
                     } else {
                         val retakeAction =
                             combinedAction(
-                                valueChange(currentPage, 0.ri),
-                                *choices.map { valueChange(it, (-1).ri) }.toTypedArray(),
+                                valueChangeAction(currentPage, 0.ri),
+                                *choices.map { valueChangeAction(it, (-1).ri) }.toTypedArray(),
                             )
                         RemoteBox(modifier = RemoteModifier.size(200.rdp)) {
                             RemoteBox(
@@ -1977,17 +1979,17 @@ class RcPlayerInteractivityTest {
                             .combinedClickable(
                                 onClick =
                                     combinedAction(
-                                        valueChange(state, 10.ri),
+                                        valueChangeAction(state, 10.ri),
                                         hostAction("single".rs, 10.ri),
                                     ),
                                 onDoubleClick =
                                     combinedAction(
-                                        valueChange(state, 20.ri),
+                                        valueChangeAction(state, 20.ri),
                                         hostAction("double".rs, 20.ri),
                                     ),
                                 onLongClick =
                                     combinedAction(
-                                        valueChange(state, 30.ri),
+                                        valueChangeAction(state, 30.ri),
                                         hostAction("long".rs, 30.ri),
                                     ),
                             )
@@ -3236,7 +3238,7 @@ class RcPlayerInteractivityTest {
                         .height(150.rdp)
                         // Touch down resizes the box, which recomposes its modifiers mid-gesture.
                         .onTouchDown(hostAction("down".rs, 1.ri))
-                        .onTouchDown(valueChange(boxWidth, 160f.rf))
+                        .onTouchDown(valueChangeAction(boxWidth, 160f.rf))
                         .onTouchUp(hostAction("up".rs, 1.ri))
                         .onTouchCancel(hostAction("cancel".rs, 1.ri))
             )

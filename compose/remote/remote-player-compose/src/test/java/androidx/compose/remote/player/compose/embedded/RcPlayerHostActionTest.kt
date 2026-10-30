@@ -30,7 +30,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.action.pendingIntentAction
+import androidx.compose.remote.creation.compose.action.rememberPendingIntentAction
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -173,7 +173,7 @@ class RcPlayerHostActionTest {
     @Test
     fun pendingIntentAction_namedAction_sendsPendingIntentWithoutNotifyingHost() {
         val pendingIntent = testPendingIntent()
-        val fired = clickAndCapture { pendingIntentAction { pendingIntent } }
+        val fired = clickAndCapture { rememberPendingIntentAction { pendingIntent } }
         assertThat(fired).isNull()
         assertThat(sentTestBroadcasts()).isEqualTo(1)
     }
@@ -184,7 +184,7 @@ class RcPlayerHostActionTest {
         val pendingIntent = testPendingIntent()
         val fired =
             clickAndCapture(profile = LauncherWidgetTestProfiles.WIDGETS_V6) {
-                pendingIntentAction { pendingIntent }
+                rememberPendingIntentAction { pendingIntent }
             }
         assertThat(fired).isNull()
         assertThat(sentTestBroadcasts()).isEqualTo(1)
@@ -221,7 +221,7 @@ class RcPlayerHostActionTest {
             )
         val fired = clickAndCapture {
             val index = remember { MutableRemoteInt(2) }
-            pendingIntentAction("index" to index.toRemoteString()) { pendingIntent }
+            rememberPendingIntentAction("index" to index.toRemoteString()) { pendingIntent }
         }
         assertThat(fired).isNull()
 

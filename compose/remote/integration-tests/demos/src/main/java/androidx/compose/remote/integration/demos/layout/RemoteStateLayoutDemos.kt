@@ -35,7 +35,7 @@ import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -163,7 +163,7 @@ private fun RemoteStateLayoutCardExpansion() {
             RemoteModifier.padding(12.rdp)
                 .clip(RemoteRoundedCornerShape(16.rdp))
                 .background(Color(0xFF1E1E2C).rc)
-                .clickable(action = valueChange(isExpanded, !isExpanded))
+                .clickable(onClick = valueChangeAction(isExpanded, !isExpanded))
                 .padding(16.rdp),
         contentAlignment = RemoteAlignment.Center,
     ) {
@@ -324,7 +324,7 @@ private fun RemoteStateLayoutMediaPlayer() {
         modifier =
             RemoteModifier.clip(RemoteRoundedCornerShape(20.rdp))
                 .background(Color(0xFF141419).rc)
-                .clickable(action = valueChange(isFullScreen, !isFullScreen))
+                .clickable(onClick = valueChangeAction(isFullScreen, !isFullScreen))
                 .padding(16.rdp),
         contentAlignment = RemoteAlignment.Center,
     ) {
@@ -502,7 +502,7 @@ private fun RemoteStateLayoutMorphGrid() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(12.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(morphState, 0.ri))
+                        .clickable(onClick = valueChangeAction(morphState, 0.ri))
                         .padding(horizontal = 12.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -513,7 +513,7 @@ private fun RemoteStateLayoutMorphGrid() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(12.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(morphState, 1.ri))
+                        .clickable(onClick = valueChangeAction(morphState, 1.ri))
                         .padding(horizontal = 12.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -524,7 +524,7 @@ private fun RemoteStateLayoutMorphGrid() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(12.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(morphState, 2.ri))
+                        .clickable(onClick = valueChangeAction(morphState, 2.ri))
                         .padding(horizontal = 12.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -539,7 +539,7 @@ private fun RemoteStateLayoutMorphGrid() {
                     .height(200.rdp)
                     .clip(RemoteRoundedCornerShape(16.rdp))
                     .background(Color(0xFF1E1E2C).rc)
-                    .clickable(action = valueChange(morphState, (morphState + 1) % 3))
+                    .clickable(onClick = valueChangeAction(morphState, (morphState + 1) % 3))
                     .padding(16.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
@@ -714,7 +714,7 @@ private fun RemoteStateLayoutModifierTransitions() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(styleState, 0.ri))
+                        .clickable(onClick = valueChangeAction(styleState, 0.ri))
                         .padding(horizontal = 10.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -724,7 +724,7 @@ private fun RemoteStateLayoutModifierTransitions() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(styleState, 1.ri))
+                        .clickable(onClick = valueChangeAction(styleState, 1.ri))
                         .padding(horizontal = 10.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -734,7 +734,7 @@ private fun RemoteStateLayoutModifierTransitions() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                         .background(Color(0xFF381E72).rc)
-                        .clickable(action = valueChange(styleState, 2.ri))
+                        .clickable(onClick = valueChangeAction(styleState, 2.ri))
                         .padding(horizontal = 10.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -749,7 +749,7 @@ private fun RemoteStateLayoutModifierTransitions() {
                     .height(180.rdp)
                     .clip(RemoteRoundedCornerShape(16.rdp))
                     .background(Color(0xFF1E1E2C).rc)
-                    .clickable(action = valueChange(styleState, (styleState + 1) % 3))
+                    .clickable(onClick = valueChangeAction(styleState, (styleState + 1) % 3))
                     .padding(16.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
@@ -1019,7 +1019,7 @@ private fun RemoteStateLayoutTabContent() {
                     modifier =
                         RemoteModifier.width(88.rdp)
                             .height(32.rdp)
-                            .clickable(action = valueChange(activeTab, 0.ri)),
+                            .clickable(onClick = valueChangeAction(activeTab, 0.ri)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("Overview".rs, color = Color.White.rc, fontSize = 12.rsp)
@@ -1028,7 +1028,7 @@ private fun RemoteStateLayoutTabContent() {
                     modifier =
                         RemoteModifier.width(88.rdp)
                             .height(32.rdp)
-                            .clickable(action = valueChange(activeTab, 1.ri)),
+                            .clickable(onClick = valueChangeAction(activeTab, 1.ri)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("Metrics".rs, color = Color.White.rc, fontSize = 12.rsp)
@@ -1037,7 +1037,7 @@ private fun RemoteStateLayoutTabContent() {
                     modifier =
                         RemoteModifier.width(88.rdp)
                             .height(32.rdp)
-                            .clickable(action = valueChange(activeTab, 2.ri)),
+                            .clickable(onClick = valueChangeAction(activeTab, 2.ri)),
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("Settings".rs, color = Color.White.rc, fontSize = 12.rsp)
@@ -1294,7 +1294,7 @@ private fun RemoteStateLayoutStepperInterruption() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                         .background(Color(0xFF2C3048).rc)
-                        .clickable(action = valueChange(step, (step + 3) % 4))
+                        .clickable(onClick = valueChangeAction(step, (step + 3) % 4))
                         .padding(horizontal = 14.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -1311,7 +1311,7 @@ private fun RemoteStateLayoutStepperInterruption() {
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                         .background(Color(0xFF00CEC9).rc)
-                        .clickable(action = valueChange(step, (step + 1) % 4))
+                        .clickable(onClick = valueChangeAction(step, (step + 1) % 4))
                         .padding(horizontal = 14.rdp, vertical = 6.rdp),
                 contentAlignment = RemoteAlignment.Center,
             ) {
@@ -1349,7 +1349,7 @@ private fun RemoteStateLayoutNestedDashboard() {
             modifier =
                 RemoteModifier.clip(RemoteRoundedCornerShape(8.rdp))
                     .background(Color(0xFF4A4E69).rc)
-                    .clickable(action = valueChange(outerExpanded, !outerExpanded))
+                    .clickable(onClick = valueChangeAction(outerExpanded, !outerExpanded))
                     .padding(horizontal = 12.rdp, vertical = 6.rdp),
             contentAlignment = RemoteAlignment.Center,
         ) {
@@ -1439,7 +1439,9 @@ private fun RemoteStateLayoutNestedDashboard() {
 private fun NestedStatusWidget(innerStatus: MutableRemoteInt) {
     RemoteBox(
         modifier =
-            RemoteModifier.clickable(action = valueChange(innerStatus, (innerStatus + 1) % 3))
+            RemoteModifier.clickable(
+                onClick = valueChangeAction(innerStatus, (innerStatus + 1) % 3)
+            )
     ) {
         RemoteStateLayout(currentState = innerStatus, 0, 1, 2) { st ->
             val color =

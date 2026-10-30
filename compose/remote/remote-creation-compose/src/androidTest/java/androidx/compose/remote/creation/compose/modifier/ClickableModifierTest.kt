@@ -88,7 +88,7 @@ class ClickableModifierTest {
         block: (element: UiObject2) -> Unit,
     ) {
         remoteComposeTestRule.setContent {
-            val clickModifier = RemoteModifier.clickable(enabled = enabled, action = action)
+            val clickModifier = RemoteModifier.clickable(enabled = enabled, onClick = action)
 
             RemoteColumn(
                 modifier =

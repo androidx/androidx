@@ -18,7 +18,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -262,7 +262,7 @@ private fun RcStateLayoutSharedElementPreview(
                 modifier =
                     RemoteModifier.clip(RemoteRoundedCornerShape(12.rdp))
                         .background(Color(0xFF1E1E2C).rc)
-                        .clickable(action = valueChange(isExpanded, !isExpanded))
+                        .clickable(onClick = valueChangeAction(isExpanded, !isExpanded))
                         .padding(12.rdp)
             ) {
                 RemoteStateLayout(currentState = isExpanded) { expanded ->

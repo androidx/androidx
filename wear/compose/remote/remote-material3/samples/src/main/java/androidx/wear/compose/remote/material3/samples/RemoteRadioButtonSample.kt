@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -41,7 +41,7 @@ public fun RemoteRadioButtonSample(modifier: RemoteModifier = RemoteModifier) {
 
     RemoteRadioButton(
         selected = selected,
-        onSelect = valueChange(selected, true.rb),
+        onSelect = valueChangeAction(selected, true.rb),
         modifier = modifier,
         label = { RemoteText("Radio Button".rs) },
     )

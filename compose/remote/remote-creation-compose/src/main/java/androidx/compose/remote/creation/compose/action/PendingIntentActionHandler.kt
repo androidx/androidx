@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 
 /**
- * Handles the host actions written by [pendingIntentAction], by sending the matching
+ * Handles the host actions written by [rememberPendingIntentAction], by sending the matching
  * [PendingIntent] with its extras filled in.
  *
  * A host action either sends a [PendingIntent] or should be delivered to the host's own callback,
@@ -51,7 +51,7 @@ public class PendingIntentActionHandler(
 ) {
     /**
      * Sends the [PendingIntent] for the id action [id], with the extras from [metadata] filled in,
-     * if [id] belongs to a [pendingIntentAction].
+     * if [id] belongs to a [rememberPendingIntentAction].
      *
      * @param id The id of the action.
      * @param metadata The metadata delivered with the action.
@@ -65,8 +65,9 @@ public class PendingIntentActionHandler(
     }
 
     /**
-     * Sends the [PendingIntent] for a named action, if it belongs to a [pendingIntentAction]. This
-     * is the encoding used for Wear widgets, which carries no extras.
+     * Sends the [PendingIntent] for a named action, if it belongs to a
+     * [rememberPendingIntentAction]. This is the encoding used for Wear widgets, which carries no
+     * extras.
      *
      * @param name The name of the action.
      * @param value The value of the action.
@@ -95,8 +96,8 @@ public class PendingIntentActionHandler(
         private const val TAG = "PendingIntentAction"
 
         /**
-         * Creates the fill-in [Intent] for the metadata of a [pendingIntentAction] id action, with
-         * each extra as a [String] extra.
+         * Creates the fill-in [Intent] for the metadata of a [rememberPendingIntentAction] id
+         * action, with each extra as a [String] extra.
          *
          * @param metadata The metadata delivered with the action.
          */

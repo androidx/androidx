@@ -63,30 +63,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
  * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
  *   provided to the lambda to ensure it's available during serialization.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-public fun pendingIntentAction(
+public fun rememberPendingIntentAction(
     vararg extras: Pair<String, RemoteString>,
-    pendingIntent: (Context) -> PendingIntent,
-): RemoteAction = rememberPendingIntentAction(extras.toList(), pendingIntent)
-
-/**
- * Creates an [RemoteAction] that triggers a [PendingIntent].
- *
- * The [PendingIntent] is not serialized into the document. It is stored in
- * [androidx.compose.remote.creation.compose.capture.CapturedDocument.pendingIntents], keyed by its
- * index, and the host sends it when the action runs.
- *
- * @param pendingIntent A lambda that returns the [PendingIntent] to trigger. The [Context] is
- *   provided to the lambda to ensure it's available during serialization.
- */
-@Composable
-public fun pendingIntentAction(pendingIntent: (Context) -> PendingIntent): RemoteAction =
-    rememberPendingIntentAction(emptyList(), pendingIntent)
-
-@Composable
-private fun rememberPendingIntentAction(
-    extras: List<Pair<String, RemoteString>>,
     pendingIntent: (Context) -> PendingIntent,
 ): RemoteAction {
     if (LocalInspectionMode.current) {
@@ -97,8 +76,9 @@ private fun rememberPendingIntentAction(
     // Using a lambda defers PendingIntent access until serialization, preventing potential
     // crashes in environments like IDE previews where PendingIntent might not be available.
     val context = LocalContext.current
-    return remember(context, pendingIntent, extras) {
-        PendingIntentAction({ pendingIntent(context) }, extras)
+    val extrasList = extras.toList()
+    return remember(context, pendingIntent, extrasList) {
+        PendingIntentAction({ pendingIntent(context) }, extrasList)
     }
 }
 

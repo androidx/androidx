@@ -16,7 +16,7 @@
 
 package androidx.compose.remote.testing
 
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -55,7 +55,7 @@ class RemoteContentTestRuleScreenshotTest {
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
-                        .clickable(valueChange(text, "Updated".rs))
+                        .clickable(valueChangeAction(text, "Updated".rs))
                         .background(Color.White.rc),
                 contentAlignment = RemoteAlignment.Center,
             ) {

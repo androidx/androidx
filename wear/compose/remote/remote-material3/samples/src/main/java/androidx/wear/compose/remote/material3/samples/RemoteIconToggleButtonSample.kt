@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
@@ -42,7 +42,7 @@ fun RemoteIconToggleButtonSample(modifier: RemoteModifier = RemoteModifier) {
 
     RemoteIconToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
     ) {
         RemoteIcon(
@@ -63,7 +63,7 @@ fun RemoteIconToggleButtonVariantSample(modifier: RemoteModifier = RemoteModifie
 
     RemoteIconToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
         shapes = RemoteIconToggleButtonDefaults.variantShapes(),
     ) {
@@ -85,7 +85,7 @@ fun RemoteIconToggleButtonVariantAnimatedSample(modifier: RemoteModifier = Remot
 
     RemoteIconToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
         shapes = RemoteIconToggleButtonDefaults.variantAnimatedShapes(),
     ) {

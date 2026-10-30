@@ -352,7 +352,7 @@ internal constructor(
             return RemoteColor(ifTrue)
         }
 
-        return tween(ifFalse, ifTrue, intValue.toRemoteFloat())
+        return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
     }
 
     /**
@@ -376,7 +376,7 @@ internal constructor(
             return ifTrue
         }
 
-        return tween(ifFalse, ifTrue, intValue.toRemoteFloat())
+        return lerp(ifFalse, ifTrue, intValue.toRemoteFloat())
     }
 
     /**

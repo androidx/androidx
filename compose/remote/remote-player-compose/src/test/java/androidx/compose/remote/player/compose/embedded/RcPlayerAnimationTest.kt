@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
@@ -195,7 +195,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.size(100.rdp, 40.rdp)
                             .background(Color.Blue.rc)
-                            .clickable(action = valueChange(targetWidth, 150f.rf))
+                            .clickable(onClick = valueChangeAction(targetWidth, 150f.rf))
                 )
                 RemoteBox(
                     modifier =
@@ -356,7 +356,7 @@ class RcPlayerAnimationTest {
                     animationSpec =
                         remoteTween(
                             durationMillis = 500,
-                            easing = RemoteEasing.Cubic(0.25f, 0.1f, 0.25f, 1.0f),
+                            easing = RemoteEasing.cubic(0.25f, 0.1f, 0.25f, 1.0f),
                         ),
                     initialValue = 0f,
                 )
@@ -414,7 +414,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "toggleButton".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(checked, !checked))
+                            .clickable(onClick = valueChangeAction(checked, !checked))
                 )
                 RemoteStateLayout(currentState = checked) { state ->
                     if (!state) {
@@ -494,7 +494,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "nextStateButton".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(stateIndex, RemoteInt(1)))
+                            .clickable(onClick = valueChangeAction(stateIndex, RemoteInt(1)))
                 )
                 RemoteStateLayout(currentState = stateIndex, 0, 1) { state ->
                     if (state == 0) {
@@ -579,7 +579,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "toggleBtn".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(state, !state))
+                            .clickable(onClick = valueChangeAction(state, !state))
                 )
                 RemoteStateLayout(currentState = state) { isState1 ->
                     if (!isState1) {
@@ -697,7 +697,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "snapToggle".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(state, !state))
+                            .clickable(onClick = valueChangeAction(state, !state))
                 )
                 RemoteStateLayout(currentState = state) { isState1 ->
                     if (!isState1) {
@@ -848,7 +848,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "disabledToggle".rs }
                             .size(20.rdp)
-                            .clickable(action = valueChange(checked, !checked))
+                            .clickable(onClick = valueChangeAction(checked, !checked))
                 )
                 RemoteStateLayout(currentState = checked) { state ->
                     if (!state) {
@@ -972,7 +972,7 @@ class RcPlayerAnimationTest {
                     modifier =
                         RemoteModifier.semantics { contentDescription = "springToggle".rs }
                             .size(40.rdp)
-                            .clickable(action = valueChange(checked, !checked))
+                            .clickable(onClick = valueChangeAction(checked, !checked))
                 )
                 RemoteBox(
                     modifier =
@@ -1018,7 +1018,7 @@ class RcPlayerAnimationTest {
                         modifier =
                             RemoteModifier.semantics { contentDescription = "enterExitToggle".rs }
                                 .size(20.rdp)
-                                .clickable(action = valueChange(checked, !checked))
+                                .clickable(onClick = valueChangeAction(checked, !checked))
                     )
                     RemoteStateLayout(currentState = checked) { state ->
                         if (!state) {

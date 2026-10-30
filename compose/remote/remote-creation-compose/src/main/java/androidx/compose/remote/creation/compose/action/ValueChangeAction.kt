@@ -84,7 +84,7 @@ internal class ValueFloatChangeAction(
  * @param updatedValue The new remote state value to apply.
  * @return An [RemoteAction] representing the value change.
  */
-public fun <T> valueChange(
+public fun <T> valueChangeAction(
     remoteState: MutableRemoteState<T>,
     updatedValue: RemoteState<T>,
 ): RemoteAction = ValueChangeAction(remoteState, updatedValue)

@@ -476,7 +476,7 @@ private fun RemoteButtonImpl(
     val containerModifier =
         RemoteModifier.clip(shape = shape)
             .clickable(
-                action = onClick,
+                onClick = onClick,
                 enabled = enabled.constantValueOrNull ?: false && onClick != RemoteAction.Empty,
             )
             .padding(contentPadding)

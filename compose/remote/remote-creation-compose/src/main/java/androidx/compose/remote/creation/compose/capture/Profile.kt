@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.capture
 
+import androidx.annotation.RestrictTo
 import androidx.collection.IntSet
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
@@ -43,7 +44,7 @@ import androidx.compose.remote.creation.profile.RemoteComposeWriterFactory
  *   defined by [docApiLevel] and [profileFlags] are used.
  * @return A [Profile] configured for Android RemoteCompose creation.
  */
-public fun createProfile(
+public fun Profile(
     docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
     profileFlags: Int = RcProfiles.PROFILE_ANDROIDX,
     supportedOperations: IntSet? = null,
@@ -67,3 +68,18 @@ public fun createProfile(
         Profile(docApiLevel, profileFlags, platform, factory)
     }
 }
+
+/**
+ * Bridge for modules pinned to a prebuilt that still references `createProfile`.
+ *
+ * @param docApiLevel The document API level supported by this profile.
+ * @param profileFlags The operation profile bitmask specifying the profile category.
+ * @param supportedOperations An optional explicit set of supported operation IDs.
+ * @return A [Profile] configured for Android RemoteCompose creation.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun createProfile(
+    docApiLevel: Int = CoreDocument.DOCUMENT_API_LEVEL,
+    profileFlags: Int = RcProfiles.PROFILE_ANDROIDX,
+    supportedOperations: IntSet? = null,
+): Profile = Profile(docApiLevel, profileFlags, supportedOperations)

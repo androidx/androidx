@@ -55,12 +55,11 @@ class ProfileTest {
             }
         }
     }
-    private val minimalProfile =
-        createProfile(supportedOperations = minimalProfileSupportedOperations)
+    private val minimalProfile = Profile(supportedOperations = minimalProfileSupportedOperations)
 
     @Test
-    fun createProfile_defaultValues() {
-        val profile = createProfile()
+    fun profile_defaultValues() {
+        val profile = Profile()
 
         assertThat(profile.apiLevel).isEqualTo(CoreDocument.DOCUMENT_API_LEVEL)
         assertThat(profile.operationsProfiles).isEqualTo(RcProfiles.PROFILE_ANDROIDX)
@@ -71,10 +70,10 @@ class ProfileTest {
     }
 
     @Test
-    fun createProfile_customParameters() {
+    fun profile_customParameters() {
         val customOps = intSetOf(Operations.HEADER, Operations.DRAW_RECT, Operations.DRAW_LINE)
         val profile =
-            createProfile(
+            Profile(
                 docApiLevel = 7,
                 profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS,
                 supportedOperations = customOps,
@@ -125,7 +124,7 @@ class ProfileTest {
     @Test
     fun currentProfileSupportsTouchModifiers_requiresAllTouchOperations() = runTest {
         val partialTouchProfile =
-            createProfile(
+            Profile(
                 supportedOperations =
                     buildIntSet {
                         addAll(minimalProfileSupportedOperations)

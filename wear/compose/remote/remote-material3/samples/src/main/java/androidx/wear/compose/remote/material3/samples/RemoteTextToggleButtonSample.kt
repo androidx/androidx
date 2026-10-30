@@ -17,7 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.remote.creation.compose.action.valueChange
+import androidx.compose.remote.creation.compose.action.valueChangeAction
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteBoolean
@@ -41,7 +41,7 @@ fun RemoteTextToggleButtonSample(modifier: RemoteModifier = RemoteModifier) {
 
     RemoteTextToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
     ) {
         RemoteText("ABC".rs)
@@ -58,7 +58,7 @@ fun RemoteTextToggleButtonVariantSample(modifier: RemoteModifier = RemoteModifie
 
     RemoteTextToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
         shapes = RemoteTextToggleButtonDefaults.variantShapes(),
     ) {
@@ -76,7 +76,7 @@ fun RemoteTextToggleButtonVariantAnimatedSample(modifier: RemoteModifier = Remot
 
     RemoteTextToggleButton(
         checked = checked,
-        onCheckedChange = valueChange(checked, !checked),
+        onCheckedChange = valueChangeAction(checked, !checked),
         modifier = modifier,
         shapes = RemoteTextToggleButtonDefaults.variantAnimatedShapes(),
     ) {
