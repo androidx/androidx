@@ -63,6 +63,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -137,6 +138,8 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -298,6 +301,14 @@ public fun SwipeToReveal(
     val hapticFeedback = LocalHapticFeedback.current
 
     val coroutineScope = rememberCoroutineScope()
+    DisposableEffect(revealState, coroutineScope) {
+        revealState.coroutineScope = coroutineScope
+        onDispose {
+            if (revealState.coroutineScope === coroutineScope) {
+                revealState.coroutineScope = null
+            }
+        }
+    }
     val swipeToRevealScope =
         remember(
             revealState,
@@ -633,19 +644,23 @@ public fun SwipeToReveal(
             ) {
                 content()
             }
-            LaunchedEffect(revealState.currentValue, revealState.lastActionType) {
-                if (revealState.currentValue != Covered) {
-                    revealState.resetLastState(revealState)
-                }
-                if (
-                    (revealState.currentValue == LeftRevealed ||
-                        revealState.currentValue == RightRevealed) &&
-                        revealState.lastActionType == RevealActionType.None
-                ) {
-                    // Full swipe triggers the main action, but does not set the click type.
-                    // Explicitly set the click type as main action when full swipe occurs.
-                    revealState.lastActionType = RevealActionType.PrimaryAction
-                    onSwipePrimaryAction()
+            LaunchedEffect(revealState, revealState.currentValue, revealState.isAnimationRunning) {
+                if (!revealState.isAnimationRunning) {
+                    if (revealState.currentValue == Covered) {
+                        revealState.lastActionType = RevealActionType.None
+                    } else {
+                        if (
+                            (revealState.currentValue == LeftRevealed ||
+                                revealState.currentValue == RightRevealed) &&
+                                revealState.lastActionType == RevealActionType.None
+                        ) {
+                            // Full swipe triggers the main action, but does not set the click type.
+                            // Explicitly set the click type as main action when full swipe occurs.
+                            revealState.lastActionType = RevealActionType.PrimaryAction
+                            onSwipePrimaryAction()
+                        }
+                        revealState.resetLastState(revealState)
+                    }
                 }
             }
             LaunchedEffect(revealState.targetValue) {
@@ -1553,6 +1568,9 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
             resetLastState(this)
         }
         anchoredDraggableState.snapTo(targetValue)
+        if (targetValue == Covered) {
+            lastActionType = RevealActionType.None
+        }
     }
 
     /**
@@ -1577,7 +1595,7 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
         try {
             anchoredDraggableState.animateTo(targetValue)
         } finally {
-            if (targetValue == Covered) {
+            if (targetValue == Covered && currentValue == Covered) {
                 lastActionType = RevealActionType.None
             }
         }
@@ -1657,6 +1675,8 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
 
     internal var lastActionType: RevealActionType by mutableStateOf(RevealActionType.None)
 
+    internal var coroutineScope: CoroutineScope? = null
+
     /**
      * The threshold, in pixels, beyond which a full swipe is triggered. This is calculated as a
      * fraction of the screen width, adjusted for the component's width if it is smaller than the
@@ -1688,7 +1708,12 @@ public class RevealState @RememberInComposition constructor(initialValue: Reveal
         if (currentState != oldState) {
             oldState?.let {
                 if (it.currentValue == RightRevealing || it.currentValue == LeftRevealing) {
-                    it.animateTo(Covered)
+                    val scope = it.coroutineScope
+                    if (scope != null && scope.isActive) {
+                        scope.launch(start = CoroutineStart.UNDISPATCHED) { it.animateTo(Covered) }
+                    } else {
+                        it.animateTo(Covered)
+                    }
                 }
             }
         }
