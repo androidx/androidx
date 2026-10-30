@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.state.StateUpdater
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -78,9 +79,9 @@ class RemoteInteractionTestRule(private val remoteCreationDisplayInfo: RemoteCre
     private class PlayerImpl(private val clickEvents: MutableList<Pair<String, Any?>>) :
         RemoteBaseContentTestRule.Player {
         @Composable
-        override fun Play(coreDocument: CoreDocument, size: Size) {
+        override fun Play(document: RecordedDocument, size: Size) {
             RemoteDocumentPlayer(
-                document = coreDocument,
+                document = document.coreDocument,
                 documentWidth = size.width.toInt(),
                 documentHeight = size.height.toInt(),
                 onNamedAction = { name: String, value: Any?, _: StateUpdater ->

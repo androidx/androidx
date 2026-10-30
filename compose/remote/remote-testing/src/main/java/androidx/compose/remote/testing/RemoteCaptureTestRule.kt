@@ -53,28 +53,50 @@ public class RemoteCaptureTestRule : TestRule {
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
-    ): CoreDocument {
-        val document: ByteArray =
-            captureSingleRemoteDocument(
-                    context = context,
-                    creationDisplayInfo = creationDisplayInfo,
-                    profile = profile,
-                    content = content,
-                )
-                .bytes
+    ): CoreDocument =
+        decodeDocument(
+            bytes = captureDocumentBytes(context, creationDisplayInfo, profile, content),
+            profile = profile,
+            clock = clock,
+        )
 
-        val remoteComposeDocument =
-            CoreDocument(clock).apply {
-                ByteArrayInputStream(document).use {
-                    val buffer = RemoteComposeBuffer.fromInputStream(it)
-                    buffer.setVersion(
-                        profile.apiLevel,
-                        profile.operationsProfiles,
-                        profile.supportedOperations,
-                    )
-                    initFromBuffer(buffer)
-                }
-            }
-        return remoteComposeDocument
-    }
+    /**
+     * Capture a RemoteCompose document by rendering the specified [content] Composable and
+     * returning its serialized bytes.
+     *
+     * Use this instead of [captureDocument] when the document bytes are needed, for example to play
+     * the document or to measure its size: [CoreDocument] does not retain its serialized bytes, and
+     * re-serializing its inflated operations does not round-trip.
+     *
+     * @param context the Android [Context] to use for the capture.
+     * @param content the Composable content to render and capture.
+     * @return the serialized RemoteCompose document.
+     */
+    public suspend fun captureDocumentBytes(
+        context: Context,
+        creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
+        profile: Profile = RcPlatformProfiles.ANDROIDX,
+        content: @Composable @RemoteComposable () -> Unit,
+    ): ByteArray =
+        captureSingleRemoteDocument(
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+                profile = profile,
+                content = content,
+            )
+            .bytes
 }
+
+/** Decodes the serialized document [bytes] into a [CoreDocument] for the given [profile]. */
+internal fun decodeDocument(bytes: ByteArray, profile: Profile, clock: RemoteClock): CoreDocument =
+    CoreDocument(clock).apply {
+        ByteArrayInputStream(bytes).use {
+            val buffer = RemoteComposeBuffer.fromInputStream(it)
+            buffer.setVersion(
+                profile.apiLevel,
+                profile.operationsProfiles,
+                profile.supportedOperations,
+            )
+            initFromBuffer(buffer)
+        }
+    }

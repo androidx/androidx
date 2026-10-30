@@ -24,23 +24,19 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Creation
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
+import androidx.compose.remote.testing.rememberRecordedDocument
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -106,33 +102,24 @@ internal class RemoteBaseScreenshotTestRule(
                 @Composable
                 override fun rememberRemoteDocument(
                     composable: @RemoteComposable @Composable () -> Unit
-                ): MutableState<CoreDocument?> {
-                    val layoutDirection = LocalLayoutDirection.current
-                    val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
-                    val context = LocalContext.current
-                    LaunchedEffect(Unit) {
-                        val document =
-                            captureSingleRemoteDocument(
-                                creationDisplayInfo = displayInfo,
-                                layoutDirection = layoutDirection,
-                                context = context,
-                                content = composable,
-                                profile = profile,
+                ): MutableState<RecordedDocument?> =
+                    rememberRecordedDocument(
+                        creationDisplayInfo = displayInfo,
+                        profile = profile,
+                        onCreate = { document ->
+                            val buffer =
+                                RemoteComposeBuffer.fromInputStream(
+                                    ByteArrayInputStream(document.bytes)
+                                )
+                            buffer.setVersion(
+                                profile.apiLevel,
+                                profile.operationsProfiles,
+                                profile.supportedOperations,
                             )
-                        val buffer =
-                            RemoteComposeBuffer.fromInputStream(
-                                ByteArrayInputStream(document.bytes)
-                            )
-                        buffer.setVersion(
-                            profile.apiLevel,
-                            profile.operationsProfiles,
-                            profile.supportedOperations,
-                        )
-                        currentBuffer = buffer
-                        doc.value = CoreDocument().apply { initFromBuffer(buffer) }
-                    }
-                    return doc
-                }
+                            currentBuffer = buffer
+                        },
+                        content = composable,
+                    )
             }
         remoteBaseContentTestRule.setContent(
             creation = creation,

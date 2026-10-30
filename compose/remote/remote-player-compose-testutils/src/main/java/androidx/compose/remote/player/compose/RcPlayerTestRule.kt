@@ -23,7 +23,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
-import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
@@ -31,7 +30,9 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.embedded.CustomPluginRegistry
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.core.state.StateUpdater
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
+import androidx.compose.remote.testing.rememberRecordedDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -113,8 +114,8 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
                     @Composable
                     override fun rememberRemoteDocument(
                         composable: @RemoteComposable @Composable () -> Unit
-                    ): MutableState<CoreDocument?> {
-                        return rememberRemoteDocument(
+                    ): MutableState<RecordedDocument?> {
+                        return rememberRecordedDocument(
                             creationDisplayInfo = remoteCreationDisplayInfo,
                             profile = profile,
                             content = composable,
@@ -124,9 +125,9 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
             player =
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
-                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                    override fun Play(document: RecordedDocument, size: Size) {
                         RcPlayer(
-                            document = coreDocument,
+                            document = document.coreDocument,
                             customPlugins = customPlugins,
                             onNamedAction = onNamedAction,
                         )

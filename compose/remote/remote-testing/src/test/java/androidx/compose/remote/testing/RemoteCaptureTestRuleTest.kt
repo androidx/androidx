@@ -17,14 +17,17 @@
 package androidx.compose.remote.testing
 
 import android.content.Context
+import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
@@ -49,5 +52,20 @@ class RemoteCaptureTestRuleTest {
             }
 
         assertNotNull(document)
+    }
+
+    @Test
+    fun captureDocumentBytes_returnsBytesThatDecodeToTheDocument(): Unit = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val bytes =
+            captureRule.captureDocumentBytes(context) {
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc)) {}
+            }
+
+        assertThat(bytes).isNotEmpty()
+        val document =
+            decodeDocument(bytes, profile = RcPlatformProfiles.ANDROIDX, clock = RemoteClock.SYSTEM)
+        assertThat(document.operations).isNotEmpty()
     }
 }

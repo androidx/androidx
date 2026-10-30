@@ -28,6 +28,7 @@ import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.view.RemoteComposePlayer
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -164,9 +165,9 @@ class RemoteScreenshotTestRule(
         private val customSupport: AndroidCustomContext? = null,
     ) : Player {
         @Composable
-        override fun Play(coreDocument: CoreDocument, size: Size) {
+        override fun Play(document: RecordedDocument, size: Size) {
             RemoteDocumentPlayer(
-                document = coreDocument,
+                document = document.coreDocument,
                 documentWidth = size.width.toInt(),
                 documentHeight = size.height.toInt(),
                 update = update,
