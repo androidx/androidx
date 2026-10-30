@@ -468,6 +468,9 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         }
     }
 
+    override val shouldMergeDescendantSemantics: Boolean
+        get() = true
+
     override fun SemanticsPropertyReceiver.applySemantics() {
         holder?.let { this[WebSurfaceHolderKey] = it }
     }

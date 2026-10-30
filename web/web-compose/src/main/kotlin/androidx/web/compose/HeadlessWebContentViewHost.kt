@@ -35,10 +35,12 @@ import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.relocation.bringIntoView
+import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.web.WebContentView
 import kotlinx.coroutines.CoroutineStart
@@ -228,6 +230,19 @@ private class WebSurfaceAccessibilityNodeProvider(
                 !semanticsNode.config.contains(SemanticsProperties.HideFromAccessibility)
         ) {
             info.addChild(holder)
+            // Merging descendants keeps WebSurface's virtual node intact inside merging ancestors
+            // (e.g. Modifier.clickable), matching AndroidView. Clear Compose's automatic
+            // isScreenReaderFocusable unless the caller explicitly requested mergeDescendants.
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+                    !semanticsNode.layoutInfo.getModifierInfo().fastAny {
+                        (it.modifier as? SemanticsModifier)
+                            ?.semanticsConfiguration
+                            ?.isMergingSemanticsOfDescendants == true
+                    }
+            ) {
+                Api28Impl.setScreenReaderFocusable(info, false)
+            }
         }
         return info
     }
@@ -278,5 +293,12 @@ private class WebSurfaceAccessibilityNodeProvider(
                 arguments,
             )
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+private object Api28Impl {
+    fun setScreenReaderFocusable(info: AccessibilityNodeInfo, screenReaderFocusable: Boolean) {
+        info.isScreenReaderFocusable = screenReaderFocusable
     }
 }

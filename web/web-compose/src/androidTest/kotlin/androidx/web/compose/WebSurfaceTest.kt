@@ -18,6 +18,7 @@ package androidx.web.compose
 
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
@@ -58,7 +59,10 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -461,6 +465,64 @@ class WebSurfaceTest {
         }
     }
 
+    @Test
+    fun testAccessibilityTreePreservedInsideMergingClickableContainer() {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        lateinit var bridge: TestWebViewBridge
+        lateinit var hostView: View
+        var explicitMerge by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Column(
+                modifier = Modifier.clickable {}.semantics { contentDescription = "Compose email" }
+            ) {
+                WebSurface(
+                    content = webContent,
+                    modifier =
+                        Modifier.size(200.dp)
+                            .testTag("surface")
+                            .then(
+                                if (explicitMerge) {
+                                    Modifier.semantics(mergeDescendants = true) {}
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                    bridgeFactory = { ctx ->
+                        TestWebViewBridge(ctx)
+                            .apply {
+                                fakeAccessibilityNodeProvider =
+                                    FakeAccessibilityNodeProvider(this, "Accessible Button")
+                            }
+                            .also { bridge = it }
+                    },
+                )
+            }
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            findNodeByText(uiAutomation.rootInActiveWindow, "Accessible Button") != null
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val surfaceId = composeTestRule.onNodeWithTag("surface").fetchSemanticsNode().id
+            composeTestRule.runOnIdle {
+                val info =
+                    hostView.accessibilityNodeProvider!!.createAccessibilityNodeInfo(surfaceId)!!
+                assertFalse(info.isScreenReaderFocusable)
+                explicitMerge = true
+            }
+            composeTestRule.runOnIdle {
+                val info =
+                    hostView.accessibilityNodeProvider!!.createAccessibilityNodeInfo(surfaceId)!!
+                assertTrue(info.isScreenReaderFocusable)
+            }
+        }
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun testFocusAndKeyInterop() {
@@ -721,7 +783,7 @@ class WebSurfaceTest {
         )
 
         // Like a child View, the page takes taps on the surface before click handlers around it.
-        composeTestRule.onNodeWithTag("surface", useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("surface").performClick()
         composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.clicks") == "1" }
         composeTestRule.runOnIdle { assertEquals(0, ancestorClicks) }
 
