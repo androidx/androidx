@@ -36,8 +36,6 @@ import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
-import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener
-import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_RENDERING_INFO_KEY
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
@@ -173,10 +171,7 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
     ExperimentalComposeUiHostApi::class,
 )
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
-    AccessibilityDelegateCompat(),
-    OnAttachStateChangeListener,
-    AccessibilityStateChangeListener,
-    TouchExplorationStateChangeListener {
+    AccessibilityDelegateCompat(), OnAttachStateChangeListener {
     @Suppress("ConstPropertyName")
     companion object {
         /** Virtual node identifier value for invalid nodes. */
@@ -283,24 +278,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     internal var SendRecurringAccessibilityEventsIntervalMillis = 100L
 
-    private var _enabledServices: List<AccessibilityServiceInfo>? = null
-
-    private fun resetEnabledAccessibilityServiceList() {
-        _enabledServices = null
-    }
-
     private val enabledServices: List<AccessibilityServiceInfo>
-        get() =
-            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-                view.composeViewContext.enabledServices
-            } else {
-                _enabledServices
-                    ?: accessibilityManager
-                        .getEnabledAccessibilityServiceList(
-                            AccessibilityServiceInfo.FEEDBACK_ALL_MASK
-                        )
-                        .also { _enabledServices = it }
-            }
+        get() = view.composeViewContext.enabledServices
 
     private val isAccessibilityEnabled: Boolean
         get() = view.composeViewContext.isAccessibilityEnabled
@@ -440,38 +419,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         view.addOnAttachStateChangeListener(this)
     }
 
-    override fun onViewAttachedToWindow(view: View) {
-        if (!AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-            // Whenever the window is reattached, update the `enabledServices` value in
-            // case
-            // there have been changes while the window was detached that the listeners
-            // might not catch.
-            if (accessibilityManager.isEnabled) resetEnabledAccessibilityServiceList()
-            accessibilityManager.addAccessibilityStateChangeListener(this)
-            accessibilityManager.addTouchExplorationStateChangeListener(this)
-        }
-    }
+    override fun onViewAttachedToWindow(view: View) {}
 
     override fun onViewDetachedFromWindow(view: View) {
         // TODO: b/498432814 - Handler shouldn't be null on detach; investigate re-entrant
         //  detachment to see if handler? can be removed.
         handler?.removeCallbacks(semanticsChangeChecker)
         isHoveringInteropView = false
-        if (!AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-            accessibilityManager.removeAccessibilityStateChangeListener(this)
-            accessibilityManager.removeTouchExplorationStateChangeListener(this)
-        }
-    }
-
-    override fun onAccessibilityStateChanged(enabled: Boolean) {
-        resetEnabledAccessibilityServiceList()
-    }
-
-    override fun onTouchExplorationStateChanged(enabled: Boolean) {
-        if (!enabled) {
-            isHoveringInteropView = false
-        }
-        resetEnabledAccessibilityServiceList()
     }
 
     /**

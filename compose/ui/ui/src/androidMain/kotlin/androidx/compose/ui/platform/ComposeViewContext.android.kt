@@ -43,7 +43,6 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
-import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.graphics.CanvasHolder
@@ -77,7 +76,6 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
  *
  * @sample androidx.compose.ui.samples.ComposeViewContextUnattachedSample
  */
-@OptIn(ExperimentalComposeUiApi::class)
 public class ComposeViewContext
 private constructor(
     composeViewContext: ComposeViewContext?,
@@ -212,38 +210,21 @@ private constructor(
 
     private var _isAccessibilityEnabled: Boolean = false
     internal val isAccessibilityEnabled: Boolean
-        get() =
-            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-                // b/504834104 saw accessibility being called when the state wasn't enabled. This
-                // indicates that the onAccessibilityChanged() was not received before the
-                // AccessibilityManager's state changed, so we must double-check here
-                _isAccessibilityEnabled && accessibilityManager.accessibilityManager.isEnabled
-            } else {
-                accessibilityManager.accessibilityManager.isEnabled
-            }
+        // b/504834104 saw accessibility being called when the state wasn't enabled. This
+        // indicates that the onAccessibilityChanged() was not received before the
+        // AccessibilityManager's state changed, so we must double-check here
+        get() = _isAccessibilityEnabled && accessibilityManager.accessibilityManager.isEnabled
 
-    private var _isTouchExplorationEnabled: Boolean = false
-    internal val isTouchExplorationEnabled: Boolean
-        get() =
-            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-                _isTouchExplorationEnabled
-            } else {
-                accessibilityManager.accessibilityManager.isTouchExplorationEnabled
-            }
+    internal var isTouchExplorationEnabled: Boolean = false
+        private set
 
     private var _enabledServices: List<AccessibilityServiceInfo>? = null
     internal val enabledServices: List<AccessibilityServiceInfo>
         get() =
-            if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-                _enabledServices
-                    ?: accessibilityManager.accessibilityManager
-                        .getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
-                        .also { _enabledServices = it }
-            } else {
-                accessibilityManager.accessibilityManager.getEnabledAccessibilityServiceList(
-                    FEEDBACK_ALL_MASK
-                )
-            }
+            _enabledServices
+                ?: accessibilityManager.accessibilityManager
+                    .getEnabledAccessibilityServiceList(FEEDBACK_ALL_MASK)
+                    .also { _enabledServices = it }
 
     private var _uriHandler: AndroidUriHandler? =
         if (matchesContext) {
@@ -418,13 +399,11 @@ private constructor(
         view.viewTreeObserver.addOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.addOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false
-        if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-            val am = accessibilityManager.accessibilityManager
-            _isAccessibilityEnabled = am.isEnabled
-            _isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
-            handler = view.handler
-            handler?.post(callback)
-        }
+        val am = accessibilityManager.accessibilityManager
+        _isAccessibilityEnabled = am.isEnabled
+        isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
+        handler = view.handler
+        handler?.post(callback)
     }
 
     /** Stop observing configuration changes and window changes. */
@@ -435,14 +414,12 @@ private constructor(
         view.viewTreeObserver.removeOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.removeOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false
-        if (AndroidComposeUiFlags.isAccessibilityPerformanceEnabled) {
-            if (hasAccessibilityListener) {
-                handler?.post(callback)
-            } else {
-                handler?.removeCallbacks(callback)
-            }
-            handler = null
+        if (hasAccessibilityListener) {
+            handler?.post(callback)
+        } else {
+            handler?.removeCallbacks(callback)
         }
+        handler = null
     }
 
     /**
@@ -611,7 +588,7 @@ private constructor(
         }
 
         override fun onTouchExplorationStateChanged(enabled: Boolean) {
-            _isTouchExplorationEnabled = enabled
+            isTouchExplorationEnabled = enabled
             if (enabled && _isAccessibilityEnabled) resetEnabledAccessibilityServiceList()
         }
 
@@ -620,7 +597,7 @@ private constructor(
             if (viewCount > 0) {
                 hasAccessibilityListener = true
                 _isAccessibilityEnabled = am.isEnabled
-                _isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
+                isTouchExplorationEnabled = _isAccessibilityEnabled && am.isTouchExplorationEnabled
                 if (_isAccessibilityEnabled) {
                     resetEnabledAccessibilityServiceList()
                 }
