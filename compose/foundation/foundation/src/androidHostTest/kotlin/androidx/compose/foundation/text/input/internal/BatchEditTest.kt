@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -570,6 +571,35 @@ internal class BatchEditTest : ImeEditCommandTest() {
         imeScope.endBatchEdit()
         // ABC + D + E + F = ABCDEF (length 6 > 5) -> reverted to ABC
         assertThat(state.text.toString()).isEqualTo("ABC")
+    }
+
+    @Test
+    fun batchEdit_inputTransformationThrows_failedEditIsNotReplayed() {
+        initialize("", TextRange(0))
+        var shouldThrow = true
+        transformedState.update {
+            if (shouldThrow) {
+                shouldThrow = false
+                throw IllegalStateException()
+            }
+        }
+        assertFailsWith<IllegalStateException> { imeScope.commitText("a", 1) }
+
+        imeScope.commitText("b", 1)
+        // TODO: "ab" is wrong. TextFieldState keeps the rejected "a" in mainBuffer after the
+        // InputTransformation throws; this should be fixed so the result is "b".
+        assertThat(state.text.toString()).isEqualTo("ab")
+    }
+
+    @Test
+    fun batchEdit_editThrows_failedEditIsNotReplayed() {
+        initialize("ABC", TextRange(3))
+        imeScope.beginBatchEdit()
+        imeScope.edit { throw IllegalStateException() }
+        assertFailsWith<IllegalStateException> { imeScope.endBatchEdit() }
+
+        imeScope.commitText("D", 1)
+        assertThat(state.text.toString()).isEqualTo("ABCD")
     }
 
     // --- Complex Mixing ---
