@@ -134,6 +134,33 @@ class FrameworkVelocityTrackerTest {
     }
 
     @Test
+    fun longBatches_producePositiveVelocity() {
+        val tracker = FrameworkVelocityTracker()
+        val timeStep = 10L
+        val xStep = 10f
+
+        tracker.addPointerInputChange(createDownEvent(0L, Offset.Zero), Offset.Zero)
+        tracker.addPointerInputChange(
+            createMoveEvent(timeStep, Offset(xStep, 0f)),
+            Offset.Zero,
+        )
+
+        // Batch spanning 60ms: total duration >40ms, but each consecutive step is 10ms.
+        val history = mutableListOf<HistoricalChange>()
+        for (i in 2..6) {
+            history.add(HistoricalChange(i * timeStep, Offset(i * xStep, 0f)))
+        }
+        tracker.addPointerInputChange(
+            createMoveEvent(7 * timeStep, Offset(7 * xStep, 0f), history),
+            Offset.Zero,
+        )
+
+        // The long batch should not have reset the velocity tracker.
+        val velocity = tracker.calculateVelocity(MaximumVelocity)
+        assertThat(velocity.x).isGreaterThan(0f)
+    }
+
+    @Test
     fun duplicateEventTimes_stationaryPointer_calculatesZeroVelocity() {
         val tracker = FrameworkVelocityTracker()
 
