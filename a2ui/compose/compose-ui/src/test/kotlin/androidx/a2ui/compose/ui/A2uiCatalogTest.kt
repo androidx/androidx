@@ -18,12 +18,15 @@ package androidx.a2ui.compose.ui
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.toInlineCatalog
+import androidx.a2ui.engine.processor.A2uiCoreMessageProcessor
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
+import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
@@ -120,6 +123,18 @@ class A2uiCatalogTest {
         assertThat(exception)
             .hasMessageThat()
             .contains("Duplicate function registered for name 'DuplicateFunction'")
+    }
+
+    @Test
+    fun messageProcessor_withCatalogAndInterceptors_createsProcessor() {
+        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
+        val interceptor = A2uiActionInterceptor { it }
+
+        // The runtime factory requires each catalog to also implement A2uiCoreCatalog.
+        val processor =
+            A2uiMessageProcessor(catalogs = listOf(catalog), interceptors = listOf(interceptor))
+
+        assertThat(processor).isInstanceOf(A2uiCoreMessageProcessor::class.java)
     }
 
     @Test

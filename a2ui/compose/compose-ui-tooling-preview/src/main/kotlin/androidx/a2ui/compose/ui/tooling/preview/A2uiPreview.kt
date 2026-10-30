@@ -17,8 +17,8 @@
 package androidx.a2ui.compose.ui.tooling.preview
 
 import androidx.a2ui.compose.runtime.A2uiMessageParser
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.ui.A2uiCatalog
-import androidx.a2ui.compose.ui.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

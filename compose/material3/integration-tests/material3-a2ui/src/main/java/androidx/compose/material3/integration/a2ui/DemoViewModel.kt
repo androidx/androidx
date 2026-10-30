@@ -17,7 +17,7 @@
 package androidx.compose.material3.integration.a2ui
 
 import android.app.Application
-import androidx.a2ui.compose.ui.A2uiMessageProcessor
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage

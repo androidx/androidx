@@ -18,7 +18,7 @@ package androidx.compose.material3.a2ui.samples
 
 import android.content.Intent
 import android.net.Uri
-import androidx.a2ui.compose.ui.A2uiMessageProcessor
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage

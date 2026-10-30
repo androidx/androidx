@@ -76,6 +76,11 @@ package androidx.a2ui.compose.runtime {
     method public static androidx.a2ui.model.processor.A2uiMessageParser<java.lang.String> A2uiMessageParser();
   }
 
+  public final class A2uiMessageProcessorKt {
+    method public static androidx.a2ui.model.processor.A2uiMessageProcessor A2uiMessageProcessor(java.util.List<? extends androidx.a2ui.compose.runtime.A2uiRuntimeCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
+    method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! A2uiMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
+  }
+
   @androidx.compose.runtime.Immutable public abstract sealed exhaustive class A2uiProperty<T> {
     method @InaccessibleFromKotlin public abstract String getKey();
     method @InaccessibleFromKotlin public abstract androidx.a2ui.model.schema.A2uiSchema getSchema();
@@ -174,11 +179,6 @@ package androidx.a2ui.compose.runtime {
   }
 
   public interface A2uiRuntimeCatalog {
-  }
-
-  public final class A2uiRuntimeMessageProcessorKt {
-    method public static androidx.a2ui.model.processor.A2uiMessageProcessor a2uiRuntimeMessageProcessor(java.util.List<? extends androidx.a2ui.compose.runtime.A2uiRuntimeCatalog> catalogs, optional java.util.List<? extends androidx.a2ui.model.processor.A2uiActionInterceptor> interceptors);
-    method @BytecodeOnly public static androidx.a2ui.model.processor.A2uiMessageProcessor! a2uiRuntimeMessageProcessor$default(java.util.List!, java.util.List!, int, Object!);
   }
 
   @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class ChildListA2uiProperty extends androidx.a2ui.compose.runtime.A2uiProperty<java.util.List<? extends androidx.a2ui.compose.runtime.A2uiComponentReference>> {

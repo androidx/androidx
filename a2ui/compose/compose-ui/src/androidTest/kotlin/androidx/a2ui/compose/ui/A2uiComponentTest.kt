@@ -20,9 +20,9 @@ import androidx.a2ui.compose.runtime.A2uiComponentModel
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
+import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
-import androidx.a2ui.compose.runtime.a2uiRuntimeMessageProcessor
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
@@ -182,7 +182,7 @@ class A2uiComponentTest {
         testContext.job.invokeOnCompletion { backgroundScope.cancel() }
 
         val processor =
-            a2uiRuntimeMessageProcessor(
+            A2uiMessageProcessor(
                 catalogs = listOf(catalog as A2uiRuntimeCatalog),
                 interceptors = interceptors,
             )
