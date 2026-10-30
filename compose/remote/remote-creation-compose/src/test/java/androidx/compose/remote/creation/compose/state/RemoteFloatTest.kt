@@ -1882,9 +1882,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloatFromConstant = remember {
-                    createNamedRemoteFloatExpression("C") { 5.rf }
-                }
+                val myFloatFromConstant = remember { createNamedRemoteFloat("C", 5f) }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
 
@@ -2223,7 +2221,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloat = remember { MutableRemoteFloat { 5.rf } }
+                val myFloat = remember { MutableRemoteFloat(5f) }
                 RemoteBox(modifier = RemoteModifier.size(myFloat.asRemoteDp()))
             }
 

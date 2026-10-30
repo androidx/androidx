@@ -34,7 +34,6 @@ import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
@@ -97,9 +96,7 @@ class RemoteStateCreationTest {
     fun rememberNamedRemoteFloat_isTracked() = runTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
-                val namedFloat = remember {
-                    createNamedRemoteFloatExpression("testFloat") { 42.42f.rf }
-                }
+                val namedFloat = remember { createNamedRemoteFloat("testFloat", 42.42f) }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
             }
         assertThat(coreDoc.getNamedVariables(NamedVariable.FLOAT_TYPE))
@@ -144,9 +141,7 @@ class RemoteStateCreationTest {
         runTest {
             val coreDoc =
                 remoteCaptureRule.captureDocument(context) {
-                    val namedFloat = remember {
-                        createNamedRemoteFloatExpression("shared") { 10f.rf }
-                    }
+                    val namedFloat = remember { createNamedRemoteFloat("shared", 10f) }
                     val namedInt = remember { createNamedRemoteInt("shared", 5) }
                     val namedBoolean = remember { createNamedRemoteBoolean("shared", true) }
 

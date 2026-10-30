@@ -35,7 +35,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -180,7 +180,7 @@ class RcPlayerOpCountTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val captured = runBlocking {
             captureSingleRemoteDocument(context = context) {
-                val trigger = remember { createNamedRemoteFloatExpression("trigger") { 1f.rf } }
+                val trigger = remember { createNamedRemoteFloat("trigger", 1f) }
                 RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                         val paint = RemotePaint()

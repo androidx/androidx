@@ -31,7 +31,7 @@ import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
@@ -135,9 +135,7 @@ class RemoteCustomComponentTest {
                     }
                 },
             ) {
-                val floatState = remember {
-                    createNamedRemoteFloatExpression("named_float_return") { 0f.rf }
-                }
+                val floatState = remember { createNamedRemoteFloat("named_float_return", 0f) }
                 RemoteCustomComponent(name = "FloatReturnCustom") { bindReturn(2, floatState) }
             }
 
@@ -375,9 +373,7 @@ class RemoteCustomComponentTest {
                 name = "FloatPropertiesCustom",
                 configureFloat = { _, type, value -> configuredFloats[type] = value },
             ) {
-                val namedFloat = remember {
-                    createNamedRemoteFloatExpression("named_float_prop") { 1.41f.rf }
-                }
+                val namedFloat = remember { createNamedRemoteFloat("named_float_prop", 1.41f) }
                 RemoteCustomComponent(name = "FloatPropertiesCustom") {
                     property(1, 3.14f)
                     property(2, 2.71f.rf)

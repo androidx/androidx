@@ -32,13 +32,12 @@ import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.util.TestProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
@@ -247,9 +246,7 @@ class RemoteCustomComponentScreenshotTest {
     @Composable
     @RemoteComposable
     private fun RemoteFloatProp() {
-        val remoteFloat = remember {
-            createNamedRemoteFloatExpression("remote_float_prop") { 2.71f.rf }
-        }
+        val remoteFloat = remember { createNamedRemoteFloat("remote_float_prop", 2.71f) }
         RemoteCustomComponent(
             name = "SupportAllProperties",
             modifier = RemoteModifier.size(80.rdp, 30.rdp),

@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -86,7 +86,7 @@ class RemoteStateOverrideTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloat = remember { createNamedRemoteFloatExpression("myFloat") { 5f.rf } }
+                val myFloat = remember { createNamedRemoteFloat("myFloat", 5f) }
                 RemoteBox(modifier = RemoteModifier.size(RemoteDp(myFloat)))
             }
 

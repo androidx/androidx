@@ -23,9 +23,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.embedded.RcPlayer
@@ -85,9 +84,7 @@ private fun RemoteHorizontalPageIndicatorDemoHelper(pageCount: Int, modifier: Mo
         val captured =
             captureSingleRemoteDocument(context) {
                 val selectedPage = remember { createNamedRemoteInt("selectedPage", 0) }
-                val pageOffset = remember {
-                    createNamedRemoteFloatExpression("pageOffset") { 0f.rf }
-                }
+                val pageOffset = remember { createNamedRemoteFloat("pageOffset", 0f) }
                 val state =
                     rememberRemotePageIndicatorState(
                         selectedPage = selectedPage,
@@ -168,9 +165,7 @@ private fun RemoteVerticalPageIndicatorDemoHelper(pageCount: Int, modifier: Modi
         val captured =
             captureSingleRemoteDocument(context) {
                 val selectedPage = remember { createNamedRemoteInt("selectedPage", 0) }
-                val pageOffset = remember {
-                    createNamedRemoteFloatExpression("pageOffset") { 0f.rf }
-                }
+                val pageOffset = remember { createNamedRemoteFloat("pageOffset", 0f) }
                 val state =
                     rememberRemotePageIndicatorState(
                         selectedPage = selectedPage,
