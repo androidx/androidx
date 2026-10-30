@@ -29,31 +29,44 @@ internal class RemoteCanvasNode : RemoteComposeNode() {
         val scope = overriddenScope(creationState)
         val recordingModifier = scope.toRecordingModifier(modifier)
         creationState.document.startCanvas(recordingModifier)
+        val canvasComponentId = creationState.document.buffer.lastComponentId
 
-        val drawModifiers =
-            modifier.foldIn(mutableListOf<DrawWithContentModifier>()) { acc, element ->
-                if (element is DrawWithContentModifier) {
-                    acc.add(element)
+        val previousNode = creationState.currentRenderingNode
+        creationState.currentRenderingNode = this
+        componentToken?.let { creationState.beginComponentContent(it, canvasComponentId) }
+        try {
+            val drawModifiers =
+                modifier.foldIn(mutableListOf<DrawWithContentModifier>()) { acc, element ->
+                    if (element is DrawWithContentModifier) {
+                        acc.add(element)
+                    }
+                    acc
                 }
-                acc
+
+            if (drawModifiers.isNotEmpty()) {
+                var currentContent: RemoteDrawScope.() -> Unit = onDraw
+                for (i in drawModifiers.lastIndex downTo 0) {
+                    val drawModifier = drawModifiers[i]
+                    val nextContent = currentContent
+                    currentContent = {
+                        drawModifier.onDraw(RemoteContentDrawScope(remoteCanvas, nextContent))
+                    }
+                }
+                RemoteDrawScope(remoteCanvas).currentContent()
+            } else {
+                val drawScope = RemoteDrawScope(remoteCanvas)
+                drawScope.onDraw()
             }
 
-        if (drawModifiers.isNotEmpty()) {
-            var currentContent: RemoteDrawScope.() -> Unit = onDraw
-            for (i in drawModifiers.lastIndex downTo 0) {
-                val drawModifier = drawModifiers[i]
-                val nextContent = currentContent
-                currentContent = {
-                    drawModifier.onDraw(RemoteContentDrawScope(remoteCanvas, nextContent))
-                }
+            componentToken?.let {
+                creationState.beginComponentContent(it, canvasComponentId)
+                creationState.disableDirectComponentEmission(it)
             }
-            RemoteDrawScope(remoteCanvas).currentContent()
-        } else {
-            val drawScope = RemoteDrawScope(remoteCanvas)
-            drawScope.onDraw()
+            remoteCanvas.flush()
+        } finally {
+            componentToken?.let { creationState.endComponentContent(it) }
+            creationState.currentRenderingNode = previousNode
         }
-
-        remoteCanvas.flush()
 
         creationState.document.endCanvas()
     }

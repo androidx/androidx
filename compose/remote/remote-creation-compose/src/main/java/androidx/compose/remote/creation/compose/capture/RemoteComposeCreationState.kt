@@ -23,7 +23,11 @@ import androidx.annotation.RestrictTo
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.operations.ComponentValue
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
+import androidx.compose.remote.creation.compose.layout.RemoteComposeNode
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.toComposeLayoutDirection
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
@@ -71,6 +75,167 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     internal val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
     internal val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
 
+    /**
+     * Per-document emission state for a [RemoteComponentToken] during a single render pass.
+     *
+     * Cleared by [clearDocumentCaches] when starting a new document capture.
+     */
+    private class TokenComponentState {
+        /**
+         * Allocated variable IDs indexed by `RemoteComponentToken.PROP_*`.
+         *
+         * [NO_VARIABLE_ID] (`-1`) means no variable has been allocated for that property in the
+         * current [document] yet; otherwise holds the integer variable ID reserved or emitted for
+         * that component property.
+         */
+        val variableIds: IntArray = IntArray(RemoteComponentToken.PROP_COUNT) { NO_VARIABLE_ID }
+
+        /**
+         * Bitmask indexed by `RemoteComponentToken.PROP_*` (`1 shl propIndex`) tracking which
+         * `ComponentValue` operations have already been written into the owning component's body in
+         * [document].
+         */
+        var emittedMask: Int = 0
+
+        /**
+         * `true` while the [document] writer cursor is directly inside the owning component's body
+         * (before any child components are emitted), when `document.addComponent*Value()` binds to
+         * the owning component's `lastComponentId`. Set back to `false` by
+         * [disableDirectComponentEmission] before child nodes render and by [endComponentContent].
+         */
+        var canEmitDirectly: Boolean = false
+
+        /**
+         * Explicit wire component ID to target if `document.buffer.lastComponentId` has moved away
+         * from the owning component when [endComponentContent] flushes deferred values, or `-1`
+         * when `LayoutComponent.inflate()` rewrites `ComponentValue` IDs from the container body.
+         */
+        var componentId: Int = -1
+
+        companion object {
+            const val NO_VARIABLE_ID: Int = -1
+        }
+    }
+
+    private val tokenComponentStates: HashMap<RemoteComponentToken, TokenComponentState> = HashMap()
+
+    /**
+     * The [RemoteComposeNode] currently rendering its content or canvas commands, used to resolve
+     * component tokens from [RemoteStateScope]s that are not tied to a specific modifier node.
+     */
+    internal var currentRenderingNode: RemoteComposeNode? = null
+
+    /**
+     * Marks the start of [token]'s component body in [document] and emits `ComponentValue`
+     * operations for any properties already requested on [token] (either from an earlier expression
+     * evaluation in this render pass or recorded on [token] during a prior pass).
+     */
+    internal fun beginComponentContent(token: RemoteComponentToken, componentId: Int = -1) {
+        val state = tokenComponentStates.getOrPut(token) { TokenComponentState() }
+        if (componentId != -1) {
+            state.componentId = componentId
+        }
+        state.canEmitDirectly = true
+        for (propIndex in 0 until RemoteComponentToken.PROP_COUNT) {
+            val bit = 1 shl propIndex
+            if ((state.emittedMask and bit) != 0) continue
+            val existingId = state.variableIds[propIndex]
+            if (existingId != TokenComponentState.NO_VARIABLE_ID) {
+                document.buffer.addComponentValue(
+                    existingId,
+                    RemoteComponentToken.toComponentValueType(propIndex),
+                )
+                state.emittedMask = state.emittedMask or bit
+            } else if (token.isRequested(propIndex)) {
+                state.variableIds[propIndex] = emitDirectComponentValueId(propIndex)
+                state.emittedMask = state.emittedMask or bit
+            }
+        }
+    }
+
+    /**
+     * Disables direct `ComponentValue` emission for [token] before child components are rendered.
+     *
+     * Rendering child components updates `document.buffer.lastComponentId` to each child's ID, so
+     * any [getComponentValue] call for [token] triggered lazily while rendering descendants must
+     * reserve a float variable ID instead of emitting directly, leaving the `ComponentValue`
+     * operation to be emitted in [endComponentContent] inside [token]'s own container body.
+     */
+    internal fun disableDirectComponentEmission(token: RemoteComponentToken) {
+        tokenComponentStates[token]?.canEmitDirectly = false
+    }
+
+    /**
+     * Flushes any deferred `ComponentValue` operations reserved for [token] while rendering its
+     * children, writing them into [token]'s component body before the container closes.
+     */
+    internal fun endComponentContent(token: RemoteComponentToken) {
+        val state = tokenComponentStates[token] ?: return
+        state.canEmitDirectly = false
+        for (propIndex in 0 until RemoteComponentToken.PROP_COUNT) {
+            val bit = 1 shl propIndex
+            if ((state.emittedMask and bit) != 0) continue
+            val reservedId = state.variableIds[propIndex]
+            if (reservedId != TokenComponentState.NO_VARIABLE_ID) {
+                val type = RemoteComponentToken.toComponentValueType(propIndex)
+                val buffer = document.buffer
+                if (state.componentId == -1 || buffer.lastComponentId == state.componentId) {
+                    buffer.addComponentValue(reservedId, type)
+                } else {
+                    ComponentValue.apply(buffer.buffer, type, state.componentId, reservedId)
+                }
+                state.emittedMask = state.emittedMask or bit
+            }
+        }
+    }
+
+    /**
+     * Returns the NaN-encoded float variable value representing [propIndex] (`PROP_WIDTH`,
+     * `PROP_HEIGHT`, etc.) for the layout component identified by [token].
+     *
+     * Reuses the existing variable ID if already allocated in this [document]. Otherwise, if the
+     * writer is currently directly inside [token]'s body ([TokenComponentState.canEmitDirectly]),
+     * emits the `ComponentValue` operation immediately; if called before [beginComponentContent] or
+     * while rendering descendants, reserves a float variable via `reserveFloatVariable()` so
+     * [beginComponentContent] or [endComponentContent] binds it to [token]'s component body.
+     */
+    internal fun getComponentValue(token: RemoteComponentToken, propIndex: Int): Float {
+        token.markRequested(propIndex)
+        val state = tokenComponentStates.getOrPut(token) { TokenComponentState() }
+        val existingId = state.variableIds[propIndex]
+        if (existingId != TokenComponentState.NO_VARIABLE_ID) {
+            return Utils.asNan(existingId)
+        }
+        val allocatedId =
+            if (state.canEmitDirectly) {
+                state.emittedMask = state.emittedMask or (1 shl propIndex)
+                emitDirectComponentValueId(propIndex)
+            } else {
+                Utils.idFromNan(document.reserveFloatVariable())
+            }
+        state.variableIds[propIndex] = allocatedId
+        return Utils.asNan(allocatedId)
+    }
+
+    /**
+     * Emits the `ComponentValue` operation for [propIndex] onto [document]'s current component via
+     * `RemoteComposeWriter.addComponent*Value()` (which returns a NaN-encoded float variable ID)
+     * and decodes the returned NaN value to its integer variable ID via [Utils.idFromNan].
+     */
+    private fun emitDirectComponentValueId(propIndex: Int): Int {
+        val nanEncodedId =
+            when (propIndex) {
+                RemoteComponentToken.PROP_WIDTH -> document.addComponentWidthValue()
+                RemoteComponentToken.PROP_HEIGHT -> document.addComponentHeightValue()
+                RemoteComponentToken.PROP_X -> document.addComponentXValue()
+                RemoteComponentToken.PROP_Y -> document.addComponentYValue()
+                RemoteComponentToken.PROP_ROOT_X -> document.addComponentRootXValue()
+                RemoteComponentToken.PROP_ROOT_Y -> document.addComponentRootYValue()
+                else -> throw IllegalArgumentException("Unknown property index: $propIndex")
+            }
+        return Utils.idFromNan(nanEncodedId)
+    }
+
     internal val platformImageProvider: PlatformImageProvider
 
     public fun addBitmap(image: ImageBitmap): Int = platformImageProvider.addBitmap(document, image)
@@ -114,6 +279,8 @@ public open class RemoteComposeCreationState : RemoteStateScope {
         remoteVariableToId.clear()
         floatArrayCache.clear()
         longArrayCache.clear()
+        tokenComponentStates.clear()
+        currentRenderingNode = null
     }
 
     internal inline fun getOrPutVariableId(

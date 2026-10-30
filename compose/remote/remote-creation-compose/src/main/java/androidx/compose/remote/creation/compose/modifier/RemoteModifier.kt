@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RcPlatformServices.LogCategory
+import androidx.compose.remote.creation.compose.layout.OverriddenScope
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.creationState
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -141,8 +142,11 @@ public sealed interface RemoteModifier {
  * This is the primary entry point for converting remote modifiers during document capture.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier =
-    with(modifier) { toRecordingModifier() }
+public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier {
+    val recordingModifier = with(modifier) { toRecordingModifier() }
+    val overriddenScope = this as? OverriddenScope ?: return recordingModifier
+    return overriddenScope.node.attachComponentTokenFlush(creationState, recordingModifier)
+}
 
 // Workaround for b/563261712: Modifier element types that do not support multiple instances
 // on the same component. When chained, the outer (first) modifier takes precedence and

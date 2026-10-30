@@ -19,8 +19,8 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
@@ -48,10 +48,10 @@ internal class BorderModifier(
         } else if (shape == RemoteRectangleShape) {
             shapeType = ShapeType.RECTANGLE
         } else if (shape is RemoteRoundedCornerShape) {
-            val context = RemoteFloatContext(this)
+            val component = remoteComponent()
             shapeType = ShapeType.ROUNDED_RECTANGLE
 
-            val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
+            val remoteSize = RemoteSize(component.width, component.height)
             roundedCorner =
                 shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId
         }
