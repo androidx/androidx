@@ -23,6 +23,7 @@ import android.widget.RemoteViews
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.glance.adaptive.appwidget.R
+import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.badge.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.graph.buildRemoteViews
@@ -58,8 +59,11 @@ import androidx.glance.adaptive.appwidget.matrix.SlotComponent
 import androidx.glance.adaptive.appwidget.matrix.TemplateText
 import androidx.glance.adaptive.appwidget.matrix.TrailingComponent
 import androidx.glance.adaptive.appwidget.matrix.resolve
+import androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput
 import androidx.glance.adaptive.appwidget.renderer.RemoteViewsTemplateRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
+import androidx.glance.adaptive.core.renderer.ArchetypeRenderer
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
@@ -69,6 +73,12 @@ import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
  * A template's selector maps its data onto a [MatrixContent]; this renderer lays it out for the
  * container (see [resolve]) and draws it, so a new template needs no [RemoteViews] code at all. The
  * template payload itself is not read: everything to draw is in the matrix.
+ *
+ * Taps run the [GlanceWidgetAction]s the matrix carries. A [GlanceWidgetAction.Callback] hands its
+ * callback the name and instance ID of the widget it was tapped on, which a renderer is not given,
+ * so this renderer draws a callback as inert; register the renderer of [forWidget] to deliver them
+ * with the widget's name (`widgetId` remains `null` until the renderer is given the target
+ * instance).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteViewsMatrixRenderer :
@@ -80,11 +90,41 @@ public object RemoteViewsMatrixRenderer :
         archetype: MatrixContent,
         surface: AppWidgetSurface,
     ): RemoteViews =
-        when (archetype) {
-            is MatrixCardContent -> matrixCard(context, resolve(archetype, surface))
-            is MatrixBulbContent -> matrixBulb(context, resolve(archetype, surface))
-        }
+        renderMatrix(archetype, surface, RemoteViewsActions(context, widgetName = null))
+
+    /**
+     * A renderer that draws as this one does, and delivers [GlanceWidgetAction.Callback] taps to
+     * [widgetName].
+     *
+     * @param widgetName Developer widget identifier matching
+     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName], which the
+     *   renderer is registered for.
+     * @return The renderer to register for [widgetName].
+     */
+    // TODO(b/580007927): Drop once a renderer is given the widget name and widgetId it renders
+    //  for, so the default registration can deliver callbacks with their instance ID too.
+    public fun forWidget(
+        widgetName: String
+    ): ArchetypeRenderer<
+        GlanceAdaptiveTemplate,
+        AppWidgetSurface,
+        MatrixContent,
+        AppWidgetRenderOutput,
+    > = RemoteViewsTemplateRenderer { context, _, archetype, surface ->
+        renderMatrix(archetype, surface, RemoteViewsActions(context, widgetName))
+    }
 }
+
+/** Lays [content] out for [surface] and draws it, running taps through [taps]. */
+private fun renderMatrix(
+    content: MatrixContent,
+    surface: AppWidgetSurface,
+    taps: RemoteViewsActions,
+): RemoteViews =
+    when (content) {
+        is MatrixCardContent -> matrixCard(taps, resolve(content, surface))
+        is MatrixBulbContent -> matrixBulb(taps.context, resolve(content, surface))
+    }
 
 /**
  * The main card: header, hero and action slots, top to bottom.
@@ -95,8 +135,12 @@ public object RemoteViewsMatrixRenderer :
  * - **Hero absent, actions present**: a weighted spacer takes the slack instead, pinning the action
  *   row to the bottom edge and the header to the top.
  * - **Header only**: the card centers it.
+ *
+ * The card itself is never clickable: taps belong to its interactive components, which run them
+ * through [taps].
  */
-private fun matrixCard(context: Context, card: ResolvedMatrixCard): RemoteViews {
+private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): RemoteViews {
+    val context = taps.context
     val density = context.density
     val views =
         RemoteViews(context.packageName, R.layout.glance_adaptive_appwidget_remoteviews_matrix_card)

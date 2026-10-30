@@ -17,6 +17,7 @@
 package androidx.glance.adaptive.appwidget.matrix
 
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -24,10 +25,13 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.collection.floatListOf
 import androidx.glance.adaptive.appwidget.R
+import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.dpToPx
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
@@ -232,6 +236,39 @@ class RemoteViewsMatrixRendererTest {
             .isEqualTo("42")
     }
 
+    @Test
+    fun card_isNotClickable() {
+        val root = render(MatrixCardContent(primary = TemplateText("11,056")), Dimensions(176, 88))
+
+        val card = root.findViewById<View>(android.R.id.background)
+        assertThat(card.hasOnClickListeners()).isFalse()
+        assertThat(card.isClickable).isFalse()
+    }
+
+    @Test
+    fun actions_equalActionsShareAPendingIntentAndDifferentOnesDoNot() {
+        val actions = RemoteViewsActions(context, widgetName = "dashboard")
+
+        val run = actions.pendingIntentFor(RUN)
+        assertThat(run).isNotNull()
+        assertThat(actions.pendingIntentFor(GlanceWidgetAction.LaunchDeeplink(RUN_URI)))
+            .isEqualTo(run)
+        assertThat(actions.pendingIntentFor(GlanceWidgetAction.LaunchDeeplink("app://bike")))
+            .isNotEqualTo(run)
+        assertThat(actions.pendingIntentFor(null)).isNull()
+    }
+
+    @Test
+    fun actions_callbackRunsOnlyWithTheNameOfItsWidget() {
+        val callback = GlanceWidgetAction.Callback(NoOpCallback::class.java)
+
+        assertThat(RemoteViewsActions(context, widgetName = "dashboard").pendingIntentFor(callback))
+            .isNotNull()
+        // Without the widget's name, a callback cannot be delivered, so the view ignores taps.
+        assertThat(RemoteViewsActions(context, widgetName = null).pendingIntentFor(callback))
+            .isNull()
+    }
+
     /** A card with every slot filled. */
     private fun fullCard() =
         MatrixCardContent(
@@ -270,4 +307,19 @@ class RemoteViewsMatrixRendererTest {
         view.layout(0, 0, widthPx, heightPx)
         return view
     }
+
+    private companion object {
+        const val RUN_URI = "app://run"
+        val RUN = GlanceWidgetAction.LaunchDeeplink(RUN_URI)
+    }
+}
+
+/** A callback that does nothing, for taps that are only checked for delivery. */
+class NoOpCallback : GlanceAdaptiveActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        widgetName: String,
+        widgetId: String?,
+        parameters: Bundle,
+    ) {}
 }
