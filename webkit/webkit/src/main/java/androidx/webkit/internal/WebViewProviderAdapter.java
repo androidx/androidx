@@ -26,6 +26,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.UiThread;
+import androidx.webkit.DownloadHandler;
 import androidx.webkit.GoogleAccountsEvent;
 import androidx.webkit.HeaderInterceptor;
 import androidx.webkit.HeaderInterceptorHandle;
@@ -426,6 +427,29 @@ public class WebViewProviderAdapter {
         Runnable unregisterRunnable = mImpl.addHeaderInterceptor(
                 matcher::serializeToBoundaryLayer, new HeaderInterceptorAdapter(interceptor));
         return new HeaderInterceptorHandle(unregisterRunnable);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#setDownloadHandler(WebView, Executor, DownloadHandler)}.
+     */
+    @UiThread
+    @WebViewCompat.ExperimentalDownloadHandler
+    public void setDownloadHandler(
+            @NonNull Executor executor,
+            @NonNull DownloadHandler handler) {
+        mImpl.setDownloadHandler(executor,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new DownloadHandlerAdapter(handler)));
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#clearDownloadHandler(WebView)}.
+     */
+    @UiThread
+    @WebViewCompat.ExperimentalDownloadHandler
+    public void clearDownloadHandler() {
+        mImpl.clearDownloadHandler();
     }
 
 }

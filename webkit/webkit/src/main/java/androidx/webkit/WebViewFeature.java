@@ -156,6 +156,7 @@ public class WebViewFeature {
             WEB_MESSAGE_SHARED_ARRAY_BUFFER,
             PROFILE_SELECTED_SITE_ISOLATION_EXPERIMENTAL_V1,
             HEADER_INTERCEPTOR,
+            DOWNLOAD_HANDLER_EXPERIMENTAL_V1,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -1125,6 +1126,19 @@ public class WebViewFeature {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String HEADER_INTERCEPTOR = "HEADER_INTERCEPTOR";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebViewCompat#setDownloadHandler(WebView, DownloadHandler)},
+     * {@link WebViewCompat#setDownloadHandler(WebView, Executor, DownloadHandler)},
+     * {@link WebViewCompat#clearDownloadHandler(WebView)}, {@link DownloadHandler},
+     * {@link WebDownload} and {@link DownloadException}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebViewCompat.ExperimentalDownloadHandler
+    public static final String DOWNLOAD_HANDLER_EXPERIMENTAL_V1 =
+            "DOWNLOAD_HANDLER_EXPERIMENTAL_V1";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

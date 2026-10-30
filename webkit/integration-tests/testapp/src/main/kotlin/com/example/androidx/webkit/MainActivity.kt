@@ -147,6 +147,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.header_interceptor_activity_title),
                         Intent(this, HeaderInterceptorActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.download_handler_activity_title),
+                        Intent(this, DownloadHandlerActivity::class.java),
+                    ),
                 )
             )
     }

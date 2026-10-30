@@ -221,4 +221,10 @@
     <string name="header_interceptor_load_button">Load</string>
     <string name="header_interceptor_missing_name_warning">Please enter a header name</string>
     <string name="header_interceptor_missing_url_warning">Please enter a URL to load</string>
+
+    <!-- Download Handler -->
+    <string name="download_handler_activity_title">Download Handler Demo</string>
+    <string name="download_handler_instructions">Tap the link to download hello.txt.</string>
+    <string name="download_handler_saved">Saved %1$d bytes to %2$s</string>
+    <string name="download_handler_failed">Download failed with error code %1$d</string>
 </resources>
