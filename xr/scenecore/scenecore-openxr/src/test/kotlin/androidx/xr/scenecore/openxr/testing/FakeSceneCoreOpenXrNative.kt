@@ -22,6 +22,8 @@ import androidx.xr.scenecore.openxr.ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN
 import androidx.xr.scenecore.openxr.AndroidViewPanelDisplayResult
 import androidx.xr.scenecore.openxr.INVALID_HANDLE
 import androidx.xr.scenecore.openxr.SceneCoreOpenXrNative
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -33,6 +35,9 @@ internal const val ATTACHMENT_LOSS_BEHAVIOUR_DETACH: Int = 2
 
 /**
  * Test fake implementation of [SceneCoreOpenXrNative] that records all calls in-memory.
+ *
+ * Like the OpenXR runtime, it reads an `XrSpace` when it stages an attachment to it, so staging an
+ * attachment to a space that [destroySpace] destroyed fails the test.
  *
  * Like the native side, it fails to stage a change to an entity that it didn't create, or has
  * destroyed. Like the OpenXR runtime, it has [transactionPoolSize] transactions: an open
@@ -75,6 +80,9 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var simulateDestroyFailure: Boolean = false
     // Runs at the start of submitSceneTransaction(), for example to change the scene mid-commit.
     var onSubmitSceneTransaction: (() -> Unit)? = null
+    // Runs at the start of setTransactionSpaceAttachment() with the space, for example to change
+    // the scene while the scene committer stages an attachment.
+    @Volatile var onSetTransactionSpaceAttachment: ((spaceHandle: Long) -> Unit)? = null
 
     /** How many transactions can be open, or submitted and not completed, at a time. */
     var transactionPoolSize: Int = Int.MAX_VALUE
@@ -108,6 +116,15 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
      * leaves them parented to it, so out of the scene.
      */
     val childrenWhenDestroyed: MutableMap<Long, List<Long>> = mutableMapOf()
+
+    /** The `XrSpace`s that [destroySpace] destroyed. */
+    val destroyedSpaces: MutableSet<Long> = ConcurrentHashMap.newKeySet()
+
+    /**
+     * The destroyed spaces that a transaction tried to attach an entity to. The error thrown then
+     * fails the test, unless the staging ran on another thread, where tests check this instead.
+     */
+    val stagedDestroyedSpaces: MutableList<Long> = CopyOnWriteArrayList()
 
     /** The `XrSpace` an entity is attached to, and what happens when that space loses tracking. */
     data class Attachment(val spaceHandle: Long, val trackingLossBehaviour: Int)
@@ -269,9 +286,16 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         trackingLossBehaviour: Int,
     ): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        onSetTransactionSpaceAttachment?.invoke(spaceHandle)
         if (simulateMissingAttachmentNatives) {
             throw UnsatisfiedLinkError(
                 "No implementation found for nativeSetTransactionSpaceAttachment"
+            )
+        }
+        if (spaceHandle in destroyedSpaces) {
+            stagedDestroyedSpaces += spaceHandle
+            throw AssertionError(
+                "Staged an attachment to XrSpace $spaceHandle after it was destroyed."
             )
         }
         if (simulateAttachmentFailure) return false
@@ -298,6 +322,14 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         if (!isLiveEntity(entityHandle)) return false
         tx.attachments[entityHandle] = null
         return true
+    }
+
+    /**
+     * Destroys `XrSpace` [spaceHandle], as detaching an anchor does. Like the OpenXR runtime, it
+     * doesn't read the space to remove an attachment, or to destroy an entity attached to it.
+     */
+    fun destroySpace(spaceHandle: Long) {
+        destroyedSpaces += spaceHandle
     }
 
     override fun submitSceneTransaction(transactionHandle: Long): Boolean {

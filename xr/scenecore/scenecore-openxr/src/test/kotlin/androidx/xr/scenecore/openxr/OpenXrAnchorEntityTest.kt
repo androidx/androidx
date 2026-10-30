@@ -30,8 +30,14 @@ import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
+import java.lang.ref.WeakReference
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,14 +58,16 @@ class OpenXrAnchorEntityTest {
     private val activity: Activity = mock()
     private val fakeNative = FakeSceneCoreOpenXrNative()
     private val nodeRegistry = OpenXrSceneNodeRegistry()
+    // Runs the entity's tasks and the scene committer's commits, like the runtime's executor.
     private val executor = FakeScheduledExecutorService()
-    // Runs the scene committer's commits, apart from the entity's tasks.
-    private val commitExecutor = FakeScheduledExecutorService()
-    private val sceneCommitter = OpenXrSceneCommitter(fakeNative, commitExecutor)
+    private val sceneCommitter = OpenXrSceneCommitter(fakeNative, executor)
     private val directExecutor = Executor { it.run() }
     // A new anchor reports PAUSED at the identity pose until it's first tracked.
     private val samples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
     private val stateChanges = mutableListOf<Int>()
+    // Whether the runtime still had the attachment when the listener got ERROR, see
+    // detachAnchorOnError().
+    private var wasAttachedOnError: Boolean? = null
     private val anchorPose =
         Pose(Vector3(1f, 2f, 3f), Quaternion.fromEulerAngles(Vector3(10f, 20f, 30f)))
     private val rootPose =
@@ -121,18 +129,58 @@ class OpenXrAnchorEntityTest {
     }
 
     /**
-     * Attaches to [FakeSceneCoreOpenXrNative.fakeSpaceHandle], then runs the collector, which reads
-     * the first sample.
+     * Records later state changes like [recordStateChanges], and destroys the anchor's space on
+     * ERROR, as AnchorSpace does when it detaches its anchor. Records then in [wasAttachedOnError]
+     * whether the runtime still had the attachment.
+     */
+    private fun detachAnchorOnError() {
+        val handle = anchorEntity.entityHandle
+        anchorEntity.setOnStateChangedListener { state ->
+            stateChanges.add(state)
+            if (state == AnchorEntity.State.ERROR) {
+                wasAttachedOnError = handle in fakeNative.entityAttachments
+                fakeNative.destroySpace(fakeNative.fakeSpaceHandle)
+            }
+        }
+        executor.runAll()
+        stateChanges.clear()
+    }
+
+    /**
+     * Attaches to [FakeSceneCoreOpenXrNative.fakeSpaceHandle] and commits the attachment, then runs
+     * the collector, which reads the first sample.
      */
     private fun attachAndCollect(): Boolean {
         val isAttached = anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
-        executor.runAll()
+        executor.commitSceneChanges()
         return isAttached
     }
 
     private fun emit(trackingState: TrackingState, pose: Pose = anchorPose) {
         samples.value = AnchorSample(trackingState, pose)
         executor.runAll()
+    }
+
+    /** Waits until [thread] blocks, for example on a lock, or ends. */
+    private fun awaitBlockedOrTerminated(thread: Thread) {
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5L)
+        while (thread.state != Thread.State.BLOCKED && thread.state != Thread.State.TERMINATED) {
+            check(System.nanoTime() < deadline) { "Timed out waiting for $thread to block." }
+            // Waits up to 1 ms for it to end.
+            thread.join(/* millis= */ 1L)
+        }
+    }
+
+    /** Waits until [condition] holds on [executor], where the scene committer changes the fake. */
+    private fun awaitOnExecutor(executor: ScheduledExecutorService, condition: () -> Boolean) {
+        repeat(500) {
+            val isMet =
+                executor
+                    .schedule(Callable { condition() }, /* delay= */ 10L, TimeUnit.MILLISECONDS)
+                    .get(/* timeout= */ 1L, TimeUnit.SECONDS)
+            if (isMet) return
+        }
+        throw AssertionError("Timed out waiting for the condition.")
     }
 
     @Test
@@ -163,7 +211,7 @@ class OpenXrAnchorEntityTest {
     @Test
     fun setOnStateChangedListener_null_dropsReportsNotYetDelivered() {
         recordStateChanges()
-        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        anchorEntity.attach(null, samples)
 
         anchorEntity.setOnStateChangedListener(null)
         executor.runAll()
@@ -188,7 +236,11 @@ class OpenXrAnchorEntityTest {
         anchorEntity.setOnStateChangedListener { stateChanges.add(it) }
         anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
 
-        executor.runAll()
+        // Commits the attachment before the report of the earlier state runs. Only the fake
+        // executor runs them in this order, since it runs a due commit before the tasks posted
+        // earlier. setOnStateChangedListener_attachFailsBeforeReport_reportsOnlyError covers the
+        // same guard in an order that a real executor can run.
+        executor.commitSceneChanges()
 
         assertThat(stateChanges).containsExactly(AnchorEntity.State.ANCHORED)
     }
@@ -206,6 +258,31 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
+    fun setOnStateChangedListener_whileTheRemovalWaits_reportsErrorOnceItCommits() {
+        attachAndCollect()
+        fakeNative.simulateTransactionUnavailable = true
+        emit(TrackingState.STOPPED)
+
+        anchorEntity.setOnStateChangedListener { stateChanges.add(it) }
+        executor.runAll()
+        assertThat(stateChanges).isEmpty()
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun setOnStateChangedListener_afterTheExecutorShutDown_doesNotThrow() {
+        executor.shutdown()
+
+        anchorEntity.setOnStateChangedListener { stateChanges.add(it) }
+
+        assertThat(stateChanges).isEmpty()
+    }
+
+    @Test
     fun stateListener_isNotCalledWhileHoldingTheEntityLock() {
         var isStateReadableFromOtherThread: Boolean? = null
         anchorEntity.setOnStateChangedListener { newState ->
@@ -218,7 +295,7 @@ class OpenXrAnchorEntityTest {
         executor.runAll()
 
         anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
-        executor.runAll()
+        executor.commitSceneChanges()
 
         assertThat(isStateReadableFromOtherThread).isTrue()
     }
@@ -245,8 +322,10 @@ class OpenXrAnchorEntityTest {
     @Test
     fun stateChanges_supersededBeforeReport_reportOnlyLatestState() {
         recordStateChanges()
-
         anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        // Commits the attachment, which posts the report of ANCHORED.
+        executor.simulateSleepExecutingAtMostOneTask()
+
         anchorEntity.dispose()
         executor.runAll()
 
@@ -254,17 +333,32 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun attach_parentsToRootAndAttachesToSpaceInOneTransaction() {
+    fun attach_untilTheAttachmentCommits_keepsItsState() {
         recordStateChanges()
 
         assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
         executor.runAll()
 
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
+        assertThat(stateChanges).isEmpty()
+        assertThat(fakeNative.submittedTransactions).isEmpty()
+    }
+
+    @Test
+    fun attach_parentsToRootAndAttachesToSpaceInOneTransaction() {
+        recordStateChanges()
+
+        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
+        executor.commitSceneChanges()
+
         val handle = anchorEntity.entityHandle
-        assertThat(fakeNative.committedTransactions).hasSize(1)
-        assertThat(fakeNative.entityParents[handle]).isEqualTo(fakeNative.fakeRootEntityHandle)
-        assertThat(fakeNative.entityAttachments[handle])
-            .isEqualTo(Attachment(fakeNative.fakeSpaceHandle, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        val transaction = fakeNative.submittedTransactions.single()
+        assertThat(transaction.parents).containsExactly(handle, fakeNative.fakeRootEntityHandle)
+        assertThat(transaction.attachments)
+            .containsExactly(
+                handle,
+                Attachment(fakeNative.fakeSpaceHandle, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN),
+            )
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
         assertThat(stateChanges).containsExactly(AnchorEntity.State.ANCHORED)
         assertThat(anchorEntity.parent).isNull()
@@ -277,7 +371,7 @@ class OpenXrAnchorEntityTest {
 
         assertThat(anchorEntity.attach(null, samples)).isFalse()
         assertThat(otherEntity.attach(INVALID_HANDLE, samples)).isFalse()
-        executor.runAll()
+        executor.commitSceneChanges()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
         assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
@@ -293,6 +387,7 @@ class OpenXrAnchorEntityTest {
         assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        executor.commitSceneChanges()
         assertThat(fakeNative.committedTransactions).isEmpty()
     }
 
@@ -303,42 +398,103 @@ class OpenXrAnchorEntityTest {
         assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        executor.commitSceneChanges()
         assertThat(fakeNative.committedTransactions).isEmpty()
     }
 
     @Test
-    fun attach_noTransactionAvailable_movesToErrorAndReturnsFalse() {
+    fun attach_noTransactionAvailable_anchorsOnceOneIsFree() {
+        recordStateChanges()
         fakeNative.simulateTransactionUnavailable = true
 
-        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
+        executor.commitSceneChanges()
 
-        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(fakeNative.entityAttachments).isEmpty()
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.UNANCHORED)
+        assertThat(fakeNative.committedTransactions).isEmpty()
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+        emit(TrackingState.TRACKING)
+
+        assertThat(fakeNative.entityAttachments[anchorEntity.entityHandle])
+            .isEqualTo(Attachment(fakeNative.fakeSpaceHandle, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ANCHORED)
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(anchorPose)
     }
 
     @Test
-    fun attach_attachmentRejected_cancelsWholeTransactionAndMovesToError() {
+    fun attach_again_noTransactionAvailable_followsEarlierAnchorUntilCommitted() {
+        attachAndCollect()
+        emit(TrackingState.TRACKING)
+        val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
+        val laterPose = Pose(Vector3(7f, 8f, 9f))
+        fakeNative.simulateTransactionUnavailable = true
+
+        assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)).isTrue()
+        executor.commitSceneChanges()
+        emit(TrackingState.TRACKING, laterPose)
+
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(laterPose)
+        assertThat(fakeNative.entityAttachments[anchorEntity.entityHandle]?.spaceHandle)
+            .isEqualTo(fakeNative.fakeSpaceHandle)
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+        emit(TrackingState.TRACKING, anchorPose)
+
+        assertThat(fakeNative.entityAttachments[anchorEntity.entityHandle]?.spaceHandle)
+            .isEqualTo(OTHER_SPACE_HANDLE)
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(Pose.Identity)
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+    }
+
+    @Test
+    fun attach_againBeforeTheFirstCommits_attachesOnlyToTheLatestSpace() {
+        recordStateChanges()
+        val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
+
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)
+        // The first anchor never committed, so this entity doesn't use it anymore.
+        fakeNative.destroySpace(fakeNative.fakeSpaceHandle)
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.submittedTransactions.single().attachments)
+            .containsExactly(
+                anchorEntity.entityHandle,
+                Attachment(OTHER_SPACE_HANDLE, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN),
+            )
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ANCHORED)
+    }
+
+    @Test
+    fun attach_attachmentRejected_movesToErrorWithoutParenting() {
+        recordStateChanges()
         fakeNative.simulateAttachmentFailure = true
 
-        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
+        executor.commitSceneChanges()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(fakeNative.cancelledTransactions).hasSize(1)
-        assertThat(fakeNative.committedTransactions).isEmpty()
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        // Doesn't unparent the entity, which was never parented.
+        assertThat(fakeNative.submittedTransactions).hasSize(1)
         assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
         assertThat(fakeNative.entityAttachments).isEmpty()
+        assertThat(fakeNative.cancelledTransactions).isEmpty()
     }
 
     @Test
-    fun attach_withoutAttachmentNatives_cancelsTransactionAndMovesToError() {
+    fun attach_withoutAttachmentNatives_movesToErrorWithoutParenting() {
         fakeNative.simulateMissingAttachmentNatives = true
 
-        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isTrue()
+        executor.commitSceneChanges()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(fakeNative.cancelledTransactions).hasSize(1)
-        assertThat(fakeNative.committedTransactions).isEmpty()
         assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
+        assertThat(fakeNative.cancelledTransactions).isEmpty()
     }
 
     @Test
@@ -346,6 +502,7 @@ class OpenXrAnchorEntityTest {
         anchorEntity.attach(INVALID_HANDLE, samples)
 
         assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+        executor.commitSceneChanges()
 
         assertThat(fakeNative.committedTransactions).isEmpty()
         assertThat(fakeNative.entityAttachments).isEmpty()
@@ -358,7 +515,7 @@ class OpenXrAnchorEntityTest {
         val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
 
         assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)).isTrue()
-        executor.runAll()
+        executor.commitSceneChanges()
         emit(TrackingState.TRACKING, Pose(Vector3(7f, 8f, 9f)))
 
         assertThat(fakeNative.entityAttachments[anchorEntity.entityHandle])
@@ -378,7 +535,7 @@ class OpenXrAnchorEntityTest {
 
         // For example, the new anchor has no XrSpace.
         assertThat(anchorEntity.attach(null, samples)).isFalse()
-        executor.runAll()
+        executor.commitSceneChanges()
         emit(TrackingState.TRACKING, Pose(Vector3(7f, 8f, 9f)))
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
@@ -389,10 +546,149 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
+    fun attach_failingBeforeTheEarlierAttachmentCommits_reportsErrorAndNeverStagesIt() {
+        detachAnchorOnError()
+        val handle = anchorEntity.entityHandle
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+
+        // For example, the new anchor has no XrSpace.
+        assertThat(anchorEntity.attach(null, samples)).isFalse()
+        // The runtime never had the attachment, so ERROR is reported right away, and the listener
+        // destroys the space before the commit that the attachment waited for.
+        executor.runAll()
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.submittedTransactions.flatMap { it.attachments.keys })
+            .doesNotContain(handle)
+        assertThat(fakeNative.submittedTransactions.flatMap { it.parents.keys })
+            .doesNotContain(handle)
+    }
+
+    @Test
+    fun attach_againWhileTheEarlierAttachmentWaitsToBeStaged_neverStagesIt() {
+        val laterSpaceHandle = 4002L
+        // The other entity's attachment waited longer, so the commit stages it first.
+        val otherEntity = createAnchorEntity()
+        otherEntity.attach(OTHER_SPACE_HANDLE, samples)
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        fakeNative.onSetTransactionSpaceAttachment = {
+            fakeNative.onSetTransactionSpaceAttachment = null
+            // The commit has the earlier attachment, which it hasn't staged yet.
+            anchorEntity.attach(laterSpaceHandle, samples)
+            // The earlier anchor never committed, so this entity doesn't use it anymore.
+            fakeNative.destroySpace(fakeNative.fakeSpaceHandle)
+        }
+
+        executor.commitSceneChanges()
+
+        val handle = anchorEntity.entityHandle
+        val firstTransaction = fakeNative.submittedTransactions.first()
+        assertThat(firstTransaction.attachments.keys).containsExactly(otherEntity.entityHandle)
+        assertThat(firstTransaction.parents).doesNotContainKey(handle)
+        assertThat(fakeNative.entityAttachments[handle])
+            .isEqualTo(Attachment(laterSpaceHandle, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+    }
+
+    @Test
+    fun attach_afterTheCommitterShutDown_movesToErrorAndReturnsFalse() {
+        recordStateChanges()
+        sceneCommitter.shutdown()
+
+        assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+        executor.runAll()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun attach_committerShutsDownBeforeTheAttachmentCommits_movesToError() {
+        recordStateChanges()
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+
+        sceneCommitter.shutdown()
+        executor.runAll()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun attach_again_rejected_removesTheEarlierAttachmentAndMovesToError() {
+        attachAndCollect()
+        recordStateChanges()
+        val handle = anchorEntity.entityHandle
+        // Fails to stage the new attachment, but can still remove the earlier one.
+        fakeNative.simulateMissingAttachmentNatives = true
+
+        assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, samples)).isTrue()
+        executor.commitSceneChanges()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
+        assertThat(fakeNative.entityParents).doesNotContainKey(handle)
+    }
+
+    @Test
+    fun attach_againWhileTheFirstCommits_rejected_removesTheFirstAttachment() {
+        val handle = anchorEntity.entityHandle
+        val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
+        fakeNative.onSubmitSceneTransaction = {
+            fakeNative.onSubmitSceneTransaction = null
+            // The first attachment is staged by now, but the runtime rejects the second one.
+            fakeNative.simulateMissingAttachmentNatives = true
+            anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)
+        }
+
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        executor.commitSceneChanges()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
+        assertThat(fakeNative.entityParents).doesNotContainKey(handle)
+    }
+
+    @Test
+    fun attach_failingWhileTheEarlierAttachmentCommits_reportsErrorOnceItIsRemoved() {
+        detachAnchorOnError()
+        val handle = anchorEntity.entityHandle
+        fakeNative.onSubmitSceneTransaction = {
+            fakeNative.onSubmitSceneTransaction = null
+            // The earlier attachment is staged by now. For example, the new anchor has no XrSpace.
+            anchorEntity.attach(null, samples)
+        }
+
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        executor.commitSceneChanges()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        assertThat(wasAttachedOnError).isFalse()
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
+        assertThat(fakeNative.entityParents).doesNotContainKey(handle)
+    }
+
+    @Test
     fun attach_afterDispose_returnsFalse() {
         anchorEntity.dispose()
 
         assertThat(anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)).isFalse()
+    }
+
+    @Test
+    fun attach_waitingToCommit_doesNotKeepTheEntityReachable() {
+        fun attachNewEntity(): WeakReference<OpenXrAnchorEntity> {
+            val entity = createAnchorEntity()
+            entity.attach(fakeNative.fakeSpaceHandle, samples)
+            return WeakReference(entity)
+        }
+
+        val entityRef = attachNewEntity()
+
+        MemoryUtils.assertGarbageCollected(entityRef)
     }
 
     @Test
@@ -451,25 +747,24 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun stoppedSample_removesAttachmentAndUnparentsBeforeReportingError() {
+    fun stoppedSample_movesToErrorAndReportsItOnceTheAttachmentIsRemoved() {
         attachAndCollect()
         emit(TrackingState.TRACKING)
+        detachAnchorOnError()
         val handle = anchorEntity.entityHandle
-        var isAttachedWhenErrorReported: Boolean? = null
-        anchorEntity.setOnStateChangedListener { newState ->
-            if (newState == AnchorEntity.State.ERROR) {
-                isAttachedWhenErrorReported = fakeNative.entityAttachments.containsKey(handle)
-            }
-        }
-        executor.runAll()
 
         emit(TrackingState.STOPPED)
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(isAttachedWhenErrorReported).isFalse()
+        assertThat(anchorEntity.activitySpacePose).isEqualTo(Pose())
+        assertThat(stateChanges).isEmpty()
+
+        executor.commitSceneChanges()
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        assertThat(wasAttachedOnError).isFalse()
         assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
         assertThat(fakeNative.entityParents).doesNotContainKey(handle)
-        assertThat(anchorEntity.activitySpacePose).isEqualTo(Pose())
     }
 
     @Test
@@ -477,6 +772,7 @@ class OpenXrAnchorEntityTest {
         attachAndCollect()
         emit(TrackingState.TRACKING)
         emit(TrackingState.STOPPED)
+        executor.commitSceneChanges()
 
         emit(TrackingState.TRACKING, Pose(Vector3(7f, 8f, 9f)))
 
@@ -485,21 +781,146 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun stoppedSample_noTransactionAvailable_movesToErrorAndLeavesAttachmentUntilDestroyed() {
+    fun stoppedSample_noTransactionAvailable_reportsErrorOnceTheRemovalCommits() {
         attachAndCollect()
+        emit(TrackingState.TRACKING)
+        detachAnchorOnError()
         val handle = anchorEntity.entityHandle
         fakeNative.simulateTransactionUnavailable = true
 
         emit(TrackingState.STOPPED)
+        executor.commitSceneChanges()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).isEmpty()
         assertThat(fakeNative.entityAttachments).containsKey(handle)
 
-        anchorEntity.dispose()
         fakeNative.simulateTransactionUnavailable = false
-        commitExecutor.commitSceneChanges()
+        executor.commitSceneChanges()
 
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        assertThat(wasAttachedOnError).isFalse()
+        assertThat(fakeNative.destroyedSpaces).contains(fakeNative.fakeSpaceHandle)
+    }
+
+    @Test
+    fun stoppedSample_removalRejected_reportsErrorAndLeavesTheEntityParented() {
+        attachAndCollect()
+        recordStateChanges()
+        val handle = anchorEntity.entityHandle
+        fakeNative.simulateAttachmentFailure = true
+
+        emit(TrackingState.STOPPED)
+        executor.commitSceneChanges()
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        // The runtime may still have the attachment, so the entity stays parented to the root.
+        assertThat(fakeNative.entityParents[handle]).isEqualTo(fakeNative.fakeRootEntityHandle)
+    }
+
+    @Test
+    fun stoppedSample_committerShutsDownBeforeTheRemovalCommits_reportsError() {
+        attachAndCollect()
+        recordStateChanges()
+        fakeNative.simulateTransactionUnavailable = true
+        emit(TrackingState.STOPPED)
+        executor.commitSceneChanges()
+        assertThat(stateChanges).isEmpty()
+
+        sceneCommitter.shutdown()
+        executor.runAll()
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun stoppedSample_nativeInstanceDestroyedBeforeTheRemovalCommits_reportsError() {
+        attachAndCollect()
+        recordStateChanges()
+        fakeNative.simulateTransactionUnavailable = true
+        emit(TrackingState.STOPPED)
+        executor.commitSceneChanges()
+        assertThat(stateChanges).isEmpty()
+
+        // Releases every native entity, attachments included.
+        fakeNative.destroy()
+        executor.commitSceneChanges()
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun stoppedSample_afterTheCommitterShutDown_reportsErrorRightAway() {
+        attachAndCollect()
+        recordStateChanges()
+        sceneCommitter.shutdown()
+
+        emit(TrackingState.STOPPED)
+
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun earlierAnchorStopped_whileReplacementWaits_followsReplacementOnceItCommits() {
+        attachAndCollect()
+        emit(TrackingState.TRACKING)
+        recordStateChanges()
+        val handle = anchorEntity.entityHandle
+        val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
+        val otherPose = Pose(Vector3(7f, 8f, 9f))
+        fakeNative.simulateTransactionUnavailable = true
+        assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)).isTrue()
+        executor.commitSceneChanges()
+
+        emit(TrackingState.STOPPED)
+        // This entity no longer follows the earlier anchor.
+        emit(TrackingState.TRACKING, Pose(Vector3(4f, 5f, 6f)))
+
+        assertThat(anchorEntity.state).isNotEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).doesNotContain(AnchorEntity.State.ERROR)
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(anchorPose)
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.entityAttachments[handle])
+            .isEqualTo(Attachment(OTHER_SPACE_HANDLE, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+        // The earlier anchor's pose no longer applies.
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(Pose.Identity)
+
+        otherSamples.value = AnchorSample(TrackingState.TRACKING, otherPose)
+        executor.runAll()
+
+        assertThat(anchorEntity.poseInPlatformReferenceSpace).isEqualTo(otherPose)
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+        assertThat(stateChanges).doesNotContain(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun earlierAnchorStopped_whileReplacementWaits_replacementRejected_movesToErrorAndRemovesAttachment() {
+        attachAndCollect()
+        emit(TrackingState.TRACKING)
+        detachAnchorOnError()
+        val handle = anchorEntity.entityHandle
+        val otherSamples = MutableStateFlow(AnchorSample(TrackingState.PAUSED, Pose()))
+        fakeNative.simulateTransactionUnavailable = true
+        assertThat(anchorEntity.attach(OTHER_SPACE_HANDLE, otherSamples)).isTrue()
+        executor.commitSceneChanges()
+        emit(TrackingState.STOPPED)
+        assertThat(anchorEntity.state).isNotEqualTo(AnchorEntity.State.ERROR)
+        // Fails to stage the new attachment, but can still remove the earlier one.
+        fakeNative.simulateMissingAttachmentNatives = true
+        fakeNative.simulateTransactionUnavailable = false
+
+        executor.commitSceneChanges()
+
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+        // The listener got ERROR only once the removal of the earlier attachment committed.
+        assertThat(wasAttachedOnError).isFalse()
         assertThat(fakeNative.entityAttachments).doesNotContainKey(handle)
+        assertThat(fakeNative.entityParents).doesNotContainKey(handle)
     }
 
     @Test
@@ -571,7 +992,7 @@ class OpenXrAnchorEntityTest {
         val child = createChildEntity()
 
         child.parent = anchorEntity
-        commitExecutor.commitSceneChanges()
+        executor.commitSceneChanges()
 
         assertThat(fakeNative.entityParents[child.entityHandle])
             .isEqualTo(anchorEntity.entityHandle)
@@ -594,23 +1015,19 @@ class OpenXrAnchorEntityTest {
     }
 
     @Test
-    fun dispose_removesAttachmentBeforeReportingErrorThenDestroysEntity() {
+    fun dispose_reportsErrorThenDestroysEntity() {
         attachAndCollect()
+        recordStateChanges()
         val handle = anchorEntity.entityHandle
-        var isAttachedWhenErrorReported: Boolean? = null
-        anchorEntity.setOnStateChangedListener { newState ->
-            if (newState == AnchorEntity.State.ERROR) {
-                isAttachedWhenErrorReported = fakeNative.entityAttachments.containsKey(handle)
-            }
-        }
-        executor.runAll()
 
         anchorEntity.dispose()
-        assertThat(isAttachedWhenErrorReported).isNull()
         executor.runAll()
-        commitExecutor.commitSceneChanges()
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
 
-        assertThat(isAttachedWhenErrorReported).isFalse()
+        executor.commitSceneChanges()
+
+        // Destroying the native entity removes its attachment too, so nothing else is committed.
+        assertThat(fakeNative.submittedTransactions).hasSize(1)
         assertThat(fakeNative.destroyedEntities).contains(handle)
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
         assertThat(anchorEntity.entityHandle).isEqualTo(INVALID_HANDLE)
@@ -642,7 +1059,7 @@ class OpenXrAnchorEntityTest {
         val handle = anchorEntity.entityHandle
 
         anchorEntity.dispose()
-        commitExecutor.commitSceneChanges()
+        executor.commitSceneChanges()
 
         assertThat(fakeNative.committedTransactions).isEmpty()
         assertThat(fakeNative.destroyedEntities).contains(handle)
@@ -654,8 +1071,95 @@ class OpenXrAnchorEntityTest {
         fakeNative.destroy()
 
         anchorEntity.dispose()
+        executor.commitSceneChanges()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun dispose_whileWaitingForTheAttachmentToCommit_dropsIt() {
+        val handle = anchorEntity.entityHandle
+        fakeNative.simulateTransactionUnavailable = true
+        anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+        executor.commitSceneChanges()
+        fakeNative.simulateTransactionUnavailable = false
+
+        anchorEntity.dispose()
+        fakeNative.destroySpace(fakeNative.fakeSpaceHandle)
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.committedTransactions).isEmpty()
+        assertThat(fakeNative.destroyedEntities).contains(handle)
+        assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun dispose_whileTheRemovalWaits_reportsErrorRightAway() {
+        attachAndCollect()
+        recordStateChanges()
+        val handle = anchorEntity.entityHandle
+        fakeNative.simulateTransactionUnavailable = true
+        emit(TrackingState.STOPPED)
+        assertThat(stateChanges).isEmpty()
+
+        anchorEntity.dispose()
+        executor.runAll()
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+
+        // Destroying the native entity removes the attachment instead.
+        assertThat(fakeNative.destroyedEntities).contains(handle)
+        assertThat(stateChanges).containsExactly(AnchorEntity.State.ERROR)
+    }
+
+    @Test
+    fun dispose_whileTheCommitterStagesTheAttachment_waitsForItToFinish() {
+        val realExecutor = Executors.newSingleThreadScheduledExecutor()
+        try {
+            val committer = OpenXrSceneCommitter(fakeNative, realExecutor)
+            anchorEntity =
+                OpenXrAnchorEntity(
+                    activity,
+                    fakeNative.createSceneEntity(),
+                    fakeNative,
+                    committer,
+                    nodeRegistry,
+                    realExecutor,
+                    activitySpace,
+                )
+            val isStaging = CountDownLatch(1)
+            val canFinishStaging = CountDownLatch(1)
+            fakeNative.onSetTransactionSpaceAttachment = {
+                isStaging.countDown()
+                canFinishStaging.await(5L, TimeUnit.SECONDS)
+            }
+            anchorEntity.attach(fakeNative.fakeSpaceHandle, samples)
+            assertThat(isStaging.await(5L, TimeUnit.SECONDS)).isTrue()
+
+            val disposer = thread {
+                anchorEntity.dispose()
+                // The anchor can be detached once dispose() returns.
+                fakeNative.destroySpace(fakeNative.fakeSpaceHandle)
+            }
+            // Lets dispose() destroy the space before the staging finishes, if it doesn't wait.
+            awaitBlockedOrTerminated(disposer)
+            val wasDisposeWaiting = disposer.isAlive
+            canFinishStaging.countDown()
+            disposer.join(/* millis= */ 5_000L)
+            // Waits for the staging to read the space, and for the entity's destruction after it.
+            awaitOnExecutor(realExecutor) {
+                fakeNative.stagedDestroyedSpaces.isNotEmpty() ||
+                    fakeNative.destroyedEntities.isNotEmpty()
+            }
+
+            assertThat(wasDisposeWaiting).isTrue()
+            assertThat(fakeNative.stagedDestroyedSpaces).isEmpty()
+            assertThat(disposer.isAlive).isFalse()
+        } finally {
+            realExecutor.shutdownNow()
+        }
     }
 
     @Test
@@ -666,11 +1170,11 @@ class OpenXrAnchorEntityTest {
 
         anchorEntity.dispose()
         // A few tries, each of which fails.
-        repeat(3) { commitExecutor.simulateSleepExecutingAtMostOneTask() }
+        repeat(3) { executor.simulateSleepExecutingAtMostOneTask() }
         assertThat(fakeNative.destroyedEntities).doesNotContain(handle)
 
         fakeNative.simulateTransactionUnavailable = false
-        commitExecutor.commitSceneChanges()
+        executor.commitSceneChanges()
         assertThat(fakeNative.destroyedEntities).contains(handle)
     }
 }

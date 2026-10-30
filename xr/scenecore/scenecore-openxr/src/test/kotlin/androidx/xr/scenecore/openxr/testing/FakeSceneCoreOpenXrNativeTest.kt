@@ -319,6 +319,53 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun sceneTransaction_setSpaceAttachmentToADestroyedSpace_throwsAndRecordsIt() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        val txHandle = fake.createSceneTransaction()
+
+        fake.destroySpace(fake.fakeSpaceHandle)
+
+        assertThrows(AssertionError::class.java) {
+            fake.setTransactionSpaceAttachment(
+                txHandle,
+                entity,
+                fake.fakeSpaceHandle,
+                ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+            )
+        }
+        assertThat(fake.stagedDestroyedSpaces).containsExactly(fake.fakeSpaceHandle)
+        // Removing an attachment doesn't read the space.
+        assertThat(fake.removeTransactionSpaceAttachment(txHandle, entity)).isTrue()
+    }
+
+    @Test
+    fun setTransactionSpaceAttachment_runsOnSetTransactionSpaceAttachmentFirst() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        val entity = fake.createSceneEntity()
+        val txHandle = fake.createSceneTransaction()
+        var spaceWhenCalled: Long? = null
+        var attachmentsWhenCalled: Map<Long, FakeSceneCoreOpenXrNative.Attachment?>? = null
+        fake.onSetTransactionSpaceAttachment = { spaceHandle ->
+            spaceWhenCalled = spaceHandle
+            attachmentsWhenCalled = fake.openTransactions.getValue(txHandle).attachments.toMap()
+        }
+
+        fake.setTransactionSpaceAttachment(
+            txHandle,
+            entity,
+            fake.fakeSpaceHandle,
+            ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN,
+        )
+
+        assertThat(spaceWhenCalled).isEqualTo(fake.fakeSpaceHandle)
+        assertThat(attachmentsWhenCalled).isEmpty()
+        assertThat(fake.openTransactions.getValue(txHandle).attachments).containsKey(entity)
+    }
+
+    @Test
     fun sceneTransaction_removeSpaceAttachment_detachesEntityOnSubmit() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)

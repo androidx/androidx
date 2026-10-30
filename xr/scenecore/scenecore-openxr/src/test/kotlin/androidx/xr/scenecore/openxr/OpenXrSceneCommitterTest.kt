@@ -21,16 +21,21 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.CommitCallback
+import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.CommitResult
 import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.Companion.COALESCING_DELAY_MS
 import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.Companion.INITIAL_RETRY_DELAY_MS
 import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.Companion.MAX_ENTITIES_PER_TRANSACTION
 import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.Companion.MAX_RETRY_DELAY_MS
 import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.Companion.MIN_COMMIT_INTERVAL_MS
+import androidx.xr.scenecore.openxr.OpenXrSceneCommitter.SpaceLease
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
+import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative.Attachment
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -56,6 +61,14 @@ class OpenXrSceneCommitterTest {
     private val poseA = Pose(Vector3(1f, 2f, 3f))
     private val poseB = Pose(Vector3(4f, 5f, 6f), Quaternion.fromEulerAngles(Vector3(0f, 90f, 0f)))
     private val scaleA = Vector3(2f, 3f, 4f)
+    private val spaceA = 4001L
+    private val spaceB = 4002L
+
+    // The results that [callback] and [otherCallback] got, in order.
+    private val results = mutableListOf<CommitResult>()
+    private val otherResults = mutableListOf<CommitResult>()
+    private val callback = CommitCallback { results += it }
+    private val otherCallback = CommitCallback { otherResults += it }
 
     private var entity = INVALID_HANDLE
     private var otherEntity = INVALID_HANDLE
@@ -114,6 +127,16 @@ class OpenXrSceneCommitterTest {
             thread.uncaughtExceptionHandler = originalHandler
         }
         return reported
+    }
+
+    /** Waits until [thread] blocks, for example on a lock, or ends. */
+    private fun awaitBlockedOrTerminated(thread: Thread) {
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5L)
+        while (thread.state != Thread.State.BLOCKED && thread.state != Thread.State.TERMINATED) {
+            check(System.nanoTime() < deadline) { "Timed out waiting for $thread to block." }
+            // Waits up to 1 ms for it to end.
+            thread.join(/* millis= */ 1L)
+        }
     }
 
     @Test
@@ -831,6 +854,356 @@ class OpenXrSceneCommitterTest {
     }
 
     @Test
+    fun setSpaceAttachment_attachesTheEntityAndReportsCommitted() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+
+        commitAll()
+
+        assertThat(fakeNative.entityAttachments[entity])
+            .isEqualTo(Attachment(spaceA, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun setSpaceAttachment_withAParent_commitsBothInOneTransaction() {
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA), callback)
+            setParent(entity, rootEntity)
+        }
+
+        commitAll()
+
+        val transaction = fakeNative.submittedTransactions.single()
+        assertThat(transaction.attachments)
+            .containsExactly(entity, Attachment(spaceA, ATTACHMENT_LOSS_BEHAVIOUR_LAST_KNOWN))
+        assertThat(transaction.parents).containsExactly(entity, rootEntity)
+    }
+
+    @Test
+    fun setSpaceAttachment_rejected_reportsRejectedAndSkipsTheParent() {
+        fakeNative.simulateAttachmentFailure = true
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA), callback)
+            setParent(entity, rootEntity)
+        }
+
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.REJECTED)
+        assertThat(fakeNative.submittedTransactions.single().parents).isEmpty()
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(1)
+    }
+
+    @Test
+    fun setSpaceAttachment_withoutAttachmentNatives_reportsRejectedAndKeepsCommitting() {
+        fakeNative.simulateMissingAttachmentNatives = true
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        commitAll()
+
+        committer.edit { setTransform(otherEntity, poseA, scaleA) }
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.REJECTED)
+        assertThat(fakeNative.entityTransforms).containsExactly(otherEntity, poseA to scaleA)
+    }
+
+    @Test
+    fun spaceLease_invalidSpace_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> { SpaceLease(INVALID_HANDLE) }
+    }
+
+    @Test
+    fun setSpaceAttachment_replacedBeforeItCommits_reportsOnlyTheNewerChange() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceB), otherCallback) }
+
+        commitAll()
+
+        assertThat(results).isEmpty()
+        assertThat(otherResults).containsExactly(CommitResult.COMMITTED)
+        assertThat(fakeNative.entityAttachments[entity]?.spaceHandle).isEqualTo(spaceB)
+    }
+
+    @Test
+    fun setSpaceAttachment_whileNoTransactionIsFree_reportsOnceItCommits() {
+        fakeNative.simulateTransactionUnavailable = true
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        advanceTimeBy(100L)
+        executor.runAll()
+        assertThat(results).isEmpty()
+
+        fakeNative.simulateTransactionUnavailable = false
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun setSpaceAttachment_leaseRevokedBeforeItIsStaged_isDroppedWithTheChangesThatGoWithIt() {
+        val lease = SpaceLease(spaceA)
+        committer.edit {
+            setSpaceAttachment(entity, lease, callback)
+            setParent(entity, rootEntity)
+            setTransform(entity, poseA, scaleA)
+        }
+
+        assertThat(lease.revoke()).isFalse()
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+        val transaction = fakeNative.submittedTransactions.single()
+        assertThat(transaction.attachments).isEmpty()
+        assertThat(transaction.parents).isEmpty()
+        assertThat(transaction.transforms).isEmpty()
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(1)
+    }
+
+    @Test
+    fun setSpaceAttachment_leaseRevokedInATransactionThatIsNotSubmitted_isNotCommittedAgain() {
+        val lease = SpaceLease(spaceA)
+        committer.edit {
+            setSpaceAttachment(entity, lease, callback)
+            setParent(entity, rootEntity)
+        }
+        lease.revoke()
+        fakeNative.simulateSubmitFailure = true
+        advanceTimeBy(COALESCING_DELAY_MS)
+        fakeNative.simulateSubmitFailure = false
+
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+        assertThat(fakeNative.submittedTransactions).isEmpty()
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(1)
+    }
+
+    @Test
+    fun spaceLease_revoke_waitsForTheStagingInProgress() {
+        val lease = SpaceLease(spaceA)
+        val isStaging = CountDownLatch(1)
+        val canFinishStaging = CountDownLatch(1)
+        fakeNative.onSetTransactionSpaceAttachment = {
+            isStaging.countDown()
+            canFinishStaging.await(5L, TimeUnit.SECONDS)
+        }
+        committer.edit { setSpaceAttachment(entity, lease, callback) }
+        val committerThread = thread { commitAll() }
+        assertThat(isStaging.await(5L, TimeUnit.SECONDS)).isTrue()
+
+        var isAccepted: Boolean? = null
+        val revoker = thread { isAccepted = lease.revoke() }
+        awaitBlockedOrTerminated(revoker)
+        val wasRevokeWaiting = revoker.isAlive
+        canFinishStaging.countDown()
+        revoker.join(/* millis= */ 5_000L)
+        committerThread.join(/* millis= */ 5_000L)
+
+        assertThat(wasRevokeWaiting).isTrue()
+        assertThat(isAccepted).isTrue()
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun spaceLease_revoke_returnsWhetherTheRuntimeAcceptedTheAttachment() {
+        val acceptedLease = SpaceLease(spaceA)
+        val rejectedLease = SpaceLease(spaceB)
+        committer.edit { setSpaceAttachment(entity, acceptedLease, callback) }
+        commitAll()
+        fakeNative.simulateAttachmentFailure = true
+
+        committer.edit { setSpaceAttachment(otherEntity, rejectedLease, otherCallback) }
+        commitAll()
+
+        assertThat(acceptedLease.revoke()).isTrue()
+        assertThat(rejectedLease.revoke()).isFalse()
+    }
+
+    @Test
+    fun removeSpaceAttachment_detachesTheEntityAndReportsCommitted() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        commitAll()
+
+        committer.edit { removeSpaceAttachment(entity, otherCallback) }
+        commitAll()
+
+        assertThat(fakeNative.submittedTransactions[1].attachments).containsExactly(entity, null)
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(entity)
+        assertThat(otherResults).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun removeSpaceAttachment_rejected_reportsRejectedAndSkipsTheParent() {
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA), callback)
+            setParent(entity, rootEntity)
+        }
+        commitAll()
+        fakeNative.simulateAttachmentFailure = true
+
+        committer.edit {
+            removeSpaceAttachment(entity, otherCallback)
+            setParent(entity, INVALID_HANDLE)
+        }
+        commitAll()
+
+        assertThat(otherResults).containsExactly(CommitResult.REJECTED)
+        // The entity may still be attached, so it stays parented to the root.
+        assertThat(fakeNative.submittedTransactions[1].parents).isEmpty()
+        assertThat(fakeNative.entityParents[entity]).isEqualTo(rootEntity)
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(2)
+    }
+
+    @Test
+    fun removeSpaceAttachment_beforeTheAttachmentCommits_dropsIt() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        committer.edit { removeSpaceAttachment(entity) }
+
+        commitAll()
+
+        assertThat(results).isEmpty()
+        assertThat(fakeNative.submittedTransactions.single().attachments)
+            .containsExactly(entity, null)
+    }
+
+    @Test
+    fun removeSpaceAttachment_whileTheAttachmentIsBeingCommitted_removesItAfterwards() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        fakeNative.onSubmitSceneTransaction = {
+            fakeNative.onSubmitSceneTransaction = null
+            committer.edit { removeSpaceAttachment(entity) }
+        }
+
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+        assertThat(fakeNative.submittedTransactions).hasSize(2)
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(entity)
+    }
+
+    @Test
+    fun commitCallback_thatThrows_isReportedAndTheOtherCallbacksStillRun() {
+        val error = IllegalStateException("test")
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA)) { throw error }
+            setSpaceAttachment(otherEntity, SpaceLease(spaceA), otherCallback)
+        }
+
+        val reported = recordUncaughtExceptions { commitAll() }
+
+        assertThat(reported).containsExactly(error)
+        assertThat(otherResults).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun destroyEntity_ofAnAttachedEntity_destroysItWithoutRemovingTheAttachmentFirst() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        commitAll()
+
+        committer.edit { destroyEntity(entity) }
+        commitAll()
+
+        // Releasing the native entity removes it, attachment included.
+        assertThat(fakeNative.submittedTransactions).hasSize(1)
+        assertThat(fakeNative.destroyedEntities).containsExactly(entity)
+    }
+
+    @Test
+    fun destroyEntity_dropsAnAttachmentThatDidNotCommit() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        committer.edit { destroyEntity(entity) }
+
+        commitAll()
+
+        assertThat(results).isEmpty()
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
+        assertThat(fakeNative.destroyedEntities).containsExactly(entity)
+    }
+
+    @Test
+    fun destroyEntity_whileTheAttachmentIsBeingCommitted_reportsItAndDestroysTheEntity() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        fakeNative.onSubmitSceneTransaction = {
+            fakeNative.onSubmitSceneTransaction = null
+            committer.edit { destroyEntity(entity) }
+        }
+
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+        assertThat(fakeNative.submittedTransactions).hasSize(1)
+        assertThat(fakeNative.destroyedEntities).containsExactly(entity)
+    }
+
+    @Test
+    fun destroyEntity_thenAttaching_neverReports() {
+        committer.edit { destroyEntity(entity) }
+
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        commitAll()
+
+        assertThat(results).isEmpty()
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
+    }
+
+    @Test
+    fun destroyEntity_thatFails_ignoresTheChangesMadeToItsHandleMeanwhile() {
+        // The change to the other entity waited longer, so it commits before the destruction.
+        committer.edit { setTransform(otherEntity, poseA, scaleA) }
+        committer.edit { destroyEntity(entity) }
+        fakeNative.onSubmitSceneTransaction = {
+            fakeNative.onSubmitSceneTransaction = null
+            fakeNative.simulateDestroyFailure = true
+            committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        }
+
+        commitAll()
+
+        assertThat(fakeNative.destroyedEntities).isEmpty()
+        assertThat(fakeNative.entityAttachments).doesNotContainKey(entity)
+        assertThat(results).isEmpty()
+    }
+
+    @Test
+    fun commitCallback_runsWithoutHoldingTheCommitterLock() {
+        var isCommitterFree: Boolean? = null
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA)) {
+                // If the callback ran while holding the committer's lock, this edit would block.
+                val editor = thread { committer.edit { setTransform(otherEntity, poseA, scaleA) } }
+                editor.join(TimeUnit.SECONDS.toMillis(5))
+                isCommitterFree = !editor.isAlive
+            }
+        }
+
+        commitAll()
+
+        assertThat(isCommitterFree).isTrue()
+    }
+
+    @Test
+    fun shutdown_reportsTheWaitingAttachmentChangesAsDroppedOnTheExecutor() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+
+        committer.shutdown()
+        assertThat(results).isEmpty()
+        executor.runAll()
+        commitAll()
+
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
+    }
+
+    @Test
+    fun shutdown_afterTheExecutorShutDown_dropsTheCallbacksWithoutThrowing() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        executor.shutdown()
+
+        committer.shutdown()
+
+        assertThat(results).isEmpty()
+    }
+
+    @Test
     fun shutdown_dropsUncommittedChangesAndCancelsTheCommit() {
         committer.edit { setTransform(entity, poseA, scaleA) }
 
@@ -856,10 +1229,39 @@ class OpenXrSceneCommitterTest {
     }
 
     @Test
-    fun edit_afterShutdown_isIgnored() {
+    fun shutdown_duringACommit_stillReportsTheChangesInFlight() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        fakeNative.onSubmitSceneTransaction = { committer.shutdown() }
+
+        commitAll()
+        executor.runAll()
+
+        assertThat(fakeNative.submittedTransactions).hasSize(1)
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+    }
+
+    @Test
+    fun shutdown_duringACommitThatIsNotSubmitted_reportsTheChangesInFlightAsDropped() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        fakeNative.simulateSubmitFailure = true
+        fakeNative.onSubmitSceneTransaction = { committer.shutdown() }
+
+        commitAll()
+        executor.runAll()
+
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+    }
+
+    @Test
+    fun edit_returnsTrueUntilShutdown() {
+        assertThat(committer.edit { setTransform(entity, poseA, scaleA) }).isTrue()
+    }
+
+    @Test
+    fun edit_afterShutdown_isIgnoredAndReturnsFalse() {
         committer.shutdown()
 
-        committer.edit { setTransform(entity, poseA, scaleA) }
+        assertThat(committer.edit { setTransform(entity, poseA, scaleA) }).isFalse()
         commitAll()
 
         assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
@@ -880,13 +1282,31 @@ class OpenXrSceneCommitterTest {
     }
 
     @Test
-    fun edit_afterTheExecutorShutDown_doesNotThrow() {
+    fun commit_afterTheNativeInstanceIsDestroyed_reportsTheAttachmentChangesAsDropped() {
+        val committer = OpenXrSceneCommitter(fakeNative, executor, maxEntitiesPerTransaction = 1)
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA), callback)
+            setSpaceAttachment(otherEntity, SpaceLease(spaceB), otherCallback)
+        }
+        fakeNative.destroy()
+
+        commitAll()
+
+        // The first change was in the commit, and the other one waited for the next commit.
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+        assertThat(otherResults).containsExactly(CommitResult.DROPPED)
+    }
+
+    @Test
+    fun edit_afterTheExecutorShutDown_returnsFalseWithoutThrowing() {
         executor.shutdown()
 
-        committer.edit { setTransform(entity, poseA, scaleA) }
-        committer.edit { setTransform(entity, poseB, scaleA) }
+        assertThat(committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) })
+            .isFalse()
+        assertThat(committer.edit { setTransform(entity, poseB, scaleA) }).isFalse()
 
         assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
+        assertThat(results).isEmpty()
     }
 
     @Test
@@ -899,6 +1319,20 @@ class OpenXrSceneCommitterTest {
 
         assertThat(fakeNative.submittedTransactions).hasSize(1)
         assertThat(executor.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun commit_whenTheExecutorShutsDownDuringIt_reportsTheWaitingAttachmentChangesAsDropped() {
+        committer.edit { setSpaceAttachment(entity, SpaceLease(spaceA), callback) }
+        fakeNative.onSubmitSceneTransaction = {
+            executor.shutdown()
+            committer.edit { setSpaceAttachment(otherEntity, SpaceLease(spaceB), otherCallback) }
+        }
+
+        advanceTimeBy(COALESCING_DELAY_MS)
+
+        assertThat(results).containsExactly(CommitResult.COMMITTED)
+        assertThat(otherResults).containsExactly(CommitResult.DROPPED)
     }
 
     @Test
@@ -919,6 +1353,23 @@ class OpenXrSceneCommitterTest {
         assertThat(reported.single()).hasCauseThat().isSameInstanceAs(error)
         assertThat(fakeNative.submittedTransactions).isEmpty()
         assertThat(executor.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun commit_whenANativeCallThrows_reportsTheAttachmentChangesAsDropped() {
+        val committer = OpenXrSceneCommitter(fakeNative, executor, maxEntitiesPerTransaction = 1)
+        committer.edit {
+            setSpaceAttachment(entity, SpaceLease(spaceA), callback)
+            setSpaceAttachment(otherEntity, SpaceLease(spaceB), otherCallback)
+        }
+        fakeNative.onSubmitSceneTransaction = { throw IllegalStateException("test") }
+
+        recordUncaughtExceptions {
+            assertFailsWith<IllegalStateException> { advanceTimeBy(COALESCING_DELAY_MS) }
+        }
+
+        assertThat(results).containsExactly(CommitResult.DROPPED)
+        assertThat(otherResults).containsExactly(CommitResult.DROPPED)
     }
 
     @Test
