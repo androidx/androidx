@@ -17,6 +17,7 @@
 package androidx.credentials.registry.provider.digitalcredentials
 
 import android.graphics.Bitmap
+import androidx.annotation.RequiresPermission
 
 /**
  * An entry offering the user an opportunity to add a digital credential to your holder / wallet
@@ -45,17 +46,26 @@ public abstract class InlineIssuanceEntry(
     }
 
     /**
-     * The display metadata associated with a [InlineIssuanceEntry] to be rendered in a selector UI.
+     * Holds display metadata for an [InlineIssuanceEntry] rendered in the selector UI.
      *
      * @property subtitle the subtitle to display for this entry
-     * @property titleHint the title that _may_ be displayed for this entry in the selector UI only
-     *   if the registering application is system privileged; otherwise, the application label will
-     *   be used. Therefore, most applications should leave this unset.
-     * @property iconHint the icon that _may_ be displayed for this entry in the selector UI only if
-     *   the registering application is system privileged; otherwise, the application icon will be
-     *   used. Therefore, most applications should leave this unset.
+     * @property titleHint optional title to display in the selector UI. Overriding the default
+     *   application label requires the registering application to hold
+     *   `android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON`; otherwise, the system
+     *   ignores the override and uses the default application label. Most applications should leave
+     *   this unset.
+     * @property iconHint optional icon to display in the selector UI. Overriding the default
+     *   application icon requires the registering application to hold
+     *   `android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON`; otherwise, the system
+     *   ignores the override and uses the default application icon. Most applications should leave
+     *   this unset.
      */
-    public class InlineIssuanceDisplayProperties(
+    public class InlineIssuanceDisplayProperties
+    @RequiresPermission(
+        value = "android.permission.SUBSTITUTE_SHARE_TARGET_APP_NAME_AND_ICON",
+        conditional = true,
+    )
+    constructor(
         public val subtitle: CharSequence?,
         public val titleHint: CharSequence? = null,
         public val iconHint: Bitmap? = null,
