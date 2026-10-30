@@ -61,6 +61,8 @@ class ImageCaptureFailedForVideoSnapshotQuirkTest(
                 arrayOf<Any>("SM-F936U1", true),
                 arrayOf<Any>("sm-f946u1", true),
                 arrayOf<Any>("tecno mobile bf6", true),
+                arrayOf<Any>("xq-dq72", true),
+                arrayOf<Any>("XQ-DQ72", true),
                 arrayOf<Any>("Pixel 7", false),
                 arrayOf<Any>("sm-s928u1", false),
             )
