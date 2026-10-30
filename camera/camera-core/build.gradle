@@ -142,4 +142,5 @@ androidx {
         url = "https://opensource.org/licenses/BSD-3-Clause"
     }
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }

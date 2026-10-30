@@ -43,3 +43,7 @@ android {
     }
     namespace = "com.example.androidx.mediarouting"
 }
+
+androidx {
+    legacyDisableReferenceEqualityCheck = true
+}

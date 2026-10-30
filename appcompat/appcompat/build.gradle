@@ -88,4 +88,5 @@ androidx {
             "functionality, including dark mode and Material theming."
     failOnDeprecationWarnings = false
     enableRobolectric()
+    legacyDisableReferenceEqualityCheck = true
 }

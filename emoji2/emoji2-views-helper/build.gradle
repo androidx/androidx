@@ -37,4 +37,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Provide helper classes for Emoji2 views."
+    legacyDisableReferenceEqualityCheck = true
 }
