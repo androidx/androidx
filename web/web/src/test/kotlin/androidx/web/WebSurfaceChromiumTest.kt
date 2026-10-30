@@ -28,11 +28,11 @@ import org.junit.runners.JUnit4
 class WebSurfaceChromiumTest {
 
     private class RecordingEventListener : WebSurfaceChromium.EventListener {
-        var invalidateCount = 0
+        val invalidateEvents = mutableListOf<Boolean>()
         val overScrollEvents = mutableListOf<OverScrollCall>()
 
-        override fun onInvalidate() {
-            invalidateCount++
+        override fun onInvalidate(insideVSync: Boolean) {
+            invalidateEvents.add(insideVSync)
         }
 
         override fun onOverScroll(
@@ -57,9 +57,16 @@ class WebSurfaceChromiumTest {
         val listener = RecordingEventListener()
         val adapter = WebSurfaceChromium.EventListenerAdapter(listener)
 
-        adapter.accept(WebSurfaceEvent.INVALIDATE, null)
+        adapter.accept(
+            WebSurfaceEvent.INVALIDATE,
+            WebSurfaceEventPacker.packInvalidate(/* insideVSync= */ true),
+        )
+        adapter.accept(
+            WebSurfaceEvent.INVALIDATE,
+            WebSurfaceEventPacker.packInvalidate(/* insideVSync= */ false),
+        )
 
-        assertThat(listener.invalidateCount).isEqualTo(1)
+        assertThat(listener.invalidateEvents).containsExactly(true, false).inOrder()
         assertThat(listener.overScrollEvents).isEmpty()
     }
 
@@ -77,7 +84,7 @@ class WebSurfaceChromiumTest {
 
         adapter.accept(WebSurfaceEvent.OVER_SCROLL, payload)
 
-        assertThat(listener.invalidateCount).isEqualTo(0)
+        assertThat(listener.invalidateEvents).isEmpty()
         assertThat(listener.overScrollEvents)
             .containsExactly(
                 OverScrollCall(
@@ -94,18 +101,24 @@ class WebSurfaceChromiumTest {
         val listener = RecordingEventListener()
         val adapter = WebSurfaceChromium.EventListenerAdapter(listener)
 
-        adapter.accept(WebSurfaceEvent.INVALIDATE, null)
+        adapter.accept(
+            WebSurfaceEvent.INVALIDATE,
+            WebSurfaceEventPacker.packInvalidate(/* insideVSync= */ true),
+        )
         adapter.accept(
             WebSurfaceEvent.OVER_SCROLL,
             WebSurfaceEventPacker.packOverScroll(1f, 2f, 0f, 0f),
         )
-        adapter.accept(WebSurfaceEvent.INVALIDATE, null)
+        adapter.accept(
+            WebSurfaceEvent.INVALIDATE,
+            WebSurfaceEventPacker.packInvalidate(/* insideVSync= */ false),
+        )
         adapter.accept(
             WebSurfaceEvent.OVER_SCROLL,
             WebSurfaceEventPacker.packOverScroll(0f, 0f, 100f, -200f),
         )
 
-        assertThat(listener.invalidateCount).isEqualTo(2)
+        assertThat(listener.invalidateEvents).containsExactly(true, false).inOrder()
         assertThat(listener.overScrollEvents)
             .containsExactly(
                 OverScrollCall(deltaX = 1f, deltaY = 2f, velocityX = 0f, velocityY = 0f),
@@ -121,7 +134,7 @@ class WebSurfaceChromiumTest {
 
         adapter.accept(-1, null)
 
-        assertThat(listener.invalidateCount).isEqualTo(0)
+        assertThat(listener.invalidateEvents).isEmpty()
         assertThat(listener.overScrollEvents).isEmpty()
     }
 }

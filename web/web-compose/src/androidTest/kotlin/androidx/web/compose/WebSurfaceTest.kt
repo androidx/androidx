@@ -18,6 +18,7 @@ package androidx.web.compose
 
 import android.graphics.Color
 import android.graphics.Rect
+import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
 import android.view.accessibility.AccessibilityNodeInfo
@@ -151,6 +152,69 @@ class WebSurfaceTest {
         bridge.evaluateJs("document.body.style.background = 'rgb(0,255,0)';")
 
         waitForPixelToBe(centerX, centerY) { it == Color.GREEN }
+    }
+
+    @Test
+    fun testOutOfVSyncInvalidationWhileScrollingParent() {
+        lateinit var bridge: WebViewBridge
+        lateinit var listState: LazyListState
+        var visible by mutableStateOf(true)
+        composeTestRule.setContent {
+            listState = rememberLazyListState()
+            LazyColumn(state = listState, modifier = Modifier.size(150.dp)) {
+                item {
+                    if (visible) {
+                        WebSurface(
+                            content = webContent,
+                            modifier = Modifier.size(150.dp).testTag("surface"),
+                            bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                        )
+                    }
+                }
+                item { Box(modifier = Modifier.size(150.dp, 600.dp)) }
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+            <body style='margin:0;'>
+                <div style='height:500px;background:rgb(255,0,0);'></div>
+                <div style='height:2000px;background:rgb(0,255,0);'></div>
+            </body>
+            </html>
+            """
+        )
+
+        val location = IntArray(2)
+        composeTestRule.runOnIdle { bridge.getLocationOnScreen(location) }
+        val centerX = location[0] + bridge.width / 2
+        val centerY = location[1] + bridge.height / 2
+        waitForPixelToBe(centerX, centerY) { it == Color.RED }
+
+        // Schedule a parent scroll traversal in the same animation frame as an out-of-VSync
+        // WebView invalidation (View#scrollTo -> postInvalidate(insideVSync = false)), ensuring
+        // WebSurface defers its redraw to the next animation frame rather than drawing mid-frame.
+        val frameLatch = CountDownLatch(1)
+        composeTestRule.runOnIdle {
+            Choreographer.getInstance().postFrameCallback {
+                listState.dispatchRawDelta(5f)
+                (bridge as View).scrollTo(0, 1000)
+                frameLatch.countDown()
+            }
+        }
+        assertTrue(frameLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS))
+
+        waitForPixelToBe(centerX, centerY) { it == Color.GREEN }
+
+        // Detaching immediately after an out-of-VSync invalidation should cancel the pending
+        // animation callback cleanly.
+        composeTestRule.runOnIdle {
+            (bridge as View).scrollTo(0, 0)
+            visible = false
+        }
+        composeTestRule.runOnIdle { assertFalse(webContent.isAttached()) }
     }
 
     @Test
