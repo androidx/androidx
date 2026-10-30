@@ -144,23 +144,25 @@ public sealed interface MovePolicy {
          * orientations or semantics are provided (i.e., the sets are empty), the element is
          * permitted to anchor to any detected plane.
          *
+         * This policy requires the [SCENE_UNDERSTANDING_COARSE] permission and a [Session]
+         * configured with [PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] via [Session.configure]. If
+         * either condition is not met, the movable component will not be enabled.
+         *
          * Note: Anchoring is currently only supported for
          * [androidx.xr.compose.subspace.SpatialPanel] and
          * [androidx.xr.compose.subspace.SpatialGltfModel].
          *
          * Note: Once a composable is anchored to an external plane using this policy, it is
          * reparented outside the normal Compose hierarchy. As a result, conventional layout pose
-         * calculations and pose-based modifiers (such as `rotate` or `gravityAligned`) are not
+         * calculations and pose-based modifiers (such as [rotate] or [gravityAligned]) are not
          * currently compatible with the anchored composable.
          *
-         * @param anchorPlaneOrientations The set of [PlaneOrientation]s (e.g., Horizontal,
-         *   Vertical) that the element is permitted to anchor to. Defaults to an empty set, which
-         *   allows all orientations.
-         * @param anchorPlaneSemantics The set of [PlaneSemantic]s (e.g., Wall, Floor, Table) that
-         *   the element is permitted to anchor to. Defaults to an empty set, which allows all
-         *   semantics.
-         * @param onMove Optional observer callback invoked during the manipulation to monitor the
-         *   movement and anchoring events.
+         * @sample androidx.xr.compose.samples.AnchorMovableSample
+         * @param anchorPlaneOrientations [PlaneOrientation]s the element can anchor to, or empty to
+         *   allow all orientations
+         * @param anchorPlaneSemantics [PlaneSemantic]s that the element can anchor to, or empty to
+         *   allow all semantics
+         * @param onMove optional callback invoked during movement and anchoring events
          */
         // TODO (b/522261084) - Optimize anchor policy.
         @OptIn(ExperimentalMoveAnchorPolicy::class)
