@@ -21,6 +21,7 @@ import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +30,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.web.compose.WebSurface
 import androidx.web.compose.WebViewBridge
@@ -41,13 +41,18 @@ class BenchmarkActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val useWebSurface = intent.getBooleanExtra(EXTRA_USE_WEB_SURFACE, true)
         setContent {
-            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                Box(modifier = Modifier.fillMaxWidth().height(150.dp))
-                BenchmarkWebContent(
-                    useWebSurface = useWebSurface,
-                    modifier = Modifier.fillMaxWidth().height(600.dp),
-                )
-                Box(modifier = Modifier.fillMaxWidth().height(1200.dp))
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val topSpacerHeight = maxHeight * 0.5f
+                val webContentHeight = maxHeight * 0.5f
+                val bottomSpacerHeight = maxHeight * 0.6f
+                Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                    Box(modifier = Modifier.fillMaxWidth().height(topSpacerHeight))
+                    BenchmarkWebContent(
+                        useWebSurface = useWebSurface,
+                        modifier = Modifier.fillMaxWidth().height(webContentHeight),
+                    )
+                    Box(modifier = Modifier.fillMaxWidth().height(bottomSpacerHeight))
+                }
             }
         }
     }
@@ -75,6 +80,10 @@ private fun BenchmarkWebContent(useWebSurface: Boolean, modifier: Modifier = Mod
 }
 
 private fun WebView.loadBenchmarkPage() {
+    // WebViewBridge enables nested scrolling by default, whereas plain WebView disables it.
+    // Disable nested scrolling on both so the parent Compose scroll container handles drags
+    // identically in both configurations.
+    isNestedScrollingEnabled = false
     settings.javaScriptEnabled = true
     loadUrl("file:///android_asset/benchmark.html")
 }
