@@ -98,6 +98,7 @@ public class RemoteComposeView extends FrameLayout
 
     float mDensity = Float.NaN;
     long mStart;
+    long mFrameTimeNanos = 0;
 
     private final Limiter mLimiter = new Limiter();
     long mLastFrameDelay = 1;
@@ -127,10 +128,11 @@ public class RemoteComposeView extends FrameLayout
     }
 
     private Choreographer mChoreographer;
-    private final Choreographer.FrameCallback mFrameCallback =
+    final Choreographer.FrameCallback mFrameCallback =
             new Choreographer.FrameCallback() {
                 @Override
                 public void doFrame(long frameTimeNanos) {
+                    mFrameTimeNanos = frameTimeNanos;
                     mARContext.currentTime = frameTimeNanos / 1000000;
                     mARContext.setDebug(mDebug);
                     postInvalidateOnAnimation();
@@ -236,6 +238,7 @@ public class RemoteComposeView extends FrameLayout
     private void setClock(@NonNull RemoteClock clock) {
         this.mClock = clock;
         mStart = clock.nanoTime();
+        mFrameTimeNanos = 0;
         mLastFrameCall = clock.millis();
         mARContext = new AndroidRemoteContext(clock);
         mARContext.setAndroidContext(getContext());
@@ -270,6 +273,7 @@ public class RemoteComposeView extends FrameLayout
         if (newClock != mClock) {
             mClock = newClock;
             mStart = mClock.nanoTime();
+            mFrameTimeNanos = 0;
             mLastFrameCall = mClock.millis();
             mARContext.setClock(mClock);
         }
@@ -405,6 +409,7 @@ public class RemoteComposeView extends FrameLayout
     @Override
     public void onViewDetachedFromWindow(@NonNull View view) {
         mIsAttached = false;
+        mFrameTimeNanos = 0;
         mLimiter.reset();
         updateGlobalLayoutListener();
         if (mChoreographer != null) {
@@ -1207,6 +1212,7 @@ public class RemoteComposeView extends FrameLayout
         return (float) (avg * 1E-6); // ms
     }
 
+    @SuppressWarnings("ReferenceEquality") // mClock == RemoteClock.SYSTEM
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
@@ -1228,9 +1234,13 @@ public class RemoteComposeView extends FrameLayout
             }
         } // REMOVE IN PLATFORM
         try {
-            long nanoStart = mClock.nanoTime();
+            long clockNano = mClock.nanoTime();
+            long nanoStart =
+                    (mClock == RemoteClock.SYSTEM && mFrameTimeNanos > 0)
+                            ? mFrameTimeNanos
+                            : clockNano;
             mLimiter.recordDrawStart(nanoStart);
-            long start = mEvalTime ? nanoStart : 0; // measure execution of commands
+            long start = mEvalTime ? clockNano : 0; // measure execution of commands
             float animationTime = (nanoStart - mStart) * 1E-9f;
             mARContext.setAnimationTime(animationTime);
             mARContext.loadFloat(RemoteContext.ID_ANIMATION_TIME, animationTime);
