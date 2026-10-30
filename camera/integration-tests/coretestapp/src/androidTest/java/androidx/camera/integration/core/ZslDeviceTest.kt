@@ -175,7 +175,7 @@ class ZslDeviceTest(
         val maxZoomRatio = cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
         val zoomRatio = if (maxZoomRatio > 2f) 2f else maxZoomRatio
 
-        instrumentation.runOnMainSync { camera.cameraControl.setZoomRatio(zoomRatio) }
+        camera.cameraControl.setZoomRatio(zoomRatio)[5, TimeUnit.SECONDS]
 
         // Capture images with ZSL and verify each capture.
         for (i in 0 until 10) {
@@ -205,7 +205,7 @@ class ZslDeviceTest(
         // properly supported across all physical cameras within the logical camera array.
         for (i in 0 until 10) {
             val targetZoom = if (i % 2 == 0) zoomRatioIn else zoomRatioOut
-            instrumentation.runOnMainSync { camera.cameraControl.setZoomRatio(targetZoom) }
+            camera.cameraControl.setZoomRatio(targetZoom)[5, TimeUnit.SECONDS]
 
             previewMonitor.waitForStream()
             imageCaptureZsl.waitForCapturing()
