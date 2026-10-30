@@ -36,7 +36,6 @@ import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createN
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
-import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString

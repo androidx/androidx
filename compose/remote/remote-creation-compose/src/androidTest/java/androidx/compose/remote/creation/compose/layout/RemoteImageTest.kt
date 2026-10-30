@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
-import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createNamedRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf

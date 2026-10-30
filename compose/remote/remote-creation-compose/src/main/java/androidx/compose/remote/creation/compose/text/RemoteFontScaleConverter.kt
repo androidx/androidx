@@ -19,11 +19,11 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.remote.creation.compose.state.RemoteTextUnitType
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.ui.unit.TextUnitType
 
 /** A converter for font scaling. Converts font sizes given in "sp" dimensions to a "dp". */
 internal sealed interface RemoteFontScaleConverter {
@@ -40,7 +40,9 @@ internal sealed interface RemoteFontScaleConverter {
 /** Implementation of [RemoteFontScaleConverter] that simply scales font linearly. */
 private object LinearRemoteFontScaleConverter : RemoteFontScaleConverter {
     override fun convertSpToDp(textUnit: RemoteTextUnit, fontScale: RemoteFloat): RemoteFloat {
-        require(textUnit.type == TextUnitType.Sp) { "Only Sp is supported for conversion to dp" }
+        require(textUnit.type == RemoteTextUnitType.Sp) {
+            "Only Sp is supported for conversion to dp"
+        }
         return textUnit.value * fontScale
     }
 }

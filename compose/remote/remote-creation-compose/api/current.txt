@@ -1024,13 +1024,12 @@ package androidx.compose.remote.creation.compose.state {
     method @androidx.compose.runtime.annotation.RememberInComposition public operator androidx.compose.remote.creation.compose.state.MutableRemoteFloat invoke(float initialValue);
   }
 
-  public final class MutableRemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteImageBitmap implements androidx.compose.remote.creation.compose.state.MutableRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
-    ctor @androidx.compose.runtime.annotation.RememberInComposition public MutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap initialValue);
+  public final class MutableRemoteImageBitmap extends androidx.compose.remote.creation.compose.state.RemoteImageBitmap implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Object> {
+    property public Object? constantValueOrNull;
     field public static final androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap.Companion Companion;
   }
 
   public static final class MutableRemoteImageBitmap.Companion {
-    method @androidx.compose.runtime.annotation.RememberInComposition public operator androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap invoke(androidx.compose.ui.graphics.ImageBitmap initialValue);
   }
 
   public final class MutableRemoteInt extends androidx.compose.remote.creation.compose.state.RemoteInt implements androidx.compose.remote.creation.compose.state.MutableRemoteState<java.lang.Integer> {
@@ -1397,40 +1396,50 @@ package androidx.compose.remote.creation.compose.state {
     method public static androidx.compose.remote.creation.compose.state.RemoteFloat toRad(androidx.compose.remote.creation.compose.state.RemoteFloat a);
   }
 
-  @androidx.compose.runtime.Stable public abstract class RemoteImageBitmap extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.graphics.ImageBitmap> {
-    method public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap> value);
-    method public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+  @androidx.compose.runtime.Stable public class RemoteImageBitmap extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Object> {
+    ctor public RemoteImageBitmap(String url);
     method public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.ImageBitmap? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public Object? getConstantValueOrNull();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHeight();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getWidth();
-    property public androidx.compose.ui.graphics.ImageBitmap? constantValueOrNull;
+    property public Object? constantValueOrNull;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat height;
     property public final androidx.compose.remote.creation.compose.state.RemoteFloat width;
     field public static final androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion Companion;
   }
 
   public static final class RemoteImageBitmap.Companion {
-    method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap> value);
-    method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method public androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, androidx.compose.ui.graphics.ImageBitmap!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
-    method public operator androidx.compose.remote.creation.compose.state.RemoteImageBitmap invoke(androidx.compose.ui.graphics.ImageBitmap value);
-    method public operator androidx.compose.remote.creation.compose.state.RemoteImageBitmap invoke(String url);
   }
 
-  public final class RemoteImageBitmapKt {
+  public final class RemoteImageBitmapComposeKt {
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap MutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap initialValue);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap RemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap value);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap asRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion, String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap> value);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion, String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap> value);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, androidx.compose.ui.graphics.ImageBitmap defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap createNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion!, String!, androidx.compose.ui.graphics.ImageBitmap!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(String!, androidx.compose.ui.graphics.ImageBitmap!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap! createNamedRemoteImageBitmap$default(String!, String!, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method @InaccessibleFromKotlin public static androidx.compose.ui.graphics.ImageBitmap? getImageBitmap(androidx.compose.remote.creation.compose.state.RemoteImageBitmap);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap getRb(androidx.compose.ui.graphics.ImageBitmap);
-    method @KotlinOnly @Deprecated @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap initialValue);
-    method @BytecodeOnly @Deprecated @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap, androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.annotation.RememberInComposition public static operator androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap invoke(androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap.Companion, androidx.compose.ui.graphics.ImageBitmap initialValue);
+    method public static operator androidx.compose.remote.creation.compose.state.RemoteImageBitmap invoke(androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion, androidx.compose.ui.graphics.ImageBitmap value);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap initialValue);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.MutableRemoteImageBitmap rememberMutableRemoteImageBitmap(androidx.compose.ui.graphics.ImageBitmap, androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.ImageBitmap!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.ImageBitmap> value);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String name, String url, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberNamedRemoteImageBitmap(String, String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberRemoteImageBitmap(String url);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap rememberRemoteImageBitmap(String, androidx.compose.runtime.Composer?, int);
+    property public static androidx.compose.ui.graphics.ImageBitmap? androidx.compose.remote.creation.compose.state.RemoteImageBitmap.imageBitmap;
     property public static androidx.compose.remote.creation.compose.state.RemoteImageBitmap androidx.compose.ui.graphics.ImageBitmap.rb;
   }
 
@@ -1575,26 +1584,44 @@ package androidx.compose.remote.creation.compose.state {
     property public static androidx.compose.remote.creation.compose.state.RemoteString String.rs;
   }
 
-  @androidx.compose.runtime.Stable public final class RemoteTextUnit extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.unit.TextUnit> {
-    method @BytecodeOnly public long getType-UIouoOA();
+  @androidx.compose.runtime.Stable public final class RemoteTextUnit extends androidx.compose.remote.creation.compose.state.BaseRemoteState<java.lang.Float> {
+    ctor public RemoteTextUnit(androidx.compose.remote.creation.compose.state.RemoteFloat value, optional androidx.compose.remote.creation.compose.state.RemoteTextUnitType type);
+    ctor @BytecodeOnly public RemoteTextUnit(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteTextUnitType!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public RemoteTextUnit(float value, optional androidx.compose.remote.creation.compose.state.RemoteTextUnitType type);
+    ctor @BytecodeOnly public RemoteTextUnit(float, androidx.compose.remote.creation.compose.state.RemoteTextUnitType!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public Float? getConstantValueOrNull();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteTextUnitType getType();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
     method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.capture.RemoteDensity density);
-    property public androidx.compose.ui.unit.TextUnitType type;
+    property public Float? constantValueOrNull;
+    property public androidx.compose.remote.creation.compose.state.RemoteTextUnitType type;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat value;
   }
 
-  public final class RemoteTextUnitKt {
+  public final class RemoteTextUnitComposeKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit(androidx.compose.remote.creation.compose.state.RemoteFloat value, androidx.compose.ui.unit.TextUnitType textUnitType);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit RemoteTextUnit-anM5pPY(androidx.compose.remote.creation.compose.state.RemoteFloat, long);
+    method @KotlinOnly public static androidx.compose.ui.unit.TextUnit asConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
+    method @BytecodeOnly public static long asConstantTextUnit(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
+    method @InaccessibleFromJava public static androidx.compose.ui.unit.TextUnit? asConstantTextUnitOrNull(androidx.compose.remote.creation.compose.state.RemoteTextUnit);
     method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit(androidx.compose.ui.unit.TextUnit);
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit asRemoteTextUnit--R2X_6o(long);
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
+  }
+
+  public final class RemoteTextUnitKt {
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(androidx.compose.remote.creation.compose.state.RemoteFloat);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(float);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(int);
-    method @KotlinOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp(androidx.compose.ui.unit.Dp);
-    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteTextUnit toRsp-0680j_4(float);
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit int.rsp;
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit float.rsp;
     property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit androidx.compose.remote.creation.compose.state.RemoteFloat.rsp;
+  }
+
+  public enum RemoteTextUnitType {
+    enum_constant public static final androidx.compose.remote.creation.compose.state.RemoteTextUnitType Sp;
   }
 
   public final class RemoteTimeVariables {
