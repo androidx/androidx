@@ -506,11 +506,11 @@ public final class Recorder implements VideoOutput {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //                      Members only accessed on mSequentialExecutor                          //
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Volatile since it is also read under mLock on other threads, e.g. to publish StreamInfo.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    RecordingRecord mInProgressRecording = null;
+    volatile RecordingRecord mInProgressRecording = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mInProgressRecordingStopping = false;
-    private SurfaceRequest.@Nullable TransformationInfo mInProgressTransformationInfo = null;
     private SurfaceRequest.@Nullable TransformationInfo mSourceTransformationInfo = null;
     private @Nullable MediaInfo mResolvedMediaInfo = null;
     private @Nullable ListenableFuture<Void> mVideoEncodingFuture = null;
@@ -598,6 +598,7 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull VideoEncoderSession mVideoEncoderSession;
     private @Nullable VideoEncoderConfig mVideoEncoderConfig = null;
+    private @Nullable AudioEncoderConfig mAudioEncoderConfig = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable VideoEncoderSession mVideoEncoderSessionToRelease = null;
     double mAudioAmplitude = 0;
@@ -1328,7 +1329,37 @@ public final class Recorder implements VideoOutput {
             mLatestSurfaceRequest.willNotProvideSurface();
         }
         mHasGlProcessing = hasGlProcessing;
+        stopRecordingIfResolutionChanged(request);
         configureInternal(mLatestSurfaceRequest = request, mVideoSourceTimebase = timebase, true);
+    }
+
+    /**
+     * Stops the in-progress recording if it would be retained with a different video resolution.
+     *
+     * <p>A retained recording continues with a new video encoder for the new
+     * {@link SurfaceRequest}, e.g. when the video source is reconfigured. The muxer's video track
+     * is created with the resolution of the first video encoder and can't change it, so writing
+     * the output of a video encoder with a different resolution corrupts the file. Stop the
+     * recording instead, so the file written so far stays valid.
+     */
+    @ExecutedBy("mSequentialExecutor")
+    private void stopRecordingIfResolutionChanged(@NonNull SurfaceRequest request) {
+        // The recording info is set when the muxer starts. Until then, there's no video track and
+        // the recording can continue with any resolution.
+        RecordingInfo recordingInfo = getInProgressRecordingInfo();
+        if (!shouldRetainRecording() || mInProgressRecordingStopping || recordingInfo == null) {
+            return;
+        }
+        Size videoResolution = recordingInfo.getVideoEncoderConfig().getResolution();
+        if (videoResolution.equals(request.getResolution())) {
+            return;
+        }
+        Logger.w(TAG, "Stop the in-progress recording since the video resolution changes from "
+                + videoResolution + " to " + request.getResolution());
+        mRetainRecordingOnReconfiguring = false;
+        onInProgressRecordingInternalError(checkNotNull(mInProgressRecording),
+                ERROR_SOURCE_INACTIVE, new IllegalStateException(
+                        "The video resolution changed during the recording."));
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1538,6 +1569,9 @@ public final class Recorder implements VideoOutput {
                             + "be retained.");
                     return;
                 }
+                // The previous video encoder may have started the muxer after the request was
+                // received, so check the resolution again before continuing the recording.
+                stopRecordingIfResolutionChanged(request);
                 VideoEncoderSession videoEncoderSession =
                         new VideoEncoderSession(mVideoEncoderFactory, mSequentialExecutor,
                                 mExecutor);
@@ -1561,7 +1595,7 @@ public final class Recorder implements VideoOutput {
                 ListenableFuture<Encoder> configureFuture = videoEncoderSession.configure(request,
                         config);
                 mVideoEncoderSession = videoEncoderSession;
-                Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
+                Futures.addCallback(configureFuture, new FutureCallback<>() {
                     @Override
                     public void onSuccess(@Nullable Encoder result) {
                         Logger.d(TAG, "VideoEncoder is created. " + result);
@@ -1619,7 +1653,7 @@ public final class Recorder implements VideoOutput {
         setLatestSurface(activeSurface);
 
         Futures.addCallback(videoEncoderSession.getReadyToReleaseFuture(),
-                new FutureCallback<Encoder>() {
+                new FutureCallback<>() {
                     @Override
                     public void onSuccess(@Nullable Encoder result) {
                         Logger.d(TAG, "VideoEncoder can be released: " + result);
@@ -1817,6 +1851,7 @@ public final class Recorder implements VideoOutput {
                 audioSourceTimebase, audioSourceOutputSettings, mediaSpec.getAudioSpec());
         mAudioEncoder = mAudioEncoderFactory.createEncoder(mExecutor, audioEncoderConfig,
                 checkNotNull(mLatestSurfaceRequest).getSessionType());
+        mAudioEncoderConfig = audioEncoderConfig;
 
         // Connect the audio source to the audio encoder
         Encoder.EncoderInput bufferProvider = mAudioEncoder.getInput();
@@ -1841,7 +1876,7 @@ public final class Recorder implements VideoOutput {
         mAudioSource = null;
         Logger.d(TAG, String.format("Releasing audio source: 0x%x", audioSource.hashCode()));
         // Run callback on direct executor since it is only logging
-        Futures.addCallback(audioSource.release(), new FutureCallback<Void>() {
+        Futures.addCallback(audioSource.release(), new FutureCallback<>() {
             @Override
             public void onSuccess(@Nullable Void result) {
                 Logger.d(TAG, String.format("Released audio source successfully: 0x%x",
@@ -1944,9 +1979,10 @@ public final class Recorder implements VideoOutput {
                 return;
             }
 
+            // A transformation update can arrive asynchronously after start(), e.g. a target
+            // rotation change set right before start(), so read the latest one here.
             SurfaceRequest.TransformationInfo transformationInfo = mSourceTransformationInfo;
             if (transformationInfo != null) {
-                setInProgressTransformationInfo(transformationInfo);
                 try {
                     muxer.setOrientationDegrees(transformationInfo.getRotationDegrees());
                 } catch (IllegalArgumentException e) {
@@ -2002,6 +2038,11 @@ public final class Recorder implements VideoOutput {
 
             // Muxer is successfully initialized, transfer the ownership to Recorder.
             mMuxer = muxer;
+            // The recording info is set once the muxer has started, since the tracks are created
+            // with these configs and the orientation is written above.
+            recordingToStart.setRecordingInfo(RecordingInfo.of(videoEncoderConfig,
+                    isAudioEnabled() ? mAudioEncoderConfig : null, transformationInfo));
+            updateInProgressStreamInfo();
 
             // Write first data to ensure tracks are not empty
             writeVideoData(videoDataToWrite, recordingToStart);
@@ -2701,6 +2742,7 @@ public final class Recorder implements VideoOutput {
             Logger.d(TAG, "Releasing audio encoder.");
             mAudioEncoder.release();
             mAudioEncoder = null;
+            mAudioEncoderConfig = null;
             mAudioOutputConfig = null;
         }
         if (mAudioSource != null) {
@@ -2917,7 +2959,7 @@ public final class Recorder implements VideoOutput {
         mOutputStorage = null;
         mAvailableBytesAboveRequired = Long.MAX_VALUE;
         clearPendingAudioRingBuffer();
-        setInProgressTransformationInfo(null);
+        updateInProgressStreamInfo();
 
         switch (mAudioState) {
             case IDLING:
@@ -3171,7 +3213,7 @@ public final class Recorder implements VideoOutput {
         // Swap the pending recording to the active recording and start it
         RecordingRecord recordingToStart = mActiveRecordingRecord = mPendingRecordingRecord;
         mActiveRecordingRecord.getRecordingState().addObserver(CameraXExecutors.directExecutor(),
-                new Observable.Observer<Boolean>() {
+                new Observable.Observer<>() {
                     @Override
                     public void onNewData(@Nullable Boolean value) {
                         mIsRecording.setState(value);
@@ -3282,7 +3324,8 @@ public final class Recorder implements VideoOutput {
         if (streamState == null) {
             streamState = internalStateToStreamState(mState);
         }
-        mStreamInfo.setState(StreamInfo.of(mStreamId, streamState, mInProgressTransformationInfo));
+        mStreamInfo.setState(StreamInfo.of(mStreamId, streamState,
+                getInProgressTransformationInfo()));
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -3305,19 +3348,39 @@ public final class Recorder implements VideoOutput {
         Logger.d(TAG, "Transitioning streamId: " + mStreamId + " --> " + streamId);
         mStreamId = streamId;
         mStreamInfo.setState(StreamInfo.of(streamId, internalStateToStreamState(mState),
-                mInProgressTransformationInfo));
+                getInProgressTransformationInfo()));
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    /**
+     * Publishes the transformation info of the in-progress recording via the {@link StreamInfo}.
+     */
     @ExecutedBy("mSequentialExecutor")
-    void setInProgressTransformationInfo(
-            SurfaceRequest.@Nullable TransformationInfo transformationInfo) {
-        Logger.d(TAG, "Update stream transformation info: " + transformationInfo);
-        mInProgressTransformationInfo = transformationInfo;
+    private void updateInProgressStreamInfo() {
         synchronized (mLock) {
+            SurfaceRequest.TransformationInfo transformationInfo =
+                    getInProgressTransformationInfo();
+            Logger.d(TAG, "Update stream transformation info: " + transformationInfo);
             mStreamInfo.setState(StreamInfo.of(mStreamId, internalStateToStreamState(mState),
                     transformationInfo));
         }
+    }
+
+    /**
+     * Returns the transformation info of the in-progress recording, or null if there's no
+     * in-progress recording, its muxer hasn't started, or the info isn't available.
+     */
+    private SurfaceRequest.@Nullable TransformationInfo getInProgressTransformationInfo() {
+        RecordingInfo recordingInfo = getInProgressRecordingInfo();
+        return recordingInfo != null ? recordingInfo.getTransformationInfo() : null;
+    }
+
+    /**
+     * Returns the info of the in-progress recording, or null if there's no in-progress recording
+     * or its muxer hasn't started.
+     */
+    private @Nullable RecordingInfo getInProgressRecordingInfo() {
+        RecordingRecord inProgressRecording = mInProgressRecording;
+        return inProgressRecording != null ? inProgressRecording.getRecordingInfo() : null;
     }
 
     /**
@@ -3341,7 +3404,7 @@ public final class Recorder implements VideoOutput {
         if (mNonPendingState != state) {
             mNonPendingState = state;
             mStreamInfo.setState(StreamInfo.of(mStreamId, internalStateToStreamState(state),
-                    mInProgressTransformationInfo));
+                    getInProgressTransformationInfo()));
         }
     }
 
@@ -3576,6 +3639,42 @@ public final class Recorder implements VideoOutput {
                 videoCapabilitiesSource, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
+    /**
+     * The info of a recording, e.g. its video and audio encoder configs and orientation.
+     *
+     * <p>It is set once when the muxer of the recording starts, i.e. when the tracks are created
+     * and the orientation is written, and doesn't change for the rest of the recording, e.g. when
+     * the recording is retained with a new video encoder. Runtime state, e.g. an audio failure
+     * during the recording, is reported via {@link RecordingStats} instead.
+     */
+    @AutoValue
+    abstract static class RecordingInfo {
+        /**
+         * Returns the config of the video encoder that the video track is created from, e.g. its
+         * resolution, frame rate and bitrate.
+         */
+        abstract @NonNull VideoEncoderConfig getVideoEncoderConfig();
+
+        /**
+         * Returns the config of the audio encoder that the audio track is created from, e.g. its
+         * sample rate, channel count and bitrate. Null if there's no audio track.
+         */
+        abstract @Nullable AudioEncoderConfig getAudioEncoderConfig();
+
+        /**
+         * Returns the transformation info of the video source when the muxer starts, e.g. its
+         * rotation is written as the orientation metadata. Null if it's not available.
+         */
+        abstract SurfaceRequest.@Nullable TransformationInfo getTransformationInfo();
+
+        static @NonNull RecordingInfo of(@NonNull VideoEncoderConfig videoEncoderConfig,
+                @Nullable AudioEncoderConfig audioEncoderConfig,
+                SurfaceRequest.@Nullable TransformationInfo transformationInfo) {
+            return new AutoValue_Recorder_RecordingInfo(videoEncoderConfig, audioEncoderConfig,
+                    transformationInfo);
+        }
+    }
+
     @AutoValue
     abstract static class RecordingRecord implements AutoCloseable {
 
@@ -3597,6 +3696,9 @@ public final class Recorder implements VideoOutput {
                 });
 
         private final AtomicBoolean mMuted = new AtomicBoolean(false);
+
+        private final AtomicReference<RecordingInfo> mRecordingInfo =
+                new AtomicReference<>(null);
 
         private final @NonNull MutableStateObservable<Boolean> mRecordingState =
                 MutableStateObservable.withInitialState(false);
@@ -3626,6 +3728,23 @@ public final class Recorder implements VideoOutput {
         abstract boolean isPersistent();
 
         abstract long getRecordingId();
+
+        /**
+         * Sets the info of this recording when its muxer starts.
+         *
+         * @throws IllegalStateException if the recording info has already been set.
+         */
+        void setRecordingInfo(@NonNull RecordingInfo recordingInfo) {
+            Preconditions.checkState(mRecordingInfo.compareAndSet(null, recordingInfo),
+                    "The recording info of recording " + this + " has already been set.");
+        }
+
+        /**
+         * Returns the info of this recording, or null if its muxer hasn't started.
+         */
+        @Nullable RecordingInfo getRecordingInfo() {
+            return mRecordingInfo.get();
+        }
 
         /**
          * Performs initialization for this recording.

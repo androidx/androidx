@@ -1020,6 +1020,101 @@ class RecorderTest {
     }
 
     @Test
+    fun recorder_stopsRecording_whenResolutionChangesDuringSourceReconfiguration() {
+        // Arrange.
+        val recorder = createRecorder()
+        val recording = createRecording(recorder = recorder).startAndVerify().sendFrames()
+
+        // Act: the source is reconfigured with a different resolution, e.g. a rotated one.
+        recorder.onSourceStateChanged(VideoOutput.SourceState.CONFIGURING)
+        idleMainLooper()
+        recorder.sendSurfaceRequest(Size(480, 640))
+
+        // Assert: the recording is stopped instead of continuing with a different resolution.
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
+
+        // Assert: a new recording can be started with the new resolution.
+        createRecording(recorder = recorder).startAndVerify().sendFrames().stopAndVerify()
+    }
+
+    @Test
+    fun recorder_stopsRecording_whenMuxerStartsWithPreviousEncoderAfterResolutionChange() {
+        // Arrange: the recording is started, but the muxer hasn't started since no frame is sent.
+        val recorder = createRecorder()
+        val oldSurfaceRequest = checkNotNull(latestSurfaceRequest)
+        val recording = createRecording(recorder = recorder).start()
+        recording.verifyStart()
+
+        // Act: the source is reconfigured with a different resolution while the previous
+        // surface is still in use, as VideoCapture does.
+        recorder.onSourceStateChanged(VideoOutput.SourceState.CONFIGURING)
+        idleMainLooper()
+        val newSurfaceRequest = SurfaceRequest(Size(480, 640), fakeCamera) {}
+        latestSurfaceRequest = newSurfaceRequest
+        surfaceRequestsToClose.add(newSurfaceRequest)
+        recorder.onSurfaceRequested(newSurfaceRequest)
+        idleMainLooper()
+        // The previous encoder sends its first frame, so the muxer starts with its resolution.
+        recording.sendFrames()
+        // The previous surface is released, so the new encoder can be set up.
+        oldSurfaceRequest.deferrableSurface.close()
+        idleMainLooper()
+
+        // Assert: the recording is stopped instead of continuing with a different resolution.
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
+    }
+
+    @Test
+    fun persistentRecording_stopsRecording_whenResolutionChangesAfterRebind() {
+        // Arrange.
+        val recorder = createRecorder()
+        val recording =
+            createRecording(recorder, asPersistentRecording = true).startAndVerify().sendFrames()
+
+        // Act: unbind and rebind with a different resolution.
+        recorder.onSourceStateChanged(INACTIVE)
+        latestSurfaceRequest?.deferrableSurface?.close()
+        idleMainLooper()
+        recorder.sendSurfaceRequest(Size(480, 640))
+        recorder.onSourceStateChanged(ACTIVE_STREAMING)
+        idleMainLooper()
+
+        // Assert.
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
+    }
+
+    @Test
+    fun recordingInfo_containsVideoAndAudioEncoderConfigs() {
+        // Arrange.
+        val recorder = createRecorder()
+
+        // Act.
+        val recording = createRecording(recorder, withAudio = true).startAndVerify().sendFrames()
+        idle(recorder)
+
+        // Assert.
+        val recordingInfo = recorder.mInProgressRecording!!.recordingInfo!!
+        assertThat(recordingInfo.videoEncoderConfig.resolution).isEqualTo(Size(640, 480))
+        assertThat(recordingInfo.audioEncoderConfig).isNotNull()
+        recording.stopAndVerify()
+    }
+
+    @Test
+    fun recordingInfo_hasNoAudioEncoderConfig_whenAudioIsDisabled() {
+        // Arrange.
+        val recorder = createRecorder()
+
+        // Act.
+        val recording = createRecording(recorder, withAudio = false).startAndVerify().sendFrames()
+        idle(recorder)
+
+        // Assert.
+        val recordingInfo = recorder.mInProgressRecording!!.recordingInfo!!
+        assertThat(recordingInfo.audioEncoderConfig).isNull()
+        recording.stopAndVerify()
+    }
+
+    @Test
     fun persistentRecording_afterRebind_finalizeWaitsForAudioEncoderToStop() {
         // Arrange: a persistent recording with audio whose audio encoder stop can be held back.
         var audioEncoder: StopDeferringEncoder? = null
@@ -1983,10 +2078,10 @@ class RecorderTest {
         }
     }
 
-    private fun Recorder.sendSurfaceRequest(): SurfaceRequest {
+    private fun Recorder.sendSurfaceRequest(resolution: Size = Size(640, 480)): SurfaceRequest {
         latestSurfaceRequest?.deferrableSurface?.close()
         idleMainLooper()
-        val request = SurfaceRequest(Size(640, 480), fakeCamera) {}
+        val request = SurfaceRequest(resolution, fakeCamera) {}
         latestSurfaceRequest = request
         surfaceRequestsToClose.add(request)
         onSurfaceRequested(request)
