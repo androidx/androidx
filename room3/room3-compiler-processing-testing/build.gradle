@@ -44,6 +44,14 @@ dependencies {
     implementation(libs.kotlinAnnotationProcessingEmbeddable)
 }
 
+dependencies {
+    constraints {
+        implementation(libs.guavaAndroid) {
+            because("b/579316874 - upgrading to fix vulns")
+        }
+    }
+}
+
 // enable opt in only for tests so that we don't create non experimental APIs by mistake
 // in the source.
 tasks.named("compileTestKotlin", KotlinCompile.class).configure { task ->
