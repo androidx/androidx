@@ -22,16 +22,20 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -177,6 +181,108 @@ public class GapWorkerTest {
             recyclerView.onAttachedToWindow();
             recyclerView.mGapWorker.prefetch(RecyclerView.FOREVER_NS);
         } finally {
+            recyclerView.onDetachedFromWindow();
+        }
+    }
+
+    @Test
+    public void prefetchDeadlineClampedWhenDrawingTimeInFuture() {
+        final long frameIntervalNs = TimeUnit.MILLISECONDS.toNanos(16);
+        final long renderAheadLeadMs = 32;
+        final long[] capturedDeadlineNs = new long[] {-1};
+        final long[] capturedApproxCurrentNs = new long[] {-1};
+        final int[] createCount = new int[] {0};
+
+        RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
+            @Override
+            boolean willCreateInTime(int viewType, long approxCurrentNs, long deadlineNs) {
+                capturedApproxCurrentNs[0] = approxCurrentNs;
+                capturedDeadlineNs[0] = deadlineNs;
+                return super.willCreateInTime(viewType, approxCurrentNs, deadlineNs);
+            }
+        };
+        // Seed expected create duration to 24ms: longer than one 16ms frame interval,
+        // but shorter than the unclamped 16ms + 32ms = 48ms render-ahead inflated budget.
+        pool.factorInCreateTime(0, TimeUnit.MILLISECONDS.toNanos(24));
+
+        RecyclerView recyclerView = new RecyclerView(getContext()) {
+            @Override
+            public int getWindowVisibility() {
+                return View.VISIBLE;
+            }
+
+            @Override
+            public long getDrawingTime() {
+                return TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + renderAheadLeadMs;
+            }
+        };
+
+        long prevFrameIntervalNs = 0;
+        try {
+            recyclerView.setRecycledViewPool(pool);
+            recyclerView.onAttachedToWindow();
+            prevFrameIntervalNs = recyclerView.mGapWorker.mFrameIntervalNs;
+            recyclerView.setAdapter(new RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                @Override
+                public RecyclerView.@NonNull ViewHolder onCreateViewHolder(
+                        @NonNull ViewGroup parent, int viewType) {
+                    createCount[0]++;
+                    return new RecyclerView.ViewHolder(new View(parent.getContext())) {};
+                }
+
+                @Override
+                public void onBindViewHolder(
+                        RecyclerView.@NonNull ViewHolder holder, int position) {
+                }
+
+                @Override
+                public int getItemCount() {
+                    return 10;
+                }
+            });
+            recyclerView.setLayoutManager(new RecyclerView.LayoutManager() {
+                @Override
+                public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+                    return new RecyclerView.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+                }
+
+                @Override
+                public void onLayoutChildren(
+                        RecyclerView.Recycler recycler, RecyclerView.State state) {
+                }
+
+                @Override
+                public void collectAdjacentPrefetchPositions(int dx, int dy,
+                        RecyclerView.State state,
+                        LayoutPrefetchRegistry layoutPrefetchRegistry) {
+                    // Distance (20) > velocity (10), so neededNextFrame is false and the
+                    // frame deadlineNs computed by GapWorker.run() is used.
+                    layoutPrefetchRegistry.addPosition(0, 20);
+                }
+            });
+
+            recyclerView.measure(
+                    View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.EXACTLY));
+            recyclerView.layout(0, 0, 100, 100);
+
+            recyclerView.mGapWorker.mFrameIntervalNs = frameIntervalNs;
+            recyclerView.mPrefetchRegistry.setPrefetchVector(0, 10);
+
+            long beforeRunNs = System.nanoTime();
+            recyclerView.mGapWorker.run();
+            long afterRunNs = System.nanoTime();
+
+            assertTrue(capturedDeadlineNs[0] >= beforeRunNs + frameIntervalNs);
+            assertTrue(capturedDeadlineNs[0] <= afterRunNs + frameIntervalNs);
+            assertTrue(capturedDeadlineNs[0] - capturedApproxCurrentNs[0] <= frameIntervalNs);
+            assertEquals(0, createCount[0]);
+        } finally {
+            if (recyclerView.mGapWorker != null && prevFrameIntervalNs != 0) {
+                recyclerView.mGapWorker.mFrameIntervalNs = prevFrameIntervalNs;
+            }
             recyclerView.onDetachedFromWindow();
         }
     }
