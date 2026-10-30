@@ -145,16 +145,21 @@ internal class DefaultImeEditCommandScope(
     override fun endBatchEdit(): Boolean {
         batchDepth--
         if (batchDepth == 0 && editCommands.isNotEmpty()) {
-            // apply the changes to active input session in order.
-            transformedTextFieldState.editUntransformedTextAsUser(
-                restartImeIfContentChanges = false
-            ) {
-                if (!transformedTextFieldState.isTransformed) {
-                    batchEditTextFieldBuffer = this
+            try {
+                // apply the changes to active input session in order.
+                transformedTextFieldState.editUntransformedTextAsUser(
+                    restartImeIfContentChanges = false
+                ) {
+                    if (!transformedTextFieldState.isTransformed) {
+                        batchEditTextFieldBuffer = this
+                    }
+                    editCommands.forEach { it.invoke(this) }
                 }
-                editCommands.forEach { it.invoke(this) }
+            } finally {
+                // Clear even if applying the commands throws, so that the next batch does not
+                // apply them again.
+                editCommands.clear()
             }
-            editCommands.clear()
         }
         return batchDepth > 0
     }
