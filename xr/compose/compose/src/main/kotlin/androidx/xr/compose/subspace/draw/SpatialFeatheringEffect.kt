@@ -26,7 +26,7 @@ public abstract class SpatialFeatheringEffect internal constructor()
  * A feathering effect that applies an alpha gradient to the edges of the canvas to give a fade out
  * effect.
  */
-internal class SpatialSmoothFeatheringEffect(internal val size: SpatialSmoothFeatheringSize) :
+internal data class SpatialSmoothFeatheringEffect(internal val size: SpatialSmoothFeatheringSize) :
     SpatialFeatheringEffect()
 
 /**
