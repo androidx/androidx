@@ -23,7 +23,10 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.remote:remote-creation-compose:1.0.0-alpha16")
+    api("androidx.compose.runtime:runtime:1.13.0-alpha02")
+    api("androidx.compose.ui:ui:1.13.0-alpha02")
+    // Tests build against ToT, so there isn't much sense in pinning RC until the stable release.
+    api(project(":compose:remote:remote-creation-compose"))
     // Older versions of lifecycle-runtime lint checks use a deleted lint API
     implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
 }
@@ -38,4 +41,5 @@ androidx {
     type = SoftwareType.INTERNAL_LIBRARY_WITH_API_TASKS
     inceptionYear = "2026"
     description = "Remote Compose Glimmer, the UI library for augmented Android XR experiences"
+    samples(project(":xr:glimmer:glimmer-remote:glimmer-remote-samples"))
 }
