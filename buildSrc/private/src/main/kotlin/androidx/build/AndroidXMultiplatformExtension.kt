@@ -779,21 +779,26 @@ private fun Project.configureDefaultIncrementalSyncTask() {
             "jsProductionLibraryCompileSync" to "/js/prod",
             "jsTestTestDevelopmentExecutableCompileSync" to "-test/js/dev",
             "jsTestTestProductionExecutableCompileSync" to "-test/js/prod",
+            "jsJsBenchmarkJsBenchmarkDevelopmentExecutableCompileSync" to "-benchmark/js/dev",
+            "jsJsBenchmarkJsBenchmarkProductionExecutableCompileSync" to "-benchmark/js/prod",
             "wasmJsDevelopmentLibraryCompileSync" to "/wasm-js/dev",
             "wasmJsProductionLibraryCompileSync" to "/wasm-js/prod",
             "wasmJsTestTestDevelopmentExecutableCompileSync" to "-test/wasm-js/dev",
             "wasmJsTestTestProductionExecutableCompileSync" to "-test/wasm-js/prod",
         )
-    tasks.withType(DefaultIncrementalSyncTask::class.java).configureEach { task ->
-        val suffixPath =
-            suffixMap[task.name]
-                ?: throw IllegalArgumentException(
-                    "No destination path configured for incremental‑sync task '${task.name}'"
-                )
-        val projectPath = group.toString().replace(".", "-") + "-" + name + suffixPath
-        task.destinationDirectory.set(
-            File(project.getOutDirectory(), "androidx/build/js/packages/$projectPath/kotlin")
-        )
+    // Register after Kotlin's task creation actions, which also set destinationDirectory.
+    afterEvaluate {
+        tasks.withType(DefaultIncrementalSyncTask::class.java).configureEach { task ->
+            val suffixPath =
+                suffixMap[task.name]
+                    ?: throw IllegalArgumentException(
+                        "No destination path configured for incremental‑sync task '${task.name}'"
+                    )
+            val projectPath = group.toString().replace(".", "-") + "-" + name + suffixPath
+            task.destinationDirectory.set(
+                File(project.getOutDirectory(), "androidx/build/js/packages/$projectPath/kotlin")
+            )
+        }
     }
 }
 
