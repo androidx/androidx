@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import androidx.webkit.JavaScriptExecutionException;
 import androidx.webkit.JavaScriptReplyProxy;
+import androidx.webkit.SharedArrayBuffer;
 import androidx.webkit.WebViewOutcomeReceiver;
 
 import org.chromium.support_lib_boundary.ExecuteJavaScriptCallbackBoundaryInterface;
@@ -70,6 +71,21 @@ public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
         if (feature.isSupportedByWebView()) {
             mBoundaryInterface.postMessageWithPayload(BoundaryInterfaceReflectionUtil
                     .createInvocationHandlerFor(new WebMessagePayloadAdapter(arrayBuffer)));
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void postMessage(@NonNull SharedArrayBuffer sharedArrayBuffer) {
+        // WebView cannot handle a null SharedArrayBuffer as WebMessage.
+        Objects.requireNonNull(sharedArrayBuffer, "SharedArrayBuffer must be non-null");
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEB_MESSAGE_SHARED_ARRAY_BUFFER;
+        if (feature.isSupportedByWebView()) {
+            mBoundaryInterface.postMessageWithPayload(
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new WebMessagePayloadAdapter(sharedArrayBuffer)));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

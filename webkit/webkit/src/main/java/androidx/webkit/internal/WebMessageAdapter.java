@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import static org.chromium.support_lib_boundary.WebMessagePayloadBoundaryInterface.WebMessagePayloadType;
 
+import androidx.webkit.SharedArrayBuffer;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 
@@ -39,7 +40,10 @@ import java.util.Objects;
 public class WebMessageAdapter implements WebMessageBoundaryInterface {
     private final WebMessageCompat mWebMessageCompat;
 
-    private static final String[] sFeatures = {Features.WEB_MESSAGE_ARRAY_BUFFER};
+    private static final String[] sFeatures = {
+            Features.WEB_MESSAGE_ARRAY_BUFFER,
+            Features.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
+    };
 
     public WebMessageAdapter(@NonNull WebMessageCompat webMessage) {
         this.mWebMessageCompat = webMessage;
@@ -65,6 +69,10 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
             case WebMessageCompat.TYPE_ARRAY_BUFFER:
                 adapter = new WebMessagePayloadAdapter(
                         Objects.requireNonNull(mWebMessageCompat.getArrayBuffer()));
+                break;
+            case WebMessageCompat.TYPE_SHARED_ARRAY_BUFFER:
+                adapter = new WebMessagePayloadAdapter(
+                        mWebMessageCompat.getSharedArrayBuffer());
                 break;
             default:
                 throw new IllegalStateException(
@@ -96,9 +104,17 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
      */
     public static boolean isMessagePayloadTypeSupportedByWebView(
             @WebMessageCompat.Type final int type) {
-        return type == WebMessageCompat.TYPE_STRING
-                || (type == WebMessageCompat.TYPE_ARRAY_BUFFER
-                && WebViewFeatureInternal.WEB_MESSAGE_ARRAY_BUFFER.isSupportedByWebView());
+        switch (type) {
+            case WebMessageCompat.TYPE_STRING:
+                return true;
+            case WebMessageCompat.TYPE_ARRAY_BUFFER:
+                return WebViewFeatureInternal.WEB_MESSAGE_ARRAY_BUFFER.isSupportedByWebView();
+            case WebMessageCompat.TYPE_SHARED_ARRAY_BUFFER:
+                return WebViewFeatureInternal.WEB_MESSAGE_SHARED_ARRAY_BUFFER
+                        .isSupportedByWebView();
+            default:
+                return false;
+        }
     }
 
     // ====================================================================================
@@ -126,6 +142,14 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
                     return new WebMessageCompat(payloadInterface.getAsString(), ports);
                 case WebMessagePayloadType.TYPE_ARRAY_BUFFER:
                     return new WebMessageCompat(payloadInterface.getAsArrayBuffer(), ports);
+                case WebMessagePayloadType.TYPE_SHARED_ARRAY_BUFFER:
+                    if (WebViewFeatureInternal.WEB_MESSAGE_SHARED_ARRAY_BUFFER
+                            .isSupportedByWebView()) {
+                        return new WebMessageCompat(SharedArrayBuffer.fromInvocationHandler(
+                                Objects.requireNonNull(payloadInterface.getAsSharedArrayBuffer())),
+                                ports);
+                    }
+                    break;
             }
             // Unsupported message type.
             return null;
