@@ -17,6 +17,7 @@
 package androidx.compose.ui.tooling
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 
 /** Device spec of a phone-sized preview whose vertically scrollable containers are scrolled. */
 internal const val SCROLL_TO_END_DEVICE = "spec:width=411dp,height=891dp,scrollTo=end"
@@ -78,6 +83,28 @@ fun ScrollToEndVerticalScrollColumnPreview() {
     Column(Modifier.fillMaxSize().verticalScroll(state)) {
         repeat(SCROLL_TO_END_ITEM_COUNT) {
             Text("Item $it", Modifier.fillMaxWidth().height(SCROLL_TO_END_ITEM_HEIGHT))
+        }
+    }
+}
+
+/** State of the list of the last composed [ScrollToEndWearScalingLazyColumnPreview]. */
+internal var scrollToEndScalingLazyListState: ScalingLazyListState? = null
+
+/**
+ * Value of Wear's [LocalReduceMotion] observed by the last
+ * [ScrollToEndWearScalingLazyColumnPreview].
+ */
+internal var scrollToEndObservedWearReduceMotion: Boolean? = null
+
+@Preview(device = "spec:parent=wearos_large_round,scrollTo=end")
+@Composable
+fun ScrollToEndWearScalingLazyColumnPreview() {
+    scrollToEndObservedWearReduceMotion = LocalReduceMotion.current
+    val state = rememberScalingLazyListState()
+    scrollToEndScalingLazyListState = state
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize(), state = state) {
+        items(SCROLL_TO_END_ITEM_COUNT) {
+            Box(Modifier.fillMaxWidth().height(SCROLL_TO_END_ITEM_HEIGHT))
         }
     }
 }

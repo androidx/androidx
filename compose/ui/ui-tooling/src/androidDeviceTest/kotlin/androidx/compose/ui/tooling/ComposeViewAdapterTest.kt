@@ -77,6 +77,8 @@ class ComposeViewAdapterTest {
         expandAutoCenteringScalingLazyListState = null
         scrollToEndLazyListState = null
         scrollToEndScrollState = null
+        scrollToEndScalingLazyListState = null
+        scrollToEndObservedWearReduceMotion = null
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
@@ -1647,6 +1649,25 @@ class ComposeViewAdapterTest {
             assertEquals(100, composeViewAdapter.measuredWidth)
             assertEquals(400, composeViewAdapter.measuredHeight)
             assertLazyColumnScrolledToEnd(expectedViewportHeight = 400)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_wearScalingLazyColumn_showsLastItem() {
+        scrollToEndScalingLazyListState = null
+        scrollToEndObservedWearReduceMotion = null
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndWearScalingLazyColumnPreview",
+            device = "spec:parent=wearos_large_round,scrollTo=end",
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndScalingLazyListState!!
+            assertFalse(state.canScrollForward)
+            val lastItem = state.layoutInfo.visibleItemsInfo.last()
+            assertEquals(SCROLL_TO_END_ITEM_COUNT - 1, lastItem.index)
+            // The Wear list transformations are not disabled: the list renders as on a device.
+            assertEquals(false, scrollToEndObservedWearReduceMotion)
         }
     }
 

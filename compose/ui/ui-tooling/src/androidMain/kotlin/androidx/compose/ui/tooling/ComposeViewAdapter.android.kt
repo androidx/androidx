@@ -149,11 +149,12 @@ internal data class ViewInfo(
  *   [DEFAULT_EXPAND_MAX_SIZE_PX] pixels). Likewise, with `expand=horizontal`, when measured with an
  *   unbounded width, it grows horizontally up to `maxWidth`. See [parsePreviewExpandSettings]. With
  *   `scrollTo=end` (ignored with `expand=vertical`), the preview is rendered at its normal size
- *   with all its vertically scrollable containers scrolled to their end: after measuring, each
- *   container with a [SemanticsProperties.VerticalScrollAxisRange] is stepped synchronously towards
- *   its end via [SemanticsActions.ScrollByOffset] in [immediateScrollContext], re-measuring and
- *   laying out after each step so lazy lists compose newly visible items. See
- *   [parsePreviewScrollTarget].
+ *   with all its vertically scrollable containers scrolled to their end: after measuring (and
+ *   marking any Wear `ScalingLazyListState` initialized so its scroll semantics are exposed before
+ *   post-layout callbacks), each container with a [SemanticsProperties.VerticalScrollAxisRange] is
+ *   stepped synchronously towards its end via [SemanticsActions.ScrollByOffset] in
+ *   [immediateScrollContext], re-measuring and laying out after each step so lazy lists compose
+ *   newly visible items. See [parsePreviewScrollTarget].
  */
 @Suppress("unused")
 @OptIn(UiToolingDataApi::class)
@@ -485,7 +486,7 @@ internal class ComposeViewAdapter : FrameLayout {
         if (measuredWidth == lastScrolledToEndWidth && measuredHeight == lastScrolledToEndHeight) {
             return
         }
-        scrollToEnd(composeView, TAG) { measure() }
+        scrollToEnd(composeView, slotTableRecord, TAG) { measure() }
         lastScrolledToEndWidth = measuredWidth
         lastScrolledToEndHeight = measuredHeight
     }
@@ -664,7 +665,8 @@ internal class ComposeViewAdapter : FrameLayout {
         // When expanding vertically, Wear lists (ScalingLazyColumn, TransformingLazyColumn) would
         // scale and fade the items close to the edges of the now very tall viewport. Wear's
         // LocalReduceMotion disables those transformations so all items render at their natural
-        // size.
+        // size. It is not provided with scrollTo=end, which renders the lists at the device size
+        // and must show their items transformed at the edges, as on a device.
         val wearReduceMotion = if (isVerticalExpansionEnabled) wearLocalReduceMotion else null
         val previewContent =
             if (wearReduceMotion == null) content

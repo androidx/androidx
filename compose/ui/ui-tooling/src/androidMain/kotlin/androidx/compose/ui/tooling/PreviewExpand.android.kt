@@ -220,6 +220,30 @@ private constructor(
             false
         }
 
+    /**
+     * Marks [state] (`ScalingLazyListState`) as `initialized` so it exposes its scroll semantics
+     * during `onMeasure` and does not snap back to `initialCenterItemIndex` after scrolling. See
+     * [ComposeViewAdapter].
+     */
+    @Suppress("BanUncheckedReflection")
+    fun markInitialized(state: Any): Boolean =
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val initializedState = initializedField.get(state) as? MutableState<Boolean>
+            if (initializedState != null && !initializedState.value) {
+                initializedState.value = true
+                true
+            } else {
+                false
+            }
+        } catch (_: ReflectiveOperationException) {
+            false
+        } catch (_: LinkageError) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
+
     companion object {
         fun forClass(stateClass: Class<*>): WearScalingLazyListStateSupport? =
             try {
@@ -403,8 +427,19 @@ private fun remeasureAndLayoutAfterStateChange(composeView: ComposeView, measure
  * [MAX_SCROLL_TO_END_STEPS] steps, re-measuring and laying out after each step so lazy lists
  * compose newly visible items and update their scroll range. See [ComposeViewAdapter].
  */
-internal fun scrollToEnd(composeView: ComposeView, tag: String, measure: () -> Unit) {
+internal fun scrollToEnd(
+    composeView: ComposeView,
+    slotTableRecord: CompositionDataRecord,
+    tag: String,
+    measure: () -> Unit,
+) {
     layoutComposeView(composeView)
+    updateWearScalingLazyListStates(
+        composeView,
+        slotTableRecord,
+        measure,
+        WearScalingLazyListStateSupport::markInitialized,
+    )
     repeat(MAX_SCROLL_TO_END_STEPS) {
         val root = composeView.getChildAt(0) as? RootForTest ?: return
         var scrolled = false
@@ -475,7 +510,6 @@ private fun composeAndLayoutAt(
     if (disableScalingLazyColumnAutoCentering) {
         disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
             measureExactly(size)
-            layoutComposeView(composeView)
         }
     }
 }
@@ -510,7 +544,6 @@ internal fun findExpandedSize(
         axis == PreviewExpandAxis.VERTICAL &&
             disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
                 measureExactly(maxSize)
-                layoutComposeView(composeView)
             }
     if (minSize >= maxSize || hasScrollOverflow(composeView, axis)) return maxSize
 
@@ -575,17 +608,32 @@ private fun hasScrollOverflow(composeView: ComposeView, axis: PreviewExpandAxis)
 
 /**
  * Collapses the auto-centering spacers of every Wear `ScalingLazyListState` in the current
- * composition, and runs [remeasure] so the `ScalingLazyColumn` re-measures with 0px spacers.
- * Returns true if at least one `ScalingLazyListState` was found and updated.
- *
- * Reflection (`getDeclaredField` / `Field.set`) only runs once a `ScalingLazyListState` instance is
- * actually found in [slotTableRecord].
+ * composition, and re-measures and lays out with [measure] if any state changed. See
+ * [WearScalingLazyListStateSupport.disableAutoCentering].
  */
-@OptIn(UiToolingDataApi::class)
 private fun disableWearScalingLazyColumnAutoCentering(
     composeView: ComposeView,
     slotTableRecord: CompositionDataRecord,
-    remeasure: () -> Unit,
+    measure: () -> Unit,
+): Boolean =
+    updateWearScalingLazyListStates(
+        composeView,
+        slotTableRecord,
+        measure,
+        WearScalingLazyListStateSupport::disableAutoCentering,
+    )
+
+/**
+ * Applies [update] to every Wear `ScalingLazyListState` in [slotTableRecord], and re-measures and
+ * lays out with [measure] if any state changed. Reflection only runs when a `ScalingLazyListState`
+ * instance is present in [slotTableRecord].
+ */
+@OptIn(UiToolingDataApi::class)
+private fun updateWearScalingLazyListStates(
+    composeView: ComposeView,
+    slotTableRecord: CompositionDataRecord,
+    measure: () -> Unit,
+    update: (WearScalingLazyListStateSupport, Any) -> Boolean,
 ): Boolean {
     val stateClass = wearScalingLazyListStateClass ?: return false
     val states = mutableSetOf<Any>()
@@ -602,13 +650,10 @@ private fun disableWearScalingLazyColumnAutoCentering(
     val support = wearScalingLazyListStateSupport ?: return false
     var updated = false
     for (state in states) {
-        if (support.disableAutoCentering(state)) updated = true
+        if (update(support, state)) updated = true
     }
     if (updated) {
-        Snapshot.sendApplyNotifications()
-        composeView.forceLayout()
-        composeView.getChildAt(0)?.forceLayout()
-        remeasure()
+        remeasureAndLayoutAfterStateChange(composeView, measure)
     }
     return updated
 }
