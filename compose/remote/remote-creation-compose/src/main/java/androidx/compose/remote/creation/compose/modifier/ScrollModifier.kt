@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.IntRange
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -94,6 +95,7 @@ constructor(
  *   ends. If 0, scrolling is continuous.
  * @return remembered [RemoteScrollState]
  */
+@RemoteComposable
 @Composable
 public fun rememberRemoteScrollState(@IntRange(from = 0) notches: Int = 0): RemoteScrollState {
     return remember(notches) { RemoteScrollState(notches) }

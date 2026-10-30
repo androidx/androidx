@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -304,6 +305,7 @@ internal constructor(
         ),
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RemoteComposable
 @Composable
 public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
     return remember { MutableRemoteLong(initialValue) }
@@ -317,6 +319,7 @@ public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
  * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
  * @return A [RemoteLong] representing the named remote long expression.
  */
+@RemoteComposable
 @Composable
 public fun rememberNamedRemoteLong(
     name: String,

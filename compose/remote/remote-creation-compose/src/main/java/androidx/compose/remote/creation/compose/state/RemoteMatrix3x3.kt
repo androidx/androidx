@@ -20,8 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.runtime.Stable
 
 /** Represents a 3x3 transformation matrix. */
+@Stable
 public class RemoteMatrix3x3
 internal constructor(
     private val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,

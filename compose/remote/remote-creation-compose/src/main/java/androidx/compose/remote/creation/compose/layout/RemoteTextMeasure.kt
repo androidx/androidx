@@ -40,6 +40,7 @@ private val DefaultFontSize: RemoteTextUnit = 12.rsp
  *
  * Parameters are read from CompositionLocals (such as [LocalRemoteDensity]).
  */
+@RemoteComposable
 @Composable
 public fun rememberRemoteTextMeasurer(): RemoteTextMeasurer {
     val density = LocalRemoteDensity.current

@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.util.fastFold
 import androidx.compose.remote.creation.compose.util.fastForEach
 import androidx.compose.remote.creation.compose.util.fastMap
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 import kotlin.enums.EnumEntries
@@ -38,6 +39,7 @@ import kotlin.enums.enumEntries
  * @param intValue The [RemoteInt] representing the enum ordinal.
  * @param enumEntries The [EnumEntries] containing all values of the enum.
  */
+@Stable
 public open class RemoteEnum<T : Enum<T>>
 public constructor(internal val intValue: RemoteInt, internal val enumEntries: EnumEntries<T>) :
     BaseRemoteState<T>(RemoteStateInstanceKey()) {

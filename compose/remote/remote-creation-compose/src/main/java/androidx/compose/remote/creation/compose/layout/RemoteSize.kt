@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.runtime.Immutable
 
 /**
  * An immutable, 2D floating-point size with [width] and [height] represented as [RemoteFloat]s.
@@ -27,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.rf
  * @property width The horizontal dimension.
  * @property height The vertical dimension.
  */
+@Immutable
 public class RemoteSize(
     public val width: RemoteFloat,
     public val height: RemoteFloat,

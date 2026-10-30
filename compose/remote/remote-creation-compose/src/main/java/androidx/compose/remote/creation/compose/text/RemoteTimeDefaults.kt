@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_NONE
 import androidx.compose.remote.core.operations.TextFromFloat.PAD_PRE_ZERO
 import androidx.compose.remote.creation.compose.capture.LocalIs24HourFormat
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -36,6 +37,7 @@ public object RemoteTimeDefaults {
      * Returns a [RemoteBoolean] indicating whether the time should be displayed in 24-hour format.
      * Currently captured at recording time.
      */
+    @RemoteComposable
     @Composable
     public fun is24HourFormat(): RemoteBoolean = RemoteBoolean(LocalIs24HourFormat.current)
 
@@ -49,6 +51,7 @@ public object RemoteTimeDefaults {
      *   the system's current setting at the time of recording.
      * @return A [RemoteString] that evaluates to the formatted time string.
      */
+    @RemoteComposable
     @Composable
     public fun defaultTimeString(is24HourFormat: RemoteBoolean = is24HourFormat()): RemoteString {
         val mins =

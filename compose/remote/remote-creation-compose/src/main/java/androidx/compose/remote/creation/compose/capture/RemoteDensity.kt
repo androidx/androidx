@@ -20,6 +20,7 @@ import androidx.compose.remote.creation.compose.state.RemoteConfiguration
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.runtime.Immutable
 
 /**
  * Represents the screen density and font scale factor used for unit conversions in a remote
@@ -28,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteTextUnit
  * @property density The logical density of the display, used to convert DP to pixels.
  * @property fontScale The current user preference for the scaling factor for fonts.
  */
+@Immutable
 public class RemoteDensity(
     public val density: RemoteFloat,
     public val fontScale: RemoteFloat,

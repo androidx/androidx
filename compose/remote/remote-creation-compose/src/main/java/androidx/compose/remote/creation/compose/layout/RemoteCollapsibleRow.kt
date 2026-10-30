@@ -112,7 +112,7 @@ public fun RemoteCollapsibleRow(
     modifier: RemoteModifier = RemoteModifier,
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
-    content: @Composable RemoteCollapsibleRowScope.() -> Unit,
+    content: @RemoteComposable @Composable RemoteCollapsibleRowScope.() -> Unit,
 ) {
     val scope = remember { RemoteCollapsibleRowScope() }
     RemoteLayoutNode(

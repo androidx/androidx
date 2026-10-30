@@ -24,10 +24,12 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 
 /** Receiver scope used by [RemoteColumn] for its content. */
 @RemoteLayoutScopeMarker
+@Immutable
 public class RemoteColumnScope {
     /**
      * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].
@@ -81,7 +83,7 @@ public fun RemoteColumn(
     modifier: RemoteModifier = RemoteModifier,
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
     horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
-    content: @Composable RemoteColumnScope.() -> Unit,
+    content: @RemoteComposable @Composable RemoteColumnScope.() -> Unit,
 ) {
     val scope = remember { RemoteColumnScope() }
     RemoteLayoutNode(

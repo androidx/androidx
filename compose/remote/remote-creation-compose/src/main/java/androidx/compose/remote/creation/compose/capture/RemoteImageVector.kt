@@ -641,9 +641,9 @@ private fun <T> ArrayList<T>.pop(): T = this.removeAt(size - 1)
 private fun <T> ArrayList<T>.peek(): T = this[size - 1]
 
 /** For image vectors that don't have an intrinsic size. */
-internal const val DefaultIconSize = 24f
+internal val DefaultIconSize = 24f
 
-internal const val DefaultGroupName = ""
+internal val DefaultGroupName = ""
 internal val DefaultRotation = 0.0f.rf
 internal val DefaultPivotX = 0.0f.rf
 internal val DefaultPivotY = 0.0f.rf
@@ -654,6 +654,7 @@ internal val DefaultTranslationY = 0.0f.rf
 
 internal val EmptyPath = emptyList<RemotePathNode>()
 
+internal val DefaultPathName = ""
 internal val DefaultStrokeLineWidth = 0.0f.rf
 internal val DefaultStrokeLineMiter = 4.0f.rf
 internal val DefaultTrimPathStart = 0.0f.rf

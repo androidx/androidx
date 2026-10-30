@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
+import androidx.compose.runtime.Immutable
 import kotlin.math.sqrt
 
 /** Specification for animations in Remote Compose. */
@@ -40,6 +41,7 @@ public sealed interface RemoteAnimationSpec {
 }
 
 /** Defines the easing curve used for Remote Compose animations. */
+@Immutable
 public class RemoteEasing
 internal constructor(internal val type: Int, internal val spec: FloatArray? = null) {
     public companion object {
@@ -114,6 +116,7 @@ internal constructor(internal val type: Int, internal val spec: FloatArray? = nu
  * @property durationMillis The duration of the animation in milliseconds.
  * @property easing The easing curve to apply.
  */
+@Immutable
 public class RemoteTweenSpec(
     @IntRange(from = 0) public val durationMillis: Int = 300,
     public val easing: RemoteEasing = RemoteEasing.Standard,
