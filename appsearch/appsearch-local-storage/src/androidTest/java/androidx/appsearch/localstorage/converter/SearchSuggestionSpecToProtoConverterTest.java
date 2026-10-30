@@ -19,9 +19,18 @@ package androidx.appsearch.localstorage.converter;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.localstorage.AppSearchConfigImpl;
+import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
+import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.NamespaceCache;
+import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.SchemaCache;
+import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.testutil.AppSearchTestUtils;
 
 import com.google.android.icing.proto.NamespaceDocumentUriGroup;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -31,9 +40,35 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class SearchSuggestionSpecToProtoConverterTest {
+    /** An optimize strategy that always triggers optimize. */
+    private static final OptimizeStrategy ALWAYS_OPTIMIZE = optimizeInfo -> true;
+
+    @Rule
+    public final TemporaryFolder mTemporaryFolder = new TemporaryFolder();
+
+    private AppSearchImpl mAppSearchImpl;
+
+    @Before
+    public void setUp() throws Exception {
+        mAppSearchImpl = AppSearchImpl.create(
+                mTemporaryFolder.newFolder(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(), new LocalStorageIcingOptionsConfig()),
+                AppSearchUserPlugins.EMPTY,
+                ALWAYS_OPTIMIZE);
+    }
+
+    @After
+    public void tearDown() {
+        mAppSearchImpl.close();
+    }
 
     @Test
     public void testToProto() throws Exception {
@@ -101,5 +136,76 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .setSchemaType("package$database/typeA")
                         .addPaths("property1").addPaths("property2")
                         .build());
+    }
+
+    @Test
+    public void testRemoveInaccessibleSchemaFilters() throws Exception {
+        VisibilityStore visibilityStore =
+                VisibilityStore.createDocumentVisibilityStore(mAppSearchImpl,
+                        /*callStatsBuilder=*/ null);
+        SearchSuggestionSpec searchSuggestionSpec =
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .addFilterProperties("typeA", ImmutableList.of("property1"))
+                        .addFilterProperties("typeB", ImmutableList.of("property2"))
+                        .build();
+
+        String prefix1 = PrefixUtil.createPrefix("package", "database");
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        SearchSuggestionSpecToProtoConverter converter = new SearchSuggestionSpecToProtoConverter(
+                /*queryExpression=*/"prefix",
+                searchSuggestionSpec,
+                /*prefixes=*/ImmutableSet.of(prefix1),
+                new NamespaceCache(ImmutableMap.of(
+                        prefix1, ImmutableSet.of(prefix1 + "namespace1"))),
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto,
+                                prefix1 + "typeC", configProto))));
+
+        converter.removeInaccessibleSchemaFilters(
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
+                visibilityStore,
+                AppSearchTestUtils.createMockVisibilityChecker(
+                        /*visiblePrefixedSchemas=*/ImmutableSet.of(
+                                prefix1 + "typeA", prefix1 + "typeC")));
+
+        assertThat(converter.hasNothingToSearch()).isFalse();
+        SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
+        // typeB is filtered out since it is not searchable for the caller, and so are its property
+        // filters.
+        assertThat(proto.getSchemaTypeFiltersList()).containsExactly(
+                "package$database/typeA", "package$database/typeC");
+        assertThat(proto.getTypePropertyFiltersList()).containsExactly(
+                TypePropertyMask.newBuilder()
+                        .setSchemaType("package$database/typeA")
+                        .addPaths("property1")
+                        .build());
+    }
+
+    @Test
+    public void testRemoveInaccessibleSchemaFilters_noAccessibleSchemaType_hasNothingToSearch()
+            throws Exception {
+        String prefix1 = PrefixUtil.createPrefix("package", "database");
+        SchemaTypeConfigProto configProto = SchemaTypeConfigProto.getDefaultInstance();
+        SearchSuggestionSpecToProtoConverter converter = new SearchSuggestionSpecToProtoConverter(
+                /*queryExpression=*/"prefix",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123).build(),
+                /*prefixes=*/ImmutableSet.of(prefix1),
+                new NamespaceCache(ImmutableMap.of(
+                        prefix1, ImmutableSet.of(prefix1 + "namespace1"))),
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto))));
+        assertThat(converter.hasNothingToSearch()).isFalse();
+
+        // Without a visibility checker, a caller from another package cannot access any of the
+        // schema types, so there is nothing to search.
+        converter.removeInaccessibleSchemaFilters(
+                new CallerAccess(/*callingPackageName=*/"otherPackageName"),
+                /*visibilityStore=*/null,
+                /*visibilityChecker=*/null);
+        assertThat(converter.hasNothingToSearch()).isTrue();
     }
 }

@@ -16,12 +16,18 @@
 
 package androidx.appsearch.localstorage.converter;
 
+import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
+
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.HideInPlatform;
 import androidx.appsearch.app.FeatureConstants;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.localstorage.NamespaceCache;
 import androidx.appsearch.localstorage.SchemaCache;
+import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.NamespaceDocumentUriGroup;
@@ -31,8 +37,8 @@ import com.google.android.icing.proto.TermMatchType;
 import com.google.android.icing.proto.TypePropertyMask;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,6 +100,32 @@ public final class SearchSuggestionSpecToProtoConverter {
      */
     public boolean hasNothingToSearch() {
         return mTargetPrefixedNamespaceFilters.isEmpty() || mTargetPrefixedSchemaFilters.isEmpty();
+    }
+
+    /**
+     * Removes the target schema types that the caller is not allowed to access, as verified
+     * through {@link VisibilityUtil#isSchemaSearchableByCaller}.
+     *
+     * @param callerAccess      Visibility access info of the calling app.
+     * @param visibilityStore   Optional {@link VisibilityStore} that stores all visibility
+     *                          information. Passing {@code null} rejects access to all schema
+     *                          types that don't belong to the calling package.
+     * @param visibilityChecker Optional visibility checker to check whether the caller can access
+     *                          the target schema types. Passing {@code null} rejects access to all
+     *                          schema types that don't belong to the calling package.
+     */
+    public void removeInaccessibleSchemaFilters(
+            @NonNull CallerAccess callerAccess,
+            @Nullable VisibilityStore visibilityStore,
+            @Nullable VisibilityChecker visibilityChecker) {
+        mTargetPrefixedSchemaFilters.removeIf(
+                prefixedSchema ->
+                        !VisibilityUtil.isSchemaSearchableByCaller(
+                                callerAccess,
+                                getPackageName(prefixedSchema),
+                                prefixedSchema,
+                                visibilityStore,
+                                visibilityChecker));
     }
 
     /**

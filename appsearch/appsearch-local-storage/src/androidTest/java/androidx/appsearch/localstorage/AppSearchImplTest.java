@@ -707,7 +707,9 @@ public class AppSearchImplTest {
         AppSearchBlobHandle blobHandle = AppSearchBlobHandle.createWithSha256(
                 blobDigest, mContext.getPackageName(), "database1", "namespace1");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob(
-                mContext.getPackageName(), "database1", blobHandle, /*callStatsBuilder=*/ null);
+                mContext.getPackageName(), "database1", blobHandle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                /*callStatsBuilder=*/ null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
             outputStream.write(blobData);
@@ -719,6 +721,7 @@ public class AppSearchImplTest {
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd = mAppSearchImpl.openReadBlob(
                 mContext.getPackageName(), "database1", blobHandle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/ null);
                 InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
             inputStream.read(readBytes);
@@ -830,6 +833,7 @@ public class AppSearchImplTest {
         // Put a blob
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob(
                 mContext.getPackageName(), "database1", blobHandle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/ null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -842,6 +846,7 @@ public class AppSearchImplTest {
         readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd = mAppSearchImpl.openReadBlob(
                 mContext.getPackageName(), "database1", blobHandle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/ null);
                 InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
             inputStream.read(readBytes);
@@ -912,7 +917,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package", "EmptyDatabase", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
     }
@@ -983,7 +988,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder().setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).setResultCountPerPage(5).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(5);
         assertThat(searchResultPage.getNextPageToken()).isNotEqualTo(
@@ -1050,7 +1055,7 @@ public class AppSearchImplTest {
                 .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         assertThat(searchResultPage.getResults()).isEmpty();
@@ -1123,6 +1128,7 @@ public class AppSearchImplTest {
                         "database1",
                         "",
                         searchSpec,
+                        /*callerAccess=*/ null,
                         /* logger= */ null,
                         /* callStatsBuilder= */ null);
 
@@ -1182,7 +1188,7 @@ public class AppSearchImplTest {
                 .setTermMatch(TermMatchType.Code.PREFIX_VALUE)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         assertThat(searchResultPage.getResults()).hasSize(3);
@@ -1244,7 +1250,7 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
@@ -1260,6 +1266,7 @@ public class AppSearchImplTest {
 
         // No query filters specified. package2 should only get its own documents back.
         searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec,
+                /*callerAccess=*/ null,
                 /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -1322,7 +1329,7 @@ public class AppSearchImplTest {
                 .addFilterPackageNames("package1")
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package2", "database2", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
@@ -1342,6 +1349,7 @@ public class AppSearchImplTest {
                 .addFilterPackageNames("package2")
                 .build();
         searchResultPage = mAppSearchImpl.query("package2", "database2", "", searchSpec,
+                /*callerAccess=*/ null,
                 /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
@@ -1654,7 +1662,7 @@ public class AppSearchImplTest {
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         // Only package1 documents should be returned
         assertThat(searchResultPage.getResults()).hasSize(2);
@@ -1676,7 +1684,7 @@ public class AppSearchImplTest {
                 .setJoinSpec(join)
                 .build();
         searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Only package1 documents should be returned, for both the outer and nested searches
@@ -1702,7 +1710,7 @@ public class AppSearchImplTest {
                 .setJoinSpec(join)
                 .build();
         searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Package1 documents should be returned, but no packages should be joined
@@ -1726,7 +1734,7 @@ public class AppSearchImplTest {
                 .setJoinSpec(join)
                 .build();
         searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Only package1 documents should be returned, for both the outer and nested searches
@@ -1748,7 +1756,7 @@ public class AppSearchImplTest {
                 .setJoinSpec(join)
                 .build();
         searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         // Should work as expected
         assertThat(searchResultPage.getResults()).hasSize(2);
@@ -1808,6 +1816,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).hasSize(3);
         assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
@@ -1820,6 +1829,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/2).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).hasSize(2);
         assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
@@ -1863,6 +1873,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).hasSize(1);
         assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
@@ -1878,6 +1889,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
     }
@@ -1926,6 +1938,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).containsExactly(tartResult, twoResult, threeResult);
 
@@ -1943,6 +1956,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).containsExactly(twistResult, threeResult);
     }
@@ -1998,6 +2012,7 @@ public class AppSearchImplTest {
                 /*suggestionQueryExpression=*/"t",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
                         .addFilterNamespaces("namespace1").build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).hasSize(1);
         assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("term1");
@@ -2009,6 +2024,7 @@ public class AppSearchImplTest {
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
                         .addFilterNamespaces("namespace1", "namespace2")
                         .build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).hasSize(2);
         assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("term1");
@@ -2051,6 +2067,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t:",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
         suggestions = mAppSearchImpl.searchSuggestion(
@@ -2058,6 +2075,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t-",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
         suggestions = mAppSearchImpl.searchSuggestion(
@@ -2065,6 +2083,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"t  ",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
         suggestions = mAppSearchImpl.searchSuggestion(
@@ -2072,6 +2091,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"{t}",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
         suggestions = mAppSearchImpl.searchSuggestion(
@@ -2079,6 +2099,7 @@ public class AppSearchImplTest {
                 "database",
                 /*suggestionQueryExpression=*/"(t)",
                 new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/ null);
         assertThat(suggestions).isEmpty();
     }
@@ -2121,6 +2142,7 @@ public class AppSearchImplTest {
                         new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
                                 .addFilterNamespaces("namespace1")
                                 .build(),
+                        new CallerAccess("package"),
                         /*callStatsBuilder=*/ null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(e).hasMessageThat().contains("suggestionQueryExpression cannot be empty.");
@@ -2170,7 +2192,7 @@ public class AppSearchImplTest {
                 .setResultCountPerPage(1)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -2231,7 +2253,7 @@ public class AppSearchImplTest {
                 .setResultCountPerPage(1)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -2592,7 +2614,7 @@ public class AppSearchImplTest {
                 .setResultCountPerPage(1)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -2652,7 +2674,7 @@ public class AppSearchImplTest {
                 .setResultCountPerPage(2) // make sure all the results can be returned in one page.
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // We only have one document indexed
@@ -2711,7 +2733,7 @@ public class AppSearchImplTest {
                 .setResultCountPerPage(1)
                 .build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package1", "database1", "",
-                searchSpec, /*logger=*/ null,
+                searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
         // Document2 will come first because it was inserted last and default return order is
@@ -3357,6 +3379,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3369,6 +3392,7 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/null);
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd =  mAppSearchImpl.openReadBlob("package", "db1", handle,
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/null);
                 InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
             inputStream.read(readBytes);
@@ -3392,6 +3416,7 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "ns");
         // Open a pfd for write, write the blob data without close the pfd.
         ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (FileOutputStream outputStream = new FileOutputStream(writePfd.getFileDescriptor())) {
             outputStream.write(data);
@@ -3428,6 +3453,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                     OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3445,7 +3471,8 @@ public class AppSearchImplTest {
         // Read will get NOT_FOUND
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openReadBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null));
+                        new CallerAccess("package"),
+                        /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_NOT_FOUND);
         assertThat(e.getMessage()).contains("Cannot find the blob for handle");
     }
@@ -3465,6 +3492,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3500,6 +3528,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                     OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3514,6 +3543,7 @@ public class AppSearchImplTest {
 
         // reopen and rewrite
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3526,6 +3556,7 @@ public class AppSearchImplTest {
                 /*callStatsBuilder=*/null);
         byte[] readBytes = new byte[20 * 1024];
         try (ParcelFileDescriptor readPfd =  mAppSearchImpl.openReadBlob("package", "db1", handle,
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/null);
                 InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
             inputStream.read(readBytes);
@@ -3548,6 +3579,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                     OutputStream outputStream = new ParcelFileDescriptor
                             .AutoCloseOutputStream(writePfd)) {
@@ -3563,7 +3595,8 @@ public class AppSearchImplTest {
         assertThrows(IOException.class, () -> {
             try (ParcelFileDescriptor readPfd =
                          mAppSearchImpl.openReadBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null);
+                                 new CallerAccess("package"),
+                                 /*callStatsBuilder=*/null);
                     OutputStream outputStream = new ParcelFileDescriptor
                             .AutoCloseOutputStream(readPfd)) {
                 outputStream.write(data);
@@ -3587,6 +3620,7 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "ns");
         // openWriteBlob returns read and write fd.
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 InputStream inputStream = new ParcelFileDescriptor
                         .AutoCloseInputStream(writePfd)) {
@@ -3612,10 +3646,12 @@ public class AppSearchImplTest {
         // only allow open 1 fd for writing.
         try (ParcelFileDescriptor writePfd1 =
                      mAppSearchImpl.openWriteBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null);
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null);
                 ParcelFileDescriptor writePfd2 =
                         mAppSearchImpl.openWriteBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null)) {
+                                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                                /*callStatsBuilder=*/null)) {
             assertThat(writePfd1).isEqualTo(writePfd2);
         }
     }
@@ -3637,6 +3673,7 @@ public class AppSearchImplTest {
 
         // write a blob first.
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -3650,10 +3687,12 @@ public class AppSearchImplTest {
         // allow open multiple fd for reading.
         try (ParcelFileDescriptor readPfd1 =
                      mAppSearchImpl.openReadBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null);
+                             new CallerAccess("package"),
+                             /*callStatsBuilder=*/null);
                 ParcelFileDescriptor readPfd2 =
                         mAppSearchImpl.openReadBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null)) {
+                                new CallerAccess("package"),
+                                /*callStatsBuilder=*/null)) {
             assertThat(readPfd1).isNotEqualTo(readPfd2);
         }
     }
@@ -3683,6 +3722,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "namespace");
         ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -3700,6 +3740,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
         AppSearchException e = assertThrows(AppSearchException.class, () -> {
             mAppSearchImpl.openReadBlob("package", "db1", handle,
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/null);
         });
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -3731,6 +3772,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "namespace");
         ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -3777,6 +3819,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
         byte[] readBytes = new byte[20];
         try (ParcelFileDescriptor readPfd =  mAppSearchImpl.openReadBlob("package", "db1", handle,
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/null);
                 InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(readPfd)) {
             inputStream.read(readBytes);
@@ -3790,6 +3833,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, /*callStatsBuilder=*/ null);
         AppSearchException e = assertThrows(AppSearchException.class, () -> {
             mAppSearchImpl.openReadBlob("package", "db1", handle,
+                new CallerAccess("package"),
                 /*callStatsBuilder=*/null);
         });
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -3814,7 +3858,8 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null)) {
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null)) {
             // Clear package data and all file descriptor to that package will be revoked.
             mAppSearchImpl.clearPackageData("package");
 
@@ -3829,7 +3874,8 @@ public class AppSearchImplTest {
         // reopen file descriptor could work.
         try (ParcelFileDescriptor writePfd2 =
                      mAppSearchImpl.openWriteBlob("package", "db1", handle,
-                /*callStatsBuilder=*/null)) {
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null)) {
             try (FileOutputStream outputStream =
                          new FileOutputStream(writePfd2.getFileDescriptor())) {
                 outputStream.write(data);
@@ -3862,14 +3908,16 @@ public class AppSearchImplTest {
 
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openWriteBlob("wrongPackageName", "db1", handle,
-                /*callStatsBuilder=*/null));
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                        /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(e.getMessage()).contains("Blob package doesn't match calling package, "
                 + "calling package: wrongPackageName, blob package: package");
 
         e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openWriteBlob("package", "wrongDb", handle,
-                /*callStatsBuilder=*/null));
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                        /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(e.getMessage()).contains("Blob database doesn't match calling database, "
                 + "calling database: wrongDb, blob database: db1");
@@ -4111,7 +4159,8 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "visibleNamespace");
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", visibleHandle,
-                /*callStatsBuilder=*/null);
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                          .AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -4124,7 +4173,8 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "nonVisibleNamespace");
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", nonVisibleHandle,
-                /*callStatsBuilder=*/null);
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -4180,7 +4230,8 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "visibleNamespace");
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", visibleHandle,
-                /*callStatsBuilder=*/null);
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                             /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -4193,6 +4244,7 @@ public class AppSearchImplTest {
                 digest, "package", "db1", "nonVisibleNamespace");
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", nonVisibleHandle,
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                              /*callStatsBuilder=*/null);
                  OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -4269,8 +4321,8 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         SearchResultPage searchResultPage = mAppSearchImpl.query("package",
-                "database",  /*queryExpression=*/ "", searchSpec, /*logger=*/ null,
-                /*callStatsBuilder=*/ null);
+                "database",  /*queryExpression=*/ "", searchSpec, /*callerAccess=*/ null,
+                /*logger=*/ null, /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document);
 
@@ -4279,7 +4331,7 @@ public class AppSearchImplTest {
 
         // Verify the document is cleared.
         searchResultPage = mAppSearchImpl.query("package2", "database2",
-                /*queryExpression=*/ "", searchSpec, /*logger=*/ null,
+                /*queryExpression=*/ "", searchSpec, /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
 
@@ -4665,7 +4717,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_COUNT)
-                        .build(), /*logger=*/ null,
+                        .build(), /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
@@ -4676,7 +4728,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP)
-                        .build(), /*logger=*/ null,
+                        .build(), /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
@@ -4687,7 +4739,7 @@ public class AppSearchImplTest {
                 new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_COUNT)
-                        .build(), /*logger=*/ null,
+                        .build(), /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id2");
@@ -4699,7 +4751,7 @@ public class AppSearchImplTest {
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setRankingStrategy(
                                 SearchSpec.RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP)
-                        .build(), /*logger=*/ null,
+                        .build(), /*callerAccess=*/ null, /*logger=*/ null,
                 /*callStatsBuilder=*/ null).getResults();
         assertThat(page).hasSize(2);
         assertThat(page.get(0).getGenericDocument().getId()).isEqualTo("id1");
@@ -4989,6 +5041,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle1 = AppSearchBlobHandle.createWithSha256(
                 digest1, "package1", "db1", "ns");
         ParcelFileDescriptor writePfd1 = mAppSearchImpl.openWriteBlob("package1", "db1", handle1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd1)) {
@@ -5001,6 +5054,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle2 = AppSearchBlobHandle.createWithSha256(
                 digest2, "package1", "db1", "ns");
         ParcelFileDescriptor writePfd2 = mAppSearchImpl.openWriteBlob("package1", "db1", handle2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd2)) {
@@ -5013,6 +5067,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle3 = AppSearchBlobHandle.createWithSha256(
                 digest3, "package2", "db1", "ns");
         ParcelFileDescriptor writePfd3 = mAppSearchImpl.openWriteBlob("package2", "db1", handle3,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd3)) {
@@ -5050,6 +5105,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle1 = AppSearchBlobHandle.createWithSha256(
                 digest1, "package", "db1", "ns");
         ParcelFileDescriptor writePfd1 = mAppSearchImpl.openWriteBlob("package", "db1", handle1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd1)) {
@@ -5062,6 +5118,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle2 = AppSearchBlobHandle.createWithSha256(
                 digest2, "package", "db1", "ns");
         ParcelFileDescriptor writePfd2 = mAppSearchImpl.openWriteBlob("package", "db1", handle2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd2)) {
@@ -5074,6 +5131,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle3 = AppSearchBlobHandle.createWithSha256(
                 digest3, "package", "db2", "ns");
         ParcelFileDescriptor writePfd3 = mAppSearchImpl.openWriteBlob("package", "db2", handle3,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
         try (OutputStream outputStream = new ParcelFileDescriptor
                 .AutoCloseOutputStream(writePfd3)) {
@@ -5147,6 +5205,7 @@ public class AppSearchImplTest {
                 "database",
                 "query",
                 new SearchSpec.Builder().build(),
+                /*callerAccess=*/ null,
                 /*logger=*/ null,
                 /*callStatsBuilder=*/ null));
 
@@ -5954,7 +6013,7 @@ public class AppSearchImplTest {
                         .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), queryStatsBuilder,
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(onlyLaunchVmFeature);
 
@@ -6056,7 +6115,7 @@ public class AppSearchImplTest {
                         .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), queryStatsBuilder,
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(noLaunchFeature);
 
@@ -6158,7 +6217,7 @@ public class AppSearchImplTest {
                         .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), queryStatsBuilder,
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(queryStatsBuilder.build().getEnabledFeatures())
                 .isEqualTo(launchVmAndAiSealFeature);
@@ -6256,7 +6315,7 @@ public class AppSearchImplTest {
                         .setDatabase("database");
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), queryStatsBuilder,
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null, queryStatsBuilder,
                 /*callStatsBuilder=*/null);
         assertThat(queryStatsBuilder.build().getEnabledFeatures()).isEqualTo(noLaunchFeature);
 
@@ -6334,6 +6393,7 @@ public class AppSearchImplTest {
                 "database",
                 "",
                 new SearchSpec.Builder().build(),
+                /*callerAccess=*/ null,
                 queryStatsBuilder,
                 /* callStatsBuilder= */ null);
         assertThat(queryStatsBuilder.build().getResultSchemas())
@@ -6346,6 +6406,7 @@ public class AppSearchImplTest {
                 "database",
                 "",
                 new SearchSpec.Builder().addFilterSchemas("type1", "type2").build(),
+                /*callerAccess=*/ null,
                 queryStatsBuilder,
                 /* callStatsBuilder= */ null);
         assertThat(queryStatsBuilder.build().getResultSchemas()).containsExactly("type1", "type2");
@@ -6357,6 +6418,7 @@ public class AppSearchImplTest {
                 "database",
                 "",
                 new SearchSpec.Builder().addFilterSchemas("type1", "type4").build(),
+                /*callerAccess=*/ null,
                 queryStatsBuilder,
                 /* callStatsBuilder= */ null);
         assertThat(queryStatsBuilder.build().getResultSchemas()).containsExactly("type1");
@@ -6456,6 +6518,7 @@ public class AppSearchImplTest {
                 "database",
                 "",
                 new SearchSpec.Builder().build(),
+                /*callerAccess=*/ null,
                 queryStatsBuilder,
                 callStatsBuilder);
         assertThat(queryStatsBuilder.build().getLastBlockingOperation())
@@ -6574,6 +6637,7 @@ public class AppSearchImplTest {
                 /*digest=*/ new byte[32], "package", "db1", "ns");
         try {
             mAppSearchImpl.openWriteBlob("package", "database", handle,
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                     callStatsBuilder);
         } catch (Exception e) {
             // We don't care whether the write blob is success or not, just want to verify the last
@@ -6627,6 +6691,7 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         try {
             mAppSearchImpl.openReadBlob("package", "database", handle,
+                    new CallerAccess("package"),
                     callStatsBuilder);
         } catch (Exception e) {
             // We don't care whether the write blob is success or not, just want to verify the last
@@ -6798,8 +6863,8 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), /*queryStatsBuilder=*/ null,
-                callStatsBuilder);
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null,
+                /*queryStatsBuilder=*/ null, callStatsBuilder);
         assertThat(callStatsBuilder.build().getNumIcingCalls()).isEqualTo(1);
 
         // Report usage
@@ -6958,8 +7023,8 @@ public class AppSearchImplTest {
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.query(
                 "package", "database", "",
-                new SearchSpec.Builder().build(), /*queryStatsBuilder=*/ null,
-                callStatsBuilder);
+                new SearchSpec.Builder().build(), /*callerAccess=*/ null,
+                /*queryStatsBuilder=*/ null, callStatsBuilder);
         assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
                 .isGreaterThan(0);
         assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
@@ -7190,6 +7255,7 @@ public class AppSearchImplTest {
                             "database",
                             "",
                             searchSpec,
+                            /*callerAccess=*/ null,
                             /*logger=*/ null,
                             /*callStatsBuilder=*/ null);
 
@@ -8207,7 +8273,8 @@ public class AppSearchImplTest {
                         "database",
                         /*suggestionQueryExpression=*/"t",
                         new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build(),
-                /*callStatsBuilder=*/ null));
+                        new CallerAccess("package"),
+                        /*callStatsBuilder=*/ null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
         assertThat(e).hasMessageThat().contains(
                 "Trying to get 10 suggestion results, which exceeds limit of 2");
@@ -8894,6 +8961,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle1 = AppSearchBlobHandle.createWithSha256(
                 digest1, "package", "db1", "ns");
         ParcelFileDescriptor writer1 = mAppSearchImpl.openWriteBlob("package", "db1", handle1,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         byte[] data2 = generateRandomBytes(20 * 1024); // 20 KiB
@@ -8901,6 +8969,7 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle2 = AppSearchBlobHandle.createWithSha256(
                 digest2, "package", "db1", "ns");
         ParcelFileDescriptor writer2 = mAppSearchImpl.openWriteBlob("package", "db1", handle2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
 
         // Open 3rd fd will fail.
@@ -8910,7 +8979,8 @@ public class AppSearchImplTest {
                 digest3, "package", "db1", "ns");
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openWriteBlob("package", "db1", handle3,
-                /*callStatsBuilder=*/null));
+                        /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                        /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
                 "Package \"package\" exceeded limit of 2 opened file descriptors. "
@@ -8971,6 +9041,7 @@ public class AppSearchImplTest {
                 digest, mContext.getPackageName(), "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob(
                 mContext.getPackageName(), "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
@@ -8982,13 +9053,16 @@ public class AppSearchImplTest {
 
         ParcelFileDescriptor reader1 =
                 mAppSearchImpl.openReadBlob(mContext.getPackageName(), "db1", handle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null);
         ParcelFileDescriptor reader2 =
                 mAppSearchImpl.openReadBlob(mContext.getPackageName(), "db1", handle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null);
         // Open 3rd fd will fail.
         AppSearchException e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openReadBlob(mContext.getPackageName(), "db1", handle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
@@ -9003,6 +9077,7 @@ public class AppSearchImplTest {
                 digest2, mContext.getPackageName(), "db1", "ns");
         e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openWriteBlob(mContext.getPackageName(), "db1", handle2,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                 /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
@@ -9014,6 +9089,7 @@ public class AppSearchImplTest {
         reader1.close();
         ParcelFileDescriptor reader3 =
                 mAppSearchImpl.openReadBlob(mContext.getPackageName(), "db1", handle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null);
 
         // GlobalOpenRead will share same limit.
@@ -9033,6 +9109,7 @@ public class AppSearchImplTest {
         // Keep opening will fail
         e = assertThrows(AppSearchException.class,
                 () -> mAppSearchImpl.openReadBlob(mContext.getPackageName(), "db1", handle,
+                mSelfCallerAccess,
                 /*callStatsBuilder=*/null));
         assertThat(e.getResultCode()).isEqualTo(RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
@@ -11745,6 +11822,7 @@ public class AppSearchImplTest {
 
         try (ParcelFileDescriptor writePfd =
                      mAppSearchImpl.openWriteBlob("package", "db1", handle,
+                             /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
                              /*callStatsBuilder=*/null)) {
             // Can write data.
             try (FileOutputStream outputStream =
@@ -13411,7 +13489,9 @@ public class AppSearchImplTest {
         AppSearchBlobHandle handle = AppSearchBlobHandle.createWithSha256(
                 digest, "package", "db1", "ns");
         try (ParcelFileDescriptor writePfd = mAppSearchImpl.openWriteBlob(
-                "package", "db1", handle, /* callStatsBuilder= */ null);
+                "package", "db1", handle,
+                /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                /* callStatsBuilder= */ null);
                 OutputStream outputStream = new ParcelFileDescriptor
                         .AutoCloseOutputStream(writePfd)) {
             outputStream.write(data);
@@ -13975,6 +14055,7 @@ public class AppSearchImplTest {
                 "database",
                 "semanticSearch(getEmbeddingParameter(0))",
                 searchSpec,
+                /*callerAccess=*/ null,
                 /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -13999,6 +14080,7 @@ public class AppSearchImplTest {
                 "database",
                 "semanticSearch(getEmbeddingParameter(0))",
                 searchSpec,
+                /*callerAccess=*/ null,
                 /*logger=*/ null,
                 /*callStatsBuilder=*/ null);
 
@@ -14183,7 +14265,9 @@ public class AppSearchImplTest {
         AppSearchException exception = assertThrows(AppSearchException.class,
             () ->
                 mAppSearchImpl.openWriteBlob("package", "db1",
-                    handle, /* callStatsBuilder= */ null)
+                    handle,
+                    /* callingUid= */ InternalVisibilityConfig.INVALID_UID,
+                    /* callStatsBuilder= */ null)
         );
         assertThat(exception.getResultCode())
             .isEqualTo(AppSearchResult.RESULT_SECURITY_ERROR);
