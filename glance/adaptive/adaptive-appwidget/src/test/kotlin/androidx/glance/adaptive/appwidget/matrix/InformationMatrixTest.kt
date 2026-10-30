@@ -19,11 +19,13 @@ package androidx.glance.adaptive.appwidget.matrix
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.Dimensions
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -206,9 +208,189 @@ class InformationMatrixTest {
         assertThat(locked.progress).isEqualTo(0.75f)
     }
 
+    @Test
+    fun card_compactCardUsesItsLeadingAndPrimaryTextSizes() {
+        val card =
+            resolve(
+                MatrixCardContent(
+                    leading = Icon(icon = GLYPH),
+                    primary = TemplateText("Start a run"),
+                    padding = 0.dp,
+                    leadingSize = 16.dp,
+                    primaryTextSize = 14.sp,
+                ),
+                at(168, 28, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+            )
+
+        assertThat(card.padding).isEqualTo(0.dp)
+        assertThat(card.leadingSize).isEqualTo(16.dp)
+        assertThat(card.primaryTextSize).isEqualTo(14.sp)
+        assertThat((card.primary as TemplateText).value).isEqualTo("Start a run")
+    }
+
+    @Test
+    fun card_rejectsNegativeLeadingSizeOrNonPositivePrimaryTextSize() {
+        assertThrows(IllegalArgumentException::class.java) {
+            MatrixCardContent(leadingSize = (-1).dp)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            MatrixCardContent(primaryTextSize = 0.sp)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            MatrixCardContent(primaryTextSize = (-1).sp)
+        }
+        assertThat(MatrixCardContent(leadingSize = 0.dp).leadingSize).isEqualTo(0.dp)
+    }
+
+    @Test
+    fun card_stackedHeaderShrinksAnOverriddenLeadingSizeToItsColumn() {
+        val card =
+            resolve(
+                MatrixCardContent(leading = Icon(icon = GLYPH), leadingSize = 100.dp),
+                at(88, 176),
+            )
+
+        // 88 dp wide gives up padding down to 8 dp, which leaves 72 dp for the leading component.
+        assertThat(card.stacked).isTrue()
+        assertThat(card.leadingSize).isEqualTo(72.dp)
+    }
+
+    @Test
+    fun card_carriesItsInteractiveComponents() {
+        val button = IconButton(GLYPH, "More", ACTION)
+        val grid = IconGrid(listOf(IconTile(GLYPH, "Run", ACTION)), columns = 2, rows = 1)
+        val card = resolve(MatrixCardContent(hero = grid, actions = listOf(button)), at(348, 132))
+
+        assertThat(card.hero).isSameInstanceAs(grid)
+        assertThat(card.actions.single()).isSameInstanceAs(button)
+    }
+
+    @Test
+    fun card_trailingTakesTheLeadingSizeOutOfTheRow() {
+        val button = IconButton(GLYPH, "Other workouts", ACTION)
+        fun content(trailing: IconButton?) =
+            MatrixCardContent(
+                leading = Icon(GLYPH),
+                primary = TemplateText("1,234,567"),
+                trailing = trailing,
+                leadingSize = 40.dp,
+                primaryTextSize = 16.sp,
+            )
+
+        val without = resolve(content(trailing = null), at(176, 88))
+        val with = resolve(content(trailing = button), at(176, 88))
+
+        assertThat(with.trailing).isSameInstanceAs(button)
+        assertThat(with.trailingSize).isEqualTo(40.dp)
+        assertThat(without.trailing).isNull()
+        assertThat(without.trailingSize).isEqualTo(0.dp)
+        // 176 dp less 2 x 16 dp padding, a 40 dp icon and an 8 dp gap leaves 96 dp for the
+        // metric, or 48 dp with a trailing button: too narrow for it at 16 sp.
+        assertThat((without.primary as TemplateText).value).isEqualTo("1,234,567")
+        assertThat((with.primary as TemplateText).value).isNotEqualTo("1,234,567")
+    }
+
+    @Test
+    fun card_stackedHeaderHidesTheTrailingComponent() {
+        val card =
+            resolve(
+                MatrixCardContent(
+                    primary = TemplateText("Start"),
+                    trailing = IconButton(GLYPH, "More", ACTION),
+                ),
+                at(88, 176),
+            )
+
+        assertThat(card.stacked).isTrue()
+        assertThat(card.trailing).isNull()
+    }
+
+    @Test
+    fun card_sensitiveTrailingDescriptionIsReplacedOnTheLockScreen() {
+        val content =
+            MatrixCardContent(
+                primary = TemplateText("Favorites"),
+                trailing = IconButton(GLYPH, "Call Alex", ACTION, sensitiveReplacement = "Call"),
+            )
+
+        val home = resolve(content, at(348, 132)).trailing as IconButton
+        val locked =
+            resolve(content, at(348, 132, AppWidgetSurface.MOBILE_LOCK_SCREEN)).trailing
+                as IconButton
+        assertThat(home.contentDescription).isEqualTo("Call Alex")
+        assertThat(locked.contentDescription).isEqualTo("Call")
+        assertThat(locked.action).isEqualTo(ACTION)
+    }
+
+    @Test
+    fun card_sensitiveButtonTextIsReplacedOnlyOnTheLockScreen() {
+        val content =
+            MatrixCardContent(
+                hero =
+                    IconGrid(
+                        listOf(
+                            IconTile(GLYPH, "Call Alex", ACTION, sensitiveReplacement = "Call"),
+                            IconTile(GLYPH, "Run", ACTION),
+                        ),
+                        columns = 2,
+                        rows = 1,
+                        showLabels = false,
+                    ),
+                actions =
+                    listOf(
+                        IconButton(GLYPH, "Message Alex", ACTION, sensitiveReplacement = "Message")
+                    ),
+            )
+
+        val home = resolve(content, at(348, 176))
+        val homeGrid = home.hero as IconGrid
+        assertThat(homeGrid.tiles.map { it.label }).containsExactly("Call Alex", "Run")
+        assertThat((home.actions[0] as IconButton).contentDescription).isEqualTo("Message Alex")
+
+        val locked = resolve(content, at(348, 176, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+        val lockedGrid = locked.hero as IconGrid
+        assertThat(lockedGrid.tiles.map { it.label }).containsExactly("Call", "Run")
+        assertThat(lockedGrid.tiles.map { it.action }).containsExactly(ACTION, ACTION)
+        assertThat(lockedGrid.columns).isEqualTo(2)
+        assertThat(lockedGrid.showLabels).isFalse()
+        val lockedButton = locked.actions[0] as IconButton
+        assertThat(lockedButton.contentDescription).isEqualTo("Message")
+        assertThat(lockedButton.action).isEqualTo(ACTION)
+
+        val nonSensitiveGrid =
+            IconGrid(listOf(IconTile(GLYPH, "Run", ACTION)), columns = 1, rows = 1)
+        assertThat(
+                resolve(
+                        MatrixCardContent(hero = nonSensitiveGrid),
+                        at(348, 176, AppWidgetSurface.MOBILE_LOCK_SCREEN),
+                    )
+                    .hero
+            )
+            .isSameInstanceAs(nonSensitiveGrid)
+    }
+
+    @Test
+    fun bulb_iconButtonContentDescriptionIsReplacedOnlyOnTheLockScreen() {
+        val button = IconButton(GLYPH, "Call Alex", ACTION, sensitiveReplacement = "Call")
+
+        assertThat(resolve(MatrixBulbContent(button), at(88, 88)).component)
+            .isSameInstanceAs(button)
+        val locked =
+            resolve(MatrixBulbContent(button), at(88, 88, AppWidgetSurface.MOBILE_LOCK_SCREEN))
+                .component as IconButton
+        assertThat(locked.contentDescription).isEqualTo("Call")
+        assertThat(locked.icon).isEqualTo(GLYPH)
+        assertThat(locked.action).isEqualTo(ACTION)
+    }
+
     private fun at(
         widthDp: Int,
         heightDp: Int,
         surface: AppWidgetSurface = AppWidgetSurface.MOBILE_HOME_SCREEN,
     ) = surface.withDimensions(Dimensions(widthDp, heightDp))
+
+    private companion object {
+        const val GLYPH = 1
+        val ACTION = GlanceWidgetAction.LaunchDeeplink("app://run")
+    }
 }

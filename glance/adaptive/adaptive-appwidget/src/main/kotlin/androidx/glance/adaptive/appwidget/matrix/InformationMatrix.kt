@@ -130,26 +130,48 @@ internal object MatrixDefaults {
  * trimmed. An absent action before a present one leaves its position empty and keeps its place, so
  * the actions after it do not move. With no action at all, the row is hidden.
  *
+ * A compact card, such as the design's `Linear` strip on the lock screen, is a header-only card
+ * with no padding and a smaller [leadingSize] and [primaryTextSize].
+ *
  * @property leading Component for the leading slot, or `null` to hide it with the gap after it.
  * @property primary Component for the primary slot, or `null` to leave it empty.
  * @property secondary Component for the secondary slot, or `null` to hide it.
+ * @property trailing Component for the header's trailing slot, or `null` to hide it. A stacked
+ *   header has no room for it and hides it.
  * @property hero Component for the hero slot, or `null` to hide it.
  * @property actions Components for the bottom action row, leading to trailing.
  * @property padding Padding between the widget bounds and the slots, or `null` for
  *   [MatrixDefaults.padding].
  * @property slotSpacing Vertical gap between the slots, or `null` for [MatrixDefaults.slotSpacing].
  * @property cornerRadius Corner radius of the card, or `null` for [MatrixDefaults.CornerRadius].
+ * @property leadingSize Edge length of the leading component, or `null` for
+ *   [MatrixDefaults.LeadingSize]. A stacked header still shrinks it to fit its column.
+ * @property primaryTextSize Type size of the primary text, or `null` for
+ *   [MatrixDefaults.primaryTextSize].
+ * @throws IllegalArgumentException if [leadingSize] is negative or [primaryTextSize] is not
+ *   positive.
  */
 internal class MatrixCardContent(
     val leading: LeadingComponent? = null,
     val primary: PrimaryComponent? = null,
     val secondary: SecondaryComponent? = null,
+    val trailing: TrailingComponent? = null,
     val hero: HeroComponent? = null,
     actions: List<ActionComponent?> = emptyList(),
     val padding: Dp? = null,
     val slotSpacing: Dp? = null,
     val cornerRadius: Dp? = null,
+    val leadingSize: Dp? = null,
+    val primaryTextSize: TextUnit? = null,
 ) : MatrixContent {
+    init {
+        require(leadingSize == null || leadingSize.value >= 0f) {
+            "Leading size must not be negative, was $leadingSize."
+        }
+        require(primaryTextSize == null || primaryTextSize.value > 0f) {
+            "Primary text size must be positive, was $primaryTextSize."
+        }
+    }
 
     /** The action positions of the bottom row, leading to trailing, up to the last non-null one. */
     val actions: List<ActionComponent?> = actions.dropLastWhile { it == null }
@@ -181,6 +203,8 @@ internal class MatrixBulbContent(val component: BulbComponent) : MatrixContent
  * @property secondary Component in the secondary slot, or `null` when hidden.
  * @property secondaryMaxWidth Widest [secondary] may be drawn before it is ellipsized, or `null`
  *   when it has the whole content width to itself.
+ * @property trailing Component in the header's trailing slot, or `null` when hidden.
+ * @property trailingSize Edge length [trailing] is drawn at, the leading component's.
  * @property hero Component in the hero slot, or `null` when hidden.
  * @property actions The action positions of the bottom row; empty when hidden.
  */
@@ -196,6 +220,8 @@ internal class ResolvedMatrixCard(
     val primaryTextSize: TextUnit,
     val secondary: SecondaryComponent?,
     val secondaryMaxWidth: Dp?,
+    val trailing: TrailingComponent?,
+    val trailingSize: Dp,
     val hero: HeroComponent?,
     val actions: List<ActionComponent?>,
 )
@@ -216,6 +242,7 @@ internal class ResolvedMatrixBulb(val component: BulbComponent, val containerSiz
  * it gives up padding first (down to 8 dp) and only then shrinks the leading component. In a row,
  * the primary text gets what the leading component, the secondary text and the gaps leave, and is
  * shortened to fit it; the secondary text takes at most 40% of the row, and is ellipsized past it.
+ * A trailing component takes the leading component's size from the row; a stacked header drops it.
  * On the lock screen, sensitive text is replaced first.
  *
  * @param content The components to lay out.
@@ -237,7 +264,7 @@ internal fun resolve(
     //  pick, so a RemoteCompose renderer can redact at runtime. fitTo must then keep the
     //  replacement too, and fit it separately.
     val locked = surface == AppWidgetSurface.MOBILE_LOCK_SCREEN
-    val leadingDefaultDp = MatrixDefaults.LeadingSize.value
+    val leadingDefaultDp = (content.leadingSize ?: MatrixDefaults.LeadingSize).value
 
     var paddingDp = (content.padding ?: MatrixDefaults.padding(tiers)).value
     if (stacked && leading != null && widthDp > 0f && content.padding == null) {
@@ -264,10 +291,14 @@ internal fun resolve(
         } else {
             null
         }
-    val primaryTextSize = MatrixDefaults.primaryTextSize(tiers)
+    val primaryTextSize = content.primaryTextSize ?: MatrixDefaults.primaryTextSize(tiers)
+    // A stacked header has no room beside its slots for a trailing component.
+    val trailing = content.trailing?.takeUnless { stacked }?.shownOn(locked)
     var primaryMaxWidthDp = contentWidthDp
     if (!stacked) {
         if (leading != null) primaryMaxWidthDp -= leadingSizeDp + MatrixDefaults.HeaderSpacing.value
+        if (trailing != null)
+            primaryMaxWidthDp -= leadingDefaultDp + MatrixDefaults.HeaderSpacing.value
         secondary?.let {
             val secondaryWidthDp = it.estimatedWidthDp()
             primaryMaxWidthDp -=
@@ -289,7 +320,9 @@ internal fun resolve(
         primaryTextSize = primaryTextSize,
         secondary = secondary,
         secondaryMaxWidth = secondaryMaxWidthDp?.dp,
-        hero = content.hero,
+        trailing = trailing,
+        trailingSize = if (trailing != null) leadingDefaultDp.dp else 0.dp,
+        hero = content.hero?.shownOn(locked),
         actions = List(content.actions.size) { i -> content.actions[i]?.shownOn(locked) },
     )
 }
@@ -320,12 +353,46 @@ private fun ActionComponent.shownOn(locked: Boolean): ActionComponent =
     when (this) {
         is TemplateText -> redactedIf(locked)
         is Badge -> this
+        is IconButton -> redactedIf(locked)
+    }
+
+/** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
+private fun TrailingComponent.shownOn(locked: Boolean): TrailingComponent =
+    when (this) {
+        is IconButton -> redactedIf(locked)
+    }
+
+/** This component as the surface shows it: on the lock screen, sensitive text is replaced. */
+private fun HeroComponent.shownOn(locked: Boolean): HeroComponent =
+    when (this) {
+        is Graph -> this
+        is IconGrid -> redactedIf(locked)
     }
 
 /** This text, or its sensitive replacement when [locked]. */
 private fun TemplateText.redactedIf(locked: Boolean): TemplateText {
     val replacement = sensitiveReplacement
     return if (locked && replacement != null) TemplateText(replacement) else this
+}
+
+/** This button, described by its sensitive replacement when [locked]. */
+private fun IconButton.redactedIf(locked: Boolean): IconButton {
+    val replacement = sensitiveReplacement
+    return if (locked && replacement != null) IconButton(icon, replacement, action) else this
+}
+
+/** This grid, with every sensitive tile described by its replacement when [locked]. */
+private fun IconGrid.redactedIf(locked: Boolean): IconGrid =
+    if (locked && tiles.indices.any { i -> tiles[i].sensitiveReplacement != null }) {
+        IconGrid(List(tiles.size) { i -> tiles[i].redacted() }, columns, rows, showLabels)
+    } else {
+        this
+    }
+
+/** This tile, labelled with its sensitive replacement if it has one. */
+private fun IconTile.redacted(): IconTile {
+    val replacement = sensitiveReplacement
+    return if (replacement != null) IconTile(icon, replacement, action) else this
 }
 
 /** Width this component takes beside the primary slot, in DP. */
@@ -364,4 +431,5 @@ private fun BulbComponent.shownOn(locked: Boolean): BulbComponent =
             val replacement = sensitiveReplacement
             if (locked && replacement != null) ContainedRing(progress, replacement, icon) else this
         }
+        is IconButton -> redactedIf(locked)
     }

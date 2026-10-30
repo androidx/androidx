@@ -18,6 +18,7 @@ package androidx.glance.adaptive.appwidget.matrix
 
 import androidx.collection.floatListOf
 import androidx.compose.ui.unit.dp
+import androidx.glance.adaptive.core.action.GlanceWidgetAction
 import androidx.glance.adaptive.core.selection.HeightTier
 import androidx.glance.adaptive.core.selection.SizeTiers
 import androidx.glance.adaptive.core.selection.WidthTier
@@ -171,5 +172,109 @@ class SlotComponentsTest {
         val small = ring.geometry(48.dp)
         assertThat(small.ringSize).isEqualTo(40.dp)
         assertThat(small.fontSize.value).isEqualTo(10f)
+    }
+
+    @Test
+    fun icon_rejectsMissingDrawableOrBlankDescription() {
+        val error = assertThrows(IllegalArgumentException::class.java) { Icon(icon = 0) }
+        assertThat(error).hasMessageThat().isEqualTo("An icon needs a drawable resource.")
+        assertThrows(IllegalArgumentException::class.java) {
+            Icon(icon = GLYPH, contentDescription = " ")
+        }
+        assertThat(Icon(icon = GLYPH).contentDescription).isNull()
+    }
+
+    @Test
+    fun icon_addsNoCapability() {
+        assertThat(Icon(icon = GLYPH).capabilities).isEmpty()
+    }
+
+    @Test
+    fun iconButton_rejectsMissingDrawableOrBlankDescription() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                IconButton(icon = 0, contentDescription = "Run")
+            }
+        assertThat(error).hasMessageThat().isEqualTo("An icon button needs a drawable resource.")
+        assertThrows(IllegalArgumentException::class.java) {
+            IconButton(icon = GLYPH, contentDescription = "")
+        }
+    }
+
+    @Test
+    fun iconButton_isAnActionOnlyWithAnAction() {
+        assertThat(IconButton(GLYPH, "Run", ACTION).capabilities).containsExactly(Capability.Action)
+        assertThat(IconButton(GLYPH, "Run").capabilities).isEmpty()
+    }
+
+    @Test
+    fun buttons_rejectBlankSensitiveReplacements() {
+        assertThrows(IllegalArgumentException::class.java) {
+            IconButton(GLYPH, "Alex", sensitiveReplacement = " ")
+        }
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                IconTile(GLYPH, "Alex", sensitiveReplacement = " ")
+            }
+        assertThat(error).hasMessageThat().isEqualTo("Sensitive replacement must not be blank.")
+    }
+
+    @Test
+    fun iconTile_rejectsMissingDrawableOrBlankDescription() {
+        assertThrows(IllegalArgumentException::class.java) { IconTile(0, "Run") }
+        val error = assertThrows(IllegalArgumentException::class.java) { IconTile(GLYPH, " ") }
+        assertThat(error).hasMessageThat().isEqualTo("An icon tile label must not be blank.")
+        assertThat(IconGrid(listOf(IconTile(GLYPH, "Run")), columns = 1, rows = 1).showLabels)
+            .isTrue()
+    }
+
+    @Test
+    fun iconGrid_rejectsEmptyOrOverfullGrids() {
+        val error =
+            assertThrows(IllegalArgumentException::class.java) {
+                IconGrid(tiles = tiles(5), columns = 2, rows = 2)
+            }
+        assertThat(error)
+            .hasMessageThat()
+            .isEqualTo("An icon grid of 2 x 2 needs 1 to 4 tiles, had 5.")
+        assertThrows(IllegalArgumentException::class.java) {
+            IconGrid(tiles = emptyList(), columns = 2, rows = 2)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            IconGrid(tiles = tiles(1), columns = 0, rows = 1)
+        }
+    }
+
+    @Test
+    fun iconGrid_copiesTilesAndFillsRowByRowLeavingTrailingCellsEmpty() {
+        val source = tiles(3).toMutableList()
+        val grid = IconGrid(tiles = source, columns = 2, rows = 2)
+        source.add(IconTile(GLYPH, "Extra"))
+
+        assertThat(grid.tiles).hasSize(3)
+        assertThat(grid.tileAt(row = 0, column = 0)).isSameInstanceAs(source[0])
+        assertThat(grid.tileAt(row = 0, column = 1)).isSameInstanceAs(source[1])
+        assertThat(grid.tileAt(row = 1, column = 0)).isSameInstanceAs(source[2])
+        assertThat(grid.tileAt(row = 1, column = 1)).isNull()
+        assertThat(grid.tileAt(row = -1, column = 0)).isNull()
+        assertThat(grid.tileAt(row = 0, column = -1)).isNull()
+        assertThat(grid.tileAt(row = 0, column = 2)).isNull()
+        assertThat(grid.tileAt(row = 2, column = 0)).isNull()
+    }
+
+    @Test
+    fun iconGrid_isAnActionWhenAnyTileHasOne() {
+        assertThat(IconGrid(tiles(2), columns = 2, rows = 1).capabilities).isEmpty()
+        assertThat(
+                IconGrid(listOf(IconTile(GLYPH, "Run", ACTION)), columns = 2, rows = 1).capabilities
+            )
+            .containsExactly(Capability.Action)
+    }
+
+    private fun tiles(count: Int): List<IconTile> = List(count) { IconTile(GLYPH, "Tile $it") }
+
+    private companion object {
+        const val GLYPH = 1
+        val ACTION = GlanceWidgetAction.LaunchDeeplink("app://run")
     }
 }
