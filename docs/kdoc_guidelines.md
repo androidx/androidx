@@ -207,11 +207,6 @@ notable differences between the syntax and tags supported. Unsupported syntax /
 tags do not currently show as an error in the IDE / during the build, so be
 careful to look out for the following important changes.
 
-### Hiding documentation
-
-Using `@suppress` will stop documentation being generated for a particular
-element. This is equivalent to using `@hide` in Android Javadoc.
-
 ### Deprecation
 
 To mark an element as deprecated, use the `@Deprecated` annotation on the
