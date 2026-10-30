@@ -42,9 +42,8 @@ internal const val ATTACHMENT_LOSS_BEHAVIOUR_DETACH: Int = 2
  * Like the native side, it fails to stage a change to an entity that it didn't create, or has
  * destroyed. Like the OpenXR runtime, it has [transactionPoolSize] transactions: an open
  * transaction holds one until it's submitted, and a submitted transaction holds it until
- * [completeSubmittedTransactions]. A cancelled transaction never gives it back, since OpenXR has no
- * way to cancel a transaction. Destroying an entity uses a transaction of its own, to detach it, so
- * it fails while none is free.
+ * [completeSubmittedTransactions]. A transaction that fails to submit never gives it back.
+ * Destroying an entity uses a transaction of its own, to detach it, so it fails while none is free.
  */
 internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = false) {
 
@@ -94,7 +93,7 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var submittedTransactionsInFlight: Int = 0
         private set
 
-    /** How many slots cancelled or failed transactions hold, which never come back. */
+    /** How many slots the transactions that failed to submit hold, which never come back. */
     var leakedTransactionSlots: Int = 0
         private set
 
@@ -138,7 +137,6 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
 
     val openTransactions: MutableMap<Long, PendingTransaction> = mutableMapOf()
     val committedTransactions: MutableList<Long> = mutableListOf()
-    val cancelledTransactions: MutableList<Long> = mutableListOf()
 
     /** The changes of each submitted transaction, in the order they were submitted. */
     val submittedTransactions: MutableList<PendingTransaction> = mutableListOf()
@@ -363,13 +361,6 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
         return true
     }
 
-    override fun cancelSceneTransaction(transactionHandle: Long): Boolean {
-        check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
-        if (openTransactions.remove(transactionHandle) != null) leakedTransactionSlots++
-        cancelledTransactions.add(transactionHandle)
-        return true
-    }
-
     /** Frees the slots of the submitted transactions, as the runtime does once it applied them. */
     fun completeSubmittedTransactions() {
         submittedTransactionsInFlight = 0
@@ -424,9 +415,6 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     override fun destroy() {
         super.destroy()
         shutdown()
-        for (txHandle in openTransactions.keys) {
-            cancelledTransactions.add(txHandle)
-        }
         openTransactions.clear()
     }
 }

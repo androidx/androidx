@@ -228,22 +228,6 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
-    fun sceneTransaction_cancel_discardsChanges() {
-        val fake = FakeSceneCoreOpenXrNative()
-        fake.init(100L, 200L, 300L)
-        val entity = fake.createSceneEntity()
-        val txHandle = fake.createSceneTransaction()
-
-        fake.setTransactionTransform(txHandle, entity, Pose(), Vector3(1f, 1f, 1f))
-        val cancelSuccess = fake.cancelSceneTransaction(txHandle)
-
-        assertThat(cancelSuccess).isTrue()
-        assertThat(fake.openTransactions).doesNotContainKey(txHandle)
-        assertThat(fake.cancelledTransactions).contains(txHandle)
-        assertThat(fake.entityTransforms[entity]).isNull()
-    }
-
-    @Test
     fun sceneTransaction_setSpaceAttachment_attachesEntityOnSubmit() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
@@ -411,24 +395,12 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
-    fun openTransaction_whenTransactionUnavailable_returnsUnavailableTransaction() {
+    fun createSceneTransaction_whenTransactionUnavailable_returnsInvalidHandle() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
         fake.simulateTransactionUnavailable = true
 
-        val tx = fake.openTransaction()
-        assertThat(tx.isAvailable).isFalse()
-        assertThat(tx.transactionHandle).isEqualTo(INVALID_HANDLE)
-        tx.close()
-    }
-
-    @Test
-    fun openTransaction_afterDestroy_throwsIllegalStateException() {
-        val fake = FakeSceneCoreOpenXrNative()
-        fake.init(100L, 200L, 300L)
-        fake.destroy()
-
-        assertThrows(IllegalStateException::class.java) { fake.openTransaction() }
+        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -459,11 +431,11 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
-    fun shutdownAndDestroy_setsStateCorrectlyAndCancelsOpenTransactions() {
+    fun shutdownAndDestroy_setsStateCorrectlyAndDropsOpenTransactions() {
         val fake = FakeSceneCoreOpenXrNative()
         fake.init(100L, 200L, 300L)
-        val tx1 = fake.createSceneTransaction()
-        val tx2 = fake.createSceneTransaction()
+        fake.createSceneTransaction()
+        fake.createSceneTransaction()
 
         fake.destroy()
 
@@ -471,7 +443,6 @@ class FakeSceneCoreOpenXrNativeTest {
         assertThat(fake.isDestroyed.get()).isTrue()
         assertThat(fake.nativeScenecore).isEqualTo(INVALID_HANDLE)
         assertThat(fake.openTransactions).isEmpty()
-        assertThat(fake.cancelledTransactions).containsExactly(tx1, tx2)
         assertThrows(IllegalStateException::class.java) { fake.createSceneEntity() }
         assertThrows(IllegalStateException::class.java) { fake.createSceneTransaction() }
     }
@@ -490,19 +461,6 @@ class FakeSceneCoreOpenXrNativeTest {
         fake.completeSubmittedTransactions()
         assertThat(fake.createSceneTransaction()).isNotEqualTo(INVALID_HANDLE)
         assertThat(fake.submittedTransactionsInFlight).isEqualTo(0)
-    }
-
-    @Test
-    fun cancelSceneTransaction_neverFreesItsSlot() {
-        val fake = FakeSceneCoreOpenXrNative()
-        fake.init(100L, 200L, 300L)
-        fake.transactionPoolSize = 1
-
-        fake.cancelSceneTransaction(fake.createSceneTransaction())
-        fake.completeSubmittedTransactions()
-
-        assertThat(fake.leakedTransactionSlots).isEqualTo(1)
-        assertThat(fake.createSceneTransaction()).isEqualTo(INVALID_HANDLE)
     }
 
     @Test

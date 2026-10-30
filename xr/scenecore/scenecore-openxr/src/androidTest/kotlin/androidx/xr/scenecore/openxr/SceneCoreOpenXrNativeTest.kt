@@ -130,8 +130,6 @@ class SceneCoreOpenXrNativeTest {
             nativeWrapper.removeTransactionSpaceAttachment(1L, 2L)
         }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.submitSceneTransaction(1L) }
-        assertThrows(IllegalStateException::class.java) { nativeWrapper.cancelSceneTransaction(1L) }
-        assertThrows(IllegalStateException::class.java) { nativeWrapper.openTransaction() }
         assertThrows(IllegalStateException::class.java) {
             nativeWrapper.requestSpatialContainerVisible(true)
         }
@@ -175,15 +173,6 @@ class SceneCoreOpenXrNativeTest {
     }
 
     @Test
-    fun openTransaction_createsTransaction() {
-        val nativeWrapper = SceneCoreOpenXrNative()
-        val tx = nativeWrapper.openTransaction()
-        assertThat(tx).isNotNull()
-        assertThat(tx.isAvailable).isFalse()
-        nativeWrapper.destroy()
-    }
-
-    @Test
     fun uninitializedMethods_returnSafeDefaults() {
         val nativeWrapper = SceneCoreOpenXrNative()
         assertThat(nativeWrapper.createSceneEntity()).isEqualTo(INVALID_HANDLE)
@@ -199,7 +188,6 @@ class SceneCoreOpenXrNativeTest {
         //  natives. That's the only on-device check that their external declarations match the
         //  exported symbols.
         assertThat(nativeWrapper.submitSceneTransaction(1L)).isFalse()
-        assertThat(nativeWrapper.cancelSceneTransaction(1L)).isFalse()
         assertThat(nativeWrapper.requestSpatialContainerVisible(true)).isFalse()
         assertThat(nativeWrapper.requestAndroidViewPanelDisplayId(1L, 100, 100, 160))
             .isEqualTo(INVALID_HANDLE)

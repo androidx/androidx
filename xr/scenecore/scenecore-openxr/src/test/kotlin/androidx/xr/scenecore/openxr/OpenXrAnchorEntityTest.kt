@@ -482,7 +482,7 @@ class OpenXrAnchorEntityTest {
         assertThat(fakeNative.submittedTransactions).hasSize(1)
         assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
         assertThat(fakeNative.entityAttachments).isEmpty()
-        assertThat(fakeNative.cancelledTransactions).isEmpty()
+        assertThat(fakeNative.openTransactions).isEmpty()
     }
 
     @Test
@@ -494,7 +494,7 @@ class OpenXrAnchorEntityTest {
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
         assertThat(fakeNative.entityParents).doesNotContainKey(anchorEntity.entityHandle)
-        assertThat(fakeNative.cancelledTransactions).isEmpty()
+        assertThat(fakeNative.openTransactions).isEmpty()
     }
 
     @Test

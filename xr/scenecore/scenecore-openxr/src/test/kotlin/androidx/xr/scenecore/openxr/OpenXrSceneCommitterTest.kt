@@ -270,7 +270,8 @@ class OpenXrSceneCommitterTest {
         committer.edit { setTransform(entity, poseA, scaleA) }
         commitAll()
 
-        assertThat(fakeNative.submittedTransactions).hasSize(2)
+        assertThat(fakeNative.submittedTransactions.map { it.transforms[entity] })
+            .containsExactly(poseA to scaleA, poseA to scaleA)
     }
 
     @Test
@@ -305,7 +306,7 @@ class OpenXrSceneCommitterTest {
     }
 
     @Test
-    fun commit_neverCancelsTheTransactionsItCreates() {
+    fun commit_submitsEveryTransactionItCreates() {
         fakeNative.simulateTransactionUnavailable = true
         committer.edit { setTransform(entity, poseA, scaleA) }
         advanceTimeBy(20L)
@@ -314,7 +315,6 @@ class OpenXrSceneCommitterTest {
 
         commitAll()
 
-        assertThat(fakeNative.cancelledTransactions).isEmpty()
         assertThat(fakeNative.openTransactions).isEmpty()
         assertThat(fakeNative.leakedTransactionSlots).isEqualTo(0)
     }
@@ -647,7 +647,8 @@ class OpenXrSceneCommitterTest {
 
         assertThat(fakeNative.entityTransforms).containsExactlyEntriesIn(expectedTransforms)
         assertThat(fakeNative.entityParents).containsExactlyEntriesIn(expectedParents)
-        assertThat(fakeNative.cancelledTransactions).isEmpty()
+        assertThat(fakeNative.openTransactions).isEmpty()
+        assertThat(fakeNative.leakedTransactionSlots).isEqualTo(0)
         assertThat(submitTimes.zipWithNext { first, next -> next - first }.min())
             .isAtLeast(MIN_COMMIT_INTERVAL_MS)
     }

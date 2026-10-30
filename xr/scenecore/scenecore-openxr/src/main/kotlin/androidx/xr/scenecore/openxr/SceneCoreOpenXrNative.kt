@@ -159,11 +159,6 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         transactionHandle: Long,
     ): Boolean
 
-    private external fun nativeCancelSceneTransaction(
-        handle: Long,
-        transactionHandle: Long,
-    ): Boolean
-
     private external fun nativeRequestVisible(handle: Long, visible: Boolean): Boolean
 
     private external fun nativeRequestAndroidViewPanelDisplayId(
@@ -372,20 +367,18 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         )
     }
 
-    /** Submits and commits the batched mutations in the transaction. */
+    /**
+     * Submits and commits the batched mutations in the transaction.
+     *
+     * OpenXR has no way to cancel a transaction, so submit every transaction that
+     * [createSceneTransaction] creates, even with nothing staged in it. Otherwise the runtime never
+     * frees it.
+     */
     open fun submitSceneTransaction(transactionHandle: Long): Boolean {
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
         return nativeSubmitSceneTransaction(nativeScenecore, transactionHandle)
-    }
-
-    /** Cancels the transaction and drops uncommitted mutations. */
-    open fun cancelSceneTransaction(transactionHandle: Long): Boolean {
-        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
-            "SceneCoreOpenXrNative has been destroyed."
-        }
-        return nativeCancelSceneTransaction(nativeScenecore, transactionHandle)
     }
 
     /** Requests the spatial container to be shown or hidden. */
@@ -449,19 +442,6 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
             entityHandle,
             surfacePackage,
         )
-    }
-
-    /**
-     * Creates a new [OpenXrTransaction] instance.
-     *
-     * @throws IllegalStateException if [SceneCoreOpenXrNative] has been destroyed.
-     */
-    fun openTransaction(): OpenXrTransaction {
-        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
-            "SceneCoreOpenXrNative has been destroyed."
-        }
-        val txHandle = createSceneTransaction()
-        return OpenXrTransaction(this, txHandle)
     }
 
     /** Cleans up spatial container and space handles. */
