@@ -25,14 +25,12 @@ import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.toAndroidBlendMode
-import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
-import androidx.compose.remote.creation.compose.layout.toPaintingStyle
-import androidx.compose.remote.creation.compose.layout.toStrokeCap
-import androidx.compose.remote.creation.compose.layout.toStrokeJoin
+import androidx.compose.remote.creation.compose.layout.toRemoteBlendMode
+import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
+import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontVariation
 
 /**
@@ -129,11 +127,11 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     val compat = this as? CompatAndroidRemotePaint
     val remotePaint = StandardRemotePaint()
     remotePaint.isAntiAlias = isAntiAlias
-    remotePaint.blendMode = blendMode?.toComposeBlendMode() ?: BlendMode.SrcOver
-    remotePaint.style = style.toPaintingStyle()
+    remotePaint.remoteBlendMode = blendMode?.toRemoteBlendMode() ?: RemoteBlendMode.SrcOver
+    remotePaint.remoteStyle = style.toRemotePaintingStyle()
     remotePaint.strokeWidth = strokeWidth.rf
-    remotePaint.strokeCap = strokeCap.toStrokeCap()
-    remotePaint.strokeJoin = strokeJoin.toStrokeJoin()
+    remotePaint.remoteStrokeCap = strokeCap.toRemoteStrokeCap()
+    remotePaint.remoteStrokeJoin = strokeJoin.toRemoteStrokeJoin()
     remotePaint.filterQuality =
         if (isFilterBitmap) RemoteFilterQuality.Low else RemoteFilterQuality.None
     remotePaint.shader = compat?.remoteShader ?: shader.toRemoteShader()
@@ -141,7 +139,7 @@ public fun android.graphics.Paint.asRemotePaint(): RemotePaint {
     remotePaint.colorFilter =
         compat?.remoteColorFilter
             ?: (colorFilter as? AndroidBlendModeColorFilter)?.let {
-                RemoteBlendModeColorFilter(Color(it.color).rc, it.mode.toComposeBlendMode())
+                RemoteBlendModeColorFilter(RemoteColor(it.color), it.mode.toRemoteBlendMode())
             }
     remotePaint.textSize = textSize.rf
     remotePaint.typeface = fromAndroidTypeface(typeface)

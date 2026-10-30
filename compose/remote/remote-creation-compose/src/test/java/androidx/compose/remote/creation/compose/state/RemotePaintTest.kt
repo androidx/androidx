@@ -105,6 +105,15 @@ class RemotePaintTest {
     }
 
     @Test
+    fun remoteColorBlackByDefaultMatchesColorBlackRcTest() {
+        val color = RemotePaint().color
+
+        assertThat(color.isStructurallyEqual(Color.Black.rc)).isTrue()
+        // Like Color.Black.rc, every paint gets its own RemoteColor instance.
+        assertThat(color).isNotSameInstanceAs(RemotePaint().color)
+    }
+
+    @Test
     fun remoteColorFilterTest() {
         val remotePaint = RemotePaint()
         val remoteColor = RemoteColor(0xFFFF0000.toInt())

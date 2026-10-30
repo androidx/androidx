@@ -17,7 +17,10 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Bitmap
+import android.graphics.BlendMode as AndroidBlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
+import android.graphics.Paint as AndroidPaint
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.operations.PaintData
@@ -28,11 +31,16 @@ import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlag
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteBlendMode
+import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemotePaintingStyle
+import androidx.compose.remote.creation.compose.state.RemoteStrokeCap
+import androidx.compose.remote.creation.compose.state.RemoteStrokeJoin
 import androidx.compose.remote.creation.compose.state.asRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
@@ -40,6 +48,7 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -48,6 +57,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -109,6 +119,21 @@ class PaintTrackerTest {
 
         assertThat(changes.colorSet).isTrue()
         assertThat(changes.mColor).isEqualTo(Color.White.toArgb())
+    }
+
+    @Test
+    fun testInitialSync_DefaultColor() {
+        val paint = RemotePaint()
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.colorSet).isTrue()
+        assertThat(changes.mColor).isEqualTo(Color.Black.toArgb())
     }
 
     @Test
@@ -796,6 +821,171 @@ class PaintTrackerTest {
         assertThat(changes.mFilterBitmap).isFalse()
     }
 
+    @Test
+    fun testAndroidPaintBlendModeSync() {
+        assertThat(AndroidBlendModes.map { it.first })
+            .containsExactlyElementsIn(AndroidBlendMode.entries)
+        for ((androidBlendMode, composeBlendMode, remoteBlendMode) in AndroidBlendModes) {
+            val androidPaint = AndroidPaint().apply { blendMode = androidBlendMode }
+            assertThat(androidPaint.blendMode).isEqualTo(androidBlendMode)
+
+            val paint = androidPaint.asRemotePaint()
+
+            assertWithMessage("$androidBlendMode").that(paint.blendMode).isEqualTo(composeBlendMode)
+            assertWithMessage("$androidBlendMode")
+                .that(paint.remoteBlendMode)
+                .isEqualTo(remoteBlendMode)
+            assertWithMessage("$androidBlendMode")
+                .that(initialSync(paint).mBlendMode)
+                .isEqualTo(remoteBlendMode.value)
+        }
+    }
+
+    @Test
+    fun testAndroidPaintBlendModeColorFilterSync() {
+        val filterColor = android.graphics.Color.argb(0x80, 0x12, 0x34, 0x56)
+        for ((androidBlendMode, _, remoteBlendMode) in AndroidBlendModes) {
+            val androidPaint =
+                AndroidPaint().apply {
+                    colorFilter = BlendModeColorFilter(filterColor, androidBlendMode)
+                }
+
+            val paint = androidPaint.asRemotePaint()
+            val colorFilter = paint.colorFilter as RemoteBlendModeColorFilter
+
+            assertWithMessage("$androidBlendMode")
+                .that(colorFilter.color.isStructurallyEqual(Color(filterColor).rc))
+                .isTrue()
+            assertWithMessage("$androidBlendMode")
+                .that(colorFilter.blendMode)
+                .isEqualTo(remoteBlendMode)
+            val changes = initialSync(paint)
+            assertWithMessage("$androidBlendMode")
+                .that(changes.mColorFilterColor)
+                .isEqualTo(filterColor)
+            assertWithMessage("$androidBlendMode")
+                .that(changes.mColorFilterMode)
+                .isEqualTo(remoteBlendMode.value)
+        }
+    }
+
+    @Test
+    fun testAndroidPaintStyleSync() {
+        val styles =
+            listOf(
+                Triple(AndroidPaint.Style.FILL, PaintingStyle.Fill, RemotePaintingStyle.Fill),
+                Triple(AndroidPaint.Style.STROKE, PaintingStyle.Stroke, RemotePaintingStyle.Stroke),
+                Triple(
+                    AndroidPaint.Style.FILL_AND_STROKE,
+                    PaintingStyle.Fill,
+                    RemotePaintingStyle.Fill,
+                ),
+            )
+        assertThat(styles.map { it.first }).containsExactlyElementsIn(AndroidPaint.Style.entries)
+        for ((androidStyle, composeStyle, remoteStyle) in styles) {
+            val androidPaint = AndroidPaint().apply { style = androidStyle }
+            assertThat(androidPaint.style).isEqualTo(androidStyle)
+
+            val paint = androidPaint.asRemotePaint()
+
+            assertWithMessage("$androidStyle").that(paint.style).isEqualTo(composeStyle)
+            assertWithMessage("$androidStyle").that(paint.remoteStyle).isEqualTo(remoteStyle)
+            assertWithMessage("$androidStyle")
+                .that(initialSync(paint).mStyle)
+                .isEqualTo(remoteStyle.value)
+        }
+    }
+
+    @Test
+    fun testAndroidPaintStrokeCapSync() {
+        val strokeCaps =
+            listOf(
+                Triple(AndroidPaint.Cap.BUTT, StrokeCap.Butt, RemoteStrokeCap.Butt),
+                Triple(AndroidPaint.Cap.ROUND, StrokeCap.Round, RemoteStrokeCap.Round),
+                Triple(AndroidPaint.Cap.SQUARE, StrokeCap.Square, RemoteStrokeCap.Square),
+            )
+        assertThat(strokeCaps.map { it.first }).containsExactlyElementsIn(AndroidPaint.Cap.entries)
+        for ((androidCap, composeCap, remoteCap) in strokeCaps) {
+            val androidPaint = AndroidPaint().apply { strokeCap = androidCap }
+            assertThat(androidPaint.strokeCap).isEqualTo(androidCap)
+
+            val paint = androidPaint.asRemotePaint()
+
+            assertWithMessage("$androidCap").that(paint.strokeCap).isEqualTo(composeCap)
+            assertWithMessage("$androidCap").that(paint.remoteStrokeCap).isEqualTo(remoteCap)
+            assertWithMessage("$androidCap")
+                .that(initialSync(paint).mStrokeCap)
+                .isEqualTo(remoteCap.value)
+        }
+    }
+
+    @Test
+    fun testAndroidPaintStrokeJoinSync() {
+        val strokeJoins =
+            listOf(
+                Triple(AndroidPaint.Join.MITER, StrokeJoin.Miter, RemoteStrokeJoin.Miter),
+                Triple(AndroidPaint.Join.ROUND, StrokeJoin.Round, RemoteStrokeJoin.Round),
+                Triple(AndroidPaint.Join.BEVEL, StrokeJoin.Bevel, RemoteStrokeJoin.Bevel),
+            )
+        assertThat(strokeJoins.map { it.first })
+            .containsExactlyElementsIn(AndroidPaint.Join.entries)
+        for ((androidJoin, composeJoin, remoteJoin) in strokeJoins) {
+            val androidPaint = AndroidPaint().apply { strokeJoin = androidJoin }
+            assertThat(androidPaint.strokeJoin).isEqualTo(androidJoin)
+
+            val paint = androidPaint.asRemotePaint()
+
+            assertWithMessage("$androidJoin").that(paint.strokeJoin).isEqualTo(composeJoin)
+            assertWithMessage("$androidJoin").that(paint.remoteStrokeJoin).isEqualTo(remoteJoin)
+            assertWithMessage("$androidJoin")
+                .that(initialSync(paint).mStrokeJoin)
+                .isEqualTo(remoteJoin.value)
+        }
+    }
+
+    @Test
+    fun testAndroidPaintNullBlendModeStyleCapAndJoinSync() {
+        val androidPaint = NullEnumPaint()
+        assertThat(androidPaint.blendMode).isNull()
+        assertThat(androidPaint.style).isNull()
+        assertThat(androidPaint.strokeCap).isNull()
+        assertThat(androidPaint.strokeJoin).isNull()
+
+        val paint = androidPaint.asRemotePaint()
+        val changes = initialSync(paint)
+
+        assertThat(paint.blendMode).isEqualTo(BlendMode.SrcOver)
+        assertThat(paint.remoteBlendMode).isEqualTo(RemoteBlendMode.SrcOver)
+        assertThat(changes.mBlendMode).isEqualTo(RemoteBlendMode.SrcOver.value)
+        assertThat(paint.style).isEqualTo(PaintingStyle.Fill)
+        assertThat(paint.remoteStyle).isEqualTo(RemotePaintingStyle.Fill)
+        assertThat(changes.mStyle).isEqualTo(RemotePaintingStyle.Fill.value)
+        assertThat(paint.strokeCap).isEqualTo(StrokeCap.Butt)
+        assertThat(paint.remoteStrokeCap).isEqualTo(RemoteStrokeCap.Butt)
+        assertThat(changes.mStrokeCap).isEqualTo(RemoteStrokeCap.Butt.value)
+        assertThat(paint.strokeJoin).isEqualTo(StrokeJoin.Miter)
+        assertThat(paint.remoteStrokeJoin).isEqualTo(RemoteStrokeJoin.Miter)
+        assertThat(changes.mStrokeJoin).isEqualTo(RemoteStrokeJoin.Miter.value)
+    }
+
+    /** Syncs [paint] with a new [PaintTracker] and returns the changes it writes. */
+    private fun initialSync(paint: RemotePaint): TestPaintChanges {
+        val bundle = PaintBundle()
+        PaintTracker().updateWithPaint(paint, bundle, creationState)
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        return changes
+    }
+
+    /** A platform paint without a blend mode whose style, stroke cap, and stroke join are null. */
+    private class NullEnumPaint : AndroidPaint() {
+        override fun getStyle(): AndroidPaint.Style? = null
+
+        override fun getStrokeCap(): AndroidPaint.Cap? = null
+
+        override fun getStrokeJoin(): AndroidPaint.Join? = null
+    }
+
     private class DummyShader(override var remoteMatrix3x3: RemoteMatrix3x3) : RemoteShader() {
         override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
             paintBundle.setShader(1)
@@ -873,7 +1063,11 @@ class PaintTrackerTest {
 
         override fun setImageFilterQuality(quality: Int) {}
 
-        override fun setBlendMode(mode: Int) {}
+        var mBlendMode: Int = -1
+
+        override fun setBlendMode(mode: Int) {
+            this.mBlendMode = mode
+        }
 
         var mFilterBitmap: Boolean = true
         var filterBitmapSet: Boolean = false
@@ -960,3 +1154,37 @@ class PaintTrackerTest {
         override fun setPathEffect(pathEffect: FloatArray?) {}
     }
 }
+
+/** Every platform blend mode with the Compose and remote blend modes that it converts to. */
+private val AndroidBlendModes =
+    listOf(
+        Triple(AndroidBlendMode.CLEAR, BlendMode.Clear, RemoteBlendMode.Clear),
+        Triple(AndroidBlendMode.SRC, BlendMode.Src, RemoteBlendMode.Src),
+        Triple(AndroidBlendMode.DST, BlendMode.Dst, RemoteBlendMode.Dst),
+        Triple(AndroidBlendMode.SRC_OVER, BlendMode.SrcOver, RemoteBlendMode.SrcOver),
+        Triple(AndroidBlendMode.DST_OVER, BlendMode.DstOver, RemoteBlendMode.DstOver),
+        Triple(AndroidBlendMode.SRC_IN, BlendMode.SrcIn, RemoteBlendMode.SrcIn),
+        Triple(AndroidBlendMode.DST_IN, BlendMode.DstIn, RemoteBlendMode.DstIn),
+        Triple(AndroidBlendMode.SRC_OUT, BlendMode.SrcOut, RemoteBlendMode.SrcOut),
+        Triple(AndroidBlendMode.DST_OUT, BlendMode.DstOut, RemoteBlendMode.DstOut),
+        Triple(AndroidBlendMode.SRC_ATOP, BlendMode.SrcAtop, RemoteBlendMode.SrcAtop),
+        Triple(AndroidBlendMode.DST_ATOP, BlendMode.DstAtop, RemoteBlendMode.DstAtop),
+        Triple(AndroidBlendMode.XOR, BlendMode.Xor, RemoteBlendMode.Xor),
+        Triple(AndroidBlendMode.PLUS, BlendMode.Plus, RemoteBlendMode.Plus),
+        Triple(AndroidBlendMode.MODULATE, BlendMode.Modulate, RemoteBlendMode.Modulate),
+        Triple(AndroidBlendMode.SCREEN, BlendMode.Screen, RemoteBlendMode.Screen),
+        Triple(AndroidBlendMode.OVERLAY, BlendMode.Overlay, RemoteBlendMode.Overlay),
+        Triple(AndroidBlendMode.DARKEN, BlendMode.Darken, RemoteBlendMode.Darken),
+        Triple(AndroidBlendMode.LIGHTEN, BlendMode.Lighten, RemoteBlendMode.Lighten),
+        Triple(AndroidBlendMode.COLOR_DODGE, BlendMode.ColorDodge, RemoteBlendMode.ColorDodge),
+        Triple(AndroidBlendMode.COLOR_BURN, BlendMode.ColorBurn, RemoteBlendMode.ColorBurn),
+        Triple(AndroidBlendMode.HARD_LIGHT, BlendMode.Hardlight, RemoteBlendMode.Hardlight),
+        Triple(AndroidBlendMode.SOFT_LIGHT, BlendMode.Softlight, RemoteBlendMode.Softlight),
+        Triple(AndroidBlendMode.DIFFERENCE, BlendMode.Difference, RemoteBlendMode.Difference),
+        Triple(AndroidBlendMode.EXCLUSION, BlendMode.Exclusion, RemoteBlendMode.Exclusion),
+        Triple(AndroidBlendMode.MULTIPLY, BlendMode.Multiply, RemoteBlendMode.Multiply),
+        Triple(AndroidBlendMode.HUE, BlendMode.Hue, RemoteBlendMode.Hue),
+        Triple(AndroidBlendMode.SATURATION, BlendMode.Saturation, RemoteBlendMode.Saturation),
+        Triple(AndroidBlendMode.COLOR, BlendMode.Color, RemoteBlendMode.Color),
+        Triple(AndroidBlendMode.LUMINOSITY, BlendMode.Luminosity, RemoteBlendMode.Luminosity),
+    )

@@ -119,30 +119,34 @@ internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
     }
 }
 
-/** Converts an Android framework [AndroidPaint.Style] to a Compose [PaintingStyle]. */
-internal fun AndroidPaint.Style?.toPaintingStyle(): PaintingStyle =
+/** Converts an Android framework [AndroidBlendMode] to a [RemoteBlendMode]. */
+internal fun AndroidBlendMode.toRemoteBlendMode(): RemoteBlendMode =
+    toComposeBlendMode().toRemoteBlendMode()
+
+/** Converts an Android framework [AndroidPaint.Style] to a [RemotePaintingStyle]. */
+internal fun AndroidPaint.Style?.toRemotePaintingStyle(): RemotePaintingStyle =
     when (this) {
-        AndroidPaint.Style.FILL -> PaintingStyle.Fill
-        AndroidPaint.Style.STROKE -> PaintingStyle.Stroke
-        else -> PaintingStyle.Fill
+        AndroidPaint.Style.FILL -> RemotePaintingStyle.Fill
+        AndroidPaint.Style.STROKE -> RemotePaintingStyle.Stroke
+        else -> RemotePaintingStyle.Fill
     }
 
-/** Converts an Android framework [AndroidPaint.Cap] to a Compose [StrokeCap]. */
-internal fun AndroidPaint.Cap?.toStrokeCap(): StrokeCap =
+/** Converts an Android framework [AndroidPaint.Cap] to a [RemoteStrokeCap]. */
+internal fun AndroidPaint.Cap?.toRemoteStrokeCap(): RemoteStrokeCap =
     when (this) {
-        AndroidPaint.Cap.BUTT -> StrokeCap.Butt
-        AndroidPaint.Cap.ROUND -> StrokeCap.Round
-        AndroidPaint.Cap.SQUARE -> StrokeCap.Square
-        else -> StrokeCap.Butt
+        AndroidPaint.Cap.BUTT -> RemoteStrokeCap.Butt
+        AndroidPaint.Cap.ROUND -> RemoteStrokeCap.Round
+        AndroidPaint.Cap.SQUARE -> RemoteStrokeCap.Square
+        else -> RemoteStrokeCap.Butt
     }
 
-/** Converts an Android framework [AndroidPaint.Join] to a Compose [StrokeJoin]. */
-internal fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
+/** Converts an Android framework [AndroidPaint.Join] to a [RemoteStrokeJoin]. */
+internal fun AndroidPaint.Join?.toRemoteStrokeJoin(): RemoteStrokeJoin =
     when (this) {
-        AndroidPaint.Join.MITER -> StrokeJoin.Miter
-        AndroidPaint.Join.ROUND -> StrokeJoin.Round
-        AndroidPaint.Join.BEVEL -> StrokeJoin.Bevel
-        else -> StrokeJoin.Miter
+        AndroidPaint.Join.MITER -> RemoteStrokeJoin.Miter
+        AndroidPaint.Join.ROUND -> RemoteStrokeJoin.Round
+        AndroidPaint.Join.BEVEL -> RemoteStrokeJoin.Bevel
+        else -> RemoteStrokeJoin.Miter
     }
 
 internal fun TextOverflow.toRemoteTextOverflow(): RemoteTextOverflow =
