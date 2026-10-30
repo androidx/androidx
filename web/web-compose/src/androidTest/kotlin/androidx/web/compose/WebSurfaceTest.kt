@@ -20,8 +20,11 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Parcel
+import android.os.SystemClock
 import android.view.Choreographer
 import android.view.DragEvent
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -87,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.web.WebContent
 import androidx.web.WebContentView
@@ -1647,6 +1651,155 @@ class WebSurfaceTest {
 
             assertFalse(bridgeSawInsets)
             assertTrue(siblingSawInsets)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testTrackpadPanExitingBoundsCancelsGesture() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+        var topOffset by mutableStateOf(0.dp)
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Box(modifier = Modifier.padding(top = topOffset)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(150.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+            <body style='margin:0;'>
+                <div style='width:100vw;height:200vh;'
+                     ontouchstart='(window.events = window.events || []).push("start")'
+                     ontouchmove='(window.events = window.events || []).push("move")'
+                     ontouchcancel='(window.events = window.events || []).push("cancel")'
+                     onclick='window.clicks = (window.clicks || 0) + 1'></div>
+            </body>
+            </html>
+            """
+        )
+
+        val screenLocation = IntArray(2)
+        val downTime = SystemClock.uptimeMillis()
+
+        fun dispatchTrackpadSwipe(eventTime: Long, action: Int, x: Float, y: Float, deltaY: Float) {
+            val properties =
+                arrayOf(
+                    MotionEvent.PointerProperties().apply {
+                        id = 0
+                        toolType = MotionEvent.TOOL_TYPE_FINGER
+                    }
+                )
+            val coords =
+                arrayOf(
+                    MotionEvent.PointerCoords().apply {
+                        this.x = screenLocation[0] + x
+                        this.y = screenLocation[1] + y
+                        setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                        setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, deltaY)
+                    }
+                )
+            val event =
+                MotionEvent.obtain(
+                    downTime,
+                    eventTime,
+                    action,
+                    1,
+                    properties,
+                    coords,
+                    0,
+                    0,
+                    1f,
+                    1f,
+                    0,
+                    0,
+                    InputDevice.SOURCE_TOUCHSCREEN,
+                    0,
+                    0,
+                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+                )!!
+            event.offsetLocation(-screenLocation[0].toFloat(), -screenLocation[1].toFloat())
+            hostView.dispatchTouchEvent(event)
+            event.recycle()
+        }
+
+        composeTestRule.runOnIdle {
+            hostView.getLocationOnScreen(screenLocation)
+            dispatchTrackpadSwipe(downTime, MotionEvent.ACTION_DOWN, 50f, 80f, 0f)
+            dispatchTrackpadSwipe(downTime + 16L, MotionEvent.ACTION_MOVE, 50f, 20f, 60f)
+            // Shift WebSurface out from under the stationary cursor mid-pan.
+            topOffset = 200.dp
+        }
+
+        composeTestRule.runOnIdle {
+            dispatchTrackpadSwipe(downTime + 32L, MotionEvent.ACTION_MOVE, 50f, -20f, 40f)
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,cancel\""
+        }
+
+        // Subsequent taps still reach the page cleanly.
+        composeTestRule.onNodeWithTag("surface").performClick()
+        composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.clicks") == "1" }
+    }
+
+    @Test
+    fun testHoveredDragExitingBoundsContinuesGesture() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Box(modifier = Modifier.size(200.dp)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <body style='margin:0;'
+                  ontouchstart='(window.events = window.events || []).push("start")'
+                  ontouchmove='(window.events = window.events || []).push("move")'
+                  ontouchend='(window.events = window.events || []).push("end")'
+                  ontouchcancel='(window.events = window.events || []).push("cancel")'>
+                <div style='width:100vw;height:100vh;'></div>
+            </body>
+            </html>
+            """
+        )
+
+        composeTestRule.runOnIdle {
+            val downTime = SystemClock.uptimeMillis()
+            var eventTime = downTime
+            val outsideY = with(composeTestRule.density) { 150.dp.toPx() }
+            fun event(action: Int, y: Float) =
+                MotionEvent.obtain(downTime, eventTime, action, 50f, y, 0).apply {
+                    eventTime += 16L
+                    source = InputDevice.SOURCE_TOUCHSCREEN
+                }
+
+            hostView.dispatchGenericMotionEvent(event(MotionEvent.ACTION_HOVER_ENTER, 50f))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 50f))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_MOVE, outsideY))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_UP, outsideY))
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,end\""
         }
     }
 
