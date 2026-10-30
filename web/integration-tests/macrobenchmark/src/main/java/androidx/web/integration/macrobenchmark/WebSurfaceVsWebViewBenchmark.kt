@@ -18,6 +18,7 @@ package androidx.web.integration.macrobenchmark
 
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
@@ -39,6 +40,7 @@ private const val PACKAGE_NAME = "androidx.web.testapp"
 private const val BENCHMARK_ACTIVITY = "androidx.web.testapp.BenchmarkActivity"
 private const val EXTRA_USE_WEB_SURFACE = "use_web_surface"
 private const val LOAD_TIMEOUT_MS = 10_000L
+private const val STEPS_PER_SWIPE = 50
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -58,12 +60,22 @@ class WebSurfaceVsWebViewBenchmark {
     @Test fun scroll_androidView() = measureScroll(useWebSurface = false)
 
     private fun measureScroll(useWebSurface: Boolean) {
+        var segments = emptyArray<Point>()
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics =
                 listOf(
                     FrameTimingMetric(),
                     TraceSectionMetric("Record View#draw()", TraceSectionMetric.Mode.Sum),
+                    TraceSectionMetric("Record View#draw()", TraceSectionMetric.Mode.Average),
+                    TraceSectionMetric(
+                        "AndroidOwner:measureAndLayout",
+                        TraceSectionMetric.Mode.Sum,
+                    ),
+                    TraceSectionMetric(
+                        "AndroidOwner:measureAndLayout",
+                        TraceSectionMetric.Mode.Average,
+                    ),
                 ),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 5,
@@ -76,19 +88,32 @@ class WebSurfaceVsWebViewBenchmark {
                         putExtra(EXTRA_USE_WEB_SURFACE, useWebSurface)
                     }
                 startActivityAndWait(intent)
-                device.wait(Until.hasObject(By.text("Benchmark Item #1")), LOAD_TIMEOUT_MS)
+                check(device.wait(Until.hasObject(By.text("Benchmark Item #1")), LOAD_TIMEOUT_MS)) {
+                    "Timed out waiting for benchmark page content to render"
+                }
+                val contentBounds = device.findObject(By.res("android", "content")).visibleBounds
+                val centerX = contentBounds.centerX()
+                // Start inside the web content in the lower half of the viewport, then continuously
+                // drag up and down within the scroll range without lifting the finger or waiting
+                // for idle so measured frames only capture active scrolling with web content on
+                // screen.
+                val startY = contentBounds.top + (contentBounds.height() * 0.75f).toInt()
+                val topY = contentBounds.top + (contentBounds.height() * 0.30f).toInt()
+                val bottomY = contentBounds.top + (contentBounds.height() * 0.70f).toInt()
+                segments =
+                    arrayOf(
+                        Point(centerX, startY),
+                        Point(centerX, topY),
+                        Point(centerX, bottomY),
+                        Point(centerX, topY),
+                        Point(centerX, bottomY),
+                        Point(centerX, topY),
+                        Point(centerX, bottomY),
+                    )
+                device.waitForIdle()
             },
         ) {
-            val centerX = device.displayWidth / 2
-            val bottomY = device.displayHeight * 4 / 5
-            val topY = device.displayHeight / 5
-
-            repeat(3) {
-                device.swipe(centerX, bottomY, centerX, topY, 10)
-                device.waitForIdle()
-                device.swipe(centerX, topY, centerX, bottomY, 10)
-                device.waitForIdle()
-            }
+            check(device.swipe(segments, STEPS_PER_SWIPE)) { "Failed to inject scroll swipe" }
         }
     }
 }
