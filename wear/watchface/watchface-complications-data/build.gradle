@@ -49,9 +49,17 @@ dependencies {
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.guavaTestlib)
 
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
     compileOnly files("../../wear_sdk/wear-sdk.jar")
+    // The Wear SDK is provided by the watch at runtime, so it must not be bundled in the test APK.
+    androidTestCompileOnly files("../../wear_sdk/wear-sdk.jar")
 }
 
 android {
