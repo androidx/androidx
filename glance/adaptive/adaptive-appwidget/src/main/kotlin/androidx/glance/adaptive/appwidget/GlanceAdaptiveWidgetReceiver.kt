@@ -120,7 +120,11 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     ) {
         runAndLogExceptions {
             initializeWidgetOptionsAndIds(appWidgetManager, appWidgetIds)
-            goAsync(coroutineContext) { onUpdate(context) }
+            // The receiver Context is a ReceiverRestrictedContext, which dependency injection
+            // frameworks such as Hilt reject. Pass the application Context, as documented on
+            // onUpdate(Context).
+            val appContext = context.applicationContext ?: context
+            goAsync(coroutineContext) { onUpdate(appContext) }
         }
     }
 
