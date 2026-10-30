@@ -125,11 +125,33 @@ object Camera2ExtensionsUtil {
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
     @RequiresApi(31)
     private fun isExtensionDisabledByQuirk(cameraId: String, extensionMode: Int): Boolean {
-        // Extension modes Bokeh and Face Retouch fail on Camera 0 for Samsung Galaxy A52s
-        // (SM-A528B) due to HAL requesting 0 max buffers (b/532825627, b/570911697).
-        if (isSamsungGalaxyA52s() && cameraId == "0") {
+        if (!"Samsung".equals(Build.BRAND, ignoreCase = true)) {
+            return false
+        }
+        // Extension modes Bokeh, Face Retouch, and HDR fail on Camera 0 for Samsung Galaxy
+        // A52s (SM-A528B) due to HAL requesting 0 max buffers or crashing in
+        // CamX::ImageBuffer::Import (b/532825627, b/570911697, b/579703647).
+        if ("SM-A528B".equals(Build.MODEL, ignoreCase = true) && cameraId == "0") {
             return extensionMode == CameraExtensionCharacteristics.EXTENSION_BOKEH ||
-                extensionMode == CameraExtensionCharacteristics.EXTENSION_BEAUTY
+                extensionMode == CameraExtensionCharacteristics.EXTENSION_BEAUTY ||
+                extensionMode == CameraExtensionCharacteristics.EXTENSION_HDR
+        }
+        // Extension modes fail on Camera 3 for Samsung Galaxy S22 (SM-S901U) and S22 Ultra
+        // (SM-S908U1) due to HAL rejecting still capture requests with -38 (b/579700310,
+        // b/579703647).
+        if (
+            ("SM-S901U".equals(Build.MODEL, ignoreCase = true) ||
+                "SM-S908U1".equals(Build.MODEL, ignoreCase = true)) && cameraId == "3"
+        ) {
+            return true
+        }
+        // Extension mode Auto fails on Cameras 1 and 3 for Samsung Galaxy Z Fold5 (SM-F946U1)
+        // (b/579700310, b/579703647).
+        if (
+            "SM-F946U1".equals(Build.MODEL, ignoreCase = true) &&
+                (cameraId == "1" || cameraId == "3")
+        ) {
+            return extensionMode == CameraExtensionCharacteristics.EXTENSION_AUTOMATIC
         }
         return false
     }

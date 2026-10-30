@@ -35,6 +35,8 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.extensions.internal.Camera2ExtensionsUtil.convertCameraXModeToCamera2Mode
+import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks
+import androidx.camera.extensions.internal.compat.quirk.ExtensionDisabledQuirk
 import androidx.camera.extensions.internal.compat.workaround.ExtensionCharacteristicsAccessGuard
 import androidx.camera.extensions.internal.sessionprocessor.Camera2ExtensionsSessionProcessor
 import androidx.core.util.Preconditions
@@ -45,12 +47,22 @@ private const val TAG = "Camera2ExtExtender"
 public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExtender {
 
     private val extensionCharacteristicsAccessGuard = ExtensionCharacteristicsAccessGuard()
+    private val extensionDisabledQuirk: ExtensionDisabledQuirk? =
+        DeviceQuirks.get(ExtensionDisabledQuirk::class.java)
     private val camera2ExtensionMode: Int = convertCameraXModeToCamera2Mode(mode)
     private lateinit var cameraExtensionCapabilities: CameraExtensionCapabilities
 
     @Suppress("UNCHECKED_CAST")
     override fun isExtensionAvailable(cameraInfo: CameraInfo): Boolean {
         val cameraInfoInternal = cameraInfo as CameraInfoInternal
+        // Single source of truth for quirk-disabled extension modes across both VendorExtender and
+        // ExtensionCameraFilter / ExtensionsManager callers.
+        if (
+            extensionDisabledQuirk?.shouldDisableExtension(cameraInfoInternal.cameraId, mode) ==
+                true
+        ) {
+            return false
+        }
         return cameraInfoInternal.isExtensionSupported(camera2ExtensionMode)
     }
 

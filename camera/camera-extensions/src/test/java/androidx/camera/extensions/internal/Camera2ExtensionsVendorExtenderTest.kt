@@ -26,11 +26,13 @@ import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities
 import androidx.camera.testing.impl.fakes.FakeCameraExtensionCapabilities.CaptureConfig
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -54,6 +56,11 @@ class Camera2ExtensionsVendorExtenderTest {
             CaptureConfig(postviewCaptureSize, ImageFormat.YUV_420_888) to yuvSizes,
             CaptureConfig(postviewCaptureSize, ImageFormat.JPEG_R) to jpegRSizes,
         )
+
+    @After
+    fun tearDown() {
+        ShadowBuild.reset()
+    }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU, maxSdk = Build.VERSION_CODES.TIRAMISU)
@@ -112,6 +119,48 @@ class Camera2ExtensionsVendorExtenderTest {
 
         assertThat(formats)
             .containsExactly(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)
+    }
+
+    @Suppress("DEPRECATION") // EXTENSION_BEAUTY
+    @Test
+    fun isExtensionAvailable_returnsFalseWhenDisabledByQuirk() {
+        ShadowBuild.setBrand("Samsung")
+        ShadowBuild.setModel("SM-A528B")
+        val camera0 =
+            FakeCameraInfoInternal("0").apply {
+                setSupportedExtensions(
+                    setOf(
+                        CameraExtensionCharacteristics.EXTENSION_BOKEH,
+                        CameraExtensionCharacteristics.EXTENSION_BEAUTY,
+                        CameraExtensionCharacteristics.EXTENSION_HDR,
+                        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
+                    )
+                )
+            }
+        val camera1 =
+            FakeCameraInfoInternal("1").apply {
+                setSupportedExtensions(setOf(CameraExtensionCharacteristics.EXTENSION_BOKEH))
+            }
+
+        assertThat(
+                Camera2ExtensionsVendorExtender(ExtensionMode.BOKEH).isExtensionAvailable(camera0)
+            )
+            .isFalse()
+        assertThat(
+                Camera2ExtensionsVendorExtender(ExtensionMode.FACE_RETOUCH)
+                    .isExtensionAvailable(camera0)
+            )
+            .isFalse()
+        assertThat(Camera2ExtensionsVendorExtender(ExtensionMode.HDR).isExtensionAvailable(camera0))
+            .isFalse()
+        assertThat(
+                Camera2ExtensionsVendorExtender(ExtensionMode.AUTO).isExtensionAvailable(camera0)
+            )
+            .isTrue()
+        assertThat(
+                Camera2ExtensionsVendorExtender(ExtensionMode.BOKEH).isExtensionAvailable(camera1)
+            )
+            .isTrue()
     }
 
     private fun createInitializedExtender(

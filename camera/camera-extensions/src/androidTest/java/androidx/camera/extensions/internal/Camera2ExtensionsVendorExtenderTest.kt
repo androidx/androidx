@@ -25,6 +25,8 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA
 import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks
+import androidx.camera.extensions.internal.compat.quirk.ExtensionDisabledQuirk
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -78,9 +80,15 @@ class Camera2ExtensionsVendorExtenderTest(
 
     @Test
     fun isExtensionsAvailable_returnCorrectValue() {
+        val isDisabledByQuirk =
+            DeviceQuirks.get(ExtensionDisabledQuirk::class.java)
+                ?.shouldDisableExtension(cameraId, mode) == true
         assertThat(camera2ExtensionsVendorExtender.isExtensionAvailable(cameraInfo))
             .isEqualTo(
-                cameraExtensionsCharacteristics.supportedExtensions.contains(camera2ExtensionMode)
+                !isDisabledByQuirk &&
+                    cameraExtensionsCharacteristics.supportedExtensions.contains(
+                        camera2ExtensionMode
+                    )
             )
     }
 
