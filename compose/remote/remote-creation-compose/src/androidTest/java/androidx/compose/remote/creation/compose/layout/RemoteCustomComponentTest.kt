@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.util.TestProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.platform.AndroidComponentSupport
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -575,9 +576,9 @@ class RemoteCustomComponentTest {
             player =
                 object : RemoteBaseContentTestRule.Player {
                     @Composable
-                    override fun Play(coreDocument: CoreDocument, size: Size) {
+                    override fun Play(document: RecordedDocument, size: Size) {
                         RemoteDocumentPlayer(
-                            document = coreDocument,
+                            document = document.coreDocument,
                             documentWidth = size.width.toInt(),
                             documentHeight = size.height.toInt(),
                             customSupport = customSupport,

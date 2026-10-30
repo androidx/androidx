@@ -19,7 +19,6 @@
 package androidx.wear.compose.remote.integration.demos.bookends
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -44,6 +43,7 @@ import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -291,10 +291,10 @@ abstract class BookendsScreenshotTest(private val implementation: BookendsImplem
     /** Plays the document like the demo host: embedded player with the Wear Material3 plugins. */
     private object BookendsPlayer : Player {
         @Composable
-        override fun Play(coreDocument: CoreDocument, size: Size) {
+        override fun Play(document: RecordedDocument, size: Size) {
             MaterialTheme {
                 RcPlayer(
-                    document = coreDocument,
+                    document = document.coreDocument,
                     modifier = Modifier.fillMaxSize(),
                     customPlugins = WearMaterial3Plugins,
                 )

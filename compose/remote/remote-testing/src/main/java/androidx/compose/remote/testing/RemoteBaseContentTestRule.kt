@@ -79,19 +79,17 @@ private constructor(
         composable: @RemoteComposable @Composable () -> Unit,
     ) {
         composeTestRule.setContent {
-            val coreDocumentState = remember { mutableStateOf<CoreDocument?>(null) }
+            val documentState = remember { mutableStateOf<RecordedDocument?>(null) }
             val creationContent: @Composable () -> Unit = {
                 val docState = creation.rememberRemoteDocument(composable = composable)
-                coreDocumentState.value = docState.value
+                documentState.value = docState.value
             }
             creationComposableWrapper(creationContent)
 
-            coreDocumentState.value?.let {
-                onCoreDocumentCreated?.invoke(it)
+            documentState.value?.let {
+                onCoreDocumentCreated?.invoke(it.coreDocument)
 
-                val composable: @Composable () -> Unit = {
-                    player.Play(coreDocument = it, size = size)
-                }
+                val composable: @Composable () -> Unit = { player.Play(document = it, size = size) }
                 playComposableWrapper { composable() }
             }
         }
@@ -101,11 +99,11 @@ private constructor(
         @Composable
         public fun rememberRemoteDocument(
             composable: @RemoteComposable @Composable () -> Unit
-        ): MutableState<CoreDocument?>
+        ): MutableState<RecordedDocument?>
     }
 
     public interface Player {
-        @Composable public fun Play(coreDocument: CoreDocument, size: Size)
+        @Composable public fun Play(document: RecordedDocument, size: Size)
     }
 }
 

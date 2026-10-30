@@ -21,7 +21,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
-import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -100,12 +99,12 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
         @Composable
         override fun rememberRemoteDocument(
             composable: @RemoteComposable @Composable (() -> Unit)
-        ): MutableState<CoreDocument?> =
-            rememberRemoteDocument(
+        ): MutableState<RecordedDocument?> =
+            rememberRecordedDocument(
                 creationDisplayInfo = remoteCreationDisplayInfo,
                 profile = profile,
                 writerEvents = writerEvents,
-                onCreate = onCreate,
+                onCreate = { document -> onCreate?.invoke(document.coreDocument) },
                 clock = clock,
                 content = composable,
             )
@@ -113,9 +112,9 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
 
     private object PlayerImpl : Player {
         @Composable
-        override fun Play(coreDocument: CoreDocument, size: Size) {
+        override fun Play(document: RecordedDocument, size: Size) {
             RemoteDocumentPlayer(
-                document = coreDocument,
+                document = document.coreDocument,
                 documentWidth = size.width.toInt(),
                 documentHeight = size.height.toInt(),
             )

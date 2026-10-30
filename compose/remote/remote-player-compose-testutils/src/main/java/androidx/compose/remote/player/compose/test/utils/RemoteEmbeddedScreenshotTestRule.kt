@@ -27,6 +27,7 @@ import androidx.compose.remote.player.compose.EnableEmbeddedPlayerRule
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.compose.embedded.RcTypefaceResolver
+import androidx.compose.remote.testing.RecordedDocument
 import androidx.compose.remote.testing.RemoteBaseContentTestRule.Player
 import androidx.compose.remote.testing.RemoteContentTestRule
 import androidx.compose.runtime.Composable
@@ -147,8 +148,8 @@ class RemoteEmbeddedScreenshotTestRule(
     private class EmbeddedPlayer(private val typefaceResolver: RcTypefaceResolver?) : Player {
         @OptIn(ExperimentalRemotePlayerApi::class)
         @Composable
-        override fun Play(coreDocument: CoreDocument, size: Size) {
-            RcPlayer(document = coreDocument, typefaceResolver = typefaceResolver)
+        override fun Play(document: RecordedDocument, size: Size) {
+            RcPlayer(document = document.coreDocument, typefaceResolver = typefaceResolver)
         }
     }
 }
