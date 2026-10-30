@@ -30,11 +30,11 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteFontStyle
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteFontWeight
 import androidx.compose.remote.creation.compose.text.RemoteHyphens
 import androidx.compose.remote.creation.compose.text.RemoteLineBreak
@@ -44,9 +44,6 @@ import androidx.compose.remote.creation.compose.text.RemoteTextOverflow
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.combineFontSettings
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.text.font.FontVariation
 
 /**
  * Remote composable that displays text.
@@ -90,7 +87,7 @@ public fun RemoteText(
     overflow: RemoteTextOverflow,
     @IntRange(from = 1) maxLines: Int = Int.MAX_VALUE,
     fontFeatureSettings: String? = null,
-    fontVariationSettings: FontVariation.Settings? = null,
+    fontVariationSettings: RemoteFontVariation.Settings? = null,
     style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     val resolvedFontSize = fontSize ?: style.fontSize ?: 12.rsp
@@ -107,7 +104,7 @@ public fun RemoteText(
 
     RemoteText(
         text = text,
-        color = color ?: style.color ?: Color.Black.rc,
+        color = color ?: style.color ?: RemoteColor(BlackArgb),
         fontSize = resolvedFontSize,
         modifier = modifier,
         fontStyle = fontStyle ?: style.remoteFontStyle ?: RemoteFontStyle.Normal,
@@ -121,7 +118,7 @@ public fun RemoteText(
         lineBreak = style.remoteLineBreak ?: RemoteLineBreak.Simple,
         hyphens = style.remoteHyphens ?: RemoteHyphens.None,
         textDecoration = style.remoteTextDecoration,
-        fontVariationSettings = fontVariationSettings ?: style.fontVariationSettings,
+        fontVariationSettings = fontVariationSettings ?: style.remoteFontVariationSettings,
         fontFeatureSettings = fontFeatureSettings ?: style.fontFeatureSettings,
     )
 }
@@ -148,7 +145,7 @@ internal fun RemoteText(
     lineBreak: RemoteLineBreak,
     hyphens: RemoteHyphens,
     textDecoration: RemoteTextDecoration?,
-    fontVariationSettings: FontVariation.Settings?,
+    fontVariationSettings: RemoteFontVariation.Settings?,
     fontFeatureSettings: String?,
 ) {
     val fontWeightAdjustment = LocalFontWeightAdjustment.current
@@ -200,16 +197,18 @@ internal class RemoteTextNode : RemoteComposeNode() {
     var textDecoration: RemoteTextDecoration = RemoteTextDecoration.None
     var lineBreakStrategy: Int = 0
     var hyphenationFrequency: Int = 0
-    var fontVariationSettings: FontVariation.Settings? = null
+    var fontVariationSettings: RemoteFontVariation.Settings? = null
     var fontFeatureSettings: String? = null
 
     private fun extractFontSettings(
-        settings: List<FontVariation.Setting>?
+        settings: List<RemoteFontVariation.Setting>?,
+        creationState: RemoteComposeCreationState,
     ): Pair<Array<String>?, FloatArray?> {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues = FloatArray(size) { settings[it].toVariationValue(null) }
+        val fontAxisValues =
+            FloatArray(size) { settings[it].value.getFloatIdForCreationState(creationState) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }
@@ -217,7 +216,7 @@ internal class RemoteTextNode : RemoteComposeNode() {
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         val textIdValue = text.getIdForCreationState(creationState)
 
-        val colorInt = color.constantValueOrNull ?: Color.Black.toArgb()
+        val colorInt = color.constantValueOrNull ?: BlackArgb
         val colorId =
             if (!color.hasConstantValue) {
                 color.getIdForCreationState(creationState)
@@ -226,7 +225,8 @@ internal class RemoteTextNode : RemoteComposeNode() {
             }
 
         val combinedSettings = combineFontSettings(fontFeatureSettings, fontVariationSettings)
-        val (fontAxisNames, fontAxisValues) = extractFontSettings(combinedSettings?.settings)
+        val (fontAxisNames, fontAxisValues) =
+            extractFontSettings(combinedSettings?.settings, creationState)
 
         val fontSizePxId = fontSize.toPx(remoteDensity).getFloatIdForCreationState(creationState)
 
@@ -311,3 +311,5 @@ private const val FONT_WEIGHT_MIN: Float = 1f
  * Android framework classes.
  */
 private const val FONT_WEIGHT_MAX: Float = 1000f
+
+internal const val BlackArgb: Int = 0xFF000000.toInt()

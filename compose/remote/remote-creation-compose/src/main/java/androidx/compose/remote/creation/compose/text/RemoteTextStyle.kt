@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.fastFilter
 import androidx.compose.remote.creation.compose.util.fastFirstOrNull
 import androidx.compose.runtime.Immutable
@@ -123,6 +124,10 @@ constructor(
             } else {
                 hyphens.toRemoteHyphens()
             }
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteFontVariationSettings: RemoteFontVariation.Settings?
+        get() = fontVariationSettings?.toRemoteFontVariationSettings()
 
     /**
      * Returns a new [RemoteTextStyle] that is a combination of this style and the given [other]
@@ -406,11 +411,13 @@ private fun List<Font>.closestWeight(
 
 /**
  * Parses a CSS-style fontFeatureSettings string (e.g., "tnum", "tnum, zero", "'tnum' 1, 'smcp' 1")
- * into a list of [FontVariation.Setting].
+ * into a list of [RemoteFontVariation.Setting].
  */
-internal fun parseFontFeatureSettings(fontFeatureSettings: String?): List<FontVariation.Setting> {
+internal fun parseFontFeatureSettings(
+    fontFeatureSettings: String?
+): List<RemoteFontVariation.Setting> {
     if (fontFeatureSettings.isNullOrBlank()) return emptyList()
-    val result = mutableListOf<FontVariation.Setting>()
+    val result = mutableListOf<RemoteFontVariation.Setting>()
     val parts = fontFeatureSettings.split(',')
     for (i in parts.indices) {
         val part = parts[i]
@@ -425,25 +432,25 @@ internal fun parseFontFeatureSettings(fontFeatureSettings: String?): List<FontVa
             } else {
                 1f
             }
-        result.add(FontVariation.Setting(rawTag, value))
+        result.add(RemoteFontVariation.Setting(rawTag, value.rf))
     }
     return result
 }
 
 /**
  * Combines [fontFeatureSettings] string and [fontVariationSettings] into a single
- * [FontVariation.Settings]. Used when passing font settings to remote-creation APIs.
+ * [RemoteFontVariation.Settings]. Used when passing font settings to remote-creation APIs.
  */
 internal fun combineFontSettings(
     fontFeatureSettings: String?,
-    fontVariationSettings: FontVariation.Settings?,
-): FontVariation.Settings? {
+    fontVariationSettings: RemoteFontVariation.Settings?,
+): RemoteFontVariation.Settings? {
     val featureList = parseFontFeatureSettings(fontFeatureSettings)
     if (featureList.isEmpty()) return fontVariationSettings
     if (fontVariationSettings == null) {
-        return FontVariation.Settings(*featureList.toTypedArray())
+        return RemoteFontVariation.Settings(*featureList.toTypedArray())
     }
-    val combinedMap = mutableMapOf<String, FontVariation.Setting>()
+    val combinedMap = mutableMapOf<String, RemoteFontVariation.Setting>()
     val settings = fontVariationSettings.settings
     for (i in settings.indices) {
         val setting = settings[i]
@@ -453,5 +460,5 @@ internal fun combineFontSettings(
         val setting = featureList[i]
         combinedMap[setting.axisName] = setting
     }
-    return FontVariation.Settings(*combinedMap.values.toTypedArray())
+    return RemoteFontVariation.Settings(*combinedMap.values.toTypedArray())
 }

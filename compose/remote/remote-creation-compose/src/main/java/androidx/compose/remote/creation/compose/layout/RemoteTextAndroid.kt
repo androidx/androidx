@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
@@ -92,6 +93,6 @@ public fun RemoteText(
         maxLines = maxLines,
         style = style,
         fontFeatureSettings = fontFeatureSettings,
-        fontVariationSettings = fontVariationSettings,
+        fontVariationSettings = fontVariationSettings?.toRemoteFontVariationSettings(),
     )
 }

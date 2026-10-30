@@ -26,9 +26,10 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteFilterQuality
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.combineFontSettings
-import androidx.compose.ui.text.font.FontVariation
 
 /** Tracks the state of a [RemotePaint] to optimize serialization by only sending deltas. */
 internal class PaintTracker {
@@ -50,7 +51,7 @@ internal class PaintTracker {
     var filterQuality: RemoteFilterQuality? = null
     var shader: RemoteShader? = null
     var usingShaderMatrix: Boolean = false
-    var fontVariationSettings: FontVariation.Settings? = null
+    var fontVariationSettings: RemoteFontVariation.Settings? = null
 
     fun reset(force: Boolean) {
         this.force = force
@@ -170,18 +171,21 @@ internal class PaintTracker {
         }
 
         val targetFontVariationSettings =
-            combineFontSettings(newPaint.fontFeatureSettings, newPaint.fontVariationSettings)
+            combineFontSettings(newPaint.fontFeatureSettings, newPaint.remoteFontVariationSettings)
         val settingsToUse =
             if (RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis) {
                 targetFontVariationSettings
             } else {
                 targetFontVariationSettings
-                    ?: FontVariation.Settings(FontVariation.weight(DEFAULT_FONT_WEIGHT))
+                    ?: RemoteFontVariation.Settings(
+                        RemoteFontVariation.Setting("wght", DEFAULT_FONT_WEIGHT.rf)
+                    )
             }
         updateIfChanged(settingsToUse, fontVariationSettings) {
             fontVariationSettings = settingsToUse
             if (settingsToUse != null) {
-                val (fontAxisNames, fontAxisValues) = extractFontSettings(settingsToUse.settings)
+                val (fontAxisNames, fontAxisValues) =
+                    extractFontSettings(settingsToUse.settings, creationState)
                 if (fontAxisNames != null && fontAxisValues != null) {
                     val axisTags =
                         IntArray(fontAxisNames.size) { i ->
@@ -268,12 +272,14 @@ internal class PaintTracker {
     }
 
     private fun extractFontSettings(
-        settings: List<FontVariation.Setting>?
+        settings: List<RemoteFontVariation.Setting>?,
+        creationState: RemoteComposeCreationState,
     ): Pair<Array<String>?, FloatArray?> {
         val size = settings?.size ?: return Pair(null, null)
 
         val fontAxisNames = Array(size) { settings[it].axisName }
-        val fontAxisValues = FloatArray(size) { settings[it].toVariationValue(null) }
+        val fontAxisValues =
+            FloatArray(size) { settings[it].value.getFloatIdForCreationState(creationState) }
 
         return Pair(fontAxisNames, fontAxisValues)
     }

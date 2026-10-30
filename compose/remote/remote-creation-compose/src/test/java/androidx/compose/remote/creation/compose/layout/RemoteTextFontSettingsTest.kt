@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.DeviceFontFamilyName
@@ -34,8 +35,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -121,9 +124,106 @@ class RemoteTextFontSettingsTest {
         assertThat(axes).containsEntry("wght", 700f)
     }
 
-    private suspend fun captureTextAxes(style: RemoteTextStyle): Map<String, Float> {
-        val document =
-            captureRule.captureDocument(context = context) { RemoteText("Text".rs, style = style) }
+    @Test
+    fun fontVariationSettingsParameter_writesFontAxesInOrder() = runTest {
+        val axes = captureTextAxes {
+            RemoteText(
+                "Text".rs,
+                fontVariationSettings =
+                    FontVariation.Settings(FontVariation.weight(300), FontVariation.width(70f)),
+            )
+        }
+
+        assertThat(axes).containsExactly("wght", 300f, "wdth", 70f).inOrder()
+    }
+
+    @Test
+    fun fontVariationSettingsParameter_replacesStyleFontVariationSettings() = runTest {
+        val axes = captureTextAxes {
+            RemoteText(
+                "Text".rs,
+                style =
+                    RemoteTextStyle(
+                        fontVariationSettings =
+                            FontVariation.Settings(FontVariation.Setting("ROND", 100f))
+                    ),
+                fontVariationSettings = FontVariation.Settings(FontVariation.weight(500)),
+            )
+        }
+
+        assertThat(axes).containsExactly("wght", 500f)
+    }
+
+    @Test
+    fun fontFeatureSettingsParameter_overridesStyleFontAxesInPlace() = runTest {
+        val axes = captureTextAxes {
+            RemoteText(
+                "Text".rs,
+                style =
+                    RemoteTextStyle(
+                        fontVariationSettings =
+                            FontVariation.Settings(
+                                FontVariation.width(100f),
+                                FontVariation.weight(700),
+                            )
+                    ),
+                fontFeatureSettings = "'wght' 300, tnum",
+            )
+        }
+
+        assertThat(axes).containsExactly("wdth", 100f, "wght", 300f, "tnum", 1f).inOrder()
+    }
+
+    @Test
+    fun negativeZeroFontAxisValue_isWrittenUnchanged() = runTest {
+        val axes = captureTextAxes {
+            RemoteText(
+                "Text".rs,
+                fontVariationSettings = FontVariation.Settings(FontVariation.Setting("slnt", -0f)),
+            )
+        }
+
+        assertThat(axes.getValue("slnt").toRawBits()).isEqualTo((-0f).toRawBits())
+    }
+
+    @Test
+    fun densityDependentFontVariationSetting_throws() = runTest {
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                captureTextAxes {
+                    RemoteText(
+                        "Text".rs,
+                        fontVariationSettings =
+                            FontVariation.Settings(FontVariation.opticalSizing(16.sp)),
+                    )
+                }
+            }
+
+        assertThat(exception).hasMessageThat().isEqualTo("density must not be null")
+    }
+
+    @Test
+    fun fontFeatureSettingsParameter_overridesDensityDependentFontAxis() = runTest {
+        val axes = captureTextAxes {
+            RemoteText(
+                "Text".rs,
+                fontFeatureSettings = "'opsz' 12",
+                fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp)),
+            )
+        }
+
+        assertThat(axes).containsExactly("opsz", 12f)
+    }
+
+    private suspend fun captureTextAxes(style: RemoteTextStyle): Map<String, Float> =
+        captureTextAxes {
+            RemoteText("Text".rs, style = style)
+        }
+
+    private suspend fun captureTextAxes(
+        content: @Composable @RemoteComposable () -> Unit
+    ): Map<String, Float> {
+        val document = captureRule.captureDocument(context = context, content = content)
         val remoteContext =
             AndroidRemoteContext().apply {
                 useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))

@@ -25,7 +25,9 @@ import androidx.compose.remote.creation.compose.layout.toRemotePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeCap
 import androidx.compose.remote.creation.compose.layout.toRemoteStrokeJoin
 import androidx.compose.remote.creation.compose.shaders.RemoteShader
+import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -126,6 +128,10 @@ public sealed interface RemotePaint {
 
     /** The [FontVariation.Settings] to use for drawing text. */
     public var fontVariationSettings: FontVariation.Settings?
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val remoteFontVariationSettings: RemoteFontVariation.Settings?
+        get() = fontVariationSettings?.toRemoteFontVariationSettings()
 
     public companion object {
         /**
