@@ -16,6 +16,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.BlackArgb
 import androidx.compose.remote.creation.compose.layout.toComposeBlendMode
 import androidx.compose.remote.creation.compose.layout.toComposePaintingStyle
 import androidx.compose.remote.creation.compose.layout.toComposeStrokeCap
@@ -29,7 +30,6 @@ import androidx.compose.remote.creation.compose.text.RemoteFontVariation
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteFontVariationSettings
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -157,7 +157,7 @@ internal class StandardRemotePaint() : RemotePaint {
     public override var shader: RemoteShader? = null
     public override var textSize: RemoteFloat = 12f.rf
     public override var typeface: RemoteTypeface? = RemoteTypeface.Default
-    public override var color: RemoteColor = Color.Black.rc
+    public override var color: RemoteColor = RemoteColor(BlackArgb)
     public override var colorFilter: RemoteColorFilter? = null
     public override var fontFeatureSettings: String? = null
     public override var fontVariationSettings: FontVariation.Settings? = null
