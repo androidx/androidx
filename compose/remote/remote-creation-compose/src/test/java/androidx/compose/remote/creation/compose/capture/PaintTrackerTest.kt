@@ -46,7 +46,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -418,6 +420,152 @@ class PaintTrackerTest {
         } finally {
             RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalFlag
         }
+    }
+
+    @Test
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
+    fun testFontVariationSettingsSync_FallbackToWeight400NotResentForEqualWeight() {
+        val originalFlag = RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis
+        RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = false
+        try {
+            tracker.updateWithPaint(
+                RemotePaint { fontVariationSettings = null },
+                PaintBundle(),
+                creationState,
+            )
+            tracker.reset(force = false)
+
+            val paint = RemotePaint {
+                fontVariationSettings = FontVariation.Settings(FontVariation.weight(400))
+            }
+            tracker.updateWithPaint(paint, PaintBundle(), creationState)
+
+            assertThat(tracker.isChanged).isFalse()
+        } finally {
+            RemoteComposeCreationComposeFlags.allowSendingEmptyFontAxis = originalFlag
+        }
+    }
+
+    @Test
+    fun testFontVariationSettingsSync_NegativeZero() {
+        val wghtId = creationState.document.addText("wght")
+        remoteContext.loadText(wghtId, "wght")
+        val negativeZeroPaint = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wght", -0f))
+        }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(negativeZeroPaint, bundle, creationState)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.mFontAxisValues!!.single().toRawBits()).isEqualTo((-0f).toRawBits())
+
+        tracker.reset(force = false)
+        val zeroPaint = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.Setting("wght", 0f))
+        }
+        tracker.updateWithPaint(zeroPaint, PaintBundle(), creationState)
+
+        // 0f and -0f are equal axis values, so the axes are not sent again.
+        assertThat(tracker.isChanged).isFalse()
+    }
+
+    @Test
+    fun testFontFeatureSettingsOverrideVariationAxesInPlace() {
+        val paint = RemotePaint {
+            fontVariationSettings =
+                FontVariation.Settings(FontVariation.width(100f), FontVariation.weight(700))
+            fontFeatureSettings = "'wght' 300, tnum"
+        }
+        val bundle = PaintBundle()
+        val wdthId = creationState.document.addText("wdth")
+        val wghtId = creationState.document.addText("wght")
+        val tnumId = creationState.document.addText("tnum")
+        remoteContext.loadText(wdthId, "wdth")
+        remoteContext.loadText(wghtId, "wght")
+        remoteContext.loadText(tnumId, "tnum")
+
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("wdth", "wght", "tnum"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(100f, 300f, 1f))
+    }
+
+    @Test
+    fun testDuplicateFontFeatureSettings() {
+        val featuresOnly = RemotePaint { fontFeatureSettings = "'tnum' 0, 'tnum' 1" }
+        assertFailsWith<IllegalArgumentException> {
+            tracker.updateWithPaint(featuresOnly, PaintBundle(), creationState)
+        }
+
+        val wghtId = creationState.document.addText("wght")
+        val tnumId = creationState.document.addText("tnum")
+        remoteContext.loadText(wghtId, "wght")
+        remoteContext.loadText(tnumId, "tnum")
+        val withVariations = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.weight(400))
+            fontFeatureSettings = "'tnum' 0, 'tnum' 1"
+        }
+        val bundle = PaintBundle()
+        tracker.reset(force = true)
+        tracker.updateWithPaint(withVariations, bundle, creationState)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("wght", "tnum"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(400f, 1f))
+    }
+
+    @Test
+    fun testFontVariationSettingsSync_DensityDependentSettingThrows() {
+        val paint = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+        }
+
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                tracker.updateWithPaint(paint, PaintBundle(), creationState)
+            }
+        assertThat(exception).hasMessageThat().isEqualTo("density must not be null")
+    }
+
+    @Test
+    fun testFontVariationSettingsSync_UnchangedDensityDependentSettingIsNotResolvedAgain() {
+        val paint = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+        }
+        assertFailsWith<IllegalArgumentException> {
+            tracker.updateWithPaint(paint, PaintBundle(), creationState)
+        }
+
+        tracker.reset(force = false)
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        // The tracker already holds these settings, so it does not resolve or send them again.
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.fontVariationAxesSet).isFalse()
+    }
+
+    @Test
+    fun testFontFeatureSettingsOverrideDensityDependentVariationAxis() {
+        val paint = RemotePaint {
+            fontVariationSettings = FontVariation.Settings(FontVariation.opticalSizing(16.sp))
+            fontFeatureSettings = "'opsz' 12"
+        }
+        val bundle = PaintBundle()
+        val opszId = creationState.document.addText("opsz")
+        remoteContext.loadText(opszId, "opsz")
+
+        tracker.updateWithPaint(paint, bundle, creationState)
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.mFontAxisTags).isEqualTo(arrayOf("opsz"))
+        assertThat(changes.mFontAxisValues).isEqualTo(floatArrayOf(12f))
     }
 
     // Note: The following tests are partially disabled out because Robolectric does not support

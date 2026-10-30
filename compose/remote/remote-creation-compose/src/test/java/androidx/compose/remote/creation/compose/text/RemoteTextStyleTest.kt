@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.text
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.compose.state.asConstantColorOrNull
 import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -388,17 +389,18 @@ class RemoteTextStyleTest {
         val combined =
             combineFontSettings(
                 fontFeatureSettings = "tnum, zero",
-                fontVariationSettings = FontVariation.Settings(FontVariation.weight(700)),
+                fontVariationSettings =
+                    RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 700.rf)),
             )
 
         assertThat(combined).isNotNull()
         assertThat(combined!!.settings).hasSize(3)
         assertThat(combined.settings[0].axisName).isEqualTo("wght")
-        assertThat(combined.settings[0].toVariationValue(null)).isEqualTo(700f)
+        assertThat(combined.settings[0].value.constantValue).isEqualTo(700f)
         assertThat(combined.settings[1].axisName).isEqualTo("tnum")
-        assertThat(combined.settings[1].toVariationValue(null)).isEqualTo(1f)
+        assertThat(combined.settings[1].value.constantValue).isEqualTo(1f)
         assertThat(combined.settings[2].axisName).isEqualTo("zero")
-        assertThat(combined.settings[2].toVariationValue(null)).isEqualTo(1f)
+        assertThat(combined.settings[2].value.constantValue).isEqualTo(1f)
     }
 
     @Test
@@ -409,16 +411,34 @@ class RemoteTextStyleTest {
         assertThat(combined).isNotNull()
         assertThat(combined!!.settings).hasSize(1)
         assertThat(combined.settings[0].axisName).isEqualTo("tnum")
-        assertThat(combined.settings[0].toVariationValue(null)).isEqualTo(1f)
+        assertThat(combined.settings[0].value.constantValue).isEqualTo(1f)
     }
 
     @Test
     fun combineFontSettings_nullOrEmpty_returnsOriginalOrNull() {
-        val settings = FontVariation.Settings(FontVariation.weight(400))
+        val settings = RemoteFontVariation.Settings(RemoteFontVariation.Setting("wght", 400.rf))
         assertThat(combineFontSettings(null, settings)).isSameInstanceAs(settings)
         assertThat(combineFontSettings("", settings)).isSameInstanceAs(settings)
         assertThat(combineFontSettings(null, null)).isNull()
         assertThat(combineFontSettings("", null)).isNull()
+    }
+
+    @Test
+    fun remoteFontVariationSettings_convertsFontVariationSettings() {
+        val style =
+            RemoteTextStyle(
+                fontVariationSettings =
+                    FontVariation.Settings(FontVariation.weight(700), FontVariation.width(80f))
+            )
+
+        assertThat(style.remoteFontVariationSettings)
+            .isEqualTo(
+                RemoteFontVariation.Settings(
+                    RemoteFontVariation.Setting("wght", 700.rf),
+                    RemoteFontVariation.Setting("wdth", 80f.rf),
+                )
+            )
+        assertThat(RemoteTextStyle().remoteFontVariationSettings).isNull()
     }
 
     @Test
