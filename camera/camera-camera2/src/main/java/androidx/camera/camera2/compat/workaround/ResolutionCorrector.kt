@@ -42,7 +42,7 @@ public class ResolutionCorrector {
         configType: ConfigType,
         supportedResolutions: List<Size>,
     ): List<Size> {
-        if (extraCroppingQuirk == null) {
+        if (extraCroppingQuirk == null || supportedResolutions.isEmpty()) {
             return supportedResolutions
         }
         val selectResolution: Size =

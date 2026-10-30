@@ -110,4 +110,14 @@ class ResolutionCorrectorTest {
             )
         Truth.assertThat(result).containsExactlyElementsIn(SUPPORTED_RESOLUTIONS)
     }
+
+    @Test
+    fun emptySupportedResolutions_returnsEmptyList() {
+        val result =
+            mResolutionCorrector!!.insertOrPrioritize(
+                SurfaceConfig.ConfigType.PRIV,
+                emptyList(),
+            )
+        Truth.assertThat(result).isEmpty()
+    }
 }
