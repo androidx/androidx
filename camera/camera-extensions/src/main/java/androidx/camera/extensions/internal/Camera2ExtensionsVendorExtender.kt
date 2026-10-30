@@ -79,14 +79,24 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
 
     override fun getSupportedCaptureOutputResolutions(): List<Pair<Int, Array<Size>>> {
         checkInitialized()
-        val formats =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)
-            } else {
-                intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
-            }
-        return getExtensionSupportedSizes(formats)
+        return getExtensionSupportedSizes(getSupportedStillCaptureFormats())
     }
+
+    /**
+     * Returns the still capture formats that can be queried from [CameraExtensionCapabilities].
+     *
+     * [ImageFormat.JPEG_R] is only accepted by
+     * `CameraExtensionCharacteristics#getExtensionSupportedSizes()` and
+     * `CameraExtensionCharacteristics#getPostviewSupportedSizes()` since Android 15 (API 35).
+     * Although the format constant itself was introduced in API 34, the API 34 framework throws
+     * `IllegalArgumentException("Unsupported format: 4101")` when it is queried.
+     */
+    private fun getSupportedStillCaptureFormats(): IntArray =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)
+        } else {
+            intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888)
+        }
 
     private fun getExtensionSupportedSizes(formats: IntArray): List<Pair<Int, Array<Size>>> {
         val camera2SupportedOutputSizesList = mutableListOf<Pair<Int, Array<Size>>>()
@@ -126,7 +136,7 @@ public class Camera2ExtensionsVendorExtender(private val mode: Int) : VendorExte
             return camera2SupportedPostviewResolutions
         }
 
-        for (format in intArrayOf(ImageFormat.JPEG, ImageFormat.YUV_420_888, ImageFormat.JPEG_R)) {
+        for (format in getSupportedStillCaptureFormats()) {
             try {
                 cameraExtensionCapabilities.getPostviewSizes(captureSize, format).let {
                     if (it.isNotEmpty()) {
