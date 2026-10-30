@@ -20,7 +20,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntObjectMap
@@ -34,10 +36,17 @@ import kotlinx.coroutines.CancellationException
 /**
  * Identifies one RemoteViews composition: everything sharing a surface and container dimensions
  * resolves to the same layout and can be rendered once.
+ *
+ * @property surface Host surface the composition targets.
+ * @property dimensions Guaranteed minimum container size, used whenever [sizes] is not.
+ * @property sizes Distinct exact sizes the host can display the instance at
+ *   ([AppWidgetManager.OPTION_APPWIDGET_SIZES], API 31+), or empty if the host does not report
+ *   them.
  */
 internal data class RenderTarget(
     val surface: AppWidgetSurface,
     val dimensions: Dimensions,
+    val sizes: List<Dimensions> = emptyList(),
 )
 
 /**
@@ -110,6 +119,7 @@ internal class GlanceRemoteViewsComposer(
                     RenderTarget(
                         surface = AppWidgetSurfaceDetector.fromAppWidgetOptions(options),
                         dimensions = hostReportedDimensions(options),
+                        sizes = hostReportedSizes(options),
                     )
                 targetToInstances.getOrPut(target) { mutableListOf() }.add(appWidgetId)
             }
@@ -161,6 +171,10 @@ internal class GlanceRemoteViewsComposer(
      * Renders [data] for [target], dispatching the resulting
      * [androidx.glance.adaptive.appwidget.renderer.AppWidgetRenderOutput] into a platform
      * [RemoteViews].
+     *
+     * On API 31+, a home screen [target] with [RenderTarget.sizes] is rendered once per size into a
+     * size-mapped [RemoteViews], so the host picks the layout for its current size and orientation.
+     * Otherwise [data] is rendered once at [RenderTarget.dimensions].
      */
     suspend fun compose(
         data: GlanceAdaptiveTemplate,
@@ -168,11 +182,37 @@ internal class GlanceRemoteViewsComposer(
         widgetName: String? = null,
     ): RemoteViews {
         val appContext = context.applicationContext ?: context
-        val dimensions = target.dimensions
-        val surface = target.surface.withDimensions(dimensions)
-        return AppWidgetTemplateRegistry.render(data, surface, widgetName)
-            .toRemoteViews(appContext, dimensions)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                target.surface == AppWidgetSurface.MOBILE_HOME_SCREEN &&
+                target.sizes.isNotEmpty()
+        ) {
+            // The minimum dimensions pair the portrait width with the landscape height, so a
+            // single RemoteViews rendered at them fits neither orientation and the host stretches
+            // it. Let the host pick the rendering for each of its sizes instead.
+            // TODO(b/576689014): Capture RemoteCompose output once instead of once per size when
+            //  RemoteCompose renderers select their layout inside the document.
+            val sizeToRemoteViews = LinkedHashMap<SizeF, RemoteViews>(target.sizes.size)
+            for (i in target.sizes.indices) {
+                val size = target.sizes[i]
+                sizeToRemoteViews[SizeF(size.widthDp.toFloat(), size.heightDp.toFloat())] =
+                    composeAt(data, target.surface, size, widgetName, appContext)
+            }
+            return RemoteViews(sizeToRemoteViews)
+        }
+        return composeAt(data, target.surface, target.dimensions, widgetName, appContext)
     }
+
+    /** Renders [data] once for [surface] placed at [dimensions]. */
+    private suspend fun composeAt(
+        data: GlanceAdaptiveTemplate,
+        surface: AppWidgetSurface,
+        dimensions: Dimensions,
+        widgetName: String?,
+        appContext: Context,
+    ): RemoteViews =
+        AppWidgetTemplateRegistry.render(data, surface.withDimensions(dimensions), widgetName)
+            .toRemoteViews(appContext, dimensions)
 
     /** Reads the guaranteed minimum size the host reports for a placed instance, in dp. */
     private fun hostReportedDimensions(options: Bundle): Dimensions {
@@ -180,6 +220,38 @@ internal class GlanceRemoteViewsComposer(
             widthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0),
             heightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0),
         )
+    }
+
+    /**
+     * Reads the distinct exact sizes the host reports for a placed instance, in dp, in the order
+     * the host reports them.
+     *
+     * Returns an empty list before API 31 or when the host reports no usable size. Keeps at most
+     * [MAX_SIZED_REMOTE_VIEWS] sizes, the most a size-mapped [RemoteViews] accepts.
+     */
+    private fun hostReportedSizes(options: Bundle): List<Dimensions> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return emptyList()
+        val sizes =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                options.getParcelableArrayList(
+                    AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                    SizeF::class.java,
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+            } ?: return emptyList()
+        val distinctSizes = LinkedHashSet<Dimensions>()
+        for (i in sizes.indices) {
+            val dimensions =
+                dimensionsOf(
+                    widthDp = sizes[i].width.roundToInt(),
+                    heightDp = sizes[i].height.roundToInt(),
+                )
+            if (dimensions != UNSPECIFIED_DIMENSIONS) distinctSizes.add(dimensions)
+            if (distinctSizes.size == MAX_SIZED_REMOTE_VIEWS) break
+        }
+        return distinctSizes.toList()
     }
 
     /**
@@ -203,6 +275,9 @@ internal class GlanceRemoteViewsComposer(
     companion object {
         /** Used whenever no usable container size is available. */
         private val UNSPECIFIED_DIMENSIONS = Dimensions(0, 0)
+
+        /** Most sizes a size-mapped [RemoteViews] accepts. */
+        private const val MAX_SIZED_REMOTE_VIEWS = 16
 
         /**
          * Normalizes a resolved dp pair into [Dimensions].
