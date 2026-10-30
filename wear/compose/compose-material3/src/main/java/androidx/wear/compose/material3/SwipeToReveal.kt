@@ -55,7 +55,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -72,11 +71,11 @@ import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,12 +89,19 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateMeasurement
+import androidx.compose.ui.node.invalidatePlacement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -105,12 +111,11 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.wear.compose.foundation.GestureInclusion
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.RevealDirection.Companion.Bidirectional
@@ -325,8 +330,6 @@ public fun SwipeToReveal(
             }
         }
 
-    var componentWidthPx by remember { mutableFloatStateOf(0f) }
-
     // Check for NoOpSurfaceTransformation because TransformingLazyColumn returns it
     // when LocalReduceMotion is enabled, avoiding unnecessary graphicsLayer overhead.
     val transformationModifier =
@@ -369,48 +372,17 @@ public fun SwipeToReveal(
                                 revealState.currentValue != RightRevealed,
                         flingBehavior = SwipeToRevealDefaults.flingBehavior(revealState),
                     )
-                    .onSizeChanged { size ->
-                        // Update the total width which will be used to calculate the anchors
-                        val width = size.width.toFloat()
-                        val hasNoSecondaryAction = secondaryAction == null
-                        componentWidthPx = width
-
-                        val revealingAnchorPx =
-                            if (hasNoSecondaryAction && !hasPartiallyRevealedState) {
-                                null
-                            } else {
-                                (anchorWidthPx / screenWidthPx) * width
-                            }
-
-                        if (revealingAnchorPx != null) {
-                            revealState.revealThreshold =
-                                FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx -
-                                    (screenWidthPx - width) / 2f
-
-                            revealState.revealedRatio =
-                                calculateRevealedRatio(
-                                    hasNoSecondaryAction,
-                                    anchorWidthPx,
-                                    screenWidthPx,
-                                    revealState.revealThreshold,
-                                    revealingAnchorPx,
-                                )
-                        }
-                        val draggableAnchors = DraggableAnchors {
-                            Covered at 0f
-                            RightRevealed at -screenWidthPx * direction
-                            if (revealingAnchorPx != null) {
-                                RightRevealing at -revealingAnchorPx * direction
-                            }
-                            if (revealDirection == Bidirectional) {
-                                LeftRevealed at screenWidthPx * direction
-                                if (revealingAnchorPx != null) {
-                                    LeftRevealing at revealingAnchorPx * direction
-                                }
-                            }
-                        }
-                        revealState.anchoredDraggableState.updateAnchors(draggableAnchors)
-                    }
+                    .then(
+                        SwipeToRevealAnchorsElement(
+                            revealState = revealState,
+                            hasNoSecondaryAction = secondaryAction == null,
+                            hasPartiallyRevealedState = hasPartiallyRevealedState,
+                            revealDirection = revealDirection,
+                            direction = direction,
+                            screenWidthPx = screenWidthPx,
+                            anchorWidthPx = anchorWidthPx,
+                        )
+                    )
                     .then(
                         Modifier.semantics {
                             // Set a fake scroll range axis so that the AndroidComposeView can
@@ -566,34 +538,43 @@ public fun SwipeToReveal(
                                         ),
                                     label = "RevealedContentAlpha",
                                 )
-                            var revealedContentHeight by remember { mutableIntStateOf(0) }
-
                             Row(
                                 modifier =
                                     Modifier.graphicsLayer { alpha = revealedContentAlpha.value }
-                                        .onSizeChanged { revealedContentHeight = it.height }
                                         .layout { measurable, constraints ->
+                                            val maxRevealWidth =
+                                                if (hideActions) {
+                                                        revealState.revealThreshold
+                                                    } else {
+                                                        // During lookahead, use the target anchor
+                                                        // position so lookahead measurement is not
+                                                        // invalidated on every animation frame.
+                                                        val rawOffset =
+                                                            if (isLookingAhead) {
+                                                                revealState.positionOf(
+                                                                    revealState.targetValue
+                                                                )
+                                                            } else {
+                                                                revealState.offset
+                                                            }
+                                                        if (rawOffset.isNaN()) 0f
+                                                        else abs(rawOffset)
+                                                    }
+                                                    .roundToInt()
+                                                    .coerceIn(
+                                                        constraints.minWidth,
+                                                        constraints.maxWidth,
+                                                    )
                                             val placeable =
                                                 measurable.measure(
-                                                    constraints.copy(
-                                                        maxWidth =
-                                                            if (hideActions) {
-                                                                    revealState.revealThreshold
-                                                                } else {
-                                                                    abs(revealState.offset)
-                                                                        .fastCoerceAtMost(
-                                                                            componentWidthPx
-                                                                        )
-                                                                }
-                                                                .roundToInt()
-                                                    )
-                                                )
-                                            val yOffset =
-                                                calculateVerticalOffsetBasedOnScreenPosition(
-                                                    revealedContentHeight,
-                                                    globalPosition,
+                                                    constraints.copy(maxWidth = maxRevealWidth)
                                                 )
                                             layout(placeable.width, placeable.height) {
+                                                val yOffset =
+                                                    calculateVerticalOffsetBasedOnScreenPosition(
+                                                        placeable.height,
+                                                        globalPosition,
+                                                    )
                                                 placeable.placeRelative(0, yOffset)
                                             }
                                         },
@@ -644,13 +625,11 @@ public fun SwipeToReveal(
             }
             Row(
                 modifier =
-                    Modifier.absoluteOffset {
-                        val xOffset = revealState.requireOffset().roundToInt() * direction
-                        IntOffset(
-                            x = if (canSwipeRight) xOffset else xOffset.coerceAtMost(0),
-                            y = 0,
-                        )
-                    }
+                    SwipeToRevealOffsetElement(
+                        revealState = revealState,
+                        direction = direction,
+                        canSwipeRight = canSwipeRight,
+                    )
             ) {
                 content()
             }
@@ -982,7 +961,11 @@ private fun calculateRevealedRatio(
     revealThreshold: Float,
     revealingAnchorPx: Float,
 ): Float =
-    if (hasNoSecondaryAction || anchorWidthPx / screenWidthPx == 1f) {
+    if (
+        hasNoSecondaryAction ||
+            screenWidthPx <= revealingAnchorPx ||
+            anchorWidthPx / screenWidthPx == 1f
+    ) {
         0.5f
     } else {
         ((revealThreshold - revealingAnchorPx) / (screenWidthPx - revealingAnchorPx)).coerceAtLeast(
@@ -2108,3 +2091,331 @@ private val BidirectionalAnchors: Set<RevealValue> =
     setOf(LeftRevealed, LeftRevealing, Covered, RightRevealing, RightRevealed)
 @SuppressLint("PrimitiveInCollection")
 private val UnidirectionAnchors: Set<RevealValue> = setOf(Covered, RightRevealing, RightRevealed)
+
+/**
+ * Configures [RevealState]'s [DraggableAnchors] during measurement so anchors are initialized
+ * before lookahead placement when subcomposed inside a [androidx.compose.ui.layout.LookaheadScope],
+ * and caches the last anchored width to avoid redundant anchor allocations on approach passes when
+ * the width and configuration are unchanged.
+ */
+private class SwipeToRevealAnchorsElement(
+    private val revealState: RevealState,
+    private val hasNoSecondaryAction: Boolean,
+    private val hasPartiallyRevealedState: Boolean,
+    private val revealDirection: RevealDirection,
+    private val direction: Int,
+    private val screenWidthPx: Float,
+    private val anchorWidthPx: Float,
+) : ModifierNodeElement<SwipeToRevealAnchorsNode>() {
+
+    override fun create() =
+        SwipeToRevealAnchorsNode(
+            revealState = revealState,
+            hasNoSecondaryAction = hasNoSecondaryAction,
+            hasPartiallyRevealedState = hasPartiallyRevealedState,
+            revealDirection = revealDirection,
+            direction = direction,
+            screenWidthPx = screenWidthPx,
+            anchorWidthPx = anchorWidthPx,
+        )
+
+    override fun update(node: SwipeToRevealAnchorsNode) {
+        node.update(
+            revealState = revealState,
+            hasNoSecondaryAction = hasNoSecondaryAction,
+            hasPartiallyRevealedState = hasPartiallyRevealedState,
+            revealDirection = revealDirection,
+            direction = direction,
+            screenWidthPx = screenWidthPx,
+            anchorWidthPx = anchorWidthPx,
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwipeToRevealAnchorsElement) return false
+
+        if (revealState != other.revealState) return false
+        if (hasNoSecondaryAction != other.hasNoSecondaryAction) return false
+        if (hasPartiallyRevealedState != other.hasPartiallyRevealedState) return false
+        if (revealDirection != other.revealDirection) return false
+        if (direction != other.direction) return false
+        if (screenWidthPx != other.screenWidthPx) return false
+        if (anchorWidthPx != other.anchorWidthPx) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = revealState.hashCode()
+        result = 31 * result + hasNoSecondaryAction.hashCode()
+        result = 31 * result + hasPartiallyRevealedState.hashCode()
+        result = 31 * result + revealDirection.hashCode()
+        result = 31 * result + direction
+        result = 31 * result + screenWidthPx.hashCode()
+        result = 31 * result + anchorWidthPx.hashCode()
+        return result
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "swipeToRevealAnchors"
+        properties["revealState"] = revealState
+        properties["hasNoSecondaryAction"] = hasNoSecondaryAction
+        properties["hasPartiallyRevealedState"] = hasPartiallyRevealedState
+        properties["revealDirection"] = revealDirection
+        properties["direction"] = direction
+        properties["screenWidthPx"] = screenWidthPx
+        properties["anchorWidthPx"] = anchorWidthPx
+    }
+}
+
+private class SwipeToRevealAnchorsNode(
+    var revealState: RevealState,
+    var hasNoSecondaryAction: Boolean,
+    var hasPartiallyRevealedState: Boolean,
+    var revealDirection: RevealDirection,
+    var direction: Int,
+    var screenWidthPx: Float,
+    var anchorWidthPx: Float,
+) : Modifier.Node(), LayoutModifierNode {
+
+    override val shouldAutoInvalidate: Boolean = false
+
+    private var lastAnchoredWidth: Int = -1
+
+    override fun onReset() {
+        lastAnchoredWidth = -1
+    }
+
+    override fun onDetach() {
+        lastAnchoredWidth = -1
+    }
+
+    fun update(
+        revealState: RevealState,
+        hasNoSecondaryAction: Boolean,
+        hasPartiallyRevealedState: Boolean,
+        revealDirection: RevealDirection,
+        direction: Int,
+        screenWidthPx: Float,
+        anchorWidthPx: Float,
+    ) {
+        val changed =
+            this.revealState != revealState ||
+                this.hasNoSecondaryAction != hasNoSecondaryAction ||
+                this.hasPartiallyRevealedState != hasPartiallyRevealedState ||
+                this.revealDirection != revealDirection ||
+                this.direction != direction ||
+                this.screenWidthPx != screenWidthPx ||
+                this.anchorWidthPx != anchorWidthPx
+        this.revealState = revealState
+        this.hasNoSecondaryAction = hasNoSecondaryAction
+        this.hasPartiallyRevealedState = hasPartiallyRevealedState
+        this.revealDirection = revealDirection
+        this.direction = direction
+        this.screenWidthPx = screenWidthPx
+        this.anchorWidthPx = anchorWidthPx
+        if (changed) {
+            lastAnchoredWidth = -1
+            invalidateMeasurement()
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        // When width is fixed (e.g. from Modifier.fillMaxWidth()), initialize anchors and
+        // revealThreshold before measuring children so that revealed action slots see the
+        // updated threshold during the same measure pass.
+        if (constraints.hasFixedWidth) {
+            updateAnchorsIfNeeded(constraints.maxWidth)
+        }
+        val placeable = measurable.measure(constraints)
+        if (!constraints.hasFixedWidth) {
+            updateAnchorsIfNeeded(placeable.width)
+        }
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+
+    private fun updateAnchorsIfNeeded(widthPx: Int) {
+        // Avoid recording snapshot reads of revealState.offset / targetValue / revealThreshold
+        // during measure, which would otherwise subscribe Lookahead and Approach measurement of
+        // the root Box to per-frame swipe offset changes.
+        Snapshot.withoutReadObservation {
+            // Only recompute anchors when the laid-out width has changed since the last anchor
+            // calculation or if the offset is still uninitialized.
+            if (widthPx == lastAnchoredWidth && !revealState.offset.isNaN()) return
+
+            lastAnchoredWidth = widthPx
+            val width = widthPx.toFloat()
+            val revealingAnchorPx =
+                if (hasNoSecondaryAction && !hasPartiallyRevealedState) {
+                    null
+                } else if (screenWidthPx > 0f) {
+                    (anchorWidthPx / screenWidthPx) * width
+                } else {
+                    0f
+                }
+
+            if (revealingAnchorPx != null) {
+                val revealThreshold =
+                    FULL_SWIPE_THRESHOLD_FRACTION * screenWidthPx - (screenWidthPx - width) / 2f
+                revealState.revealThreshold = revealThreshold
+
+                revealState.revealedRatio =
+                    calculateRevealedRatio(
+                        hasNoSecondaryAction,
+                        anchorWidthPx,
+                        screenWidthPx,
+                        revealThreshold,
+                        revealingAnchorPx,
+                    )
+            }
+            val draggableAnchors = DraggableAnchors {
+                Covered at 0f
+                RightRevealed at -screenWidthPx * direction
+                if (revealingAnchorPx != null) {
+                    RightRevealing at -revealingAnchorPx * direction
+                }
+                if (revealDirection == Bidirectional) {
+                    LeftRevealed at screenWidthPx * direction
+                    if (revealingAnchorPx != null) {
+                        LeftRevealing at revealingAnchorPx * direction
+                    }
+                }
+            }
+            // Resolve the semantic target value against the existing anchors before replacing
+            // them so large width or configuration changes preserve the current RevealValue.
+            val candidateTarget = revealState.targetValue
+            // Fall back to Covered if the target anchor is not present in the current configuration
+            // (e.g. RightRevealing when hasPartiallyRevealedState is false).
+            val validatedTarget =
+                if (draggableAnchors.hasPositionFor(candidateTarget)) {
+                    candidateTarget
+                } else {
+                    Covered
+                }
+            // AnchoredDraggableState.updateAnchors short-circuits if anchors == newAnchors; clear
+            // first if offset is still NaN so updateAnchors snaps to validatedTarget.
+            if (
+                revealState.anchoredDraggableState.anchors == draggableAnchors &&
+                    revealState.offset.isNaN()
+            ) {
+                revealState.anchoredDraggableState.updateAnchors(
+                    DraggableAnchors {},
+                    validatedTarget,
+                )
+            }
+            revealState.anchoredDraggableState.updateAnchors(draggableAnchors, validatedTarget)
+        }
+    }
+}
+
+/**
+ * Lookahead-aware horizontal offset modifier for the foreground content of [SwipeToReveal]. Uses
+ * [Modifier.Node.shouldAutoInvalidate] = false so parameter updates explicitly invalidate
+ * placement, and places with [androidx.compose.ui.layout.Placeable.PlacementScope.placeWithLayer]
+ * inside [androidx.compose.ui.layout.Placeable.PlacementScope.withMotionFrameOfReferencePlacement].
+ */
+private class SwipeToRevealOffsetElement(
+    private val revealState: RevealState,
+    private val direction: Int,
+    private val canSwipeRight: Boolean,
+) : ModifierNodeElement<SwipeToRevealOffsetNode>() {
+
+    override fun create() =
+        SwipeToRevealOffsetNode(
+            revealState = revealState,
+            direction = direction,
+            canSwipeRight = canSwipeRight,
+        )
+
+    override fun update(node: SwipeToRevealOffsetNode) {
+        node.update(
+            revealState = revealState,
+            direction = direction,
+            canSwipeRight = canSwipeRight,
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SwipeToRevealOffsetElement) return false
+
+        if (revealState != other.revealState) return false
+        if (direction != other.direction) return false
+        if (canSwipeRight != other.canSwipeRight) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = revealState.hashCode()
+        result = 31 * result + direction
+        result = 31 * result + canSwipeRight.hashCode()
+        return result
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "swipeToRevealOffset"
+        properties["revealState"] = revealState
+        properties["direction"] = direction
+        properties["canSwipeRight"] = canSwipeRight
+    }
+}
+
+private class SwipeToRevealOffsetNode(
+    var revealState: RevealState,
+    var direction: Int,
+    var canSwipeRight: Boolean,
+) : Modifier.Node(), LayoutModifierNode {
+
+    override val shouldAutoInvalidate: Boolean = false
+
+    fun update(revealState: RevealState, direction: Int, canSwipeRight: Boolean) {
+        val changed =
+            this.revealState != revealState ||
+                this.direction != direction ||
+                this.canSwipeRight != canSwipeRight
+        this.revealState = revealState
+        this.direction = direction
+        this.canSwipeRight = canSwipeRight
+        if (changed) {
+            invalidatePlacement()
+        }
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            // During lookahead, place at the target anchor position where any ongoing
+            // swipe/animation will settle; during approach, use the live drag offset.
+            val offset =
+                if (isLookingAhead) {
+                    val targetOffset = revealState.positionOf(revealState.targetValue)
+                    if (!targetOffset.isNaN()) {
+                        targetOffset
+                    } else {
+                        revealState.requireOffset()
+                    }
+                } else {
+                    revealState.requireOffset()
+                }
+            val xOffset = offset.roundToInt() * direction
+            // Mark as motion frame of reference placement so LookaheadScope consumers treat
+            // swipe movement as direct motion rather than a structural layout change, and use
+            // placeWithLayer so frame-by-frame offset changes move the hardware layer without
+            // redrawing the content.
+            withMotionFrameOfReferencePlacement {
+                placeable.placeWithLayer(
+                    x = if (canSwipeRight) xOffset else xOffset.coerceAtMost(0),
+                    y = 0,
+                )
+            }
+        }
+    }
+}
