@@ -79,6 +79,28 @@ public abstract class RemoteContext {
 
     private final ComponentMeasurePool mComponentMeasurePool = new ComponentMeasurePool();
 
+    private @Nullable RcResolver mRcResolver;
+
+    /**
+     * Set the host {@link RcResolver} plugin used to resolve embedded RemoteCompose document URLs
+     * into serialized {@code byte[]} buffers.
+     *
+     * @param resolver the {@link RcResolver} plugin, or {@code null} to disable resolution
+     */
+    public void setRcResolver(@Nullable RcResolver resolver) {
+        mRcResolver = resolver;
+    }
+
+    /**
+     * Return the host {@link RcResolver} plugin used to resolve embedded RemoteCompose document
+     * URLs.
+     *
+     * @return the {@link RcResolver} plugin, or {@code null}
+     */
+    public @Nullable RcResolver getRcResolver() {
+        return mRcResolver;
+    }
+
     public @NonNull ComponentMeasurePool getComponentMeasurePool() {
         return mComponentMeasurePool;
     }
@@ -759,6 +781,7 @@ public abstract class RemoteContext {
      * @param valueId the new value
      */
     public abstract void overrideText(int id, int valueId);
+
 
     /**
      * Load an animated float associated with an id Todo: Remove? cc @hoford

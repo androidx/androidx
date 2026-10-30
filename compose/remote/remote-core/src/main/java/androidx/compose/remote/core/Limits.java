@@ -98,6 +98,9 @@ public class Limits {
     /** Maximum size of font data (in bytes) */
     public static final int MAX_FONT_DATA = 800_000;
 
+    /** Maximum size of a BinaryData blob, e.g. an embedded document (in bytes) */
+    public static final int MAX_BINARY_DATA = 100_000;
+
     /** Maximum number of font data entries */
     public static final int MAX_SUM_TILL_ITERATIONS = 10000;
 

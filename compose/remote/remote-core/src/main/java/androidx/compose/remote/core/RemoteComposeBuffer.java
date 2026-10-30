@@ -17,6 +17,7 @@ package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.AddMesh2D;
+import androidx.compose.remote.core.operations.BinaryData;
 import androidx.compose.remote.core.operations.BitmapData;
 import androidx.compose.remote.core.operations.BitmapFontData;
 import androidx.compose.remote.core.operations.BitmapTextMeasure;
@@ -68,6 +69,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
 import androidx.compose.remote.core.operations.IntegerExpression;
+import androidx.compose.remote.core.operations.MapRcDocVariables;
 import androidx.compose.remote.core.operations.MatrixFromMesh2D;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
@@ -135,6 +137,7 @@ import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
@@ -2074,6 +2077,33 @@ public class RemoteComposeBuffer {
     }
 
     /**
+     * Add an embedded RemoteCompose document layout component start tag.
+     *
+     * @param componentId component id (or -1 to generate one)
+     * @param animationId animation id
+     * @param urlId text id of the embedded document URL or identifier
+     * @return the resolved component id of the created {@link RcDocLayout}
+     */
+    public int addRcDoc(int componentId, int animationId, int urlId) {
+        mLastComponentId = getComponentId(componentId);
+        RcDocLayout.apply(mBuffer, mLastComponentId, animationId, urlId);
+        return mLastComponentId;
+    }
+
+    /**
+     * Map a variable or hostAction between the host document and an embedded {@link RcDocLayout}.
+     *
+     * @param docId the component id of the target {@link RcDocLayout}
+     * @param mode the mapping mode (0=FORWARD, 1=REVERSE, 2=BIDIRECTIONAL, 3=HOST_ACTION)
+     * @param localId the variable id in the host document
+     * @param remoteTarget the text id of the remote variable name (modes 0..2) or action id (mode
+     *     3)
+     */
+    public void mapRcDocVariables(int docId, int mode, int localId, int remoteTarget) {
+        MapRcDocVariables.apply(mBuffer, docId, mode, localId, remoteTarget);
+    }
+
+    /**
      * Add a row start tag
      *
      * @param componentId component id
@@ -3079,6 +3109,18 @@ public class RemoteComposeBuffer {
      */
     public void addFont(int id, int type, byte @NonNull [] data) {
         FontData.apply(mBuffer, id, type, data);
+    }
+
+    /**
+     * Add an opaque binary blob stored under an id (see {@link BinaryData}).
+     *
+     * @param id the id the blob is registered under
+     * @param type what the bytes are, {@link BinaryData#TYPE_RAW} or {@link BinaryData#TYPE_RC_DOC}
+     * @param flags type-specific flags, 0 for now
+     * @param data the bytes
+     */
+    public void addBinaryData(int id, int type, int flags, byte @NonNull [] data) {
+        BinaryData.apply(mBuffer, id, type, flags, data);
     }
 
     /**

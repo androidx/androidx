@@ -1,0 +1,305 @@
+{
+  "header": {
+    "width": 1000,
+    "height": 1000,
+    "contentDescription": "Flappy Droid",
+    "apiLevel": 7,
+    "profiles": 512
+  },
+  "resources": {
+    "paths": {
+      "flameOrange": "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 C -22,855 -78,790 -78,700 Z",
+      "flameYellow": "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 C -14,820 -46,772 -46,712 Z",
+      "rocketBody": "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 L 124,248 C 124,158 54,54 0,0 Z",
+      "rocketShade": "M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z",
+      "rocketNozzle": "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 L -92,690 Q -124,690 -124,658 Z",
+      "droidTorso": "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 L -242,370 Q -290,370 -290,322 Z",
+      "droidHead": "M -290,0 A 290 290 0 0 1 290,0 Z"
+    }
+  },
+  "root": {
+    "box": {
+      "modifiers": [ "fillMaxSize" ],
+      "children": [
+        {
+          "canvas": {
+            "modifiers": [
+              "fillMaxSize",
+              { "onClick": [] }
+            ],
+            "commands": [
+              { "variable": { "name": "w", "value": "width", "commit": true } },
+              { "variable": { "name": "h", "value": "height", "commit": true } },
+              { "variable": { "name": "t", "value": "time", "commit": true } },
+              { "variable": { "name": "px", "value": 160.0 } },
+              { "variable": { "name": "pipeWidth", "value": 80.0 } },
+              { "variable": { "name": "flow", "value": "@t * 130.0", "commit": true } },
+              { "variable": { "name": "current", "value": 0.0, "commit": true } },
+              { "variable": { "name": "pipeX", "value": "@w - ((@flow) % (@w + 100.0))" } },
+              { "variable": { "name": "gapY", "value": "@h / 2.0 + sin(@t * 0.8) * 120.0" } },
+              { "variable": { "name": "gapHalf", "value": 110.0 } },
+              { "variable": { "name": "highScore", "value": 0.0, "commit": true } },
+              { "variable": { "name": "rounding", "value": 10.0 } },
+
+              { "paint": { "color": "#35A7FF", "style": "fill" } },
+              { "drawRect": { "left": 0.0, "top": 0.0, "right": "@w", "bottom": "@h" } },
+
+              { "paint": { "color": "#22FFFFFF", "style": "fill" } },
+              {
+                "loop": {
+                  "from": 1.0,
+                  "step": 1.0,
+                  "until": 30.0,
+                  "index": "index",
+                  "commands": [
+                    { "variable": { "name": "wrap", "value": "(@index * 123.0 + (@t * (@index / 30.0) * 123.0)) % (@w + 600.0)" } },
+                    { "variable": { "name": "pos", "value": "@w - @wrap + 300.0" } },
+                    { "drawCircle": { "cx": "@pos", "cy": "sin(@index * 323.25) * @h / 2.0 + @h / 2.0", "radius": "@index * 6.0" } },
+                    { "variable": { "name": "wrap2", "value": "smooth_step(((@t / 60.0)) % 1.0, -300.0, @w + 300.0)" } },
+                    { "variable": { "name": "pos2", "value": "@w - @wrap2 + 300.0" } },
+                    { "drawCircle": { "cx": "@pos2", "cy": "sin(@index * 124.32) * @h / 2.0 + @h / 2.0", "radius": "@index + 1.0" } }
+                  ]
+                }
+              },
+
+              { "paint": { "color": "#44FFFFFF" } },
+              {
+                "loop": {
+                  "from": 1.0,
+                  "step": 1.0,
+                  "until": 30.0,
+                  "index": "index",
+                  "commands": [
+                    { "variable": { "name": "wrap2_2", "value": "lerp(-300.0, @w + 300.0, (@t * (@index / 100.0) * abs(sin(@index))) % 1.0)" } },
+                    { "variable": { "name": "pos2_2", "value": "@w - @wrap2_2" } },
+                    { "drawCircle": { "cx": "@pos2_2", "cy": "sin(@index * 124.32) * @h / 2.0 + @h / 2.0", "radius": "@index / 6.0 + 5.0" } }
+                  ]
+                }
+              },
+
+              { "paint": { "color": "#4C9950" } },
+              { "drawRect": { "left": 0.0, "top": "@h * 0.9", "right": "@w", "bottom": "@h" } },
+
+              { "paint": { "color": "#4CAF50", "style": "fill" } },
+              { "drawRoundRect": { "left": "@pipeX", "top": -30.0, "right": "@pipeX + @pipeWidth", "bottom": "@gapY - @gapHalf", "rx": "@rounding", "ry": "@rounding" } },
+              { "drawRoundRect": { "left": "@pipeX", "top": "@gapY + @gapHalf", "right": "@pipeX + @pipeWidth", "bottom": "@h + 100.0", "rx": "@rounding", "ry": "@rounding" } },
+
+              { "variable": { "name": "isTouching", "value": "sign(max(0.0, touchTime - animationTime + 0.15))" } },
+              { "variable": { "name": "score", "value": 0.0, "commit": true } },
+
+              {
+                "impulse": {
+                  "duration": 20000.0,
+                  "start": 0.0,
+                  "commands": [
+                    {
+                      "runAction": {
+                        "commands": [
+                          { "setValue": { "target": "@current", "value": "@flow" } }
+                        ]
+                      }
+                    },
+                    {
+                      "createParticles": {
+                        "id": "ps",
+                        "variables": [ "py", "pdy" ],
+                        "initialValues": [ "@h / 2.0", "0.0" ],
+                        "count": 1
+                      }
+                    },
+                    { "variable": { "name": "dt", "value": "deltaTime" } },
+                    {
+                      "impulseProcess": {
+                        "commands": [
+                          {
+                            "particlesComparison": {
+                              "systemId": "@ps",
+                              "flags": 0,
+                              "min": 0.0,
+                              "max": 1.0,
+                              "condition": "(@pipeX - @px) * (@px - (@pipeX + @pipeWidth))",
+                              "then": [ "@py", "@pdy" ],
+                              "commands": [
+                                {
+                                  "conditionalOperations": {
+                                    "condition": "gt",
+                                    "v1": "@gapHalf",
+                                    "v2": "abs(@gapY - @py)",
+                                    "commands": [
+                                      { "variable": { "name": "hs", "value": "max(@highScore, floor(max(0.0, @flow - @current) / (@w + 100.0)))" } },
+                                      {
+                                        "runAction": {
+                                          "commands": [
+                                            { "setValue": { "target": "@highScore", "value": "@hs" } }
+                                          ]
+                                        }
+                                      },
+                                      { "paint": { "color": "#00000000" } }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "conditionalOperations": {
+                                    "condition": "gt",
+                                    "v1": "abs(@gapY - @py)",
+                                    "v2": "@gapHalf",
+                                    "commands": [
+                                      {
+                                        "runAction": {
+                                          "commands": [
+                                            { "setValue": { "target": "@current", "value": "@flow" } }
+                                          ]
+                                        }
+                                      },
+                                      { "paint": { "color": "#FF990000" } }
+                                    ]
+                                  }
+                                },
+                                { "drawCircle": { "cx": "@px", "cy": "@py", "radius": 60.0 } }
+                              ]
+                            }
+                          },
+                          {
+                            "particlesLoop": {
+                              "system": "@ps",
+                              "equations": [
+                                "min(@h * 0.95, @py + @pdy * @dt)",
+                                "(@pdy + @dt * 900.0) * (1.0 - @isTouching) - @isTouching * 200.0"
+                              ],
+                              "commands": [
+                                { "variable": { "name": "positionGap", "value": "max(0.0, @flow - @current)" } },
+                                { "variable": { "name": "floatCount", "value": "@positionGap / (@w + 100.0)", "commit": true } },
+                                { "variable": { "name": "count", "value": "floor(@floatCount)" } },
+                                { "variable": { "name": "hitWall", "value": "sign(@flow - @current)" } },
+                                { "variable": { "name": "scale", "value": "max(0.0, (@floatCount - @count - 0.9) * 10.0) + 1.0" } },
+                                { "variable": { "name": "scaleTextId", "value": { "type": "textFromFloat", "value": "@scale", "whole": 3, "decimal": 3, "flags": 0 } } },
+                                { "drawTextAnchored": { "text": "@scaleTextId", "x": "@w", "y": 0.0, "panX": 4.0, "panY": 2.0, "flags": 0 } },
+
+                                { "save": {} },
+                                { "scale": { "sx": "@scale", "sy": "@scale", "px": "@w", "py": 0.0 } },
+                                {
+                                  "paint": {
+                                    "ops": [
+                                      { "color": "#FFFFFF" },
+                                      { "style": "stroke" },
+                                      { "alpha": "2.0 - @scale" },
+                                      { "strokeWidth": 8.0 },
+                                      { "textSize": 120.0 }
+                                    ]
+                                  }
+                                },
+                                { "variable": { "name": "countTextId", "value": { "type": "textFromFloat", "value": "@count", "whole": 3, "decimal": 0, "flags": 0 } } },
+                                { "drawTextAnchored": { "text": "@countTextId", "x": "@w", "y": 0.0, "panX": 3.0, "panY": 2.0, "flags": 0 } },
+                                { "restore": {} },
+
+                                {
+                                  "paint": {
+                                    "ops": [
+                                      { "color": "#FFFF00" },
+                                      { "style": "fill" },
+                                      { "strokeWidth": 8.0 },
+                                      { "textSize": 60.0 }
+                                    ]
+                                  }
+                                },
+                                { "variable": { "name": "highScoreTextId", "value": { "type": "textFromFloat", "value": "@highScore", "whole": 3, "decimal": 0, "flags": 0 } } },
+                                { "variable": { "name": "highScoreLabel", "value": { "type": "textMerge", "id1": "HIGH SCORE :", "id2": "@highScoreTextId" } } },
+                                { "drawTextAnchored": { "text": "@highScoreLabel", "x": "@w", "y": "@h", "panX": 1.2, "panY": -2.0, "flags": 0 } },
+
+                                { "save": {} },
+                                { "translate": { "dx": "@px", "dy": "@py" } },
+                                { "variable": { "name": "tiltAngle", "value": "(@hitWall * 360.0) + ifElse(@isTouching, 15.0, -15.0)" } },
+                                { "variable": { "name": "animatedTilt", "value": { "value": "@tiltAngle", "anim": 0.2 } } },
+                                { "rotate": { "angle": "@animatedTilt" } },
+                                { "scale": { "sx": 0.14, "sy": 0.14 } },
+                                { "translate": { "dx": -650.0, "dy": -550.0 } },
+
+                                { "save": {} },
+                                { "translate": { "dx": 432.0, "dy": 283.0 } },
+                                { "rotate": { "angle": 16.0 } },
+
+                                {
+                                  "conditionalOperations": {
+                                    "condition": "gt",
+                                    "v1": "@isTouching",
+                                    "v2": 0.0,
+                                    "commands": [
+                                      { "save": {} },
+                                      { "scale": { "sx": 1.35, "sy": 1.25, "px": 0.0, "py": 700.0 } },
+                                      { "paint": { "color": "#E8710A", "style": "fill" } },
+                                      { "drawPath": { "path": "@paths.flameOrange" } },
+                                      { "paint": { "color": "#FBBC04", "style": "fill" } },
+                                      { "drawPath": { "path": "@paths.flameYellow" } },
+                                      { "restore": {} }
+                                    ]
+                                  }
+                                },
+
+                                { "paint": { "color": "#FFFFFF", "style": "fill" } },
+                                { "drawPath": { "path": "@paths.rocketBody" } },
+
+                                { "paint": { "color": "#DADCE0", "style": "fill" } },
+                                { "drawPath": { "path": "@paths.rocketShade" } },
+
+                                { "paint": { "color": "#9AA0A6", "style": "fill" } },
+                                { "drawRect": { "left": -124.0, "top": 212.0, "right": 124.0, "bottom": 270.0 } },
+
+                                { "paint": { "color": "#5F6368", "style": "fill" } },
+                                { "drawPath": { "path": "@paths.rocketNozzle" } },
+
+                                { "paint": { "color": "#1A73E8", "style": "stroke", "strokeWidth": 78.0, "strokeCap": "round" } },
+                                { "drawLine": { "x1": -15.0, "y1": 322.0, "x2": -36.0, "y2": 592.0 } },
+                                { "restore": {} },
+
+                                { "save": {} },
+                                { "translate": { "dx": 800.0, "dy": 560.0 } },
+                                { "rotate": { "angle": 14.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "stroke", "strokeWidth": 76.0, "strokeCap": "round" } },
+                                { "drawLine": { "x1": -100.0, "y1": 310.0, "x2": -150.0, "y2": 660.0 } },
+                                { "drawLine": { "x1": 100.0, "y1": 310.0, "x2": 50.0, "y2": 660.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "stroke", "strokeWidth": 110.0, "strokeCap": "round" } },
+                                { "drawLine": { "x1": 200.0, "y1": 110.0, "x2": 404.0, "y2": -42.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "stroke", "strokeWidth": 108.0, "strokeCap": "round" } },
+                                { "drawLine": { "x1": -250.0, "y1": 120.0, "x2": -395.0, "y2": 345.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "fill" } },
+                                { "drawPath": { "path": "@paths.droidTorso" } },
+
+                                { "paint": { "color": "#FFFFFF", "style": "fill" } },
+                                { "drawRect": { "left": -290.0, "top": 285.0, "right": 290.0, "bottom": 340.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "stroke", "strokeWidth": 30.0, "strokeCap": "round" } },
+                                { "drawLine": { "x1": -152.0, "y1": -247.0, "x2": -198.0, "y2": -345.0 } },
+                                { "drawLine": { "x1": 152.0, "y1": -247.0, "x2": 198.0, "y2": -345.0 } },
+
+                                { "paint": { "color": "#FFFFFF", "style": "fill" } },
+                                { "drawRect": { "left": -290.0, "top": -2.0, "right": 290.0, "bottom": 34.0 } },
+
+                                { "paint": { "color": "#72BD5A", "style": "fill" } },
+                                { "drawPath": { "path": "@paths.droidHead" } },
+
+                                { "paint": { "color": "#FFFFFF", "style": "fill" } },
+                                { "drawCircle": { "cx": -131.0, "cy": -142.0, "radius": 30.0 } },
+                                { "drawCircle": { "cx": 131.0, "cy": -142.0, "radius": 30.0 } },
+                                { "restore": {} },
+
+                                { "restore": {} }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

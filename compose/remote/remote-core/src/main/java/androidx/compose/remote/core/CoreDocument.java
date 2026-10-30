@@ -49,6 +49,7 @@ import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchOperation;
 import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
@@ -2719,6 +2720,13 @@ public class CoreDocument implements Serializable {
         boolean isShaderValid(@NonNull String shader);
     }
 
+    private @Nullable ShaderControl mShaderControl;
+
+    /** Return the current {@link ShaderControl} callback, if one has been registered. */
+    public @Nullable ShaderControl getShaderControl() {
+        return mShaderControl;
+    }
+
     /**
      * validate the shaders.
      *
@@ -2726,6 +2734,7 @@ public class CoreDocument implements Serializable {
      * @param ctl     the call back to allow evaluation of shaders
      */
     public void checkShaders(@NonNull RemoteContext context, @NonNull ShaderControl ctl) {
+        mShaderControl = ctl;
         checkShaders(context, ctl, mOperations);
     }
 
@@ -2744,6 +2753,9 @@ public class CoreDocument implements Serializable {
                     op.markNotDirty();
                     op.apply(context);
                 }
+            }
+            if (op instanceof RcDocLayout) {
+                ((RcDocLayout) op).checkShaders(ctl);
             }
             if (op instanceof Container) {
                 checkShaders(context, ctl, ((Container) op).getList());

@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.remote.core.RcResolver
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.SystemClock
@@ -77,6 +78,7 @@ public fun RemoteComposePlayer(
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
     customSupport: ComposeCustomSupport? = null,
+    rcResolver: RcResolver? = null,
 ) {
     var start by remember(document) { mutableLongStateOf(System.nanoTime()) }
     var lastAnimationTime by remember(document) { mutableFloatStateOf(0.1f) }
@@ -91,6 +93,7 @@ public fun RemoteComposePlayer(
         remember(document) {
             val composeRemoteContext = ComposeRemoteContext(SystemClock())
             composeRemoteContext.density = density
+            composeRemoteContext.rcResolver = rcResolver
             try {
                 document.initializeContext(composeRemoteContext)
             } catch (e: Exception) {
@@ -130,6 +133,7 @@ public fun RemoteComposePlayer(
         onDispose { coreDocument.clearActionCallbacks() }
     }
 
+    remoteContext.rcResolver = rcResolver
     customSupport?.setRemoteContext(remoteContext)
 
     if (disable) {

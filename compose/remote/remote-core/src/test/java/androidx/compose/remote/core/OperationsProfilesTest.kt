@@ -24,6 +24,7 @@ import androidx.compose.remote.core.Operations.ATTRIBUTE_COLOR
 import androidx.compose.remote.core.Operations.ATTRIBUTE_IMAGE
 import androidx.compose.remote.core.Operations.ATTRIBUTE_TEXT
 import androidx.compose.remote.core.Operations.ATTRIBUTE_TIME
+import androidx.compose.remote.core.Operations.BINARY_DATA
 import androidx.compose.remote.core.Operations.BITMAP_TEXT_MEASURE
 import androidx.compose.remote.core.Operations.CANVAS_OPERATIONS
 import androidx.compose.remote.core.Operations.CLICK_AREA
@@ -100,6 +101,7 @@ import androidx.compose.remote.core.Operations.LAYOUT_CUSTOM
 import androidx.compose.remote.core.Operations.LAYOUT_FIT_BOX
 import androidx.compose.remote.core.Operations.LAYOUT_FLOW
 import androidx.compose.remote.core.Operations.LAYOUT_IMAGE
+import androidx.compose.remote.core.Operations.LAYOUT_RC_DOC
 import androidx.compose.remote.core.Operations.LAYOUT_ROOT
 import androidx.compose.remote.core.Operations.LAYOUT_ROW
 import androidx.compose.remote.core.Operations.LAYOUT_STATE
@@ -110,6 +112,7 @@ import androidx.compose.remote.core.Operations.MACRO_BLOCK
 import androidx.compose.remote.core.Operations.MACRO_CALL
 import androidx.compose.remote.core.Operations.MACRO_DEFINE
 import androidx.compose.remote.core.Operations.MACRO_FOR_EACH
+import androidx.compose.remote.core.Operations.MAP_RC_DOC_VARIABLES
 import androidx.compose.remote.core.Operations.MATRIX_CONSTANT
 import androidx.compose.remote.core.Operations.MATRIX_EXPRESSION
 import androidx.compose.remote.core.Operations.MATRIX_FROM_MESH_2D
@@ -192,6 +195,7 @@ import androidx.compose.remote.core.RcProfiles.PROFILE_OEM
 import androidx.compose.remote.core.RcProfiles.PROFILE_WEAR_WIDGETS
 import androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS
 import androidx.compose.remote.core.operations.AddMesh2D
+import androidx.compose.remote.core.operations.BinaryData
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
@@ -243,6 +247,7 @@ import androidx.compose.remote.core.operations.IdLookup
 import androidx.compose.remote.core.operations.ImageAttribute
 import androidx.compose.remote.core.operations.IncludeReferencedOperations
 import androidx.compose.remote.core.operations.IntegerExpression
+import androidx.compose.remote.core.operations.MapRcDocVariables
 import androidx.compose.remote.core.operations.MatrixFromMesh2D
 import androidx.compose.remote.core.operations.MatrixFromPath
 import androidx.compose.remote.core.operations.MatrixRestore
@@ -311,6 +316,7 @@ import androidx.compose.remote.core.operations.layout.managers.Custom
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
 import androidx.compose.remote.core.operations.layout.managers.FlowLayout
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
@@ -988,6 +994,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,
@@ -1326,6 +1335,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,
@@ -1657,6 +1669,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,
@@ -1989,6 +2004,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,
@@ -2319,6 +2337,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,
@@ -2659,6 +2680,9 @@ class OperationsProfilesTest {
                     ADD_MESH_2D to AddMesh2D::class.java,
                     DRAW_MESH_2D to DrawMesh2D::class.java,
                     MATRIX_FROM_MESH_2D to MatrixFromMesh2D::class.java,
+                    LAYOUT_RC_DOC to RcDocLayout::class.java,
+                    MAP_RC_DOC_VARIABLES to MapRcDocVariables::class.java,
+                    BINARY_DATA to BinaryData::class.java,
                     MODIFIER_BORDER to BorderModifierOperation::class.java,
                     MODIFIER_CLIP_RECT to ClipRectModifierOperation::class.java,
                     DATA_PATH to PathData::class.java,

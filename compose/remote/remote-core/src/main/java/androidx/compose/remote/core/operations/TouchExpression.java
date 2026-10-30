@@ -435,6 +435,19 @@ public class TouchExpression extends Operation
     @Override
     public void apply(@NonNull RemoteContext context) {
         updateBounds(context);
+        if (context.mRemoteComposeState.isFloatOverridden(mId)) {
+            // An override (ValueFloatChange, rcDoc variable mapping, host named-variable
+            // override) set our output: take it as the new position and resume owning the id.
+            if (!mTouchDown) {
+                // Refresh min/max first (as touchDown does): on this path they may still hold
+                // the values read before layout, and the adopted value is clamped to them below.
+                updateVariables(context);
+                mUnmodified = false;
+                mEasingToStop = false;
+                mCurrentValue = context.getFloat(mId);
+            }
+            context.mRemoteComposeState.clearFloatOverride(mId);
+        }
         if (mUnmodified) {
             mCurrentValue = mOutDefValue;
             context.loadFloat(mId, wrap(mCurrentValue));
@@ -472,7 +485,7 @@ public class TouchExpression extends Operation
             mCurrentValue = value;
         }
         crossNotchCheck(context);
-        if (mStopMode == STOP_NOTCHES_SINGLE_EVEN) {
+        if (mStopMode == STOP_NOTCHES_SINGLE_EVEN && !Float.isNaN(mMaxAtDown)) {
             mCurrentValue = Math.min(mMaxAtDown, mCurrentValue);
             mCurrentValue = Math.max(mMinAtDown, mCurrentValue);
         }

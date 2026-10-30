@@ -116,7 +116,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     }
 
     /** Whether a host/action override should take precedence over the id's authored expression. */
-    internal fun isFloatOverridden(id: Int): Boolean = overriddenFloats[id] == true
+    override fun isFloatOverridden(id: Int): Boolean = overriddenFloats[id] == true
 
     // --- Integer ---
     override fun getInteger(id: Int): Int {

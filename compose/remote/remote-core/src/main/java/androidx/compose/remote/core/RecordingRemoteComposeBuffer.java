@@ -64,6 +64,7 @@ import androidx.compose.remote.core.operations.HapticFeedback;
 import androidx.compose.remote.core.operations.IdLookup;
 import androidx.compose.remote.core.operations.ImageAttribute;
 import androidx.compose.remote.core.operations.IntegerExpression;
+import androidx.compose.remote.core.operations.MapRcDocVariables;
 import androidx.compose.remote.core.operations.MatrixFromPath;
 import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixRotate;
@@ -125,6 +126,7 @@ import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
+import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
@@ -1093,6 +1095,18 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             int componentId, int animationId, int bitmapId, int scaleType, float alpha) {
         mLastComponentId = getComponentId(componentId);
         addOperation(new ImageLayout(null, componentId, animationId, bitmapId, scaleType, alpha));
+    }
+
+    @Override
+    public int addRcDoc(int componentId, int animationId, int urlId) {
+        mLastComponentId = getComponentId(componentId);
+        addOperation(new RcDocLayout(null, mLastComponentId, animationId, urlId));
+        return mLastComponentId;
+    }
+
+    @Override
+    public void mapRcDocVariables(int docId, int mode, int localId, int remoteTarget) {
+        addOperation(new MapRcDocVariables(docId, mode, localId, remoteTarget));
     }
 
     @Override

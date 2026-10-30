@@ -37,6 +37,8 @@ import androidx.compose.remote.integration.view.demos.blog.DslTouchBounceKt;
 import androidx.compose.remote.integration.view.demos.dsl.DSLJetpackDroidKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslButtonsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslControlledHorizontalScrollKt;
+import androidx.compose.remote.integration.view.demos.dsl.DslControlledScrollKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComponentDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComposeDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomViewsDemo2Kt;
@@ -79,6 +81,8 @@ import androidx.compose.remote.integration.view.demos.dsl.RcDslCountdownKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslEnumsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.RcDslTickerKt;
+import androidx.compose.remote.integration.view.demos.dsl.embedded.DemoEmbeddedRcControlKt;
+import androidx.compose.remote.integration.view.demos.dsl.embedded.DemoEmbeddedRcDocsKt;
 import androidx.compose.remote.integration.view.demos.dsl.games.DslGameAstroDodgerKt;
 import androidx.compose.remote.integration.view.demos.dsl.games.DslGameCannonShootKt;
 import androidx.compose.remote.integration.view.demos.dsl.games.DslGameFlappyDroidKt;
@@ -240,8 +244,55 @@ public abstract class DemosCreation {
         boolean dsl2 = (types & 8) != 0;
         customViews = false;
 //        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
+        boolean embedded_demo = true;
+        if (embedded_demo) {
+            demos.addAll(Arrays.asList(
+                    getp("#/000/EmbeddedRcDocs",
+                            DemoEmbeddedRcDocsKt::demoEmbeddedRcDocs),
+                    getp("#/001/EmbeddedParentToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedParentControlsChild),
+                    getp("#/002/EmbeddedChildSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildSliderToParent),
+                    getp("#/003/EmbeddedChildButtons",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildButtonsToParent),
+                    getp("#/004/EmbeddedSharedSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSharedSlider),
+                    getp("#/005/EmbeddedChildToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildToChild),
+                    getp("#/006/EmbeddedSwitchChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSwitchChild),
+                    getp("#/007/EmbeddedThreeLevels",
+                            DemoEmbeddedRcControlKt::demoEmbeddedThreeLevels),
+                    getp("#/008/EmbeddedInline",
+                            DemoEmbeddedRcControlKt::demoEmbeddedInlineDocuments),
+                    getp("#/009/ControlledScroll", DslControlledScrollKt::demoControlledScroll),
+                    getp("#/010/ControlledHorizontalScroll",
+                            DslControlledHorizontalScrollKt::demoControlledHorizontalScroll)
+
+                    ));
+            return demos;
+        }
+
         if (dsl) {
             demos.addAll(Arrays.asList(
+                    getp("#0/000/EmbeddedRcDocs",
+                            DemoEmbeddedRcDocsKt::demoEmbeddedRcDocs),
+                    getp("#0/001/EmbeddedParentToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedParentControlsChild),
+                    getp("#0/002/EmbeddedChildSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildSliderToParent),
+                    getp("#0/003/EmbeddedChildButtons",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildButtonsToParent),
+                    getp("#0/004/EmbeddedSharedSlider",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSharedSlider),
+                    getp("#0/005/EmbeddedChildToChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedChildToChild),
+                    getp("#0/006/EmbeddedSwitchChild",
+                            DemoEmbeddedRcControlKt::demoEmbeddedSwitchChild),
+                    getp("#0/007/EmbeddedThreeLevels",
+                            DemoEmbeddedRcControlKt::demoEmbeddedThreeLevels),
+                    getp("#0/008/EmbeddedInline",
+                            DemoEmbeddedRcControlKt::demoEmbeddedInlineDocuments),
                     get("0/031/ModernShowcaseDemo",
                             DslModernShowcaseDemoKt::dslModernShowcaseDemo),
                     get("0/034/dslStopwatch", DslStopwatchKt::dslStopwatchDemo),

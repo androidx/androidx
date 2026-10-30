@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RcResolver
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.BitmapLoader
@@ -42,6 +43,7 @@ internal fun RemoteDocumentComposePlayer(
     debugMode: Int = 0,
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
+    rcResolver: RcResolver? = null,
 ) {
     var inDarkTheme by remember { mutableStateOf(false) }
     var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
@@ -73,5 +75,6 @@ internal fun RemoteDocumentComposePlayer(
         debugMode = debugMode,
         onNamedAction = onNamedAction,
         bitmapLoader = bitmapLoader,
+        rcResolver = rcResolver,
     )
 }

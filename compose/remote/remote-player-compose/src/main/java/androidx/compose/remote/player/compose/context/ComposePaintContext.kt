@@ -75,7 +75,7 @@ internal class ComposePaintContext(
     var canvasCache: MutableMap<Bitmap, Canvas> = mutableMapOf()
     private var cachedFontMetrics: android.graphics.Paint.FontMetrics? = null
     private val cachedPaintChanges =
-        ComposePaintChanges(remoteContext = remoteContext, getPaint = { this.paint })
+        ComposePaintChanges(getContext = { this.mContext }, getPaint = { this.paint })
     private var customSupport: ComposeCustomSupport? = null
 
     private val matrixStack = mutableListOf(Matrix())
@@ -94,7 +94,9 @@ internal class ComposePaintContext(
         dstBottom: Int,
         cdId: Int,
     ) {
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         if (androidContext.mRemoteComposeState.containsId(imageId)) {
             val bitmap = androidContext.mRemoteComposeState.getFromId(imageId) as Bitmap?
             bitmap?.let {
@@ -183,7 +185,9 @@ internal class ComposePaintContext(
     }
 
     override fun drawBitmap(id: Int, left: Float, top: Float, right: Float, bottom: Float) {
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         if (androidContext.mRemoteComposeState.containsId(id)) {
             val bitmap = androidContext.mRemoteComposeState.getFromId(id) as Bitmap?
             val src = Rect(0, 0, bitmap!!.getWidth(), bitmap.getHeight())
@@ -431,7 +435,9 @@ internal class ComposePaintContext(
 
     override fun tweenPath(out: Int, path1: Int, path2: Int, tween: Float) {
         val p: FloatArray = getPathArray(path1, path2, tween)
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         androidContext.mRemoteComposeState.putPathData(out, p)
     }
 
@@ -448,7 +454,9 @@ internal class ComposePaintContext(
             )
         val p = Path.combine(op[operation.toInt()], p1, p2)
 
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         androidContext.mRemoteComposeState.putPath(out, p)
     }
 
@@ -887,7 +895,9 @@ internal class ComposePaintContext(
     }
 
     private fun getNativePath(id: Int, start: Float, end: Float): android.graphics.Path {
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         val p = androidContext.mRemoteComposeState.getPath(id) as? android.graphics.Path
         if (p != null) {
             return p
@@ -908,7 +918,9 @@ internal class ComposePaintContext(
     }
 
     private fun getPathArray(path1Id: Int, path2Id: Int, tween: Float): FloatArray {
-        val androidContext = mContext as ComposeRemoteContext
+        // Embedded documents (rcDoc) paint with their own RemoteContext, so only rely on the
+        // base RemoteContext API here.
+        val androidContext = mContext
         if (tween == 0.0f) {
             return androidContext.mRemoteComposeState.getPathData(path1Id)!!
         }
