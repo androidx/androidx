@@ -64,6 +64,8 @@ object SensorPatternUtil {
     private val LIMITED = setOf(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
     private val FULL = setOf(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
     private val LEVEL_3 = setOf(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+    private val IDENTITY_COLOR_SPACE_TRANSFORM =
+        ColorSpaceTransform(intArrayOf(1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1))
 
     /** The color channel to be used for the solid color test pattern. */
     enum class ColorChannel {
@@ -116,7 +118,7 @@ object SensorPatternUtil {
 
         with(Camera2InteropUtil.Camera2CameraInfoWrapper.from(implName, cameraInfo)) {
             val availableTestPatterns = getCameraCharacteristic(SENSOR_AVAILABLE_TEST_PATTERN_MODES)
-            if (availableTestPatterns?.contains(SENSOR_TEST_PATTERN_MODE_SOLID_COLOR) == false) {
+            if (availableTestPatterns?.contains(SENSOR_TEST_PATTERN_MODE_SOLID_COLOR) != true) {
                 throw AssumptionViolatedException(
                     "Camera does not support solid color test pattern."
                 )
@@ -322,9 +324,7 @@ object SensorPatternUtil {
 
                         setCaptureRequestOption(
                             COLOR_CORRECTION_TRANSFORM,
-                            ColorSpaceTransform(
-                                intArrayOf(1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1)
-                            ),
+                            IDENTITY_COLOR_SPACE_TRANSFORM,
                         )
                     }
 
