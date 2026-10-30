@@ -75,6 +75,8 @@ class ComposeViewAdapterTest {
         observedWearReduceMotion = null
         observedWrapperWearReduceMotion = null
         expandAutoCenteringScalingLazyListState = null
+        scrollToEndLazyListState = null
+        scrollToEndScrollState = null
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
@@ -1468,6 +1470,184 @@ class ComposeViewAdapterTest {
             "height=$height expected=$expectedHeight",
             abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
         )
+    }
+
+    private val scrollToEndClassName = "androidx.compose.ui.tooling.ScrollToEndPreviewKt"
+
+    /**
+     * Measures the adapter with an EXACTLY height spec of [heightPx] and its current width, lays it
+     * out, runs [onLaidOut] and returns its measured height. Everything runs in the same UI thread
+     * task, so the adapter is not laid out again by its parent in between.
+     */
+    private fun measureAndLayoutAtHeight(heightPx: Int, onLaidOut: () -> Unit): Int {
+        var measuredHeight = -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.width,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY),
+            )
+            measuredHeight = composeViewAdapter.measuredHeight
+            composeViewAdapter.layout(
+                composeViewAdapter.left,
+                composeViewAdapter.top,
+                composeViewAdapter.left + composeViewAdapter.measuredWidth,
+                composeViewAdapter.top + measuredHeight,
+            )
+            onLaidOut()
+        }
+        return measuredHeight
+    }
+
+    /**
+     * Asserts that the list of [ScrollToEndLazyColumnPreview] displays its last item. Must be
+     * called on the UI thread.
+     */
+    private fun assertLazyColumnScrolledToEnd(expectedViewportHeight: Int? = null) {
+        val state = scrollToEndLazyListState!!
+        assertFalse(state.canScrollForward)
+        val layoutInfo = state.layoutInfo
+        val lastItem = layoutInfo.visibleItemsInfo.last()
+        assertEquals(SCROLL_TO_END_ITEM_COUNT - 1, lastItem.index)
+        assertTrue(lastItem.offset + lastItem.size <= layoutInfo.viewportEndOffset)
+        if (expectedViewportHeight != null) {
+            assertEquals(expectedViewportHeight, layoutInfo.viewportSize.height)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_lazyColumn_showsLastItem() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertLazyColumnScrolledToEnd() }
+    }
+
+    @Test
+    fun scrollToEnd_reverseLayoutLazyColumn_showsLastItem() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndReverseLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread { assertLazyColumnScrolledToEnd() }
+    }
+
+    @Test
+    fun scrollToEnd_lazyColumn_measuredSizeIsUnchanged() {
+        initAndWaitForDraw(scrollToEndClassName, "ScrollToEndLazyColumnPreview")
+        var normalSize = -1 to -1
+        activityTestRule.runOnUiThread {
+            normalSize = composeViewAdapter.width to composeViewAdapter.height
+        }
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(normalSize, composeViewAdapter.width to composeViewAdapter.height)
+        }
+
+        // Measuring again at a smaller height scrolls the list to its end at that height.
+        val height =
+            measureAndLayoutAtHeight(400) {
+                assertLazyColumnScrolledToEnd(expectedViewportHeight = 400)
+            }
+        assertEquals(400, height)
+
+        // Subsequent measurements at the same size (e.g. Interactive Preview frames) must not
+        // re-scroll to the end after the user scrolls away.
+        activityTestRule.runOnUiThread {
+            scrollToEndLazyListState!!.dispatchRawDelta(-200f)
+            assertTrue(scrollToEndLazyListState!!.canScrollForward)
+            composeViewAdapter.forceLayout()
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    composeViewAdapter.measuredWidth,
+                    View.MeasureSpec.EXACTLY,
+                ),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            assertTrue(scrollToEndLazyListState!!.canScrollForward)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_verticalScrollColumn_isScrolledToEnd() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndVerticalScrollColumnPreview",
+            device = SCROLL_TO_END_DEVICE,
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndScrollState!!
+            assertTrue(state.maxValue > 0)
+            assertEquals(state.maxValue, state.value)
+        }
+    }
+
+    @Test
+    fun scrollToEnd_withoutScrollTo_isNotScrolled() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "spec:width=411dp,height=891dp",
+        )
+        activityTestRule.runOnUiThread {
+            val state = scrollToEndLazyListState!!
+            assertEquals(0, state.firstVisibleItemIndex)
+            assertEquals(0, state.firstVisibleItemScrollOffset)
+            assertTrue(state.canScrollForward)
+        }
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndVerticalScrollColumnPreview",
+            device = "spec:width=411dp,height=891dp,scrollTo=start",
+        )
+        activityTestRule.runOnUiThread { assertEquals(0, scrollToEndScrollState!!.value) }
+    }
+
+    @Test
+    fun scrollToEnd_withExpandVertical_isIgnored() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "$EXPAND_VERTICAL_DEVICE,scrollTo=end",
+        )
+        // Not expanded since the height spec is not UNSPECIFIED: the list could scroll, but it is
+        // not scrolled since scrollTo is ignored when expanding vertically.
+        val height =
+            measureAndLayoutAtHeight(400) {
+                val state = scrollToEndLazyListState!!
+                assertTrue(state.canScrollForward)
+                assertEquals(0, state.firstVisibleItemIndex)
+                assertEquals(0, state.firstVisibleItemScrollOffset)
+            }
+        assertEquals(400, height)
+    }
+
+    @Test
+    fun scrollToEnd_withExpandHorizontal_scrollsVertically() {
+        initAndWaitForDraw(
+            scrollToEndClassName,
+            "ScrollToEndLazyColumnPreview",
+            device = "$EXPAND_HORIZONTAL_DEVICE,scrollTo=end",
+        )
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(100, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.EXACTLY),
+            )
+            // Nothing scrolls horizontally: the adapter is as wide as the viewport.
+            assertEquals(100, composeViewAdapter.measuredWidth)
+            assertEquals(400, composeViewAdapter.measuredHeight)
+            assertLazyColumnScrolledToEnd(expectedViewportHeight = 400)
+        }
     }
 
     private fun checkDesignInfoList(

@@ -16,15 +16,20 @@
 
 package androidx.compose.ui.tooling
 
+import android.util.Log
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.MotionDurationScale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.ScrollAxisRange
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -34,16 +39,24 @@ import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.data.asTree
 import java.lang.reflect.Field
+import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // Spec parameter keys (normalized lowercase for lookup)
 private const val PARAM_EXPAND = "expand"
 private const val PARAM_MAX_HEIGHT = "maxheight"
 private const val PARAM_MAX_WIDTH = "maxwidth"
+private const val PARAM_SCROLL_TO = "scrollto"
 
 // Spec parameter values
 private const val EXPAND_VERTICAL = "vertical"
 private const val EXPAND_HORIZONTAL = "horizontal"
+private const val SCROLL_TO_END = "end"
 
 /**
  * Default maximum size, in pixels, of the expanded axis of a preview, used when the device spec
@@ -53,6 +66,27 @@ internal const val DEFAULT_EXPAND_MAX_SIZE_PX = 4096
 
 /** Remaining scroll range, in pixels, below which a scrollable container is considered to fit. */
 private const val SCROLL_OVERFLOW_TOLERANCE_PX = 0.5f
+
+/**
+ * Maximum number of steps taken to scroll the vertically scrollable containers of a preview to
+ * their end with `scrollTo=end`. Each step scrolls every container by at least its viewport height.
+ */
+private const val MAX_SCROLL_TO_END_STEPS = 50
+
+/**
+ * Context in which [SemanticsActions.ScrollByOffset] completes synchronously on its first frame
+ * when started undispatched, using an immediate [MonotonicFrameClock] and a `0f`
+ * [MotionDurationScale].
+ */
+internal val immediateScrollContext =
+    Dispatchers.Unconfined +
+        object : MonotonicFrameClock {
+            override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R = onFrame(0L)
+        } +
+        object : MotionDurationScale {
+            override val scaleFactor: Float
+                get() = 0f
+        }
 
 /** Kotlin file class declaring Wear Compose's `LocalReduceMotion`. */
 private const val WEAR_COMPOSITION_LOCALS_CLASS =
@@ -276,6 +310,30 @@ internal fun parsePreviewExpandSettings(
 }
 
 /**
+ * Where the vertically scrollable content of a preview is scrolled to, from the `scrollTo` device
+ * spec key.
+ */
+internal sealed interface PreviewScrollTarget {
+    /** `scrollTo=end`: every vertically scrollable container is scrolled to its end. */
+    data object End : PreviewScrollTarget
+}
+
+/**
+ * Parses the scroll target from a `spec:` device string, e.g.
+ * `spec:parent=wearos_large_round,scrollTo=end`. The only supported `scrollTo` value is `end`
+ * (case-insensitive), which renders the preview as it looks after scrolling all its vertically
+ * scrollable containers to their end.
+ *
+ * Returns null, meaning that the containers are not scrolled, when [deviceSpec] is not a `spec:`
+ * string or when `scrollTo` is absent or invalid.
+ */
+internal fun parsePreviewScrollTarget(deviceSpec: String?): PreviewScrollTarget? =
+    when (parseDeviceSpecParams(deviceSpec)?.get(PARAM_SCROLL_TO)) {
+        SCROLL_TO_END -> PreviewScrollTarget.End
+        else -> null
+    }
+
+/**
  * Parses a size with a required `dp` or `px` suffix (e.g. `1200dp`, `3000px`) into pixels. Returns
  * null if [value] is null, has no valid unit or number, or is smaller than one pixel.
  */
@@ -326,6 +384,71 @@ internal fun forceAncestorLayouts(view: View) {
 
 internal fun layoutComposeView(composeView: ComposeView) {
     composeView.layout(0, 0, composeView.measuredWidth, composeView.measuredHeight)
+}
+
+/**
+ * Sends pending snapshot notifications and forces [composeView] to re-measure with [measure] and
+ * lay out at its current dimensions.
+ */
+private fun remeasureAndLayoutAfterStateChange(composeView: ComposeView, measure: () -> Unit) {
+    Snapshot.sendApplyNotifications()
+    composeView.forceLayout()
+    composeView.getChildAt(0)?.forceLayout()
+    measure()
+    layoutComposeView(composeView)
+}
+
+/**
+ * Scrolls every vertically scrollable container in the composition to its end in up to
+ * [MAX_SCROLL_TO_END_STEPS] steps, re-measuring and laying out after each step so lazy lists
+ * compose newly visible items and update their scroll range. See [ComposeViewAdapter].
+ */
+internal fun scrollToEnd(composeView: ComposeView, tag: String, measure: () -> Unit) {
+    layoutComposeView(composeView)
+    repeat(MAX_SCROLL_TO_END_STEPS) {
+        val root = composeView.getChildAt(0) as? RootForTest ?: return
+        var scrolled = false
+        for (node in root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = false)) {
+            if (node.layoutInfo.isAttached && node.scrollTowardsEnd(tag)) scrolled = true
+        }
+        if (!scrolled) return
+        remeasureAndLayoutAfterStateChange(composeView, measure)
+    }
+}
+
+/**
+ * Scrolls this vertically scrollable node synchronously towards its end by at least its viewport
+ * height via [SemanticsActions.ScrollByOffset] in [immediateScrollContext]. Returns true if it
+ * scrolled. See [ComposeViewAdapter].
+ */
+private fun SemanticsNode.scrollTowardsEnd(tag: String): Boolean {
+    val range = config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) ?: return false
+    val remaining = range.maxValue() - range.value()
+    if (remaining <= SCROLL_OVERFLOW_TOLERANCE_PX) return false
+    val scrollByOffset = config.getOrNull(SemanticsActions.ScrollByOffset) ?: return false
+    val scrollHeight =
+        if (remaining.isFinite()) maxOf(remaining, size.height.toFloat()) else size.height.toFloat()
+    val offset = Offset(0f, scrollHeight)
+    var consumed: Offset? = null
+    val job =
+        CoroutineScope(immediateScrollContext).launch(start = CoroutineStart.UNDISPATCHED) {
+            consumed =
+                try {
+                    scrollByOffset(offset)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(tag, "Failed to scroll the preview to its end", e)
+                    Offset.Zero
+                }
+        }
+    val result = consumed
+    if (result == null) {
+        job.cancel()
+        Log.w(tag, "Scrolling the preview to its end did not complete synchronously")
+        return false
+    }
+    return abs(result.y) > SCROLL_OVERFLOW_TOLERANCE_PX
 }
 
 /**

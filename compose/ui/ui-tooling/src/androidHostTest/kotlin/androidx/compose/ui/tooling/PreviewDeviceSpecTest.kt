@@ -38,6 +38,7 @@ class PreviewDeviceSpecTest {
                 "expand",
                 "maxHeight",
                 "maxWidth",
+                "scrollTo",
             ),
             supportedParameters.split(',').toSet(),
         )

@@ -55,6 +55,8 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalFontLoader
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.ViewRootForTest
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
@@ -145,7 +147,13 @@ internal data class ViewInfo(
  *   adapter is measured with an unbounded height, it grows vertically so that vertically scrollable
  *   containers display all their content, up to `maxHeight` (e.g. `maxHeight=1200dp`, defaults to
  *   [DEFAULT_EXPAND_MAX_SIZE_PX] pixels). Likewise, with `expand=horizontal`, when measured with an
- *   unbounded width, it grows horizontally up to `maxWidth`. See [parsePreviewExpandSettings].
+ *   unbounded width, it grows horizontally up to `maxWidth`. See [parsePreviewExpandSettings]. With
+ *   `scrollTo=end` (ignored with `expand=vertical`), the preview is rendered at its normal size
+ *   with all its vertically scrollable containers scrolled to their end: after measuring, each
+ *   container with a [SemanticsProperties.VerticalScrollAxisRange] is stepped synchronously towards
+ *   its end via [SemanticsActions.ScrollByOffset] in [immediateScrollContext], re-measuring and
+ *   laying out after each step so lazy lists compose newly visible items. See
+ *   [parsePreviewScrollTarget].
  */
 @Suppress("unused")
 @OptIn(UiToolingDataApi::class)
@@ -245,6 +253,22 @@ internal class ComposeViewAdapter : FrameLayout {
      * so the expanded size is recomputed for the new cross-axis dimension.
      */
     private var expandedCrossAxisMeasureSpec: Int = 0
+
+    /**
+     * Whether the vertically scrollable containers of the preview are scrolled to their end before
+     * it is rendered, as asked by `scrollTo=end` in [device]. Always false when expanding
+     * vertically, since the containers then display all their content.
+     */
+    private var isScrollToEndEnabled = false
+
+    /**
+     * Adapter dimensions at which [scrollToEnd] last ran for the current composition, or `-1` if it
+     * has not run yet. Skipping [scrollToEnd] on subsequent measurements at the same size avoids
+     * re-scrolling on every frame in Interactive Preview (which would snap the user's scroll back
+     * to the end) while still scrolling to the end if the preview is resized.
+     */
+    private var lastScrolledToEndWidth: Int = -1
+    private var lastScrolledToEndHeight: Int = -1
 
     private val debugBoundsPaint =
         Paint().apply {
@@ -354,6 +378,7 @@ internal class ComposeViewAdapter : FrameLayout {
             }
         if (settings == null || axisMeasureSpec == null) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            scrollToEndIfNeeded { super.onMeasure(widthMeasureSpec, heightMeasureSpec) }
             return
         }
         val axis = settings.axis
@@ -394,7 +419,7 @@ internal class ComposeViewAdapter : FrameLayout {
             // leaving the preview freshly composed, measured at that exact size (so root containers
             // using fillMaxSize() do not leave trailing space) and laid out.
             val viewportSize = MeasureSpec.getSize(axisMeasureSpec).coerceIn(0, boundedSize)
-            expandedSizePx =
+            val targetSize =
                 findExpandedSize(
                     composeView = composeView,
                     slotTableRecord = slotTableRecord,
@@ -404,6 +429,10 @@ internal class ComposeViewAdapter : FrameLayout {
                     measureExactly = measureExactly,
                     recreateComposition = ::recreateComposition,
                 )
+            // Only reachable when expanding horizontally: scrollTo is ignored when expanding
+            // vertically.
+            scrollToEndIfNeeded { measureExactly(targetSize) }
+            expandedSizePx = targetSize
             expandedCrossAxisMeasureSpec = crossAxisMeasureSpec
         } else if (expandedSizePx >= 0) {
             // Once expanded, keep measuring at expandedSizePx even when LayoutLib's
@@ -415,6 +444,7 @@ internal class ComposeViewAdapter : FrameLayout {
             layoutComposeView(composeView)
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            scrollToEndIfNeeded { super.onMeasure(widthMeasureSpec, heightMeasureSpec) }
             return
         }
 
@@ -440,7 +470,24 @@ internal class ComposeViewAdapter : FrameLayout {
             clock.dispose()
         }
         (slotTableRecord.store as? MutableSet<*>)?.clear()
+        lastScrolledToEndWidth = -1
+        lastScrolledToEndHeight = -1
         composeView.setContent(previewComposition)
+    }
+
+    /**
+     * Runs [scrollToEnd] when [isScrollToEndEnabled] is true and the adapter's measured dimensions
+     * have changed since the last scroll-to-end pass for the current composition. See
+     * [ComposeViewAdapter].
+     */
+    private inline fun scrollToEndIfNeeded(crossinline measure: () -> Unit) {
+        if (!isScrollToEndEnabled) return
+        if (measuredWidth == lastScrolledToEndWidth && measuredHeight == lastScrolledToEndHeight) {
+            return
+        }
+        scrollToEnd(composeView, TAG) { measure() }
+        lastScrolledToEndWidth = measuredWidth
+        lastScrolledToEndHeight = measuredHeight
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -731,7 +778,8 @@ internal class ComposeViewAdapter : FrameLayout {
      *   [designInfoList].
      * @param device preview device specification string (e.g. "spec:width=411dp,..."). Also defines
      *   whether the adapter expands to display all the scrollable content, see
-     *   [parsePreviewExpandSettings].
+     *   [parsePreviewExpandSettings], and whether the scrollable content is scrolled to its end,
+     *   see [parsePreviewScrollTarget].
      * @param onCommit callback invoked after every commit of the preview composable.
      * @param onDraw callback invoked after every draw of the adapter. Only for test use.
      */
@@ -768,6 +816,14 @@ internal class ComposeViewAdapter : FrameLayout {
         this.expandSettings = parsePreviewExpandSettings(device, resources.displayMetrics.density)
         this.expandedSizePx = -1
         this.expandedCrossAxisMeasureSpec = 0
+        this.lastScrolledToEndWidth = -1
+        this.lastScrolledToEndHeight = -1
+        // Scrolling would be a no-op when expanding vertically: all the content is visible.
+        this.isScrollToEndEnabled =
+            when (parsePreviewScrollTarget(device)) {
+                PreviewScrollTarget.End -> !isVerticalExpansionEnabled
+                null -> false
+            }
         previewComposition =
             @Composable {
                 SideEffect(onCommit)
@@ -804,6 +860,8 @@ internal class ComposeViewAdapter : FrameLayout {
         }
         expandedSizePx = -1
         expandedCrossAxisMeasureSpec = 0
+        lastScrolledToEndWidth = -1
+        lastScrolledToEndHeight = -1
         FakeSavedStateRegistryOwner.lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         FakeViewModelStoreOwner.viewModelStore.clear()
     }
