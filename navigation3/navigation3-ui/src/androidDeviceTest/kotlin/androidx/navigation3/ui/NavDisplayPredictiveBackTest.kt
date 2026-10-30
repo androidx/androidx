@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -666,5 +667,102 @@ class NavDisplayPredictiveBackTest {
             .that(incomingDetailLeftAfterCommit)
             .isWithin(1f)
             .of(leftPaneWidthPx)
+    }
+
+    @Test
+    fun testCancelPredictiveBackAfterPop() {
+        val input = DirectNavigationEventInput()
+        lateinit var backStack: MutableList<Any>
+
+        composeTestRule.setContent {
+            val navEventDispatcher =
+                LocalNavigationEventDispatcherOwner.current!!.navigationEventDispatcher
+            DisposableEffect(navEventDispatcher) {
+                navEventDispatcher.addInput(input)
+                onDispose { navEventDispatcher.removeInput(input) }
+            }
+            backStack = remember { mutableStateListOf(first, second, third) }
+            NavDisplay(
+                backStack = backStack,
+                transitionSpec = {
+                    slideInHorizontally(
+                        animationSpec = tween(1000, easing = LinearEasing),
+                        initialOffsetX = { it },
+                    ) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(1000, easing = LinearEasing),
+                            targetOffsetX = { -it },
+                        )
+                },
+                popTransitionSpec = {
+                    slideInHorizontally(
+                        animationSpec = tween(1000, easing = LinearEasing),
+                        initialOffsetX = { -it },
+                    ) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(1000, easing = LinearEasing),
+                            targetOffsetX = { it },
+                        )
+                },
+                predictivePopTransitionSpec = {
+                    slideInHorizontally(
+                        animationSpec = tween(1000, easing = LinearEasing),
+                        initialOffsetX = { -it },
+                    ) togetherWith
+                        slideOutHorizontally(
+                            animationSpec = tween(1000, easing = LinearEasing),
+                            targetOffsetX = { it },
+                        )
+                },
+                onBack = { backStack.removeAt(backStack.lastIndex) },
+            ) { key ->
+                NavEntry(key) { Box(Modifier.fillMaxSize()) { Text(key.toString()) } }
+            }
+        }
+
+        // Pop to an intermediate screen before starting predictive back
+        composeTestRule.runOnIdle { backStack.removeAt(backStack.lastIndex) }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.runOnIdle {
+            input.backStarted(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5f,
+                    touchX = 0.1f,
+                    touchY = 0.1f,
+                )
+            )
+            input.backProgressed(
+                NavigationEvent(
+                    swipeEdge = NavigationEvent.EDGE_LEFT,
+                    progress = 0.5f,
+                    touchX = 0.1f,
+                    touchY = 0.1f,
+                )
+            )
+        }
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        val firstXBeforeCancel =
+            composeTestRule.onNodeWithText(first).fetchSemanticsNode().positionInRoot.x
+
+        // Cancel predictive back and verify the peeking screen slides back left off-screen
+        composeTestRule.runOnIdle { input.backCancelled() }
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.mainClock.advanceTimeBy(200)
+
+        val firstXDuringCancel =
+            composeTestRule.onNodeWithText(first).fetchSemanticsNode().positionInRoot.x
+        assertThat(firstXDuringCancel).isLessThan(firstXBeforeCancel)
+
+        composeTestRule.mainClock.autoAdvance = true
+        composeTestRule.waitForIdle()
+        assertThat(composeTestRule.onNodeWithText(second).isDisplayed()).isTrue()
+        composeTestRule.onNodeWithText(first).assertDoesNotExist()
     }
 }
