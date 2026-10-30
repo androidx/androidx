@@ -251,6 +251,7 @@ constructor(
                             setShortTitle(input.title?.asWearSdkComplicationText())
                             setIcon(input.monochromaticImage?.image)
                             setBurnInProtectionIcon(input.monochromaticImage?.ambientImage)
+                            input.smallImage?.addToWearSdkComplicationData(this)
                             setContentDescription(
                                 input.contentDescription?.asWearSdkComplicationText()
                             )
@@ -266,6 +267,7 @@ constructor(
                             setLongTitle(input.title?.asWearSdkComplicationText())
                             setIcon(input.monochromaticImage?.image)
                             setBurnInProtectionIcon(input.monochromaticImage?.ambientImage)
+                            input.smallImage?.addToWearSdkComplicationData(this)
                             setContentDescription(
                                 input.contentDescription?.asWearSdkComplicationText()
                             )
@@ -345,6 +347,7 @@ constructor(
                             setShortTitle(input.title?.asWearSdkComplicationText())
                             setIcon(input.monochromaticImage?.image)
                             setBurnInProtectionIcon(input.monochromaticImage?.ambientImage)
+                            input.smallImage?.addToWearSdkComplicationData(this)
                         }
                 is GoalProgressComplicationData ->
                     WearSdkComplicationData.Builder(
