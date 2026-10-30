@@ -53,13 +53,19 @@ internal class RemoteViewsActions(
     private val widgetName: String?,
 ) {
     /**
-     * The [PendingIntent] a tap runs [action] with, or `null` when the view should ignore taps:
-     * [action] is `null`, or it is a [GlanceWidgetAction.Callback] and there is no widget name to
-     * deliver it to.
+     * Whether a view with [action] runs it when tapped: [action] is not `null`, and it is not a
+     * [GlanceWidgetAction.Callback] with no widget name to deliver it to.
+     */
+    fun isTappable(action: GlanceWidgetAction?): Boolean =
+        action != null && (widgetName != null || action !is GlanceWidgetAction.Callback)
+
+    /**
+     * The [PendingIntent] a tap runs [action] with, or `null` when the view should ignore taps (see
+     * [isTappable]).
      */
     fun pendingIntentFor(action: GlanceWidgetAction?): PendingIntent? {
         if (action == null) return null
-        if (widgetName == null && action is GlanceWidgetAction.Callback) {
+        if (!isTappable(action)) {
             Log.w(TAG, "Ignoring $action: a callback needs the name of the widget it is drawn for.")
             return null
         }

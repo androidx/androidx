@@ -16,8 +16,8 @@
   -->
 <!--
   Matrix header laid out as a label, for a card that sizes its leading component itself, such as a
-  compact card or a Dashboard header: the leading slot, then the primary text with the optional
-  secondary text under it. Unlike the row header, it has no 56dp minimum height, so it is as tall
+  compact card or a Dashboard header: the leading slot, the primary text with the optional
+  secondary text under it, then the optional trailing slot. Unlike the row header, it has no 56dp minimum height, so it is as tall
   as its tallest slot. The 8dp gap after the leading component is the leading slot's padding, so it
   goes with the slot when there is no leading component.
 -->
@@ -57,4 +57,15 @@
             android:textAppearance="@style/GlanceAdaptiveAppwidgetRemoteviews.TextAppearance.Medium"
             android:textColor="@color/glance_adaptive_appwidget_remoteviews_primary" />
     </LinearLayout>
+
+    <!--
+      Trailing slot, such as a button. The 8dp gap before it is its padding, so it goes with the
+      slot when there is no trailing component.
+    -->
+    <FrameLayout
+        android:id="@+id/glance_adaptive_appwidget_remoteviews_slot_trailing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:visibility="gone" />
 </LinearLayout>

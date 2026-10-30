@@ -28,6 +28,8 @@ import androidx.glance.adaptive.appwidget.components.badge.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.graph.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.icon.buildRemoteViews
+import androidx.glance.adaptive.appwidget.components.iconbutton.IconButtonDefaults
+import androidx.glance.adaptive.appwidget.components.iconbutton.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.ring.buildRemoteViews
 import androidx.glance.adaptive.appwidget.components.setCornerRadius
 import androidx.glance.adaptive.appwidget.components.setOptionalText
@@ -124,7 +126,7 @@ private fun renderMatrix(
 ): RemoteViews =
     when (content) {
         is MatrixCardContent -> matrixCard(taps, resolve(content, surface))
-        is MatrixBulbContent -> matrixBulb(taps.context, resolve(content, surface))
+        is MatrixBulbContent -> matrixBulb(taps, resolve(content, surface))
     }
 
 /**
@@ -153,10 +155,14 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     views.setViewPadding(android.R.id.background, padding, padding, padding, padding)
     card.cornerRadius?.let { views.setCornerRadius(android.R.id.background, it) }
 
-    val hasHeader = card.leading != null || card.primary != null || card.secondary != null
+    val hasHeader =
+        card.leading != null ||
+            card.primary != null ||
+            card.secondary != null ||
+            card.trailing != null
     views.setSlot(
         R.id.glance_adaptive_appwidget_remoteviews_slot_header,
-        if (hasHeader) header(context, card) else null,
+        if (hasHeader) header(taps, card) else null,
     )
 
     val hero = card.hero
@@ -164,7 +170,8 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     val hasActions = actions.isNotEmpty()
     views.setSlot(
         R.id.glance_adaptive_appwidget_remoteviews_slot_hero,
-        hero?.toRemoteViews(context, card.tiers),
+        hero?.toRemoteViews(taps, card.tiers),
+        tappable = hero?.isTappable(taps) == true,
     )
     if (hero != null) {
         // The gaps either side of the hero are its padding, so it still absorbs all the slack.
@@ -193,13 +200,15 @@ private fun matrixCard(taps: RemoteViewsActions, card: ResolvedMatrixCard): Remo
     views.setSpreadSlot(
         context,
         R.id.glance_adaptive_appwidget_remoteviews_slot_supporting,
-        List(actions.size) { i -> actions[i]?.toRemoteViews(context) },
+        List(actions.size) { i -> actions[i]?.toRemoteViews(taps) },
+        tappable = List(actions.size) { i -> actions[i]?.isTappable(taps) == true },
     )
     return views
 }
 
 /** The header slots, in a row or stacked. */
-private fun header(context: Context, card: ResolvedMatrixCard): RemoteViews {
+private fun header(taps: RemoteViewsActions, card: ResolvedMatrixCard): RemoteViews {
+    val context = taps.context
     val layout =
         when {
             card.stacked -> R.layout.glance_adaptive_appwidget_remoteviews_matrix_header_stacked
@@ -225,9 +234,17 @@ private fun header(context: Context, card: ResolvedMatrixCard): RemoteViews {
         card.secondary?.text(),
         MatrixDefaults.SecondaryTextSize.value,
     )
-    card.trailing?.toRemoteViews()
     // In a row, the secondary text is measured before the weighted primary text, so it is capped
     // and ellipsized rather than left to squeeze the primary text out.
+    // Only a row has a trailing slot; resolve() drops the trailing component of a stacked header.
+    if (!card.stacked) {
+        val trailing = card.trailing
+        views.setSlot(
+            R.id.glance_adaptive_appwidget_remoteviews_slot_trailing,
+            trailing?.toRemoteViews(taps, card.trailingSize),
+            tappable = trailing?.isTappable(taps) == true,
+        )
+    }
     card.secondaryMaxWidth?.let {
         views.setInt(
             R.id.glance_adaptive_appwidget_remoteviews_secondary,
@@ -239,12 +256,16 @@ private fun header(context: Context, card: ResolvedMatrixCard): RemoteViews {
 }
 
 /** The bulb: its component, centered, with no card. */
-private fun matrixBulb(context: Context, bulb: ResolvedMatrixBulb): RemoteViews {
+private fun matrixBulb(taps: RemoteViewsActions, bulb: ResolvedMatrixBulb): RemoteViews {
     val views =
-        RemoteViews(context.packageName, R.layout.glance_adaptive_appwidget_remoteviews_matrix_bulb)
+        RemoteViews(
+            taps.context.packageName,
+            R.layout.glance_adaptive_appwidget_remoteviews_matrix_bulb,
+        )
     views.setSlot(
         android.R.id.background,
-        bulb.component.toRemoteViews(context, bulb.containerSize),
+        bulb.component.toRemoteViews(taps, bulb.containerSize),
+        tappable = bulb.component.isTappable(taps),
     )
     return views
 }
@@ -274,32 +295,62 @@ private fun SecondaryComponent.text(): CharSequence =
         is TemplateText -> value
     }
 
-private fun TrailingComponent.toRemoteViews(): RemoteViews =
+private fun TrailingComponent.toRemoteViews(taps: RemoteViewsActions, size: Dp): RemoteViews =
     when (this) {
-        is IconButton -> notDrawnYet()
+        is IconButton ->
+            buildRemoteViews(
+                taps,
+                diameter = size,
+                glyphSize = size * IconButtonDefaults.TrailingGlyphRatio,
+            )
     }
 
-private fun HeroComponent.toRemoteViews(context: Context, tiers: SizeTiers): RemoteViews =
+private fun HeroComponent.toRemoteViews(taps: RemoteViewsActions, tiers: SizeTiers): RemoteViews =
     when (this) {
-        is Graph -> buildRemoteViews(context, Graph.barSpacing(tiers))
+        is Graph -> buildRemoteViews(taps.context, Graph.barSpacing(tiers))
         is IconGrid -> notDrawnYet()
     }
 
-private fun ActionComponent.toRemoteViews(context: Context): RemoteViews =
+private fun ActionComponent.toRemoteViews(taps: RemoteViewsActions): RemoteViews =
     when (this) {
-        is TemplateText -> buildSupportingRemoteViews(context)
-        is Badge -> buildRemoteViews(context)
-        is IconButton -> notDrawnYet()
+        is TemplateText -> buildSupportingRemoteViews(taps.context)
+        is Badge -> buildRemoteViews(taps.context)
+        is IconButton ->
+            buildRemoteViews(
+                taps,
+                diameter = IconButtonDefaults.ActionSize,
+                glyphSize = IconButtonDefaults.ActionGlyphSize,
+            )
     }
 
-private fun BulbComponent.toRemoteViews(context: Context, containerSize: Dp): RemoteViews =
+private fun BulbComponent.toRemoteViews(taps: RemoteViewsActions, containerSize: Dp): RemoteViews =
     when (this) {
-        is ContainedRing -> buildRemoteViews(context, containerSize)
-        is IconButton -> notDrawnYet()
+        is ContainedRing -> buildRemoteViews(taps.context, containerSize)
+        is IconButton ->
+            buildRemoteViews(
+                taps,
+                diameter = containerSize,
+                glyphSize = IconButtonDefaults.bulbGlyphSize(containerSize),
+            )
     }
 
-// TODO(b/580007927): Draw the button and icon grid components. Until then no selector places
-//  them.
+/**
+ * Whether this component runs an action when tapped, which decides the stable ID it is added under
+ * (see [androidx.glance.adaptive.appwidget.components.tappableStableId]).
+ */
+private fun SlotComponent.isTappable(taps: RemoteViewsActions): Boolean =
+    when (this) {
+        is IconButton -> taps.isTappable(action)
+        is TemplateText,
+        is Ring,
+        is Graph,
+        is Badge,
+        is ContainedRing,
+        is Icon,
+        is IconGrid -> false
+    }
+
+// TODO(b/580007927): Draw the icon grid. Until then no selector places it.
 private fun SlotComponent.notDrawnYet(): Nothing =
     throw UnsupportedOperationException(
         "${javaClass.simpleName} is not drawn with RemoteViews yet."

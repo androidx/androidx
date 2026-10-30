@@ -16,7 +16,9 @@
 
 package androidx.glance.adaptive.appwidget.matrix
 
+import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.View.MeasureSpec
@@ -32,6 +34,7 @@ import androidx.glance.adaptive.appwidget.components.RemoteViewsActions
 import androidx.glance.adaptive.appwidget.components.density
 import androidx.glance.adaptive.appwidget.components.dpToPx
 import androidx.glance.adaptive.appwidget.matrix.remoteviews.RemoteViewsMatrixRenderer
+import androidx.glance.adaptive.appwidget.renderer.RemoteViewsRenderOutput
 import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.action.GlanceAdaptiveActionCallback
 import androidx.glance.adaptive.core.action.GlanceWidgetAction
@@ -42,6 +45,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
@@ -362,6 +366,149 @@ class RemoteViewsMatrixRendererTest {
             .isEqualTo(12f.dpToPx(context.density))
     }
 
+    @Test
+    fun iconButton_bulbIsACircleAroundTheDesignGlyphAndRunsItsAction() {
+        val button = IconButton(GLYPH, "Start a run", RUN)
+        val density = context.density
+
+        val large = render(MatrixBulbContent(button), Dimensions(88, 88))
+        val largeButton = iconButton(large)
+        assertThat(iconButtonGlyph(large).maxWidth).isEqualTo(44f.dpToPx(density))
+        // The circle is padded out from the glyph to the 88 dp diameter.
+        assertThat(largeButton.paddingLeft + largeButton.paddingRight)
+            .isEqualTo(88f.dpToPx(density) - 44f.dpToPx(density))
+        assertThat(largeButton.contentDescription.toString()).isEqualTo("Start a run")
+
+        val small = render(MatrixBulbContent(button), Dimensions(56, 56))
+        assertThat(iconButtonGlyph(small).maxWidth).isEqualTo(26f.dpToPx(density))
+
+        largeButton.performClick()
+        assertThat(shadowOf(context as Application).nextStartedActivity.data)
+            .isEqualTo(Uri.parse(RUN_URI))
+    }
+
+    @Test
+    fun iconButton_trailingTheHeaderMatchesTheLeadingComponentAndRunsItsAction() {
+        val root =
+            render(
+                MatrixCardContent(
+                    leading = Icon(GLYPH),
+                    primary = TemplateText("Start a workout"),
+                    secondary = TemplateText("Fitbit"),
+                    trailing = IconButton(GLYPH, "Other workouts", RUN),
+                    leadingSize = 40.dp,
+                    primaryTextSize = 16.sp,
+                ),
+                Dimensions(264, 88),
+            )
+
+        val density = context.density
+        val trailingSlot =
+            root.findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_trailing)
+        assertThat(trailingSlot.visibility).isEqualTo(View.VISIBLE)
+        val button = iconButton(root)
+        assertThat(button.contentDescription.toString()).isEqualTo("Other workouts")
+        assertThat(iconButtonGlyph(root).maxWidth).isEqualTo(20f.dpToPx(density))
+        assertThat(button.paddingLeft + button.paddingRight)
+            .isEqualTo(40f.dpToPx(density) - 20f.dpToPx(density))
+        // The trailing button sits at the header's end, after the texts.
+        assertThat(button.right + trailingSlot.left).isAtMost(root.width)
+        assertThat(trailingSlot.left).isAtLeast(secondary(root).right)
+
+        button.performClick()
+        assertThat(shadowOf(context as Application).nextStartedActivity.data)
+            .isEqualTo(Uri.parse(RUN_URI))
+    }
+
+    @Test
+    fun header_withoutTrailingComponentHidesTheTrailingSlot() {
+        val root = render(MatrixCardContent(primary = TemplateText("11,056")), Dimensions(348, 132))
+
+        assertThat(
+                root
+                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_trailing)
+                    .visibility
+            )
+            .isEqualTo(View.GONE)
+    }
+
+    @Test
+    fun header_withOnlyATrailingComponentIsShown() {
+        val root =
+            render(
+                MatrixCardContent(trailing = IconButton(GLYPH, "Other workouts", RUN), hero = week),
+                Dimensions(348, 176),
+            )
+
+        assertThat(
+                root
+                    .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_slot_header)
+                    .visibility
+            )
+            .isEqualTo(View.VISIBLE)
+        assertThat(iconButton(root).contentDescription.toString()).isEqualTo("Other workouts")
+    }
+
+    @Test
+    fun iconButton_withoutActionIsNotClickable() {
+        val root = render(MatrixBulbContent(IconButton(GLYPH, "Run")), Dimensions(88, 88))
+
+        assertThat(iconButton(root).isClickable).isFalse()
+        assertThat(iconButton(root).hasOnClickListeners()).isFalse()
+    }
+
+    @Test
+    fun forWidget_callbackTapIsDeliveredForTheWidget() {
+        val surface = AppWidgetSurface.MOBILE_HOME_SCREEN.withDimensions(Dimensions(88, 88))
+        val content =
+            MatrixBulbContent(
+                IconButton(GLYPH, "Run", GlanceWidgetAction.Callback(NoOpCallback::class.java))
+            )
+        val output =
+            RemoteViewsMatrixRenderer.forWidget("dashboard").render(template, content, surface)
+                as RemoteViewsRenderOutput
+        val view = output.provider(context).apply(context, FrameLayout(context))
+
+        view
+            .findViewById<View>(R.id.glance_adaptive_appwidget_remoteviews_icon_button)
+            .performClick()
+
+        val broadcast = shadowOf(context as Application).broadcastIntents.last()
+        assertThat(broadcast.getStringExtra(EXTRA_WIDGET_NAME)).isEqualTo("dashboard")
+    }
+
+    @Test
+    fun iconButton_callbackWithoutAWidgetNameIsNotClickable() {
+        val root =
+            render(
+                MatrixBulbContent(
+                    IconButton(GLYPH, "Run", GlanceWidgetAction.Callback(NoOpCallback::class.java))
+                ),
+                Dimensions(88, 88),
+            )
+
+        assertThat(iconButton(root).isClickable).isFalse()
+        assertThat(iconButton(root).hasOnClickListeners()).isFalse()
+    }
+
+    @Test
+    fun iconButton_inAnActionSlotIsATouchTargetSizedCircle() {
+        val root =
+            render(
+                MatrixCardContent(
+                    primary = TemplateText("11,056"),
+                    actions = listOf(TemplateText("1"), IconButton(GLYPH, "More", RUN)),
+                ),
+                Dimensions(348, 132),
+            )
+
+        val button = iconButton(root)
+        assertThat(iconButtonGlyph(root).maxWidth).isEqualTo(24f.dpToPx(context.density))
+        assertThat(button.paddingLeft + button.paddingRight)
+            .isEqualTo(48f.dpToPx(context.density) - 24f.dpToPx(context.density))
+        assertThat(button.hasOnClickListeners()).isTrue()
+    }
+
     /** A card with every slot filled. */
     private fun fullCard() =
         MatrixCardContent(
@@ -379,6 +526,12 @@ class RemoteViewsMatrixRendererTest {
 
     private fun actionRow(root: View): ViewGroup =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_slot_supporting)
+
+    private fun iconButton(root: View): View =
+        root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_button)
+
+    private fun iconButtonGlyph(root: View): ImageView =
+        root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_icon_button_glyph)
 
     private fun secondary(root: View): TextView =
         root.findViewById(R.id.glance_adaptive_appwidget_remoteviews_secondary)
@@ -411,6 +564,9 @@ class RemoteViewsMatrixRendererTest {
 
         const val RUN_URI = "app://run"
         val RUN = GlanceWidgetAction.LaunchDeeplink(RUN_URI)
+
+        /** Extra under which a callback broadcast names its widget. */
+        const val EXTRA_WIDGET_NAME = "androidx.glance.adaptive.core.extra.WIDGET_NAME"
     }
 }
 
