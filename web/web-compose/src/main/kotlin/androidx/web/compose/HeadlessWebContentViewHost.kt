@@ -23,9 +23,11 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.view.DragEvent
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeProvider
@@ -162,6 +164,14 @@ internal class HeadlessViewHolder(
 
     fun dispatchGenericMotionEventToView(event: MotionEvent): Boolean =
         super.dispatchGenericMotionEvent(event)
+
+    // Drag-and-drop is handled by Compose (e.g. Modifier.dragAndDropTarget); prevent the holder
+    // at index 0 of AndroidComposeView from intercepting View drag events before Compose sees them.
+    override fun dispatchDragEvent(event: DragEvent): Boolean = false
+
+    // Window insets belong to the Compose hierarchy; prevent listeners on the bridge from
+    // receiving or consuming insets ahead of sibling AndroidViews.
+    override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets = insets
 
     // Rendering is handled directly by WebSurfaceNode via Chromium's draw functor.
     override fun dispatchDraw(canvas: Canvas) {}

@@ -19,15 +19,19 @@ package androidx.web.compose
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
+import android.os.Parcel
 import android.view.Choreographer
+import android.view.DragEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +50,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -1529,6 +1535,135 @@ class WebSurfaceTest {
             )
         }
         composeTestRule.runOnIdle { assertTrue(listState.firstVisibleItemScrollOffset > 0) }
+    }
+
+    @Test
+    fun testDragAndDropTargetOnWebSurfaceReceivesDrops() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+        var bridgeSawDrag = false
+        var started = false
+        var moved = false
+        var dropped = false
+        var ended = false
+
+        val dropTarget =
+            object : DragAndDropTarget {
+                override fun onStarted(event: DragAndDropEvent) {
+                    started = true
+                }
+
+                override fun onMoved(event: DragAndDropEvent) {
+                    moved = true
+                }
+
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    dropped = true
+                    return true
+                }
+
+                override fun onEnded(event: DragAndDropEvent) {
+                    ended = true
+                }
+            }
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            WebSurface(
+                content = webContent,
+                modifier =
+                    Modifier.size(150.dp)
+                        .dragAndDropTarget(shouldStartDragAndDrop = { true }, target = dropTarget),
+                bridgeFactory = {
+                    WebViewBridge(it).also { b ->
+                        @Suppress("DEPRECATION")
+                        b.setOnDragListener { _, _ ->
+                            bridgeSawDrag = true
+                            true
+                        }
+                        bridge = b
+                    }
+                },
+            )
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        composeTestRule.runOnIdle {
+            assertTrue(
+                hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_STARTED, 0f, 0f))
+            )
+            hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_LOCATION, 50f, 50f))
+            assertTrue(hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DROP, 50f, 50f)))
+            hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_ENDED, 0f, 0f))
+
+            assertFalse(bridgeSawDrag)
+            assertTrue(started)
+            assertTrue(moved)
+            assertTrue(dropped)
+            assertTrue(ended)
+        }
+    }
+
+    @Test
+    fun testWindowInsetsNotDispatchedToBridgeAndPreservedForSiblingAndroidView() {
+        lateinit var hostView: View
+        var bridgeSawInsets = false
+        var siblingSawInsets = false
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Column {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = { ctx ->
+                        WebViewBridge(ctx).apply {
+                            @Suppress("DEPRECATION")
+                            setOnApplyWindowInsetsListener { _, insets ->
+                                bridgeSawInsets = true
+                                insets.consumeSystemWindowInsets()
+                            }
+                        }
+                    },
+                )
+                AndroidView(
+                    factory = { ctx ->
+                        View(ctx).apply {
+                            setOnApplyWindowInsetsListener { _, insets ->
+                                siblingSawInsets = true
+                                insets
+                            }
+                        }
+                    },
+                    modifier = Modifier.size(50.dp),
+                )
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            val rootInsets = checkNotNull(hostView.rootWindowInsets)
+            hostView.dispatchApplyWindowInsets(WindowInsets(rootInsets))
+
+            assertFalse(bridgeSawInsets)
+            assertTrue(siblingSawInsets)
+        }
+    }
+
+    private fun obtainDragEvent(action: Int, x: Float, y: Float): DragEvent {
+        val parcel = Parcel.obtain()
+        try {
+            parcel.writeInt(action)
+            parcel.writeFloat(x)
+            parcel.writeFloat(y)
+            parcel.writeInt(0) // Result
+            parcel.writeInt(0) // No ClipData
+            parcel.writeInt(0) // No ClipDescription
+            parcel.setDataPosition(0)
+            return DragEvent.CREATOR.createFromParcel(parcel)
+        } finally {
+            parcel.recycle()
+        }
     }
 
     /**
