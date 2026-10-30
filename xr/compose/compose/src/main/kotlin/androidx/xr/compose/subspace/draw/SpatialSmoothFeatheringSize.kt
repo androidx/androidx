@@ -80,7 +80,7 @@ internal fun spatialSmoothFeatheringSize(
     vertical: Float,
 ): SpatialSmoothFeatheringSize = SpatialFeatheringPixelSize(horizontal, vertical)
 
-internal class SpatialFeatheringPercentSize(
+internal data class SpatialFeatheringPercentSize(
     private val widthPercent: Int,
     private val heightPercent: Int,
 ) : SpatialSmoothFeatheringSize {
@@ -93,26 +93,32 @@ internal class SpatialFeatheringPercentSize(
     }
 }
 
-internal class SpatialFeatheringDpSize(private val horizontalDp: Dp, private val verticalDp: Dp) :
-    SpatialSmoothFeatheringSize {
+internal data class SpatialFeatheringDpSize(
+    private val horizontalDp: Dp,
+    private val verticalDp: Dp,
+) : SpatialSmoothFeatheringSize {
     override fun toWidthPercent(pixels: Float, density: Density): Float {
+        if (pixels <= 0f) return 0f
         return ((horizontalDp.value * density.density) / (pixels * 0.5f)).coerceIn(0f, 0.5f)
     }
 
     override fun toHeightPercent(pixels: Float, density: Density): Float {
+        if (pixels <= 0f) return 0f
         return ((verticalDp.value * density.density) / (pixels * 0.5f)).coerceIn(0f, 0.5f)
     }
 }
 
-internal class SpatialFeatheringPixelSize(
+internal data class SpatialFeatheringPixelSize(
     private val horizontal: Float,
     private val vertical: Float,
 ) : SpatialSmoothFeatheringSize {
     override fun toWidthPercent(pixels: Float, density: Density): Float {
+        if (pixels <= 0f) return 0f
         return (horizontal / (pixels * 0.5f)).coerceIn(0f, 0.5f)
     }
 
     override fun toHeightPercent(pixels: Float, density: Density): Float {
+        if (pixels <= 0f) return 0f
         return (vertical / (pixels * 0.5f)).coerceIn(0f, 0.5f)
     }
 }
