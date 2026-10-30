@@ -39,3 +39,7 @@ dependencies {
     implementation(libs.testRunner)
     implementation(libs.testUiautomator)
 }
+
+androidx {
+    additionalDeviceTestTags.add("web-macrobenchmarks")
+}
