@@ -39,7 +39,6 @@ import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
-import androidx.xr.scenecore.runtime.Space
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -66,9 +65,19 @@ internal constructor(
     internal val view: View,
     pixelDimensions: PixelDimensions,
     nativeWrapper: SceneCoreOpenXrNative,
+    sceneCommitter: OpenXrSceneCommitter,
     sceneNodeRegistry: OpenXrSceneNodeRegistry,
     executor: ScheduledExecutorService,
-) : OpenXrEntity(context, entityHandle, nativeWrapper, sceneNodeRegistry, executor), PanelEntity {
+) :
+    OpenXrEntity(
+        context,
+        entityHandle,
+        nativeWrapper,
+        sceneCommitter,
+        sceneNodeRegistry,
+        executor,
+    ),
+    PanelEntity {
 
     private var _pixelDimensions: PixelDimensions = pixelDimensions
     private var _cornerRadius: Float = 0f
@@ -126,7 +135,8 @@ internal constructor(
      * 2. polls for the answer on [executor], as the runtime offers no completion callback,
      * 3. on the main thread, hosts [view] on that display in a [SurfaceControlViewHost] and hands
      *    its surface package to the runtime,
-     * 4. replays the parent and transform recorded on this entity while it had no surface.
+     * 4. commits the parent and transform of this entity again, in case the runtime dropped them
+     *    while the panel had no surface.
      *
      * A failure at any step leaves the entity in the scene graph without content.
      */
@@ -232,18 +242,9 @@ internal constructor(
         }
         viewHost = host
 
-        // The parent and transform were recorded on the Kotlin entity before the surface existed,
-        // so push them to the runtime now that it has something to render.
-        OpenXrTransaction(nativeWrapper, nativeWrapper.createSceneTransaction()).use { tx ->
-            if (tx.isAvailable) {
-                val parentHandle = (parent as? OpenXrEntity)?.entityHandle
-                if (parentHandle != null && parentHandle != INVALID_HANDLE) {
-                    tx.setParent(entityHandle, parentHandle)
-                }
-                tx.setTransform(entityHandle, getPose(Space.PARENT), getScale(Space.PARENT))
-                tx.commit()
-            }
-        }
+        // The runtime doesn't report whether it applied a transaction, so commit the parent and
+        // transform again now that the panel has something to render, in case it dropped them.
+        commitParentAndTransform()
     }
 
     /**

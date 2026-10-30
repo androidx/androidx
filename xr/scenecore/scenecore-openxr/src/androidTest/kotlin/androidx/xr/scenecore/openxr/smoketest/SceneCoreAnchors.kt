@@ -47,7 +47,7 @@ internal class SceneCoreAnchors(
     private val activity: ComponentActivity,
     private val session: Session,
     /** Moves the panels on anchor `id` to the activity space, before its AnchorSpace goes away. */
-    private val releasePanels: suspend (id: Int) -> Unit,
+    private val releasePanels: (id: Int) -> Unit,
     /** Applies the scene again, for example once an anchor can hold panels. */
     private val reapply: () -> Unit,
 ) {
@@ -79,7 +79,7 @@ internal class SceneCoreAnchors(
     fun isFailed(id: Int): Boolean = id in failedIds
 
     /** Brings the anchors in line with [specs]: removes, creates or detaches them, adds markers. */
-    suspend fun apply(specs: List<SceneCoreAnchorSpec>) {
+    fun apply(specs: List<SceneCoreAnchorSpec>) {
         val wanted = specs.associateBy { it.id }
         (anchors.keys - wanted.keys).toList().forEach { id -> dispose(id) }
         failedIds.retainAll(wanted.keys)
@@ -135,7 +135,7 @@ internal class SceneCoreAnchors(
         }
     }
 
-    private suspend fun create(spec: SceneCoreAnchorSpec) {
+    private fun create(spec: SceneCoreAnchorSpec) {
         updateStatus(spec.id) { SceneCoreAnchorStatus() }
         // ARCore takes poses in its perception space, while the activity space moves with the
         // spatial container.
@@ -175,8 +175,9 @@ internal class SceneCoreAnchors(
         // Both listeners run on the main thread, like the rest of this class.
         space.addStateChangedListener { state -> onStateChanged(spec.id, live, state) }
         space.addOriginChangedListener { live.originUpdates++ }
-        // The Vitreous runtime refuses new scene transactions until it has associated the anchor,
-        // so panels attached to it right away would be lost.
+        // Waits for the parenting delay, if any, before attaching panels: the OpenXR runtime
+        // refuses new scene transactions until it has associated the anchor, which the scene
+        // committer waits for.
         activity.lifecycleScope.launch {
             delay(SceneCorePanelStateHolder.anchorParentingDelayMillis.value)
             if (anchors[spec.id] === live) {
@@ -184,7 +185,6 @@ internal class SceneCoreAnchors(
                 reapply()
             }
         }
-        settleTransactions()
     }
 
     private fun onStateChanged(id: Int, anchor: LiveAnchor, state: AnchorSpace.State) {
@@ -217,7 +217,7 @@ internal class SceneCoreAnchors(
      * Disposes the AnchorSpace of anchor [id], with its marker, and then detaches the ARCore
      * anchor: detaching destroys the `XrSpace` that the AnchorSpace's content is attached to.
      */
-    private suspend fun dispose(id: Int) {
+    private fun dispose(id: Int) {
         val anchor = anchors.remove(id) ?: return
         // Disposing an AnchorSpace disposes its children too, so move the panels off it first.
         releasePanels(id)
@@ -225,20 +225,17 @@ internal class SceneCoreAnchors(
         @Suppress("DEPRECATION") anchor.space.dispose()
         if (!anchor.isDetached) anchor.anchor.detach()
         logEvent("Anchor $id removed.")
-        settleTransactions()
     }
 
     /** Shows a small label at anchor [id], tinted by the state of its AnchorSpace. */
-    private suspend fun spawnMarker(id: Int, anchor: LiveAnchor) {
+    private fun spawnMarker(id: Int, anchor: LiveAnchor) {
         val view = createLabelView(activity, MARKER_SIZE)
         val entity =
             PanelEntity.create(session, view, MARKER_SIZE, "Anchor $id", parent = anchor.space)
         anchor.marker = view
         showState(view, id, anchor.state)
-        settleTransactions()
         entity.setPose(Pose(MARKER_POSITION))
         applyPanelScale(entity)
-        settleTransactions()
     }
 
     private fun showState(marker: TextView, id: Int, state: AnchorSpace.State) {

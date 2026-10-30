@@ -22,12 +22,15 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
+import androidx.xr.scenecore.openxr.testing.commitSceneChanges
 import androidx.xr.scenecore.runtime.Component
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
+import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.Executors
+import java.lang.ref.WeakReference
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
@@ -46,7 +49,8 @@ class OpenXrEntityTest {
     private lateinit var activity: Activity
     private lateinit var fakeNative: FakeSceneCoreOpenXrNative
     private lateinit var nodeRegistry: OpenXrSceneNodeRegistry
-    private lateinit var executor: ScheduledExecutorService
+    private lateinit var executor: FakeScheduledExecutorService
+    private lateinit var sceneCommitter: OpenXrSceneCommitter
     private lateinit var activitySpace: OpenXrActivitySpace
     private lateinit var entity: TestOpenXrEntity
 
@@ -57,9 +61,18 @@ class OpenXrEntityTest {
         context: Context?,
         entityHandle: Long,
         nativeWrapper: SceneCoreOpenXrNative,
+        sceneCommitter: OpenXrSceneCommitter,
         sceneNodeRegistry: OpenXrSceneNodeRegistry,
         executor: ScheduledExecutorService,
-    ) : OpenXrEntity(context, entityHandle, nativeWrapper, sceneNodeRegistry, executor)
+    ) :
+        OpenXrEntity(
+            context,
+            entityHandle,
+            nativeWrapper,
+            sceneCommitter,
+            sceneNodeRegistry,
+            executor,
+        )
 
     private class TestComponent : Component {
         var isAttached = false
@@ -110,20 +123,23 @@ class OpenXrEntityTest {
         fakeNative.init(100L, 200L, 300L)
         fakeNative.createSpatialContainer()
         nodeRegistry = OpenXrSceneNodeRegistry()
-        executor = Executors.newSingleThreadScheduledExecutor()
+        executor = FakeScheduledExecutorService()
+        sceneCommitter = OpenXrSceneCommitter(fakeNative, executor)
 
         activitySpace =
             OpenXrActivitySpace(
                 activity,
                 fakeNative.fakeRootEntityHandle,
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )
         nodeRegistry.addSystemSpaceScenePose(activitySpace)
 
         val handle = fakeNative.createSceneEntity()
-        entity = TestOpenXrEntity(activity, handle, fakeNative, nodeRegistry, executor)
+        entity =
+            TestOpenXrEntity(activity, handle, fakeNative, sceneCommitter, nodeRegistry, executor)
         nodeRegistry.setEntityForNode(handle, entity)
         entity.parent = activitySpace
     }
@@ -206,21 +222,71 @@ class OpenXrEntityTest {
     }
 
     @Test
-    fun setPose_parentSpace_flushesToNative() {
+    fun setPose_updatesRightAwayAndCommitsShortlyAfter() {
         entity.setPose(testPose, Space.PARENT)
-        assertPose(entity.getPose(Space.PARENT), testPose)
 
-        val transform = fakeNative.entityTransforms[entity.entityHandle]
-        assertThat(transform).isNotNull()
-        assertPose(transform!!.first, testPose)
+        assertPose(entity.getPose(Space.PARENT), testPose)
+        assertThat(fakeNative.entityTransforms).doesNotContainKey(entity.entityHandle)
+        executor.commitSceneChanges()
+        assertPose(fakeNative.entityTransforms[entity.entityHandle]!!.first, testPose)
     }
 
     @Test
-    fun setScale_setsScaleAndFlushesToNative() {
+    fun setPose_whenNoTransactionIsFree_commitsOnceOneIs() {
+        fakeNative.simulateTransactionUnavailable = true
+        entity.setPose(testPose, Space.PARENT)
+        executor.commitSceneChanges()
+        assertThat(fakeNative.entityTransforms).doesNotContainKey(entity.entityHandle)
+
+        fakeNative.simulateTransactionUnavailable = false
+        executor.commitSceneChanges()
+
+        assertPose(fakeNative.entityTransforms[entity.entityHandle]!!.first, testPose)
+    }
+
+    @Test
+    fun setPose_waitingToCommit_doesNotKeepTheEntityReachable() {
+        fun setPoseOfNewEntity(): WeakReference<TestOpenXrEntity> {
+            val newEntity =
+                TestOpenXrEntity(
+                    activity,
+                    fakeNative.createSceneEntity(),
+                    fakeNative,
+                    sceneCommitter,
+                    nodeRegistry,
+                    executor,
+                )
+            newEntity.setPose(testPose, Space.PARENT)
+            return WeakReference(newEntity)
+        }
+
+        val entityRef = setPoseOfNewEntity()
+
+        MemoryUtils.assertGarbageCollected(entityRef)
+    }
+
+    @Test
+    fun setPoseAndScale_commitInOneTransaction() {
+        val testScale = Vector3(2f, 3f, 4f)
+        executor.commitSceneChanges()
+        val committedBefore = fakeNative.submittedTransactions.size
+
+        entity.setPose(testPose, Space.PARENT)
+        entity.setScale(testScale, Space.PARENT)
+        executor.commitSceneChanges()
+
+        val transaction = fakeNative.submittedTransactions.drop(committedBefore).single()
+        assertPose(transaction.transforms[entity.entityHandle]!!.first, testPose)
+        assertVector3(transaction.transforms[entity.entityHandle]!!.second, testScale)
+    }
+
+    @Test
+    fun setScale_setsScaleAndCommitsIt() {
         val testScale = Vector3(2f, 3f, 4f)
         entity.setScale(testScale)
 
         assertVector3(entity.getScale(Space.PARENT), testScale)
+        executor.commitSceneChanges()
         val transform = fakeNative.entityTransforms[entity.entityHandle]
         assertThat(transform).isNotNull()
         assertVector3(transform!!.second, testScale)
@@ -264,7 +330,15 @@ class OpenXrEntityTest {
         val parentScale = Vector3(1.0f, 2.0f, 3.0f)
         entity.setScale(parentScale, Space.PARENT)
         val childHandle = fakeNative.createSceneEntity()
-        val child = TestOpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor)
+        val child =
+            TestOpenXrEntity(
+                activity,
+                childHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
         child.parent = entity
 
         val targetActivityScale = parentScale.scale(parentScale)
@@ -272,6 +346,7 @@ class OpenXrEntityTest {
 
         assertVector3(child.getScale(Space.ACTIVITY), targetActivityScale)
         assertVector3(child.getScale(Space.PARENT), parentScale)
+        executor.commitSceneChanges()
         assertVector3(fakeNative.entityTransforms[childHandle]!!.second, parentScale)
     }
 
@@ -280,7 +355,15 @@ class OpenXrEntityTest {
         val scale = Vector3(1.0f, 2.0f, 3.0f)
         entity.setScale(scale, Space.PARENT)
         val childHandle = fakeNative.createSceneEntity()
-        val child = TestOpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor)
+        val child =
+            TestOpenXrEntity(
+                activity,
+                childHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
         child.parent = entity
         child.setScale(scale.scale(scale), Space.REAL_WORLD)
 
@@ -292,15 +375,56 @@ class OpenXrEntityTest {
         val childHandle = fakeNative.createSceneEntity()
         val parentHandle = fakeNative.createSceneEntity()
         val childEntity =
-            TestOpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor)
+            TestOpenXrEntity(
+                activity,
+                childHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
         val parentEntity =
-            TestOpenXrEntity(activity, parentHandle, fakeNative, nodeRegistry, executor)
+            TestOpenXrEntity(
+                activity,
+                parentHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
 
         childEntity.parent = parentEntity
+        executor.commitSceneChanges()
 
         assertThat(childEntity.parent).isEqualTo(parentEntity)
         assertThat(fakeNative.entityParents[childHandle]).isEqualTo(parentHandle)
         assertThat(parentEntity.children).containsExactly(childEntity)
+    }
+
+    @Test
+    fun setParent_nullOnAnEntityWithoutAParent_doesNotUnparentTheNativeEntity() {
+        val handle = fakeNative.createSceneEntity()
+        val orphan =
+            TestOpenXrEntity(activity, handle, fakeNative, sceneCommitter, nodeRegistry, executor)
+
+        orphan.parent = null
+        executor.commitSceneChanges()
+
+        // The OpenXR runtime would show an unparented entity under the activity window.
+        assertThat(fakeNative.submittedTransactions.flatMap { it.parents.keys })
+            .doesNotContain(handle)
+    }
+
+    @Test
+    fun setParent_nullOnAnEntityWithAParent_unparentsTheNativeEntity() {
+        executor.commitSceneChanges()
+
+        entity.parent = null
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.submittedTransactions.last().parents)
+            .containsExactly(entity.entityHandle, INVALID_HANDLE)
+        assertThat(fakeNative.entityParents).doesNotContainKey(entity.entityHandle)
     }
 
     @Test
@@ -319,11 +443,19 @@ class OpenXrEntityTest {
     fun dispose_cleansUpHierarchyAndNativeHandle() {
         val parentHandle = fakeNative.createSceneEntity()
         val parentEntity =
-            TestOpenXrEntity(activity, parentHandle, fakeNative, nodeRegistry, executor)
+            TestOpenXrEntity(
+                activity,
+                parentHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
         entity.parent = parentEntity
 
         val handle = entity.entityHandle
         entity.dispose()
+        executor.commitSceneChanges()
 
         assertThat(entity.parent).isNull()
         assertThat(nodeRegistry.getEntityForNode(handle)).isNull()
@@ -337,6 +469,7 @@ class OpenXrEntityTest {
         assertThat(nodeRegistry.getEntityForNode(handle)).isEqualTo(entity)
 
         entity.dispose()
+        executor.commitSceneChanges()
 
         assertThat(entity.entityHandle).isEqualTo(INVALID_HANDLE)
         assertThat(nodeRegistry.getEntityForNode(handle)).isNull()
@@ -346,13 +479,22 @@ class OpenXrEntityTest {
     @Test
     fun dispose_detachesChildEntitiesAndCleansRegistry() {
         val childHandle = fakeNative.createSceneEntity()
-        val child = TestOpenXrEntity(activity, childHandle, fakeNative, nodeRegistry, executor)
+        val child =
+            TestOpenXrEntity(
+                activity,
+                childHandle,
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
         entity.addChild(child)
 
         assertThat(nodeRegistry.getEntityForNode(childHandle)).isEqualTo(child)
 
         val parentHandle = entity.entityHandle
         entity.dispose()
+        executor.commitSceneChanges()
 
         assertThat(child.parent).isNull()
         assertThat(child.entityHandle).isEqualTo(childHandle)
@@ -360,6 +502,78 @@ class OpenXrEntityTest {
         assertThat(nodeRegistry.getEntityForNode(parentHandle)).isNull()
         assertThat(fakeNative.destroyedEntities).contains(parentHandle)
         assertThat(fakeNative.destroyedEntities).doesNotContain(childHandle)
+    }
+
+    @Test
+    fun dispose_unparentsTheChildrenBeforeTheNativeEntityIsDestroyed() {
+        // Commits one entity at a time, so that the changes made before the destruction take more
+        // than one commit.
+        val sceneCommitter =
+            OpenXrSceneCommitter(fakeNative, executor, maxEntitiesPerTransaction = 1)
+        val parent =
+            TestOpenXrEntity(
+                activity,
+                fakeNative.createSceneEntity(),
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
+        val child =
+            TestOpenXrEntity(
+                activity,
+                fakeNative.createSceneEntity(),
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
+        val otherEntity =
+            TestOpenXrEntity(
+                activity,
+                fakeNative.createSceneEntity(),
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
+        child.parent = parent
+        executor.commitSceneChanges()
+        val parentHandle = parent.entityHandle
+        // Waits to commit before the changes that dispose() makes.
+        otherEntity.setPose(testPose, Space.PARENT)
+
+        parent.dispose()
+        executor.commitSceneChanges()
+
+        // The runtime can remove an entity's children with it, so they're unparented first.
+        assertThat(fakeNative.childrenWhenDestroyed[parentHandle]).isEmpty()
+        assertThat(fakeNative.destroyedEntities).containsExactly(parentHandle)
+        assertThat(fakeNative.entityParents).doesNotContainKey(child.entityHandle)
+    }
+
+    @Test
+    fun dispose_ofAnEntityWaitingToCommit_unparentsTheChildrenFirst() {
+        val child =
+            TestOpenXrEntity(
+                activity,
+                fakeNative.createSceneEntity(),
+                fakeNative,
+                sceneCommitter,
+                nodeRegistry,
+                executor,
+            )
+        child.parent = entity
+        executor.commitSceneChanges()
+        val handle = entity.entityHandle
+        // Still waits to commit when dispose() runs.
+        entity.setPose(testPose, Space.PARENT)
+
+        entity.dispose()
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.childrenWhenDestroyed[handle]).isEmpty()
+        assertThat(fakeNative.destroyedEntities).contains(handle)
     }
 
     @Test
@@ -430,6 +644,7 @@ class OpenXrEntityTest {
                 activity,
                 fakeNative.createSceneEntity(),
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )
@@ -438,6 +653,7 @@ class OpenXrEntityTest {
                 activity,
                 fakeNative.createSceneEntity(),
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )
@@ -450,6 +666,7 @@ class OpenXrEntityTest {
                 activity,
                 fakeNative.createSceneEntity(),
                 fakeNative,
+                sceneCommitter,
                 nodeRegistry,
                 executor,
             )

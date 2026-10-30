@@ -43,10 +43,18 @@ internal constructor(
     context: Context?,
     entityHandle: Long,
     nativeWrapper: SceneCoreOpenXrNative,
+    sceneCommitter: OpenXrSceneCommitter,
     sceneNodeRegistry: OpenXrSceneNodeRegistry,
     executor: ScheduledExecutorService,
 ) :
-    OpenXrSystemSpaceEntity(context, entityHandle, nativeWrapper, sceneNodeRegistry, executor),
+    OpenXrSystemSpaceEntity(
+        context,
+        entityHandle,
+        nativeWrapper,
+        sceneCommitter,
+        sceneNodeRegistry,
+        executor,
+    ),
     ActivitySpace {
 
     private val boundsListeners = CopyOnWriteArraySet<ActivitySpace.OnBoundsChangedListener>()

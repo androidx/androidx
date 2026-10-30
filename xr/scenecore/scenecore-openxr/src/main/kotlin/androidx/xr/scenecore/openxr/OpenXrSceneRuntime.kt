@@ -114,11 +114,15 @@ internal constructor(
 
     override val config: Config = Config.Builder().build()
 
+    /** Commits the scene graph changes of this runtime's entities. */
+    private val sceneCommitter = OpenXrSceneCommitter(nativeWrapper, scheduledExecutorService)
+
     override val activitySpace: ActivitySpace =
         OpenXrActivitySpace(
             activity,
             INVALID_HANDLE,
             nativeWrapper,
+            sceneCommitter,
             sceneNodeRegistry,
             scheduledExecutorService,
         )
@@ -170,7 +174,10 @@ internal constructor(
             nativeWrapper.requestSpatialContainerVisible(true)
             val rootHandle = nativeWrapper.getRootEntityHandle()
             if (rootHandle != INVALID_HANDLE) {
-                (activitySpace as? OpenXrEntity)?.bindEntityHandle(rootHandle)
+                (activitySpace as? OpenXrEntity)?.bindEntityHandle(
+                    rootHandle,
+                    isOwnedByRuntime = true,
+                )
                 (mainPanelEntity as? OpenXrEntity)?.bindEntityHandle(
                     nativeWrapper.createSceneEntity()
                 )
@@ -205,6 +212,9 @@ internal constructor(
         }
         activity = null
         isDestroyed = true
+        // Destroying the native instance below releases every native entity at once, so drop the
+        // scene changes, including the destruction of each entity disposed here.
+        sceneCommitter.shutdown()
         (activitySpace as? OpenXrEntity)?.dispose()
         (mainPanelEntity as? OpenXrEntity)?.dispose()
         sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
@@ -284,6 +294,7 @@ internal constructor(
             activity,
             INVALID_HANDLE,
             nativeWrapper,
+            sceneCommitter,
             sceneNodeRegistry,
             scheduledExecutorService,
             parent = activitySpace,
@@ -354,6 +365,7 @@ internal constructor(
                 view,
                 pixelDimensions,
                 nativeWrapper,
+                sceneCommitter,
                 sceneNodeRegistry,
                 scheduledExecutorService,
             )
@@ -385,6 +397,7 @@ internal constructor(
             activity,
             entityHandle,
             nativeWrapper,
+            sceneCommitter,
             sceneNodeRegistry,
             scheduledExecutorService,
             activitySpace as OpenXrActivitySpace,
@@ -408,6 +421,7 @@ internal constructor(
                     activity,
                     entityHandle,
                     nativeWrapper,
+                    sceneCommitter,
                     sceneNodeRegistry,
                     scheduledExecutorService,
                 ) {}

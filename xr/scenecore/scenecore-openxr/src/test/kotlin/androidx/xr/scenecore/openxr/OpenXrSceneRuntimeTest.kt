@@ -25,14 +25,15 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.scenecore.openxr.testing.FakeSceneCoreOpenXrNative
+import androidx.xr.scenecore.openxr.testing.commitSceneChanges
 import androidx.xr.scenecore.runtime.AnchorEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility
+import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -62,7 +63,7 @@ class OpenXrSceneRuntimeTest {
     private lateinit var activity: Activity
     private lateinit var fakeNative: FakeSceneCoreOpenXrNative
     private lateinit var nodeRegistry: OpenXrSceneNodeRegistry
-    private lateinit var executor: ScheduledExecutorService
+    private lateinit var executor: FakeScheduledExecutorService
     private lateinit var runtime: OpenXrSceneRuntime
 
     private val directExecutor = Executor { it.run() }
@@ -74,7 +75,7 @@ class OpenXrSceneRuntimeTest {
         activity = mock()
         fakeNative = FakeSceneCoreOpenXrNative()
         nodeRegistry = OpenXrSceneNodeRegistry()
-        executor = Executors.newSingleThreadScheduledExecutor()
+        executor = FakeScheduledExecutorService()
 
         runtime =
             OpenXrSceneRuntime(
@@ -127,6 +128,7 @@ class OpenXrSceneRuntimeTest {
 
         val initialPose = Pose(Vector3(1f, 2f, 3f))
         val entity = runtime.createEntity(initialPose, "test-entity", runtime.activitySpace)
+        executor.commitSceneChanges()
 
         assertThat(entity).isNotNull()
         assertThat(entity.parent).isEqualTo(runtime.activitySpace)
@@ -134,8 +136,11 @@ class OpenXrSceneRuntimeTest {
 
         val openXrEntity = entity as OpenXrEntity
         assertThat(fakeNative.createdEntities).contains(openXrEntity.entityHandle)
-        assertThat(fakeNative.entityParents[openXrEntity.entityHandle])
-            .isEqualTo(fakeNative.fakeRootEntityHandle)
+        val transaction = fakeNative.submittedTransactions.single()
+        assertThat(transaction.parents)
+            .containsExactly(openXrEntity.entityHandle, fakeNative.fakeRootEntityHandle)
+        assertThat(transaction.transforms)
+            .containsExactly(openXrEntity.entityHandle, initialPose to Vector3.One)
         assertThat(nodeRegistry.getEntityForNode(openXrEntity.entityHandle)).isEqualTo(entity)
     }
 
@@ -145,6 +150,7 @@ class OpenXrSceneRuntimeTest {
         fakeNative.createSpatialContainer()
         val initialPose = Pose(Vector3(1f, 2f, 3f))
         val entity = runtime.createEntity(initialPose, "unparented-entity", null)
+        executor.commitSceneChanges()
 
         assertThat(entity).isNotNull()
         assertThat(entity.parent).isNull()
@@ -153,6 +159,11 @@ class OpenXrSceneRuntimeTest {
         val openXrEntity = entity as OpenXrEntity
         assertThat(fakeNative.createdEntities).contains(openXrEntity.entityHandle)
         assertThat(fakeNative.entityParents[openXrEntity.entityHandle]).isNull()
+        // The OpenXR runtime would show an unparented entity under the activity window.
+        assertThat(fakeNative.submittedTransactions.single().parents)
+            .doesNotContainKey(openXrEntity.entityHandle)
+        assertThat(fakeNative.entityTransforms[openXrEntity.entityHandle])
+            .isEqualTo(initialPose to Vector3.One)
     }
 
     @Test
@@ -195,8 +206,10 @@ class OpenXrSceneRuntimeTest {
         runtime.destroy()
 
         assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ERROR)
-        assertThat(fakeNative.destroyedEntities).contains(handle)
         assertThat(anchorEntity.entityHandle).isEqualTo(INVALID_HANDLE)
+        // Destroying the native instance releases the native entity.
+        assertThat(fakeNative.isDestroyed.get()).isTrue()
+        assertThat(fakeNative.destroyedEntities).doesNotContain(handle)
     }
 
     @Test
@@ -215,6 +228,17 @@ class OpenXrSceneRuntimeTest {
         assertThat(exception)
             .hasMessageThat()
             .isEqualTo("SceneCoreOpenXrNative.createSpatialContainer failed.")
+    }
+
+    @Test
+    fun initialize_parentsMainPanelEntityToRootInNativeSceneGraph() {
+        runtime.initialize()
+
+        executor.commitSceneChanges()
+
+        val mainPanelHandle = (runtime.mainPanelEntity as OpenXrEntity).entityHandle
+        assertThat(fakeNative.entityParents[mainPanelHandle])
+            .isEqualTo(fakeNative.fakeRootEntityHandle)
     }
 
     @Test
@@ -257,11 +281,25 @@ class OpenXrSceneRuntimeTest {
         runtime.destroy()
 
         assertThat(runtime.isDestroyed).isTrue()
-        assertThat(fakeNative.destroyedEntities).contains(handle1)
-        assertThat(fakeNative.destroyedEntities).contains(handle2)
         assertThat(nodeRegistry.getAllEntities()).isEmpty()
         assertThat((entity1 as OpenXrEntity).entityHandle).isEqualTo(INVALID_HANDLE)
         assertThat((entity2 as OpenXrEntity).entityHandle).isEqualTo(INVALID_HANDLE)
+        // Destroying the native instance releases the native entities, all at once.
+        assertThat(fakeNative.isDestroyed.get()).isTrue()
+        assertThat(fakeNative.destroyedEntities).containsNoneOf(handle1, handle2)
+    }
+
+    @Test
+    fun destroy_dropsUncommittedSceneChanges() {
+        fakeNative.init(100L, 200L, 300L)
+        fakeNative.createSpatialContainer()
+        runtime.createEntity(Pose(Vector3(1f, 2f, 3f)), "entity", null)
+
+        runtime.destroy()
+        executor.commitSceneChanges()
+
+        assertThat(fakeNative.transactionCreateAttempts).isEqualTo(0)
+        assertThat(executor.isEmpty()).isTrue()
     }
 
     @Test
@@ -289,10 +327,24 @@ class OpenXrSceneRuntimeTest {
         runtime.destroy()
 
         assertThat(runtime.isDestroyed).isTrue()
-        assertThat(fakeNative.destroyedEntities).contains(mainPanelHandle)
+        assertThat(fakeNative.isDestroyed.get()).isTrue()
         assertThat((runtime.mainPanelEntity as? OpenXrEntity)?.entityHandle)
             .isEqualTo(INVALID_HANDLE)
         assertThat((runtime.activitySpace as? OpenXrEntity)?.entityHandle).isEqualTo(INVALID_HANDLE)
+    }
+
+    @Test
+    fun activitySpaceDispose_removesItFromTheRegistry_withoutDestroyingTheRootEntity() {
+        runtime.initialize()
+        executor.commitSceneChanges()
+        val rootHandle = (runtime.activitySpace as OpenXrEntity).entityHandle
+
+        runtime.activitySpace.dispose()
+        executor.commitSceneChanges()
+
+        assertThat(nodeRegistry.getEntityForNode(rootHandle)).isNull()
+        // The runtime refuses to destroy the root entity, and the committer would keep trying.
+        assertThat(executor.isEmpty()).isTrue()
     }
 
     @Test
