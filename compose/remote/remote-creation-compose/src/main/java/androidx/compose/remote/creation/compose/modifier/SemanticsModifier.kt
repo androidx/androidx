@@ -177,6 +177,8 @@ private fun fromRole(role: Role?): AccessibleComponent.Role? {
         Role.Image -> AccessibleComponent.Role.IMAGE
         Role.Switch -> AccessibleComponent.Role.SWITCH
         Role.Tab -> AccessibleComponent.Role.TAB
+        Role.ValuePicker -> AccessibleComponent.Role.PICKER
+        Role.Carousel -> AccessibleComponent.Role.CAROUSEL
         null -> null
         else -> AccessibleComponent.Role.UNKNOWN
     }

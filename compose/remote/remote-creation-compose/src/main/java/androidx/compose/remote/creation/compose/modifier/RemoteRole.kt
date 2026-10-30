@@ -18,9 +18,12 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.semantics.AccessibleComponent
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 
 /** The type of user interface element. Accessibility services can use this to describe the node. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Immutable
 @JvmInline
 public value class RemoteRole internal constructor(internal val value: Int) {
     internal fun toAccessibleRole(): AccessibleComponent.Role =
@@ -32,6 +35,8 @@ public value class RemoteRole internal constructor(internal val value: Int) {
             Tab -> AccessibleComponent.Role.TAB
             Image -> AccessibleComponent.Role.IMAGE
             DropdownList -> AccessibleComponent.Role.DROPDOWN_LIST
+            ValuePicker -> AccessibleComponent.Role.PICKER
+            Carousel -> AccessibleComponent.Role.CAROUSEL
             else -> AccessibleComponent.Role.UNKNOWN
         }
 
@@ -44,17 +49,39 @@ public value class RemoteRole internal constructor(internal val value: Int) {
             Tab -> "Tab"
             Image -> "Image"
             DropdownList -> "DropdownList"
+            ValuePicker -> "ValuePicker"
+            Carousel -> "Carousel"
             else -> "Unknown"
         }
 
     public companion object {
-        public val Button: RemoteRole = RemoteRole(0)
-        public val Checkbox: RemoteRole = RemoteRole(1)
-        public val Switch: RemoteRole = RemoteRole(2)
-        public val RadioButton: RemoteRole = RemoteRole(3)
-        public val Tab: RemoteRole = RemoteRole(4)
-        public val Image: RemoteRole = RemoteRole(5)
-        public val DropdownList: RemoteRole = RemoteRole(6)
-        internal val Unknown: RemoteRole = RemoteRole(7)
+        /** An interactive element that initiates an action when clicked. */
+        @Stable public val Button: RemoteRole = RemoteRole(0)
+
+        /** A two-state toggleable element that can be checked or unchecked. */
+        @Stable public val Checkbox: RemoteRole = RemoteRole(1)
+
+        /** A toggleable switch providing an on/off state. */
+        @Stable public val Switch: RemoteRole = RemoteRole(2)
+
+        /** A selection element representing mutually exclusive options. */
+        @Stable public val RadioButton: RemoteRole = RemoteRole(3)
+
+        /** A tab representing a single selectable page or tab pane. */
+        @Stable public val Tab: RemoteRole = RemoteRole(4)
+
+        /** A graphical visual element or image. */
+        @Stable public val Image: RemoteRole = RemoteRole(5)
+
+        /** An element associated with selecting from a drop-down menu or list. */
+        @Stable public val DropdownList: RemoteRole = RemoteRole(6)
+
+        /** A selectable value picker component allowing forward/backward value navigation. */
+        @Stable public val ValuePicker: RemoteRole = RemoteRole(7)
+
+        /** A carousel element displaying a scrollable collection of items. */
+        @Stable public val Carousel: RemoteRole = RemoteRole(8)
+
+        internal val Unknown: RemoteRole = RemoteRole(-1)
     }
 }

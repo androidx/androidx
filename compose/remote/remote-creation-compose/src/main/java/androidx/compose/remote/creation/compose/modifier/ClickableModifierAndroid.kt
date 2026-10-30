@@ -52,5 +52,7 @@ private fun Role.toRemoteRole(): RemoteRole =
         Role.Tab -> RemoteRole.Tab
         Role.Image -> RemoteRole.Image
         Role.DropdownList -> RemoteRole.DropdownList
+        Role.ValuePicker -> RemoteRole.ValuePicker
+        Role.Carousel -> RemoteRole.Carousel
         else -> RemoteRole.Unknown
     }

@@ -89,6 +89,70 @@ class SemanticsModifierTest {
     }
 
     @Test
+    fun semanticsModifier_allRolesMapToCorrectAccessibleComponentRole() = runTest {
+        val testCases =
+            listOf(
+                Role.Button to AccessibleComponent.Role.BUTTON,
+                Role.Checkbox to AccessibleComponent.Role.CHECKBOX,
+                Role.Switch to AccessibleComponent.Role.SWITCH,
+                Role.RadioButton to AccessibleComponent.Role.RADIO_BUTTON,
+                Role.Tab to AccessibleComponent.Role.TAB,
+                Role.Image to AccessibleComponent.Role.IMAGE,
+                Role.DropdownList to AccessibleComponent.Role.DROPDOWN_LIST,
+                Role.ValuePicker to AccessibleComponent.Role.PICKER,
+                Role.Carousel to AccessibleComponent.Role.CAROUSEL,
+            )
+
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        for ((composeRole, expectedAccessibleRole) in testCases) {
+            val captured =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = displayInfo,
+                    context = applicationContext,
+                ) {
+                    RemoteBox(modifier = RemoteModifier.semantics { role = composeRole }) {}
+                }
+            val coreDoc = makeAndUpdateCoreDocument(captured)
+            val boxLayout = coreDoc.getComponent(-3) as BoxLayout
+            val semantics =
+                boxLayout.componentModifiers.modifiersList.filterIsInstance<CoreSemantics>().first()
+            assertThat(semantics.role).isEqualTo(expectedAccessibleRole)
+        }
+    }
+
+    @Test
+    fun semanticsModifier_remoteRolesMapToCorrectAccessibleComponentRole() = runTest {
+        val testCases =
+            listOf(
+                RemoteRole.Button to AccessibleComponent.Role.BUTTON,
+                RemoteRole.Checkbox to AccessibleComponent.Role.CHECKBOX,
+                RemoteRole.Switch to AccessibleComponent.Role.SWITCH,
+                RemoteRole.RadioButton to AccessibleComponent.Role.RADIO_BUTTON,
+                RemoteRole.Tab to AccessibleComponent.Role.TAB,
+                RemoteRole.Image to AccessibleComponent.Role.IMAGE,
+                RemoteRole.DropdownList to AccessibleComponent.Role.DROPDOWN_LIST,
+                RemoteRole.ValuePicker to AccessibleComponent.Role.PICKER,
+                RemoteRole.Carousel to AccessibleComponent.Role.CAROUSEL,
+            )
+
+        val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
+        for ((remRole, expectedAccessibleRole) in testCases) {
+            val captured =
+                captureSingleRemoteDocument(
+                    creationDisplayInfo = displayInfo,
+                    context = applicationContext,
+                ) {
+                    RemoteBox(modifier = RemoteModifier.semantics { remoteRole = remRole }) {}
+                }
+            val coreDoc = makeAndUpdateCoreDocument(captured)
+            val boxLayout = coreDoc.getComponent(-3) as BoxLayout
+            val semantics =
+                boxLayout.componentModifiers.modifiersList.filterIsInstance<CoreSemantics>().first()
+            assertThat(semantics.role).isEqualTo(expectedAccessibleRole)
+        }
+    }
+
+    @Test
     fun clearAndSetSemantics_recordsCorrectMode() = runTest {
         val displayInfo = RemoteCreationDisplayInfo(500, 500, 1, 1.0f)
         val captured =
