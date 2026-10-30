@@ -18,6 +18,7 @@ package androidx.camera.integration.core.util
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
@@ -41,6 +42,7 @@ import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 
 private const val CORE_TEST_APP_PACKAGE = "androidx.camera.integration.core"
@@ -202,4 +204,16 @@ object StressTestUtil {
 
     /** Constant to specify that the verification target is [ImageAnalysis]. */
     const val VERIFICATION_TARGET_IMAGE_ANALYSIS = 0x8
+
+    /**
+     * Skips test cases on redfin 64-bit-only builds where the vendor camera HAL (camera.lito.so /
+     * live_rectiface_processor.cc) crashes with native SIGABRT or SIGSEGV (b/579704076).
+     */
+    @JvmStatic
+    fun assumeNotRedfin64BitOnly() {
+        assumeFalse(
+            Build.DEVICE.equals("redfin", ignoreCase = true) &&
+                Build.SUPPORTED_32_BIT_ABIS.isEmpty()
+        )
+    }
 }
