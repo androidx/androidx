@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
@@ -43,8 +44,6 @@ import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
-import androidx.wear.compose.materialcore.screenHeightDp
-import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.absoluteValue
 
 /**
@@ -180,9 +179,7 @@ public fun AnimatedPage(
 ) {
     val isReduceMotionEnabled = LocalReduceMotion.current
     val isRtlEnabled = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val orientation = remember(pagerState) { pagerState.layoutInfo.orientation }
-    val numberOfIntervals =
-        (if (orientation == Orientation.Horizontal) screenWidthDp() else screenHeightDp()) / 2
+    val numberOfIntervals = LocalConfiguration.current.screenWidthDp / 2
 
     val currentPageOffsetFraction by
         remember(pagerState) {

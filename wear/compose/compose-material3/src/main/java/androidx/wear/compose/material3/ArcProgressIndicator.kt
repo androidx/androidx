@@ -26,10 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.materialcore.screenHeightDp
 import kotlin.math.PI
 import kotlin.math.asin
 
@@ -162,12 +162,13 @@ public object ArcProgressIndicatorDefaults {
      * The recommended diameter of the indeterminate arc progress indicator, which leaves room for
      * additional content such as a message above the indicator.
      */
+    @Suppress("DefaultsMissingReadOnlyComposable") // b/567058012
     public val recommendedIndeterminateDiameter: Dp
         @Composable
         get() {
-            // Calculate the recommended diameter as a percentage of screen height.
-            val screenHeight = screenHeightDp()
-            return IndeterminateArcDiameterPercentage.dp * screenHeight.toFloat()
+            // Calculate the recommended diameter as a percentage of screen width.
+            val screenWidth = LocalConfiguration.current.screenWidthDp
+            return IndeterminateArcDiameterPercentage.dp * screenWidth.toFloat()
         }
 
     /**

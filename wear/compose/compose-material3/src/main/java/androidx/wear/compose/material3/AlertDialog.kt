@@ -1681,7 +1681,7 @@ public object AlertDialogDefaults {
         val horizontalPadding = horizontalContentPadding()
         return PaddingValues(
             top = calculateTopPadding(hasIcon = false),
-            bottom = screenHeightFraction(noEdgeButtonBottomPaddingFraction),
+            bottom = screenWidthFraction(noEdgeButtonBottomPaddingFraction),
             start = horizontalPadding,
             end = horizontalPadding,
         )
@@ -1697,7 +1697,7 @@ public object AlertDialogDefaults {
         val horizontalPadding = horizontalContentPadding()
         return PaddingValues(
             top = calculateTopPadding(hasIcon = true),
-            bottom = screenHeightFraction(noEdgeButtonBottomPaddingFraction),
+            bottom = screenWidthFraction(noEdgeButtonBottomPaddingFraction),
             start = horizontalPadding,
             end = horizontalPadding,
         )
@@ -1715,7 +1715,7 @@ public object AlertDialogDefaults {
         return PaddingValues(
             top = calculateTopPadding(hasIcon = false),
             bottom =
-                if (isScrollable) screenHeightFraction(noEdgeButtonBottomPaddingFraction)
+                if (isScrollable) screenWidthFraction(noEdgeButtonBottomPaddingFraction)
                 else verticalContentPadding(),
             start = horizontalPadding,
             end = horizontalPadding,
@@ -1734,7 +1734,7 @@ public object AlertDialogDefaults {
         return PaddingValues(
             top = calculateTopPadding(hasIcon = true),
             bottom =
-                if (isScrollable) screenHeightFraction(noEdgeButtonBottomPaddingFraction)
+                if (isScrollable) screenWidthFraction(noEdgeButtonBottomPaddingFraction)
                 else verticalContentPadding(),
             start = horizontalPadding,
             end = horizontalPadding,
@@ -1792,7 +1792,7 @@ public object AlertDialogDefaults {
 
     @Composable
     private fun calculateTopPadding(hasIcon: Boolean): Dp {
-        return if (hasIcon) screenHeightFraction(iconTopPaddingFraction)
+        return if (hasIcon) screenWidthFraction(iconTopPaddingFraction)
         else verticalContentPadding()
     }
 
@@ -2255,9 +2255,7 @@ private fun ConfirmDismissButtons(
         if (extraBottomPaddingEnabled)
             Spacer(
                 modifier =
-                    Modifier.height(
-                        screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction)
-                    )
+                    Modifier.height(screenWidthFraction(ConfirmDismissButtonsBottomSpacingFraction))
             )
     }
 }
@@ -2298,9 +2296,7 @@ private fun TransformingLazyColumnItemScope.ConfirmDismissButtons(
         if (extraBottomPaddingEnabled)
             Spacer(
                 modifier =
-                    Modifier.height(
-                        screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction)
-                    )
+                    Modifier.height(screenWidthFraction(ConfirmDismissButtonsBottomSpacingFraction))
             )
     }
 }

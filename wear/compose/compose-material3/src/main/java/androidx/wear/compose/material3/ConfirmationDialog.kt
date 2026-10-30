@@ -996,7 +996,7 @@ private fun iconContainer(curvedContent: Boolean, color: Color): @Composable Box
 
 private fun successIconContainer(color: Color): @Composable BoxScope.() -> Unit = {
     val width = screenWidthFraction(SuccessWidthFraction)
-    val targetHeight = screenHeightFraction(SuccessHeightFraction)
+    val targetHeight = screenWidthFraction(SuccessHeightFraction)
 
     val heightAnimatable = remember { Animatable(width.value) }
     val reduceMotionEnabled = LocalReduceMotion.current

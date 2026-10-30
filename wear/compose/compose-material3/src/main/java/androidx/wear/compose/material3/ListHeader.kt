@@ -194,7 +194,7 @@ public object ListHeaderDefaults {
      * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
      */
     public val minimumTopListContentPadding: Dp
-        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /**
      * The minimum bottom content padding for the list when a [ListHeader] is placed at the bottom.
@@ -206,7 +206,7 @@ public object ListHeaderDefaults {
      * padding values and its own contentPadding parameter.
      */
     public val minimumBottomListContentPadding: Dp
-        @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
+        @Composable get() = screenWidthFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** The default color for ListHeader */
     public val contentColor: Color

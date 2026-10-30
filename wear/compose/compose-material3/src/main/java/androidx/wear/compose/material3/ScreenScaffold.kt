@@ -59,6 +59,7 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Constraints
@@ -76,7 +77,6 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
-import androidx.wear.compose.materialcore.screenHeightPx
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
@@ -1603,12 +1603,13 @@ private fun WrapWithOverscrollFactoryIfRequired(
     overscrollEffect: OverscrollEffect?,
     content: @Composable (() -> Unit),
 ) {
-    val screenHeight = screenHeightPx()
+    val screenWidth =
+        with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.roundToPx() }
 
     val overscrollFactory =
         LocalOverscrollFactory.current?.let { factory ->
             overscrollEffect?.let { effect ->
-                OffsetOverscrollFactory(factory, effect, screenHeight)
+                OffsetOverscrollFactory(factory, effect, screenWidth)
             }
         }
 

@@ -238,7 +238,7 @@ public fun OpenOnPhoneDialogContent(
         )
 
     Box(modifier = modifier.fillMaxSize()) {
-        val topPadding = screenHeightFraction(HeightPaddingFraction)
+        val topPadding = screenWidthFraction(HeightPaddingFraction)
         val size = screenWidthFraction(SizeFraction)
         Box(
             modifier =

@@ -857,10 +857,10 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     @Test
     fun confirmDismissButtons_withFixedContent_spacing() {
         var expectedBottomPadding = 0.dp
-        var screenHeight = 0.dp
+        var screenWidth = 0.dp
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
@@ -872,7 +872,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                 )
                 expectedBottomPadding = PaddingDefaults.verticalContentPadding()
             }
@@ -884,17 +884,17 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
             rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot().top
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
 
-        confirmButtonBottom.assertIsEqualTo(screenHeight - expectedBottomPadding)
+        confirmButtonBottom.assertIsEqualTo(screenWidth - expectedBottomPadding)
         confirmButtonTop.assertIsEqualTo(titleBottom + ConfirmDismissButtonsTopSpacing)
     }
 
     @Test
     fun confirmDismissButtons_withScrollableContent_spacing() {
         var expectedBottomPadding = 0.dp
-        var screenHeight = 0.dp
+        var screenWidth = 0.dp
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(SmallScreenSize) {
-                screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     title = {
@@ -908,10 +908,10 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
-                    modifier = Modifier.size(screenHeight * 3).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth * 3).testTag(TEST_TAG),
                 )
                 expectedBottomPadding =
-                    screenHeightFraction(ConfirmDismissButtonsBottomSpacingFraction) +
+                    screenWidthFraction(ConfirmDismissButtonsBottomSpacingFraction) +
                         PaddingDefaults.verticalContentPadding()
             }
         }
@@ -923,7 +923,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
             rule.onNodeWithTag(ConfirmButtonTestTag).getUnclippedBoundsInRoot().bottom
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
 
-        confirmButtonBottom.assertIsEqualTo(screenHeight - expectedBottomPadding)
+        confirmButtonBottom.assertIsEqualTo(screenWidth - expectedBottomPadding)
         confirmButtonTop.assertIsEqualTo(titleBottom + ConfirmDismissButtonsTopSpacing)
     }
 
@@ -931,7 +931,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     fun confirmDismissButtons_with_icon_title_positioning() {
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     icon = { TestIcon(iconLabel = IconTestTag) },
@@ -944,7 +944,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                 )
             }
         }
@@ -963,7 +963,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     fun confirmDismissButtons_with_icon_title_textMessage_positioning() {
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     icon = { TestIcon(iconLabel = IconTestTag) },
@@ -977,7 +977,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                 )
             }
         }
@@ -1001,7 +1001,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     fun confirmDismissButtons_with_icon_title_textMessage_content_positioning() {
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     icon = { TestImage(IconTestTag) },
@@ -1015,7 +1015,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                     slcContent = {
                         item { Text("ContentText", modifier = Modifier.testTag(ContentTestTag)) }
                     },
@@ -1047,7 +1047,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     fun confirmDismissButtons_with_icon_title_content_positioning() {
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     icon = { TestImage(IconTestTag) },
@@ -1060,7 +1060,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                     slcContent = {
                         item { Text("ContentText", modifier = Modifier.testTag(ContentTestTag)) }
                     },
@@ -1087,36 +1087,36 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
     @Test
     fun noBottomButton_withFixedContent_spacing() {
         var expectedBottomPadding = 0.dp
-        var screenHeight = 0.dp
+        var screenWidth = 0.dp
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     title = { Text("Title", modifier = Modifier.testTag(TitleTestTag)) },
                     verticalArrangement =
                         Arrangement.spacedBy(space = 0.dp, alignment = Alignment.Bottom),
-                    modifier = Modifier.size(screenHeight).testTag(TEST_TAG),
+                    modifier = Modifier.size(screenWidth).testTag(TEST_TAG),
                 )
                 expectedBottomPadding =
                     if (contentContainer == ContentContainer.TLC) {
                         PaddingDefaults.verticalContentPadding()
                     } else
-                        screenHeightFraction(AlertDialogDefaults.noEdgeButtonBottomPaddingFraction)
+                        screenWidthFraction(AlertDialogDefaults.noEdgeButtonBottomPaddingFraction)
             }
         }
 
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
-        titleBottom.assertIsEqualTo(screenHeight - expectedBottomPadding)
+        titleBottom.assertIsEqualTo(screenWidth - expectedBottomPadding)
     }
 
     @Test
     fun noBottomButton_withScrollableContent_spacing() {
         var expectedBottomPadding = 0.dp
-        var screenHeight = 0.dp
+        var screenWidth = 0.dp
         rule.setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
             ScreenConfiguration(AlertScreenSize) {
-                screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                screenWidth = LocalConfiguration.current.screenWidthDp.dp
                 AlertDialogContentHelper(
                     contentContainer = contentContainer,
                     title = {
@@ -1130,7 +1130,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
                     modifier = Modifier.wrapContentSize().testTag(TEST_TAG),
                 )
                 expectedBottomPadding =
-                    screenHeightFraction(AlertDialogDefaults.noEdgeButtonBottomPaddingFraction)
+                    screenWidthFraction(AlertDialogDefaults.noEdgeButtonBottomPaddingFraction)
             }
         }
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
@@ -1139,7 +1139,7 @@ class AlertDialogTest(@TestParameter private val contentContainer: ContentContai
         }
 
         val titleBottom = rule.onNodeWithTag(TitleTestTag).getUnclippedBoundsInRoot().bottom
-        titleBottom.assertIsEqualTo(screenHeight - expectedBottomPadding)
+        titleBottom.assertIsEqualTo(screenWidth - expectedBottomPadding)
     }
 
     @Test

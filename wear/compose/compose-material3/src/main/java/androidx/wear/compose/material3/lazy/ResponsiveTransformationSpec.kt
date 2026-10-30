@@ -237,7 +237,7 @@ public object ResponsiveTransformationSpecDefaults {
 public fun rememberTransformationSpec(
     vararg specs: ResponsiveTransformationSpec
 ): TransformationSpec {
-    val screenSize = LocalConfiguration.current.screenHeightDp.dp
+    val screenSize = LocalConfiguration.current.screenWidthDp.dp
     val localReduceMotion = LocalReduceMotion.current
     return remember(specs, screenSize, localReduceMotion) {
         if (localReduceMotion) {
@@ -264,7 +264,7 @@ public fun rememberTransformationSpec(
  */
 @Composable
 public fun rememberTransformationSpec(): TransformationSpec {
-    val screenSize = LocalConfiguration.current.screenHeightDp.dp
+    val screenSize = LocalConfiguration.current.screenWidthDp.dp
     val localReduceMotion = LocalReduceMotion.current
     return remember(screenSize, localReduceMotion) {
         if (localReduceMotion) {
