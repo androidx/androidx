@@ -80,13 +80,9 @@ private class SubspaceOffsetElement(val x: Dp, val y: Dp, val z: Dp, val rtlAwar
         return result
     }
 
-    /*
-     * TODO(b/475896820): Add unit tests for hashCode and equals for all *Element classes in
-     * SubspaceModifier APIs
-     */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherElement = other as? OffsetNode ?: return false
+        val otherElement = other as? SubspaceOffsetElement ?: return false
 
         return x == otherElement.x &&
             y == otherElement.y &&

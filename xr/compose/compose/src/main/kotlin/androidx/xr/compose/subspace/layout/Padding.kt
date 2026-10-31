@@ -201,7 +201,7 @@ private class SubspacePaddingElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        val otherElement = other as? PaddingNode ?: return false
+        val otherElement = other as? SubspacePaddingElement ?: return false
 
         return start == otherElement.start &&
             top == otherElement.top &&

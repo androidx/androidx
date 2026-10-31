@@ -32,6 +32,7 @@ import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Rule
 import org.junit.Test
@@ -262,5 +263,60 @@ class PaddingTest {
             .assertWidthIsEqualTo(0.dp)
             .assertHeightIsEqualTo(0.dp)
             .assertDepthIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun padding_equalsAndHashCode() {
+        val padding1 = SubspaceModifier.padding(10.dp)
+        val padding2 = SubspaceModifier.padding(horizontal = 10.dp, vertical = 10.dp, depth = 10.dp)
+        val padding3 =
+            SubspaceModifier.padding(
+                start = 10.dp,
+                top = 10.dp,
+                end = 10.dp,
+                bottom = 10.dp,
+                front = 10.dp,
+                back = 10.dp,
+            )
+        val paddingDifferent =
+            SubspaceModifier.padding(
+                start = 20.dp,
+                top = 10.dp,
+                end = 10.dp,
+                bottom = 10.dp,
+                front = 10.dp,
+                back = 10.dp,
+            )
+        val absolutePadding1 =
+            SubspaceModifier.absolutePadding(
+                left = 10.dp,
+                top = 10.dp,
+                right = 10.dp,
+                bottom = 10.dp,
+                front = 10.dp,
+                back = 10.dp,
+            )
+        val absolutePadding2 =
+            SubspaceModifier.absolutePadding(
+                left = 10.dp,
+                top = 10.dp,
+                right = 10.dp,
+                bottom = 10.dp,
+                front = 10.dp,
+                back = 10.dp,
+            )
+
+        assertThat(padding1).isEqualTo(padding1)
+        assertThat(padding1).isEqualTo(padding2)
+        assertThat(padding1).isEqualTo(padding3)
+        assertThat(padding1.hashCode()).isEqualTo(padding2.hashCode())
+        assertThat(padding1.hashCode()).isEqualTo(padding3.hashCode())
+        assertThat(absolutePadding1).isEqualTo(absolutePadding2)
+        assertThat(absolutePadding1.hashCode()).isEqualTo(absolutePadding2.hashCode())
+
+        assertThat(padding1).isNotEqualTo(paddingDifferent)
+        assertThat(padding1).isNotEqualTo(absolutePadding1)
+        assertThat(padding1).isNotEqualTo(null)
+        assertThat(padding1).isNotEqualTo("not a padding modifier")
     }
 }

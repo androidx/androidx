@@ -41,6 +41,7 @@ import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertPositionIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -242,5 +243,29 @@ class OffsetTest {
         composeTestRule
             .onSubspaceNodeWithTag("panel")
             .assertPositionInRootIsEqualTo(40.dp, 0.dp, 0.dp)
+    }
+
+    @Test
+    fun offset_equalsAndHashCode() {
+        val offset1 = SubspaceModifier.offset(10.dp, 20.dp, 30.dp)
+        val offset2 = SubspaceModifier.offset(10.dp, 20.dp, 30.dp)
+        val offsetDifferentX = SubspaceModifier.offset(15.dp, 20.dp, 30.dp)
+        val offsetDifferentY = SubspaceModifier.offset(10.dp, 25.dp, 30.dp)
+        val offsetDifferentZ = SubspaceModifier.offset(10.dp, 20.dp, 35.dp)
+        val absoluteOffset1 = SubspaceModifier.absoluteOffset(10.dp, 20.dp, 30.dp)
+        val absoluteOffset2 = SubspaceModifier.absoluteOffset(10.dp, 20.dp, 30.dp)
+
+        assertThat(offset1).isEqualTo(offset1)
+        assertThat(offset1).isEqualTo(offset2)
+        assertThat(offset1.hashCode()).isEqualTo(offset2.hashCode())
+        assertThat(absoluteOffset1).isEqualTo(absoluteOffset2)
+        assertThat(absoluteOffset1.hashCode()).isEqualTo(absoluteOffset2.hashCode())
+
+        assertThat(offset1).isNotEqualTo(offsetDifferentX)
+        assertThat(offset1).isNotEqualTo(offsetDifferentY)
+        assertThat(offset1).isNotEqualTo(offsetDifferentZ)
+        assertThat(offset1).isNotEqualTo(absoluteOffset1)
+        assertThat(offset1).isNotEqualTo(null)
+        assertThat(offset1).isNotEqualTo("not an offset modifier")
     }
 }
