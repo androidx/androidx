@@ -18,15 +18,23 @@ package androidx.web.compose
 
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
+import android.os.Parcel
+import android.os.SystemClock
 import android.view.Choreographer
+import android.view.DragEvent
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +53,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -58,7 +68,10 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -77,6 +90,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.web.WebContent
 import androidx.web.WebContentView
@@ -461,6 +475,64 @@ class WebSurfaceTest {
         }
     }
 
+    @Test
+    fun testAccessibilityTreePreservedInsideMergingClickableContainer() {
+        val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        lateinit var bridge: TestWebViewBridge
+        lateinit var hostView: View
+        var explicitMerge by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Column(
+                modifier = Modifier.clickable {}.semantics { contentDescription = "Compose email" }
+            ) {
+                WebSurface(
+                    content = webContent,
+                    modifier =
+                        Modifier.size(200.dp)
+                            .testTag("surface")
+                            .then(
+                                if (explicitMerge) {
+                                    Modifier.semantics(mergeDescendants = true) {}
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                    bridgeFactory = { ctx ->
+                        TestWebViewBridge(ctx)
+                            .apply {
+                                fakeAccessibilityNodeProvider =
+                                    FakeAccessibilityNodeProvider(this, "Accessible Button")
+                            }
+                            .also { bridge = it }
+                    },
+                )
+            }
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            findNodeByText(uiAutomation.rootInActiveWindow, "Accessible Button") != null
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val surfaceId = composeTestRule.onNodeWithTag("surface").fetchSemanticsNode().id
+            composeTestRule.runOnIdle {
+                val info =
+                    hostView.accessibilityNodeProvider!!.createAccessibilityNodeInfo(surfaceId)!!
+                assertFalse(info.isScreenReaderFocusable)
+                explicitMerge = true
+            }
+            composeTestRule.runOnIdle {
+                val info =
+                    hostView.accessibilityNodeProvider!!.createAccessibilityNodeInfo(surfaceId)!!
+                assertTrue(info.isScreenReaderFocusable)
+            }
+        }
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun testFocusAndKeyInterop() {
@@ -721,7 +793,7 @@ class WebSurfaceTest {
         )
 
         // Like a child View, the page takes taps on the surface before click handlers around it.
-        composeTestRule.onNodeWithTag("surface", useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag("surface").performClick()
         composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.clicks") == "1" }
         composeTestRule.runOnIdle { assertEquals(0, ancestorClicks) }
 
@@ -1467,6 +1539,284 @@ class WebSurfaceTest {
             )
         }
         composeTestRule.runOnIdle { assertTrue(listState.firstVisibleItemScrollOffset > 0) }
+    }
+
+    @Test
+    fun testDragAndDropTargetOnWebSurfaceReceivesDrops() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+        var bridgeSawDrag = false
+        var started = false
+        var moved = false
+        var dropped = false
+        var ended = false
+
+        val dropTarget =
+            object : DragAndDropTarget {
+                override fun onStarted(event: DragAndDropEvent) {
+                    started = true
+                }
+
+                override fun onMoved(event: DragAndDropEvent) {
+                    moved = true
+                }
+
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    dropped = true
+                    return true
+                }
+
+                override fun onEnded(event: DragAndDropEvent) {
+                    ended = true
+                }
+            }
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            WebSurface(
+                content = webContent,
+                modifier =
+                    Modifier.size(150.dp)
+                        .dragAndDropTarget(shouldStartDragAndDrop = { true }, target = dropTarget),
+                bridgeFactory = {
+                    WebViewBridge(it).also { b ->
+                        @Suppress("DEPRECATION")
+                        b.setOnDragListener { _, _ ->
+                            bridgeSawDrag = true
+                            true
+                        }
+                        bridge = b
+                    }
+                },
+            )
+        }
+
+        bridge.loadHtml("<html><body></body></html>")
+
+        composeTestRule.runOnIdle {
+            assertTrue(
+                hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_STARTED, 0f, 0f))
+            )
+            hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_LOCATION, 50f, 50f))
+            assertTrue(hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DROP, 50f, 50f)))
+            hostView.dispatchDragEvent(obtainDragEvent(DragEvent.ACTION_DRAG_ENDED, 0f, 0f))
+
+            assertFalse(bridgeSawDrag)
+            assertTrue(started)
+            assertTrue(moved)
+            assertTrue(dropped)
+            assertTrue(ended)
+        }
+    }
+
+    @Test
+    fun testWindowInsetsNotDispatchedToBridgeAndPreservedForSiblingAndroidView() {
+        lateinit var hostView: View
+        var bridgeSawInsets = false
+        var siblingSawInsets = false
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Column {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = { ctx ->
+                        WebViewBridge(ctx).apply {
+                            @Suppress("DEPRECATION")
+                            setOnApplyWindowInsetsListener { _, insets ->
+                                bridgeSawInsets = true
+                                insets.consumeSystemWindowInsets()
+                            }
+                        }
+                    },
+                )
+                AndroidView(
+                    factory = { ctx ->
+                        View(ctx).apply {
+                            setOnApplyWindowInsetsListener { _, insets ->
+                                siblingSawInsets = true
+                                insets
+                            }
+                        }
+                    },
+                    modifier = Modifier.size(50.dp),
+                )
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            val rootInsets = checkNotNull(hostView.rootWindowInsets)
+            hostView.dispatchApplyWindowInsets(WindowInsets(rootInsets))
+
+            assertFalse(bridgeSawInsets)
+            assertTrue(siblingSawInsets)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testTrackpadPanExitingBoundsCancelsGesture() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+        var topOffset by mutableStateOf(0.dp)
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Box(modifier = Modifier.padding(top = topOffset)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(150.dp).testTag("surface"),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <head><meta name='viewport' content='width=device-width,initial-scale=1'></head>
+            <body style='margin:0;'>
+                <div style='width:100vw;height:200vh;'
+                     ontouchstart='(window.events = window.events || []).push("start")'
+                     ontouchmove='(window.events = window.events || []).push("move")'
+                     ontouchcancel='(window.events = window.events || []).push("cancel")'
+                     onclick='window.clicks = (window.clicks || 0) + 1'></div>
+            </body>
+            </html>
+            """
+        )
+
+        val screenLocation = IntArray(2)
+        val downTime = SystemClock.uptimeMillis()
+
+        fun dispatchTrackpadSwipe(eventTime: Long, action: Int, x: Float, y: Float, deltaY: Float) {
+            val properties =
+                arrayOf(
+                    MotionEvent.PointerProperties().apply {
+                        id = 0
+                        toolType = MotionEvent.TOOL_TYPE_FINGER
+                    }
+                )
+            val coords =
+                arrayOf(
+                    MotionEvent.PointerCoords().apply {
+                        this.x = screenLocation[0] + x
+                        this.y = screenLocation[1] + y
+                        setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE, 0f)
+                        setAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE, deltaY)
+                    }
+                )
+            val event =
+                MotionEvent.obtain(
+                    downTime,
+                    eventTime,
+                    action,
+                    1,
+                    properties,
+                    coords,
+                    0,
+                    0,
+                    1f,
+                    1f,
+                    0,
+                    0,
+                    InputDevice.SOURCE_TOUCHSCREEN,
+                    0,
+                    0,
+                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+                )!!
+            event.offsetLocation(-screenLocation[0].toFloat(), -screenLocation[1].toFloat())
+            hostView.dispatchTouchEvent(event)
+            event.recycle()
+        }
+
+        composeTestRule.runOnIdle {
+            hostView.getLocationOnScreen(screenLocation)
+            dispatchTrackpadSwipe(downTime, MotionEvent.ACTION_DOWN, 50f, 80f, 0f)
+            dispatchTrackpadSwipe(downTime + 16L, MotionEvent.ACTION_MOVE, 50f, 20f, 60f)
+            // Shift WebSurface out from under the stationary cursor mid-pan.
+            topOffset = 200.dp
+        }
+
+        composeTestRule.runOnIdle {
+            dispatchTrackpadSwipe(downTime + 32L, MotionEvent.ACTION_MOVE, 50f, -20f, 40f)
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,cancel\""
+        }
+
+        // Subsequent taps still reach the page cleanly.
+        composeTestRule.onNodeWithTag("surface").performClick()
+        composeTestRule.waitUntil(TIMEOUT_MS) { bridge.evaluateJs("window.clicks") == "1" }
+    }
+
+    @Test
+    fun testHoveredDragExitingBoundsContinuesGesture() {
+        lateinit var bridge: WebViewBridge
+        lateinit var hostView: View
+
+        composeTestRule.setContent {
+            hostView = LocalView.current
+            Box(modifier = Modifier.size(200.dp)) {
+                WebSurface(
+                    content = webContent,
+                    modifier = Modifier.size(100.dp),
+                    bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+                )
+            }
+        }
+
+        bridge.loadHtml(
+            """
+            <html>
+            <body style='margin:0;'
+                  ontouchstart='(window.events = window.events || []).push("start")'
+                  ontouchmove='(window.events = window.events || []).push("move")'
+                  ontouchend='(window.events = window.events || []).push("end")'
+                  ontouchcancel='(window.events = window.events || []).push("cancel")'>
+                <div style='width:100vw;height:100vh;'></div>
+            </body>
+            </html>
+            """
+        )
+
+        composeTestRule.runOnIdle {
+            val downTime = SystemClock.uptimeMillis()
+            var eventTime = downTime
+            val outsideY = with(composeTestRule.density) { 150.dp.toPx() }
+            fun event(action: Int, y: Float) =
+                MotionEvent.obtain(downTime, eventTime, action, 50f, y, 0).apply {
+                    eventTime += 16L
+                    source = InputDevice.SOURCE_TOUCHSCREEN
+                }
+
+            hostView.dispatchGenericMotionEvent(event(MotionEvent.ACTION_HOVER_ENTER, 50f))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_DOWN, 50f))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_MOVE, outsideY))
+            hostView.dispatchTouchEvent(event(MotionEvent.ACTION_UP, outsideY))
+        }
+
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            bridge.evaluateJs("(window.events || []).join(',')") == "\"start,move,end\""
+        }
+    }
+
+    private fun obtainDragEvent(action: Int, x: Float, y: Float): DragEvent {
+        val parcel = Parcel.obtain()
+        try {
+            parcel.writeInt(action)
+            parcel.writeFloat(x)
+            parcel.writeFloat(y)
+            parcel.writeInt(0) // Result
+            parcel.writeInt(0) // No ClipData
+            parcel.writeInt(0) // No ClipDescription
+            parcel.setDataPosition(0)
+            return DragEvent.CREATOR.createFromParcel(parcel)
+        } finally {
+            parcel.recycle()
+        }
     }
 
     /**

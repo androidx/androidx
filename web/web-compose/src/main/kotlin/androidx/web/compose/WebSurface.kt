@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
@@ -468,6 +469,9 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         }
     }
 
+    override val shouldMergeDescendantSemantics: Boolean
+        get() = true
+
     override fun SemanticsPropertyReceiver.applySemantics() {
         holder?.let { this[WebSurfaceHolderKey] = it }
     }
@@ -603,9 +607,22 @@ internal class WebSurfaceNode<T : WebViewBridge>(private var state: WebSurfaceSt
         pass: PointerEventPass,
         bounds: IntSize,
     ) {
+        val motionEvent = pointerEvent.motionEvent ?: return
+        // Trackpad swipes on API 34+ have pressed = false; ignore synthetic Enter/Exit touch
+        // events and cancel on Exit since Compose drops the pointer without sending ACTION_UP.
+        if (
+            motionEvent.isTouchAction &&
+                !pointerEvent.changes.fastAny { it.pressed } &&
+                (pointerEvent.type == PointerEventType.Enter ||
+                    pointerEvent.type == PointerEventType.Exit)
+        ) {
+            if (pass == PointerEventPass.Final && pointerEvent.type == PointerEventType.Exit) {
+                onCancelPointerInput()
+            }
+            return
+        }
         // It takes drags for parents in the Initial pass, before we forward events to Chromium.
         nestedScrollHandover.onPointerEvent(pointerEvent, pass)
-        val motionEvent = pointerEvent.motionEvent ?: return
         if (motionEvent.isTouchAction) {
             if (onTouchEvent(motionEvent, pass, consumed = pointerEvent.isConsumed)) {
                 pointerEvent.consume()
