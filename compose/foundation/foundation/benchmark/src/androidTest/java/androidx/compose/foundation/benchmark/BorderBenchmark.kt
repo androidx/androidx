@@ -27,7 +27,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerRounding
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -40,13 +39,17 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkDraw
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import org.junit.After
@@ -96,13 +99,7 @@ class BorderBenchmark(
                             bottomStart = 24.dp,
                         ),
                     // Simple Outline.Generic
-                    "SimpleGeneric" to
-                        GenericShape { size, _ ->
-                            moveTo(size.width / 2f, 0f)
-                            lineTo(size.width, size.height)
-                            lineTo(0f, size.height)
-                            close()
-                        },
+                    "SimpleGeneric" to CachedTriangleShape(),
                     // Complex Outline.Generic
                     "ComplexGeneric" to
                         PolygonShape.star(
@@ -250,6 +247,40 @@ private class BorderTestCase(
 
     fun toggleWidth() {
         borderWidth.value = if (borderWidth.value == 2.dp) 4.dp else 2.dp
+    }
+}
+
+/**
+ * A triangle [Shape] that returns the same [Outline] instance while the size is unchanged, like
+ * [PolygonShape] does. [androidx.compose.foundation.shape.GenericShape] creates a new [Outline] for
+ * every [createOutline] call, which is expensive and causes border invalidations since we don't
+ * know if the path has changed.
+ *
+ * This is more representative of typical usage, we should update built-in shapes to be more
+ * efficient with caching outlines where possible.
+ */
+private class CachedTriangleShape : Shape {
+    private var cachedSize: Size = Size.Unspecified
+    private var cachedOutline: Outline? = null
+
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Outline {
+        val cached = cachedOutline
+        if (cached != null && size == cachedSize) return cached
+        val path =
+            Path().apply {
+                moveTo(size.width / 2f, 0f)
+                lineTo(size.width, size.height)
+                lineTo(0f, size.height)
+                close()
+            }
+        return Outline.Generic(path).also {
+            cachedSize = size
+            cachedOutline = it
+        }
     }
 }
 
