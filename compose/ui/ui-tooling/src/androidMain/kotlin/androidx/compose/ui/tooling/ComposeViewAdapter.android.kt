@@ -307,9 +307,9 @@ internal class ComposeViewAdapter : FrameLayout {
 
         processViewInfos()
         if (composableName.isNotEmpty()) {
-            findAndTrackAnimations()
+            val slotTrees = findAndTrackAnimations()
             if (lookForDesignInfoProviders) {
-                findDesignInfoProviders()
+                findDesignInfoProviders(slotTrees ?: slotTableRecord.store.map { it.asTree() })
             }
         }
     }
@@ -321,26 +321,24 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /**
      * Finds all animations defined in the Compose tree where the root is the `@Composable` being
-     * previewed.
+     * previewed. Returns the materialized slot trees if animations were attached to [clock], or
+     * `null` if no slot trees needed to be built.
      */
-    private fun findAndTrackAnimations() {
-        val slotTrees = slotTableRecord.store.map { it.asTree() }
-        val isAnimationPreview = ::clock.isInitialized
-        AnimationSearch(::clock).let {
-            hasAnimations = it.searchAny(slotTrees)
-            if (isAnimationPreview && hasAnimations) {
-                it.attachAllAnimations(slotTrees)
-            }
+    private fun findAndTrackAnimations(): List<Group>? {
+        hasAnimations = AnimationSearch.hasAnimations(slotTableRecord.store)
+        if (::clock.isInitialized && hasAnimations) {
+            val slotTrees = slotTableRecord.store.map { it.asTree() }
+            AnimationSearch(::clock).attachAllAnimations(slotTrees)
+            return slotTrees
         }
+        return null
     }
 
     /**
      * Find all data objects within the slotTree that can invoke '[DESIGN_INFO_METHOD]', and store
      * their result in [designInfoList].
      */
-    private fun findDesignInfoProviders() {
-        val slotTrees = slotTableRecord.store.map { it.asTree() }
-
+    private fun findDesignInfoProviders(slotTrees: List<Group>) {
         designInfoList = slotTrees.flatMap { rootGroup ->
             rootGroup
                 .findAll { group ->

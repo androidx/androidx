@@ -877,6 +877,59 @@ class ComposeViewAdapterTest {
     }
 
     @Test
+    fun staticPreviewWithoutDesignInfoProvidersHasNoAnimations() {
+        val committedAndDrawn = CountDownLatch(1)
+        val committed = AtomicBoolean(false)
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "SimpleComposablePreview",
+                lookForDesignInfoProviders = false,
+                onCommit = { committed.set(true) },
+                onDraw = {
+                    if (committed.get()) {
+                        committedAndDrawn.countDown()
+                    }
+                },
+            )
+            composeViewAdapter.requestLayout()
+        }
+        assertTrue(committedAndDrawn.await(5, TimeUnit.SECONDS))
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
+            assertFalse(composeViewAdapter.hasAnimations())
+            assertTrue(composeViewAdapter.designInfoList.isEmpty())
+        }
+    }
+
+    @Test
+    fun animatedPreviewWithDesignInfoProvidersTracksBoth() {
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.compose.ui.tooling.DesignInfoProviderComposableKt",
+                "AnimatedDesignInfoProvider",
+                animationClockStartTime = 0,
+                lookForDesignInfoProviders = true,
+                designInfoProvidersArgument = "B",
+            )
+        }
+        waitFor(5, TimeUnit.SECONDS) {
+            composeViewAdapter.requestLayout()
+            composeViewAdapter.clockInitialized &&
+                composeViewAdapter.hasAnimations() &&
+                composeViewAdapter.designInfoList.isNotEmpty()
+        }
+        activityTestRule.runOnUiThread {
+            assertTrue(composeViewAdapter.hasAnimations())
+            assertEquals(
+                listOf("checkBoxAnim"),
+                composeViewAdapter.clock.animationClocks.values.map { it.animation.label },
+            )
+            assertEquals(listOf("ObjectB, x=0, y=0"), composeViewAdapter.designInfoList)
+        }
+    }
+
+    @Test
     fun testFakeOnBackPressedDispatcherOwnerExistsInComposeViewAdapter() {
         val composeViewAdapterClass = ComposeViewAdapter::class.java
         val field = composeViewAdapterClass.getDeclaredField("FakeOnBackPressedDispatcherOwner")

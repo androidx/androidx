@@ -24,6 +24,10 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.tooling.AnimateValueAsStateToolingHandle
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.CompositionData
+import androidx.compose.runtime.tooling.CompositionGroup
+import androidx.compose.runtime.tooling.parseSourceInformation
 import androidx.compose.ui.tooling.AnimationDebugMutableState
 import androidx.compose.ui.tooling.animation.TriggerComposeAnimation.Companion.parse
 import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
@@ -152,7 +156,7 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
     /**
      * Finds all animations defined in the Compose tree where the root is the `@Composable` being
      * previewed. Each found animation is mapped to corresponding animation type and tracked. It
-     * should NOT be called if no animation is found with [searchAny].
+     * should NOT be called if no animation is found with [hasAnimations] or [searchAny].
      */
     fun attachAllAnimations(slotTrees: Collection<Group>) {
         // Check all the slot tables, since some animations might not be present in the same
@@ -441,7 +445,7 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
     class TriggerSearch(track: (TriggerComposeAnimation<*>) -> Unit) :
         Search<TriggerComposeAnimation<*>>(track) {
         override fun hasAnimation(group: Group): Boolean {
-            return group.data.contains { element: Any? -> element is AnimationDebugMutableState<*> }
+            return group.data.any { element -> element is AnimationDebugMutableState<*> }
         }
 
         override fun addAnimations(groups: Collection<Group>) {
@@ -461,6 +465,164 @@ internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
                     .distinctBy { it.animationObject }
 
             animations.addAll(triggers)
+        }
+    }
+
+    companion object {
+        /**
+         * Returns whether any supported animation is present in [slotTables], traversing
+         * [CompositionGroup]s directly without materializing [Group] trees via `asTree()`.
+         */
+        @OptIn(ComposeToolingApi::class)
+        fun hasAnimations(slotTables: Collection<CompositionData>): Boolean {
+            val checkTriggers = isAnimationPreviewEnabled
+            for (slotTable in slotTables) {
+                val root = slotTable.compositionGroups.firstOrNull() ?: continue
+                if (
+                    hasSupportedAnimation(
+                        group = root,
+                        parent = null,
+                        childIndexInParent = 0,
+                        checkTriggers = checkTriggers,
+                    )
+                ) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        @OptIn(ComposeToolingApi::class)
+        private fun hasSupportedAnimation(
+            group: CompositionGroup,
+            parent: CompositionGroup?,
+            childIndexInParent: Int,
+            checkTriggers: Boolean,
+        ): Boolean {
+            if (checkTriggers && group.data.any { it is AnimationDebugMutableState<*> }) {
+                return true
+            }
+            if (group.node == null) {
+                val info = group.sourceInfo
+                if (
+                    info != null &&
+                        matchesSupportedCallGroup(group, info, parent, childIndexInParent)
+                ) {
+                    return true
+                }
+            }
+            var childIndex = 0
+            for (child in group.compositionGroups) {
+                if (
+                    hasSupportedAnimation(
+                        group = child,
+                        parent = group,
+                        childIndexInParent = childIndex,
+                        checkTriggers = checkTriggers,
+                    )
+                ) {
+                    return true
+                }
+                childIndex++
+            }
+            return false
+        }
+
+        @OptIn(ComposeToolingApi::class)
+        private fun matchesSupportedCallGroup(
+            group: CompositionGroup,
+            info: String,
+            parent: CompositionGroup?,
+            childIndexInParent: Int,
+        ): Boolean =
+            when {
+                hasCallNamePrefix(info, UPDATE_TRANSITION) ->
+                    hasSourceLocation(info, parent, childIndexInParent)
+                hasCallNamePrefix(info, ANIMATED_VISIBILITY) ->
+                    hasSourceLocation(info, parent, childIndexInParent) &&
+                        group.compositionGroups.any { it.hasCallName(UPDATE_TRANSITION) }
+                hasCallNamePrefix(info, ANIMATED_CONTENT) ->
+                    AnimatedContentComposeAnimation.apiAvailable &&
+                        hasSourceLocation(info, parent, childIndexInParent) &&
+                        group.compositionGroups.any { it.hasCallName(UPDATE_TRANSITION) }
+                hasCallNamePrefix(info, ANIMATE_VALUE_AS_STATE) ->
+                    AnimateXAsStateComposeAnimation.apiAvailable &&
+                        hasSourceLocation(info, parent, childIndexInParent) &&
+                        hasToolingHandle(group)
+                hasCallNamePrefix(info, REMEMBER_INFINITE_TRANSITION) ->
+                    InfiniteTransitionComposeAnimation.apiAvailable &&
+                        hasSourceLocation(info, parent, childIndexInParent) &&
+                        hasDataOfType<InfiniteTransition>(group, maxDepth = 1) &&
+                        hasDataOfType<MutableState<State<Long>?>>(group, maxDepth = 2)
+                else -> false
+            }
+
+        private fun hasCallNamePrefix(sourceInfo: String, expectedName: String): Boolean {
+            val nameStart =
+                when {
+                    sourceInfo.startsWith("CC(") -> 3
+                    sourceInfo.startsWith("C(") -> 2
+                    else -> return false
+                }
+            val nameEnd = nameStart + expectedName.length
+            return nameEnd < sourceInfo.length &&
+                sourceInfo[nameEnd] == ')' &&
+                sourceInfo.regionMatches(nameStart, expectedName, 0, expectedName.length)
+        }
+
+        @OptIn(ComposeToolingApi::class)
+        private fun CompositionGroup.hasCallName(expectedName: String): Boolean {
+            if (node != null) return false
+            val info = sourceInfo ?: return false
+            return hasCallNamePrefix(info, expectedName) && parseSourceInformation(info) != null
+        }
+
+        @OptIn(ComposeToolingApi::class)
+        private fun hasSourceLocation(
+            groupInfo: String,
+            parent: CompositionGroup?,
+            childIndexInParent: Int,
+        ): Boolean {
+            if (parent == null) return false
+            if (parseSourceInformation(groupInfo)?.isCall != true) return false
+            val parentInfo = parent.sourceInfo ?: return false
+            val parsedParent = parseSourceInformation(parentInfo) ?: return false
+            val locations = parsedParent.locations
+            if (locations.isEmpty()) return false
+            if (childIndexInParent < locations.size || locations.any { it.isRepeatable }) {
+                return true
+            }
+            var callIndex = 0
+            var siblingIndex = 0
+            for (sibling in parent.compositionGroups) {
+                if (siblingIndex >= childIndexInParent) break
+                if (sibling.sourceInfo?.let { parseSourceInformation(it)?.isCall } == true) {
+                    callIndex++
+                }
+                siblingIndex++
+            }
+            return callIndex < locations.size
+        }
+
+        private fun hasToolingHandle(group: CompositionGroup): Boolean =
+            hasDataOfType<AnimateValueAsStateToolingHandle<*, *>>(group, maxDepth = 3)
+
+        private inline fun <reified T> hasDataOfType(
+            group: CompositionGroup,
+            maxDepth: Int = 3,
+        ): Boolean = hasDataOfType(group, maxDepth) { it is T }
+
+        private fun hasDataOfType(
+            group: CompositionGroup,
+            maxDepth: Int,
+            predicate: (Any?) -> Boolean,
+        ): Boolean {
+            if (group.data.any(predicate)) return true
+            if (maxDepth <= 0) return false
+            for (child in group.compositionGroups) {
+                if (hasDataOfType(child, maxDepth - 1, predicate)) return true
+            }
+            return false
         }
     }
 }

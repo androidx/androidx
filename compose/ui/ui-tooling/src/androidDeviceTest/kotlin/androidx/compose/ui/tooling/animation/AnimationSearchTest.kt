@@ -17,14 +17,17 @@
 package androidx.compose.ui.tooling.animation
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.AnimateAsStatePreview
 import androidx.compose.ui.tooling.AnimateAsStateWithLabelsPreview
@@ -32,10 +35,12 @@ import androidx.compose.ui.tooling.AnimateContentSizePreview
 import androidx.compose.ui.tooling.AnimatedContentExtensionPreview
 import androidx.compose.ui.tooling.AnimatedContentPreview
 import androidx.compose.ui.tooling.AnimatedVisibilityPreview
+import androidx.compose.ui.tooling.CompositionDataRecord
 import androidx.compose.ui.tooling.CrossFadePreview
 import androidx.compose.ui.tooling.CrossFadeWithLabelPreview
 import androidx.compose.ui.tooling.DecayAnimationPreview
 import androidx.compose.ui.tooling.InfiniteTransitionPreview
+import androidx.compose.ui.tooling.Inspectable
 import androidx.compose.ui.tooling.NullAnimateAsStatePreview
 import androidx.compose.ui.tooling.NullAnimatedContentPreview
 import androidx.compose.ui.tooling.NullTransitionPreview
@@ -47,6 +52,8 @@ import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
 import androidx.compose.ui.tooling.animation.Utils.hasAnimations
 import androidx.compose.ui.tooling.animationDebugMutableStateOf
+import androidx.compose.ui.tooling.data.UiToolingDataApi
+import androidx.compose.ui.tooling.data.asTree
 import androidx.compose.ui.tooling.isAnimationPreviewEnabled
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -70,6 +77,9 @@ class AnimationSearchTest {
     @After
     fun tearDown() {
         isAnimationPreviewEnabled = false
+        AnimateXAsStateComposeAnimation.testOverrideAvailability(true)
+        AnimatedContentComposeAnimation.testOverrideAvailability(true)
+        InfiniteTransitionComposeAnimation.testOverrideAvailability(true)
     }
 
     @Test
@@ -510,6 +520,127 @@ class AnimationSearchTest {
         }
         rule.waitForIdle()
         assertEquals(0, search.animations.size)
+    }
+
+    @Test
+    fun triggerHasAnimationsIsFound() {
+        isAnimationPreviewEnabled = true
+        animationIsFound(AnimationSearch.TriggerSearch {}) {
+            val state by remember {
+                animationDebugMutableStateOf(
+                    value = true,
+                    { mutableStateOf(it) },
+                    states = { setOf(true, false) },
+                    label = "customTrigger",
+                )
+            }
+            Text(if (state) "On" else "Off")
+        }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_staticAndUnsupportedComposablesAreFalse() {
+        assertHasAnimationsMatchesSearchAny(expected = false) {
+            val label = remember { "StaticLabel" }
+            val counter by remember { mutableStateOf(0) }
+            remember { Animatable(0f) }
+            Box(Modifier) { Text("$label $counter") }
+            AnimateContentSizePreview()
+            TargetBasedAnimationPreview()
+            DecayAnimationPreview()
+        }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_transitionIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { TransitionPreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_crossFadeIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { CrossFadePreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_transitionAnimatedVisibilityIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) {
+            TransitionAnimatedVisibilityPreview()
+        }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_animatedContentExtensionIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { AnimatedContentExtensionPreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_animatedVisibilityIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { AnimatedVisibilityPreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_animatedContentIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { AnimatedContentPreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_animateAsStateIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { AnimateAsStatePreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_infiniteTransitionIsTrue() {
+        assertHasAnimationsMatchesSearchAny(expected = true) { InfiniteTransitionPreview() }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_triggerWhenAnimationPreviewDisabledIsFalse() {
+        isAnimationPreviewEnabled = false
+        assertHasAnimationsMatchesSearchAny(expected = false) {
+            val state by remember {
+                animationDebugMutableStateOf(
+                    value = true,
+                    { mutableStateOf(it) },
+                    states = { setOf(true, false) },
+                    label = "customTrigger",
+                )
+            }
+            Text(if (state) "On" else "Off")
+        }
+    }
+
+    @Test
+    fun hasAnimationsFromSlotTables_triggerWhenAnimationPreviewEnabledIsTrue() {
+        isAnimationPreviewEnabled = true
+        assertHasAnimationsMatchesSearchAny(expected = true) {
+            val state by remember {
+                animationDebugMutableStateOf(
+                    value = true,
+                    { mutableStateOf(it) },
+                    states = { setOf(true, false) },
+                    label = "customTrigger",
+                )
+            }
+            Text(if (state) "On" else "Off")
+        }
+    }
+
+    @OptIn(UiToolingDataApi::class)
+    private fun assertHasAnimationsMatchesSearchAny(
+        expected: Boolean,
+        content: @Composable () -> Unit,
+    ) {
+        val slotTableRecord = CompositionDataRecord.create()
+        rule.setContent { Inspectable(slotTableRecord) { content() } }
+        rule.runOnIdle {
+            val fromSlotTables = AnimationSearch.hasAnimations(slotTableRecord.store)
+            val fromSlotTrees = AnimationSearch {
+                PreviewAnimationClock({}, {})
+            }
+                .searchAny(slotTableRecord.store.map { it.asTree() })
+            assertEquals(expected, fromSlotTables)
+            assertEquals(fromSlotTrees, fromSlotTables)
+        }
     }
 
     private fun animationIsFound(

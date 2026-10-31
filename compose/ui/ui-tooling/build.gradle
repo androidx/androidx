@@ -64,6 +64,9 @@ androidXMultiplatform {
 
         androidHostTest.dependencies {
             implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinReflect)
+            implementation(project(":compose:animation:animation-tooling-internal"))
         }
 
         androidDeviceTest.dependencies {
