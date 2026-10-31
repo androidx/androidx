@@ -23,8 +23,10 @@ import android.content.ContextWrapper
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.view.Surface
+import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
@@ -37,6 +39,9 @@ import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraSessionLifecycleCallback
+import androidx.camera.core.impl.utils.Threads
+import androidx.camera.core.impl.utils.TransformUtils
+import androidx.camera.core.streamsharing.VirtualCameraInfo
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.camera.viewfinder.compose.Viewfinder
 import androidx.camera.viewfinder.core.FocusState
@@ -71,6 +76,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -81,6 +87,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.Observer
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
@@ -94,13 +101,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -109,12 +110,19 @@ import kotlinx.coroutines.withContext
 
 private const val SCREEN_FLASH_ANIMATION_DURATION_MILLIS = 1000
 
+private val ImmediateMainExecutor = Executor(Threads::runOnMain)
+
 /**
  * An adapter composable that displays frames from CameraX by completing provided [SurfaceRequest]s.
  *
  * This is a wrapper around [Viewfinder] that will convert a CameraX [SurfaceRequest] internally
  * into a [ViewfinderSurfaceRequest]. Additionally, all interactions normally handled through the
  * [ViewfinderSurfaceRequest] will be derived from the [SurfaceRequest].
+ *
+ * [CameraXViewfinder] always orients the preview upright relative to the display, regardless of the
+ * target rotation set on [Preview]. To apply a custom UI rotation to the viewfinder, apply a
+ * Compose rotation modifier (such as [androidx.compose.ui.graphics.graphicsLayer]) when using
+ * [ImplementationMode.EMBEDDED].
  *
  * If [implementationMode] is changed while the provided [surfaceRequest] has been fulfilled, the
  * surface request will be invalidated as if [SurfaceRequest.invalidate] has been called. This will
@@ -135,10 +143,17 @@ private const val SCREEN_FLASH_ANIMATION_DURATION_MILLIS = 1000
  *   compatibility issues (such as on API level 24 and below). Explicitly setting a mode will
  *   override this compatibility logic and may have performance or correctness implications on some
  *   devices. For example, explicitly setting [ImplementationMode.EXTERNAL] while Extensions are
- *   enabled on API level 33 and below will cause the camera session to fail to configure.
+ *   enabled on API level 33 and below will cause the camera session to fail to configure. On API
+ *   levels below 29, [ImplementationMode.EMBEDDED] is always used for streams that the camera does
+ *   not transform itself (e.g. when a [androidx.camera.core.CameraEffect] or stream sharing is
+ *   active), since [ImplementationMode.EXTERNAL] cannot apply their remaining rotation on those API
+ *   levels.
  * @param coordinateTransformer The [MutableCoordinateTransformer] used to map offsets of this
  *   viewfinder to the source coordinates of the data being provided to the surface that fulfills
- *   [surfaceRequest]
+ *   [surfaceRequest]. It is updated during layout, so in the frame the viewfinder is resized, e.g.
+ *   when the display rotates, composition still sees the previous transform. Read it during layout,
+ *   drawing or input handling, for example in a `Modifier.offset {}` lambda, rather than during
+ *   composition.
  * @param alignment Optional alignment parameter used to place the camera feed in the given bounds
  *   of the [CameraXViewfinder]. Defaults to [Alignment.Center].
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be
@@ -180,6 +195,11 @@ public fun CameraXViewfinder(
  * into a [ViewfinderSurfaceRequest]. Additionally, all interactions normally handled through the
  * [ViewfinderSurfaceRequest] will be derived from the [SurfaceRequest].
  *
+ * [CameraXViewfinder] always orients the preview upright relative to the display, regardless of the
+ * target rotation set on [Preview]. To apply a custom UI rotation to the viewfinder, apply a
+ * Compose rotation modifier (such as [androidx.compose.ui.graphics.graphicsLayer]) when using
+ * [ImplementationMode.EMBEDDED].
+ *
  * If [implementationMode] is changed while the provided [surfaceRequest] has been fulfilled, the
  * surface request will be invalidated as if [SurfaceRequest.invalidate] has been called. This will
  * allow CameraX to know that a new surface request is required since the underlying viewfinder
@@ -202,10 +222,17 @@ public fun CameraXViewfinder(
  *   compatibility issues (such as on API level 24 and below). Explicitly setting a mode will
  *   override this compatibility logic and may have performance or correctness implications on some
  *   devices. For example, explicitly setting [ImplementationMode.EXTERNAL] while Extensions are
- *   enabled on API level 33 and below will cause the camera session to fail to configure.
+ *   enabled on API level 33 and below will cause the camera session to fail to configure. On API
+ *   levels below 29, [ImplementationMode.EMBEDDED] is always used for streams that the camera does
+ *   not transform itself (e.g. when a [androidx.camera.core.CameraEffect] or stream sharing is
+ *   active), since [ImplementationMode.EXTERNAL] cannot apply their remaining rotation on those API
+ *   levels.
  * @param coordinateTransformer The [MutableCoordinateTransformer] used to map offsets of this
  *   viewfinder to the source coordinates of the data being provided to the surface that fulfills
- *   [surfaceRequest]
+ *   [surfaceRequest]. It is updated during layout, so in the frame the viewfinder is resized, e.g.
+ *   when the display rotates, composition still sees the previous transform. Read it during layout,
+ *   drawing or input handling, for example in a `Modifier.offset {}` lambda, rather than during
+ *   composition.
  * @param alignment Optional alignment parameter used to place the camera feed in the given bounds
  *   of the [CameraXViewfinder]. Defaults to [Alignment.Center].
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be
@@ -274,80 +301,117 @@ public fun CameraXViewfinder(
 
     val currentImplementationMode by rememberUpdatedState(implementationMode)
     val currentOnStreamStateChanged = rememberUpdatedState(onStreamStateChanged)
-    var sensorToBufferTransform by remember { mutableStateOf<Matrix?>(null) }
 
-    val viewfinderArgs by
-        produceState<ViewfinderArgs?>(initialValue = null, surfaceRequest) {
-            sensorToBufferTransform = null
+    // Not keyed by the SurfaceRequest: the previous arguments keep the Viewfinder (and its Surface)
+    // in place until the first TransformationInfo of a new SurfaceRequest arrives, so that the same
+    // Surface can be provided to the new SurfaceRequest.
+    var viewfinderArgs by remember { mutableStateOf<ViewfinderArgs?>(null) }
+    var lastTransformationInfo by
+        remember(surfaceRequest) { mutableStateOf<CXTransformationInfo?>(null) }
+    var lockedImplementationMode by
+        remember(surfaceRequest) { mutableStateOf<ImplementationMode?>(null) }
+    var isInvalidated by remember(surfaceRequest) { mutableStateOf(false) }
 
-            // Cancel this produceScope in case we haven't yet produced a complete
-            // ViewfinderArgs.
-            surfaceRequest.addRequestCancellationListener(Runnable::run) {
-                this@produceState.cancel()
+    DisposableEffect(surfaceRequest) {
+        // TransformationInfo is delivered on the main thread, but request cancellation can be
+        // signaled from any thread. Run both on the main thread so this state is only accessed
+        // there.
+        var isDisposed = false
+        var isCancelled = false
+        // If a pending replacement SurfaceRequest is cancelled before producing ViewfinderArgs,
+        // clear any previous SurfaceRequest's ViewfinderArgs so a stale Viewfinder is not stranded.
+        // If the cancelled SurfaceRequest already owns viewfinderArgs, keep viewfinderArgs intact
+        // so an incoming replacement SurfaceRequest with matching resolution can reuse its Surface.
+        surfaceRequest.addRequestCancellationListener(ImmediateMainExecutor) {
+            if (isDisposed) return@addRequestCancellationListener
+            Snapshot.withMutableSnapshot {
+                isCancelled = true
+                if (viewfinderArgs?.surfaceRequest !== surfaceRequest) {
+                    viewfinderArgs = null
+                }
             }
-
-            // Convert the CameraX TransformationInfo callback into a StateFlow
-            val transformationInfoFlow: StateFlow<CXTransformationInfo?> =
-                MutableStateFlow<CXTransformationInfo?>(null)
-                    .also { stateFlow ->
-                        // Set a callback to update this state flow
-                        surfaceRequest.setTransformationInfoListener(Runnable::run) { transformInfo
-                            ->
-                            // Set the next value of the flow
-                            stateFlow.value = transformInfo
-                            sensorToBufferTransform = transformInfo.sensorToBufferTransform
-                        }
-                    }
-                    .asStateFlow()
-
-            // The ImplementationMode that will be used for all TransformationInfo updates.
-            // This is locked in once we have updated ViewfinderArgs and won't change until
-            // this produceState block is cancelled and restarted.
-            var snapshotImplementationMode: ImplementationMode? = null
-            snapshotFlow { currentImplementationMode }
-                .combine(transformationInfoFlow.filterNotNull()) { implMode, transformInfo ->
-                    Pair(implMode, transformInfo)
+        }
+        surfaceRequest.setTransformationInfoListener(ImmediateMainExecutor) { transformInfo ->
+            if (isDisposed || isCancelled || isInvalidated) return@setTransformationInfoListener
+            val resolvedMode =
+                CameraImplementationModeCompat.resolveImplementationMode(
+                    currentImplementationMode,
+                    transformInfo,
+                )
+            val lockedMode = lockedImplementationMode
+            if (lockedMode != null && resolvedMode != lockedMode) {
+                // ImplementationMode changed after being locked in; invalidate the SurfaceRequest
+                // so a new SurfaceRequest will be sent.
+                Snapshot.withMutableSnapshot {
+                    lastTransformationInfo = transformInfo
+                    isInvalidated = true
                 }
-                .takeWhile { (implMode, _) ->
-                    val shouldAbort =
-                        snapshotImplementationMode != null && implMode != snapshotImplementationMode
-                    if (shouldAbort) {
-                        // Abort flow and invalidate SurfaceRequest so a new SurfaceRequest will
-                        // be sent.
-                        surfaceRequest.invalidate()
-                    } else {
-                        // Got the first ImplementationMode. This will be used until this
-                        // produceState is cancelled.
-                        snapshotImplementationMode = implMode
-                    }
-                    !shouldAbort
-                }
-                .collect { (implMode, transformInfo) ->
-                    value =
+                surfaceRequest.invalidate()
+            } else {
+                Snapshot.withMutableSnapshot {
+                    lastTransformationInfo = transformInfo
+                    lockedImplementationMode = resolvedMode
+                    viewfinderArgs =
                         ViewfinderArgs(
-                            surfaceRequest,
-                            implMode,
-                            TransformationInfo(
-                                sourceRotation = transformInfo.rotationDegrees,
-                                isSourceMirroredHorizontally = transformInfo.isMirroring,
-                                isSourceMirroredVertically = false,
-                                cropRectLeft = transformInfo.cropRect.left.toFloat(),
-                                cropRectTop = transformInfo.cropRect.top.toFloat(),
-                                cropRectRight = transformInfo.cropRect.right.toFloat(),
-                                cropRectBottom = transformInfo.cropRect.bottom.toFloat(),
-                                transformationMode =
-                                    if (transformInfo.hasCameraTransform()) {
-                                        TransformationMode.DEFERRED
-                                    } else {
-                                        TransformationMode.PRE_APPLIED
-                                    },
-                            ),
+                            surfaceRequest = surfaceRequest,
+                            implementationMode = resolvedMode,
+                            sensorToBufferTransform = Matrix(transformInfo.sensorToBufferTransform),
+                            transformationInfo = transformInfo,
                         )
                 }
+            }
         }
+        onDispose {
+            isDisposed = true
+            surfaceRequest.clearTransformationInfoListener()
+        }
+    }
+
+    val currentLockedMode = lockedImplementationMode
+    val currentTransformInfo = lastTransformationInfo
+    if (
+        !isInvalidated &&
+            currentLockedMode != null &&
+            currentTransformInfo != null &&
+            CameraImplementationModeCompat.resolveImplementationMode(
+                implementationMode,
+                currentTransformInfo,
+            ) != currentLockedMode
+    ) {
+        DisposableEffect(surfaceRequest, implementationMode) {
+            if (!isInvalidated) {
+                isInvalidated = true
+                surfaceRequest.invalidate()
+            }
+            onDispose {}
+        }
+    }
 
     viewfinderArgs?.let { args ->
         val currentArgs by rememberUpdatedState(args)
+        // When the display rotates, the TransformationInfo for the new rotation can arrive after
+        // the viewfinder is laid out in the new orientation. Derive the source rotation from the
+        // display rotation during composition so that it is consistent with the layout of the same
+        // frame. See toViewfinderTransformationInfo().
+        val hasCameraTransform = args.transformationInfo.hasCameraTransform()
+        val displayRotation =
+            rememberCameraDisplayRotation(
+                implementationMode = args.implementationMode,
+                transformationMode =
+                    if (hasCameraTransform) {
+                        TransformationMode.DEFERRED
+                    } else {
+                        TransformationMode.PRE_APPLIED
+                    },
+            )
+        val transformationInfo =
+            remember(args, displayRotation) {
+                args.transformationInfo.toViewfinderTransformationInfo(
+                    cameraInfo = args.surfaceRequest.camera.cameraInfoInternal,
+                    displayRotation = displayRotation,
+                    sensorToBufferTransform = args.sensorToBufferTransform,
+                )
+            }
         val surfaceRequestScope by
             produceState<SurfaceRequestScope?>(null) {
                 snapshotFlow { Pair(currentArgs.surfaceRequest, currentArgs.implementationMode) }
@@ -394,16 +458,16 @@ public fun CameraXViewfinder(
 
         val gestureModifier =
             Modifier.tapToFocusGesture(
-                    camera = surfaceRequest.camera,
+                    camera = args.surfaceRequest.camera,
                     isTapToFocusEnabled = isTapToFocusEnabled,
                     autoCancelDurationMillis = autoCancelDurationMillis,
-                    sensorToBufferTransform = sensorToBufferTransform,
+                    sensorToBufferTransform = args.sensorToBufferTransform,
                     coordinateTransformer = internalCoordinateTransformer,
                     meteringPointFactory = passthroughMeteringPointFactory,
                     onTapToFocus = currentOnTapToFocus,
                 )
                 .pinchToZoomGesture(
-                    camera = surfaceRequest.camera,
+                    camera = args.surfaceRequest.camera,
                     isPinchToZoomEnabled = isPinchToZoomEnabled,
                     onZoomRatioChanged = onZoomRatioChanged,
                 )
@@ -413,7 +477,7 @@ public fun CameraXViewfinder(
             Box(modifier = modifier) {
                 Viewfinder(
                     surfaceRequest = scope.viewfinderSurfaceRequest,
-                    transformationInfo = args.transformationInfo,
+                    transformationInfo = transformationInfo,
                     modifier = Modifier.fillMaxSize().then(gestureModifier),
                     coordinateTransformer = internalCoordinateTransformer,
                     alignment = alignment,
@@ -430,7 +494,7 @@ public fun CameraXViewfinder(
                                             monitorStreamState(
                                                 surfaceRequest,
                                                 cameraInfo,
-                                                currentImplementationMode,
+                                                currentArgs.implementationMode,
                                                 this@onSurfaceSession,
                                                 currentOnStreamStateChanged,
                                             )
@@ -662,8 +726,89 @@ private suspend fun waitForNextFrame(cameraInfo: CameraInfoInternal) {
 private data class ViewfinderArgs(
     val surfaceRequest: SurfaceRequest,
     val implementationMode: ImplementationMode,
-    val transformationInfo: TransformationInfo,
+    /** Defensive copy of the sensor-to-buffer transform for coordinate mapping and rotation. */
+    val sensorToBufferTransform: Matrix,
+    val transformationInfo: CXTransformationInfo,
 )
+
+/**
+ * Converts the CameraX [SurfaceRequest.TransformationInfo] to a viewfinder [TransformationInfo]
+ * whose source rotation orients the stream upright relative to [displayRotation]: from the sensor
+ * orientation for streams with the camera transform, and from [sensorToBufferTransform] (see
+ * [preAppliedSourceRotation]) otherwise.
+ */
+@VisibleForTesting
+internal fun CXTransformationInfo.toViewfinderTransformationInfo(
+    cameraInfo: CameraInfoInternal,
+    displayRotation: Int,
+    sensorToBufferTransform: Matrix = this.sensorToBufferTransform,
+): TransformationInfo =
+    TransformationInfo(
+        sourceRotation =
+            if (hasCameraTransform()) {
+                cameraInfo.getSensorRotationDegrees(displayRotation)
+            } else {
+                preAppliedSourceRotation(sensorToBufferTransform, cameraInfo, displayRotation)
+            },
+        isSourceMirroredHorizontally = isMirroring,
+        isSourceMirroredVertically = false,
+        cropRectLeft = cropRect.left.toFloat(),
+        cropRectTop = cropRect.top.toFloat(),
+        cropRectRight = cropRect.right.toFloat(),
+        cropRectBottom = cropRect.bottom.toFloat(),
+        transformationMode =
+            if (hasCameraTransform()) {
+                TransformationMode.DEFERRED
+            } else {
+                TransformationMode.PRE_APPLIED
+            },
+    )
+
+/**
+ * Returns the remaining clockwise source rotation of a [TransformationMode.PRE_APPLIED] stream for
+ * [displayRotation], derived statelessly from [sensorToBufferTransform] and [cameraInfo].
+ *
+ * When CameraX copies a stream (via stream sharing, a [androidx.camera.core.CameraEffect], or
+ * both), [sensorToBufferTransform] records the total rotation and horizontal mirroring already
+ * baked into the buffer relative to the physical camera sensor. Subtracting that baked rotation
+ * from the sensor rotation for [displayRotation] (and negating when the buffer is mirrored) yields
+ * the exact remaining rotation to orient the preview upright on the display.
+ *
+ * @param sensorToBufferTransform The transform from sensor coordinates to buffer coordinates.
+ * @param cameraInfo The camera reported on the [SurfaceRequest].
+ * @param displayRotation The display rotation to calculate the source rotation for.
+ * @return The clockwise rotation in degrees in `[0, 360)`.
+ */
+@VisibleForTesting
+internal fun preAppliedSourceRotation(
+    sensorToBufferTransform: Matrix,
+    cameraInfo: CameraInfoInternal,
+    displayRotation: Int,
+): Int {
+    val isMirrored = TransformUtils.isMirrored(sensorToBufferTransform)
+    val unmirrored =
+        if (isMirrored) {
+            Matrix(sensorToBufferTransform).apply { postScale(-1f, 1f) }
+        } else {
+            sensorToBufferTransform
+        }
+    val bakedRotation = TransformUtils.getRotationDegrees(unmirrored)
+    val sensorRotation =
+        cameraInfo.physicalOrParentCameraInfo().getSensorRotationDegrees(displayRotation)
+    val remaining = sensorRotation - bakedRotation
+    return TransformUtils.within360(if (isMirrored) -remaining else remaining)
+}
+
+private fun CameraInfoInternal.physicalOrParentCameraInfo(): CameraInfo =
+    if (this !is VirtualCameraInfo) {
+        this
+    } else {
+        cameraSelector.physicalCameraId?.let { id ->
+            implementation.physicalCameraInfos.firstOrNull {
+                it.cameraSelector.physicalCameraId == id
+            }
+        } ?: implementation
+    }
 
 @SuppressLint("RestrictedApiAndroidX")
 @Composable
