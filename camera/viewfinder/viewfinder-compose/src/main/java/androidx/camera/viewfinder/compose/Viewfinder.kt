@@ -28,7 +28,6 @@ import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.TransformationInfo.Companion.DEFAULT
-import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderDefaults
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope
@@ -53,7 +52,6 @@ import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastRoundToInt
 import java.util.concurrent.Executor
@@ -88,7 +86,10 @@ import kotlinx.coroutines.coroutineScope
  * @param coordinateTransformer Coordinate transformer that can be used to convert Compose space
  *   coordinates such as touch coordinates to surface space coordinates. When the Viewfinder is
  *   displaying content from the camera, this transformer can be used to translate touch events into
- *   camera sensor coordinates for focus and metering actions.
+ *   camera sensor coordinates for focus and metering actions. The Viewfinder updates the
+ *   transformer during layout, so in the frame the Viewfinder is resized, e.g. when the display
+ *   rotates, composition still sees the previous transform. Read it during layout, drawing or input
+ *   handling, for example in a `Modifier.offset {}` lambda, rather than during composition.
  * @param alignment Optional alignment parameter used to place the [Surface] in the given bounds of
  *   the [Viewfinder]. Defaults to [Alignment.Center].
  * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be
@@ -216,31 +217,24 @@ private fun TransformedSurface(
             ViewfinderExternalSurface(modifier = modifier, onInit = onInit)
         }
         ImplementationMode.EMBEDDED -> {
-            val displayRotationDegrees =
-                key(LocalConfiguration.current) {
-                    Transformations.surfaceRotationToRotationDegrees(
-                        LocalView.current.display.rotation
-                    )
-                }
-
-            // For TextureView, correct the orientation to match the display rotation.
-            val correctionMatrix = remember { Matrix() }
-
-            transformationInfo.let {
-                val correctionDegrees =
-                    if (it.transformationMode == TransformationMode.DEFERRED) {
-                        displayRotationDegrees
-                    } else {
-                        0
-                    }
-                correctionMatrix.setFrom(
-                    Transformations.getTextureViewCorrectionMatrix(
-                        displayRotationDegrees = correctionDegrees,
-                        width = surfaceWidth,
-                        height = surfaceHeight,
-                    )
+            val contentRotationDegrees =
+                Transformations.getContentRotationDegrees(
+                    transformationInfo,
+                    rememberDisplayRotation(),
+                    implementationMode,
                 )
-            }
+            val correctionMatrix =
+                remember(contentRotationDegrees, surfaceWidth, surfaceHeight) {
+                    Matrix().apply {
+                        setFrom(
+                            Transformations.getContentRotationMatrix(
+                                contentRotationDegrees,
+                                surfaceWidth,
+                                surfaceHeight,
+                            )
+                        )
+                    }
+                }
 
             ViewfinderEmbeddedExternalSurface(
                 modifier = modifier,

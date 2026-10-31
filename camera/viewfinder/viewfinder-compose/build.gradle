@@ -61,6 +61,14 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-unit"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
+
+    testImplementation("androidx.compose.ui:ui-test-junit4:1.11.0")
+    testImplementation("androidx.compose.ui:ui-test-manifest:1.11.0")
+    testImplementation(libs.espressoCore)
+    testImplementation(libs.junit)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
 }
 
 android {
@@ -73,4 +81,5 @@ androidx {
     inceptionYear = "2023"
     description = "Standalone Composable Viewfinder for Camera"
     addGoldenImageAssets()
+    enableRobolectric()
 }

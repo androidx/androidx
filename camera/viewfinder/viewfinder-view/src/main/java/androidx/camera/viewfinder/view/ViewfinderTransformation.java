@@ -30,6 +30,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 
+import androidx.camera.viewfinder.core.ImplementationMode;
 import androidx.camera.viewfinder.core.ScaleType;
 import androidx.camera.viewfinder.core.TransformationInfo;
 import androidx.camera.viewfinder.core.TransformationMode;
@@ -141,15 +142,15 @@ final class ViewfinderTransformation {
         }
 
         if (viewfinder instanceof TextureView) {
-            // For TextureView, correct the orientation to match the display rotation.
-            int correctionDegrees =
-                    mTransformationInfo.getTransformationMode() == TransformationMode.DEFERRED
-                            ? Transformations.surfaceRotationToRotationDegrees(displayRotation) : 0;
-            ((TextureView) viewfinder).setTransform(Transformations.getTextureViewCorrectionMatrix(
-                    correctionDegrees,
-                    mResolution.getWidth(),
-                    mResolution.getHeight()
-            ));
+            TextureView textureView = (TextureView) viewfinder;
+            Matrix correction = getContentRotationMatrix(
+                    ImplementationMode.EMBEDDED, displayRotation);
+            if (!correction.equals(textureView.getTransform(null))) {
+                textureView.setTransform(correction);
+                // Redraw with the new transform even if no new frame is produced, e.g. when only
+                // the display rotation changed.
+                textureView.invalidate();
+            }
         }
 
         RectF surfaceRectInViewfinder = getTransformedSurfaceRect(viewfinderSize,
@@ -180,24 +181,23 @@ final class ViewfinderTransformation {
      * Creates a transformed screenshot of {@link ViewfinderView}.
      *
      * <p> Creates the transformed {@link Bitmap} by applying the same transformation applied to
-     * the inner view. T
+     * the inner view.
      *
      * @param original a snapshot of the untransformed inner view.
+     * @param implementationMode the implementation the snapshot was taken from.
      */
     Bitmap createTransformedBitmap(@NonNull Bitmap original, Size viewfinderSize,
-            int layoutDirection, int displayRotation) {
+            int layoutDirection, @RotationValue int displayRotation,
+            @NonNull ImplementationMode implementationMode) {
         if (!isResolutionAvailable()) {
             return original;
         }
-        int correctionDegrees =
+        // Snapshots of DEFERRED sources are taken without the display rotation applied, like the
+        // content of a TextureView, for both implementations.
+        Matrix textureViewCorrection = getContentRotationMatrix(
                 mTransformationInfo.getTransformationMode() == TransformationMode.DEFERRED
-                        ? Transformations.surfaceRotationToRotationDegrees(displayRotation) : 0;
-        Matrix textureViewCorrection =
-                Transformations.getTextureViewCorrectionMatrix(
-                        correctionDegrees,
-                        mResolution.getWidth(),
-                        mResolution.getHeight()
-                );
+                        ? ImplementationMode.EMBEDDED : implementationMode,
+                displayRotation);
         RectF surfaceRectInViewfinder = getTransformedSurfaceRect(viewfinderSize,
                 layoutDirection);
 
@@ -214,6 +214,15 @@ final class ViewfinderTransformation {
         canvas.drawBitmap(original, canvasTransform,
                 new Paint(ANTI_ALIAS_FLAG | FILTER_BITMAP_FLAG | DITHER_FLAG));
         return transformed;
+    }
+
+    private @NonNull Matrix getContentRotationMatrix(
+            @NonNull ImplementationMode implementationMode, @RotationValue int displayRotation) {
+        return Transformations.getContentRotationMatrix(
+                Transformations.getContentRotationDegrees(
+                        mTransformationInfo, displayRotation, implementationMode),
+                mResolution.getWidth(),
+                mResolution.getHeight());
     }
 
     private boolean isResolutionAvailable() {

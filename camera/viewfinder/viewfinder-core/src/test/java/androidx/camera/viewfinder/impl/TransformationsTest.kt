@@ -20,8 +20,10 @@ import android.util.LayoutDirection
 import android.util.Size
 import android.util.SizeF
 import android.view.Surface
+import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.ScaleType
 import androidx.camera.viewfinder.core.TransformationInfo
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.impl.RotationValue
 import androidx.camera.viewfinder.core.impl.Transformations
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +39,11 @@ private val VIEWFINDER_SIZE = Size(400, 200)
 
 // Size of the Surface. Aspect ratio 3:2.
 private val SURFACE_SIZE = Size(60, 40)
+
+private val SURFACE_ROTATIONS =
+    listOf(Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270)
+
+private val ROTATION_DEGREES = listOf(0, 90, 180, 270)
 
 /** Unit tests for [androidx.camera.viewfinder.core.impl.Transformations]. */
 @RunWith(RobolectricTestRunner::class)
@@ -110,6 +117,37 @@ class TransformationsTest {
             isVert = true,
             swaps = arrayOf(0 to 2, 1 to 3),
         )
+    }
+
+    @Test
+    fun getSurfaceToViewfinderMatrix_preApplied_ignoresMirroringFlags() = forAllRotations { rot ->
+        val unmirrored =
+            getSurfaceToViewfinderMatrixVertices(
+                TransformationInfo(
+                    sourceRotation = rot,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+            )
+        val mirrored =
+            getSurfaceToViewfinderMatrixVertices(
+                TransformationInfo(
+                    sourceRotation = rot,
+                    isSourceMirroredHorizontally = true,
+                    isSourceMirroredVertically = true,
+                    transformationMode = TransformationMode.PRE_APPLIED,
+                )
+            )
+        assertWithMessage("PRE_APPLIED rot=$rot").that(mirrored).isEqualTo(unmirrored)
+    }
+
+    @Test
+    fun getSurfaceToViewfinderMatrix_normalizesNegativeAndFullTurnRotations() {
+        assertThat(getSurfaceToViewfinderMatrixVertices(TransformationInfo(-90)))
+            .isEqualTo(getSurfaceToViewfinderMatrixVertices(TransformationInfo(270)))
+        assertThat(getSurfaceToViewfinderMatrixVertices(TransformationInfo(360)))
+            .isEqualTo(getSurfaceToViewfinderMatrixVertices(TransformationInfo(0)))
+        assertThat(getSurfaceToViewfinderMatrixVertices(TransformationInfo(450)))
+            .isEqualTo(getSurfaceToViewfinderMatrixVertices(TransformationInfo(90)))
     }
 
     private fun assertMirroringVertexSwap(
@@ -269,6 +307,79 @@ class TransformationsTest {
     @Test
     fun correctTextureViewWith270Rotation() {
         assertThat(getTextureViewCorrection(Surface.ROTATION_270))
+            .isEqualTo(
+                intArrayOf(
+                    SURFACE_SIZE.width,
+                    0,
+                    SURFACE_SIZE.width,
+                    SURFACE_SIZE.height,
+                    0,
+                    SURFACE_SIZE.height,
+                    0,
+                    0,
+                )
+            )
+    }
+
+    @Test
+    fun getContentRotationDegrees_followsTransformationAndImplementationMode() {
+        for (displayRotation in SURFACE_ROTATIONS) {
+            val displayDegrees = Transformations.surfaceRotationToRotationDegrees(displayRotation)
+            for (sourceRotation in ROTATION_DEGREES) {
+                val expectations =
+                    listOf(
+                        // TextureView does not apply the display rotation, so undo it.
+                        Triple(
+                            ImplementationMode.EMBEDDED,
+                            TransformationMode.DEFERRED,
+                            (360 - displayDegrees) % 360,
+                        ),
+                        // PRE_APPLIED buffers carry no transform; apply the remaining rotation.
+                        Triple(
+                            ImplementationMode.EMBEDDED,
+                            TransformationMode.PRE_APPLIED,
+                            sourceRotation,
+                        ),
+                        Triple(ImplementationMode.EXTERNAL, TransformationMode.DEFERRED, 0),
+                        Triple(ImplementationMode.EXTERNAL, TransformationMode.PRE_APPLIED, 0),
+                    )
+                for ((implementationMode, transformationMode, expected) in expectations) {
+                    assertWithMessage(
+                            "display=$displayRotation, source=$sourceRotation, " +
+                                "$implementationMode, $transformationMode"
+                        )
+                        .that(
+                            Transformations.getContentRotationDegrees(
+                                TransformationInfo(
+                                    sourceRotation = sourceRotation,
+                                    transformationMode = transformationMode,
+                                ),
+                                displayRotation,
+                                implementationMode,
+                            )
+                        )
+                        .isEqualTo(expected)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun getContentRotationMatrix_90Degrees_rotatesClockwise() {
+        val vertices =
+            SURFACE_SIZE.toVertices()
+                .apply {
+                    Transformations.getContentRotationMatrix(
+                            90,
+                            SURFACE_SIZE.width,
+                            SURFACE_SIZE.height,
+                        )
+                        .mapPoints(this)
+                }
+                .convertToIntArray()
+
+        // The top-left corner of the surface moves to the top-right corner.
+        assertThat(vertices)
             .isEqualTo(
                 intArrayOf(
                     SURFACE_SIZE.width,
