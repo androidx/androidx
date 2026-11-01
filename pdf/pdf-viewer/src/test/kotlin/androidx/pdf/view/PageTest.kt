@@ -325,6 +325,48 @@ class PageTest {
     }
 
     @Test
+    fun releaseBitmaps_releasesBitmapsAndRetainsText() {
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
+        testDispatcher.scheduler.runCurrent()
+        assertThat(page.pageText).isEqualTo("SampleText")
+
+        page.releaseBitmaps()
+        testDispatcher.scheduler.runCurrent()
+
+        assertThat(pageUpdatedEvents.last()).isEqualTo(PageBitmapState.PageBitmapCleared(0))
+        assertThat(page.isFullyRendered(zoom = 1.0f, FULL_PAGE_RECT)).isFalse()
+        assertThat(page.pageText).isEqualTo("SampleText")
+        assertThat(pageTextReadyCounter).isEqualTo(1)
+        val locationInView = RectF(0f, 0f, PAGE_SIZE.x.toFloat(), PAGE_SIZE.y.toFloat())
+        page.draw(canvasSpy, locationInView, listOf())
+        verify(canvasSpy).drawRect(eq(locationInView), eq(BLANK_PAINT))
+    }
+
+    @Test
+    fun releaseBitmaps_withoutBitmaps_isNoOp() {
+        page.releaseBitmaps()
+        testDispatcher.scheduler.runCurrent()
+
+        assertThat(pageUpdatedEvents).isEmpty()
+    }
+
+    @Test
+    fun releaseBitmaps_thenSetVisible_fetchesBitmapsAgainWithoutRefetchingText() {
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
+        testDispatcher.scheduler.runCurrent()
+        page.releaseBitmaps()
+        testDispatcher.scheduler.runCurrent()
+
+        page.setVisible(zoom = 1.0f, FULL_PAGE_RECT)
+        testDispatcher.scheduler.runCurrent()
+
+        assertThat(page.isFullyRendered(zoom = 1.0f, FULL_PAGE_RECT)).isTrue()
+        assertThat(pageUpdatedEvents.last()).isEqualTo(PageBitmapState.PageBitmapReady(0))
+        // Text was retained, so it should not have been fetched again
+        assertThat(pageTextReadyCounter).isEqualTo(1)
+    }
+
+    @Test
     fun maybeUpdateFormWidgetInfos_updatesFormWidgetInfos() {
         page.maybeUpdateFormWidgetInfos(
             FormWidgetMetadataLoader(pdfDocument, PdfFormFillingState(10), mock())
