@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -76,6 +77,7 @@ import junit.framework.TestCase.assertFalse
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.ComparisonFailure
@@ -938,6 +940,49 @@ class RectListIntegrationTest {
         rule.runOnIdle { shouldPlace = false }
 
         assertThat(rule.onNodeWithTag("foo").addedToRectList).isFalse()
+    }
+
+    @Test
+    fun unplaced_andThenPlacedNode_hasCorrectPositionInWindow() {
+        var placed by mutableStateOf(true)
+        var shift by mutableIntStateOf(0)
+        var leaf: LayoutCoordinates? = null
+
+        rule.setContent {
+            Layout(
+                content = {
+                    Box(
+                        modifier =
+                            Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                val x = shift
+                                layout(placeable.width, placeable.height) { placeable.place(x, 0) }
+                            }
+                    ) {
+                        Box(modifier = Modifier.size(20.dp).onGloballyPositioned { leaf = it })
+                    }
+                }
+            ) { measurables, constraints ->
+                val child = measurables[0].measure(constraints.copy(minWidth = 0, minHeight = 0))
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    if (placed) child.place(0, 0)
+                }
+            }
+        }
+
+        placed = false
+        rule.runOnIdle {
+            shift = 100
+            placed = true
+        }
+
+        rule.runOnIdle {
+            val node: LayoutCoordinates = leaf!!
+            assertEquals(
+                expected = node.findRootCoordinates().localPositionOf(node, Offset.Zero),
+                actual = node.positionInWindow(),
+            )
+        }
     }
 
     @Test
