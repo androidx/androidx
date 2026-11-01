@@ -23,6 +23,7 @@ import androidx.pdf.service.connect.FakePdfServiceConnection
 import androidx.pdf.utils.TestUtils
 import androidx.pdf.utils.areCorePdfApisAvailableInSdk
 import androidx.pdf.utils.isLinearizationStatusAvailable
+import androidx.pdf.utils.isRgb565RenderingAvailable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -262,6 +263,24 @@ class SandboxedPdfLoaderTest {
             .isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
     }
 
+    @OptIn(ExperimentalPdfApi::class)
+    @Test
+    fun openDocumentUri_withRenderParams_assertRenderParamsOnDocument() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val uri = TestUtils.openFile(context, PDF_DOCUMENT)
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val customRenderParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY,
+                renderFlags = RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
+            )
+        val document =
+            sharedLoader.openDocument(uri, password = null, renderParams = customRenderParams)
+        assertThat(document.renderParams).isEqualTo(customRenderParams)
+    }
+
     @Test
     fun openDocumentWithPfd_assertDefaultRenderParams() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -282,6 +301,24 @@ class SandboxedPdfLoaderTest {
                 renderMode = RenderParams.RENDER_MODE_FOR_PRINT,
                 renderFlags = RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
                 renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+            )
+        val document = sharedLoader.openDocument(FAKE_URI_1, pfd, renderParams = customRenderParams)
+        assertThat(document.renderParams).isEqualTo(customRenderParams)
+    }
+
+    @OptIn(ExperimentalPdfApi::class)
+    @Test
+    fun openDocumentWithPfd_assertRenderParamsWithBitmapConfigOnDocument() = runTest {
+        if (!isRgb565RenderingAvailable()) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pfd = TestUtils.openFileDescriptor(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val customRenderParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_PRINT,
+                renderFlags = RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
             )
         val document = sharedLoader.openDocument(FAKE_URI_1, pfd, renderParams = customRenderParams)
         assertThat(document.renderParams).isEqualTo(customRenderParams)

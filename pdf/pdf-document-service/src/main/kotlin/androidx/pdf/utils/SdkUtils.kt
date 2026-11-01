@@ -36,3 +36,5 @@ internal fun areCorePdfApisAvailableInSdk(): Boolean = isRequiredSdkExtensionAva
 internal fun isLinearizationStatusAvailable(): Boolean = isRequiredSdkExtensionAvailable(13)
 
 internal fun isSignatureFeatureAvailable(): Boolean = isRequiredSdkExtensionAvailable(18)
+
+internal fun isRgb565RenderingAvailable(): Boolean = isRequiredSdkExtensionAvailable(24)

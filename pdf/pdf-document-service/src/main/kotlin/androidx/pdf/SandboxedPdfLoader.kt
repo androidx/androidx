@@ -76,6 +76,20 @@ public class SandboxedPdfLoader(
         }
     }
 
+    @ExperimentalPdfApi
+    override suspend fun openDocument(
+        uri: Uri,
+        password: String?,
+        renderParams: RenderParams,
+    ): PdfDocument {
+        val connection = connect(uri)
+
+        return withContext(resolveCoroutineContext(coroutineContext)) {
+            val pfd = openFileDescriptor(context, uri, "r")
+            openDocumentInternal(uri, pfd, password, connection, renderParams)
+        }
+    }
+
     override suspend fun openDocument(
         uri: Uri,
         fileDescriptor: ParcelFileDescriptor,

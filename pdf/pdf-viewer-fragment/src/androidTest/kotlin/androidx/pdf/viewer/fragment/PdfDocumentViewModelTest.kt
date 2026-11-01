@@ -17,15 +17,26 @@
 package androidx.pdf.viewer.fragment
 
 import android.graphics.Bitmap
+import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.os.Parcelable
 import androidx.core.os.OperationCanceledException
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commitNow
+import androidx.fragment.app.testing.launchFragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPoint
+import androidx.pdf.RenderParams
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
@@ -51,6 +62,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -491,6 +503,57 @@ class PdfDocumentViewModelTest {
         assertFalse(newProvider.isClosed)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
+    @Test
+    fun test_pdfDocumentViewModel_loadDocument_forwardsRenderParamsFromState() = runTest {
+        val documentUri = Uri.parse("content://test.app/sample.pdf")
+        val customRenderParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY,
+                renderFlags = RenderParams.FLAG_RENDER_NONE,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+                bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
+            )
+        val fakePdfLoader = FakePdfLoader()
+        fakePdfLoader.documentToReturn =
+            FakePdfDocument(pages = listOf(Point(100, 200)), renderParams = customRenderParams)
+        val viewModelFactory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(
+                    modelClass: Class<T>,
+                    extras: CreationExtras,
+                ): T {
+                    return PdfDocumentViewModel(extras.createSavedStateHandle(), fakePdfLoader) as T
+                }
+            }
+        val fragment =
+            PdfViewerFragment.newInstance(
+                pdfStylingOptions = null,
+                renderParams = customRenderParams,
+            )
+
+        launchFragment<Fragment>(initialState = Lifecycle.State.CREATED).use { scenario ->
+            lateinit var pdfViewModel: PdfDocumentViewModel
+            scenario.onFragment { host ->
+                host.parentFragmentManager.commitNow {
+                    add(fragment, "pdf")
+                    setMaxLifecycle(fragment, Lifecycle.State.CREATED)
+                }
+                pdfViewModel =
+                    ViewModelProvider(fragment, viewModelFactory)[
+                        "test_pdf_vm",
+                        PdfDocumentViewModel::class.java,
+                    ]
+            }
+
+            pdfViewModel.loadDocument(documentUri, null)
+            pdfViewModel.fragmentUiScreenState.first { it is PdfFragmentUiState.DocumentLoaded }
+
+            assertEquals(customRenderParams, fakePdfLoader.lastRenderParams)
+        }
+    }
+
     private fun fullyContains(innerRects: List<Rect>, outerRects: List<Rect>): Boolean {
         return innerRects.all { inner -> outerRects.any { outer -> outer.contains(inner) } }
     }
@@ -498,17 +561,30 @@ class PdfDocumentViewModelTest {
     /** A test-only subclass to expose protected methods for verification. */
     private class FakePdfLoader : PdfLoader {
         var documentToReturn: PdfDocument? = null
+        var lastRenderParams: RenderParams? = null
 
         override suspend fun openDocument(uri: Uri, password: String?): PdfDocument {
+            lastRenderParams = null
+            return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
+        }
+
+        @ExperimentalPdfApi
+        override suspend fun openDocument(
+            uri: Uri,
+            password: String?,
+            renderParams: RenderParams,
+        ): PdfDocument {
+            lastRenderParams = renderParams
             return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
         }
 
         override suspend fun openDocument(
             uri: Uri,
-            fileDescriptor: android.os.ParcelFileDescriptor,
+            fileDescriptor: ParcelFileDescriptor,
             password: String?,
-            renderParams: androidx.pdf.RenderParams,
+            renderParams: RenderParams,
         ): PdfDocument {
+            lastRenderParams = renderParams
             return documentToReturn ?: throw IOException("Document not set in FakePdfLoader")
         }
     }

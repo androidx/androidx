@@ -54,6 +54,7 @@ import androidx.lifecycle.withStarted
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
+import androidx.pdf.RenderParams
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
@@ -119,9 +120,24 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * @param pdfStylingOptions The styling options to be applied to the PDF viewer.
      */
     protected constructor(pdfStylingOptions: PdfStylingOptions) : this() {
-        val args =
-            Bundle().also { it.putInt(KEY_PDF_VIEW_STYLE, pdfStylingOptions.containerStyleResId) }
-        arguments = args
+        arguments = createArguments(pdfStylingOptions = pdfStylingOptions)
+    }
+
+    /**
+     * Protected constructor for instantiating a [PdfViewerFragment] with the specified styling
+     * options and render parameters.
+     *
+     * @param pdfStylingOptions The styling options to be applied to the PDF viewer, or `null` to
+     *   use default styling.
+     * @param renderParams The parameters to be used for rendering PDF pages and tiles.
+     */
+    @ExperimentalPdfApi
+    protected constructor(
+        pdfStylingOptions: PdfStylingOptions?,
+        renderParams: RenderParams,
+    ) : this() {
+        arguments =
+            createArguments(pdfStylingOptions = pdfStylingOptions, renderParams = renderParams)
     }
 
     private var isAnnotationIntentResolvable = false
@@ -870,6 +886,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
     public companion object {
         private const val PASSWORD_DIALOG_TAG = "password-dialog"
         private const val KEY_PDF_VIEW_STYLE = "keyPdfViewStyle"
+        internal const val KEY_RENDER_PARAMS = "keyRenderParams"
         private const val NO_DEFAULT_ATTR = 0
 
         /**
@@ -880,14 +897,46 @@ public open class PdfViewerFragment constructor() : Fragment() {
          */
         @JvmStatic
         public fun newInstance(pdfStylingOptions: PdfStylingOptions): PdfViewerFragment {
-            val fragment = PdfViewerFragment()
-            val args =
-                Bundle().also {
-                    it.putInt(KEY_PDF_VIEW_STYLE, pdfStylingOptions.containerStyleResId)
-                }
-
-            fragment.arguments = args
-            return fragment
+            return PdfViewerFragment().apply {
+                arguments = createArguments(pdfStylingOptions = pdfStylingOptions)
+            }
         }
+
+        /**
+         * Creates a new instance of [PdfViewerFragment] with the specified styling options and
+         * render parameters.
+         *
+         * @param pdfStylingOptions The styling options to be applied, or `null` to use default
+         *   styling.
+         * @param renderParams The parameters to be used for rendering PDF pages and tiles.
+         * @return A new instance of [PdfViewerFragment] with the provided options.
+         */
+        @ExperimentalPdfApi
+        @JvmStatic
+        public fun newInstance(
+            pdfStylingOptions: PdfStylingOptions?,
+            renderParams: RenderParams,
+        ): PdfViewerFragment {
+            return PdfViewerFragment().apply {
+                arguments =
+                    createArguments(
+                        pdfStylingOptions = pdfStylingOptions,
+                        renderParams = renderParams,
+                    )
+            }
+        }
+
+        private fun createArguments(
+            pdfStylingOptions: PdfStylingOptions? = null,
+            renderParams: RenderParams? = null,
+        ): Bundle =
+            Bundle().apply {
+                if (pdfStylingOptions != null) {
+                    putInt(KEY_PDF_VIEW_STYLE, pdfStylingOptions.containerStyleResId)
+                }
+                if (renderParams != null) {
+                    putParcelable(KEY_RENDER_PARAMS, renderParams)
+                }
+            }
     }
 }

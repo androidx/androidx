@@ -174,6 +174,7 @@ package androidx.pdf {
 
   public interface PdfLoader {
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, android.os.ParcelFileDescriptor fileDescriptor, optional String? password, optional androidx.pdf.RenderParams renderParams, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi @kotlin.jvm.Throws(exceptionClasses=IOException::class) public default suspend Object? openDocument(android.net.Uri uri, String? password, androidx.pdf.RenderParams renderParams, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
     method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? openDocument(android.net.Uri uri, optional String? password, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument>) throws java.io.IOException;
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, android.os.ParcelFileDescriptor!, String!, androidx.pdf.RenderParams!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=IOException::class) public static Object! openDocument$default(androidx.pdf.PdfLoader!, android.net.Uri!, String!, kotlin.coroutines.Continuation!, int, Object!) throws java.io.IOException;
@@ -215,15 +216,20 @@ package androidx.pdf {
 
   public final class RenderParams implements android.os.Parcelable {
     ctor public RenderParams(int renderMode, optional int renderFlags, optional int renderFormContentMode);
+    ctor @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public RenderParams(int renderMode, int renderFlags, int renderFormContentMode, int bitmapConfig);
     ctor @BytecodeOnly public RenderParams(int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int describeContents();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public int getBitmapConfig();
     method @InaccessibleFromKotlin public int getRenderFlags();
     method @InaccessibleFromKotlin public int getRenderFormContentMode();
     method @InaccessibleFromKotlin public int getRenderMode();
     method public void writeToParcel(android.os.Parcel dest, int flags);
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public int bitmapConfig;
     property public int renderFlags;
     property public int renderFormContentMode;
     property public int renderMode;
+    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BITMAP_CONFIG_ARGB_8888 = 1; // 0x1
+    field @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final int BITMAP_CONFIG_RGB_565 = 2; // 0x2
     field public static final android.os.Parcelable.Creator<androidx.pdf.RenderParams> CREATOR;
     field public static final androidx.pdf.RenderParams.Companion Companion;
     field public static final int FLAG_RENDER_FREETEXT = 16; // 0x10
@@ -238,6 +244,8 @@ package androidx.pdf {
   }
 
   public static final class RenderParams.Companion {
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BITMAP_CONFIG_ARGB_8888;
+    property @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static int BITMAP_CONFIG_RGB_565;
     property public android.os.Parcelable.Creator<androidx.pdf.RenderParams> CREATOR;
     property public static int FLAG_RENDER_FREETEXT;
     property public static int FLAG_RENDER_HIGHLIGHT_ANNOTATIONS;

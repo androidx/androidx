@@ -11,10 +11,12 @@ package androidx.pdf.viewer.fragment {
   public class PdfViewerFragment extends androidx.fragment.app.Fragment {
     ctor public PdfViewerFragment();
     ctor protected PdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
+    ctor @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi protected PdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions? pdfStylingOptions, androidx.pdf.RenderParams renderParams);
     method @InaccessibleFromKotlin public final android.net.Uri? getDocumentUri();
     method @InaccessibleFromKotlin public final boolean isTextSearchActive();
     method @InaccessibleFromKotlin public final boolean isToolboxVisible();
     method public static final androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions? pdfStylingOptions, androidx.pdf.RenderParams renderParams);
     method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public androidx.pdf.ocr.OcrProvider? onInitOcrProvider();
     method protected boolean onLinkClicked(androidx.pdf.content.ExternalLink externalLink);
     method public void onLoadDocumentError(Throwable error);
@@ -32,6 +34,7 @@ package androidx.pdf.viewer.fragment {
 
   public static final class PdfViewerFragment.Companion {
     method public androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
+    method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions? pdfStylingOptions, androidx.pdf.RenderParams renderParams);
   }
 
 }

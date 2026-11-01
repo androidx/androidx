@@ -62,9 +62,7 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         scaledPageWidth: Int,
         scaledPageHeight: Int,
         renderParams: RenderParams,
-    ) {
-        TODO("Not yet implemented")
-    }
+    ) {}
 
     override fun getPageTextContents(): List<PdfPageTextContent> {
         TODO("Not yet implemented")

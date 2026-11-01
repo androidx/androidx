@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RequiresExtension
 import androidx.pdf.DraftEditResult
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.InsertDraftEditOperation
 import androidx.pdf.PdfLoadingStatus
 import androidx.pdf.RenderParams
@@ -32,6 +33,7 @@ import androidx.pdf.annotation.createStampAnnotationWithPath
 import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.isRgb565RenderingAvailable
 import androidx.pdf.utils.isSignatureFeatureAvailable
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -159,6 +161,37 @@ class PdfDocumentRemoteImplTest {
     }
 
     @Test
+    fun getPageBitmap_defaultRenderParams_usesArgb8888() {
+        val remote = createRemoteWithRenderer(FakePdfDocumentRenderer())
+        val bitmap = remote.getPageBitmap(0, 100, 200, RenderParams(RENDER_MODE_FOR_DISPLAY))
+        assertThat(bitmap.config).isEqualTo(Bitmap.Config.ARGB_8888)
+    }
+
+    @Test
+    fun getPageBitmap_rgb565RenderParams_usesRgb565IfSupported() {
+        val remote = createRemoteWithRenderer(FakePdfDocumentRenderer())
+        val bitmap = remote.getPageBitmap(0, 100, 200, rgb565RenderParams())
+        assertThat(bitmap.config).isEqualTo(expectedRgb565ConfigWithDefaultIfNotAvailable())
+    }
+
+    @Test
+    fun getTileBitmap_rgb565RenderParams_usesRgb565IfSupported() {
+        val remote = createRemoteWithRenderer(FakePdfDocumentRenderer())
+        val bitmap =
+            remote.getTileBitmap(
+                /* pageNum= */ 0,
+                /* tileWidth= */ 50,
+                /* tileHeight= */ 50,
+                /* pageWidth= */ 100,
+                /* pageHeight= */ 200,
+                /* offsetX= */ 0,
+                /* offsetY= */ 0,
+                rgb565RenderParams(),
+            )
+        assertThat(bitmap.config).isEqualTo(expectedRgb565ConfigWithDefaultIfNotAvailable())
+    }
+
+    @Test
     fun applyDraftEdits_delegatesToProcessor_returnsSuccess() {
         if (!isAnnotationsFeatureAvailable()) return
         // Arrange
@@ -277,4 +310,16 @@ class PdfDocumentRemoteImplTest {
         remote.openPdfDocument(fakePfd, null) // Initialize internal state
         return remote
     }
+
+    @OptIn(ExperimentalPdfApi::class)
+    private fun rgb565RenderParams() =
+        RenderParams(
+            renderMode = RENDER_MODE_FOR_DISPLAY,
+            renderFlags = RenderParams.FLAG_RENDER_NONE,
+            renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+            bitmapConfig = RenderParams.BITMAP_CONFIG_RGB_565,
+        )
+
+    private fun expectedRgb565ConfigWithDefaultIfNotAvailable() =
+        if (isRgb565RenderingAvailable()) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888
 }

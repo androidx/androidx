@@ -55,6 +55,7 @@ import androidx.pdf.models.Dimensions
 import androidx.pdf.models.PageObjectsProviderImpl
 import androidx.pdf.models.PaginatedObjects
 import androidx.pdf.utils.isAnnotationsFeatureAvailable
+import androidx.pdf.utils.toBitmapConfig
 import androidx.pdf.utils.toPdfObject
 
 internal class PdfDocumentRemoteImpl(
@@ -103,7 +104,7 @@ internal class PdfDocumentRemoteImpl(
         height: Int,
         renderParams: RenderParams,
     ): Bitmap {
-        val output = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val output = Bitmap.createBitmap(width, height, renderParams.toBitmapConfig())
         // Create a bitmap with a white background. PdfRenderer doesn't
         // guarantee a specific background color by default.
         output.eraseColor(Color.WHITE)
@@ -131,7 +132,7 @@ internal class PdfDocumentRemoteImpl(
         offsetY: Int,
         renderParams: RenderParams,
     ): Bitmap {
-        val output = Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888)
+        val output = Bitmap.createBitmap(tileWidth, tileHeight, renderParams.toBitmapConfig())
         // Create a bitmap with a white background. PdfRenderer doesn't
         // guarantee a specific background color by default.
         output.eraseColor(Color.WHITE)
