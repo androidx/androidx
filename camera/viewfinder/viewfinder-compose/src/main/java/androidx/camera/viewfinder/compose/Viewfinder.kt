@@ -28,9 +28,11 @@ import androidx.camera.viewfinder.core.FrameRenderedListener
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.camera.viewfinder.core.TransformationInfo.Companion.DEFAULT
+import androidx.camera.viewfinder.core.TransformationMode
 import androidx.camera.viewfinder.core.ViewfinderDefaults
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.core.ViewfinderSurfaceSessionScope
+import androidx.camera.viewfinder.core.impl.ImplementationModeCompat
 import androidx.camera.viewfinder.core.impl.OffsetF
 import androidx.camera.viewfinder.core.impl.ScaleFactorF
 import androidx.camera.viewfinder.core.impl.Transformations
@@ -71,10 +73,16 @@ import kotlinx.coroutines.coroutineScope
  * [androidx.compose.foundation.AndroidEmbeddedExternalSurface] for [ImplementationMode.EMBEDDED] or
  * on [androidx.compose.foundation.AndroidExternalSurface] for [ImplementationMode.EXTERNAL]. These
  * can be set by the [ImplementationMode] argument in the [surfaceRequest] constructor. If
- * `implementationMode` is `null`, a default is chosen based on device compatibility. This default
- * value, which can be retrieved from [ViewfinderDefaults.implementationMode], will be
+ * `implementationMode` is `null`, a default is chosen based on device compatibility:
  * [ImplementationMode.EXTERNAL] by default, switching to [ImplementationMode.EMBEDDED] on API
- * levels 24 and below, or on devices with known compatibility issues with the `EXTERNAL` mode.
+ * levels 24 and below, on devices with known compatibility issues with the `EXTERNAL` mode (which
+ * can be retrieved from [ViewfinderDefaults.implementationMode]), or on API levels below 29 for
+ * [TransformationMode.PRE_APPLIED] sources because [ImplementationMode.EXTERNAL] cannot apply
+ * non-zero [TransformationInfo.sourceRotation] before API 29.
+ *
+ * Explicitly specifying [ImplementationMode.EXTERNAL] overrides this default; on API levels below
+ * 29 with [TransformationMode.PRE_APPLIED], non-zero [TransformationInfo.sourceRotation] values
+ * will not be applied.
  *
  * The [onInit] lambda, and the callback registered with [ViewfinderInitScope.onSurfaceSession], are
  * always called from the main thread. [onInit] will be called every time a new [surfaceRequest] is
@@ -116,8 +124,11 @@ public fun Viewfinder(
             val surfaceWidth = surfaceRequest.width
             val surfaceHeight = surfaceRequest.height
             val implementationMode =
-                remember(surfaceRequest.implementationMode) {
-                    surfaceRequest.implementationMode ?: ViewfinderDefaults.implementationMode
+                remember(surfaceRequest.implementationMode, transformationInfo.transformationMode) {
+                    ImplementationModeCompat.resolveImplementationMode(
+                        surfaceRequest.implementationMode,
+                        transformationInfo.transformationMode,
+                    )
                 }
 
             // Due to https://issuetracker.google.com/183864890, we should only perform
@@ -151,9 +162,6 @@ public fun Viewfinder(
                             0.coerceAtLeast((placeable.height - constraints.maxHeight) / 2)
                         layout(placeable.width, placeable.height) {
                             placeable.placeWithLayer(widthOffset, heightOffset) {
-                                // Do not perform transformations on the surface until ready
-                                if (!canTransformSurface) return@placeWithLayer
-
                                 val surfaceToViewFinderMatrix =
                                     Transformations.getSurfaceToViewfinderMatrix(
                                         viewfinderSize =
@@ -170,6 +178,9 @@ public fun Viewfinder(
                                         setFrom(surfaceToViewFinderMatrix)
                                         invert()
                                     }
+
+                                // Do not perform transformations on the surface until ready
+                                if (!canTransformSurface) return@placeWithLayer
 
                                 val surfaceRectInViewfinder =
                                     RectF(0f, 0f, surfaceWidth.toFloat(), surfaceHeight.toFloat())
@@ -214,7 +225,19 @@ private fun TransformedSurface(
 ) {
     when (implementationMode) {
         ImplementationMode.EXTERNAL -> {
-            ViewfinderExternalSurface(modifier = modifier, onInit = onInit)
+            // A SurfaceView can't be rotated by View transformations, so the rotation is applied
+            // to the surface's content. The display rotation doesn't affect it in this mode, so
+            // don't track it.
+            ViewfinderExternalSurface(
+                modifier = modifier,
+                contentRotationDegrees =
+                    Transformations.getContentRotationDegrees(
+                        transformationInfo,
+                        Surface.ROTATION_0,
+                        implementationMode,
+                    ),
+                onInit = onInit,
+            )
         }
         ImplementationMode.EMBEDDED -> {
             val contentRotationDegrees =

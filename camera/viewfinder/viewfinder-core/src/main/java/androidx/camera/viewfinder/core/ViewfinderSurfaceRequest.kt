@@ -25,7 +25,9 @@ package androidx.camera.viewfinder.core
  * @property width The requested surface width.
  * @property height The requested surface height.
  * @property implementationMode The [ImplementationMode] to apply to the viewfinder. Defaults to
- *   `null`, which will use the viewfinder's default implementation mode.
+ *   `null`, which chooses a compatible default (including [ImplementationMode.EMBEDDED] on API
+ *   levels below 29 for [TransformationMode.PRE_APPLIED] sources). Setting a non-null mode
+ *   overrides compatibility defaults.
  * @property requestId An optional request ID to allow requests to be differentiated via [equals].
  *   Defaults to `null`.
  * @constructor Creates a new surface request with given resolution, and optional implementation

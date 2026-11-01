@@ -37,9 +37,11 @@ import androidx.annotation.UiThread;
 import androidx.camera.viewfinder.core.ImplementationMode;
 import androidx.camera.viewfinder.core.ScaleType;
 import androidx.camera.viewfinder.core.TransformationInfo;
+import androidx.camera.viewfinder.core.TransformationMode;
 import androidx.camera.viewfinder.core.ViewfinderDefaults;
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest;
 import androidx.camera.viewfinder.core.ViewfinderSurfaceSession;
+import androidx.camera.viewfinder.core.impl.ImplementationModeCompat;
 import androidx.camera.viewfinder.core.impl.RefCounted;
 import androidx.camera.viewfinder.core.impl.ViewfinderSurfaceSessionImpl;
 import androidx.camera.viewfinder.view.internal.futures.Futures;
@@ -70,8 +72,6 @@ public final class ViewfinderView extends FrameLayout {
     private static final String TAG = "ViewfinderView";
 
     @ColorRes private static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
-    private static final ImplementationMode DEFAULT_IMPL_MODE =
-            ViewfinderDefaults.getImplementationMode();
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -85,15 +85,14 @@ public final class ViewfinderView extends FrameLayout {
     private final @NonNull Looper mRequiredLooper = Objects.requireNonNull(Looper.myLooper());
 
     /**
-     * Holds the implementation mode set through the {@code app:implementationMode} attr or the
-     * {@link #DEFAULT_IMPL_MODE} if that is not set.
+     * Holds the implementation mode set through the {@code app:implementationMode} attr, or
+     * {@code null} if that is not set.
      *
      * <p>The applied implementation mode, which is stored in {@code mCurrentImplementationMode},
-     * will use the implementation mode set through the {@link ViewfinderSurfaceRequest}, or will
-     * default to {@code mDefaultImplementationMode} if the surface request does not specify an
-     * implementation mode.
+     * will use the implementation mode set through the {@link ViewfinderSurfaceRequest}, then
+     * {@code mDefaultImplementationMode}, then a compatible default if neither is set.
      */
-    @NonNull ImplementationMode mDefaultImplementationMode;
+    @Nullable ImplementationMode mDefaultImplementationMode;
     @NonNull ImplementationMode mCurrentImplementationMode;
 
     // Synthetic access
@@ -144,12 +143,13 @@ public final class ViewfinderView extends FrameLayout {
                     mViewfinderTransformation.getScaleType().getId());
             setScaleType(ScaleType.fromId(scaleTypeId));
 
-            int implementationModeId =
-                    attributes.getInteger(R.styleable.Viewfinder_implementationMode,
-                            DEFAULT_IMPL_MODE.getId());
-            mDefaultImplementationMode = ImplementationMode.fromId(
-                    implementationModeId);
-            mCurrentImplementationMode = mDefaultImplementationMode;
+            mDefaultImplementationMode =
+                    attributes.hasValue(R.styleable.Viewfinder_implementationMode)
+                            ? ImplementationMode.fromId(attributes.getInteger(
+                                    R.styleable.Viewfinder_implementationMode, 0))
+                            : null;
+            mCurrentImplementationMode = mDefaultImplementationMode != null
+                    ? mDefaultImplementationMode : ViewfinderDefaults.getImplementationMode();
         } finally {
             attributes.recycle();
         }
@@ -173,7 +173,9 @@ public final class ViewfinderView extends FrameLayout {
      *     {@link ViewfinderDefaults#getImplementationMode()}. This default is chosen for
      *     maximum compatibility, using {@link ImplementationMode#EMBEDDED} on API levels 24
      *     and below or on devices with known hardware quirks, and the higher-performance
-     *     {@link ImplementationMode#EXTERNAL} on all other devices.</li>
+     *     {@link ImplementationMode#EXTERNAL} on all other devices. On API levels below 29,
+     *     {@link ImplementationMode#EMBEDDED} is also used for
+     *     {@link TransformationMode#PRE_APPLIED} sources.</li>
      * </ol>
      *
      * @return The currently active {@link ImplementationMode} for {@link ViewfinderView}.
@@ -263,11 +265,10 @@ public final class ViewfinderView extends FrameLayout {
             @NonNull ViewfinderSurfaceRequest surfaceRequest) {
         checkUiThread();
 
-        if (surfaceRequest.getImplementationMode() != null) {
-            mCurrentImplementationMode = surfaceRequest.getImplementationMode();
-        } else {
-            mCurrentImplementationMode = mDefaultImplementationMode;
-        }
+        mCurrentImplementationMode = ImplementationModeCompat.resolveImplementationMode(
+                surfaceRequest.getImplementationMode() != null
+                        ? surfaceRequest.getImplementationMode() : mDefaultImplementationMode,
+                mViewfinderTransformation.getTransformationInfo().getTransformationMode());
 
         ViewfinderImplementation viewfinderImplementation =
                 mCurrentImplementationMode == ImplementationMode.EMBEDDED
@@ -324,6 +325,14 @@ public final class ViewfinderView extends FrameLayout {
      * <p> This method should be called after {@link ViewfinderView} is inflated and can be called
      * before or after {@link ViewfinderView#requestSurfaceSessionAsync(ViewfinderSurfaceRequest)}.
      * The {@link TransformationInfo} will be effective immediately after the method is called.
+     *
+     * <p> On API levels below 29, {@link ImplementationMode#EXTERNAL} cannot apply the
+     * {@link TransformationInfo#getSourceRotation() source rotation} of
+     * {@link TransformationMode#PRE_APPLIED} sources, so {@link ImplementationMode#EMBEDDED} is
+     * used for them by default, unless an implementation mode is explicitly set. Set a
+     * {@link TransformationMode#PRE_APPLIED} transformation before calling
+     * {@link #requestSurfaceSessionAsync(ViewfinderSurfaceRequest)} so that the
+     * implementation is chosen accordingly.
      *
      * @param transformationInfo the updated transformation info.
      */

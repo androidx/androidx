@@ -54,11 +54,13 @@ public object Transformations {
      * [getSurfaceToViewfinderMatrix] treats the surface content like a `SurfaceView` displaying a
      * [TransformationMode.DEFERRED] source: the display system has applied the transform associated
      * with the buffers, including the display rotation. The content therefore needs:
-     * - For [ImplementationMode.EMBEDDED] (a [TextureView], which applies the buffer transform but
-     *   not the display rotation): the display rotation undone for [TransformationMode.DEFERRED]
-     *   sources, or the remaining [TransformationInfo.sourceRotation] for
-     *   [TransformationMode.PRE_APPLIED] sources, whose buffers carry no transform.
-     * - For [ImplementationMode.EXTERNAL] (a `SurfaceView`): no rotation.
+     * - For [TransformationMode.PRE_APPLIED] sources, whose buffers carry no transform: the
+     *   remaining [TransformationInfo.sourceRotation], for both implementations.
+     * - For [TransformationMode.DEFERRED] sources displayed by [ImplementationMode.EMBEDDED] (a
+     *   [TextureView], which applies the buffer transform but not the display rotation): the
+     *   display rotation undone.
+     * - For [TransformationMode.DEFERRED] sources displayed by [ImplementationMode.EXTERNAL] (a
+     *   `SurfaceView`): no rotation.
      *
      * @param transformationInfo The transformation of the source.
      * @param displayRotation The rotation of the display, as one of [Surface.ROTATION_0],
@@ -74,9 +76,9 @@ public object Transformations {
     ): Int {
         val degrees =
             when {
-                implementationMode == ImplementationMode.EXTERNAL -> 0
                 transformationInfo.transformationMode == TransformationMode.PRE_APPLIED ->
                     transformationInfo.sourceRotation
+                implementationMode == ImplementationMode.EXTERNAL -> 0
                 else -> -surfaceRotationToRotationDegrees(displayRotation)
             }
         return degrees.mod(360)

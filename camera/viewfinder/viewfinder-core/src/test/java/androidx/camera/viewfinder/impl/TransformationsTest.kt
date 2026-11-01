@@ -334,14 +334,19 @@ class TransformationsTest {
                             TransformationMode.DEFERRED,
                             (360 - displayDegrees) % 360,
                         ),
-                        // PRE_APPLIED buffers carry no transform; apply the remaining rotation.
+                        // PRE_APPLIED buffers carry no transform; apply the remaining rotation in
+                        // both implementations.
                         Triple(
                             ImplementationMode.EMBEDDED,
                             TransformationMode.PRE_APPLIED,
                             sourceRotation,
                         ),
                         Triple(ImplementationMode.EXTERNAL, TransformationMode.DEFERRED, 0),
-                        Triple(ImplementationMode.EXTERNAL, TransformationMode.PRE_APPLIED, 0),
+                        Triple(
+                            ImplementationMode.EXTERNAL,
+                            TransformationMode.PRE_APPLIED,
+                            sourceRotation,
+                        ),
                     )
                 for ((implementationMode, transformationMode, expected) in expectations) {
                     assertWithMessage(

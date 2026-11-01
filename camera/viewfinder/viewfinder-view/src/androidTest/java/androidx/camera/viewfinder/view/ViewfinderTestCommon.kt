@@ -16,10 +16,15 @@
 
 package androidx.camera.viewfinder.view
 
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import android.view.Surface
 import android.view.ViewGroup
 import androidx.camera.viewfinder.core.TransformationInfo
 import androidx.test.core.app.ActivityScenario
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -39,6 +44,53 @@ val ANY_TRANSFORMATION_INFO =
     )
 
 val REQUEST_TIMEOUT = 2.seconds
+
+/** Size of the surface used with [drawPreRotatedQuadrants]. */
+const val QUADRANTS_SURFACE_WIDTH = 200
+const val QUADRANTS_SURFACE_HEIGHT = 400
+
+/** Colors of the top-left, top-right, bottom-left and bottom-right quadrants when upright. */
+val UPRIGHT_QUADRANT_COLORS = listOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+
+/**
+ * Draws [UPRIGHT_QUADRANT_COLORS] to this surface, pre-rotated counter-clockwise by
+ * [sourceRotation] so that rotating the buffer clockwise by [sourceRotation] restores the upright
+ * orientation.
+ */
+fun Surface.drawPreRotatedQuadrants(width: Int, height: Int, sourceRotation: Int) {
+    val (topLeft, topRight, bottomLeft, bottomRight) =
+        when (sourceRotation) {
+            0 -> listOf(Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+            90 -> listOf(Color.GREEN, Color.YELLOW, Color.RED, Color.BLUE)
+            180 -> listOf(Color.YELLOW, Color.BLUE, Color.GREEN, Color.RED)
+            270 -> listOf(Color.BLUE, Color.RED, Color.YELLOW, Color.GREEN)
+            else -> throw IllegalArgumentException("Unexpected rotation: $sourceRotation")
+        }
+    val paint = Paint().apply { style = Paint.Style.FILL }
+    val halfWidth = width / 2f
+    val halfHeight = height / 2f
+    val canvas = lockHardwareCanvas()
+    try {
+        for ((color, rect) in
+            listOf(
+                topLeft to RectF(0f, 0f, halfWidth, halfHeight),
+                topRight to RectF(halfWidth, 0f, width.toFloat(), halfHeight),
+                bottomLeft to RectF(0f, halfHeight, halfWidth, height.toFloat()),
+                bottomRight to RectF(halfWidth, halfHeight, width.toFloat(), height.toFloat()),
+            )) {
+            paint.color = color
+            canvas.drawRect(rect, paint)
+        }
+    } finally {
+        unlockCanvasAndPost(canvas)
+    }
+}
+
+/** Returns whether each channel of this color is within [tolerance] of [expected]. */
+fun Int.isCloseTo(expected: Int, tolerance: Int = 25): Boolean =
+    abs(Color.red(this) - Color.red(expected)) <= tolerance &&
+        abs(Color.green(this) - Color.green(expected)) <= tolerance &&
+        abs(Color.blue(this) - Color.blue(expected)) <= tolerance
 
 inline fun runViewfinderTest(
     viewfinderInitiallyAttached: Boolean = true,

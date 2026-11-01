@@ -59,6 +59,11 @@ public object TransformationMode {
      * viewfinder will not apply further rotation. If the display has since rotated, the pipeline
      * can report the remaining rotation through [TransformationInfo.sourceRotation] instead of
      * re-rendering the frames.
+     *
+     * Note: Non-zero [TransformationInfo.sourceRotation] cannot be applied in
+     * [ImplementationMode.EXTERNAL] below API level 29, so `Viewfinder` and `ViewfinderView`
+     * default to [ImplementationMode.EMBEDDED] there unless [ImplementationMode.EXTERNAL] is
+     * explicitly requested.
      */
     public const val PRE_APPLIED: Int = 1
 }
