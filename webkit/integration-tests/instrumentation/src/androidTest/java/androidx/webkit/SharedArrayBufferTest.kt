@@ -102,7 +102,7 @@ class SharedArrayBufferTest {
         assertEquals(BUFFER_SIZE, sharedArrayBuffer.size)
 
         val mapping = sharedArrayBuffer.mapAndCreateByteBuffer()
-        assertEquals(BUFFER_SIZE.toInt(), mapping.capacity())
+        assertEquals(BUFFER_SIZE, mapping.capacity())
         mapping.putInt(0, TRANSFERRED_VALUE)
 
         // Every mapping of the same buffer observes the same memory.
@@ -124,9 +124,6 @@ class SharedArrayBufferTest {
     fun testAllocateRejectsSizeOutsideOfSupportedRange() {
         assertThrows(IllegalArgumentException::class.java) {
             SharedArrayBuffer.allocate(BUFFER_NAME, 0)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            SharedArrayBuffer.allocate(BUFFER_NAME, Int.MAX_VALUE + 1L)
         }
     }
 
@@ -179,7 +176,7 @@ class SharedArrayBufferTest {
         private const val INDEX_URL = "$BASE_ORIGIN/index.html"
 
         private const val BUFFER_NAME = "shared-array-buffer-test"
-        private const val BUFFER_SIZE = 16L
+        private const val BUFFER_SIZE = 16
         private const val TRANSFERRED_VALUE = 42
 
         private const val DOCUMENT_ISOLATION_POLICY_HEADER = "Document-Isolation-Policy"

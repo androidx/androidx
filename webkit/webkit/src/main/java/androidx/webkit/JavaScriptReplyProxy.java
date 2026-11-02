@@ -87,7 +87,6 @@ public abstract class JavaScriptReplyProxy {
      *     {@link WebViewFeature#WEB_MESSAGE_SHARED_ARRAY_BUFFER} feature is not supported.
      *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_SHARED_ARRAY_BUFFER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public void postMessage(@NonNull SharedArrayBuffer sharedArrayBuffer) {
