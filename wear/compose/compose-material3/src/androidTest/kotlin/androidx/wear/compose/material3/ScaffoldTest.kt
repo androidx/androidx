@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -691,6 +692,65 @@ class ScaffoldTest {
         rule.waitForIdle()
 
         assertThat(spaceAvailable).isGreaterThan(0)
+    }
+
+    @Test
+    fun room_for_edge_button_after_scroll_in_inspection_mode() {
+        val edgeButtonTag = "EB_TAG"
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalInspectionMode provides true) {
+                Box(Modifier.size(300.dp)) {
+                    TestScreenScaffoldWithTLCAndEdgeButton(
+                        scrollIndicatorColor = Color.Blue,
+                        timeTextColor = Color.Red,
+                        itemsCount = 10,
+                    ) {
+                        EdgeButton(onClick = {}, Modifier.testTag(edgeButtonTag)) {
+                            Text("Edge Button")
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(edgeButtonTag).assertIsNotDisplayed()
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeUp() } }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(edgeButtonTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun edge_button_hidden_after_scrolling_back_in_inspection_mode() {
+        val edgeButtonTag = "EB_TAG"
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalInspectionMode provides true) {
+                Box(Modifier.size(300.dp)) {
+                    TestScreenScaffoldWithTLCAndEdgeButton(
+                        scrollIndicatorColor = Color.Blue,
+                        timeTextColor = Color.Red,
+                        itemsCount = 10,
+                    ) {
+                        EdgeButton(onClick = {}, Modifier.testTag(edgeButtonTag)) {
+                            Text("Edge Button")
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(edgeButtonTag).assertIsNotDisplayed()
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeUp() } }
+        rule.waitForIdle()
+        rule.onNodeWithTag(edgeButtonTag).assertIsDisplayed()
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { repeat(5) { swipeDown() } }
+        rule.waitForIdle()
+        rule.onNodeWithTag(edgeButtonTag).assertIsNotDisplayed()
     }
 
     @Test
