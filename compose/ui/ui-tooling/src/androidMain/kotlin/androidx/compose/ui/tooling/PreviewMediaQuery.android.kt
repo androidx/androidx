@@ -49,8 +49,6 @@ private const val KEYBOARD_KIND_NONE = "none"
 private const val VIEWING_DISTANCE_FAR = "far"
 private const val VIEWING_DISTANCE_MEDIUM = "medium"
 
-private const val DP_SUFFIX = "dp"
-
 /** Standard flat posture without active folding features intersecting the window. */
 @OptIn(ExperimentalMediaQueryApi::class)
 private val FlatPosture = UiMediaScope.WindowPosture(emptyList())

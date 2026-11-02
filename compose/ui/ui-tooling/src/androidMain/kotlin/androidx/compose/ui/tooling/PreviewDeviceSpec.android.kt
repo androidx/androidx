@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.tooling
 
+internal const val DP_SUFFIX = "dp"
+internal const val PX_SUFFIX = "px"
+
 /**
  * Metadata about the `spec:` device string parameters handled by [ComposeViewAdapter].
  *
