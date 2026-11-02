@@ -16,6 +16,8 @@
 
 package androidx.web.compose
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
@@ -55,10 +57,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -74,6 +81,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -101,6 +109,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -166,6 +175,60 @@ class WebSurfaceTest {
         bridge.evaluateJs("document.body.style.background = 'rgb(0,255,0)';")
 
         waitForPixelToBe(centerX, centerY) { it == Color.GREEN }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun testCaptureIncludesPage() {
+        lateinit var bridge: WebViewBridge
+        lateinit var layer: GraphicsLayer
+        composeTestRule.setContent {
+            layer = rememberGraphicsLayer()
+            WebSurface(
+                content = webContent,
+                modifier =
+                    Modifier.size(150.dp).testTag("surface").drawWithContent {
+                        layer.record { this@drawWithContent.drawContent() }
+                        drawLayer(layer)
+                    },
+                bridgeFactory = { WebViewBridge(it).also { b -> bridge = b } },
+            )
+        }
+        bridge.loadHtml(
+            """
+            <html>
+            <body style='margin:0;'>
+                <div style='height:50vh;background:rgb(255,0,0);'></div>
+                <div style='height:50vh;background:rgb(0,255,0);'></div>
+            </body>
+            </html>
+            """
+        )
+
+        val surface = composeTestRule.onNodeWithTag("surface")
+        composeTestRule.waitUntil(TIMEOUT_MS) {
+            surface.captureToImage().asAndroidBitmap().isRedOverGreen()
+        }
+
+        val layerBitmap = runBlocking { layer.toImageBitmap() }.asAndroidBitmap()
+        assertTrue(layerBitmap.copy(Bitmap.Config.ARGB_8888, false).isRedOverGreen())
+
+        val bounds = surface.fetchSemanticsNode().boundsInWindow
+        lateinit var window: Bitmap
+        composeTestRule.runOnIdle {
+            val decorView = composeTestRule.activity.window.decorView
+            window = Bitmap.createBitmap(decorView.width, decorView.height, Bitmap.Config.ARGB_8888)
+            decorView.draw(Canvas(window))
+        }
+        val drawn =
+            Bitmap.createBitmap(
+                window,
+                bounds.left.toInt(),
+                bounds.top.toInt(),
+                bounds.width.toInt(),
+                bounds.height.toInt(),
+            )
+        assertTrue(drawn.isRedOverGreen())
     }
 
     @Test
@@ -1882,6 +1945,10 @@ class WebSurfaceTest {
             predicate(pixel)
         }
     }
+
+    private fun Bitmap.isRedOverGreen(): Boolean =
+        getPixel(width / 2, height / 4) == Color.RED &&
+            getPixel(width / 2, height * 3 / 4) == Color.GREEN
 
     private fun WebContentView.loadHtml(html: String) = loadHtml(composeTestRule, html)
 
