@@ -37,7 +37,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteRootNode
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.tracing.Trace
+import androidx.tracing.trace
+import androidx.tracing.traceAsync
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.AbstractLongTimeSource
@@ -72,21 +74,26 @@ public suspend fun captureSingleRemoteDocument(
     onDispose: () -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ): ByteArray =
-    captureRemoteDocumentImpl(
-            creationDisplayInfo = creationDisplayInfo,
-            updateThrottle = CaptureUpdateThrottle.None,
-            maxDocuments = 1,
-            remoteDensity = remoteDensity,
-            layoutDirection = layoutDirection,
-            clock = clock,
-            profile = profile,
-            writerCallback = writerCallback,
-            platformImageProvider = platformImageProvider,
-            coroutineContext = EmptyCoroutineContext,
-            onDispose = onDispose,
-            content = content,
-        )
-        .first()
+    traceAsync(
+        lazyMethodName = { "CaptureRemoteDocument:captureSingleRemoteDocument" },
+        lazyCookie = traceCookie::incrementAndGet,
+    ) {
+        captureRemoteDocumentImpl(
+                creationDisplayInfo = creationDisplayInfo,
+                updateThrottle = CaptureUpdateThrottle.None,
+                maxDocuments = 1,
+                remoteDensity = remoteDensity,
+                layoutDirection = layoutDirection,
+                clock = clock,
+                profile = profile,
+                writerCallback = writerCallback,
+                platformImageProvider = platformImageProvider,
+                coroutineContext = EmptyCoroutineContext,
+                onDispose = onDispose,
+                content = content,
+            )
+            .first()
+    }
 
 /**
  * Capture a stream of RemoteCompose documents from the specified [content] Composable without
@@ -160,7 +167,12 @@ private fun captureRemoteDocumentImpl(
     require(isSingleDocument || enforceCleanRecomposition) {
         "captureRemoteDocument requires isEnforceCleanRecompositionEnabled to be true"
     }
-    val traceName = if (isSingleDocument) "captureSingleRemoteDocument" else "captureRemoteDocument"
+    val traceName =
+        if (isSingleDocument) {
+            "CaptureRemoteDocument:captureSingleRemoteDocument"
+        } else {
+            "CaptureRemoteDocument:captureRemoteDocument"
+        }
 
     val rootNode = RemoteRootNode()
     val applier = RemoteComposeApplier(rootNode)
@@ -220,15 +232,14 @@ private fun captureRemoteDocumentImpl(
                 }
             }
 
-            Trace.beginSection("CaptureRemoteDocument:$traceName:rootNodeRender")
-            try {
+            trace(lazyLabel = { "$traceName:rootNodeRender" }) {
                 rootNode.render(creationState, remoteCanvas)
                 remoteCanvas.flush()
-            } finally {
-                Trace.endSection()
             }
 
-            creationState.document.encodeToByteArray()
+            trace(lazyLabel = { "$traceName:encodeToByteArray" }) {
+                creationState.document.encodeToByteArray()
+            }
         }
     )
 }
@@ -272,3 +283,5 @@ private fun QuiescenceResult.throwIfNotQuiescent() {
             )
     }
 }
+
+private val traceCookie = AtomicInteger()

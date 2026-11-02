@@ -57,9 +57,10 @@ internal const val IMAGE_GRID_CONTENT_DESCRIPTION = "ImageGridContainer"
 public val recordingTraces: List<String> =
     listOf(
         "CaptureRemoteDocument:captureSingleRemoteDocument",
-        "CaptureRemoteDocument:captureSingleRemoteDocument:compositionInitialization",
+        "CaptureRemoteDocument:captureSingleRemoteDocument:setContent",
+        "CaptureRemoteDocument:captureSingleRemoteDocument:settle",
         "CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender",
-        "CaptureRemoteDocument:captureSingleRemoteDocument:toByteArray",
+        "CaptureRemoteDocument:captureSingleRemoteDocument:encodeToByteArray",
     )
 public val decodingTraces: List<String> = listOf("CreateRemoteDocument:parsing")
 public val allTraces: List<String> = recordingTraces + decodingTraces
