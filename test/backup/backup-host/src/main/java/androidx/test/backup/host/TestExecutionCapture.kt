@@ -16,11 +16,13 @@
 
 package androidx.test.backup.host
 
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.ExecutionException
@@ -199,7 +201,7 @@ internal class TestExecutionCapture(
     val hostLogCollector: HostLogCollector = HostLogCollector()
 
     private val ownControllers = ArrayList<BackupRestoreControllerImpl>()
-    internal val ownSteps = ArrayList<StepDraft>()
+    private val ownSteps = ArrayList<StepDraft>()
     private val ownStorages = ArrayList<StorageDomain>()
     private val ownActionTargets = ArrayList<BackupRulesChecker.TargetCoordinate>()
     private val tempFilesToDelete = ArrayList<Path>()
@@ -279,6 +281,15 @@ internal class TestExecutionCapture(
 
     val effectiveTransportMode: BackupTransportMode?
         get() = synchronized(lock) { ownTransportMode } ?: parent?.effectiveTransportMode
+
+    private val effectiveBackupSerial: String?
+        get() = synchronized(lock) { ownBackupSerial } ?: parent?.effectiveBackupSerial
+
+    private val effectiveRestoreSerial: String?
+        get() = synchronized(lock) { ownRestoreSerial } ?: parent?.effectiveRestoreSerial
+
+    private val effectiveArchiveSnapshot: ArchiveSnapshot?
+        get() = synchronized(lock) { ownArchiveSnapshot } ?: parent?.effectiveArchiveSnapshot
 
     fun addParticipant(controller: BackupRestoreControllerImpl) {
         synchronized(lock) { mergeController(ownControllers, controller) }
@@ -478,6 +489,317 @@ internal class TestExecutionCapture(
             else -> "Verify"
         }
 
+    internal data class FinalizedReport(
+        val record: TestDetailRecord,
+        val failureNoticeText: String?,
+    )
+
+    /**
+     * Builds the finalized [TestDetailRecord] and writes sidecar artifacts into [detailDir].
+     *
+     * Writes `host-log.txt` and any requested raw archive when [detailId] and [detailDir] are
+     * provided inside a test suite.
+     */
+    fun buildFinalizedReport(
+        detailId: String?,
+        detailDir: Path?,
+        savedLogcatFiles: Map<String, SavedLogcatFile>,
+        failure: Throwable?,
+        resultsDirPath: String?,
+    ): FinalizedReport {
+        val mergedControllers = collectMergedControllers()
+        val backupSerial = effectiveBackupSerial
+        val restoreSerial = effectiveRestoreSerial
+        val actorsWithLookup = resolveActors(mergedControllers, backupSerial, restoreSerial)
+        val actors = actorsWithLookup.actors
+
+        val (inheritedSteps, ownStepsCopy) = collectMergedStepsPartitioned()
+        val rawSteps = inheritedSteps + ownStepsCopy
+        val ownStartIndex = inheritedSteps.size
+        val numberedSteps = ArrayList<TestDetailRecord.StepRecord>(rawSteps.size)
+        val stepDraftRefs = ArrayList<StepDraft?>(rawSteps.size)
+        var counter = 0
+        for (draft in rawSteps) {
+            val stepNum = if (draft.isNumbered) ++counter else null
+            val actorId = actorsWithLookup.actorIdFor(draft.controllerSerial, draft.controllerRole)
+            numberedSteps +=
+                TestDetailRecord.StepRecord(
+                    n = stepNum,
+                    name = draft.name,
+                    on = actorId,
+                    shared = draft.shared,
+                    call = draft.call,
+                    durationMs = draft.durationMs,
+                    status = draft.status,
+                )
+            stepDraftRefs += draft
+        }
+
+        val transport = effectiveTransportMode
+        val storages = collectMergedStorages()
+        val actionTargets = collectMergedActionTargets()
+
+        var callout: TestDetailRecord.Callout? = null
+        var failureNoticeText: String? = null
+
+        if (failure != null) {
+            val rootFailure = unwrapAsyncFailure(failure)
+            val failureMessage =
+                rootFailure.message?.takeIf { it.isNotBlank() } ?: rootFailure.javaClass.simpleName
+
+            var failedIndex =
+                (ownStartIndex..numberedSteps.lastIndex).lastOrNull { idx ->
+                    val draft = stepDraftRefs[idx]
+                    numberedSteps[idx].status == TestDetailRecord.STATUS_FAILED &&
+                        draft?.thrownFailure != null &&
+                        isInFailureChain(failure, draft.thrownFailure)
+                } ?: -1
+            if (failedIndex < 0) {
+                val matchedActionIdx =
+                    (ownStartIndex..numberedSteps.lastIndex).lastOrNull { idx ->
+                        val draft = stepDraftRefs[idx]
+                        numberedSteps[idx].status == TestDetailRecord.STATUS_PASSED &&
+                            draft != null &&
+                            matchesReturnedActionFailure(draft, rootFailure)
+                    } ?: -1
+                if (matchedActionIdx >= 0) {
+                    numberedSteps[matchedActionIdx] =
+                        numberedSteps[matchedActionIdx].copy(
+                            status = TestDetailRecord.STATUS_FAILED
+                        )
+                    failedIndex = matchedActionIdx
+                } else if (hasSeenRestore && rootFailure is AssertionError) {
+                    val nextNum = ++counter
+                    val targetActorId =
+                        actorsWithLookup.actorIdFor(restoreSerial, "") ?: actors.lastOrNull()?.id
+                    val methodCall =
+                        if (!testMethodName.isNullOrEmpty()) "Assertion in $testMethodName()"
+                        else "Assertion"
+                    numberedSteps +=
+                        TestDetailRecord.StepRecord(
+                            n = nextNum,
+                            name = "Verify",
+                            on = targetActorId,
+                            shared = false,
+                            call = methodCall,
+                            durationMs = 0L,
+                            status = TestDetailRecord.STATUS_FAILED,
+                        )
+                    stepDraftRefs += null
+                    failedIndex = numberedSteps.lastIndex
+                } else {
+                    failedIndex =
+                        (ownStartIndex..numberedSteps.lastIndex).lastOrNull { idx ->
+                            numberedSteps[idx].status == TestDetailRecord.STATUS_FAILED
+                        } ?: -1
+                }
+            }
+
+            val failedStepRecord = numberedSteps.getOrNull(failedIndex)
+            val failedStepDraft = stepDraftRefs.getOrNull(failedIndex)
+            val isPostRestoreAssertion = hasSeenRestore && rootFailure is AssertionError
+            val isBackupRuleEligible =
+                isPostRestoreAssertion || failedStepDraft?.kind in BACKUP_RULE_ELIGIBLE_KINDS
+            val isInfrastructureError =
+                (rootFailure as? BackupRestoreException)?.errorCode in INFRASTRUCTURE_ERROR_CODES
+            val likelyCause =
+                if (isBackupRuleEligible && !isInfrastructureError) {
+                    BackupRulesChecker.diagnoseLikelyCause(
+                        resultsDirPath = resultsDirPath,
+                        transportMode = transport,
+                        storages = storages,
+                        actionTargets = actionTargets,
+                        failureMessage = failureMessage,
+                    )
+                } else {
+                    null
+                }
+
+            val isAssertion =
+                rootFailure is AssertionError || failedStepDraft?.kind == StepKind.VERIFY_ACTION
+            val kind =
+                if (isAssertion) TestDetailRecord.CALLOUT_ASSERTION_FAILURE
+                else TestDetailRecord.CALLOUT_STEP_FAILURE
+            val prefix = if (isAssertion) "Assertion failed" else "Step failed"
+            val title =
+                when {
+                    failedStepRecord?.n != null ->
+                        "$prefix at step ${failedStepRecord.n} \u00b7 ${failedStepRecord.name}"
+                    failedStepRecord != null -> "$prefix during ${failedStepRecord.name}"
+                    else -> prefix
+                }
+
+            callout =
+                TestDetailRecord.Callout(
+                    kind = kind,
+                    failedStep = failedStepRecord?.n,
+                    title = title,
+                    message = failureMessage,
+                    likelyCause = likelyCause,
+                )
+
+            if (failedStepRecord != null || likelyCause != null) {
+                failureNoticeText = buildString {
+                    if (failedStepRecord != null) {
+                        if (failedStepRecord.n != null) {
+                            append(
+                                "Failed at step ${failedStepRecord.n} (${failedStepRecord.name})"
+                            )
+                        } else {
+                            append("Failed during ${failedStepRecord.name}")
+                        }
+                    }
+                    if (likelyCause != null) {
+                        if (isNotEmpty()) append(". ")
+                        append("Likely cause: ")
+                        append(likelyCause)
+                    }
+                }
+            }
+        }
+
+        val logs = ArrayList<TestDetailRecord.LogRecord>()
+        if (detailId != null && detailDir != null) {
+            Files.createDirectories(detailDir)
+            val hostLogFile = detailDir.resolve("host-log.txt")
+            val (sharedPrefix, sharedTruncated) = parent?.sharedHostLogSnapshot() ?: ("" to false)
+            val encodedHostLog = hostLogCollector.toBoundedUtf8(sharedPrefix, sharedTruncated)
+            Files.write(hostLogFile, encodedHostLog.bytes)
+            logs +=
+                TestDetailRecord.LogRecord(
+                    title = "Host log",
+                    path = "suite-details/$detailId/host-log.txt",
+                    truncated = encodedHostLog.truncated,
+                )
+            for ((serial, savedLogcat) in savedLogcatFiles) {
+                val actorId = actorsWithLookup.actorIdFor(serial, "")
+                val logTitle = if (actorId != null) "Logcat ($actorId)" else "Logcat ($serial)"
+                logs +=
+                    TestDetailRecord.LogRecord(
+                        title = logTitle,
+                        path = "suite-details/$detailId/${savedLogcat.path.fileName}",
+                        truncated = savedLogcat.truncated,
+                    )
+            }
+        }
+
+        val artifacts = ArrayList<TestDetailRecord.ArtifactEntry>()
+        val archive = effectiveArchiveSnapshot
+        if (archive != null) {
+            artifacts +=
+                TestDetailRecord.ArtifactEntry(
+                    name = "Backup file summary",
+                    values = archive.summaryValues,
+                    path = null,
+                )
+            val tempCopy = archive.rawTempCopy
+            if (
+                detailId != null &&
+                    detailDir != null &&
+                    tempCopy != null &&
+                    Files.isRegularFile(tempCopy)
+            ) {
+                val targetFile = detailDir.resolve(archive.fileName)
+                Files.copy(tempCopy, targetFile, StandardCopyOption.REPLACE_EXISTING)
+                artifacts +=
+                    TestDetailRecord.ArtifactEntry(
+                        name = archive.fileName,
+                        values = mapOf("size" to formatByteSize(archive.rawSizeBytes)),
+                        path = "suite-details/$detailId/${archive.fileName}",
+                    )
+            }
+        }
+
+        val sourceLocation = resolveSourceLocation(failure)
+        val summaryAttributes = DeviceFactsReader.buildSummaryAttributes(transport, actors)
+
+        val detailRecord =
+            TestDetailRecord(
+                schemaVersion = TestDetailRecord.SCHEMA_VERSION,
+                suiteType = TestDetailRecord.SUITE_TYPE,
+                sourceLocation = sourceLocation,
+                summaryAttributes = summaryAttributes,
+                callout = callout,
+                actors = actors,
+                steps = numberedSteps,
+                logs = logs,
+                artifacts = artifacts,
+            )
+
+        return FinalizedReport(detailRecord, failureNoticeText)
+    }
+
+    /**
+     * Publishes `BackupRestore.*` report entries for step-by-step tests that did not invoke
+     * [BackupRestoreController.runBackupRestoreFlow].
+     */
+    fun publishStepByStepTelemetryIfNeeded(
+        failure: Throwable?,
+        publish: (key: String, value: String) -> Unit,
+    ) {
+        if (publishedFlowTelemetry || preconditionFailed) return
+        val ownStepsSnapshot = synchronized(lock) { ownSteps.toList() }
+        val ownRanBackupOrRestore = ownStepsSnapshot.any {
+            it.kind == StepKind.BACKUP || it.kind == StepKind.RESTORE
+        }
+        if (failure == null) {
+            if (!ownRanBackupOrRestore) return
+            val transport = effectiveTransportMode
+            try {
+                if (transport != null) {
+                    publish(BackupReportKeys.TRANSPORT_MODE, transport.toString())
+                }
+                publish(BackupReportKeys.STATUS, BackupReportKeys.REPORT_STATUS_SUCCESS)
+            } catch (_: Throwable) {
+                // Telemetry publishing must never mask test outcomes.
+            }
+            return
+        }
+
+        val rootFailure = unwrapAsyncFailure(failure)
+        val hasOwnNumberedSteps = ownStepsSnapshot.any { it.isNumbered }
+        if (!hasOwnNumberedSteps && !(hasSeenRestore && rootFailure is AssertionError)) return
+        val transport = effectiveTransportMode
+        try {
+            if (transport != null) {
+                publish(BackupReportKeys.TRANSPORT_MODE, transport.toString())
+            }
+            publish(BackupReportKeys.STATUS, BackupReportKeys.REPORT_STATUS_FAILURE)
+            val failedDraft =
+                ownStepsSnapshot.lastOrNull {
+                    it.status == TestDetailRecord.STATUS_FAILED &&
+                        it.thrownFailure != null &&
+                        isInFailureChain(failure, it.thrownFailure)
+                }
+                    ?: ownStepsSnapshot.lastOrNull {
+                        it.status == TestDetailRecord.STATUS_PASSED &&
+                            matchesReturnedActionFailure(it, rootFailure)
+                    }
+                    ?: ownStepsSnapshot
+                        .lastOrNull { it.status == TestDetailRecord.STATUS_FAILED }
+                        ?.takeIf { !(rootFailure is AssertionError && hasSeenRestore) }
+            val errorCode =
+                (rootFailure as? BackupRestoreException)?.errorCode
+                    ?: when (failedDraft?.kind) {
+                        StepKind.BACKUP -> BackupErrorCode.BACKUP_FAILED
+                        StepKind.RESTORE -> BackupErrorCode.RESTORE_FAILED
+                        StepKind.CLEAR_DATA -> BackupErrorCode.CLEAR_DATA_FAILED
+                        StepKind.SEED_ACTION -> BackupErrorCode.SEEDING_FAILED
+                        StepKind.VERIFY_ACTION -> BackupErrorCode.VERIFICATION_FAILED
+                        else ->
+                            if (rootFailure is AssertionError && hasSeenRestore) {
+                                BackupErrorCode.VERIFICATION_FAILED
+                            } else {
+                                BackupErrorCode.UNKNOWN_ERROR
+                            }
+                    }
+            publish(BackupReportKeys.ERROR_CODE, errorCode.name)
+            rootFailure.message?.let { publish(BackupReportKeys.ERROR_MESSAGE, it) }
+        } catch (_: Throwable) {
+            // Telemetry publishing must never mask test outcomes.
+        }
+    }
+
     override fun close() {
         val unfinalizedHook =
             synchronized(lock) {
@@ -512,6 +834,22 @@ internal class TestExecutionCapture(
         }
     }
 
+    private fun resolveSourceLocation(failure: Throwable?): TestDetailRecord.SourceLocation? {
+        val clsName = testClassName ?: return null
+        val frame =
+            if (failure != null) {
+                findFailureStackFrame(failure, clsName) ?: synchronized(lock) { ownFirstCallFrame }
+            } else {
+                synchronized(lock) { ownFirstCallFrame }
+            }
+        return TestDetailRecord.SourceLocation(
+            file = frame?.fileName,
+            line = frame?.lineNumber?.takeIf { it > 0 },
+            className = clsName,
+            methodName = testMethodName,
+        )
+    }
+
     private fun collectMergedControllers(): List<BackupRestoreControllerImpl> {
         val inherited = parent?.collectMergedControllers().orEmpty()
         val ownCopy = synchronized(lock) { ownControllers.toList() }
@@ -522,7 +860,127 @@ internal class TestExecutionCapture(
         return combined
     }
 
+    private fun collectMergedStepsPartitioned(): Pair<List<StepDraft>, List<StepDraft>> {
+        val inherited =
+            parent
+                ?.collectMergedStepsPartitioned()
+                ?.let { (anc, pOwn) -> (anc + pOwn).map { it.copy(shared = true) } }
+                .orEmpty()
+        val ownCopy = synchronized(lock) { ownSteps.map { it.copy() } }
+        return inherited to ownCopy
+    }
+
+    private fun collectMergedStorages(): List<StorageDomain> =
+        parent?.collectMergedStorages().orEmpty() + synchronized(lock) { ownStorages.toList() }
+
+    private fun collectMergedActionTargets(): List<BackupRulesChecker.TargetCoordinate> =
+        (parent?.collectMergedActionTargets().orEmpty() +
+                synchronized(lock) { ownActionTargets.toList() })
+            .distinct()
+
+    private class ResolvedActors(
+        val actors: List<TestDetailRecord.ActorRecord>,
+        private val bySerialAndRole: Map<Pair<String, String>, String>,
+        private val bySerial: Map<String, String>,
+    ) {
+        fun actorIdFor(serial: String?, explicitRole: String): String? {
+            if (serial == null) return null
+            if (explicitRole.isNotEmpty()) {
+                bySerialAndRole[serial to explicitRole]?.let {
+                    return it
+                }
+            }
+            return bySerial[serial]
+        }
+    }
+
+    private fun resolveActors(
+        controllers: List<BackupRestoreControllerImpl>,
+        backupSerial: String?,
+        restoreSerial: String?,
+    ): ResolvedActors {
+        if (controllers.isEmpty()) {
+            return ResolvedActors(emptyList(), emptyMap(), emptyMap())
+        }
+
+        // Order backup device before restore device when a cross-device flow ran on two devices.
+        val ordered =
+            if (
+                controllers.size >= 2 &&
+                    (backupSerial != null || restoreSerial != null) &&
+                    backupSerial != restoreSerial
+            ) {
+                controllers.sortedBy { c ->
+                    when (c.serialNumber) {
+                        backupSerial -> 0
+                        restoreSerial -> 1
+                        else -> if (backupSerial == null) 0 else if (restoreSerial == null) 1 else 2
+                    }
+                }
+            } else {
+                controllers
+            }
+
+        val usedIds = HashSet<String>()
+        val actors = ArrayList<TestDetailRecord.ActorRecord>(ordered.size)
+        val bySerialAndRole = HashMap<Pair<String, String>, String>()
+        val bySerial = LinkedHashMap<String, String>()
+
+        for ((index, controller) in ordered.withIndex()) {
+            val serial = controller.serialNumber
+            val api = controller.apiLevel
+            val explicitRole = controller.explicitRole
+            val facts =
+                controller.cachedDeviceFacts
+                    ?: DeviceFacts(model = serial, api = api, image = "AOSP", playServices = null)
+
+            val defaultId =
+                when {
+                    ordered.size == 1 -> "device"
+                    index == 0 -> "source"
+                    index == 1 -> "target"
+                    else -> "device_${index + 1}"
+                }
+            val baseId = explicitRole.ifEmpty { defaultId }
+            var uniqueId = baseId
+            var suffix = 2
+            while (!usedIds.add(uniqueId)) {
+                uniqueId = "${baseId}_$suffix"
+                suffix++
+            }
+            val roleUpper = explicitRole.ifEmpty { defaultId }.uppercase(Locale.ROOT)
+            actors +=
+                TestDetailRecord.ActorRecord(
+                    id = uniqueId,
+                    role = roleUpper,
+                    name = facts.model,
+                    api = facts.api,
+                    serial = serial,
+                    image = facts.image,
+                    playServices = facts.playServices,
+                )
+            if (explicitRole.isNotEmpty()) {
+                bySerialAndRole[serial to explicitRole] = uniqueId
+            }
+            bySerial.putIfAbsent(serial, uniqueId)
+        }
+        return ResolvedActors(actors, bySerialAndRole, bySerial)
+    }
+
     companion object {
+        private val BACKUP_RULE_ELIGIBLE_KINDS =
+            setOf(StepKind.BACKUP, StepKind.RESTORE, StepKind.VERIFY_ACTION)
+
+        private val INFRASTRUCTURE_ERROR_CODES =
+            setOf(
+                BackupErrorCode.NO_ONLINE_DEVICE,
+                BackupErrorCode.NO_MATCHING_DEVICE,
+                BackupErrorCode.UNSUPPORTED_API_LEVEL,
+                BackupErrorCode.GMSCORE_OUTDATED_OR_MISSING,
+                BackupErrorCode.BMGR_INIT_FAILED,
+                BackupErrorCode.RESTORE_POLL_TIMEOUT,
+            )
+
         private val INTERNAL_STACK_PREFIXES =
             listOf(
                 "java.",
@@ -552,6 +1010,24 @@ internal class TestExecutionCapture(
             return current
         }
 
+        private fun isInFailureChain(failure: Throwable, target: Throwable): Boolean {
+            var current: Throwable? = failure
+            val seen = HashSet<Throwable>()
+            while (current != null && seen.add(current)) {
+                if (current === target) return true
+                if (target in current.suppressed) return true
+                current = current.cause
+            }
+            return false
+        }
+
+        private fun matchesReturnedActionFailure(draft: StepDraft, failure: Throwable): Boolean {
+            val actionMsg = draft.returnedActionFailureMessage ?: return false
+            return failure is IOException &&
+                (failure.message == actionMsg ||
+                    failure.message?.startsWith("$actionMsg\n") == true)
+        }
+
         private fun mergeController(
             list: MutableList<BackupRestoreControllerImpl>,
             candidate: BackupRestoreControllerImpl,
@@ -578,6 +1054,21 @@ internal class TestExecutionCapture(
             } else {
                 list += candidate
             }
+        }
+
+        private fun findFailureStackFrame(
+            failure: Throwable,
+            testClassName: String,
+        ): StackTraceElement? {
+            var current: Throwable? = failure
+            val seen = HashSet<Throwable>()
+            while (current != null && seen.add(current)) {
+                findFrameInTestClass(current.stackTrace, testClassName)?.let {
+                    return it
+                }
+                current = current.cause
+            }
+            return null
         }
 
         private fun findRelevantStackFrame(

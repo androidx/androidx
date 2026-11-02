@@ -348,8 +348,8 @@ class BackupReportCaptureTest {
                     durationMs = 42L,
                     status = TestDetailRecord.STATUS_PASSED,
                 )
-                assertEquals(1, capture.ownSteps.size)
-                assertEquals("Backup", capture.ownSteps.single().name)
+                assertTrue(capture.hasSeenBackup)
+                assertTrue(capture.hasSeenRestore)
             } finally {
                 ActiveCaptureContext.unbindCurrentThread(capture)
             }
@@ -357,6 +357,72 @@ class BackupReportCaptureTest {
         val root = IllegalStateException("root cause")
         val wrapped = java.util.concurrent.ExecutionException(root)
         assertEquals(root, TestExecutionCapture.unwrapAsyncFailure(wrapped))
+    }
+
+    @Test
+    fun buildsFinalizedReportAndOrdersCrossDeviceSourceBeforeTarget() {
+        val sourceDev = FakeAdbDevice("emulator-5554")
+        val targetDev = FakeAdbDevice("emulator-5556")
+        val sourceCtrl =
+            BackupRestoreControllerImpl(
+                    sourceDev.session,
+                    sourceDev.serialNumber,
+                    34,
+                    "com.example.app",
+                )
+                .also {
+                    it.cachedDeviceFacts = DeviceFacts("Pixel 8", 34, "Google APIs", "26.39.33")
+                }
+        val targetCtrl =
+            BackupRestoreControllerImpl(
+                    targetDev.session,
+                    targetDev.serialNumber,
+                    34,
+                    "com.example.app",
+                )
+                .also {
+                    it.cachedDeviceFacts = DeviceFacts("Pixel 8a", 34, "Google Play", "26.39.33")
+                }
+        val capture =
+            TestExecutionCapture(
+                start = java.time.Instant.now(),
+                isShared = false,
+                testClassName = BackupReportCaptureTest::class.java.name,
+                testMethodName = "buildsFinalizedReportAndOrdersCrossDeviceSourceBeforeTarget",
+            )
+        capture.use {
+            // Register target first, then source, and verify backup/restore endpoints order source
+            // first.
+            capture.addParticipant(targetCtrl)
+            capture.addParticipant(sourceCtrl)
+            capture.recordFlowEndpoints(
+                mode = BackupTransportMode.DEVICE_TO_DEVICE,
+                backupSerial = sourceCtrl.serialNumber,
+                restoreSerial = targetCtrl.serialNumber,
+            )
+            capture.addStep(
+                isNumbered = true,
+                kind = TestExecutionCapture.StepKind.BACKUP,
+                name = "Backup",
+                controller = sourceCtrl,
+                call = "performBackup(DEVICE_TO_DEVICE)",
+                durationMs = 120L,
+                status = TestDetailRecord.STATUS_PASSED,
+            )
+            val report =
+                capture.buildFinalizedReport(
+                    detailId = null,
+                    detailDir = null,
+                    savedLogcatFiles = emptyMap(),
+                    failure = null,
+                    resultsDirPath = null,
+                )
+            assertEquals(listOf("source", "target"), report.record.actors.map { it.id })
+            assertEquals("emulator-5554", report.record.actors[0].serial)
+            assertEquals("emulator-5556", report.record.actors[1].serial)
+            assertEquals(1, report.record.steps.size)
+            assertEquals("source", report.record.steps[0].on)
+        }
     }
 }
 
