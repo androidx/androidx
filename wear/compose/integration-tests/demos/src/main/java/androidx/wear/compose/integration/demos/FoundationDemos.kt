@@ -59,6 +59,7 @@ import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnAnimateItemSample
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnFirstLayoutItemProviderSample
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+import androidx.wear.compose.foundation.samples.TransformingLazyColumnSnapSegmentThresholdSample
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnWithSnapSample
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
@@ -251,6 +252,9 @@ val WearFoundationDemos =
                 listOf(
                     ComposableDemo("Basic Sample") { SimpleTransformingLazyColumnSample() },
                     ComposableDemo("With Snap") { TransformingLazyColumnWithSnapSample() },
+                    ComposableDemo("Snap Segment Threshold") {
+                        TransformingLazyColumnSnapSegmentThresholdSample()
+                    },
                     ComposableDemo("Animation Sample") {
                         TransformingLazyColumnAnimateItemSample()
                     },

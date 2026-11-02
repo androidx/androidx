@@ -16,9 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults
@@ -26,14 +24,20 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material3.AppScaffold
-import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
+import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 
+/**
+ * Snapping with items of different sizes. Items that fit on the screen at their width snap to their
+ * center; taller items are stepped through in equal sections by both the crown / bezel and touch
+ * flings.
+ */
 @Composable
 fun TransformingLazyColumnSnappingDemo() {
     val state = rememberTransformingLazyColumnState()
-    val labels = rememberDefaultListOfLabels()
+    val transformationSpec = rememberTransformationSpec()
     AppScaffold {
         ScreenScaffold(state) { contentPadding ->
             TransformingLazyColumn(
@@ -43,26 +47,62 @@ fun TransformingLazyColumnSnappingDemo() {
                 rotaryScrollableBehavior =
                     RotaryScrollableDefaults.snapBehavior(scrollableState = state),
             ) {
-                items(labels) { label ->
-                    Card(modifier = Modifier.fillMaxWidth(0.9f)) { Text(label) }
+                item {
+                    NotificationsHeader(
+                        transformationSpec,
+                        Modifier.minimumVerticalContentPadding(
+                            ListHeaderDefaults.minimumTopListContentPadding,
+                            ListHeaderDefaults.minimumBottomListContentPadding,
+                        ),
+                    )
+                }
+                items(snappingDemoNotifications) { notification ->
+                    NotificationCard(
+                        notification,
+                        transformationSpec,
+                        Modifier.minimumVerticalContentPadding(
+                            CardDefaults.minimumVerticalListContentPadding
+                        ),
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-private fun rememberDefaultListOfLabels(): List<String> {
-    return remember {
-        listOf(
-            "Hi",
-            "Hello World!",
-            "Hello world again?",
-            "More content as we add stuff",
-            "This is a longer item. Here are some fun facts: Did you know that the human brain generates about 12-25 watts of power? That's enough to power a low-energy LED light bulb! The Eiffel Tower gets 15 cm taller in the summer due to thermal expansion of the iron.",
-            "This is another long item. Here are some other fun facts: Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible. Honey is made by bees from the nectar of flowers. Bees collect nectar from flowers and store it in their honey stomach, where it is mixed with enzymes. The bees then regurgitate the nectar into a honeycomb, where it is stored.",
-            "I don't know if this will fit now, testing",
-            "And now we are really pushing it because the screen is really small",
-        )
+private val TallNotification =
+    NotificationItem(
+        "📰 Morning Briefing",
+        "Rain is expected after 3 PM, so take an umbrella. Your first meeting moved to 10:30 and " +
+            "the train to the office is running about five minutes late this morning.",
+    )
+
+private val TallerNotification =
+    NotificationItem(
+        "🐝 Pollinator Season",
+        "Late-blooming asters and goldenrod give bees a final nectar source before winter. " +
+            "Leaving seed heads standing also shelters overwintering insects, and a shallow " +
+            "dish of water with a few pebbles gives tired bees a safe place to drink. Skip " +
+            "the leaf blower this autumn: fallen leaves are where many butterflies spend the " +
+            "cold months.",
+    )
+
+private val TallestNotification =
+    NotificationItem(
+        "📚 Fun Facts",
+        "Honey never spoils: archaeologists have found pots of honey in ancient Egyptian tombs " +
+            "that are over 3,000 years old and still edible. The Eiffel Tower gets about 15 cm " +
+            "taller in the summer due to thermal expansion of the iron. The human brain " +
+            "generates about 12-25 watts of power, enough to power a low-energy LED light " +
+            "bulb. Octopuses have three hearts and blue blood. Bananas are berries, but " +
+            "strawberries are not. A day on Venus is longer than its year.",
+    )
+
+/** The notifications demo list with a few tall cards, including two next to each other. */
+private val snappingDemoNotifications =
+    NotificationItem.all.toMutableList().apply {
+        add(3, TallNotification)
+        add(8, TallerNotification)
+        add(9, TallNotification)
+        add(15, TallestNotification)
     }
-}
