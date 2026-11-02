@@ -25,6 +25,7 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.CoroutineWorker
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
@@ -82,7 +83,7 @@ class SessionManagerImplTest {
                 return WorkManagerProxy.Default.workerIsRunningOrEnqueued(context, uniqueWorkName)
             }
         }
-    private val inputDataFactory: InputDataFactory = { session ->
+    private val inputDataFactory: SessionManagerImpl.(Session) -> Data = { session ->
         workDataOf("KEY" to session.key, "foo" to "bar")
     }
 

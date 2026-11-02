@@ -492,12 +492,6 @@ package androidx.glance.semantics {
 
 }
 
-package androidx.glance.session {
-
-  public typealias InputDataFactory = kotlin.jvm.functions.Function2<androidx.glance.session.SessionManagerImpl,androidx.glance.session.Session,androidx.work.Data>;
-
-}
-
 package androidx.glance.state {
 
   public interface GlanceStateDefinition<T> {
