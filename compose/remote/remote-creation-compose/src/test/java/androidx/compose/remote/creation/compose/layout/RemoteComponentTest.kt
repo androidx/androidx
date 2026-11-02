@@ -233,4 +233,67 @@ class RemoteComponentTest {
                 "addComponentValue(${Utils.idFromNan(modifierHeightNan)}, ${ComponentValue.HEIGHT})"
             )
     }
+
+    @Test
+    fun remoteComponent_equalsAndHashCode_consistentAcrossRepeatedScopeCalls() {
+        val fallback1 = drawScope.remoteComponent()
+        val fallback2 = drawScope.remoteComponent()
+        assertThat(fallback1).isEqualTo(fallback2)
+        assertThat(fallback1.hashCode()).isEqualTo(fallback2.hashCode())
+
+        lateinit var actionComp1: RemoteComponent
+        lateinit var actionComp2: RemoteComponent
+        lateinit var drawComp1: RemoteComponent
+        lateinit var drawComp2: RemoteComponent
+        lateinit var siblingComp: RemoteComponent
+
+        val rootNode =
+            RemoteRootNode().apply {
+                val canvasNode =
+                    RemoteCanvasNode().apply {
+                        modifier =
+                            RemoteModifier.size(86.rdp, 52.rdp)
+                                .clickable(
+                                    object : RemoteAction {
+                                        override fun RemoteStateScope.toRemoteAction():
+                                            CreationAction {
+                                            actionComp1 = remoteComponent()
+                                            actionComp2 = remoteComponent()
+                                            return hostAction("w".rs, actionComp1.width).run {
+                                                toRemoteAction()
+                                            }
+                                        }
+                                    }
+                                )
+                        onDraw = {
+                            drawComp1 = remoteComponent()
+                            drawComp2 = remoteComponent()
+                            remoteCanvas.drawRect(
+                                0f.rf,
+                                0f.rf,
+                                drawComp1.width,
+                                drawComp2.height,
+                                null,
+                            )
+                        }
+                    }
+                val siblingCanvasNode =
+                    RemoteCanvasNode().apply {
+                        modifier = RemoteModifier.size(40.rdp, 40.rdp)
+                        onDraw = { siblingComp = remoteComponent() }
+                    }
+                children.add(canvasNode)
+                children.add(siblingCanvasNode)
+            }
+        rootNode.render(creationState, remoteCanvas)
+
+        assertThat(actionComp1).isEqualTo(actionComp2)
+        assertThat(actionComp1.hashCode()).isEqualTo(actionComp2.hashCode())
+        assertThat(drawComp1).isEqualTo(drawComp2)
+        assertThat(drawComp1.hashCode()).isEqualTo(drawComp2.hashCode())
+        assertThat(actionComp1).isEqualTo(drawComp1)
+        assertThat(actionComp1.hashCode()).isEqualTo(drawComp1.hashCode())
+        assertThat(actionComp1).isNotEqualTo(siblingComp)
+        assertThat(actionComp1).isNotEqualTo(fallback1)
+    }
 }
