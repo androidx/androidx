@@ -663,6 +663,7 @@ class StreamUseCaseUtilTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 children,
+                emptyList(),
                 useCaseConfigFactory,
             )
         val surfaceConfigAttachedSurfaceInfoMap: Map<Int, AttachedSurfaceInfo> = mutableMapOf()

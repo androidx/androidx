@@ -20,13 +20,16 @@ import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.ImageFormat;
+import android.util.Size;
 import android.view.Display;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
+import androidx.camera.core.resolutionselector.ResolutionFilter;
 import androidx.core.util.Consumer;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -402,5 +405,42 @@ public abstract class CameraEffect {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull SurfaceProcessorInternal createSurfaceProcessorInternal() {
         return new SurfaceProcessorWithExecutor(this);
+    }
+
+    /**
+     * Returns a stateless {@link Predicate} that checks whether a given resolution is supported by
+     * this effect, or {@code null} if this effect has no resolution constraints.
+     *
+     * <p>Effects that have resolution constraints can override this method to return a validator
+     * that indicates supported resolutions. Unlike {@link ResolutionFilter}, which acts as a hard
+     * constraint that removes sizes from candidates, this validator is treated as a
+     * preference/hint: CameraX resolution selection logic prioritizes supported resolutions ahead
+     * of unsupported ones while keeping unsupported resolutions as a fallback.
+     *
+     * <p>As a result, applying an effect that has a validator may change the resolutions selected
+     * by the bound use cases. Within each use case's allowed candidates, including explicitly
+     * ordered candidates such as the resolutions derived from a VideoCapture's QualitySelector,
+     * CameraX prefers the resolutions supported by this validator. An app-provided
+     * {@link ResolutionFilter} order is still respected: if it places an unsupported resolution
+     * first, that resolution is selected.
+     *
+     * <p>Implementations must return the same stateless {@link Predicate} instance on every call
+     * (for example, a static constant that does not reference {@code this}, instance fields, or
+     * heavy resources). CameraX may call the validator multiple times, on any thread, and may
+     * retain it for as long as the effect is bound.
+     *
+     * <p>CameraX does not guarantee that the selected resolution is supported by this validator.
+     * If the use case's resolution selection settings only allow unsupported resolutions, CameraX
+     * still selects one of them to keep the camera streaming. The effect implementation is
+     * responsible for handling an unsupported resolution and for reporting that state to the
+     * application.
+     *
+     * @return A {@link Predicate} returning {@code true} if a resolution is supported, {@code
+     * false} otherwise, or {@code null} if this effect has no resolution constraints. Defaults to
+     * {@code null}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable Predicate<Size> getResolutionValidator() {
+        return null;
     }
 }

@@ -575,6 +575,7 @@ class CameraUseCaseAdapterTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, video),
+                emptyList(),
                 useCaseConfigFactory,
             )
         // Act: add use cases that can only be supported with StreamSharing
@@ -1181,6 +1182,146 @@ class CameraUseCaseAdapterTest {
         assertThat(video.effect).isNull()
     }
 
+    @Test
+    fun addUseCases_whenCalculationFails_doesNotMutateEffectsOnAddedUseCases() {
+        // Arrange: bind preview with previewEffect first, then restrict valid surface combos so
+        // adding image fails calculation.
+        adapter.effects = listOf(previewEffect, imageEffect)
+        adapter.addUseCases(listOf(preview))
+        assertThat(preview.effect).isEqualTo(previewEffect)
+        fakeCameraDeviceSurfaceManager.setValidSurfaceCombos(
+            setOf(listOf(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE))
+        )
+
+        // Act: attempt to add image, which fails surface combination validation.
+        assertThrows<CameraException> { adapter.addUseCases(listOf(image)) }
+
+        // Assert: preview retains its effect, and image (which failed to bind) was not mutated.
+        assertThat(preview.effect).isEqualTo(previewEffect)
+        assertThat(image.effect).isNull()
+    }
+
+    @Test
+    fun simulateAddUseCases_doesNotMutateEffectsOnSimulatedOrBoundUseCases() {
+        // Arrange: bind preview to adapter with previewEffect.
+        adapter.effects = listOf(previewEffect)
+        adapter.addUseCases(listOf(preview))
+        assertThat(preview.effect).isEqualTo(previewEffect)
+
+        // Act 1: simulate adding image on adapter (which has imageEffect configured).
+        adapter.effects = listOf(previewEffect, imageEffect)
+        adapter.simulateAddUseCases(
+            setOf(image),
+            /*featureGroup=*/ null,
+            /*findSupportedFrameRateRanges=*/ false,
+        )
+
+        // Assert 1: simulated UseCase does not have its effect mutated.
+        assertThat(image.effect).isNull()
+        assertThat(preview.effect).isEqualTo(previewEffect)
+
+        // Act 2: simulate adding already-bound preview on a fresh temporary adapter (like
+        // UseCaseAdditionSimulator) that has no effects configured.
+        val simulatorAdapter = createCameraUseCaseAdapter(fakeCamera)
+        simulatorAdapter.simulateAddUseCases(
+            setOf(preview),
+            /*featureGroup=*/ null,
+            /*findSupportedFrameRateRanges=*/ false,
+        )
+
+        // Assert 2: preview's effect from its active binding is not cleared by the simulation.
+        assertThat(preview.effect).isEqualTo(previewEffect)
+    }
+
+    @Test
+    fun addAdditionalUseCase_whenEffectsChange_streamSharingRecreated() {
+        // Arrange: bind preview, video, and image so StreamSharing is created without effects.
+        adapter.addUseCases(setOf(preview, video, image))
+        val initialStreamSharing = adapter.getStreamSharing()
+        assertThat(initialStreamSharing.hasSameChildrenEffectResolutionValidators(emptyList()))
+            .isTrue()
+
+        // Act: configure a child-only effect with a resolution validator on video and add analysis.
+        val validator = androidx.core.util.Predicate<Size> { true }
+        val videoEffectWithValidator =
+            object : FakeSurfaceEffect(VIDEO_CAPTURE, surfaceProcessorInternal) {
+                override fun getResolutionValidator() = validator
+            }
+        adapter.effects = listOf(videoEffectWithValidator)
+        adapter.addUseCases(setOf(analysis))
+
+        // Assert: StreamSharing is recreated with the updated child effect resolution validator.
+        val updatedStreamSharing = adapter.getStreamSharing()
+        assertThat(updatedStreamSharing).isNotSameInstanceAs(initialStreamSharing)
+        assertThat(
+                updatedStreamSharing.hasSameChildrenEffectResolutionValidators(
+                    listOf(videoEffectWithValidator)
+                )
+            )
+            .isTrue()
+        assertThat(video.effect).isEqualTo(videoEffectWithValidator)
+    }
+
+    @Test
+    fun resolveEffects_cameraUseCasesMatchedFirst_appOnlyUseCasesGetUnusedEffects() {
+        // Act: preview (camera use case) and video (app-only use case) both support sharedEffect.
+        val resolvedEffects =
+            CameraUseCaseAdapter.resolveEffects(
+                listOf(sharedEffect, imageEffect),
+                listOf(preview, image),
+                listOf(preview, video, image),
+            )
+
+        // Assert: the camera use case takes sharedEffect, so video gets nothing. UseCases are not
+        // mutated.
+        assertThat(resolvedEffects).containsExactly(preview, sharedEffect, image, imageEffect)
+        assertThat(preview.effect).isNull()
+        assertThat(image.effect).isNull()
+        assertThat(video.effect).isNull()
+    }
+
+    @Test
+    fun resolveEffects_appOnlyUseCaseGetsEffectNotUsedByCameraUseCases() {
+        val resolvedEffects =
+            CameraUseCaseAdapter.resolveEffects(
+                listOf(previewEffect, videoEffect),
+                listOf(preview),
+                listOf(preview, video),
+            )
+
+        assertThat(resolvedEffects).containsExactly(preview, previewEffect, video, videoEffect)
+    }
+
+    @Test
+    fun resolveEffects_noEffects_returnsEmptyMap() {
+        assertThat(CameraUseCaseAdapter.resolveEffects(emptyList(), listOf(preview), emptyList()))
+            .isEmpty()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun resolveEffectsWithDuplicateTargets_throwsException() {
+        CameraUseCaseAdapter.resolveEffects(
+            listOf(previewEffect, sharedEffect),
+            listOf(preview),
+            emptyList(),
+        )
+    }
+
+    @Test
+    fun removeUseCases_releasesEffectOfRemovedUseCase() {
+        // Arrange.
+        adapter.effects = listOf(previewEffect, imageEffect)
+        adapter.addUseCases(listOf(preview, image))
+        assertThat(image.effect).isEqualTo(imageEffect)
+
+        // Act.
+        adapter.removeUseCases(listOf(image))
+
+        // Assert: the removed use case no longer references its effect.
+        assertThat(image.effect).isNull()
+        assertThat(preview.effect).isEqualTo(previewEffect)
+    }
+
     @RequiresApi(23)
     private fun createAdapterWithSupportedCameraOperations(
         @AdapterCameraInfo.CameraOperation supportedOps: Set<Int>
@@ -1725,6 +1866,7 @@ class CameraUseCaseAdapterTest {
                 androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR,
                 Range(30, 30),
                 interopConfig,
+                emptyMap(),
             )
 
         // Assert: Only preview's cameraConfig contains the interop callback options

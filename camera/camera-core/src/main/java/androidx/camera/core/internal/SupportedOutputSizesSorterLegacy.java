@@ -19,6 +19,7 @@ package androidx.camera.core.internal;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
 import static androidx.camera.core.internal.SupportedOutputSizesSorter.getResolutionListGroupingAspectRatioKeys;
 import static androidx.camera.core.internal.SupportedOutputSizesSorter.groupSizesByAspectRatio;
+import static androidx.camera.core.internal.SupportedOutputSizesSorter.prioritizeSupportedResolutions;
 import static androidx.camera.core.internal.SupportedOutputSizesSorter.sortSupportedSizesByFallbackRuleClosestHigherThenLower;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_ZERO;
@@ -36,6 +37,7 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -78,6 +80,8 @@ class SupportedOutputSizesSorterLegacy {
         if (resolutionCandidateList.isEmpty()) {
             return resolutionCandidateList;
         }
+        Predicate<Size> effectResolutionValidator =
+                useCaseConfig.getEffectResolutionValidator(null);
 
         List<Size> descendingSizeList = new ArrayList<>(resolutionCandidateList);
 
@@ -144,6 +148,10 @@ class SupportedOutputSizesSorterLegacy {
                 sortSupportedSizesByFallbackRuleClosestHigherThenLower(resultSizeList, targetSize,
                         true);
             }
+            if (effectResolutionValidator != null) {
+                resultSizeList = prioritizeSupportedResolutions(
+                        resultSizeList, effectResolutionValidator);
+            }
         } else {
             // Rearrange the supported size to put the ones with the same aspect ratio in the front
             // of the list and put others in the end from large to small. Some low end devices may
@@ -157,6 +165,13 @@ class SupportedOutputSizesSorterLegacy {
                 for (Rational key : aspectRatioSizeListMap.keySet()) {
                     sortSupportedSizesByFallbackRuleClosestHigherThenLower(
                             aspectRatioSizeListMap.get(key), targetSize, true);
+                }
+            }
+
+            if (effectResolutionValidator != null) {
+                for (Map.Entry<Rational, List<Size>> entry : aspectRatioSizeListMap.entrySet()) {
+                    entry.setValue(prioritizeSupportedResolutions(
+                            entry.getValue(), effectResolutionValidator));
                 }
             }
 

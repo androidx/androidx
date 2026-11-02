@@ -21,6 +21,7 @@ import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
@@ -58,6 +59,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -67,6 +69,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.concurrent.DualOutConfig;
 import androidx.camera.core.processing.util.OutConfig;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -76,6 +79,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -111,20 +115,27 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     private final @NonNull Map<UseCase, UseCaseConfig<?>> mChildrenPipelineConfigsMap =
             new HashMap<>();
     private boolean mPendingUpdateConfigAndOutput = false;
+    // Whether the pipeline is recreated when a Preview child's target rotation changes. See
+    // updateChildrenPipelineConfigs().
+    private boolean mIsPreviewRotationChangeRecreatingPipeline = false;
     private final @NonNull ResolutionsMerger mResolutionsMerger;
     private @Nullable ResolutionsMerger mSecondaryResolutionsMerger;
     private final StreamSharing.@NonNull Control mStreamSharingControl;
 
     /**
-     * @param parentCamera         the parent {@link CameraInternal} instance. For example, the
-     *                             real camera.
-     * @param children             the children {@link UseCase}.
-     * @param useCaseConfigFactory the factory for configuring children {@link UseCase}.
+     * @param parentCamera                      the parent {@link CameraInternal} instance. For
+     *                                          example, the real camera.
+     * @param children                          the children {@link UseCase}.
+     * @param useCaseConfigFactory              the factory for configuring children
+     *                                          {@link UseCase}.
+     * @param childrenEffectResolutionValidators the resolved children effect resolution
+     *                                          validators.
      */
     VirtualCameraAdapter(@NonNull CameraInternal parentCamera,
             @Nullable CameraInternal secondaryParentCamera,
             @NonNull Set<UseCase> children,
             @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @NonNull Map<UseCase, Predicate<Size>> childrenEffectResolutionValidators,
             StreamSharing.@NonNull Control streamSharingControl) {
         mParentCamera = parentCamera;
         mSecondaryParentCamera = secondaryParentCamera;
@@ -133,7 +144,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         mChildren = children;
         // No need to create a new instance for secondary camera.
         mChildrenBindConfigsMap = toChildrenConfigsMap(parentCamera, children,
-                useCaseConfigFactory);
+                useCaseConfigFactory, childrenEffectResolutionValidators);
         mChildrenPipelineConfigsMap.putAll(mChildrenBindConfigsMap);
         mChildrenBindConfigs = new HashSet<>(mChildrenBindConfigsMap.values());
         mResolutionsMerger = new ResolutionsMerger(parentCamera, mChildrenBindConfigs);
@@ -157,6 +168,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         // Merge resolution configs.
         List<Size> mergedResolutions = mResolutionsMerger.getMergedResolutions(mutableConfig);
         mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, mergedResolutions);
+        // The merged resolutions already reflect the effect resolution validator, so remove it to
+        // keep the size sorter from reordering them again.
+        mutableConfig.removeOption(OPTION_EFFECT_RESOLUTION_VALIDATOR);
 
         // Merge Surface occupancy priority.
         mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,
@@ -252,6 +266,19 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     @NonNull Set<UseCase> getChildren() {
         return mChildren;
+    }
+
+    boolean hasSameChildrenEffectResolutionValidators(
+            @NonNull Map<UseCase, Predicate<Size>> effectResolutionValidators) {
+        for (UseCase child : mChildren) {
+            UseCaseConfig<?> childConfig = mChildrenBindConfigsMap.get(child);
+            Predicate<Size> currentValidator = childConfig != null
+                    ? childConfig.getEffectResolutionValidator(null) : null;
+            if (!Objects.equals(currentValidator, effectResolutionValidators.get(child))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -526,6 +553,11 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         return cameraInternal.getCameraInfo().getSensorRotationDegrees(childTargetRotation);
     }
 
+    @ImageOutputConfig.RotationValue
+    private static int getTargetRotation(@NonNull UseCaseConfig<?> config) {
+        return ((ImageOutputConfig) config).getTargetRotation(Surface.ROTATION_0);
+    }
+
     @NonNull
     private static StreamSpec getChildStreamSpec(@NonNull UseCase useCase,
             @NonNull StreamSpec baseStreamSpec, @NonNull Map<UseCase, Size> selectedChildSizes) {
@@ -555,15 +587,35 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     private static @NonNull Map<UseCase, UseCaseConfig<?>> toChildrenConfigsMap(
             @NonNull CameraInternal parentCamera, @NonNull Set<UseCase> children,
-            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
+            @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @NonNull Map<UseCase, Predicate<Size>> childrenEffectResolutionValidators) {
         Map<UseCase, UseCaseConfig<?>> result = new HashMap<>();
         for (UseCase useCase : children) {
+            UseCaseConfig<?> defaultConfig = getChildDefaultConfig(
+                    useCase, useCaseConfigFactory,
+                    childrenEffectResolutionValidators.get(useCase));
             UseCaseConfig<?> config = useCase.mergeConfigs(parentCamera.getCameraInfoInternal(),
-                    null, useCase.getDefaultConfig(true, useCaseConfigFactory));
+                    null, defaultConfig);
             result.put(useCase, config);
         }
 
         return result;
+    }
+
+    private static @Nullable UseCaseConfig<?> getChildDefaultConfig(
+            @NonNull UseCase useCase,
+            @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @Nullable Predicate<Size> childEffectResolutionValidator) {
+        UseCaseConfig<?> defaultConfig = useCase.getDefaultConfig(true, useCaseConfigFactory);
+        if (childEffectResolutionValidator == null) {
+            return defaultConfig;
+        }
+        MutableOptionsBundle mutableConfig = defaultConfig != null
+                ? MutableOptionsBundle.from(defaultConfig)
+                : MutableOptionsBundle.create();
+        mutableConfig.insertOption(UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                childEffectResolutionValidator);
+        return useCase.getUseCaseConfigBuilder(mutableConfig).getUseCaseConfig();
     }
 
     private static int getHighestSurfacePriority(Set<UseCaseConfig<?>> childrenConfigs) {
@@ -686,9 +738,18 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         return resolvedTargetFrameRate;
     }
 
+    /**
+     * Records the children's configs the pipeline is created with.
+     *
+     * @param isPreviewRotationChangeRecreatingPipeline whether a later target rotation change of a
+     *                                                  {@link Preview} child recreates the
+     *                                                  pipeline. See
+     *                                                  {@link #shouldUpdateConfigAndOutput}.
+     */
     @MainThread
-    void updateChildrenPipelineConfigs() {
+    void updateChildrenPipelineConfigs(boolean isPreviewRotationChangeRecreatingPipeline) {
         checkMainThread();
+        mIsPreviewRotationChangeRecreatingPipeline = isPreviewRotationChangeRecreatingPipeline;
         mChildrenPipelineConfigsMap.clear();
         for (UseCase useCase : mChildren) {
             mChildrenPipelineConfigsMap.put(useCase, useCase.getCurrentConfig());
@@ -698,6 +759,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     @MainThread
     void clearChildrenPipelineConfigs() {
         checkMainThread();
+        mIsPreviewRotationChangeRecreatingPipeline = false;
         mChildrenPipelineConfigsMap.clear();
     }
 
@@ -723,7 +785,18 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
             return true;
         }
         UseCaseConfig<?> currentConfig = useCase.getCurrentConfig();
-        return getMirrorMode(pipelineConfig) != getMirrorMode(currentConfig);
+        if (getMirrorMode(pipelineConfig) != getMirrorMode(currentConfig)) {
+            return true;
+        }
+        // The sharing node applies a Preview child's target rotation when it creates the output.
+        // With an effect, recreate the pipeline when it changes, so the output matches a fresh
+        // bind. See Preview#setTargetRotation(int). Without an effect, keep the pipeline and let
+        // the Preview send the remaining rotation to its consumer, as before. Recreating the
+        // pipeline also applies the latest target rotation of a recording VideoCapture child,
+        // which stops the recording if its resolution changes.
+        return mIsPreviewRotationChangeRecreatingPipeline
+                && useCase instanceof Preview
+                && getTargetRotation(pipelineConfig) != getTargetRotation(currentConfig);
     }
 
     @MirrorMode.Mirror

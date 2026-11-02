@@ -46,6 +46,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_STREAM_USE_CASE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
+import static androidx.camera.core.impl.utils.Threads.runOnMain;
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -411,9 +412,51 @@ public final class Preview extends UseCase {
      * @see Preview.Builder#setTargetRotation(int)
      */
     public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
-        if (setTargetRotationInternal(targetRotation)) {
-            sendTransformationInfoIfReady();
+        if (!setTargetRotationInternal(targetRotation)) {
+            return;
         }
+        CameraInternal camera = getCamera();
+        if (camera == null) {
+            return;
+        }
+        if (!isSurfaceProcessingEnabled(camera)) {
+            // The output has the camera transform, so the consumer can apply the new rotation via
+            // TransformationInfo without recreating the output.
+            sendTransformationInfoIfReady();
+            return;
+        }
+        // Surface processing applies the rotation when it creates the output, and some
+        // consumers, e.g. a SurfaceView, can't apply the remaining rotation themselves. Recreate
+        // the output on the main thread, since this method can be called on any thread, e.g.
+        // from an orientation listener on a background thread. It runs right away when already
+        // on the main thread.
+        runOnMain(() -> {
+            // Skip if the Preview was detached from this camera before this runs.
+            if (getCamera() != camera) {
+                return;
+            }
+            // With a real camera, this Preview owns its pipeline, so recreate it here. Under
+            // StreamSharing, notifyReset() makes StreamSharing recreate it if needed, e.g. with
+            // an effect. Otherwise, StreamSharing only reconnects this Preview's Surface, and the
+            // consumer applies the remaining rotation.
+            if (camera.getHasTransform()) {
+                updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
+                        requireNonNull(getAttachedStreamSpec()));
+            } else {
+                sendTransformationInfoIfReady();
+            }
+            notifyReset();
+        });
+    }
+
+    /**
+     * Returns whether the output is produced by surface processing, i.e. a buffer copy by a node,
+     * either upstream (e.g. StreamSharing) or this Preview's own effect node.
+     */
+    private boolean isSurfaceProcessingEnabled(@NonNull CameraInternal camera) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // the input stream, e.g. when attached to a VirtualCamera under StreamSharing.
+        return !camera.getHasTransform() || getEffect() != null;
     }
 
     /**

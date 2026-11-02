@@ -47,6 +47,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CaptureConfig
@@ -80,6 +81,7 @@ import androidx.camera.video.MediaSpec
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput
+import androidx.core.util.Predicate
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -143,6 +145,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, child2),
+                emptyList(),
                 useCaseConfigFactory,
             )
         defaultConfig = streamSharing.getDefaultConfig(true, useCaseConfigFactory)!!
@@ -165,6 +168,85 @@ class StreamSharingTest {
     }
 
     @Test
+    fun childOnlyEffect_childGetsItsEffectResolutionValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val videoValidator = Predicate<Size> { true }
+        val videoEffect =
+            object : FakeSurfaceEffect(VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = videoValidator
+            }
+
+        streamSharing = createStreamSharing(setOf(preview, videoCapture), listOf(videoEffect))
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(videoCapture to videoValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun sharingEffect_childrenWithoutOwnEffectInheritItsResolutionValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val sharingValidator = Predicate<Size> { true }
+        val sharingEffect =
+            object : FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = sharingValidator
+            }
+
+        streamSharing = createStreamSharing(setOf(preview, videoCapture), listOf(sharingEffect))
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(preview to sharingValidator, videoCapture to sharingValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun childEffectWithoutValidator_childDoesNotInheritSharingValidator() {
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        val sharingValidator = Predicate<Size> { true }
+        val sharingEffect =
+            object : FakeSurfaceEffect(PREVIEW or VIDEO_CAPTURE, effectProcessor) {
+                override fun getResolutionValidator() = sharingValidator
+            }
+        val videoEffectWithoutValidator = FakeSurfaceEffect(VIDEO_CAPTURE, effectProcessor)
+
+        streamSharing =
+            createStreamSharing(
+                setOf(preview, videoCapture),
+                listOf(sharingEffect, videoEffectWithoutValidator),
+            )
+
+        assertThat(
+                streamSharing.virtualCameraAdapter.hasSameChildrenEffectResolutionValidators(
+                    mapOf(preview to sharingValidator)
+                )
+            )
+            .isTrue()
+    }
+
+    private fun createStreamSharing(
+        children: Set<UseCase>,
+        effects: List<CameraEffect>,
+    ): StreamSharing =
+        StreamSharing(
+            camera,
+            secondaryCamera,
+            CompositionSettings.DEFAULT,
+            CompositionSettings.DEFAULT,
+            children,
+            effects,
+            useCaseConfigFactory,
+        )
+
+    @Test
     fun effectHandleSharing_effectUsedAsSharingNode() {
         // Arrange: create an effect that handles sharing.
         effect =
@@ -183,6 +265,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -219,6 +302,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -242,6 +326,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.setViewPortCropRect(cropRect)
@@ -272,6 +357,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.effect = effect
@@ -370,6 +456,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -428,6 +515,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(unspecifiedChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -465,6 +553,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(sdrChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.mergeConfigs(
@@ -497,6 +586,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(sdrSmpteChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.mergeConfigs(
@@ -529,6 +619,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(unspecifiedChild, hdrChild),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -615,6 +706,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -645,6 +737,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -679,6 +772,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -715,6 +809,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -738,6 +833,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -766,6 +862,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(previewBuilder.build()),
+                emptyList(),
                 CameraUseCaseAdapter(context),
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -994,6 +1091,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1023,6 +1121,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1049,6 +1148,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -1073,6 +1173,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -1150,6 +1251,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(child1, child2),
+                emptyList(),
                 useCaseConfigFactory,
             )
         assertThat(
@@ -1178,6 +1280,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(fakeUseCase),
+                emptyList(),
                 useCaseConfigFactory,
             )
 
@@ -1223,6 +1326,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(
@@ -1306,6 +1410,7 @@ class StreamSharingTest {
                 CompositionSettings.DEFAULT,
                 CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
+                emptyList(),
                 useCaseConfigFactory,
             )
         streamSharing.bindToCamera(camera, null, null, defaultConfig)
@@ -1337,5 +1442,234 @@ class StreamSharingTest {
         // Verify old edge is correctly released/cleaned up
         assertThat(videoCaptureEdgeBefore).isNotEqualTo(videoCaptureEdgeAfter)
         assertThat(videoCaptureEdgeBefore.isClosed).isTrue()
+    }
+
+    @Test
+    fun setTargetRotationOnPreview_updateConfigAndOutput() {
+        // Arrange: an active Preview shares the stream with an effect.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        streamSharing = createSingleCameraStreamSharing(setOf(preview), emptyList())
+        streamSharing.effect = createSharingEffect()
+        bindAndStartSession(Size(1920, 1080))
+        val cameraEdgeBefore = streamSharing.cameraEdge
+        val previewEdgeBefore = streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!
+        val previewSizeBefore = previewEdgeBefore.streamSpec.resolution
+        val previewSurfaceBefore = VirtualCameraAdapter.getChildSurface(preview)
+        val effectSurfaceRequestBefore = effectProcessor.surfaceRequest
+
+        // Act.
+        preview.targetRotation = Surface.ROTATION_90
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the pipeline is recreated, so the Preview output has the new rotation, as if
+        // the Preview was bound with it, and the effect gets a new input.
+        assertThat(streamSharing.cameraEdge).isNotSameInstanceAs(cameraEdgeBefore)
+        val previewEdgeAfter = streamSharing.virtualCameraAdapter.mChildrenEdges[preview]!!
+        assertThat(previewEdgeAfter).isNotSameInstanceAs(previewEdgeBefore)
+        assertThat(previewEdgeAfter.streamSpec.resolution)
+            .isEqualTo(Size(previewSizeBefore.height, previewSizeBefore.width))
+        assertThat(previewEdgeAfter.hasProvider()).isTrue()
+        assertThat(VirtualCameraAdapter.getChildSurface(preview))
+            .isNotSameInstanceAs(previewSurfaceBefore)
+        assertThat(effectProcessor.surfaceRequest).isNotSameInstanceAs(effectSurfaceRequestBefore)
+        // The Preview has no remaining rotation to apply.
+        assertThat(
+                preview.camera!!.cameraInfoInternal.getSensorRotationDegrees(preview.targetRotation)
+            )
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun setTargetRotationOnPreview_videoCaptureOutputFollowsLatestRotation() {
+        // Arrange: Preview and an active VideoCapture share the stream.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        val videoCapture = createVideoCapture()
+        streamSharing = createSingleCameraStreamSharing(setOf(preview, videoCapture), emptyList())
+        streamSharing.effect = createSharingEffect()
+        bindAndStartSession(size)
+        val adapter = streamSharing.virtualCameraAdapter
+        val videoSizeBefore = adapter.mChildrenEdges[videoCapture]!!.streamSpec.resolution
+
+        // Act: the app rotates all use cases, e.g. after the display rotates.
+        preview.targetRotation = Surface.ROTATION_90
+        videoCapture.targetRotation = Surface.ROTATION_90
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the VideoCapture output also follows its latest rotation, as if bound with it.
+        // If a recording is in progress and its resolution changes, the Recorder stops it.
+        val videoEdgeAfter = adapter.mChildrenEdges[videoCapture]!!
+        assertThat(videoEdgeAfter.streamSpec.resolution)
+            .isEqualTo(Size(videoSizeBefore.height, videoSizeBefore.width))
+        assertThat(videoEdgeAfter.hasProvider()).isTrue()
+        assertThat(
+                videoCapture.camera!!
+                    .cameraInfoInternal
+                    .getSensorRotationDegrees(videoCapture.targetRotation)
+            )
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun setTargetRotationOnPreviewWithoutEffect_sendsRemainingRotationWithoutRecreating() {
+        // Arrange: Preview and VideoCapture share the stream without an effect.
+        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor()) { request ->
+            request.setTransformationInfoListener(directExecutor()) { transformationInfo = it }
+            provideTestSurface(request)
+        }
+        val videoCapture = createVideoCapture()
+        streamSharing = createSingleCameraStreamSharing(setOf(preview, videoCapture), emptyList())
+        bindAndStartSession(size)
+        val cameraEdgeBefore = streamSharing.cameraEdge
+        val previewEdgeBefore = streamSharing.virtualCameraAdapter.mChildrenEdges[preview]
+
+        // Act.
+        preview.targetRotation = Surface.ROTATION_90
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: without an effect, the pipeline is kept and the Preview's consumer applies the
+        // remaining rotation, as before.
+        assertThat(streamSharing.cameraEdge).isSameInstanceAs(cameraEdgeBefore)
+        assertThat(streamSharing.virtualCameraAdapter.mChildrenEdges[preview])
+            .isSameInstanceAs(previewEdgeBefore)
+        assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_90)
+        assertThat(transformationInfo!!.rotationDegrees)
+            .isEqualTo(
+                preview.camera!!.cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_90)
+            )
+    }
+
+    @Test
+    fun setTargetRotationOnVideoCapture_doesNotUpdateConfigAndOutput() {
+        // Arrange.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        val videoCapture = createVideoCapture()
+        streamSharing = createSingleCameraStreamSharing(setOf(preview, videoCapture), emptyList())
+        streamSharing.effect = createSharingEffect()
+        bindAndStartSession(size)
+        val cameraEdgeBefore = streamSharing.cameraEdge
+
+        // Act: only VideoCapture rotates, and then it is updated, e.g. when a recording starts.
+        videoCapture.targetRotation = Surface.ROTATION_90
+        streamSharing.virtualCameraAdapter.onUseCaseUpdated(videoCapture)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: VideoCapture applies its rotation via metadata, so the pipeline is kept.
+        assertThat(streamSharing.cameraEdge).isSameInstanceAs(cameraEdgeBefore)
+    }
+
+    @Test
+    fun setTargetRotationOnInactivePreview_updateConfigAndOutputWhenActive() {
+        // Arrange: the Preview is inactive because its SurfaceProvider is removed.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        streamSharing = createSingleCameraStreamSharing(setOf(preview), emptyList())
+        streamSharing.effect = createSharingEffect()
+        bindAndStartSession(Size(1920, 1080))
+        preview.setSurfaceProvider(null)
+        shadowOf(getMainLooper()).idle()
+        val cameraEdgeBefore = streamSharing.cameraEdge
+
+        // Act.
+        preview.targetRotation = Surface.ROTATION_90
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the pipeline isn't recreated while the Preview is inactive.
+        assertThat(streamSharing.cameraEdge).isSameInstanceAs(cameraEdgeBefore)
+
+        // Act: the Preview becomes active again.
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the pipeline is recreated with the new rotation.
+        assertThat(streamSharing.cameraEdge).isNotSameInstanceAs(cameraEdgeBefore)
+        assertThat(
+                preview.camera!!.cameraInfoInternal.getSensorRotationDegrees(preview.targetRotation)
+            )
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun setSameTargetRotationOnPreview_doesNotUpdateConfigAndOutput() {
+        // Arrange.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        preview.setSurfaceProvider(mainThreadExecutor(), ::provideTestSurface)
+        streamSharing = createSingleCameraStreamSharing(setOf(preview), emptyList())
+        streamSharing.effect = createSharingEffect()
+        bindAndStartSession(Size(1920, 1080))
+        val cameraEdgeBefore = streamSharing.cameraEdge
+
+        // Act.
+        preview.targetRotation = Surface.ROTATION_0
+        shadowOf(getMainLooper()).idle()
+
+        // Assert.
+        assertThat(streamSharing.cameraEdge).isSameInstanceAs(cameraEdgeBefore)
+    }
+
+    private fun createSingleCameraStreamSharing(
+        children: Set<UseCase>,
+        effects: List<CameraEffect>,
+    ): StreamSharing =
+        StreamSharing(
+            camera,
+            null,
+            CompositionSettings.DEFAULT,
+            CompositionSettings.DEFAULT,
+            children,
+            effects,
+            useCaseConfigFactory,
+        )
+
+    private fun createSharingEffect(): CameraEffect =
+        FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            CameraEffect.TRANSFORMATION_ARBITRARY,
+            effectProcessor,
+        )
+
+    private fun bindAndStartSession(streamSize: Size) {
+        streamSharing.bindToCamera(
+            camera,
+            null,
+            null,
+            streamSharing.getDefaultConfig(true, useCaseConfigFactory),
+        )
+        streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(streamSize).build(), null)
+        streamSharing.onSessionStart()
+        shadowOf(getMainLooper()).idle()
+        for (child in streamSharing.children) {
+            assertThat(streamSharing.virtualCameraAdapter.mChildrenActiveState[child]).isTrue()
+        }
+    }
+
+    private fun createVideoCapture(): VideoCapture<VideoOutput> {
+        val videoOutput: VideoOutput =
+            object : VideoOutput {
+                override fun onSurfaceRequested(request: SurfaceRequest) {
+                    request.willNotProvideSurface()
+                }
+
+                override fun getMediaSpec(): Observable<MediaSpec> {
+                    return ConstantObservable.withValue(MediaSpec.builder().build())
+                }
+            }
+        return VideoCapture.Builder(videoOutput)
+            .setVideoEncoderInfoFinder { FakeVideoEncoderInfo() }
+            .setTargetRotation(Surface.ROTATION_0)
+            .build()
+    }
+
+    private fun provideTestSurface(request: SurfaceRequest) {
+        val surfaceTexture = SurfaceTexture(0)
+        val surface = Surface(surfaceTexture)
+        request.provideSurface(surface, directExecutor()) {
+            surface.release()
+            surfaceTexture.release()
+        }
     }
 }

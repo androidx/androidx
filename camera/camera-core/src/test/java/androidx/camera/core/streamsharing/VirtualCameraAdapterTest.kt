@@ -37,10 +37,13 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+import androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.defaultEmptySessionConfig
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.processing.SurfaceEdge
@@ -51,6 +54,9 @@ import androidx.camera.testing.impl.FakeCameraCapturePipeline.InvocationType.PRE
 import androidx.camera.testing.impl.fakes.FakeDeferrableSurface
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
+import androidx.core.util.Predicate
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CopyOnWriteArrayList
@@ -122,6 +128,7 @@ class VirtualCameraAdapterTest {
                 null,
                 setOf(child1, child2),
                 useCaseConfigFactory,
+                emptyMap(),
                 object : StreamSharing.Control {
                     override fun jpegSnapshot(
                         jpegQuality: Int,
@@ -357,6 +364,33 @@ class VirtualCameraAdapterTest {
     }
 
     @Test
+    fun mergeChildrenConfigs_removesEffectResolutionValidatorAfterMergingResolutions() {
+        // Arrange: the parent config carries the StreamSharing effect's resolution validator.
+        val preview = Preview.Builder().build()
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build()).build()
+        adapter =
+            VirtualCameraAdapter(
+                parentCamera,
+                null,
+                setOf(preview, videoCapture),
+                useCaseConfigFactory,
+                emptyMap(),
+            ) { _, _ ->
+                Futures.immediateFuture(null)
+            }
+        val mergedConfig = MutableOptionsBundle.create()
+        mergedConfig.insertOption(OPTION_EFFECT_RESOLUTION_VALIDATOR, Predicate<Size> { true })
+
+        // Act.
+        adapter.mergeChildrenConfigs(mergedConfig)
+
+        // Assert: the merged resolutions are set, and the validator they already reflect is
+        // removed so that the size sorter keeps their order.
+        assertThat(mergedConfig.containsOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS)).isTrue()
+        assertThat(mergedConfig.containsOption(OPTION_EFFECT_RESOLUTION_VALIDATOR)).isFalse()
+    }
+
+    @Test
     fun getChildrenOutConfigs() {
         // Arrange.
         val cropRect = Rect(10, 10, 410, 310)
@@ -368,6 +402,7 @@ class VirtualCameraAdapterTest {
                 null,
                 setOf(preview, child2, imageCapture),
                 useCaseConfigFactory,
+                emptyMap(),
             ) { _, _ ->
                 Futures.immediateFuture(null)
             }

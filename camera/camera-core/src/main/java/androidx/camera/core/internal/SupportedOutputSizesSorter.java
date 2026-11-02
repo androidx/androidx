@@ -42,6 +42,7 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionFilter;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -121,14 +122,20 @@ public class SupportedOutputSizesSorter {
             @NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
+        Predicate<Size> effectResolutionValidator =
+                useCaseConfig.getEffectResolutionValidator(null);
 
-        // Directly returns the custom ordered resolutions list if it is set.
+        // Directly returns the custom ordered resolutions list if it is set (e.g. by
+        // VideoCapture's QualitySelector), only moving the effect-supported resolutions ahead.
         if (customOrderedResolutions != null) {
-            return customOrderedResolutions;
+            return effectResolutionValidator != null
+                    ? prioritizeSupportedResolutions(customOrderedResolutions,
+                            effectResolutionValidator)
+                    : customOrderedResolutions;
         }
 
         ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
-        List<Pair<Integer, Size[]>>  customResolutions =
+        List<Pair<Integer, Size[]>> customResolutions =
                 imageOutputConfig.getSupportedResolutions(null);
         List<Size> candidateSizes = getResolutionCandidateList(customResolutions,
                 useCaseConfig.getInputFormat());
@@ -155,8 +162,48 @@ public class SupportedOutputSizesSorter {
                     targetRotation,
                     mFullFovRatio,
                     mSensorOrientation,
-                    mLensFacing);
+                    mLensFacing,
+                    effectResolutionValidator);
         }
+    }
+
+    /**
+     * Prioritizes resolutions that satisfy the given resolution validator {@link Predicate} ahead
+     * of unsupported ones while preserving relative order within each group.
+     *
+     * <p>Note: In {@code StreamSharing} mode, {@code ResolutionsMerger} calls
+     * {@code filterOutChildSizesThatWillNeverBeSelected()} on the sorted child sizes. When a
+     * child's candidate list includes effect-supported sizes within an aspect-ratio group, moving
+     * them ahead of larger unsupported sizes within that group intentionally caps the parent
+     * resolution at the effect's supported limit to avoid unnecessary downscaling (as
+     * {@code ResolutionsMerger.getPreferredChildSize()} will always select the earlier supported
+     * child size). When a child strictly requests an unsupported larger resolution (e.g. via
+     * {@link ResolutionStrategy#FALLBACK_RULE_NONE}, a {@link ResolutionFilter} that places
+     * unsupported sizes first, or custom ordered resolutions that contain only unsupported sizes),
+     * no smaller supported sizes precede it, so {@code ResolutionsMerger} retains the larger
+     * unsupported parent resolution, and the effect is responsible for handling it.
+     */
+    public static @NonNull List<Size> prioritizeSupportedResolutions(
+            @NonNull List<Size> resolutions, @NonNull Predicate<Size> resolutionValidator) {
+        if (resolutions.isEmpty()) {
+            return resolutions;
+        }
+        int sizeCount = resolutions.size();
+        List<Size> supported = new ArrayList<>(sizeCount);
+        List<Size> unsupported = new ArrayList<>(sizeCount);
+        for (Size size : resolutions) {
+            if (resolutionValidator.test(size)) {
+                supported.add(size);
+            } else {
+                unsupported.add(size);
+            }
+        }
+        if (supported.isEmpty() || unsupported.isEmpty()) {
+            return resolutions;
+        }
+        // Append unsupported sizes as fallback candidates after all effect-supported sizes.
+        supported.addAll(unsupported);
+        return supported;
     }
 
     private @Nullable List<Size> getSizeListByFormat(
@@ -200,6 +247,7 @@ public class SupportedOutputSizesSorter {
      * @param fullFovRatio       the full FOV's aspect ratio.
      * @param sensorOrientation  the sensor orientation of the current camera.
      * @param lensFacing         the lens facing of the current camera
+     * @param effectResolutionValidator optional validator to prioritize effect-supported sizes
      * @return a size list which has been filtered and sorted by the specified resolution
      * selector settings.
      * @throws IllegalArgumentException if the specified resolution filter returns any size which
@@ -212,7 +260,8 @@ public class SupportedOutputSizesSorter {
             int targetRotation,
             @NonNull Rational fullFovRatio,
             int sensorOrientation,
-            int lensFacing) {
+            int lensFacing,
+            @Nullable Predicate<Size> effectResolutionValidator) {
 
         // Applies the aspect ratio strategy onto the resolution candidate list.
         LinkedHashMap<Rational, List<Size>> aspectRatioSizeListMap =
@@ -226,6 +275,16 @@ public class SupportedOutputSizesSorter {
 
         // Applies the resolution strategy onto the resolution candidate list.
         applyResolutionStrategy(aspectRatioSizeListMap, resolutionSelector.getResolutionStrategy());
+
+        // Prioritizes effect-supported resolutions within each aspect ratio group before flattening
+        // and before applying the user's ResolutionFilter, so aspect ratio preference and explicit
+        // ResolutionFilter ordering are preserved.
+        if (effectResolutionValidator != null) {
+            for (Map.Entry<Rational, List<Size>> entry : aspectRatioSizeListMap.entrySet()) {
+                entry.setValue(prioritizeSupportedResolutions(
+                        entry.getValue(), effectResolutionValidator));
+            }
+        }
 
         // Collects all sizes from the sorted aspect ratio size groups into the final sorted list.
         List<Size> resultList = new ArrayList<>();

@@ -126,6 +126,8 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
     public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
         synchronized (mLock) {
             mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
+            // Don't retain CameraEffect references once nothing is bound.
+            mCameraUseCaseAdapter.setEffects(Collections.emptyList());
         }
     }
 
@@ -377,6 +379,10 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             // Clears RotationProvider to ImageCapture, ImageAnalysis and VideoCapture when
             // UseCase is unbound.
             updateUseCasesRotationProvider(useCasesToRemove, null);
+            if (mBoundSessionConfig == null) {
+                // Don't retain CameraEffect references once nothing is bound.
+                mCameraUseCaseAdapter.setEffects(Collections.emptyList());
+            }
         }
     }
 
@@ -394,6 +400,8 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             updateUseCasesRotationProvider(useCases, null);
             mBoundSessionConfig = null;
             mCameraUseCaseAdapter.setSessionInteropConfig(null);
+            // Don't retain CameraEffect references once nothing is bound.
+            mCameraUseCaseAdapter.setEffects(Collections.emptyList());
         }
     }
 

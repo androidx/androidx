@@ -28,6 +28,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED;
 import static androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR;
 import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_EFFECT_RESOLUTION_VALIDATOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_IS_STRICT_FRAME_RATE_REQUIRED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
@@ -85,6 +86,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.workaround.StreamSharingForceEnabler;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
+import androidx.core.util.Predicate;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -473,7 +475,7 @@ public final class CameraUseCaseAdapter implements Camera {
             Set<UseCase> appUseCases = new LinkedHashSet<>(mAppUseCases);
             appUseCases.addAll(appUseCasesToAdd);
 
-            Map<UseCase, Set<GroupableFeature>> previousFeatureGRoupMap =
+            Map<UseCase, Set<GroupableFeature>> previousFeatureGroupMap =
                     applyFeatureGroup(appUseCases, featureGroup);
 
             try {
@@ -485,7 +487,7 @@ public final class CameraUseCaseAdapter implements Camera {
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e);
             } finally {
-                restoreFeatureGroup(previousFeatureGRoupMap);
+                restoreFeatureGroup(previousFeatureGroupMap);
             }
         }
     }
@@ -549,9 +551,11 @@ public final class CameraUseCaseAdapter implements Camera {
 
         // Calculate suggested resolutions. This step throws exception if the camera UseCases
         // fails the supported stream combination rules.
+        Map<UseCase, Predicate<Size>> effectResolutionValidators =
+                resolveEffectResolutionValidators(mEffects, cameraUseCases, appUseCases);
         Map<UseCase, ConfigPair> configs = getConfigs(cameraUseCasesToAttach,
                 mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory,
-                mSessionType, mFrameRate, mSessionInteropConfig);
+                mSessionType, mFrameRate, mSessionInteropConfig, effectResolutionValidators);
         StreamSpecQueryResult primaryStreamSpecResult;
         StreamSpecQueryResult secondaryStreamSpecResult = null;
 
@@ -568,7 +572,8 @@ public final class CameraUseCaseAdapter implements Camera {
                     mSessionType,
                     mFrameRate,
                     isFeatureComboInvocation,
-                    findSupportedFrameRateRanges);
+                    findSupportedFrameRateRanges,
+                    effectResolutionValidators);
             if (mSecondaryCameraInternal != null) {
                 secondaryStreamSpecResult = mStreamSpecsCalculator.calculateSuggestedStreamSpecs(
                         getCameraMode(),
@@ -579,7 +584,8 @@ public final class CameraUseCaseAdapter implements Camera {
                         mSessionType,
                         mFrameRate,
                         isFeatureComboInvocation,
-                        findSupportedFrameRateRanges);
+                        findSupportedFrameRateRanges,
+                        effectResolutionValidators);
             }
             // TODO(b/265704882): enable stream sharing for LEVEL_3 and high preview
             //  resolution. Throw exception here if (applyStreamSharing == false), both video
@@ -620,6 +626,12 @@ public final class CameraUseCaseAdapter implements Camera {
                 info.getPrimaryStreamSpecResult().getStreamSpecs(),
                 info.getCameraUseCases());
         updateEffects(mEffects, info.getCameraUseCases(), info.getAppUseCases());
+        // Don't retain CameraEffect references in UseCases that are no longer bound.
+        for (UseCase useCase : mAppUseCases) {
+            if (!info.getAppUseCases().contains(useCase)) {
+                useCase.setEffect(null);
+            }
+        }
 
         // Detach unused UseCases.
         for (UseCase useCase : info.getCameraUseCasesToDetach()) {
@@ -906,9 +918,10 @@ public final class CameraUseCaseAdapter implements Camera {
             String physicalCameraId = resolvePhysicalCameraIdForUseCases(newChildren);
             if (mStreamSharing != null
                     && mStreamSharing.getChildren().equals(newChildren)
-                    && Objects.equals(mStreamSharing.getPhysicalCameraId(), physicalCameraId)) {
-                // Returns the current instance if the new children and physical camera ID equal
-                // the old.
+                    && Objects.equals(mStreamSharing.getPhysicalCameraId(), physicalCameraId)
+                    && mStreamSharing.hasSameChildrenEffectResolutionValidators(mEffects)) {
+                // Returns the current instance if the new children, physical camera ID and child
+                // effect validators equal the old.
                 mStreamSharing.updateFeatureGroup(newChildren);
                 return requireNonNull(mStreamSharing);
             }
@@ -922,6 +935,7 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCompositionSettings,
                     mSecondaryCompositionSettings,
                     newChildren,
+                    mEffects,
                     mUseCaseConfigFactory);
             if (physicalCameraId != null) {
                 streamSharing.setPhysicalCameraId(physicalCameraId);
@@ -1103,37 +1117,97 @@ public final class CameraUseCaseAdapter implements Camera {
     static void updateEffects(@NonNull List<CameraEffect> effects,
             @NonNull Collection<UseCase> cameraUseCases,
             @NonNull Collection<UseCase> appUseCases) {
-        // Match camera UseCases first. Apply the effect early in the pipeline if possible.
-        List<CameraEffect> unusedEffects = setEffectsOnUseCases(effects, cameraUseCases);
+        Map<UseCase, CameraEffect> resolvedEffects =
+                resolveEffects(effects, cameraUseCases, appUseCases);
+        Set<UseCase> useCases = new LinkedHashSet<>(cameraUseCases);
+        useCases.addAll(appUseCases);
+        setEffectsOnUseCases(resolvedEffects, useCases);
 
-        // Match unused effects with app only UseCases.
-        List<UseCase> appOnlyUseCases = new ArrayList<>(appUseCases);
-        appOnlyUseCases.removeAll(cameraUseCases);
-        unusedEffects = setEffectsOnUseCases(unusedEffects, appOnlyUseCases);
-
+        List<CameraEffect> unusedEffects = new ArrayList<>(effects);
+        unusedEffects.removeAll(resolvedEffects.values());
         if (!unusedEffects.isEmpty()) {
             Logger.w(TAG, "Unused effects: " + unusedEffects);
         }
     }
 
     /**
-     * Sets effects on the given {@link UseCase} list and returns unused effects.
+     * Sets the resolved effect, or {@code null} if none, on each of the given {@link UseCase}s.
      */
-    private static @NonNull List<CameraEffect> setEffectsOnUseCases(
-            @NonNull List<CameraEffect> effects, @NonNull Collection<UseCase> useCases) {
-        List<CameraEffect> unusedEffects = new ArrayList<>(effects);
+    private static void setEffectsOnUseCases(
+            @NonNull Map<UseCase, CameraEffect> resolvedEffects,
+            @NonNull Collection<UseCase> useCases) {
         for (UseCase useCase : useCases) {
-            useCase.setEffect(null);
-            for (CameraEffect effect : effects) {
+            useCase.setEffect(resolvedEffects.get(useCase));
+        }
+    }
+
+    /**
+     * Resolves which {@link CameraEffect} applies to each {@link UseCase} without mutating any
+     * {@link UseCase}.
+     *
+     * <p>Camera {@link UseCase}s are matched first so that effects are applied as early in the
+     * pipeline as possible. Effects not used by any camera {@link UseCase} are then matched with
+     * app-only {@link UseCase}s, such as the children of {@link StreamSharing}.
+     *
+     * @return a map from each matched {@link UseCase} to its effect. {@link UseCase}s without a
+     * matching effect are not included.
+     * @throws IllegalStateException if a {@link UseCase} matches more than one effect.
+     */
+    public static @NonNull Map<UseCase, CameraEffect> resolveEffects(
+            @NonNull List<CameraEffect> effects,
+            @NonNull Collection<UseCase> cameraUseCases,
+            @NonNull Collection<UseCase> appUseCases) {
+        Map<UseCase, CameraEffect> resolvedEffects = new HashMap<>();
+        if (effects.isEmpty()) {
+            return resolvedEffects;
+        }
+        // Match camera UseCases first. Apply the effect early in the pipeline if possible.
+        List<CameraEffect> unusedEffects = new ArrayList<>(effects);
+        matchEffects(effects, cameraUseCases, resolvedEffects, unusedEffects);
+
+        // Match unused effects with app only UseCases.
+        List<UseCase> appOnlyUseCases = new ArrayList<>(appUseCases);
+        appOnlyUseCases.removeAll(cameraUseCases);
+        matchEffects(new ArrayList<>(unusedEffects), appOnlyUseCases, resolvedEffects,
+                unusedEffects);
+        return resolvedEffects;
+    }
+
+    private static void matchEffects(@NonNull List<CameraEffect> candidateEffects,
+            @NonNull Collection<UseCase> useCases,
+            @NonNull Map<UseCase, CameraEffect> resolvedEffects,
+            @NonNull List<CameraEffect> unusedEffects) {
+        for (UseCase useCase : useCases) {
+            for (CameraEffect effect : candidateEffects) {
                 if (useCase.isEffectTargetsSupported(effect.getTargets())) {
-                    checkState(useCase.getEffect() == null,
-                            useCase + " already has effect" + useCase.getEffect());
-                    useCase.setEffect(effect);
+                    checkState(!resolvedEffects.containsKey(useCase),
+                            useCase + " already has effect" + resolvedEffects.get(useCase));
+                    resolvedEffects.put(useCase, effect);
                     unusedEffects.remove(effect);
                 }
             }
         }
-        return unusedEffects;
+    }
+
+    /**
+     * Resolves the resolution validator of the {@link CameraEffect} applied to each camera
+     * {@link UseCase}, using the same effect assignment as {@link #updateEffects}.
+     */
+    static @NonNull Map<UseCase, Predicate<Size>> resolveEffectResolutionValidators(
+            @NonNull List<CameraEffect> effects,
+            @NonNull Collection<UseCase> cameraUseCases,
+            @NonNull Collection<UseCase> appUseCases) {
+        Map<UseCase, Predicate<Size>> validators = new HashMap<>();
+        Map<UseCase, CameraEffect> resolvedEffects =
+                resolveEffects(effects, cameraUseCases, appUseCases);
+        for (UseCase useCase : cameraUseCases) {
+            CameraEffect effect = resolvedEffects.get(useCase);
+            Predicate<Size> validator = effect != null ? effect.getResolutionValidator() : null;
+            if (validator != null) {
+                validators.put(useCase, validator);
+            }
+        }
+        return validators;
     }
 
     private void updateViewPortAndSensorToBufferMatrix(
@@ -1206,20 +1280,9 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull UseCaseConfigFactory extendedFactory,
             @NonNull UseCaseConfigFactory cameraFactory,
             int sessionType,
-            @NonNull Range<Integer> targetFrameRate) {
-        return getConfigs(useCases, extendedFactory, cameraFactory, sessionType, targetFrameRate,
-                null);
-    }
-
-    /**
-     * Gets a map of the configs for the use cases from the respective factories.
-     */
-    static Map<UseCase, ConfigPair> getConfigs(@NonNull Collection<UseCase> useCases,
-            @NonNull UseCaseConfigFactory extendedFactory,
-            @NonNull UseCaseConfigFactory cameraFactory,
-            int sessionType,
             @NonNull Range<Integer> targetFrameRate,
-            @Nullable Config sessionInteropConfig) {
+            @Nullable Config sessionInteropConfig,
+            @NonNull Map<UseCase, Predicate<Size>> effectResolutionValidators) {
         Map<UseCase, ConfigPair> configs = new HashMap<>();
         boolean isFirst = true;
 
@@ -1239,7 +1302,8 @@ public final class CameraUseCaseAdapter implements Camera {
             isFirst = false;
 
             cameraConfig = attachUseCaseSharedConfigs(useCase, cameraConfig, sessionType,
-                    targetFrameRate, interopConfigToAttach);
+                    targetFrameRate, interopConfigToAttach,
+                    effectResolutionValidators.get(useCase));
             configs.put(useCase, new ConfigPair(extendedConfig, cameraConfig));
         }
         return configs;
@@ -1251,7 +1315,8 @@ public final class CameraUseCaseAdapter implements Camera {
             @Nullable UseCaseConfig<?> useCaseConfig,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate,
-            @Nullable Config sessionInteropConfig) {
+            @Nullable Config sessionInteropConfig,
+            @Nullable Predicate<Size> effectResolutionValidator) {
         MutableOptionsBundle mutableConfig = useCaseConfig != null
                 ? MutableOptionsBundle.from(useCaseConfig) : MutableOptionsBundle.create();
 
@@ -1275,6 +1340,11 @@ public final class CameraUseCaseAdapter implements Camera {
                 mutableConfig.insertOption(opt, sessionInteropConfig.getOptionPriority(opt),
                         sessionInteropConfig.retrieveOption(opt));
             }
+        }
+
+        if (effectResolutionValidator != null) {
+            mutableConfig.insertOption(OPTION_EFFECT_RESOLUTION_VALIDATOR,
+                    effectResolutionValidator);
         }
 
         return useCase.getUseCaseConfigBuilder(mutableConfig).getUseCaseConfig();

@@ -1583,7 +1583,8 @@ public final class ImageCapture extends UseCase {
             List<Size> result =
                     SupportedOutputSizesSorter.sortSupportedOutputSizesByResolutionSelector(
                             postviewSizeSelector, sizes, null, getTargetRotation(), fullFov,
-                            cameraInfo.getSensorRotationDegrees(), cameraInfo.getLensFacing());
+                            cameraInfo.getSensorRotationDegrees(), cameraInfo.getLensFacing(),
+                            null);
 
             if (result.isEmpty()) {
                 throw new IllegalArgumentException(
