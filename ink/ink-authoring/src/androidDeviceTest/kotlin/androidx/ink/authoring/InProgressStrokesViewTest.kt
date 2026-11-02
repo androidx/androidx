@@ -248,33 +248,10 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
 
     @Test
     fun startAndCancelUnfinishedStrokes_hidesStrokeWithNoCallback() {
-        val getMotionEvent =
-            {
-                action: Int,
-                eventTime: Long,
-                pointerProperties: Array<PointerProperties>,
-                pointerCoords: Array<PointerCoords> ->
-                MotionEvent.obtain(
-                    /*downTime=*/ 0L,
-                    /*eventTime=*/ eventTime,
-                    /*action=*/ action,
-                    /*pointerCount=*/ pointerProperties.size,
-                    /*pointerProperties=*/ pointerProperties,
-                    /*pointerCoords=*/ pointerCoords,
-                    /*metaState=*/ 0,
-                    /*buttonState=*/ 0,
-                    /*xPrecision=*/ 1f,
-                    /*yPrecision=*/ 1f,
-                    /*deviceId=*/ 0,
-                    /*edgeFlags=*/ 0,
-                    /*source=*/ 0,
-                    /*flags=*/ 0,
-                )
-            }
+        var eventTime = 0L
         val downEvent =
             getMotionEvent(
                 MotionEvent.ACTION_DOWN,
-                0L,
                 arrayOf(
                     PointerProperties().apply { id = 9 },
                     PointerProperties().apply { id = 10 },
@@ -289,6 +266,7 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                         y = 25f
                     },
                 ),
+                eventTime,
             )
         activityScenarioRule.scenario.onActivity { activity ->
             // Two strokes get started with different pointerIds.
@@ -302,6 +280,21 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
 
         activityScenarioRule.scenario.onActivity { activity ->
             activity.inProgressStrokesView.cancelUnfinishedStrokes()
+            eventTime += 10L
+            val moveEvent =
+                getMotionEvent(
+                    MotionEvent.ACTION_MOVE,
+                    arrayOf(PointerProperties().apply { id = 9 }),
+                    arrayOf(
+                        PointerCoords().apply {
+                            x = 30f
+                            y = 30f
+                        }
+                    ),
+                    eventTime,
+                )
+            // Moving after cancelUnfinishedStrokes returns false and does not throw an exception.
+            assertThat(activity.inProgressStrokesView.addToStroke(moveEvent, 9)).isFalse()
         }
         assertThatTakingScreenshotMatchesGolden("cancel_unfinished_strokes_both_strokes_canceled")
         assertThat(finishedStrokeCohorts).isEmpty()
@@ -310,33 +303,6 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
     @Test
     fun startAndCancelStroke_hidesStrokeWithNoCallback_simplifiedApiImplicitStrokeId() {
         var eventTime = 0L
-        val getMotionEvent =
-            {
-                action: Int,
-                pointerProperties: Array<PointerProperties>,
-                pointerCoords: Array<PointerCoords> ->
-                MotionEvent.obtain(
-                        /*downTime=*/ 0L,
-                        /*eventTime=*/ eventTime,
-                        /*action=*/ action,
-                        /*pointerCount=*/ pointerProperties.size,
-                        /*pointerProperties=*/ pointerProperties,
-                        /*pointerCoords=*/ pointerCoords,
-                        /*metaState=*/ 0,
-                        /*buttonState=*/ 0,
-                        /*xPrecision=*/ 1f,
-                        /*yPrecision=*/ 1f,
-                        /*deviceId=*/ 0,
-                        /*edgeFlags=*/ 0,
-                        /*source=*/ 0,
-                        /*flags=*/ 0,
-                    )
-                    .also {
-                        // This closed-over variable is read by later runs of this lambda.
-                        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
-                        eventTime += 1000L
-                    }
-            }
         val downEvent =
             getMotionEvent(
                 MotionEvent.ACTION_DOWN,
@@ -354,7 +320,9 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                         y = 25f
                     },
                 ),
+                eventTime,
             )
+        eventTime += 1000L
         activityScenarioRule.scenario.onActivity { activity ->
             // Two strokes get started with different pointerIds.
             assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isFalse()
@@ -376,6 +344,7 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                     PointerProperties().apply { id = 3 },
                 ),
                 arrayOf(PointerCoords(), PointerCoords(), PointerCoords()),
+                eventTime,
             )
         activityScenarioRule.scenario.onActivity { activity ->
             assertThat(activity.inProgressStrokesView.cancelStroke(cancelEvent, 9)).isTrue()
@@ -392,6 +361,61 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
             assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isFalse()
         }
         assertThat(finishedStrokeCohorts).isEmpty()
+    }
+
+    @Test
+    fun hasUnfinishedStrokes_and_cancelUnfinishedStrokes_perDevice() {
+        var eventTime = 0L
+        activityScenarioRule.scenario.onActivity { activity ->
+            val view = activity.inProgressStrokesView
+            assertThat(view.hasUnfinishedStrokes(1)).isFalse()
+            assertThat(view.hasUnfinishedStrokes(2)).isFalse()
+
+            view.startStroke(
+                getMotionEvent(
+                    MotionEvent.ACTION_DOWN,
+                    deviceId = 1,
+                    pointerId = 0,
+                    x = 25f,
+                    y = 25f,
+                    eventTime = eventTime,
+                ),
+                pointerId = 0,
+                brush = testBrush,
+            )
+            eventTime += 1000L
+            assertThat(view.hasUnfinishedStrokes(1)).isTrue()
+            assertThat(view.hasUnfinishedStrokes(2)).isFalse()
+            assertThat(view.hasUnfinishedStrokes()).isTrue()
+
+            view.startStroke(
+                getMotionEvent(
+                    MotionEvent.ACTION_DOWN,
+                    deviceId = 2,
+                    pointerId = 0,
+                    x = 50f,
+                    y = 25f,
+                    eventTime = eventTime,
+                ),
+                pointerId = 0,
+                brush = basicBrush(TestColors.RED),
+            )
+            assertThat(view.hasUnfinishedStrokes(1)).isTrue()
+            assertThat(view.hasUnfinishedStrokes(2)).isTrue()
+            assertThat(view.hasUnfinishedStrokes()).isTrue()
+
+            // Cancel only device 1's strokes
+            view.cancelUnfinishedStrokes(1)
+            assertThat(view.hasUnfinishedStrokes(1)).isFalse()
+            assertThat(view.hasUnfinishedStrokes(2)).isTrue()
+            assertThat(view.hasUnfinishedStrokes()).isTrue()
+
+            // Cancel device 2's strokes
+            view.cancelUnfinishedStrokes(2)
+            assertThat(view.hasUnfinishedStrokes(1)).isFalse()
+            assertThat(view.hasUnfinishedStrokes(2)).isFalse()
+            assertThat(view.hasUnfinishedStrokes()).isFalse()
+        }
     }
 
     @Test
@@ -557,33 +581,6 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
     @Test
     fun startAndAddToAndFinishStroke_implicitStrokeIdSimplifiedApi() {
         var eventTime = 0L
-        val getMotionEvent =
-            {
-                action: Int,
-                pointerProperties: Array<PointerProperties>,
-                pointerCoords: Array<PointerCoords> ->
-                MotionEvent.obtain(
-                        /*downTime=*/ 0L,
-                        /*eventTime=*/ eventTime,
-                        /*action=*/ action,
-                        /*pointerCount=*/ pointerProperties.size,
-                        /*pointerProperties=*/ pointerProperties,
-                        /*pointerCoords=*/ pointerCoords,
-                        /*metaState=*/ 0,
-                        /*buttonState=*/ 0,
-                        /*xPrecision=*/ 1f,
-                        /*yPrecision=*/ 1f,
-                        /*deviceId=*/ 0,
-                        /*edgeFlags=*/ 0,
-                        /*source=*/ 0,
-                        /*flags=*/ 0,
-                    )
-                    .also {
-                        // This closed-over variable is read by later runs of this lambda.
-                        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
-                        eventTime += 1000L
-                    }
-            }
         val downEvent =
             getMotionEvent(
                 MotionEvent.ACTION_DOWN,
@@ -594,7 +591,9 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                         y = 100f
                     }
                 ),
+                eventTime,
             )
+        eventTime += 1000L
         // Need to validate we're storing and looking up strokeId=9 and using that as a strokeId.
         // Not storing strokeIndex=0 (so we put that pointer at a different index) and not trying
         // to use the strokeId as an index.
@@ -614,7 +613,9 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                         y = 100f
                     },
                 ),
+                eventTime,
             )
+        eventTime += 1000L
         val upEvent =
             getMotionEvent(
                 MotionEvent.ACTION_UP,
@@ -631,6 +632,7 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                         y = 200f
                     },
                 ),
+                eventTime,
             )
         activityScenarioRule.scenario.onActivity { activity ->
             activity.inProgressStrokesView.startStroke(
@@ -665,6 +667,252 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
         assertThatTakingScreenshotMatchesGolden("start_and_add_and_finish_simplified_api")
         assertThat(finishedStrokeCohorts).hasSize(1)
         assertThat(finishedStrokeCohorts[0]).hasSize(1)
+    }
+
+    @Test
+    fun startAndAddToAndFinishStroke_samePointerIdDifferentDeviceIds_implicitStrokeIdSimplifiedApi() {
+        var eventTime = 0L
+        lateinit var strokeId1: InProgressStrokeId
+        lateinit var strokeId2: InProgressStrokeId
+        activityScenarioRule.scenario.onActivity { activity ->
+            // Both devices use pointerId = 0 simultaneously.
+            strokeId1 =
+                activity.inProgressStrokesView.startStroke(
+                    event =
+                        getMotionEvent(
+                            MotionEvent.ACTION_DOWN,
+                            deviceId = 1,
+                            pointerId = 0,
+                            x = 25f,
+                            y = 25f,
+                            eventTime = eventTime,
+                        ),
+                    pointerId = 0,
+                    brush = testBrush,
+                )
+            eventTime += 1000L
+            strokeId2 =
+                activity.inProgressStrokesView.startStroke(
+                    event =
+                        getMotionEvent(
+                            MotionEvent.ACTION_DOWN,
+                            deviceId = 2,
+                            pointerId = 0,
+                            x = 50f,
+                            y = 25f,
+                            eventTime = eventTime,
+                        ),
+                    pointerId = 0,
+                    brush = basicBrush(TestColors.RED),
+                )
+            eventTime += 1000L
+
+            // Updates for an unstarted deviceId with the same pointerId = 0 are ignored.
+            assertThat(
+                    activity.inProgressStrokesView.addToStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_MOVE,
+                            deviceId = 3,
+                            pointerId = 0,
+                            x = 99f,
+                            y = 99f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                        prediction = null,
+                    )
+                )
+                .isFalse()
+            eventTime += 1000L
+            assertThat(
+                    activity.inProgressStrokesView.finishStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_UP,
+                            deviceId = 3,
+                            pointerId = 0,
+                            x = 99f,
+                            y = 99f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                    )
+                )
+                .isFalse()
+            eventTime += 1000L
+
+            // Interleaved move and finish events for deviceId = 1 and deviceId = 2 with pointerId =
+            // 0.
+            assertThat(
+                    activity.inProgressStrokesView.addToStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_MOVE,
+                            deviceId = 1,
+                            pointerId = 0,
+                            x = 25f,
+                            y = 100f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                        prediction = null,
+                    )
+                )
+                .isTrue()
+            eventTime += 1000L
+            assertThat(
+                    activity.inProgressStrokesView.addToStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_MOVE,
+                            deviceId = 2,
+                            pointerId = 0,
+                            x = 50f,
+                            y = 120f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                        prediction = null,
+                    )
+                )
+                .isTrue()
+            eventTime += 1000L
+            assertThat(
+                    activity.inProgressStrokesView.finishStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_UP,
+                            deviceId = 1,
+                            pointerId = 0,
+                            x = 25f,
+                            y = 200f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                    )
+                )
+                .isTrue()
+            eventTime += 1000L
+            assertThat(
+                    activity.inProgressStrokesView.finishStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_UP,
+                            deviceId = 2,
+                            pointerId = 0,
+                            x = 50f,
+                            y = 220f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 0,
+                    )
+                )
+                .isTrue()
+        }
+
+        yieldingSleep()
+        assertThat(finishedStrokeCohorts).hasSize(1)
+        assertThat(finishedStrokeCohorts[0].keys).containsExactly(strokeId1, strokeId2)
+        val stroke1 = checkNotNull(finishedStrokeCohorts[0][strokeId1])
+        val stroke2 = checkNotNull(finishedStrokeCohorts[0][strokeId2])
+        assertThat(stroke1.inputs.size).isEqualTo(3)
+        assertThat(stroke1.inputs.get(2).x).isEqualTo(25f)
+        assertThat(stroke1.inputs.get(2).y).isEqualTo(200f)
+        assertThat(stroke2.inputs.size).isEqualTo(3)
+        assertThat(stroke2.inputs.get(2).x).isEqualTo(50f)
+        assertThat(stroke2.inputs.get(2).y).isEqualTo(220f)
+    }
+
+    @Test
+    fun startAndCancelStroke_samePointerIdDifferentDeviceIds_implicitStrokeIdSimplifiedApi() {
+        var eventTime = 0L
+        activityScenarioRule.scenario.onActivity { activity ->
+            // Two strokes get started on different devices with the same pointerId (9).
+            assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isFalse()
+            activity.inProgressStrokesView.startStroke(
+                getMotionEvent(
+                    MotionEvent.ACTION_DOWN,
+                    deviceId = 1,
+                    pointerId = 9,
+                    x = 25f,
+                    y = 25f,
+                    eventTime = eventTime,
+                ),
+                pointerId = 9,
+                brush = testBrush,
+            )
+            eventTime += 1000L
+            assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isTrue()
+            activity.inProgressStrokesView.startStroke(
+                getMotionEvent(
+                    MotionEvent.ACTION_DOWN,
+                    deviceId = 2,
+                    pointerId = 9,
+                    x = 50f,
+                    y = 25f,
+                    eventTime = eventTime,
+                ),
+                pointerId = 9,
+                brush = basicBrush(TestColors.RED),
+            )
+            eventTime += 1000L
+        }
+        assertThatTakingScreenshotMatchesGolden("cancel_strokes_simplified_api_two_strokes_started")
+        assertThat(finishedStrokeCohorts).isEmpty()
+
+        activityScenarioRule.scenario.onActivity { activity ->
+            // Canceling pointerId 9 on deviceId 1 cancels only device 1's stroke, not device 2's.
+            assertThat(
+                    activity.inProgressStrokesView.cancelStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_CANCEL,
+                            deviceId = 1,
+                            pointerId = 9,
+                            x = 25f,
+                            y = 25f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 9,
+                    )
+                )
+                .isTrue()
+            eventTime += 1000L
+            // Canceling pointerId 9 on an unknown deviceId 3 is ignored.
+            assertThat(
+                    activity.inProgressStrokesView.cancelStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_CANCEL,
+                            deviceId = 3,
+                            pointerId = 9,
+                            x = 25f,
+                            y = 25f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 9,
+                    )
+                )
+                .isFalse()
+            eventTime += 1000L
+            assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isTrue()
+        }
+        assertThatTakingScreenshotMatchesGolden(
+            "cancel_strokes_simplified_api_green_stroke_canceled"
+        )
+        assertThat(finishedStrokeCohorts).isEmpty()
+
+        activityScenarioRule.scenario.onActivity { activity ->
+            assertThat(
+                    activity.inProgressStrokesView.cancelStroke(
+                        getMotionEvent(
+                            MotionEvent.ACTION_CANCEL,
+                            deviceId = 2,
+                            pointerId = 9,
+                            x = 50f,
+                            y = 25f,
+                            eventTime = eventTime,
+                        ),
+                        pointerId = 9,
+                    )
+                )
+                .isTrue()
+            assertThat(activity.inProgressStrokesView.hasUnfinishedStrokes()).isFalse()
+        }
+        assertThat(finishedStrokeCohorts).isEmpty()
     }
 
     @Test
@@ -1083,4 +1331,95 @@ class InProgressStrokesViewTest : InProgressStrokesViewTestBase() {
                 .containsExactly(inProgressStrokeId1, inProgressStrokeId2)
         }
     }
+
+    @OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
+    @Test
+    fun deviceAndPointerId_andUnpackDeviceId_roundTripsDeviceIdAndDistinguishesPairs() {
+        for (deviceId in listOf(0, 1, 2, -1, Int.MAX_VALUE, Int.MIN_VALUE)) {
+            for (pointerId in listOf(0, 1, 9, -1, Int.MAX_VALUE, Int.MIN_VALUE)) {
+                val event =
+                    getMotionEvent(
+                        MotionEvent.ACTION_DOWN,
+                        deviceId = deviceId,
+                        pointerId = pointerId,
+                        x = 0f,
+                        y = 0f,
+                        eventTime = 0L,
+                    )
+                val packed = InProgressShapesView.deviceAndPointerId(event, pointerId)
+                assertThat(InProgressShapesView.unpackDeviceId(packed)).isEqualTo(deviceId)
+            }
+        }
+
+        val eventDevice1 =
+            getMotionEvent(
+                MotionEvent.ACTION_DOWN,
+                deviceId = 1,
+                pointerId = 0,
+                x = 0f,
+                y = 0f,
+                eventTime = 0L,
+            )
+        val eventDevice2 =
+            getMotionEvent(
+                MotionEvent.ACTION_DOWN,
+                deviceId = 2,
+                pointerId = 0,
+                x = 0f,
+                y = 0f,
+                eventTime = 0L,
+            )
+        assertThat(InProgressShapesView.deviceAndPointerId(eventDevice1, pointerId = 0))
+            .isEqualTo(InProgressShapesView.deviceAndPointerId(eventDevice1, pointerId = 0))
+        assertThat(InProgressShapesView.deviceAndPointerId(eventDevice1, pointerId = 0))
+            .isNotEqualTo(InProgressShapesView.deviceAndPointerId(eventDevice2, pointerId = 0))
+        assertThat(InProgressShapesView.deviceAndPointerId(eventDevice1, pointerId = 0))
+            .isNotEqualTo(InProgressShapesView.deviceAndPointerId(eventDevice1, pointerId = 1))
+    }
+
+    private fun getMotionEvent(
+        action: Int,
+        pointerProperties: Array<PointerProperties>,
+        pointerCoords: Array<PointerCoords>,
+        eventTime: Long,
+        deviceId: Int = 0,
+    ): MotionEvent =
+        MotionEvent.obtain(
+            /*downTime=*/ 0L,
+            /*eventTime=*/ eventTime,
+            /*action=*/ action,
+            /*pointerCount=*/ pointerProperties.size,
+            /*pointerProperties=*/ pointerProperties,
+            /*pointerCoords=*/ pointerCoords,
+            /*metaState=*/ 0,
+            /*buttonState=*/ 0,
+            /*xPrecision=*/ 1f,
+            /*yPrecision=*/ 1f,
+            /*deviceId=*/ deviceId,
+            /*edgeFlags=*/ 0,
+            /*source=*/ 0,
+            /*flags=*/ 0,
+        )
+
+    private fun getMotionEvent(
+        action: Int,
+        deviceId: Int,
+        pointerId: Int,
+        x: Float,
+        y: Float,
+        eventTime: Long,
+    ): MotionEvent =
+        getMotionEvent(
+            action = action,
+            pointerProperties = arrayOf(PointerProperties().apply { id = pointerId }),
+            pointerCoords =
+                arrayOf(
+                    PointerCoords().apply {
+                        this.x = x
+                        this.y = y
+                    }
+                ),
+            eventTime = eventTime,
+            deviceId = deviceId,
+        )
 }

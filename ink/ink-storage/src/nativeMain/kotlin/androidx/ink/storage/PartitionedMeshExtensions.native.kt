@@ -34,6 +34,7 @@ actual internal object PartitionedMeshSerializationNative {
                 jni_env_pass_through = null,
                 if (decompressedBytes.isEmpty()) null else it.addressOf(0),
                 size,
+                fill_missing_attributes = true,
                 throwForNonOkStatusCallback,
             )
         }
