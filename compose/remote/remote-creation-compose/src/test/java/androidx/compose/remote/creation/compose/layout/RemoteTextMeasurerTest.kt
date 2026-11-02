@@ -57,12 +57,11 @@ class RemoteTextMeasurerTest {
         assertThat(result.size.height).isNotNull()
         assertThat(result.width).isNotNull()
         assertThat(result.height).isNotNull()
-        assertThat(result.advanceWidth).isNotNull()
         assertThat(result.monospaceWidth).isNotNull()
-        assertThat(result.left).isNotNull()
-        assertThat(result.top).isNotNull()
-        assertThat(result.right).isNotNull()
-        assertThat(result.bottom).isNotNull()
+        assertThat(result.glyphLeft).isNotNull()
+        assertThat(result.glyphTop).isNotNull()
+        assertThat(result.glyphRight).isNotNull()
+        assertThat(result.glyphBottom).isNotNull()
         assertThat(result.ascent).isNotNull()
         assertThat(result.descent).isNotNull()
         assertThat(result.firstBaseline).isNotNull()
@@ -70,19 +69,19 @@ class RemoteTextMeasurerTest {
     }
 
     @Test
-    fun measureWidth_returnsRemoteFloat() {
+    fun measureLayoutWidth_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val width = measurer.measureWidth("Hello".rs)
+        val width = measurer.measureLayoutWidth(" Hello ".rs)
 
         assertThat(width).isNotNull()
     }
 
     @Test
-    fun measureAdvanceWidth_returnsRemoteFloat() {
+    fun measureLayoutHeight_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val advanceWidth = measurer.measureAdvanceWidth(" Hello ".rs)
+        val height = measurer.measureLayoutHeight("Hello".rs)
 
-        assertThat(advanceWidth).isNotNull()
+        assertThat(height).isNotNull()
     }
 
     @Test
@@ -94,43 +93,35 @@ class RemoteTextMeasurerTest {
     }
 
     @Test
-    fun measureHeight_returnsRemoteFloat() {
+    fun measureGlyphLeft_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val height = measurer.measureHeight("Hello".rs)
+        val glyphLeft = measurer.measureGlyphLeft("Hello".rs)
 
-        assertThat(height).isNotNull()
+        assertThat(glyphLeft).isNotNull()
     }
 
     @Test
-    fun measureLeft_returnsRemoteFloat() {
+    fun measureGlyphTop_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val left = measurer.measureLeft("Hello".rs)
+        val glyphTop = measurer.measureGlyphTop("Hello".rs)
 
-        assertThat(left).isNotNull()
+        assertThat(glyphTop).isNotNull()
     }
 
     @Test
-    fun measureTop_returnsRemoteFloat() {
+    fun measureGlyphRight_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val top = measurer.measureTop("Hello".rs)
+        val glyphRight = measurer.measureGlyphRight("Hello".rs)
 
-        assertThat(top).isNotNull()
+        assertThat(glyphRight).isNotNull()
     }
 
     @Test
-    fun measureRight_returnsRemoteFloat() {
+    fun measureGlyphBottom_returnsRemoteFloat() {
         val measurer = RemoteTextMeasurer(density = density)
-        val right = measurer.measureRight("Hello".rs)
+        val glyphBottom = measurer.measureGlyphBottom("Hello".rs)
 
-        assertThat(right).isNotNull()
-    }
-
-    @Test
-    fun measureBottom_returnsRemoteFloat() {
-        val measurer = RemoteTextMeasurer(density = density)
-        val bottom = measurer.measureBottom("Hello".rs)
-
-        assertThat(bottom).isNotNull()
+        assertThat(glyphBottom).isNotNull()
     }
 
     @Test
@@ -226,12 +217,11 @@ class RemoteTextMeasurerTest {
 
         val widthId = result.width.getFloatIdForCreationState(creationState)
         val heightId = result.height.getFloatIdForCreationState(creationState)
-        val advanceWidthId = result.advanceWidth.getFloatIdForCreationState(creationState)
         val monospaceWidthId = result.monospaceWidth.getFloatIdForCreationState(creationState)
-        val leftId = result.left.getFloatIdForCreationState(creationState)
-        val topId = result.top.getFloatIdForCreationState(creationState)
-        val rightId = result.right.getFloatIdForCreationState(creationState)
-        val bottomId = result.bottom.getFloatIdForCreationState(creationState)
+        val glyphLeftId = result.glyphLeft.getFloatIdForCreationState(creationState)
+        val glyphTopId = result.glyphTop.getFloatIdForCreationState(creationState)
+        val glyphRightId = result.glyphRight.getFloatIdForCreationState(creationState)
+        val glyphBottomId = result.glyphBottom.getFloatIdForCreationState(creationState)
         val ascentId = result.ascent.getFloatIdForCreationState(creationState)
         val descentId = result.descent.getFloatIdForCreationState(creationState)
         val firstBaselineId = result.firstBaseline.getFloatIdForCreationState(creationState)
@@ -239,17 +229,35 @@ class RemoteTextMeasurerTest {
 
         assertThat(widthId.isNaN()).isTrue()
         assertThat(heightId.isNaN()).isTrue()
-        assertThat(advanceWidthId.isNaN()).isTrue()
         assertThat(monospaceWidthId.isNaN()).isTrue()
-        assertThat(leftId.isNaN()).isTrue()
-        assertThat(topId.isNaN()).isTrue()
-        assertThat(rightId.isNaN()).isTrue()
-        assertThat(bottomId.isNaN()).isTrue()
+        assertThat(glyphLeftId.isNaN()).isTrue()
+        assertThat(glyphTopId.isNaN()).isTrue()
+        assertThat(glyphRightId.isNaN()).isTrue()
+        assertThat(glyphBottomId.isNaN()).isTrue()
         assertThat(ascentId.isNaN()).isTrue()
         assertThat(descentId.isNaN()).isTrue()
         assertThat(firstBaselineId.isNaN()).isTrue()
         assertThat(lastBaselineId.isNaN()).isTrue()
         assertThat(creationState.document.bufferSize()).isGreaterThan(0)
+    }
+
+    @Test
+    fun primaryConstructor_computesDefaultBaselinesFromAscent() {
+        val result =
+            RemoteTextLayoutResult(
+                size = RemoteSize(104f.rf, 20f.rf),
+                monospaceWidth = 110f.rf,
+                glyphLeft = 1f.rf,
+                glyphTop = -14f.rf,
+                glyphRight = 101f.rf,
+                glyphBottom = 6f.rf,
+                ascent = -16f.rf,
+                descent = 4f.rf,
+            )
+
+        assertThat(result.ascent.constantValueOrNull).isEqualTo(-16f)
+        assertThat(result.firstBaseline.constantValueOrNull).isEqualTo(16f)
+        assertThat(result.lastBaseline.constantValueOrNull).isEqualTo(16f)
     }
 
     @Test
