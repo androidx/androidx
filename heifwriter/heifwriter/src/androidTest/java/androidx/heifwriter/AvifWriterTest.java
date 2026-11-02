@@ -22,11 +22,14 @@ import static androidx.heifwriter.AvifWriter.INPUT_MODE_SURFACE;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.Manifest;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -68,6 +71,8 @@ public class AvifWriterTest extends TestBase {
 
     private static final boolean DEBUG = true;
     private static final boolean DUMP_YUV_INPUT = false;
+    private static final int GRID_WIDTH = 512;
+    private static final int GRID_HEIGHT = 512;
 
     private static final String AVIFWRITER_INPUT = "heifwriter_input.heic";
     private static final int[] IMAGE_RESOURCES = new int[] {
@@ -269,6 +274,40 @@ public class AvifWriterTest extends TestBase {
             .build();
 
         avifWriter.close();
+    }
+
+    /**
+     * This test ensures that the device provides an {@link MediaFormat#MIMETYPE_VIDEO_AV1}
+     * encoder supporting the 512x512 tile size with bitrate control mode
+     * {@link MediaCodecInfo.EncoderCapabilities#BITRATE_MODE_CQ} required for AVIF image encoding.
+     */
+    @Test
+    @SmallTest
+    public void testAvifEncoderAvailable() throws Throwable {
+        if (shouldSkip()) return;
+
+        final MediaCodecList mcl = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+
+        boolean encoderFound = false;
+        for (MediaCodecInfo info : mcl.getCodecInfos()) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+            MediaCodecInfo.CodecCapabilities caps = null;
+            try {
+                caps = info.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AV1);
+            } catch (IllegalArgumentException e) { // mime is not supported
+                continue;
+            }
+            if (caps.getVideoCapabilities().isSizeSupported(GRID_WIDTH, GRID_HEIGHT)
+                    && caps.getEncoderCapabilities().isBitrateModeSupported(
+                            MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
+                encoderFound = true;
+                Log.d(TAG, "found AV1 CQ encoder on " + info.getName());
+            }
+        }
+        assertTrue("No AV1 encoder supporting 512x512 and BITRATE_MODE_CQ for AVIF encoding",
+                encoderFound);
     }
 
     @Test
