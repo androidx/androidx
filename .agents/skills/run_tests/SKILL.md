@@ -128,7 +128,7 @@ To verify a flaky test, you can run it multiple times on Firebase Test Lab using
 Screenshot tests (e.g., using `AndroidXScreenshotTestRule`, which extends the core [ScreenshotTestRule.kt](test/screenshot/screenshot/src/main/java/androidx/test/screenshot/ScreenshotTestRule.kt)) compare the rendered UI against approved "golden" reference images to detect visual regressions.
 
 *   **Emulator Requirement**: Screenshot tests must be executed on a specific emulator configuration to ensure consistent rendering.
-    *   **Verify the required configuration**: If the required emulator configuration is not found in the test class or local documentation, fall back to verifying it by reading `ScreenshotTestRule.kt`. Check the `ScreenshotTestStatement` class for the required API level (typically API 35) and device model.
+    *   **Verify the required configuration**: If the required emulator configuration is not found in the test class or local documentation, fall back to verifying it by reading `ScreenshotTestRule.kt`. Check `ScreenshotTestRule.assumeSupportedDevice` for the required API level (typically API 35) and device model.
     *   Locally, a **Medium Phone API 35** emulator is typically required.
 *   **Managing the Emulator**:
     *   Recommend the use of the `android-cli` tool to manage emulators.

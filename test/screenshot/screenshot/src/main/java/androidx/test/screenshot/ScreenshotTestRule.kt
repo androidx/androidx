@@ -118,18 +118,30 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
         }
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return ScreenshotTestStatement(base).run { testWatcher.apply(this, description) }
+        val statement =
+            object : Statement() {
+                override fun evaluate() {
+                    assumeSupportedDevice()
+                    base.evaluate()
+                }
+            }
+        return testWatcher.apply(statement, description)
     }
 
-    class ScreenshotTestStatement(private val base: Statement) : Statement() {
-        override fun evaluate() {
-            if (Build.MODEL.contains("gphone")) {
-                // We support emulators with API 35
-                Assume.assumeTrue("Requires SDK 35.", Build.VERSION.SDK_INT == 35)
-            } else {
-                Assume.assumeTrue("Requires API 35 emulator", false)
-            }
-            base.evaluate()
+    /**
+     * Called before each test to skip it (via [Assume]) on devices that have no goldens.
+     *
+     * By default, tests only run on API 35 emulators. Subclasses that maintain goldens for other
+     * devices can override this to apply their own device checks. The `ScreenshotTestSdkSuppress`
+     * lint check only covers `AndroidXScreenshotTestRule` fields, so this is the only device check
+     * that applies to subclasses.
+     */
+    protected open fun assumeSupportedDevice() {
+        if (Build.MODEL.contains("gphone")) {
+            // We support emulators with API 35
+            Assume.assumeTrue("Requires SDK 35.", Build.VERSION.SDK_INT == 35)
+        } else {
+            Assume.assumeTrue("Requires API 35 emulator", false)
         }
     }
 
@@ -143,6 +155,23 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
 
     private fun resolveGoldenName(goldenIdentifier: String): String {
         return "${goldenIdentifier}_$deviceId$imageExtension"
+    }
+
+    /**
+     * Returns the path of the golden image for [goldenIdentifier] relative to the root of the
+     * golden repository (e.g. `compose/material/material/button_default_emulator.png`).
+     *
+     * This is the location recorded in the result proto. It is built from the same file name used
+     * to load the expected image from test assets, so it always refers to the golden that was
+     * compared. Must only be called while a test is running.
+     */
+    protected fun resolveGoldenPathInRepo(goldenIdentifier: String): String {
+        val goldenName = goldenIdentifierResolver(goldenIdentifier)
+        return if (pathToGoldensInRepo.isEmpty()) {
+            goldenName
+        } else {
+            "$pathToGoldensInRepo/$goldenName"
+        }
     }
 
     private fun fetchExpectedImage(goldenIdentifier: String): Bitmap? {
@@ -173,6 +202,10 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
      * tests to match the same golden). The name must not contain extension. You should also avoid
      * adding strings like "golden", "image" and instead describe what the golden is referring to.
      *
+     * Subclasses may override this to add behavior around the comparison, such as staging updated
+     * goldens. [Bitmap.assertAgainstGolden], and extensions built on it, call this method, so
+     * overrides also apply to them.
+     *
      * @param actual The bitmap captured during the test.
      * @param goldenIdentifier Name of the golden. Allowed characters: 'A-Za-z0-9_-'
      * @param matcher The algorithm to be used to perform the matching.
@@ -182,7 +215,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
      * @see PixelPerfectMatcher
      * @see Bitmap.assertAgainstGolden
      */
-    fun assertBitmapAgainstGolden(
+    open fun assertBitmapAgainstGolden(
         actual: Bitmap,
         goldenIdentifier: String,
         matcher: BitmapMatcher,
@@ -261,13 +294,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
     ) {
         val diffResultProto = DiffResultProto.DiffResult.newBuilder().setResultType(status)
 
-        diffResultProto.setImageLocationGolden(
-            if (pathToGoldensInRepo.isEmpty()) {
-                goldenIdentifierResolver(goldenIdentifier)
-            } else {
-                "$pathToGoldensInRepo/${goldenIdentifierResolver(goldenIdentifier)}"
-            }
-        )
+        diffResultProto.setImageLocationGolden(resolveGoldenPathInRepo(goldenIdentifier))
 
         val metadata =
             DiffResultProto.DiffResult.Metadata.newBuilder()
