@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3.samples
 
 import android.content.Context
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -57,6 +58,16 @@ class RemoteButtonGroupSampleTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonGroupThreeButtonSample() }
+        }
+    }
+
+    @Test
+    fun remoteButtonGroupAnimatedSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.ANDROIDX,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonGroupAnimatedSample() }
         }
     }
 }
