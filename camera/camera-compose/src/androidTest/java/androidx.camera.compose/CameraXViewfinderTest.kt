@@ -66,6 +66,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pinch
@@ -506,13 +507,19 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         )
         surfaceRequests.filterNotNull().first()
         composeTest.awaitIdle()
+        composeTest.waitUntil(5_000) {
+            composeTest
+                .onAllNodesWithTag(CAMERAX_VIEWFINDER_TEST_TAG)
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
 
         composeTest.onNodeWithTag(CAMERAX_VIEWFINDER_TEST_TAG).performTouchInput {
             pinch(
                 start0 = Offset(centerX - 10f, centerY),
-                end0 = Offset(centerX - 50f, centerY),
+                end0 = Offset(width * 0.05f, centerY),
                 start1 = Offset(centerX + 10f, centerY),
-                end1 = Offset(centerX + 50f, centerY),
+                end1 = Offset(width * 0.95f, centerY),
             )
         }
 
