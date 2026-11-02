@@ -828,7 +828,7 @@ class WebSurfaceTest {
             listState = listState,
             pageScrollJs = "window.scrollY",
             swipeTowardsEnd = { swipeUp() },
-            swipeTowardsStart = { swipeDown() },
+            swipeTowardsStart = { swipeDown(endY = top + SWIPE_BACK_DISTANCE_DP.dp.toPx()) },
         )
     }
 
@@ -1007,7 +1007,7 @@ class WebSurfaceTest {
             listState = listState,
             pageScrollJs = "window.scrollX",
             swipeTowardsEnd = { swipeLeft() },
-            swipeTowardsStart = { swipeRight() },
+            swipeTowardsStart = { swipeRight(endX = left + SWIPE_BACK_DISTANCE_DP.dp.toPx()) },
         )
     }
 
@@ -1822,6 +1822,9 @@ class WebSurfaceTest {
     /**
      * Swipes the surface past the end of the page, which should scroll the list, then swipes back
      * and expects both at the start again.
+     *
+     * Swipes only cover the visible part of the surface, so [swipeTowardsStart] should drag
+     * [SWIPE_BACK_DISTANCE_DP] to not rely on Chromium flinging the page back.
      */
     private fun assertOverscrollReachesParent(
         bridge: WebViewBridge,
@@ -1884,5 +1887,8 @@ class WebSurfaceTest {
 
     companion object {
         internal const val TIMEOUT_MS = 5_000L
+
+        // The page's and the list's scroll ranges together.
+        private const val SWIPE_BACK_DISTANCE_DP = 300
     }
 }
