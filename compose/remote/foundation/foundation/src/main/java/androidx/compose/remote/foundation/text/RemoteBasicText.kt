@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.foundation.text
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -30,26 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 
-/**
- * Remote composable that displays basic text.
- *
- * @param text The text to be displayed.
- * @param modifier The [RemoteModifier] to be applied to this text.
- * @param color [RemoteColor] to apply to the text. If [color] is not specified, and it is not
- *   provided in [style], then [androidx.compose.ui.graphics.Color.Black] will be used.
- * @param fontSize The size of the font.
- * @param fontStyle The font style to be applied to the text.
- * @param fontWeight The font weight to be applied to the text.
- * @param fontFamily The font family to be applied to the text.
- * @param textAlign The alignment of the text within its container.
- * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text.
- * @param fontVariationSettings The font variation settings to be applied to the text.
- * @param style The [RemoteTextStyle] to be applied to the text.
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextSample
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextStylingSample
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicTextFontFamilySample
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteBasicText(

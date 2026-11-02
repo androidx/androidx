@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.foundation.icon
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -36,21 +37,7 @@ import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-/**
- * Composable function that displays an icon using an [RemoteImageVector].
- *
- * This function provides a way to display icons consistently across both local and remote Compose
- * environments.
- *
- * @param imageVector The [RemoteImageVector] representing the icon to display.
- * @param contentDescription Text used by accessibility services to describe what this icon
- *   represents. This should always be provided unless this icon is used for decorative purposes,
- *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar.
- * @param modifier The [RemoteModifier] to apply to the icon.
- * @param tint The color to apply to the icon. Defaults to [Color.White].
- * @sample androidx.compose.remote.foundation.samples.RemoteBasicIconSample
- */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteBasicIcon(
