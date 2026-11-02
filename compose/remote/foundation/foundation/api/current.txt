@@ -1,2 +1,11 @@
 // Signature format: 5.0
 // - surface=public
+package androidx.compose.remote.foundation.icon {
+
+  public final class RemoteBasicIconKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicIcon(androidx.compose.remote.creation.compose.capture.RemoteImageVector imageVector, androidx.compose.remote.creation.compose.state.RemoteString? contentDescription, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor tint);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicIcon(androidx.compose.remote.creation.compose.capture.RemoteImageVector, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
