@@ -74,6 +74,124 @@ internal object BackupRulesChecker {
         val fullBackupContentDoc: Document? = null,
     )
 
+    /**
+     * Diagnoses whether backup rules in `suite-environment.json` explain a failure under
+     * [transportMode].
+     *
+     * Returns a human-readable cause string, or null when no backup configuration rule matches.
+     */
+    fun diagnoseLikelyCause(
+        resultsDirPath: String?,
+        transportMode: BackupTransportMode?,
+        storages: List<StorageDomain>,
+        actionTargets: List<TargetCoordinate>,
+        failureMessage: String?,
+    ): String? {
+        val config = loadFromSuiteEnvironment(resultsDirPath) ?: return null
+        return diagnoseFromConfig(
+            config = config,
+            transportMode = transportMode,
+            storages = storages,
+            actionTargets = actionTargets,
+            failureMessage = failureMessage,
+        )
+    }
+
+    internal fun diagnoseFromConfig(
+        config: ParsedBackupConfig,
+        transportMode: BackupTransportMode?,
+        storages: List<StorageDomain>,
+        actionTargets: List<TargetCoordinate>,
+        failureMessage: String?,
+    ): String? {
+        val d2dOnApi31PlusTarget =
+            transportMode == BackupTransportMode.DEVICE_TO_DEVICE &&
+                (config.targetSdkVersion != null && config.targetSdkVersion >= 31)
+        if (!config.allowBackup) {
+            if (!d2dOnApi31PlusTarget) {
+                return "AndroidManifest.xml sets android:allowBackup=\"false\", which disables " +
+                    "app data backup and restore."
+            }
+            if (
+                failureMessage != null &&
+                    (failureMessage.contains("contains no app data", ignoreCase = true) ||
+                        failureMessage.endsWith("restored no app data", ignoreCase = true) ||
+                        failureMessage.contains("allowBackup=\"false\"", ignoreCase = true) ||
+                        failureMessage.contains("allowBackup property is false", ignoreCase = true))
+            ) {
+                return "AndroidManifest.xml sets android:allowBackup=\"false\". " +
+                    "Device-to-device test backups require android:allowBackup=\"true\"."
+            }
+        }
+
+        val targets = (storages.mapNotNull { targetCoordinateOf(it) } + actionTargets).distinct()
+
+        // Android 12+ uses data_extraction_rules when the destination section (<cloud-backup> or
+        // <device-transfer>) is present, and falls back to fullBackupContent otherwise.
+        val dataExtractionDoc = config.dataExtractionRulesDoc
+        if (dataExtractionDoc != null) {
+            val fileName = config.dataExtractionRulesFile ?: "data_extraction_rules.xml"
+            val sectionTags =
+                when (transportMode) {
+                    BackupTransportMode.DEVICE_TO_DEVICE -> listOf("device-transfer")
+                    BackupTransportMode.CLOUD_ENCRYPTED,
+                    BackupTransportMode.CLOUD_UNENCRYPTED,
+                    BackupTransportMode.LOCAL -> listOf("cloud-backup")
+                    else -> listOf("cloud-backup", "device-transfer")
+                }
+            val api31PlusTarget = config.targetSdkVersion != null && config.targetSdkVersion >= 31
+            var canFallbackToFullBackup = false
+            for (tag in sectionTags) {
+                val section = parseDataExtractionSection(dataExtractionDoc, fileName, tag)
+                if (section == null) {
+                    if (!(tag == "device-transfer" && api31PlusTarget)) {
+                        canFallbackToFullBackup = true
+                    }
+                    continue
+                }
+                diagnoseSection(
+                        section = section,
+                        transportMode = transportMode,
+                        targets = targets,
+                        failureMessage = failureMessage,
+                        isDataExtraction = true,
+                    )
+                    ?.let {
+                        return it
+                    }
+            }
+            if (!canFallbackToFullBackup) {
+                return null
+            }
+        }
+
+        // Android 12+ (targetSdkVersion >= 31) ignores fullBackupContent for device-to-device.
+        if (d2dOnApi31PlusTarget) {
+            return null
+        }
+
+        if (config.fullBackupContentDisabled) {
+            return "AndroidManifest.xml sets android:fullBackupContent=\"false\", which disables " +
+                "full-data backup."
+        }
+
+        val fullBackupDoc = config.fullBackupContentDoc
+        if (fullBackupDoc != null) {
+            val fileName = config.fullBackupContentFile ?: "backup_rules.xml"
+            val section = parseFullBackupSection(fullBackupDoc, fileName)
+            if (section != null) {
+                return diagnoseSection(
+                    section = section,
+                    transportMode = transportMode,
+                    targets = targets,
+                    failureMessage = failureMessage,
+                    isDataExtraction = false,
+                )
+            }
+        }
+        return null
+    }
+
     internal fun targetCoordinateOf(domain: StorageDomain): TargetCoordinate? =
         when (domain) {
             is StorageDomain.Preference ->
@@ -157,7 +275,164 @@ internal object BackupRulesChecker {
         }
     }
 
-    internal fun loadFromSuiteEnvironment(resultsDirPath: String?): ParsedBackupConfig? {
+    private fun diagnoseSection(
+        section: RuleSection,
+        transportMode: BackupTransportMode?,
+        targets: List<TargetCoordinate>,
+        failureMessage: String?,
+        isDataExtraction: Boolean,
+    ): String? {
+        if (
+            isDataExtraction &&
+                section.sectionTag == "cloud-backup" &&
+                section.disableIfNoEncryption &&
+                (transportMode == BackupTransportMode.CLOUD_UNENCRYPTED ||
+                    transportMode == BackupTransportMode.LOCAL)
+        ) {
+            return "${section.fileName} sets disableIfNoEncryptionCapabilities=\"true\" on " +
+                "<cloud-backup>, which skips backup under $transportMode."
+        }
+
+        val scopeSuffix =
+            if (isDataExtraction) "for <${section.sectionTag}>." else "in <full-backup-content>."
+
+        if (targets.isNotEmpty()) {
+            for (target in targets) {
+                val matchingExclude = section.excludes.firstOrNull { ruleMatches(it, target) }
+                if (matchingExclude != null) {
+                    return "${section.fileName} excludes domain=\"${matchingExclude.domain}\" " +
+                        "path=\"${matchingExclude.rawPath}\" $scopeSuffix"
+                }
+            }
+            if (section.includes.isNotEmpty()) {
+                for (target in targets) {
+                    val activeIncludes =
+                        section.includes.filter {
+                            flagsSatisfied(it.requireFlags, transportMode, isDataExtraction)
+                        }
+                    if (activeIncludes.none { ruleMatches(it, target) }) {
+                        val flagBlocked =
+                            if (!isDataExtraction) {
+                                section.includes.firstOrNull {
+                                    ruleMatches(it, target) &&
+                                        !flagsSatisfied(
+                                            it.requireFlags,
+                                            transportMode,
+                                            isDataExtraction = false,
+                                        )
+                                }
+                            } else {
+                                null
+                            }
+                        if (flagBlocked != null) {
+                            val flagsText = flagBlocked.requireFlags.joinToString("|")
+                            return "${section.fileName} requires requireFlags=\"$flagsText\" on " +
+                                "domain=\"${flagBlocked.domain}\" path=\"${flagBlocked.rawPath}\", " +
+                                "which excludes it under ${transportMode ?: "this transport"}."
+                        }
+                        return "${section.fileName} uses <include> rules " +
+                            (if (isDataExtraction) "for <${section.sectionTag}> "
+                            else "in <full-backup-content> ") +
+                            "that omit domain=\"${target.domain}\" path=\"${target.path}\"."
+                    }
+                }
+            }
+            return null
+        }
+
+        if (section.excludes.isNotEmpty() && !failureMessage.isNullOrEmpty()) {
+            val hinted = findHintedExclude(section.excludes, failureMessage)
+            if (hinted != null) {
+                return "${section.fileName} excludes domain=\"${hinted.domain}\" " +
+                    "path=\"${hinted.rawPath}\" $scopeSuffix"
+            }
+        }
+
+        if (!isDataExtraction && section.includes.isNotEmpty()) {
+            val flagBlocked =
+                section.includes.firstOrNull {
+                    !flagsSatisfied(it.requireFlags, transportMode, isDataExtraction = false)
+                }
+            if (
+                flagBlocked != null &&
+                    section.includes.none {
+                        flagsSatisfied(it.requireFlags, transportMode, isDataExtraction = false)
+                    }
+            ) {
+                val flagsText = flagBlocked.requireFlags.joinToString("|")
+                return "${section.fileName} requires requireFlags=\"$flagsText\" on " +
+                    "domain=\"${flagBlocked.domain}\" path=\"${flagBlocked.rawPath}\", " +
+                    "which excludes it under ${transportMode ?: "this transport"}."
+            }
+        }
+
+        return null
+    }
+
+    private fun ruleMatches(rule: XmlRule, target: TargetCoordinate): Boolean {
+        val domainMatches =
+            rule.domain == target.domain ||
+                (rule.domain == "root" && !target.domain.startsWith("device_")) ||
+                (rule.domain == "device_root" && target.domain.startsWith("device_"))
+        if (!domainMatches) return false
+
+        // Map root/device_root rules into the target's sandbox subdirectory.
+        val effectiveTargetPath =
+            if (rule.domain == "root" || rule.domain == "device_root") {
+                sandboxRelativePath(target)
+            } else {
+                target.path
+            }
+
+        val rulePath = rule.normalizedPath
+        if (rulePath.isEmpty() || rulePath == ".") return true
+        if (effectiveTargetPath == rulePath || effectiveTargetPath.startsWith("$rulePath/")) {
+            return true
+        }
+        if (
+            (rule.domain == "sharedpref" || rule.domain == "device_sharedpref") &&
+                !rulePath.endsWith(".xml") &&
+                effectiveTargetPath == "$rulePath.xml"
+        ) {
+            return true
+        }
+        return false
+    }
+
+    private fun sandboxRelativePath(target: TargetCoordinate): String =
+        when (target.domain) {
+            "sharedpref",
+            "device_sharedpref" -> "shared_prefs/${target.path}"
+            "database",
+            "device_database" -> "databases/${target.path}"
+            "file",
+            "device_file" -> "files/${target.path}"
+            else -> target.path
+        }
+
+    private fun flagsSatisfied(
+        flags: Set<String>,
+        transportMode: BackupTransportMode?,
+        isDataExtraction: Boolean,
+    ): Boolean {
+        if (isDataExtraction || flags.isEmpty() || transportMode == null) return true
+        if (
+            "deviceToDeviceTransfer" in flags &&
+                transportMode != BackupTransportMode.DEVICE_TO_DEVICE
+        ) {
+            return false
+        }
+        if (
+            "clientSideEncryption" in flags &&
+                transportMode != BackupTransportMode.DEVICE_TO_DEVICE &&
+                transportMode != BackupTransportMode.CLOUD_ENCRYPTED
+        ) {
+            return false
+        }
+        return true
+    }
+
+    private fun loadFromSuiteEnvironment(resultsDirPath: String?): ParsedBackupConfig? {
         if (resultsDirPath.isNullOrEmpty()) return null
         val envFile = File(resultsDirPath, SUITE_ENVIRONMENT_FILE)
         if (!envFile.isFile) return null
@@ -191,7 +466,7 @@ internal object BackupRulesChecker {
         }
     }
 
-    internal fun parseDataExtractionSection(
+    private fun parseDataExtractionSection(
         doc: Document,
         fileName: String,
         sectionTag: String,
@@ -213,7 +488,7 @@ internal object BackupRulesChecker {
         )
     }
 
-    internal fun parseFullBackupSection(doc: Document, fileName: String): RuleSection? {
+    private fun parseFullBackupSection(doc: Document, fileName: String): RuleSection? {
         val root = doc.documentElement ?: return null
         if (root.tagName != "full-backup-content" && root.localName != "full-backup-content") {
             return null
@@ -262,6 +537,125 @@ internal object BackupRulesChecker {
             } ?: return null
         return "$stem.xml"
     }
+
+    private fun findHintedExclude(excludes: List<XmlRule>, failureMessage: String): XmlRule? {
+        val lowerFailure = failureMessage.lowercase(Locale.ROOT)
+        if (EXPLICIT_FAILURE_REASONS.any { it in lowerFailure }) return null
+
+        // Pass 1: prefer multi-segment rule paths, domain sandbox paths (such as
+        // "databases/app.db"), or dotted file leaves (such as "app.db") over bare single words.
+        excludes
+            .firstOrNull { rule ->
+                if (rule.normalizedPath == ".") return@firstOrNull false
+                val fullPath = rule.normalizedPath.lowercase(Locale.ROOT)
+                val leaf = fullPath.substringAfterLast('/')
+                (fullPath.contains('/') &&
+                    fullPath.length >= 3 &&
+                    containsPathSuffixToken(lowerFailure, fullPath)) ||
+                    sandboxHintPaths(rule, fullPath).any {
+                        containsPathSuffixToken(lowerFailure, it)
+                    } ||
+                    (leaf.length >= 3 && '.' in leaf && containsToken(lowerFailure, leaf))
+            }
+            ?.let {
+                return it
+            }
+
+        // Pass 2: match extensionless leaves or preference stems whose Kotlin APIs omit the suffix.
+        return excludes.firstOrNull { rule ->
+            val leaf = rule.normalizedPath.substringAfterLast('/').lowercase(Locale.ROOT)
+            if ('.' !in leaf) {
+                isSpecificWordHint(leaf) && containsToken(lowerFailure, leaf)
+            } else {
+                val stem = leaf.substringBeforeLast('.').ifEmpty { leaf }
+                stem != leaf &&
+                    usesExtensionlessApiName(rule, leaf) &&
+                    isSpecificWordHint(stem) &&
+                    containsToken(lowerFailure, stem)
+            }
+        }
+    }
+
+    private fun sandboxHintPaths(rule: XmlRule, lowerNormalizedPath: String): List<String> =
+        when (rule.domain) {
+            "sharedpref",
+            "device_sharedpref" ->
+                buildList {
+                    add("shared_prefs/$lowerNormalizedPath")
+                    if (!lowerNormalizedPath.endsWith(".xml")) {
+                        add("shared_prefs/$lowerNormalizedPath.xml")
+                    }
+                }
+            "database",
+            "device_database" -> listOf("databases/$lowerNormalizedPath")
+            "file",
+            "device_file" -> listOf("files/$lowerNormalizedPath")
+            else -> emptyList()
+        }
+
+    private fun isSpecificWordHint(word: String): Boolean =
+        word.length >= 3 && word != "." && word !in GENERIC_HINT_STOPWORDS
+
+    private fun usesExtensionlessApiName(rule: XmlRule, leaf: String): Boolean =
+        rule.domain == "sharedpref" ||
+            rule.domain == "device_sharedpref" ||
+            leaf.endsWith(".preferences_pb")
+
+    private fun containsToken(text: String, token: String): Boolean =
+        Regex("""(?<![a-z0-9_./-])${Regex.escape(token)}(?![a-z0-9_/-]|\.[a-z0-9_/-])""")
+            .containsMatchIn(text)
+
+    private fun containsPathSuffixToken(text: String, pathToken: String): Boolean =
+        Regex("""(?<![a-z0-9_.-])${Regex.escape(pathToken)}(?![a-z0-9_/-]|\.[a-z0-9_/-])""")
+            .containsMatchIn(text)
+
+    private val EXPLICIT_FAILURE_REASONS =
+        listOf(
+            "not eligible for restore",
+            "doesn't allow backups",
+            "does not allow backups",
+            "allowbackup=\"false\"",
+            "allowbackup property is false",
+            "contains no app data",
+            "restored no app data",
+            "is a local backup",
+            "timed out after",
+        )
+
+    private val GENERIC_HINT_STOPWORDS =
+        setOf(
+            "actual",
+            "app",
+            "backup",
+            "cache",
+            "data",
+            "database",
+            "default",
+            "device",
+            "empty",
+            "error",
+            "expected",
+            "failed",
+            "false",
+            "file",
+            "files",
+            "key",
+            "main",
+            "missing",
+            "null",
+            "pref",
+            "prefs",
+            "restore",
+            "restored",
+            "source",
+            "state",
+            "target",
+            "temp",
+            "test",
+            "true",
+            "user",
+            "value",
+        )
 
     private fun isSafeFileName(name: String): Boolean =
         name.isNotEmpty() && name != "." && name != ".." && '/' !in name && '\\' !in name
