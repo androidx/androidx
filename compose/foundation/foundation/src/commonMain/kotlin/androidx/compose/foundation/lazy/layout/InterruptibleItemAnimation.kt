@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.animation.FadeConfig
+import androidx.compose.animation.ScaleConfig
 import androidx.compose.animation.SlideConfig
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -25,6 +26,7 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -77,6 +79,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
         initialValue: T?,
         targetValue: T,
         animationSpec: AnimationSpec<T>?,
+        onStart: (wasAnimating: Boolean) -> Unit = {},
     ) {
         if (initialValue == null || animationSpec == null) {
             if (state == State.Exiting || state == State.Finished) {
@@ -86,6 +89,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
             return
         }
         val wasAnimating = isAnimating
+        onStart(wasAnimating)
         state = State.Entering
         if (!wasAnimating) {
             snapTo(initialValue)
@@ -98,6 +102,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
         targetValue: T?,
         animationSpec: AnimationSpec<T>?,
         exitOnlyInitialValue: (() -> T)? = null,
+        onStart: (wasAnimating: Boolean) -> Unit = {},
     ) {
         if (targetValue == null || animationSpec == null) {
             if ((state == State.New).also { state = State.Finished }) {
@@ -106,6 +111,7 @@ internal abstract class InterruptibleItemAnimation<T, V : AnimationVector>(
             return
         }
         val wasAnimating = isAnimating
+        onStart(wasAnimating)
         state = State.Exiting
         if (!wasAnimating) {
             snapTo(exitOnlyInitialValue?.invoke() ?: appliedValue)
@@ -163,4 +169,38 @@ internal class EnterExitSlideAnimation(onOffsetChange: () -> Unit) :
             animationSpec = slideOutConfig?.animationSpec,
             exitOnlyInitialValue = exitOnlyInitialOffset,
         )
+}
+
+internal class EnterExitScaleAnimation(onScaleChange: () -> Unit) :
+    InterruptibleItemAnimation<Float, AnimationVector1D>(
+        animatable = Animatable(1f, Float.VectorConverter),
+        onValueChange = onScaleChange,
+    ) {
+    var transformOrigin = TransformOrigin.Center
+        private set
+
+    suspend fun animateScaleIn(scaleInConfig: ScaleConfig?) {
+        animateEnter(
+            initialValue = scaleInConfig?.scale,
+            targetValue = 1f,
+            animationSpec = scaleInConfig?.animationSpec,
+            onStart = { wasAnimating ->
+                if (!wasAnimating && scaleInConfig != null) {
+                    transformOrigin = scaleInConfig.transformOrigin
+                }
+            },
+        )
+    }
+
+    suspend fun animateScaleOut(scaleOutConfig: ScaleConfig?) {
+        animateExit(
+            targetValue = scaleOutConfig?.scale,
+            animationSpec = scaleOutConfig?.animationSpec,
+            onStart = { wasAnimating ->
+                if (!wasAnimating && scaleOutConfig != null) {
+                    transformOrigin = scaleOutConfig.transformOrigin
+                }
+            },
+        )
+    }
 }

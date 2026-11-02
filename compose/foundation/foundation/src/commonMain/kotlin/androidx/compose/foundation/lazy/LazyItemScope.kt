@@ -111,17 +111,9 @@ public interface LazyItemScope {
     ): Modifier = this
 }
 
-/**
- * Animates the appearance, disappearance and placement of a lazy list item using an
- * [EnterTransition] and an [ExitTransition].
- *
- * This should only be applied to the root content of an item in a lazy layout.
- */
-// TODO: Move into LazyItemScope as an animateItem overload and make public once the EnterTransition
-// /
-//  ExitTransition based API is ready. Until then it is internal, and demos and tests access it via
-//  Kotlin friend paths. It has a different name because the LazyItemScope.animateItem member would
-//  otherwise shadow it inside item content.
+// TODO: Move into LazyItemScope as an animateItem overload and make public once the
+//  transition-based API is ready. Until then it is internal. It has a different name because
+//  the LazyItemScope.animateItem member would otherwise shadow it inside item content.
 internal fun Modifier.animateItemWithTransitions(
     enterTransition: EnterTransition? = fadeIn(),
     exitTransition: ExitTransition? = fadeOut(),

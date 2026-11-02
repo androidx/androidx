@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
@@ -196,6 +197,8 @@ internal class StateBasedLazyLayoutItemAnimation(
 
     private val slideAnimation = EnterExitSlideAnimation(::updateLayerProperties)
 
+    private val scaleAnimation = EnterExitScaleAnimation(::updateLayerProperties)
+
     override var isRunningMovingAwayAnimation = false
         private set
 
@@ -284,6 +287,7 @@ internal class StateBasedLazyLayoutItemAnimation(
         runTransition(TransitionState.Entering, TransitionState.Placed) {
             launchUndispatched { fadeAnimation.animateFadeIn(config?.fade) }
             launchUndispatched { slideAnimation.animateSlideIn(config?.slide, size) }
+            launchUndispatched { scaleAnimation.animateScaleIn(config?.scale) }
         }
     }
 
@@ -296,13 +300,14 @@ internal class StateBasedLazyLayoutItemAnimation(
             launchUndispatched {
                 slideAnimation.animateSlideOut(config?.slide, size, { IntOffset.Zero })
             }
+            launchUndispatched { scaleAnimation.animateScaleOut(config?.scale) }
         }
     }
 
-    private fun runTransition(
+    private inline fun runTransition(
         startState: TransitionState,
         endState: TransitionState,
-        animations: CoroutineScope.() -> Unit,
+        crossinline animations: CoroutineScope.() -> Unit,
     ) {
         transitionJob?.cancel()
         transitionState = startState
@@ -328,6 +333,7 @@ internal class StateBasedLazyLayoutItemAnimation(
         transitionState = TransitionState.New
         fadeAnimation.release()
         slideAnimation.release()
+        scaleAnimation.release()
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
         targetOffset = NotInitialized
@@ -342,10 +348,17 @@ internal class StateBasedLazyLayoutItemAnimation(
     private fun updateLayerProperties() {
         val layer = layer ?: return
         val offset = slideAnimation.value ?: IntOffset.Zero
+        val scale = scaleAnimation.value ?: 1f
+        val size = containerSize
+        val origin = scaleAnimation.transformOrigin
 
         layer.alpha = fadeAnimation.value ?: 1f
         layer.translationX = offset.x.toFloat()
         layer.translationY = offset.y.toFloat()
+        layer.scaleX = scale
+        layer.scaleY = scale
+        layer.pivotOffset =
+            Offset(origin.pivotFractionX * size.width, origin.pivotFractionY * size.height)
 
         onLayerPropertyChanged()
     }
