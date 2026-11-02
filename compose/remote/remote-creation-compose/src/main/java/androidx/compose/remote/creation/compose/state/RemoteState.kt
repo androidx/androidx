@@ -242,6 +242,9 @@ public interface MutableRemoteState<T> : RemoteState<T> {
 internal class RemoteHoistNode : RemoteComposeNode() {
     var states: Array<out RemoteState<*>> = emptyArray()
 
+    override val supportsComponentToken: Boolean
+        get() = false
+
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
         for (state in states) {
             if (state is BaseRemoteState<*>) {

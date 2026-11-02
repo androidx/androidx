@@ -17,9 +17,9 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteLayoutDirection
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
@@ -39,8 +39,8 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
             when (shape) {
                 RemoteRectangleShape -> CoreRectShape(0f, 0f, 0f, 0f)
                 RemoteCircleShape -> {
-                    val context = RemoteFloatContext(this)
-                    val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
+                    val component = remoteComponent()
+                    val remoteSize = RemoteSize(component.width, component.height)
                     val radius =
                         if (densityBehavior == RemoteDensityBehavior.Dp) {
                             min(remoteSize.width, remoteSize.height) / remoteDensity.density / 2f
@@ -55,8 +55,8 @@ internal class ClipModifier(val shape: RemoteShape = RemoteRectangleShape) :
                     )
                 }
                 is RemoteRoundedCornerShape -> {
-                    val context = RemoteFloatContext(this)
-                    val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
+                    val component = remoteComponent()
+                    val remoteSize = RemoteSize(component.width, component.height)
                     val isRtl = remoteLayoutDirection == RemoteLayoutDirection.Rtl
                     CoreRoundedRectShape(
                         (if (isRtl) shape.topEnd else shape.topStart)

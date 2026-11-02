@@ -21,8 +21,8 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
@@ -149,8 +149,8 @@ internal class GraphicsLayerModifier(
                 )
             }
             is RemoteRoundedCornerShape -> {
-                val context = RemoteFloatContext(this)
-                val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
+                val component = remoteComponent()
+                val remoteSize = RemoteSize(component.width, component.height)
                 layer.setIntAttribute(
                     GraphicsLayerModifierOperation.SHAPE,
                     GraphicsLayerModifierOperation.SHAPE_ROUND_RECT,

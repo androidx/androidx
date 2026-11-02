@@ -60,7 +60,7 @@ public fun RemoteCurvedProgressIndicatorSample(
 public fun RemoteCurvedProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
-    val progress = remember { MutableRemoteFloat { 0.25f.rf } }
+    val progress = remember { MutableRemoteFloat(0.25f) }
     val animatedProgress =
         animateRemoteFloatAsState(
             targetValue = progress,

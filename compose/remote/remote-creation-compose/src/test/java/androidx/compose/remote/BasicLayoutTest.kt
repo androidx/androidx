@@ -63,6 +63,7 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.radialGradient
+import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteEnum
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
@@ -1120,9 +1121,9 @@ list:
         val expectedLayout =
             """
 ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-  ComponentValue value 42 set to WIDTH of Component -2
-  ComponentValue value 43 set to HEIGHT of Component -2
   BOX [-3:-1] = [0.0, 0.0, 275.0, 275.0] VISIBLE
+    ComponentValue value 43 set to WIDTH of Component -3
+    ComponentValue value 44 set to HEIGHT of Component -3
     MODIFIERS
       WIDTH = 100.0 dp
       HEIGHT = 100.0 dp
@@ -1147,9 +1148,9 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             """
 ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   DATA_TEXT<42> = "Test"
-  ComponentValue value 43 set to WIDTH of Component -2
-  ComponentValue value 44 set to HEIGHT of Component -2
   CORE_TEXT [-3:-1] = [0.0, 0.0, 275.0, 275.0] VISIBLE (42:"Test")
+    ComponentValue value 43 set to WIDTH of Component -3
+    ComponentValue value 44 set to HEIGHT of Component -3
     MODIFIERS
       WIDTH = 100.0 dp
       HEIGHT = 100.0 dp
@@ -1161,6 +1162,35 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     text = "Test".rs,
                     modifier = RemoteModifier.size(100.rdp).clip(RemoteRoundedCornerShape(10.rdp)),
                 )
+            }
+        }
+    }
+
+    @Test
+    fun testClipCircleShapeResolvesChildBoundsInsteadOfParent() {
+        val expectedLayout =
+            """
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 550.0, 550.0] VISIBLE
+    MODIFIERS
+      WIDTH = 200.0 dp
+      HEIGHT = 200.0 dp
+    BOX [-5:-1] = [0.0, 0.0, 55.0, 27.5] VISIBLE
+      MODIFIERS
+        WIDTH = 20.0 dp
+        HEIGHT = 10.0 dp
+    BOX [-7:-1] = [0.0, 27.5, 275.0, 110.0] VISIBLE
+      ComponentValue value 42 set to WIDTH of Component -7
+      ComponentValue value 43 set to HEIGHT of Component -7
+      MODIFIERS
+        WIDTH = 100.0 dp
+        HEIGHT = 40.0 dp
+        ROUNDED_CLIP_RECT = [275.0, 110.0, 55.0, 55.0, 55.0, 55.0]
+"""
+        testLayout(expectedLayout) {
+            RemoteColumn(modifier = RemoteModifier.size(200.rdp)) {
+                RemoteBox(modifier = RemoteModifier.size(20.rdp, 10.rdp))
+                RemoteBox(modifier = RemoteModifier.size(100.rdp, 40.rdp).clip(RemoteCircleShape))
             }
         }
     }

@@ -22,6 +22,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteComponentToken
 import androidx.compose.runtime.Immutable
 import java.lang.ref.WeakReference
 
@@ -422,13 +423,19 @@ internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRem
 
 /**
  * A cache key for component-specific values (like width/height/center), identified by the
- * [componentId] and the [type] of value.
+ * [componentId] (or component [token]) and the [type] of value.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComponentCacheKey(
+public class RemoteComponentCacheKey
+internal constructor(
     public val componentId: Int,
     public val type: String,
+    internal val token: RemoteComponentToken?,
 ) : BaseRemoteStateCacheKey() {
+    public constructor(componentId: Int, type: String) : this(componentId, type, null)
+
+    internal constructor(token: RemoteComponentToken, type: String) : this(-1, type, token)
+
     private var state: BaseRemoteState<*>? = null
 
     override fun getState(): BaseRemoteState<*>? = state
@@ -440,21 +447,31 @@ public class RemoteComponentCacheKey(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteComponentCacheKey) return false
-        if (componentId != other.componentId) return false
+        if (token != other.token) return false
+        if (token == null && componentId != other.componentId) return false
         if (type != other.type) return false
         return true
     }
 
     override fun hashCodeImpl(): Int {
-        var result = componentId
+        var result = token?.hashCode() ?: componentId
         result = 31 * result + type.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "RemoteComponentCacheKey(componentId=$componentId, type=$type)"
+        if (token != null) {
+            "RemoteComponentCacheKey(token=${token.hashCode()}, type=$type)"
+        } else {
+            "RemoteComponentCacheKey(componentId=$componentId, type=$type)"
+        }
 
-    override fun toDebugString(): String = "component:$componentId.$type"
+    override fun toDebugString(): String =
+        if (token != null) {
+            "component:@${token.hashCode()}.$type"
+        } else {
+            "component:$componentId.$type"
+        }
 }
 
 /**

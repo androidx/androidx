@@ -62,7 +62,7 @@ public fun RemoteIndeterminateCircularProgressIndicatorSample(
 public fun RemoteCircularProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
-    val progress = remember { MutableRemoteFloat { 0.25f.rf } }
+    val progress = remember { MutableRemoteFloat(0.25f) }
     val toggleAction = valueChangeAction(progress, ((progress + 0.25f) % 1f).createReference())
 
     // The indicator animates the progress changes.

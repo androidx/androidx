@@ -48,12 +48,11 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
@@ -105,7 +104,7 @@ class RcPlayerInspectorTest {
     @Composable
     @RemoteComposable
     private fun TestDocumentContent() {
-        val speed = remember { createNamedRemoteFloatExpression("speed") { 80f.rf } }
+        val speed = remember { createNamedRemoteFloat("speed", 80f) }
         val label = remember { createNamedRemoteString("label", "Hello Inspector") }
 
         RemoteColumn(
@@ -290,9 +289,7 @@ class RcPlayerInspectorTest {
         isDebugInspectorInfoEnabled = true
         val doc = captureDoc {
             val greeting = remember { createNamedRemoteString("greeting", "Hello RemoteText") }
-            val textWidth = remember {
-                createNamedRemoteFloatExpression("textWidth") { 120f.rf }
-            }
+            val textWidth = remember { createNamedRemoteFloat("textWidth", 120f) }
             RemoteColumn(modifier = RemoteModifier.size(200.rdp, 200.rdp)) {
                 RemoteText(
                     text = greeting,

@@ -74,7 +74,7 @@ public fun RemoteSegmentedCircularProgressIndicatorBinarySample(
 public fun RemoteSegmentedCircularProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.size(150.rdp)
 ) {
-    val progress = remember { MutableRemoteFloat { 0.2f.rf } }
+    val progress = remember { MutableRemoteFloat(0.2f) }
     val incrementAction = valueChangeAction(progress, ((progress + 0.2f) % 1.2f).createReference())
 
     // The indicator animates the progress changes.

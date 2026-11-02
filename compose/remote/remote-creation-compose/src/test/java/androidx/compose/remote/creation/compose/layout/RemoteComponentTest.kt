@@ -18,17 +18,35 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.ComponentValue
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.CanvasLayout
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.actions.Action as CreationAction
+import androidx.compose.remote.creation.compose.action.RemoteAction
+import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.clickable
+import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.util.MyRemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,5 +110,127 @@ class RemoteComponentTest {
                 "addComponentValue(45, ${ComponentValue.POS_ROOT_Y})",
             )
             .inOrder()
+    }
+
+    @Test
+    fun remoteCanvasNode_afterCustomComponent_bindsScopeComponentValueToCanvasComponentId() {
+        val platform = AndroidxRcPlatformServices()
+        val experimentalProfile =
+            Profile(
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+                platform,
+            ) { creationDisplayInfo, profile, callback ->
+                RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+            }
+        val expState =
+            RemoteComposeCreationState(
+                RemoteCreationDisplayInfo(200, 200, 160, 1f),
+                null,
+                experimentalProfile,
+            )
+        val expCanvas = RemoteCanvas(expState)
+        var capturedWidth: Float = 0f
+
+        val rootNode =
+            RemoteRootNode().apply {
+                val canvasNode =
+                    RemoteCanvasNode().apply {
+                        modifier = RemoteModifier.size(86.rdp, 52.rdp)
+                        onDraw = {
+                            remoteCanvas.custom(
+                                "decoy_custom",
+                                modifier = RemoteModifier.size(12.rdp),
+                            )
+                            val comp = remoteComponent()
+                            capturedWidth = comp.width.getFloatIdForCreationState(expState)
+                            remoteCanvas.drawRect(0f.rf, 0f.rf, comp.width, comp.height, null)
+                        }
+                    }
+                children.add(canvasNode)
+            }
+        rootNode.render(expState, expCanvas)
+
+        assertThat(capturedWidth.isNaN()).isTrue()
+        val coreDoc =
+            CoreDocument().apply {
+                initFromBuffer(
+                    RemoteComposeBuffer.fromInputStream(
+                        ByteArrayInputStream(
+                            expState.document.buffer(),
+                            0,
+                            expState.document.bufferSize(),
+                        )
+                    )
+                )
+            }
+        val rootLayout = checkNotNull(coreDoc.rootLayoutComponent)
+        val canvasLayout = rootLayout.list.filterIsInstance<CanvasLayout>().single()
+        val canvasContentOps = (canvasLayout as LayoutComponent).list
+        val componentValues = canvasContentOps.filterIsInstance<ComponentValue>()
+        assertThat(componentValues).isNotEmpty()
+        for (cv in componentValues) {
+            assertThat(cv.componentId).isEqualTo(canvasLayout.componentId)
+        }
+    }
+
+    @Test
+    fun remoteCanvasNode_modifierAndOnDraw_shareSingleComponentTokenAndVariableIds() {
+        var modifierWidthNan = 0f
+        var modifierHeightNan = 0f
+        var drawWidthNan = 0f
+        var drawHeightNan = 0f
+
+        val rootNode =
+            RemoteRootNode().apply {
+                val canvasNode =
+                    RemoteCanvasNode().apply {
+                        modifier =
+                            RemoteModifier.size(86.rdp, 52.rdp)
+                                .clip(RemoteRoundedCornerShape(percent = 50))
+                                .clickable(
+                                    object : RemoteAction {
+                                        override fun RemoteStateScope.toRemoteAction():
+                                            CreationAction {
+                                            val comp = remoteComponent()
+                                            modifierWidthNan =
+                                                comp.width.getFloatIdForCreationState(creationState)
+                                            modifierHeightNan =
+                                                comp.height.getFloatIdForCreationState(
+                                                    creationState
+                                                )
+                                            return hostAction("w".rs, comp.width).run {
+                                                toRemoteAction()
+                                            }
+                                        }
+                                    }
+                                )
+                        onDraw = {
+                            val comp = remoteComponent()
+                            drawWidthNan = comp.width.getFloatIdForCreationState(creationState)
+                            drawHeightNan = comp.height.getFloatIdForCreationState(creationState)
+                            remoteCanvas.drawRect(0f.rf, 0f.rf, comp.width, comp.height, null)
+                        }
+                    }
+                children.add(canvasNode)
+            }
+        rootNode.render(creationState, remoteCanvas)
+
+        assertThat(modifierWidthNan.isNaN()).isTrue()
+        assertThat(modifierHeightNan.isNaN()).isTrue()
+        assertThat(Utils.idFromNan(drawWidthNan)).isEqualTo(Utils.idFromNan(modifierWidthNan))
+        assertThat(Utils.idFromNan(drawHeightNan)).isEqualTo(Utils.idFromNan(modifierHeightNan))
+
+        val widthValueCalls = fakeBuffer.calls.filter { it.endsWith(", ${ComponentValue.WIDTH})") }
+        val heightValueCalls =
+            fakeBuffer.calls.filter { it.endsWith(", ${ComponentValue.HEIGHT})") }
+        assertThat(widthValueCalls)
+            .containsExactly(
+                "addComponentValue(${Utils.idFromNan(modifierWidthNan)}, ${ComponentValue.WIDTH})"
+            )
+        assertThat(heightValueCalls)
+            .containsExactly(
+                "addComponentValue(${Utils.idFromNan(modifierHeightNan)}, ${ComponentValue.HEIGHT})"
+            )
     }
 }

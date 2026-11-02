@@ -37,7 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray.Companion.createNamedRemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -46,7 +46,6 @@ import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.createNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -94,7 +93,7 @@ class RcPlayerStateTest {
     @Test
     fun testPreCompositionSetAndGet() {
         val document = createDocument {
-            val progress = remember { createNamedRemoteFloatExpression("progress") { 0.25f.rf } }
+            val progress = remember { createNamedRemoteFloat("progress", 0.25f) }
             val count = remember { createNamedRemoteInt("count", 10) }
             val flag = remember { createNamedRemoteBoolean("flag", false) }
             val title = remember { createNamedRemoteString("title", "Initial Title") }
@@ -188,7 +187,7 @@ class RcPlayerStateTest {
     @Test
     fun testTwoWayStateDelegation() {
         val document = createDocument {
-            val progress = remember { createNamedRemoteFloatExpression("progress") { 10f.rf } }
+            val progress = remember { createNamedRemoteFloat("progress", 10f) }
             RemoteBox(
                 modifier =
                     RemoteModifier.size(progress.asRemoteDp(), 50.rdp).semantics {
@@ -221,7 +220,7 @@ class RcPlayerStateTest {
     @Test
     fun testClearOverrideRestoresInitialValue() {
         val document = createDocument {
-            val progress = remember { createNamedRemoteFloatExpression("progress") { 20f.rf } }
+            val progress = remember { createNamedRemoteFloat("progress", 20f) }
             val count = remember { createNamedRemoteInt("count", 5) }
             val title = remember { createNamedRemoteString("title", "Initial") }
             RemoteBox(
@@ -258,12 +257,10 @@ class RcPlayerStateTest {
     fun testNameResolutionWithDefaultPrefix() {
         val document = createDocument {
             // By default, rememberNamedRemoteFloat uses Domain.User -> "USER:user_var"
-            val userVar = remember { createNamedRemoteFloatExpression("user_var") { 15f.rf } }
+            val userVar = remember { createNamedRemoteFloat("user_var", 15f) }
             // An unprefixed variable
             val rawVar = remember {
-                createNamedRemoteFloatExpression("raw_var", domain = RemoteState.Domain.None) {
-                    25f.rf
-                }
+                createNamedRemoteFloat("raw_var", 25f, domain = RemoteState.Domain.None)
             }
             RemoteBox(
                 modifier =
@@ -297,12 +294,11 @@ class RcPlayerStateTest {
     fun testNameResolutionWithNullDefaultPrefix() {
         val document = createDocument {
             val rawVar = remember {
-                createNamedRemoteFloatExpression(
+                createNamedRemoteFloat(
                     "unprefixed_var",
+                    100f,
                     domain = RemoteState.Domain.None,
-                ) {
-                    100f.rf
-                }
+                )
             }
             RemoteBox(modifier = RemoteModifier.size(rawVar.asRemoteDp(), 10.rdp))
         }

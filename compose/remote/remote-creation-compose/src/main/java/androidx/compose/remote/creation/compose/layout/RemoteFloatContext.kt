@@ -17,14 +17,51 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.state.RemoteComponentCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
-public class RemoteFloatContext internal constructor(internal val state: RemoteStateScope) {
+public class RemoteFloatContext
+private constructor(
+    internal val state: RemoteStateScope?,
+    internal val token: RemoteComponentToken?,
+) {
+    internal constructor(state: RemoteStateScope) : this(state = state, token = null)
+
+    internal constructor(token: RemoteComponentToken?) : this(state = null, token = token)
+
+    private fun activeToken(): RemoteComponentToken? = token ?: state?.resolveComponentToken()
+
+    private fun requireDocument(type: String): RemoteComposeWriter =
+        checkNotNull(state) {
+                "Component value '$type' requires an enclosing RemoteCompose layout component " +
+                    "or RemoteStateScope."
+            }
+            .document
+
+    private fun tokenComponentFloat(
+        capturedToken: RemoteComponentToken,
+        propIndex: Int,
+        type: String,
+    ): RemoteFloat {
+        capturedToken.markRequested(propIndex)
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteComponentCacheKey(capturedToken, type),
+            arrayProvider = { creationState ->
+                floatArrayOf(creationState.getComponentValue(capturedToken, propIndex))
+            },
+        )
+    }
+
     public fun componentWidth(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_WIDTH, "width")
+        }
+        val doc = requireDocument("width")
         val value = doc.addComponentWidthValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -34,7 +71,11 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
     }
 
     public fun componentHeight(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_HEIGHT, "height")
+        }
+        val doc = requireDocument("height")
         val value = doc.addComponentHeightValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -44,7 +85,29 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
     }
 
     public fun componentCenterX(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            capturedToken.markRequested(RemoteComponentToken.PROP_WIDTH)
+            return RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteComponentCacheKey(capturedToken, "centerX"),
+                arrayProvider = { creationState ->
+                    val componentWidthValue =
+                        creationState.getComponentValue(
+                            capturedToken,
+                            RemoteComponentToken.PROP_WIDTH,
+                        )
+                    val value =
+                        creationState.document.floatExpression(
+                            componentWidthValue,
+                            2f,
+                            AnimatedFloatExpression.DIV,
+                        )
+                    floatArrayOf(value)
+                },
+            )
+        }
+        val doc = requireDocument("centerX")
         val componentWidthValue = doc.addComponentWidthValue()
         val value = doc.floatExpression(componentWidthValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloatExpression(
@@ -55,7 +118,29 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
     }
 
     public fun componentCenterY(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            capturedToken.markRequested(RemoteComponentToken.PROP_HEIGHT)
+            return RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteComponentCacheKey(capturedToken, "centerY"),
+                arrayProvider = { creationState ->
+                    val componentHeightValue =
+                        creationState.getComponentValue(
+                            capturedToken,
+                            RemoteComponentToken.PROP_HEIGHT,
+                        )
+                    val value =
+                        creationState.document.floatExpression(
+                            componentHeightValue,
+                            2f,
+                            AnimatedFloatExpression.DIV,
+                        )
+                    floatArrayOf(value)
+                },
+            )
+        }
+        val doc = requireDocument("centerY")
         val componentHeightValue = doc.addComponentHeightValue()
         val value = doc.floatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloatExpression(
@@ -67,7 +152,11 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentX(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_X, "x")
+        }
+        val doc = requireDocument("x")
         val value = doc.addComponentXValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -78,7 +167,11 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentY(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_Y, "y")
+        }
+        val doc = requireDocument("y")
         val value = doc.addComponentYValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -89,7 +182,11 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootX(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_X, "rootX")
+        }
+        val doc = requireDocument("rootX")
         val value = doc.addComponentRootXValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,
@@ -100,7 +197,11 @@ public class RemoteFloatContext internal constructor(internal val state: RemoteS
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun componentRootY(): RemoteFloat {
-        val doc = state.document
+        val capturedToken = activeToken()
+        if (capturedToken != null) {
+            return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_Y, "rootY")
+        }
+        val doc = requireDocument("rootY")
         val value = doc.addComponentRootYValue()
         return RemoteFloatExpression(
             constantValueOrNull = null,

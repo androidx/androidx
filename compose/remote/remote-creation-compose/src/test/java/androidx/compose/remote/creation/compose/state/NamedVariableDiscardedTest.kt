@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -118,9 +118,7 @@ class NamedVariableDiscardedTest {
         val coreDoc =
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
-                    val namedFloat = remember {
-                        createNamedRemoteFloatExpression("testFloat") { 10f.rf }
-                    }
+                    val namedFloat = remember { createNamedRemoteFloat("testFloat", 10f) }
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))
                 }
             }
@@ -135,7 +133,7 @@ class NamedVariableDiscardedTest {
             remoteCaptureRule.captureDocument(context) {
                 RemoteBox {
                     val namedFloat = remember {
-                        createNamedRemoteFloatExpression("testFloat") { 10f.rf }
+                        createNamedRemoteFloat("testFloat", 10f)
                     }
                         .withGlobalScope()
                     RemoteBox(modifier = RemoteModifier.size(RemoteDp(namedFloat)))

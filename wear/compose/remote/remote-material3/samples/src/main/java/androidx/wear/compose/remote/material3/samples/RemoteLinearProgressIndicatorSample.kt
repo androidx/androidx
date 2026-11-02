@@ -51,7 +51,7 @@ public fun RemoteLinearProgressIndicatorSample(modifier: RemoteModifier = Remote
 public fun RemoteLinearProgressIndicatorAnimatedSample(
     modifier: RemoteModifier = RemoteModifier.width(140.rdp)
 ) {
-    val progress = remember { MutableRemoteFloat { 0.25f.rf } }
+    val progress = remember { MutableRemoteFloat(0.25f) }
     val toggleAction = valueChangeAction(progress, (progress + 0.25f) % 1f)
     // The indicator animates the progress changes.
     RemoteLinearProgressIndicator(modifier = modifier.clickable(toggleAction), progress = progress)
