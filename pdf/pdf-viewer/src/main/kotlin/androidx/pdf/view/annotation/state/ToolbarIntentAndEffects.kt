@@ -17,9 +17,9 @@
 package androidx.pdf.view.annotation.state
 
 import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.annotation.tool.AnnotationToolInfo
 import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
-import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 
 /**
  * Represents all possible user actions or system events that can occur on the AnnotationToolbar.

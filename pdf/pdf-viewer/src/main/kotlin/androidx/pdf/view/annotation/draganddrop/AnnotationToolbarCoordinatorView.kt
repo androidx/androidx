@@ -33,12 +33,13 @@ import androidx.constraintlayout.widget.ConstraintSet.VISIBILITY_MODE_IGNORE
 import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.view.annotation.AnnotationToolbarAnimationDefaults.SNAP_DURATION_MS
 import androidx.pdf.view.annotation.AnnotationToolbarAnimationDefaults.SNAP_OVERSHOOT_TENSION
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 
 /**
  * A [ViewGroup] layout manager that coordinates the dragging, dropping, and edge docking of an
@@ -257,9 +258,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     /**
      * Animates the toolbar to its final position over the target anchor.
      *
-     * @param state The target [AnnotationToolbarView.DockState] to snap to.
+     * @param state The target [AnnotationToolbarDockState.DockState] to snap to.
      */
-    private fun snapToState(@AnnotationToolbarView.DockState state: Int) {
+    private fun snapToState(@AnnotationToolbarDockState.DockState state: Int) {
         val localToolbar = toolbar ?: return
         val targetAnchor = anchorManager.getAnchorView(state) ?: return
 
@@ -299,9 +300,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     /**
      * Applies the final layout parameters to the toolbar based on its new docked state.
      *
-     * @param state The target [AnnotationToolbarView.DockState].
+     * @param state The target [AnnotationToolbarDockState.DockState].
      */
-    private fun applyDockLayoutParams(@AnnotationToolbarView.DockState state: Int) {
+    private fun applyDockLayoutParams(@AnnotationToolbarDockState.DockState state: Int) {
         val localToolbar = toolbar ?: return
         val toolbarId = localToolbar.id
 

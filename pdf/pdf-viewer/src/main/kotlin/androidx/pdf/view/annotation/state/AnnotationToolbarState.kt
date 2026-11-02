@@ -21,7 +21,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.os.ParcelCompat
 import androidx.pdf.ExperimentalPdfApi
-import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState
 import androidx.pdf.view.annotation.brush.BrushSizeSelectorView
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
@@ -121,8 +121,8 @@ internal data class AnnotationToolbarState(
     val highlighterState: ToolAttributes,
 
     /** The current docking state of the toolbar. */
-    @get:AnnotationToolbarView.DockState
-    @param:AnnotationToolbarView.DockState
+    @get:AnnotationToolbarDockState.DockState
+    @param:AnnotationToolbarDockState.DockState
     val dockedState: Int,
 
     /** Whether the toolbar is currently expanded. */

@@ -73,3 +73,44 @@ package androidx.pdf.compose {
 
 }
 
+package @SuppressCompatibility androidx.pdf.compose.annotation.toolbar {
+
+  @SuppressCompatibility public final class AnnotationToolbarKt {
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.pdf.ExperimentalPdfApi public static void AnnotationToolbar(androidx.pdf.compose.annotation.toolbar.AnnotationToolbarState, androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function1<? super androidx.pdf.annotation.tool.AnnotationToolInfo!,kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.lang.Boolean!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super androidx.pdf.compose.annotation.toolbar.AnnotationToolbarScope!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.pdf.ExperimentalPdfApi public static void AnnotationToolbar(androidx.pdf.compose.annotation.toolbar.AnnotationToolbarState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<androidx.pdf.annotation.tool.AnnotationToolInfo,kotlin.Unit> onToolChanged, optional kotlin.jvm.functions.Function0<kotlin.Unit> onUndo, optional kotlin.jvm.functions.Function0<kotlin.Unit> onRedo, optional kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit> onAnnotationVisibilityChanged, optional kotlin.jvm.functions.Function1<androidx.pdf.compose.annotation.toolbar.AnnotationToolbarScope,kotlin.Unit> content);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.pdf.ExperimentalPdfApi public abstract class AnnotationToolbarScope {
+    method public abstract void tool(String key, optional int index, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly public abstract void tool(String, int, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly public static void tool$default(androidx.pdf.compose.annotation.toolbar.AnnotationToolbarScope!, String!, int, kotlin.jvm.functions.Function2!, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.pdf.ExperimentalPdfApi public final class AnnotationToolbarState {
+    ctor public AnnotationToolbarState();
+    method @InaccessibleFromKotlin public boolean canRedo();
+    method @InaccessibleFromKotlin public boolean canUndo();
+    method public void clearToolSelection();
+    method public void dismissPopups();
+    method @InaccessibleFromKotlin public int getDockState();
+    method @InaccessibleFromKotlin public boolean isConfigPopupVisible();
+    method @InaccessibleFromKotlin public boolean isExpanded();
+    method public void reset();
+    method @InaccessibleFromKotlin public void setCanRedo(boolean);
+    method @InaccessibleFromKotlin public void setCanUndo(boolean);
+    method @InaccessibleFromKotlin public void setDockState(int);
+    method @InaccessibleFromKotlin public void setExpanded(boolean);
+    property public boolean canRedo;
+    property public boolean canUndo;
+    property public int dockState;
+    property public boolean isConfigPopupVisible;
+    property public boolean isExpanded;
+  }
+
+  @SuppressCompatibility public final class AnnotationToolbarStateKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.pdf.ExperimentalPdfApi public static androidx.pdf.compose.annotation.toolbar.AnnotationToolbarState rememberAnnotationToolbarState();
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.pdf.ExperimentalPdfApi public static androidx.pdf.compose.annotation.toolbar.AnnotationToolbarState rememberAnnotationToolbarState(androidx.compose.runtime.Composer?, int);
+  }
+
+}
+

@@ -36,11 +36,11 @@ import android.view.ViewGroup.LayoutParams
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.R as PdfR
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.assertScreenshot
 import androidx.pdf.util.clickItemAt
 import androidx.pdf.util.setSliderValue
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteAdapter
 import androidx.pdf.view.annotation.tool.AnnotationToolView
 import androidx.test.espresso.Espresso.onIdle

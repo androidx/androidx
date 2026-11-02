@@ -16,7 +16,6 @@
 
 package androidx.pdf.compose.annotation.toolbar
 
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -43,8 +42,8 @@ import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.annotation.tool.AnnotationToolInfo
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 
 /**
  * Scope for adding custom tools to an [AnnotationToolbar].
@@ -52,8 +51,8 @@ import androidx.pdf.view.annotation.tool.AnnotationToolInfo
  * Custom tools added through this scope are placed into the scrollable tool tray alongside the
  * built-in annotation tools.
  */
+@ExperimentalPdfApi
 @LayoutScopeMarker
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class AnnotationToolbarScope internal constructor() {
 
     /**
@@ -67,6 +66,7 @@ public abstract class AnnotationToolbarScope internal constructor() {
     public abstract fun tool(key: String, index: Int = -1, content: @Composable () -> Unit)
 }
 
+@OptIn(ExperimentalPdfApi::class)
 internal class AnnotationToolbarScopeImpl : AnnotationToolbarScope() {
     internal val tools = mutableListOf<CustomToolItem>()
 
@@ -104,8 +104,7 @@ internal data class CustomToolItem(
  *   a custom tool's position, specify a positive zero-based index when calling
  *   [AnnotationToolbarScope.tool].
  */
-@OptIn(ExperimentalPdfApi::class)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalPdfApi
 @Composable
 public fun AnnotationToolbar(
     state: AnnotationToolbarState,
@@ -137,7 +136,7 @@ public fun AnnotationToolbar(
 
     DisposableEffect(toolbarView, state) {
         val dockListener = AnnotationToolbarView.OnDockStateChangedListener { dockStateInt ->
-            state._dockState.value = AnnotationToolbarDockState.fromViewDockState(dockStateInt)
+            state._dockState = dockStateInt
         }
         val popupVisibilityListener =
             AnnotationToolbarView.OnConfigPopupVisibilityChangedListener { isVisible ->
@@ -225,6 +224,7 @@ private fun rememberAnnotationToolbarListener(
 }
 
 @Composable
+@OptIn(ExperimentalPdfApi::class)
 private fun rememberCustomTools(
     content: AnnotationToolbarScope.() -> Unit
 ): State<List<CustomToolItem>> {

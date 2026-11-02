@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.pdf.view.annotation.tool
+package androidx.pdf.annotation.tool
 
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.pdf.ExperimentalPdfApi
 
 /**
@@ -36,7 +35,8 @@ import androidx.pdf.ExperimentalPdfApi
  */
 @ExperimentalPdfApi
 public class Pen
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public val brushSize: Float,
     @get:ColorInt @param:ColorInt public val color: Int,
 ) : AnnotationToolInfo {
@@ -60,14 +60,6 @@ internal constructor(
     override fun toString(): String {
         return String.format("Pen(brushSize = %f, color = %d)", brushSize, color)
     }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public companion object {
-        /** Creates a [Pen] instance for testing purposes. */
-        @VisibleForTesting
-        public fun createForTest(brushSize: Float, @ColorInt color: Int): Pen =
-            Pen(brushSize, color)
-    }
 }
 
 /**
@@ -79,7 +71,8 @@ internal constructor(
  */
 @ExperimentalPdfApi
 public class Highlighter
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public val brushSize: Float,
     @get:ColorInt @param:ColorInt public val color: Int,
 ) : AnnotationToolInfo {
@@ -102,14 +95,6 @@ internal constructor(
 
     override fun toString(): String {
         return String.format("Highlighter(brushSize = %f, color = %d)", brushSize, color)
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public companion object {
-        /** Creates a [Highlighter] instance for testing purposes. */
-        @VisibleForTesting
-        public fun createForTest(brushSize: Float, @ColorInt color: Int): Highlighter =
-            Highlighter(brushSize, color)
     }
 }
 

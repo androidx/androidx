@@ -42,11 +42,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
-import androidx.pdf.view.annotation.tool.AnnotationToolInfo
-import androidx.pdf.view.annotation.tool.Eraser
-import androidx.pdf.view.annotation.tool.Highlighter
+import androidx.pdf.annotation.tool.AnnotationToolInfo
+import androidx.pdf.annotation.tool.Eraser
+import androidx.pdf.annotation.tool.Highlighter
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -77,7 +78,7 @@ class AnnotationToolbarTest {
             assertThat(state.canRedo).isFalse()
             assertThat(state.isConfigPopupVisible).isFalse()
             assertThat(state.isExpanded).isTrue()
-            assertThat(state.dockState).isEqualTo(AnnotationToolbarDockState.Bottom)
+            assertThat(state.dockState).isEqualTo(DOCK_STATE_BOTTOM)
         }
     }
 
@@ -94,7 +95,7 @@ class AnnotationToolbarTest {
         }
 
         rule.runOnIdle {
-            assertThat(state.dockState).isEqualTo(AnnotationToolbarDockState.End)
+            assertThat(state.dockState).isEqualTo(DOCK_STATE_END)
             assertThat(checkNotNull(state.toolbarView).dockState).isEqualTo(DOCK_STATE_END)
         }
     }
@@ -108,14 +109,14 @@ class AnnotationToolbarTest {
                 // form-factor default (End).
                 state =
                     rememberAnnotationToolbarState().apply {
-                        dockState = AnnotationToolbarDockState.Start
+                        dockState = DOCK_STATE_START
                     }
                 AnnotationToolbar(state = state)
             }
         }
 
         rule.runOnIdle {
-            assertThat(state.dockState).isEqualTo(AnnotationToolbarDockState.Start)
+            assertThat(state.dockState).isEqualTo(DOCK_STATE_START)
             assertThat(checkNotNull(state.toolbarView).dockState).isEqualTo(DOCK_STATE_START)
         }
     }
@@ -131,7 +132,7 @@ class AnnotationToolbarTest {
         rule.runOnIdle {
             state.canUndo = true
             state.canRedo = true
-            state.dockState = AnnotationToolbarDockState.End
+            state.dockState = DOCK_STATE_END
 
             assertThat(state.toolbarView?.canUndo).isTrue()
             assertThat(state.toolbarView?.canRedo).isTrue()
@@ -147,7 +148,7 @@ class AnnotationToolbarTest {
             AnnotationToolbarState().apply {
                 canUndo = true
                 canRedo = true
-                dockState = AnnotationToolbarDockState.Start
+                dockState = DOCK_STATE_START
                 isExpanded = false
             }
 
@@ -178,7 +179,7 @@ class AnnotationToolbarTest {
         rule.runOnIdle {
             state.canUndo = true
             state.canRedo = true
-            state.dockState = AnnotationToolbarDockState.End
+            state.dockState = DOCK_STATE_END
             // Select highlighter on the view to verify tool selection survives state restoration.
             checkNotNull(state.toolbarView)
                 .findViewById<View>(R.id.highlighter_button)
@@ -192,7 +193,7 @@ class AnnotationToolbarTest {
             val toolbarView = checkNotNull(state.toolbarView)
             assertThat(state.canUndo).isTrue()
             assertThat(state.canRedo).isTrue()
-            assertThat(state.dockState).isEqualTo(AnnotationToolbarDockState.End)
+            assertThat(state.dockState).isEqualTo(DOCK_STATE_END)
             assertThat(state.isExpanded).isFalse()
             assertThat(toolbarView.findViewById<View>(R.id.highlighter_button).isSelected).isTrue()
         }
@@ -275,7 +276,7 @@ class AnnotationToolbarTest {
             checkNotNull(state.toolbarView).dockState = DOCK_STATE_START
         }
         rule.runOnIdle {
-            assertThat(state.dockState).isEqualTo(AnnotationToolbarDockState.Start)
+            assertThat(state.dockState).isEqualTo(DOCK_STATE_START)
         }
     }
 

@@ -16,7 +16,6 @@
 
 package androidx.pdf.compose.annotation.toolbar
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -26,6 +25,10 @@ import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_BOTTOM
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_END
+import androidx.pdf.annotation.toolbar.AnnotationToolbarDockState.DOCK_STATE_START
 import androidx.pdf.view.annotation.AnnotationToolbarView
 
 /**
@@ -33,8 +36,7 @@ import androidx.pdf.view.annotation.AnnotationToolbarView
  *
  * Use [rememberAnnotationToolbarState] to create and remember an instance.
  */
-@OptIn(ExperimentalPdfApi::class)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalPdfApi
 @Stable
 public class AnnotationToolbarState {
     private var _toolbarView by mutableStateOf<AnnotationToolbarView?>(null)
@@ -52,7 +54,7 @@ public class AnnotationToolbarState {
      * `null` until set by the caller or adopted from the attached [AnnotationToolbarView], whose
      * default depends on the form factor (end edge on tablets, bottom edge on phones).
      */
-    internal val _dockState = mutableStateOf<AnnotationToolbarDockState?>(null)
+    @AnnotationToolbarDockState.DockState internal var _dockState by mutableStateOf<Int?>(null)
     internal val _isConfigPopupVisible = mutableStateOf(false)
     internal val _isExpanded = mutableStateOf(true)
 
@@ -99,14 +101,15 @@ public class AnnotationToolbarState {
         get() = _isConfigPopupVisible.value
 
     /**
-     * The current edge dock state of the toolbar ([AnnotationToolbarDockState.Start],
-     * [AnnotationToolbarDockState.Bottom], or [AnnotationToolbarDockState.End]).
+     * The current edge dock state of the toolbar ([DOCK_STATE_START], [DOCK_STATE_BOTTOM], or
+     * [DOCK_STATE_END]).
      */
-    public var dockState: AnnotationToolbarDockState
-        get() = _dockState.value ?: AnnotationToolbarDockState.Bottom
-        set(value) {
-            _dockState.value = value
-            _toolbarView?.dockState = value.toViewDockState()
+    @get:AnnotationToolbarDockState.DockState
+    public var dockState: Int
+        get() = _dockState ?: DOCK_STATE_BOTTOM
+        set(@AnnotationToolbarDockState.DockState value) {
+            _dockState = value
+            _toolbarView?.dockState = value
         }
 
     /** Dismisses any currently visible popups (such as the color palette or brush size slider). */
@@ -127,22 +130,20 @@ public class AnnotationToolbarState {
         _isExpanded.value = true
         _isConfigPopupVisible.value = false
         _toolbarView?.reset()
-        _dockState.value = _toolbarView?.let {
-            AnnotationToolbarDockState.fromViewDockState(it.dockState)
-        }
+        _dockState = _toolbarView?.dockState
     }
 
     private fun syncStateToView(view: AnnotationToolbarView) {
         view.canUndo = canUndo
         view.canRedo = canRedo
-        val dockState = _dockState.value
+        val dockState = _dockState
         if (dockState == null) {
             // Adopt the view's form-factor default (End on tablets, Bottom on phones) if no
             // explicit dock state was set or restored.
-            _dockState.value = AnnotationToolbarDockState.fromViewDockState(view.dockState)
+            _dockState = view.dockState
         } else {
             // Apply the explicitly set or restored dock state over the view's default.
-            view.dockState = dockState.toViewDockState()
+            view.dockState = dockState
         }
         // Only toggle expansion when differing to avoid re-triggering view bounds transitions.
         if (view.isExpanded != _isExpanded.value) {
@@ -168,7 +169,7 @@ public class AnnotationToolbarState {
                     mapOf(
                         KEY_CAN_UNDO to state.canUndo,
                         KEY_CAN_REDO to state.canRedo,
-                        KEY_DOCK_STATE to state._dockState.value?.toViewDockState(),
+                        KEY_DOCK_STATE to state._dockState,
                         KEY_IS_EXPANDED to state.isExpanded,
                     )
                 },
@@ -176,9 +177,7 @@ public class AnnotationToolbarState {
                     AnnotationToolbarState().apply {
                         canUndo = map[KEY_CAN_UNDO] as? Boolean ?: false
                         canRedo = map[KEY_CAN_REDO] as? Boolean ?: false
-                        (map[KEY_DOCK_STATE] as? Int)?.let {
-                            dockState = AnnotationToolbarDockState.fromViewDockState(it)
-                        }
+                        (map[KEY_DOCK_STATE] as? Int)?.let { dockState = it }
                         isExpanded = map[KEY_IS_EXPANDED] as? Boolean ?: true
                     }
                 },
@@ -190,7 +189,7 @@ public class AnnotationToolbarState {
  * Creates and remembers an [AnnotationToolbarState] instance across recompositions and
  * configuration changes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalPdfApi
 @Composable
 public fun rememberAnnotationToolbarState(): AnnotationToolbarState {
     return rememberSaveable(saver = AnnotationToolbarState.Saver) { AnnotationToolbarState() }
