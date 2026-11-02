@@ -18,9 +18,7 @@ package androidx.compose.material3.integration.a2ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,13 +30,16 @@ import androidx.compose.material3.integration.a2ui.ui.ComponentDetailScreen
 import androidx.compose.material3.integration.a2ui.ui.ComponentListScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalComposeUiApi::class)
 class DemoActivity : ComponentActivity() {
@@ -51,45 +52,65 @@ class DemoActivity : ComponentActivity() {
 }
 
 @Composable
-fun A2uiDemoApp() {
-    var selectedComponent by rememberSaveable { mutableStateOf<UiComponent?>(null) }
-    val saveableStateHolder = rememberSaveableStateHolder()
+fun A2uiDemoApp(viewModel: DemoViewModel = viewModel()) {
+    val activeSurfaces by viewModel.activeSurfaces.collectAsStateWithLifecycle()
+    val backStack = rememberNavBackStack(HomeKey)
 
-    BackHandler(enabled = selectedComponent != null) { selectedComponent = null }
-
-    AnimatedContent(
-        targetState = selectedComponent,
-        transitionSpec = {
-            if (targetState != null) {
-                (slideInHorizontally(tween(SlideTransitionDuration)) { width -> width / 4 } +
-                        fadeIn(tween(SlideTransitionDuration)))
-                    .togetherWith(
-                        slideOutHorizontally(tween(SlideTransitionDuration)) { width ->
-                            -width / 4
-                        } + fadeOut(tween(SlideTransitionDuration))
+    NavDisplay(
+        backStack = backStack,
+        transitionSpec = { ForwardTransitionSpec },
+        popTransitionSpec = { BackwardTransitionSpec },
+        predictivePopTransitionSpec = { BackwardTransitionSpec },
+        entryProvider =
+            entryProvider {
+                entry<HomeKey> {
+                    ComponentListScreen(
+                        onComponentSelected = { component ->
+                            val key = ComponentDetailKey(component)
+                            if (backStack.lastOrNull() != key) backStack.add(key)
+                        }
                     )
-            } else {
-                (slideInHorizontally(tween(SlideTransitionDuration)) { width -> -width / 4 } +
-                        fadeIn(tween(SlideTransitionDuration)))
-                    .togetherWith(
-                        slideOutHorizontally(tween(SlideTransitionDuration)) { width ->
-                            width / 4
-                        } + fadeOut(tween(SlideTransitionDuration))
+                }
+                entry<ComponentDetailKey> { key ->
+                    val component = key.component
+                    val surfaceId = component.surfaceId
+                    val surfaceModel = activeSurfaces.firstOrNull { it.id == surfaceId }
+                    ComponentDetailScreen(
+                        component = component,
+                        surfaceModel = surfaceModel,
+                        snackbarMessages = viewModel.snackbarMessages,
+                        onUpdateSurface = { components, dataModel ->
+                            viewModel.updateComponentSurface(
+                                surfaceId = surfaceId,
+                                components = components,
+                                dataModel = dataModel,
+                            )
+                        },
+                        onBack = { backStack.removeLastOrNull() },
                     )
-            }
-        },
-        label = "ScreenTransition",
-    ) { component ->
-        saveableStateHolder.SaveableStateProvider(component?.name ?: "list") {
-            if (component != null) {
-                ComponentDetailScreen(component = component, onBack = { selectedComponent = null })
-            } else {
-                ComponentListScreen(
-                    onComponentSelected = { newComponent -> selectedComponent = newComponent }
-                )
-            }
-        }
-    }
+                }
+            },
+    )
 }
 
+@Serializable private data object HomeKey : NavKey
+
+@Serializable private data class ComponentDetailKey(val component: UiComponent) : NavKey
+
 private const val SlideTransitionDuration = 350
+
+private val ForwardTransitionSpec =
+    (slideInHorizontally(tween(SlideTransitionDuration)) { width -> width / 4 } +
+            fadeIn(tween(SlideTransitionDuration)))
+        .togetherWith(
+            slideOutHorizontally(tween(SlideTransitionDuration)) { width -> -width / 4 } +
+                fadeOut(tween(SlideTransitionDuration))
+        )
+
+private val BackwardTransitionSpec =
+    (slideInHorizontally(tween(SlideTransitionDuration)) { width -> -width / 4 } +
+            fadeIn(tween(SlideTransitionDuration)))
+        .togetherWith(
+            slideOutHorizontally(tween(SlideTransitionDuration)) { width -> width / 4 } +
+                fadeOut(tween(SlideTransitionDuration))
+        )

@@ -19,6 +19,7 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 def jetbrainsComposeExcludeGroups = [
@@ -49,6 +50,11 @@ dependencies {
     implementation("androidx.activity:activity:1.12.1")
     implementation("androidx.activity:activity-compose:1.12.1")
     implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation("androidx.navigation3:navigation3-runtime:1.2.0")
+    implementation("androidx.navigation3:navigation3-ui:1.2.0")
+    implementation(libs.kotlinSerializationCore)
 
     implementation("io.coil-kt.coil3:coil-compose-android:3.1.0") {
         jetbrainsComposeExcludeGroups.each { group ->

@@ -42,6 +42,8 @@ enum class UiComponent(val displayName: String, val category: ComponentCategory)
     DATE_TIME_INPUT("DateTimeInput", ComponentCategory.INPUT),
     CHOICE_PICKER("ChoicePicker", ComponentCategory.INPUT);
 
+    val surfaceId: String = "demo_${name.lowercase()}"
+
     companion object {
         val byCategory: Map<ComponentCategory, List<UiComponent>> = entries.groupBy { it.category }
     }

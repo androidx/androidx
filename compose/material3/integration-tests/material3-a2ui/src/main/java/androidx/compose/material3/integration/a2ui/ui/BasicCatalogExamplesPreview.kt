@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.integration.a2ui.ui
 
+import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.tooling.preview.A2uiPreviewParameterProvider
 import androidx.a2ui.compose.ui.tooling.preview.A2uiSurfaceModelFactory
 import androidx.compose.foundation.layout.Box
@@ -23,8 +24,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.a2ui.A2uiSurface
+import androidx.compose.material3.integration.a2ui.createBasicCatalog
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -56,6 +60,12 @@ class BasicCatalogExampleProvider :
                 "Notification Settings" to JsonPreviewPresets.NotificationSettings,
             ),
     )
+
+@Composable
+private fun rememberBasicCatalog(): A2uiCatalog {
+    val context = LocalContext.current
+    return remember(context) { createBasicCatalog(context) }
+}
 
 object JsonPreviewPresets {
     val OrderConfirmation =

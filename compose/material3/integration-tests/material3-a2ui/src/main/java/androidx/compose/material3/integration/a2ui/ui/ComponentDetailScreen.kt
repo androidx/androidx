@@ -16,17 +16,8 @@
 
 package androidx.compose.material3.integration.a2ui.ui
 
-import androidx.a2ui.compose.ui.A2uiCatalog
-import androidx.a2ui.compose.ui.A2uiMessageProcessor
-import androidx.a2ui.model.processor.A2uiActionInterceptor
-import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
-import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
-import androidx.a2ui.model.protocol.A2uiEventAction
-import androidx.a2ui.model.protocol.A2uiFunctionCallAction
-import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
-import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Grid
@@ -80,11 +71,9 @@ import androidx.compose.material3.integration.a2ui.ui.samples.VideoSample
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalMediaQueryApi
@@ -96,13 +85,15 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMediaQueryApi::class)
 @Composable
 fun ComponentDetailScreen(
     component: UiComponent,
+    surfaceModel: A2uiSurfaceModel?,
+    snackbarMessages: Flow<String>,
+    onUpdateSurface: (List<A2uiComponentPayload>, Map<String, Any?>) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -110,13 +101,9 @@ fun ComponentDetailScreen(
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     var showJsonSheet by remember { mutableStateOf(false) }
 
-    val surfaceId = remember(component) { "demo_${component.name.lowercase()}" }
-    val catalog = rememberBasicCatalog()
-    val processor =
-        rememberDemoMessageProcessor(catalog = catalog, snackbarHostState = snackbarHostState)
-
-    val surfaces by processor.activeSurfaces.collectAsState()
-    val surfaceModel = surfaces.firstOrNull { it.id == surfaceId }
+    LaunchedEffect(snackbarMessages, snackbarHostState) {
+        snackbarMessages.collect { message -> snackbarHostState.showSnackbar(message) }
+    }
 
     var currentComponents by remember { mutableStateOf<List<A2uiComponentPayload>>(emptyList()) }
     var currentDataModel by remember { mutableStateOf<Map<String, Any?>>(emptyMap()) }
@@ -147,12 +134,7 @@ fun ComponentDetailScreen(
             onPayloadUpdated = { updatedComponentsPayload, updatedDataModel ->
                 currentComponents = updatedComponentsPayload
                 currentDataModel = updatedDataModel
-                processor.updateSurface(
-                    surfaceId = surfaceId,
-                    catalogId = catalog.id,
-                    components = updatedComponentsPayload,
-                    dataModel = updatedDataModel,
-                )
+                onUpdateSurface(updatedComponentsPayload, updatedDataModel)
             },
         )
     }
@@ -160,73 +142,10 @@ fun ComponentDetailScreen(
     if (showJsonSheet) {
         JsonBottomSheet(
             sheetState = sheetState,
-            surfaceId = surfaceId,
+            surfaceId = component.surfaceId,
             components = currentComponents,
             dataModel = currentDataModel,
             onDismissRequest = { showJsonSheet = false },
-        )
-    }
-}
-
-@Composable
-private fun rememberDemoMessageProcessor(
-    catalog: A2uiCatalog,
-    snackbarHostState: SnackbarHostState,
-): A2uiMessageProcessor {
-    val coroutineScope = rememberCoroutineScope()
-    val actionInterceptor =
-        remember(coroutineScope, snackbarHostState) {
-            A2uiActionInterceptor { action ->
-                coroutineScope.launch {
-                    val actionName =
-                        when (action) {
-                            is A2uiEventAction -> action.eventName
-                            is A2uiFunctionCallAction -> action.functionName
-                        }
-                    snackbarHostState.showSnackbar("Action dispatched: $actionName")
-                }
-                action
-            }
-        }
-
-    val processor =
-        remember(catalog, actionInterceptor) {
-            A2uiMessageProcessor(
-                catalogs = listOf(catalog),
-                interceptors = listOf(actionInterceptor),
-            )
-        }
-
-    LaunchedEffect(processor) { launch(Dispatchers.Default) { processor.collectMessages() } }
-
-    return processor
-}
-
-private fun A2uiMessageProcessor.updateSurface(
-    surfaceId: String,
-    catalogId: String,
-    components: List<A2uiComponentPayload>,
-    dataModel: Map<String, Any?>,
-) {
-    if (components.isNotEmpty()) {
-        processMessage(
-            A2uiCreateSurfaceMessage(
-                surfaceId = surfaceId,
-                catalogId = catalogId,
-            )
-        )
-        processMessage(
-            A2uiUpdateDataModelMessage(
-                surfaceId = surfaceId,
-                path = "/",
-                value = dataModel,
-            )
-        )
-        processMessage(
-            A2uiUpdateComponentsMessage(
-                surfaceId = surfaceId,
-                components = components,
-            )
         )
     }
 }
