@@ -24,16 +24,19 @@ import com.android.adblib.isOnline
 import com.android.adblib.serialNumber
 import com.android.adblib.tools.createStandaloneSession
 import java.io.File
+import java.lang.reflect.Constructor
 import java.lang.reflect.Executable
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.security.MessageDigest
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 import java.util.Properties
-import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicLong
 import java.util.logging.Logger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -41,6 +44,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -68,7 +72,9 @@ import org.opentest4j.TestAbortedException
  * failed assumption. To also save them when a `@BeforeAll` or `@AfterAll` method fails, register
  * the extension on the test class, with `@ExtendWith` or a static `@RegisterExtension` field. To
  * turn off saving logs, set the system property `androidx.test.backup.device.logs.enabled` to
- * `false`.
+ * `false`. To also save device logs when tests pass, set
+ * `androidx.test.backup.report.captureLogcatOnPass` to `true`; to copy raw backup archives into the
+ * report artifacts, set `androidx.test.backup.report.includeRawArchives` to `true`.
  *
  * The files are in `suite-details` in the results directory of the test suite. Outside of a test
  * suite, they are in a new temporary directory, which the extension keeps after the test run.
@@ -151,190 +157,562 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         parameterContext: ParameterContext?,
         extensionContext: ExtensionContext?,
     ): Any {
-
         val requiredClass =
             extensionContext?.requiredTestClass
                 ?: throw IllegalStateException("Required test class is missing")
-        val suiteProperties = suiteProperties()
-        val applicationId = applicationIdFor(requiredClass, suiteProperties)
-        val testApplicationId = testApplicationIdFor(requiredClass)
-        val adbSession = sessionFor(extensionContext)
         val deviceIndex = parameterContext?.let { deviceIndexOf(it) } ?: 0
-        val requests =
-            parameterContext?.let { deviceRequestsOf(it.parameter.declaringExecutable) }
-                ?: listOf(DeviceRequest(requestedSerial(null, 0), requestedApi(null, 0)))
-        val request = requests[deviceIndex]
-        val role = parameterContext?.parameter?.getAnnotation(Device::class.java)?.role.orEmpty()
+        val isConstructorParam = parameterContext?.parameter?.declaringExecutable is Constructor<*>
+        val isPerMethodClassConstructor =
+            isConstructorParam &&
+                isClassLevelContext(extensionContext) &&
+                isPerMethodLifecycle(extensionContext)
+        val wasBoundBeforeResolve =
+            !isConstructorParam &&
+                captureOrNull(extensionContext)
+                    ?.let(ActiveCaptureContext::isBoundOnCurrentThread) == true
+        val pendingAttempt =
+            if (isPerMethodClassConstructor) {
+                ensurePendingInstanceCapture(
+                    extensionContext,
+                    isFirstControllerParam = deviceIndex == 0,
+                )
+            } else {
+                null
+            }
+        val capture = pendingAttempt?.capture ?: ensureActiveCapture(extensionContext)
+        try {
+            val suiteProperties = suiteProperties()
+            val applicationId = applicationIdFor(requiredClass, suiteProperties)
+            val testApplicationId = testApplicationIdFor(requiredClass)
+            val adbSession = sessionFor(extensionContext)
+            val requests =
+                parameterContext?.let { deviceRequestsOf(it.parameter.declaringExecutable) }
+                    ?: listOf(DeviceRequest(requestedSerial(null, 0), requestedApi(null, 0)))
+            val request = requests[deviceIndex]
+            val role =
+                parameterContext?.parameter?.getAnnotation(Device::class.java)?.role.orEmpty()
 
-        val devices = runBlocking {
-            val connected =
-                withTimeoutOrNull(ADB_TIMEOUT_MS) {
-                    adbSession.connectedDevicesTracker.connectedDevices.first { list ->
-                        list.any { it.isOnline }
+            val devices = runBlocking {
+                val connected =
+                    withTimeoutOrNull(ADB_TIMEOUT_MS) {
+                        adbSession.connectedDevicesTracker.connectedDevices.first { list ->
+                            list.any { it.isOnline }
+                        }
+                    } ?: emptyList()
+                connected
+                    .filter { it.isOnline }
+                    .map { device ->
+                        async {
+                            OnlineDevice(device.serialNumber, device.deviceProperties().api(0))
+                        }
                     }
-                } ?: emptyList()
-            connected
-                .filter { it.isOnline }
-                .map { device ->
-                    async { OnlineDevice(device.serialNumber, device.deviceProperties().api(0)) }
+                    .awaitAll()
+            }
+
+            if (devices.isEmpty()) {
+                val errorMsg = "No online Android devices or emulators were detected via ADB."
+                capture.preconditionFailed = true
+                extensionContext.reportPreconditionFailure(
+                    BackupErrorCode.NO_ONLINE_DEVICE,
+                    errorMsg,
+                )
+                throw IllegalStateException(errorMsg)
+            }
+
+            val assignedSerials = assignDevices(requests, devices)
+            val serial = assignedSerials[deviceIndex]
+            if (serial == null) {
+                val errorMsg = noMatchingDeviceMessage(request, role, devices)
+                capture.preconditionFailed = true
+                extensionContext.reportPreconditionFailure(
+                    BackupErrorCode.NO_MATCHING_DEVICE,
+                    errorMsg,
+                )
+                throw IllegalStateException(errorMsg)
+            }
+            // A parameter without a serial number shares a device only when every device that
+            // matches it is bound to, or already taken by, another parameter.
+            if (
+                request.serialNumber.isEmpty() &&
+                    (requests.any { it.serialNumber == serial } ||
+                        serial in assignedSerials.take(deviceIndex))
+            ) {
+                logger.warning(
+                    "Controller parameter $deviceIndex" +
+                        (if (role.isNotEmpty()) " (role '$role')" else "") +
+                        " shares device $serial with another controller parameter, since no other " +
+                        "online device matches it."
+                )
+            }
+            val api = devices.first { it.serialNumber == serial }.api
+
+            if (api < MIN_REQUIRED_API) {
+                val errorMsg =
+                    "Backup & Restore testing requires Android 12 (API level 31) or higher. " +
+                        "Detected device/emulator $serial is running API level $api."
+                capture.preconditionFailed = true
+                extensionContext.reportPreconditionFailure(
+                    BackupErrorCode.UNSUPPORTED_API_LEVEL,
+                    errorMsg,
+                )
+                throw IllegalStateException(errorMsg)
+            }
+
+            val deviceImpl =
+                BackupRestoreControllerImpl(
+                    adbSession = adbSession,
+                    serialNumber = serial,
+                    apiLevel = api,
+                    applicationId = applicationId,
+                    testApplicationId = testApplicationId,
+                    telemetryPublisher = { key, value ->
+                        extensionContext.publishReportEntry(key, value)
+                    },
+                )
+            deviceImpl.explicitRole = role
+            deviceImpl.cachedDeviceFacts = cachedDeviceFactsFor(extensionContext, deviceImpl)
+            capture.addParticipant(deviceImpl)
+            prepareResolvedController(
+                extensionContext,
+                capture,
+                deviceImpl,
+                suiteApks(suiteProperties),
+            )
+
+            return deviceImpl
+        } catch (t: Throwable) {
+            if (pendingAttempt != null) {
+                pendingAttempt.failure = t
+                ActiveCaptureContext.unbindCurrentThread(capture)
+            } else {
+                if (!wasBoundBeforeResolve) {
+                    ActiveCaptureContext.unbindCurrentThread(capture)
+                    // When constructor parameter resolution fails on a method-scoped context
+                    // before beforeEach runs, JUnit skips afterEach and closes the store directly.
+                    capture.onUnfinalizedClose = {
+                        val failure = extensionContext.executionException?.orElse(null) ?: t
+                        finalizeCapture(
+                            context = extensionContext,
+                            capture = capture,
+                            isClassLevel = isClassLevelContext(extensionContext),
+                            explicitFailure = failure,
+                        )
+                    }
                 }
-                .awaitAll()
+            }
+            throw t
         }
+    }
 
-        if (devices.isEmpty()) {
-            val errorMsg = "No online Android devices or emulators were detected via ADB."
-            extensionContext.reportPreconditionFailure(BackupErrorCode.NO_ONLINE_DEVICE, errorMsg)
-            throw IllegalStateException(errorMsg)
-        }
+    /**
+     * Prepares [controller] by installing APKs, unlocking the device, and isolating app data.
+     *
+     * Records the combined preparation work as an unnumbered `"Prepare"` step on [capture].
+     */
+    @VisibleForTesting
+    internal fun prepareResolvedController(
+        context: ExtensionContext,
+        capture: TestExecutionCapture = ensureActiveCapture(context),
+        controller: BackupRestoreControllerImpl,
+        apks: List<File>,
+    ) {
+        val autoClear = isolationPolicyFor(context) == IsolationPolicy.AUTOMATIC
+        val prepareCall = buildPrepareCallDescription(apks.isNotEmpty(), autoClear)
 
-        val assignedSerials = assignDevices(requests, devices)
-        val serial = assignedSerials[deviceIndex]
-        if (serial == null) {
-            val errorMsg = noMatchingDeviceMessage(request, role, devices)
-            extensionContext.reportPreconditionFailure(BackupErrorCode.NO_MATCHING_DEVICE, errorMsg)
-            throw IllegalStateException(errorMsg)
-        }
-        // A parameter without a serial number shares a device only when every device that
-        // matches it is bound to, or already taken by, another parameter.
-        if (
-            request.serialNumber.isEmpty() &&
-                (requests.any { it.serialNumber == serial } ||
-                    serial in assignedSerials.take(deviceIndex))
-        ) {
-            logger.warning(
-                "Controller parameter $deviceIndex" +
-                    (if (role.isNotEmpty()) " (role '$role')" else "") +
-                    " shares device $serial with another controller parameter, since no other " +
-                    "online device matches it."
-            )
-        }
-        val api = devices.first { it.serialNumber == serial }.api
+        runBlocking(capture.coroutineContext()) {
+            capture.runStep(
+                isNumbered = false,
+                kind = TestExecutionCapture.StepKind.PREPARE,
+                name = "Prepare",
+                controller = controller,
+                call = prepareCall,
+            ) {
+                // Automatically install tested APKs (main app) and test APKs if provided by AGP
+                // test suite task
+                installOnce(context, controller, apks)
 
-        if (api < MIN_REQUIRED_API) {
-            val errorMsg =
-                "Backup & Restore testing requires Android 12 (API level 31) or higher. " +
-                    "Detected device/emulator $serial is running API level $api."
-            extensionContext.reportPreconditionFailure(
-                BackupErrorCode.UNSUPPORTED_API_LEVEL,
-                errorMsg,
-            )
-            throw IllegalStateException(errorMsg)
-        }
+                // Proactively unlock the emulator lockscreen/keyguard to ensure Credential
+                // Protected storage is decrypted and accessible
+                try {
+                    controller.wakeAndDismissKeyguard()
+                } catch (e: Exception) {
+                    logger.info("Failed to proactively dismiss keyguard: ${e.message}")
+                }
 
-        val deviceImpl =
-            BackupRestoreControllerImpl(
-                adbSession = adbSession,
-                serialNumber = serial,
-                apiLevel = api,
-                applicationId = applicationId,
-                testApplicationId = testApplicationId,
-                telemetryPublisher = { key, value ->
-                    extensionContext.publishReportEntry(key, value)
-                },
-            )
-        track(extensionContext, deviceImpl)
-
-        // Automatically install tested APKs (main app) and test APKs if provided by AGP test suite
-        // task
-        runBlocking { installOnce(extensionContext, deviceImpl, suiteApks(suiteProperties)) }
-
-        // Proactively unlock the emulator lockscreen/keyguard to ensure Credential Protected
-        // storage is decrypted and accessible
-        runBlocking {
-            try {
-                deviceImpl.wakeAndDismissKeyguard()
-            } catch (e: Exception) {
-                logger.info("Failed to proactively dismiss keyguard: ${e.message}")
+                // Run automatic pm clear before the test starts if policy is AUTOMATIC
+                if (autoClear) {
+                    logger.info("Initializing test. Running automatic pm clear for isolation.")
+                    controller.clearAppData()
+                }
             }
         }
-
-        // Run automatic pm clear before the test starts if policy is AUTOMATIC
-        if (isolationPolicyFor(extensionContext) == IsolationPolicy.AUTOMATIC) {
-            logger.info("Initializing test. Running automatic pm clear for isolation.")
-            runBlocking { deviceImpl.clearAppData() }
-        }
-
-        return deviceImpl
     }
 
     // JUnit never passes a null context, but its parameters have no nullness annotations.
     override fun beforeAll(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
-        recordOf(context)
+        generateSequence(context.parent?.orElse(null)) { it.parent?.orElse(null) }
+            .forEach(::evictUnclaimedPendingCapture)
+        ensureActiveCapture(context, forceClassLevel = true)
     }
 
     // JUnit never passes a null context, but its parameters have no nullness annotations.
     override fun beforeEach(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
-        recordOf(context)
+        generateSequence(context.parent?.orElse(null)) { it.parent?.orElse(null) }
+            .forEach { captureOrNull(it)?.sealSharedPrefix() }
+        claimPendingInstanceCapture(context)
+        ensureActiveCapture(context, forceClassLevel = false)
     }
 
     // JUnit never passes a null context, but its parameters have no nullness annotations.
     override fun afterEach(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
-        saveDeviceLogsOnFailure(context)
+        if (captureOrNull(context) == null && context.executionException?.orElse(null) != null) {
+            claimPendingInstanceCapture(context)
+        }
+        finalizeExecution(context, isClassLevel = false)
     }
 
     // JUnit never passes a null context, but its parameters have no nullness annotations.
     override fun afterAll(@Suppress("InvalidNullabilityOverride") context: ExtensionContext) {
-        saveDeviceLogsOnFailure(context)
+        generateSequence(context) { it.parent?.orElse(null) }
+            .forEach(::evictUnclaimedPendingCapture)
+        finalizeExecution(context, isClassLevel = true)
     }
 
     /** Records that the test or the test class of [context] uses [controller]. */
     @VisibleForTesting
     internal fun track(context: ExtensionContext, controller: BackupRestoreControllerImpl) {
-        recordOf(context).controllers += controller
+        captureOf(context, isClassLevel = isClassLevelContext(context)).addParticipant(controller)
+    }
+
+    /** Returns cached [DeviceFacts] for [controller], reading from the device once per serial. */
+    internal fun cachedDeviceFactsFor(
+        context: ExtensionContext,
+        controller: BackupRestoreControllerImpl,
+    ): DeviceFacts =
+        context.root
+            .getStore(NAMESPACE)
+            .getOrComputeIfAbsent(
+                DeviceFactsKey(controller.serialNumber),
+                {
+                    runBlocking {
+                        DeviceFactsReader.read(controller.deviceShell, controller.apiLevel)
+                    }
+                },
+                DeviceFacts::class.java,
+            )
+
+    private fun isPerMethodLifecycle(context: ExtensionContext): Boolean =
+        when (context.testInstanceLifecycle?.orElse(null)) {
+            TestInstance.Lifecycle.PER_CLASS -> false
+            TestInstance.Lifecycle.PER_METHOD -> true
+            null ->
+                findClassAnnotation(context.requiredTestClass, TestInstance::class.java)?.value !=
+                    TestInstance.Lifecycle.PER_CLASS
+        }
+
+    /**
+     * Returns a per-instance [PendingInstanceCapture] for a [TestInstance.Lifecycle.PER_METHOD]
+     * constructor parameter.
+     *
+     * Keeps constructor `"Prepare"` steps and logs off the enclosing class capture, and registers
+     * [TestExecutionCapture.onUnfinalizedClose] under a unique `_ctor_` detail ID in case
+     * construction fails before [beforeEach] runs.
+     */
+    private fun ensurePendingInstanceCapture(
+        classContext: ExtensionContext,
+        isFirstControllerParam: Boolean,
+    ): PendingInstanceCapture {
+        generateSequence(classContext) { it.parent?.orElse(null) }
+            .forEach { captureOrNull(it)?.sealSharedPrefix() }
+        val parentClassCapture =
+            generateSequence(classContext) { it.parent?.orElse(null) }
+                .firstNotNullOfOrNull(::captureOrNull)
+        val store = classContext.getStore(NAMESPACE)
+        val pendingKey = PendingInstanceCaptureKey(classContext.uniqueId)
+        if (isFirstControllerParam) {
+            store.remove(pendingKey, PendingInstanceCapture::class.java)?.close()
+            val adoptedFromOuter =
+                generateSequence(classContext.parent?.orElse(null)) { it.parent?.orElse(null) }
+                    .firstNotNullOfOrNull { ancestor ->
+                        ancestor
+                            .getStore(NAMESPACE)
+                            .remove(
+                                PendingInstanceCaptureKey(ancestor.uniqueId),
+                                PendingInstanceCapture::class.java,
+                            )
+                    }
+            if (adoptedFromOuter != null) {
+                adoptedFromOuter.capture.testClassName = resolveTestClassName(classContext)
+                adoptedFromOuter.capture.parent = parentClassCapture
+                bindPendingUnfinalizedClose(classContext, adoptedFromOuter)
+                store.put(pendingKey, adoptedFromOuter)
+            }
+        }
+        val pending =
+            store.getOrComputeIfAbsent(
+                pendingKey,
+                {
+                    val ctorSeq = ctorAttemptCounter.incrementAndGet()
+                    val ctorDetailId = "${detailIdOf(classContext.uniqueId)}_ctor_$ctorSeq"
+                    val created =
+                        TestExecutionCapture(
+                            start = Instant.now(),
+                            isShared = false,
+                            testClassName = resolveTestClassName(classContext),
+                            testMethodName = null,
+                            parent = parentClassCapture,
+                        )
+                    PendingInstanceCapture(created, ctorDetailId).also { createdPending ->
+                        bindPendingUnfinalizedClose(classContext, createdPending)
+                    }
+                },
+                PendingInstanceCapture::class.java,
+            )
+        ActiveCaptureContext.pushCurrentThread(pending.capture)
+        return pending
+    }
+
+    private fun bindPendingUnfinalizedClose(
+        classContext: ExtensionContext,
+        pending: PendingInstanceCapture,
+    ) {
+        pending.capture.onUnfinalizedClose = {
+            val failure = pending.failure ?: classContext.executionException?.orElse(null)
+            if (
+                failure != null &&
+                    (!pending.capture.preconditionFailed ||
+                        pending.capture.allControllers().isNotEmpty())
+            ) {
+                finalizeCapture(
+                    context = classContext,
+                    capture = pending.capture,
+                    isClassLevel = false,
+                    explicitFailure = failure,
+                    detailIdOverride = pending.detailId,
+                    allowPublishReportEntries = false,
+                )
+            } else {
+                ActiveCaptureContext.unbindCurrentThread(pending.capture)
+            }
+        }
     }
 
     /**
-     * Returns the record of the test or the test class of [context], which starts when it starts,
-     * or when a controller is resolved for it before that, such as for a test class constructor.
+     * Moves any pending [TestInstance.Lifecycle.PER_METHOD] constructor capture into
+     * [methodContext]'s store.
      */
-    private fun recordOf(context: ExtensionContext): TestRecord =
+    private fun claimPendingInstanceCapture(methodContext: ExtensionContext) {
+        val claimed =
+            generateSequence(methodContext.parent?.orElse(null)) { it.parent?.orElse(null) }
+                .firstNotNullOfOrNull { ancestor ->
+                    ancestor
+                        .getStore(NAMESPACE)
+                        .remove(
+                            PendingInstanceCaptureKey(ancestor.uniqueId),
+                            PendingInstanceCapture::class.java,
+                        )
+                }
+                ?.capture ?: return
+        claimed.testClassName = resolveTestClassName(methodContext)
+        claimed.testMethodName = resolveTestMethodName(methodContext)
+        claimed.parent =
+            generateSequence(methodContext.parent?.orElse(null)) { it.parent?.orElse(null) }
+                .firstNotNullOfOrNull(::captureOrNull)
+        claimed.onUnfinalizedClose = {
+            if (methodContext.executionException?.orElse(null) != null) {
+                finalizeExecution(methodContext, isClassLevel = false)
+            }
+        }
+        methodContext.getStore(NAMESPACE).put(TestCaptureKey(methodContext.uniqueId), claimed)
+    }
+
+    private fun evictUnclaimedPendingCapture(classContext: ExtensionContext) {
+        classContext
+            .getStore(NAMESPACE)
+            .remove(
+                PendingInstanceCaptureKey(classContext.uniqueId),
+                PendingInstanceCapture::class.java,
+            )
+            ?.close()
+    }
+
+    private fun ensureActiveCapture(
+        context: ExtensionContext,
+        forceClassLevel: Boolean? = null,
+    ): TestExecutionCapture {
+        val isClassLevel = forceClassLevel ?: isClassLevelContext(context)
+        val capture = captureOf(context, isClassLevel)
+        ActiveCaptureContext.pushCurrentThread(capture)
+        return capture
+    }
+
+    /**
+     * Returns or creates the [TestExecutionCapture] for [context].
+     *
+     * Creating on first access lets constructor injection before [beforeEach] share the test's
+     * capture.
+     */
+    private fun captureOf(context: ExtensionContext, isClassLevel: Boolean): TestExecutionCapture =
         context
             .getStore(NAMESPACE)
             .getOrComputeIfAbsent(
-                TestRecordKey(context.uniqueId),
-                { TestRecord(Instant.now()) },
-                TestRecord::class.java,
+                TestCaptureKey(context.uniqueId),
+                {
+                    val parentCapture =
+                        generateSequence(context.parent?.orElse(null)) {
+                                it.parent?.orElse(null)
+                            }
+                            .mapNotNull { captureOrNull(it) }
+                            .firstOrNull()
+                    TestExecutionCapture(
+                            start = Instant.now(),
+                            isShared = isClassLevel,
+                            testClassName = resolveTestClassName(context),
+                            testMethodName =
+                                if (isClassLevel) null else resolveTestMethodName(context),
+                            parent = parentCapture,
+                        )
+                        .also { created ->
+                            created.onUnfinalizedClose = {
+                                if (context.executionException?.orElse(null) != null) {
+                                    finalizeExecution(context, isClassLevel)
+                                }
+                            }
+                        }
+                },
+                TestExecutionCapture::class.java,
             )
 
-    /** Returns the record of the test or the test class of [context], if it has one. */
-    private fun recordOrNull(context: ExtensionContext): TestRecord? =
-        context.getStore(NAMESPACE).get(TestRecordKey(context.uniqueId), TestRecord::class.java)
+    private fun captureOrNull(context: ExtensionContext): TestExecutionCapture? =
+        context
+            .getStore(NAMESPACE)
+            .get(TestCaptureKey(context.uniqueId), TestExecutionCapture::class.java)
 
-    /**
-     * If the test or the test class of [context] failed, saves the logs of each device that it used
-     * since it started, and names the saved files in its failure. The devices of a test include the
-     * devices of the controllers resolved for its test class, such as for the class constructor.
-     */
-    private fun saveDeviceLogsOnFailure(context: ExtensionContext) {
-        val failure = context.executionException.orElse(null)
-        if (failure == null || failure is TestAbortedException) return
-        if (System.getProperty(PROP_DEVICE_LOGS).equals("false", ignoreCase = true)) return
-        // Without its own record, the test didn't run: another extension's beforeEach failed first.
-        val record = recordOrNull(context) ?: return
-        val controllers =
-            generateSequence(context) { it.parent.orElse(null) }
-                .mapNotNull { recordOrNull(it) }
-                .flatMap { it.controllers }
-                .distinctBy { it.serialNumber }
-                .toList()
-        // The device clock that dates the logs is read to the second.
-        val window = Duration.between(record.start, Instant.now()).plusSeconds(1)
-        for (controller in controllers) {
-            try {
-                val dir = deviceLogsDir(context).resolve(fileNameOf(context.uniqueId))
-                val file =
-                    Files.createDirectories(dir)
-                        .resolve("logcat-${fileSafe(controller.serialNumber)}.txt")
-                runBlocking {
-                    withTimeout(DEVICE_LOGS_TIMEOUT_MS) { controller.fetchDeviceLogs(file, window) }
+    /** Finalizes the [TestExecutionCapture] recorded for [context], if one exists. */
+    private fun finalizeExecution(context: ExtensionContext, isClassLevel: Boolean) {
+        // Without its own capture, the test didn't run: another extension's beforeEach failed
+        // first.
+        val capture = captureOrNull(context) ?: return
+        finalizeCapture(context, capture, isClassLevel)
+    }
+
+    private fun finalizeCapture(
+        context: ExtensionContext,
+        capture: TestExecutionCapture,
+        isClassLevel: Boolean,
+        explicitFailure: Throwable? = null,
+        detailIdOverride: String? = null,
+        allowPublishReportEntries: Boolean = true,
+    ) {
+        if (capture.finalized) {
+            ActiveCaptureContext.unbindCurrentThread(capture)
+            return
+        }
+        capture.finalized = true
+
+        ActiveCaptureContext.pushCurrentThread(capture)
+        try {
+            val failure = explicitFailure ?: context.executionException?.orElse(null)
+            if (failure is TestAbortedException) return
+
+            val suiteProps = suiteProperties()
+            val resultsDirPath = suiteProperty(suiteProps, PROP_RESULTS_DIR)
+            val detailId = detailIdOverride ?: detailIdOf(context.uniqueId)
+
+            val deviceLogsEnabled =
+                !suiteProperty(suiteProps, PROP_DEVICE_LOGS).equals("false", ignoreCase = true)
+            val captureLogcatOnPass =
+                suiteProperty(suiteProps, PROP_CAPTURE_LOGCAT_ON_PASS)
+                    .equals("true", ignoreCase = true)
+            val shouldSaveLogcat =
+                deviceLogsEnabled && (failure != null || (!isClassLevel && captureLogcatOnPass))
+
+            val savedLogcatFiles = LinkedHashMap<String, TestExecutionCapture.SavedLogcatFile>()
+            if (shouldSaveLogcat) {
+                val controllers = capture.allControllers()
+                // The device clock that dates the logs is read to the second.
+                val window = Duration.between(capture.start, Instant.now()).plusSeconds(1)
+                for (controller in controllers) {
+                    try {
+                        val dir = deviceLogsDir(context, suiteProps).resolve(detailId)
+                        val file =
+                            Files.createDirectories(dir)
+                                .resolve("logcat-${fileSafe(controller.serialNumber)}.txt")
+                        val logcatTruncated = runBlocking {
+                            withTimeout(DEVICE_LOGS_TIMEOUT_MS) {
+                                controller.saveBoundedDeviceLogs(file, window, MAX_LOGCAT_BYTES)
+                            }
+                        }
+                        logger.info("Saved the logs of ${controller.serialNumber} to $file")
+                        failure?.addSuppressed(DeviceLogsNotice(file))
+                        savedLogcatFiles[controller.serialNumber] =
+                            TestExecutionCapture.SavedLogcatFile(file, logcatTruncated)
+                    } catch (e: Exception) {
+                        logger.warning(
+                            "Failed to save the logs of ${controller.serialNumber}: ${e.message}"
+                        )
+                    }
                 }
-                logger.info("Saved the logs of ${controller.serialNumber} to $file")
-                failure.addSuppressed(DeviceLogsNotice(file))
-            } catch (e: Exception) {
-                logger.warning(
-                    "Failed to save the logs of ${controller.serialNumber}: ${e.message}"
-                )
             }
+
+            val shouldWriteDetailRecord =
+                resultsDirPath != null && (!isClassLevel || failure != null)
+            val finalized =
+                try {
+                    if (shouldWriteDetailRecord) {
+                        val suiteDetailsDir = Paths.get(resultsDirPath, "suite-details")
+                        val detailDir = suiteDetailsDir.resolve(detailId)
+                        val report =
+                            capture.buildFinalizedReport(
+                                detailId = detailId,
+                                detailDir = detailDir,
+                                savedLogcatFiles = savedLogcatFiles,
+                                failure = failure,
+                                resultsDirPath = resultsDirPath,
+                            )
+                        Files.createDirectories(suiteDetailsDir)
+                        Files.write(
+                            suiteDetailsDir.resolve("$detailId.json"),
+                            report.record.toJsonString().toByteArray(Charsets.UTF_8),
+                        )
+                        if (allowPublishReportEntries) {
+                            context.publishReportEntry(
+                                BackupReportKeys.DETAIL_PATH,
+                                "suite-details/$detailId.json",
+                            )
+                        }
+                        report
+                    } else if (failure != null) {
+                        capture.buildFinalizedReport(
+                            detailId = null,
+                            detailDir = null,
+                            savedLogcatFiles = savedLogcatFiles,
+                            failure = failure,
+                            resultsDirPath = null,
+                        )
+                    } else {
+                        null
+                    }
+                } catch (e: Exception) {
+                    logger.warning(
+                        "Failed to write report details for ${context.displayName}: ${e.message}"
+                    )
+                    null
+                }
+
+            if (failure != null) {
+                finalized?.failureNoticeText?.let { notice ->
+                    failure.addSuppressed(FailureSummaryNotice(notice))
+                }
+            }
+
+            if (allowPublishReportEntries && (!isClassLevel || failure != null)) {
+                capture.publishStepByStepTelemetryIfNeeded(failure) { key, value ->
+                    context.publishReportEntry(key, value)
+                }
+            }
+        } finally {
+            capture.close()
         }
     }
 
@@ -342,32 +720,66 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
      * Returns the directory for the device logs of failed tests: `suite-details` in the results
      * directory of the test suite, or else a temporary directory for the test run.
      */
-    private fun deviceLogsDir(context: ExtensionContext): Path =
-        context.root
-            .getStore(NAMESPACE)
-            .getOrComputeIfAbsent(
-                DEVICE_LOGS_DIR_KEY,
-                {
-                    suiteProperty(suiteProperties(), PROP_RESULTS_DIR)?.let {
-                        Paths.get(it, "suite-details")
-                    } ?: Files.createTempDirectory("backup-test-logs")
-                },
-                Path::class.java,
-            )
+    private fun deviceLogsDir(context: ExtensionContext, suiteProps: Properties): Path =
+        suiteProperty(suiteProps, PROP_RESULTS_DIR)?.let { Paths.get(it, "suite-details") }
+            ?: context.root
+                .getStore(NAMESPACE)
+                .getOrComputeIfAbsent(
+                    DEVICE_LOGS_DIR_KEY,
+                    { Files.createTempDirectory("backup-test-logs") },
+                    Path::class.java,
+                )
 
     /**
-     * Returns the test or the test class with [uniqueId] as a file name: the names of its class and
-     * method, and the invocation of a repeated or parameterized test, separated by dots.
+     * Builds a filesystem-safe detail identifier for [uniqueId] with a readable prefix and hash.
      */
-    private fun fileNameOf(uniqueId: String): String =
-        fileSafe(
-            uniqueId.split("]/[").drop(1).joinToString(".") {
-                it.substringAfter(':').substringBefore('(').removeSuffix("]")
-            }
-        )
+    @VisibleForTesting
+    internal fun detailIdOf(uniqueId: String): String {
+        val segments = uniqueId.split("]/[").drop(1)
+        val readableParts = segments.mapNotNull { raw ->
+            val clean = raw.removeSuffix("]")
+            val type = clean.substringBefore(':', missingDelimiterValue = "")
+            val value = clean.substringAfter(':')
+            when (type) {
+                "class",
+                "test-class" -> value.substringAfterLast('.').substringAfterLast('$')
+                "nested-class" -> value.substringAfterLast('$').substringAfterLast('.')
+                "method",
+                "test-template" -> value.substringBefore('(')
+                "test-template-invocation",
+                "dynamic-test",
+                "dynamic-container" -> value.removePrefix("#")
+                else -> value.substringBefore('(').substringAfterLast('.')
+            }.takeIf { it.isNotEmpty() }
+        }
+        val basePrefix =
+            fileSafe(readableParts.joinToString("."))
+                .take(MAX_DETAIL_PREFIX_LENGTH)
+                .trim('.', '_', '-')
+                .ifEmpty { "test" }
+        val hashSuffix = sha256HexPrefix(uniqueId, 8)
+        return "$basePrefix-$hashSuffix"
+    }
 
     /** Returns [name] with each run of characters that file names can't hold replaced by `_`. */
     private fun fileSafe(name: String): String = name.replace(Regex("[^A-Za-z0-9._-]+"), "_")
+
+    private fun isClassLevelContext(context: ExtensionContext): Boolean =
+        context.testMethod.orElse(null) == null
+
+    private fun resolveTestClassName(context: ExtensionContext): String? =
+        context.testClass.orElse(null)?.name
+
+    private fun resolveTestMethodName(context: ExtensionContext): String? =
+        context.testMethod.orElse(null)?.name
+
+    private fun buildPrepareCallDescription(hasApks: Boolean, autoClear: Boolean): String =
+        buildList {
+            if (hasApks) add("Install APKs")
+            add(if (hasApks) "unlock device" else "Unlock device")
+            if (autoClear) add("clear app data")
+        }
+        .joinToString(", ")
 
     /**
      * Returns the devices that the [BackupRestoreController] parameters of [executable] ask for, in
@@ -653,11 +1065,6 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         apkFilesIn(suiteProperty(suiteProperties, PROP_TESTED_APKS)) +
             apkFilesIn(suiteProperty(suiteProperties, PROP_TEST_APKS))
 
-    /** Returns the test suite input [name] of [suiteProperties], or else the system property. */
-    private fun suiteProperty(suiteProperties: Properties, name: String): String? =
-        suiteProperties.getProperty(name)?.takeIf { it.isNotEmpty() }
-            ?: System.getProperty(name)?.takeIf { it.isNotEmpty() }
-
     /**
      * Publishes the report entries describing a precondition failure, so that failures detected
      * before a [BackupRestoreController] exists are reported with the same vocabulary that
@@ -694,6 +1101,20 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         }
     }
 
+    /**
+     * Wraps an unclaimed [TestInstance.Lifecycle.PER_METHOD] constructor [capture] alongside its
+     * unique [detailId].
+     */
+    private class PendingInstanceCapture(
+        val capture: TestExecutionCapture,
+        val detailId: String,
+        var failure: Throwable? = null,
+    ) : CloseableResource, AutoCloseable {
+        override fun close() {
+            capture.close()
+        }
+    }
+
     /** Store key of the installed APK paths after [installOnce] installed [apks] on a device. */
     private data class InstalledApp(
         val serialNumber: String,
@@ -701,13 +1122,26 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         val apks: List<File>,
     )
 
-    /** The time a test or a test class started, and the controllers resolved for it. */
-    private class TestRecord(val start: Instant) {
-        val controllers = CopyOnWriteArrayList<BackupRestoreControllerImpl>()
-    }
+    /** Store key of the cached [DeviceFacts] for [serialNumber]. */
+    private data class DeviceFactsKey(val serialNumber: String)
 
-    /** Store key of the [TestRecord] of the test or the test class with [uniqueId]. */
-    private data class TestRecordKey(val uniqueId: String)
+    /** Store key of the [TestExecutionCapture] of the test or test class with [uniqueId]. */
+    private data class TestCaptureKey(val uniqueId: String)
+
+    /**
+     * Identifies a pending [TestInstance.Lifecycle.PER_METHOD] constructor [PendingInstanceCapture]
+     * on [classUniqueId].
+     */
+    private data class PendingInstanceCaptureKey(val classUniqueId: String)
+
+    /**
+     * Names the failed step and likely backup-rule cause in a test failure.
+     *
+     * Attached as a suppressed exception without a stack trace.
+     */
+    private class FailureSummaryNotice(summary: String) : Exception(summary, null, false, false) {
+        override fun toString(): String = message.orEmpty()
+    }
 
     /**
      * Names the [file] with the logs of a device in a test failure, as a suppressed exception
@@ -751,8 +1185,14 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         /** Store key of the directory for device logs that all extensions in a test run share. */
         private const val DEVICE_LOGS_DIR_KEY = "deviceLogsDir"
 
-        /** Timeout limit for saving the logs of a device after a test failed. */
+        /** Timeout limit for saving the logs of a device after a test ends. */
         private const val DEVICE_LOGS_TIMEOUT_MS = 10000L
+
+        /** Maximum size of a saved per-device logcat file (512 KB). */
+        private const val MAX_LOGCAT_BYTES = 512 * 1024
+
+        /** Maximum character length of the readable prefix in a detail file identifier. */
+        private const val MAX_DETAIL_PREFIX_LENGTH = 96
 
         /** Property specifying a comma-separated list of device serial numbers. */
         private const val PROP_DEVICE_SERIALS = "androidx.test.backup.device.serials"
@@ -771,6 +1211,10 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
 
         /** Property that turns off saving the device logs of failed tests when set to `false`. */
         private const val PROP_DEVICE_LOGS = "androidx.test.backup.device.logs.enabled"
+
+        /** Property that enables saving device logcat even on passing tests when set to `true`. */
+        private const val PROP_CAPTURE_LOGCAT_ON_PASS =
+            "androidx.test.backup.report.captureLogcatOnPass"
 
         /**
          * Environment variable with the path of the properties file in which an Android Gradle
@@ -797,11 +1241,32 @@ internal constructor(private val adbSessionProvider: () -> AdbSession) :
         /** Minimum Android API level required for backup/restore capability (Android 12). */
         private const val MIN_REQUIRED_API = 31
 
+        private val ctorAttemptCounter = AtomicLong()
+
+        /**
+         * Returns the test suite input [name] of [suiteProperties], or else the system property.
+         */
+        private fun suiteProperty(suiteProperties: Properties, name: String): String? =
+            suiteProperties.getProperty(name)?.takeIf { it.isNotEmpty() }
+                ?: System.getProperty(name)?.takeIf { it.isNotEmpty() }
+
         /**
          * Returns whether [parameter] is a [BackupRestoreController], which this extension
          * resolves.
          */
         private fun isController(parameter: Parameter): Boolean =
             parameter.type == BackupRestoreController::class.java
+
+        private fun sha256HexPrefix(input: String, hexLength: Int): String {
+            val digest =
+                MessageDigest.getInstance("SHA-256").digest(input.toByteArray(Charsets.UTF_8))
+            return buildString(hexLength) {
+                    for (b in digest) {
+                        if (length >= hexLength) break
+                        append(String.format(Locale.ROOT, "%02x", b.toInt() and 0xff))
+                    }
+                }
+                .take(hexLength)
+        }
     }
 }
