@@ -21,8 +21,13 @@ import androidx.test.backup.host.BackupDeviceShell.Companion.quoteIfNeeded
 import com.android.adblib.ShellCommandOutput
 import java.io.IOException
 import java.time.Duration
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
@@ -823,6 +828,55 @@ class BackupDeviceShellTest {
         shell.clearLogcat()
 
         assertEquals(listOf("logcat -c"), device.commands)
+    }
+
+    @Test
+    fun isPackageInstalledChecksPmPathPrefix() = runBlocking {
+        device.onShell { shellOutput("package:/data/app/a/base.apk\n") }
+        assertTrue(shell.isPackageInstalled(PACKAGE))
+
+        device.onShell { shellOutput("") }
+        assertFalse(shell.isPackageInstalled(PACKAGE))
+    }
+
+    @Test
+    fun readonlyPropertiesReadsStubbedProperties() = runBlocking {
+        device.stubReadonlyProperties(mapOf("ro.product.model" to "Pixel 8"))
+
+        val props = shell.readonlyProperties()
+
+        assertEquals("Pixel 8", props["ro.product.model"])
+    }
+
+    @Test
+    fun execLogsFineTraceWhenFineLoggingIsEnabled() = runBlocking {
+        val logger = Logger.getLogger(BackupDeviceShell::class.java.name)
+        val previousLevel = logger.level
+        val messages = mutableListOf<String>()
+        val handler =
+            object : Handler() {
+                override fun publish(record: LogRecord) {
+                    if (record.level == Level.FINE) {
+                        messages += record.message.orEmpty()
+                    }
+                }
+
+                override fun flush() {}
+
+                override fun close() {}
+            }
+        handler.level = Level.FINE
+        logger.level = Level.FINE
+        logger.addHandler(handler)
+        try {
+            device.onShell { shellOutput(stdout = "ok", exitCode = 0) }
+            shell.exec("echo trace")
+        } finally {
+            logger.removeHandler(handler)
+            logger.level = previousLevel
+        }
+
+        assertEquals(listOf("adb -s $FAKE_SERIAL shell echo trace"), messages)
     }
 
     /** Answers `date +%s` with [epochSeconds] and logcat dumps with [logcat]. */

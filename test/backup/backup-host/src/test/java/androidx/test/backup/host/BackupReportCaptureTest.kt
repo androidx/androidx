@@ -16,6 +16,7 @@
 
 package androidx.test.backup.host
 
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -31,9 +32,16 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.longOrNull
+import org.junit.After
 import org.junit.Test
 
 class BackupReportCaptureTest {
+
+    @After
+    fun verifyNoLeakedJulHandlers() {
+        assertEquals(0, HostLogManager.activeCollectorCountForTesting())
+        assertFalse(HostLogManager.hasAttachedHandlersForTesting())
+    }
 
     @Test
     fun testDetailRecordSerializesAllSchemaFieldsAndRoundTrips() {
@@ -179,6 +187,59 @@ class BackupReportCaptureTest {
         val zeroCap = capUtf8TailBounded("non-empty", maxBytes = 0)
         assertTrue(zeroCap.truncated)
         assertEquals("", zeroCap.bytes.decodeToString())
+    }
+
+    @Test
+    fun readsDeviceFactsAndCapturesHostLogs() {
+        val device = FakeAdbDevice("emulator-5554")
+        device.stubReadonlyProperties(
+            mapOf(
+                "ro.product.model" to "sdk_gphone64_arm64",
+                "ro.boot.qemu.avd_name" to "Pixel_8_API_34",
+            )
+        )
+        device.onShell { cmd ->
+            when (cmd) {
+                "pm list packages --show-versioncode com.google.android.gms" ->
+                    shellOutput("package:com.google.android.gms versionCode:263933000\n")
+                "pm path com.android.vending" -> shellOutput("")
+                else -> shellOutput("")
+            }
+        }
+        val shell = BackupDeviceShell(device.session, device.serialNumber)
+        val facts = kotlinx.coroutines.runBlocking { DeviceFactsReader.read(shell, 34) }
+        assertEquals("Pixel 8", facts.model)
+        assertEquals(34, facts.api)
+        assertEquals("Google APIs", facts.image)
+        assertEquals("26.39.33", facts.playServices)
+
+        val attrs =
+            DeviceFactsReader.buildSummaryAttributes(
+                BackupTransportMode.CLOUD_ENCRYPTED,
+                listOf(
+                    TestDetailRecord.ActorRecord(
+                        id = "device",
+                        role = "DEVICE",
+                        name = facts.model,
+                        api = facts.api,
+                        serial = device.serialNumber,
+                        image = facts.image,
+                        playServices = facts.playServices,
+                    )
+                ),
+            )
+        assertEquals("CLOUD_ENCRYPTED", attrs.first { it.key == "transport" }.value)
+        assertContains(attrs.first { it.key == "devices" }.displayValue, "Pixel 8 (API 34)")
+
+        val collector = HostLogCollector()
+        HostLogManager.register(collector)
+        try {
+            java.util.logging.Logger.getLogger("androidx.test.backup.host.Test")
+                .info("captured host log line")
+            assertContains(collector.snapshotText(), "captured host log line")
+        } finally {
+            HostLogManager.unregister(collector)
+        }
     }
 
     private companion object {

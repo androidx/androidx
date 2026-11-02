@@ -26,19 +26,29 @@ import com.android.adblib.AdbLoggerFactory
 import com.android.adblib.AdbOutputChannel
 import com.android.adblib.AdbSession
 import com.android.adblib.AdbSessionHost
+import com.android.adblib.ConnectedDevice
+import com.android.adblib.ConnectedDeviceList
+import com.android.adblib.ConnectedDevicesTracker
 import com.android.adblib.CoroutineScopeCache
 import com.android.adblib.DeviceCacheProvider
+import com.android.adblib.DeviceInfo
 import com.android.adblib.DeviceSelector
+import com.android.adblib.DeviceState
 import com.android.adblib.RemoteFileMode
 import com.android.adblib.ShellCollector
 import com.android.adblib.ShellCommandOutput
+import com.android.adblib.StateFlowStatus
 import com.android.adblib.TextShellCollector
+import com.android.adblib.connectedDevicesTracker
 import com.android.adblib.deviceCacheProvider
 import java.nio.file.Path
 import java.time.Duration
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -51,10 +61,7 @@ import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 
-/**
- * Serial number of the device that [FakeAdbDevice] stands in for. Commands addressed to any other
- * device fail the test.
- */
+/** Default serial number for a [FakeAdbDevice]. */
 internal const val FAKE_SERIAL = "fake-serial"
 
 /** Name of the device's local backup transport, as `bmgr list transports` prints it. */
@@ -143,7 +150,12 @@ internal fun bmgrSuccessOutput(command: String): ShellCommandOutput? {
  * success, see [bmgrSuccessOutput], and other commands print nothing. Pulled files receive the
  * content returned by [onPull].
  */
-internal class FakeAdbDevice {
+internal class FakeAdbDevice(
+    val serialNumber: String = FAKE_SERIAL,
+    scopeDispatcher: CoroutineDispatcher = Dispatchers.Unconfined,
+) {
+
+    private val thisDevice: DeviceSelector = DeviceSelector.fromSerialNumber(serialNumber)
 
     val session: AdbSession = mock(AdbSession::class.java)
 
@@ -176,8 +188,40 @@ internal class FakeAdbDevice {
     private var shellHandler: (String) -> ShellCommandOutput? = { null }
     private var pullHandler: (String) -> String = { "" }
     private var hangPredicate: (String) -> Boolean = { false }
+    private var onlineDevicesApi: Map<String, Int> = emptyMap()
+    private var readonlyProps: Map<String, String> = emptyMap()
     private var lastCreatedHostFile: Path? = null
     private var lastOpenedHostFile: Path? = null
+
+    /**
+     * Stubs read-only (`ro.*`) system properties in [properties] returned by
+     * [com.android.adblib.deviceProperties].
+     */
+    fun stubReadonlyProperties(properties: Map<String, String>) {
+        readonlyProps = properties
+    }
+
+    /**
+     * Stubs [session]'s [com.android.adblib.AdbSession.connectedDevicesTracker] and
+     * [com.android.adblib.deviceProperties] for [devices].
+     */
+    fun stubOnlineDevices(vararg devices: Pair<String, Int> = arrayOf(serialNumber to 34)) {
+        onlineDevicesApi = devices.toMap()
+        val connectedList = devices.map { (serial, _) ->
+            val info = DeviceInfo(serialNumber = serial, deviceState = DeviceState.ONLINE)
+            mock(ConnectedDevice::class.java).also { cd ->
+                `when`(cd.session).thenReturn(session)
+                `when`(cd.deviceInfoFlow).thenReturn(MutableStateFlow(info))
+            }
+        }
+        val tracker = mock(ConnectedDevicesTracker::class.java)
+        `when`(tracker.session).thenReturn(session)
+        `when`(tracker.connectedDevices)
+            .thenReturn(
+                MutableStateFlow(ConnectedDeviceList(connectedList, StateFlowStatus.active))
+            )
+        `when`(session.connectedDevicesTracker).thenReturn(tracker)
+    }
 
     /**
      * Answers every later shell command with [handler]; an exception it throws is propagated. A
@@ -254,7 +298,7 @@ internal class FakeAdbDevice {
         `when`(session.deviceServices).thenReturn(deviceServices)
         `when`(deviceServices.session).thenReturn(session)
         `when`(session.channelFactory).thenReturn(channelFactory)
-        `when`(session.scope).thenReturn(CoroutineScope(Dispatchers.Unconfined))
+        `when`(session.scope).thenReturn(CoroutineScope(scopeDispatcher))
         `when`(session.cache).thenReturn(mock(CoroutineScopeCache::class.java))
         `when`(session.deviceCacheProvider).thenReturn(mock(DeviceCacheProvider::class.java))
         stubHost()
@@ -305,7 +349,7 @@ internal class FakeAdbDevice {
                 )
             )
             .thenAnswer { invocation ->
-                checkAddressedToThisDevice(invocation.getArgument(0) as DeviceSelector)
+                val selector = invocation.getArgument(0) as DeviceSelector
                 val command = invocation.getArgument(1) as String
                 val collector = invocation.getArgument<Any>(2)::class.java.name
                 // adblib probes the device with its own text commands; they are not ours to record.
@@ -313,8 +357,30 @@ internal class FakeAdbDevice {
                     collector.contains("TextShellCollector") ||
                         collector.contains("LineShellCollector")
                 ) {
-                    flowOf("")
+                    val stubbedApi =
+                        onlineDevicesApi.entries
+                            .firstOrNull { (s, _) ->
+                                DeviceSelector.fromSerialNumber(s).toString() == selector.toString()
+                            }
+                            ?.value
+                    if (command == "getprop") {
+                        val lines = buildList {
+                            if (stubbedApi != null) {
+                                add("[ro.build.version.sdk]: [$stubbedApi]")
+                            } else {
+                                checkAddressedToThisDevice(selector)
+                            }
+                            for ((k, v) in readonlyProps) {
+                                add("[$k]: [$v]")
+                            }
+                        }
+                        if (lines.isEmpty()) flowOf("") else lines.asFlow()
+                    } else {
+                        checkAddressedToThisDevice(selector)
+                        flowOf("")
+                    }
                 } else {
+                    checkAddressedToThisDevice(selector)
                     _commands += command
                     if (hangPredicate(command)) {
                         flow<ShellCommandOutput> { awaitCancellation() }
@@ -326,16 +392,12 @@ internal class FakeAdbDevice {
     }
 
     /**
-     * Fails the test if [selector] addresses a device other than [FAKE_SERIAL]. Throws an [Error]
+     * Fails the test if [selector] addresses a device other than [serialNumber]. Throws an [Error]
      * so that code under test that handles exceptions cannot swallow it.
      */
     private fun checkAddressedToThisDevice(selector: DeviceSelector) {
-        if (selector.toString() != THIS_DEVICE.toString()) {
-            throw AssertionError("Expected a request for $THIS_DEVICE, but got one for $selector")
+        if (selector.toString() != thisDevice.toString()) {
+            throw AssertionError("Expected a request for $thisDevice, but got one for $selector")
         }
-    }
-
-    private companion object {
-        val THIS_DEVICE: DeviceSelector = DeviceSelector.fromSerialNumber(FAKE_SERIAL)
     }
 }
