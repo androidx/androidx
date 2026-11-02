@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.Session
@@ -105,10 +106,10 @@ private constructor(
         }
 
         /**
-         * cal An inwards-facing sphere-shaped mesh, centered at (0,0,0) in the local coordinate
-         * space. This is intended to be used by setting the entity's pose to the user's head pose.
-         * Radius is represented in the local spatial coordinate system of the entity. The center of
-         * the Surface will be mapped to (0, 0, -radius) in the local coordinate space, and texture
+         * An inwards-facing sphere-shaped mesh, centered at (0,0,0) in the local coordinate space.
+         * This is intended to be used by setting the entity's pose to the user's head pose. Radius
+         * is represented in the local spatial coordinate system of the entity. The center of the
+         * Surface will be mapped to (0, 0, -radius) in the local coordinate space, and texture
          * coordinate UVs are applied from positive X to negative X in an equirectangular
          * projection. This means that if this Entity is set to the user's head pose, then they will
          * be looking at the center of the video if it were viewed in a 2D player.
@@ -386,6 +387,9 @@ private constructor(
      * [edge feathering][SurfaceEntity.edgeFeatheringParams]. Use [OPAQUE] when other objects, such
      * as sprites or UI, must appear correctly in front of or behind the surface.
      *
+     * Set the mode at creation time with [Builder.setBlendingMode], or change it later with
+     * [SurfaceEntity.blendingMode]. The default is [TRANSPARENT].
+     *
      * [OPAQUE] requires [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or higher. On
      * earlier versions, it has no effect and the surface renders as [TRANSPARENT]. Check the
      * device's version with [androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion].
@@ -640,6 +644,139 @@ private constructor(
         }
     }
 
+    /**
+     * Builder for [SurfaceEntity] instances.
+     *
+     * Values that aren't set use the same defaults as [SurfaceEntity.create]. Use [setBlendingMode]
+     * to set the [BlendingMode] at creation time, which requires
+     * [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or higher:
+     * ```
+     * val builder =
+     *     SurfaceEntity.Builder(session)
+     *         .setShape(SurfaceEntity.Shape.Quad(FloatSize2d(1.6f, 0.9f)))
+     *         .setParent(session.scene.activitySpace)
+     * if (SpatialApiVersionHelper.spatialApiVersion >= SpatialApiVersions.SPATIAL_API_V4) {
+     *     builder.setBlendingMode(SurfaceEntity.BlendingMode.OPAQUE)
+     * }
+     * val surfaceEntity = builder.build() // Must be called on the main thread.
+     * ```
+     *
+     * @param session the [Session] to create the [SurfaceEntity] in
+     */
+    public class Builder(private val session: Session) {
+        private var pose: Pose = Pose.Identity
+        private var shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f))
+        private var stereoMode: StereoMode = StereoMode.MONO
+        private var superSampling: SuperSampling = SuperSampling.PENTAGON
+        private var surfaceProtection: SurfaceProtection = SurfaceProtection.NONE
+        private var blendingMode: BlendingMode = BlendingMode.TRANSPARENT
+        private var parent: Entity? = null
+
+        /**
+         * Sets the pose of the [SurfaceEntity] relative to its parent.
+         *
+         * The default value is [Pose.Identity].
+         *
+         * @param pose the pose relative to the parent
+         */
+        public fun setPose(pose: Pose): Builder = apply { this.pose = pose }
+
+        /**
+         * Sets the [Shape] of the canvas that the [Surface] is mapped to.
+         *
+         * The default value is a [Shape.Quad] with a width and height of 1 meter.
+         *
+         * @param shape the spatialized shape of the canvas
+         */
+        public fun setShape(shape: Shape): Builder = apply { this.shape = shape }
+
+        /**
+         * Sets how parts of the surface are displayed to the user's eyes.
+         *
+         * The default value is [StereoMode.MONO].
+         *
+         * @param stereoMode the [StereoMode] of the surface
+         */
+        public fun setStereoMode(stereoMode: StereoMode): Builder = apply {
+            this.stereoMode = stereoMode
+        }
+
+        /**
+         * Sets whether super sampling is enabled for the surface.
+         *
+         * The default value is [SuperSampling.PENTAGON].
+         *
+         * @param superSampling the [SuperSampling] of the surface
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setSuperSampling(superSampling: SuperSampling): Builder = apply {
+            this.superSampling = superSampling
+        }
+
+        /**
+         * Sets whether the [Surface] supports protected content, such as Widevine DRM.
+         *
+         * The default value is [SurfaceProtection.NONE].
+         *
+         * @param surfaceProtection the [SurfaceProtection] of the surface
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        public fun setSurfaceProtection(surfaceProtection: SurfaceProtection): Builder = apply {
+            this.surfaceProtection = surfaceProtection
+        }
+
+        /**
+         * Sets the blending behavior of the surface. See [BlendingMode].
+         *
+         * Requires [androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4] or higher. The default
+         * value, and the behavior on earlier API versions, is [BlendingMode.TRANSPARENT]. Check the
+         * device's version with [androidx.xr.runtime.SpatialApiVersionHelper.spatialApiVersion].
+         *
+         * @param blendingMode the [BlendingMode] of the surface
+         */
+        @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+        public fun setBlendingMode(blendingMode: BlendingMode): Builder = apply {
+            this.blendingMode = blendingMode
+        }
+
+        /**
+         * Sets the parent [Entity] of the [SurfaceEntity].
+         *
+         * The default value is `null`, which creates the entity without attaching it to the scene
+         * graph. The entity becomes visible once it has a parent that is part of the scene, such as
+         * [ActivitySpace], which allows the entity to be configured before it's shown.
+         *
+         * @param parent the parent entity, or `null` to create the entity without a parent
+         */
+        public fun setParent(parent: Entity?): Builder = apply { this.parent = parent }
+
+        /**
+         * Creates a [SurfaceEntity] with the values set on this builder. Must be called on the main
+         * thread.
+         *
+         * @return a new [SurfaceEntity]
+         * @throws IllegalArgumentException if the [Shape] set with [setShape] isn't supported
+         */
+        @MainThread public fun build(): SurfaceEntity = build(session.renderingRuntime)
+
+        /** Creates a [SurfaceEntity] using the given [RenderingRuntime]. */
+        @VisibleForTesting
+        @MainThread
+        internal fun build(renderingRuntime: RenderingRuntime): SurfaceEntity =
+            SurfaceEntity.create(
+                session = session,
+                renderingRuntime = renderingRuntime,
+                stereoMode = stereoMode,
+                blendingMode = blendingMode,
+                pose = pose,
+                shape = shape,
+                surfaceProtection = surfaceProtection,
+                contentColorMetadata = null,
+                superSampling = superSampling,
+                parent = parent,
+            )
+    }
+
     public companion object {
         private fun getRtStereoMode(stereoMode: StereoMode): Int {
             return when (stereoMode) {
@@ -777,19 +914,22 @@ private constructor(
         /**
          * Public factory function for a SurfaceEntity.
          *
+         * The entity uses [BlendingMode.TRANSPARENT]. To create it with a different [BlendingMode],
+         * use [Builder].
+         *
          * If [parent] is `null`, the entity is created but not attached to the scene graph, meaning
          * it will be invisible. If a parent entity (e.g., [ActivitySpace] or any other [Entity]
          * already present in the scene) is assigned later, the entity will become visible (provided
          * it is enabled). This allows for [Entity] pre-configuration before making it visible.
          *
          * @param session the [Session] to create the [SurfaceEntity] in
-         * @param stereoMode the [StereoMode] for the surface
          * @param pose the [Pose] of this entity relative to its parent, default value is Identity
          * @param shape the [Shape] which describes the spatialized shape of the canvas
-         * @param surfaceProtection the [SurfaceProtection] which describes whether the hosted
-         *   surface should support Widevine DRM
+         * @param stereoMode the [StereoMode] for the surface
          * @param superSampling the [SuperSampling] which describes whether super sampling is
          *   enabled for the surface
+         * @param surfaceProtection the [SurfaceProtection] which describes whether the hosted
+         *   surface should support Widevine DRM
          * @param parent the parent entity, defaulting to `null`
          * @return a [SurfaceEntity] instance
          */
@@ -810,54 +950,6 @@ private constructor(
                 session.renderingRuntime,
                 stereoMode,
                 BlendingMode.TRANSPARENT,
-                pose,
-                shape,
-                surfaceProtection,
-                null,
-                superSampling,
-                parent,
-            )
-
-        /**
-         * Public factory function for a SurfaceEntity.
-         *
-         * If [parent] is `null`, the entity is created but not attached to the scene graph, meaning
-         * it will be invisible. If a parent entity (e.g., [ActivitySpace] or any other [Entity]
-         * already present in the scene) is assigned later, the entity will become visible (provided
-         * it is enabled). This allows for [Entity] pre-configuration before making it visible.
-         *
-         * @param session the [Session] to create the [SurfaceEntity] in
-         * @param pose the [Pose] of this entity relative to its parent, default value is Identity
-         * @param shape the [Shape] which describes the spatialized shape of the canvas, defaulting
-         *   to [Shape.Quad] with a width and height of 1 meter
-         * @param stereoMode the [StereoMode] for the surface, defaulting to [StereoMode.MONO]
-         * @param blendingMode the [BlendingMode] which describes the blending mode of the content,
-         *   defaulting to [BlendingMode.TRANSPARENT]
-         * @param superSampling the [SuperSampling] which describes whether super sampling is
-         *   enabled for the surface, defaulting to [SuperSampling.PENTAGON]
-         * @param surfaceProtection the [SurfaceProtection] which describes whether the hosted
-         *   surface should support Widevine DRM, defaulting to [SurfaceProtection.NONE]
-         * @param parent the parent entity, defaulting to `null`
-         * @return a [SurfaceEntity] instance
-         */
-        @MainThread
-        @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun create(
-            session: Session,
-            pose: Pose = Pose.Identity,
-            shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
-            stereoMode: StereoMode = StereoMode.MONO,
-            blendingMode: BlendingMode = BlendingMode.TRANSPARENT,
-            superSampling: SuperSampling = SuperSampling.PENTAGON,
-            surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
-            parent: Entity? = null,
-        ): SurfaceEntity =
-            SurfaceEntity.create(
-                session,
-                session.renderingRuntime,
-                stereoMode,
-                blendingMode,
                 pose,
                 shape,
                 surfaceProtection,

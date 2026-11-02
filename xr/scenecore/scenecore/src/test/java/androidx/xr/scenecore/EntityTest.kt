@@ -140,6 +140,38 @@ class EntityTest {
     private class SubtypeFakeComponent(override val canBeAttached: Boolean) :
         FakeComponent(canBeAttached)
 
+    /** Records the surface options passed to [RenderingRuntime.createSurfaceEntity]. */
+    private class SurfaceOptionsRecordingRuntime(private val delegate: RenderingRuntime) :
+        RenderingRuntime by delegate {
+        var surfaceProtection: Int? = null
+            private set
+
+        var superSampling: Int? = null
+            private set
+
+        override fun createSurfaceEntity(
+            stereoMode: Int,
+            mediaBlendingMode: Int,
+            pose: Pose,
+            shape: RtSurfaceEntity.Shape,
+            surfaceProtection: Int,
+            superSampling: Int,
+            parentEntity: RtEntity?,
+        ): RtSurfaceEntity {
+            this.surfaceProtection = surfaceProtection
+            this.superSampling = superSampling
+            return delegate.createSurfaceEntity(
+                stereoMode,
+                mediaBlendingMode,
+                pose,
+                shape,
+                surfaceProtection,
+                superSampling,
+                parentEntity,
+            )
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Before
     fun setUp(): Unit = runBlocking {
@@ -1065,22 +1097,84 @@ class EntityTest {
     }
 
     @Test
-    fun surfaceEntity_createWithBlendingMode_appliesMode() {
-        val opaqueEntity =
-            SurfaceEntity.create(
-                session = session,
-                pose = Pose.Identity,
-                shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
-                stereoMode = SurfaceEntity.StereoMode.MONO,
-                superSampling = SurfaceEntity.SuperSampling.PENTAGON,
-                surfaceProtection = SurfaceEntity.SurfaceProtection.NONE,
-                blendingMode = SurfaceEntity.BlendingMode.OPAQUE,
-                parent = session.scene.activitySpace,
-            )
+    fun surfaceEntityBuilder_build_usesDefaultValues() {
+        val defaultEntity = SurfaceEntity.Builder(session).build()
 
-        assertThat(opaqueEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.OPAQUE)
-        assertThat((opaqueEntity.rtEntity as RtSurfaceEntity).mediaBlendingMode)
+        assertThat(defaultEntity.getPose()).isEqualTo(Pose.Identity)
+        assertThat(defaultEntity.shape).isInstanceOf(SurfaceEntity.Shape.Quad::class.java)
+        assertThat(defaultEntity.dimensions).isEqualTo(FloatSize3d(1.0f, 1.0f, 0.0f))
+        assertThat(defaultEntity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.MONO)
+        assertThat(defaultEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.TRANSPARENT)
+        assertThat(defaultEntity.parent).isNull()
+    }
+
+    @Test
+    fun surfaceEntityBuilder_build_appliesSetValues() {
+        val pose = Pose(Vector3(1.0f, 2.0f, 3.0f))
+        val shape = SurfaceEntity.Shape.Quad(FloatSize2d(2.0f, 3.0f))
+
+        val builtEntity =
+            SurfaceEntity.Builder(session)
+                .setPose(pose)
+                .setShape(shape)
+                .setStereoMode(SurfaceEntity.StereoMode.TOP_BOTTOM)
+                .setSuperSampling(SurfaceEntity.SuperSampling.NONE)
+                .setSurfaceProtection(SurfaceEntity.SurfaceProtection.PROTECTED)
+                .setBlendingMode(SurfaceEntity.BlendingMode.OPAQUE)
+                .setParent(activitySpace)
+                .build()
+
+        assertThat(builtEntity.getPose()).isEqualTo(pose)
+        assertThat(builtEntity.shape).isSameInstanceAs(shape)
+        assertThat(builtEntity.dimensions).isEqualTo(FloatSize3d(2.0f, 3.0f, 0.0f))
+        assertThat(builtEntity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)
+        assertThat(builtEntity.blendingMode).isEqualTo(SurfaceEntity.BlendingMode.OPAQUE)
+        assertThat((builtEntity.rtEntity as RtSurfaceEntity).mediaBlendingMode)
             .isEqualTo(RtSurfaceEntity.MediaBlendingMode.OPAQUE)
+        assertThat(builtEntity.parent).isEqualTo(activitySpace)
+        assertThat(builtEntity.rtEntity.parent).isEqualTo(activitySpace.rtEntity)
+    }
+
+    @Test
+    fun surfaceEntityBuilder_build_passesSurfaceOptionsToRuntime() {
+        val recordingRuntime = SurfaceOptionsRecordingRuntime(renderingRuntime)
+
+        SurfaceEntity.Builder(session).build(recordingRuntime)
+
+        assertThat(recordingRuntime.surfaceProtection)
+            .isEqualTo(RtSurfaceEntity.SurfaceProtection.NONE)
+        assertThat(recordingRuntime.superSampling).isEqualTo(RtSurfaceEntity.SuperSampling.DEFAULT)
+
+        SurfaceEntity.Builder(session)
+            .setSurfaceProtection(SurfaceEntity.SurfaceProtection.PROTECTED)
+            .setSuperSampling(SurfaceEntity.SuperSampling.NONE)
+            .build(recordingRuntime)
+
+        assertThat(recordingRuntime.surfaceProtection)
+            .isEqualTo(RtSurfaceEntity.SurfaceProtection.PROTECTED)
+        assertThat(recordingRuntime.superSampling).isEqualTo(RtSurfaceEntity.SuperSampling.NONE)
+    }
+
+    @Test
+    fun surfaceEntityBuilder_changesAfterBuild_doNotAffectBuiltEntity() {
+        val builder =
+            SurfaceEntity.Builder(session).setStereoMode(SurfaceEntity.StereoMode.TOP_BOTTOM)
+        val firstEntity = builder.build()
+
+        val secondEntity = builder.setStereoMode(SurfaceEntity.StereoMode.SIDE_BY_SIDE).build()
+
+        assertThat(secondEntity).isNotSameInstanceAs(firstEntity)
+        assertThat(firstEntity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)
+        assertThat(secondEntity.stereoMode).isEqualTo(SurfaceEntity.StereoMode.SIDE_BY_SIDE)
+    }
+
+    @Test
+    fun surfaceEntityBuilder_buildWithUnsupportedShape_throwsException() {
+        val unsupportedShape = object : SurfaceEntity.Shape {}
+
+        assertFailsWith<IllegalArgumentException> {
+            SurfaceEntity.Builder(session).setShape(unsupportedShape).build()
+        }
     }
 
     @Test

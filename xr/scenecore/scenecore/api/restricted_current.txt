@@ -1328,6 +1328,18 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.SurfaceEntity.BlendingMode TRANSPARENT;
   }
 
+  public static final class SurfaceEntity.Builder {
+    ctor public SurfaceEntity.Builder(androidx.xr.runtime.Session session);
+    method @MainThread public androidx.xr.scenecore.SurfaceEntity build();
+    method @androidx.xr.runtime.RequiresSpatialApi(androidx.xr.runtime.SpatialApiVersions.SPATIAL_API_V4) public androidx.xr.scenecore.SurfaceEntity.Builder setBlendingMode(androidx.xr.scenecore.SurfaceEntity.BlendingMode blendingMode);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setParent(androidx.xr.scenecore.Entity? parent);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setPose(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setShape(androidx.xr.scenecore.SurfaceEntity.Shape shape);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setStereoMode(androidx.xr.scenecore.SurfaceEntity.StereoMode stereoMode);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setSuperSampling(androidx.xr.scenecore.SurfaceEntity.SuperSampling superSampling);
+    method public androidx.xr.scenecore.SurfaceEntity.Builder setSurfaceProtection(androidx.xr.scenecore.SurfaceEntity.SurfaceProtection surfaceProtection);
+  }
+
   public static final class SurfaceEntity.Companion {
     method @MainThread public androidx.xr.scenecore.SurfaceEntity create(androidx.xr.runtime.Session session);
     method @MainThread public androidx.xr.scenecore.SurfaceEntity create(androidx.xr.runtime.Session session, optional androidx.xr.runtime.math.Pose pose);
