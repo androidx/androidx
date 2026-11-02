@@ -321,7 +321,9 @@ public class AnnotationToolbarView : ViewGroup {
     }
 
     // Required to disable any animation while performing espresso/screenshot tests
-    internal var areAnimationsEnabled: Boolean = true
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var areAnimationsEnabled: Boolean = true
         set(value) {
             field = value
             toolbarTouchHandler.areAnimationsEnabled = value
