@@ -17,12 +17,11 @@
 package androidx.test.backup.host
 
 /**
- * Keys used to publish structured backup and restore telemetry as JUnit Platform report entries.
+ * Defines JUnit Platform report entry keys for backup and restore test executions.
  *
- * Report entries are emitted from two places: [BackupRestoreExtension], which reports precondition
- * failures encountered before a controller exists, and [BackupRestoreControllerImpl], which reports
- * the outcome of a completed execution. Centralizing the keys here keeps both producers consistent
- * so that downstream consumers can rely on a single, stable vocabulary.
+ * [BackupRestoreExtension] and [BackupRestoreControllerImpl] publish these entries:
+ * `BackupRestore.*` keys carry execution telemetry, while [DETAIL_PATH] links each test to its
+ * structured [TestDetailRecord] JSON file.
  */
 internal object BackupReportKeys {
     /** Backup transport the execution ran against, as a [BackupTransportMode] name. */
@@ -60,6 +59,11 @@ internal object BackupReportKeys {
 
     /** Human-readable description of the failure. */
     const val ERROR_MESSAGE = "BackupRestore.errorMessage"
+
+    /**
+     * Relative path from the suite results directory to the test's [TestDetailRecord] JSON file.
+     */
+    const val DETAIL_PATH = "androidx.report.detailPath"
 
     /**
      * Value reported for [STATUS] when the execution completed without failures.
