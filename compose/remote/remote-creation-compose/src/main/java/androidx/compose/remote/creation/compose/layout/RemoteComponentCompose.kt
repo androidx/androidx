@@ -19,7 +19,14 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+
+internal val LocalRemoteComponentToken: ProvidableCompositionLocal<RemoteComponentToken?> =
+    compositionLocalOf {
+        null
+    }
 
 /**
  * Returns a [RemoteComponent] bound to the enclosing layout component.

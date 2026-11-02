@@ -39,7 +39,7 @@ internal class RemoteStateLayoutNode : RemoteComposeNode() {
     lateinit var currentState: RemoteInt
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
 
         creationState.document.startStateLayout(

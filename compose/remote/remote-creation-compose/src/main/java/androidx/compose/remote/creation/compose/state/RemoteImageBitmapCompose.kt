@@ -17,6 +17,8 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.addBitmap
+import androidx.compose.remote.creation.compose.capture.addNamedBitmap
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition

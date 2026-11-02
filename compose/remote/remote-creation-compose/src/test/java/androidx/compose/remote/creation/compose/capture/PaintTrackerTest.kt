@@ -69,7 +69,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class PaintTrackerTest {
-    private lateinit var creationState: RemoteComposeCreationState
+    private lateinit var creationState: RemoteComposeCaptureState
     private lateinit var tracker: PaintTracker
     private lateinit var remoteContext: AndroidRemoteContext
     private lateinit var paintContext: PaintContext

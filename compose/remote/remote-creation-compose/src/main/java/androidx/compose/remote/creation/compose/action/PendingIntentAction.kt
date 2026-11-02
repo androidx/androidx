@@ -25,6 +25,8 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.capture.RemoteWriterEvents
+import androidx.compose.remote.creation.compose.capture.platform
+import androidx.compose.remote.creation.compose.capture.profile
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
@@ -223,7 +225,7 @@ public class PendingIntentAction(
          * [RcProfiles.PROFILE_WIDGETS], so it is identified by its writer.
          */
         internal fun RemoteStateScope.isLauncherWidget(): Boolean =
-            creationState.profile.operationsProfiles and RcProfiles.PROFILE_WIDGETS != 0 ||
+            (creationState.profile.operationsProfiles and RcProfiles.PROFILE_WIDGETS) != 0 ||
                 document is WidgetsProfileWriterV6
 
         /**

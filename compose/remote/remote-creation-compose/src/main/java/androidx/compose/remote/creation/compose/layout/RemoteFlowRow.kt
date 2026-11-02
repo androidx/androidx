@@ -29,10 +29,10 @@ internal class RemoteFlowRowNode : RemoteLayoutNode() {
     var maxLines: Int = Int.MAX_VALUE
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         (horizontalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
+            recordingModifier.spacedBy(it.getSpacingFloatId(scope))
         }
         creationState.document.startFlow(
             recordingModifier,

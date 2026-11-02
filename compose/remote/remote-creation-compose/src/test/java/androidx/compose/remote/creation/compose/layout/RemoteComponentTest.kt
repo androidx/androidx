@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.compose.action.RemoteAction
 import androidx.compose.remote.creation.compose.action.hostAction
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
@@ -57,7 +57,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class RemoteComponentTest {
     private val fakeBuffer = TestRemoteComposeBuffer()
-    private lateinit var creationState: RemoteComposeCreationState
+    private lateinit var creationState: RemoteComposeCaptureState
     private lateinit var remoteCanvas: RemoteCanvas
     private lateinit var drawScope: RemoteDrawScope
 
@@ -78,7 +78,7 @@ class RemoteComponentTest {
                 )
             }
         creationState =
-            RemoteComposeCreationState(
+            RemoteComposeCaptureState(
                 RemoteCreationDisplayInfo(100, 50, 160, 1f),
                 null,
                 profile,
@@ -124,7 +124,7 @@ class RemoteComponentTest {
                 RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
             }
         val expState =
-            RemoteComposeCreationState(
+            RemoteComposeCaptureState(
                 RemoteCreationDisplayInfo(200, 200, 160, 1f),
                 null,
                 experimentalProfile,

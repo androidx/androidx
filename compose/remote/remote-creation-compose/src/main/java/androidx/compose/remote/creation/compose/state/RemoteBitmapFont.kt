@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.addBitmap
 import androidx.compose.remote.creation.compose.util.fastFirstOrNull
 import androidx.compose.ui.graphics.ImageBitmap
 import kotlin.math.max

@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.createNamedRemoteColor
@@ -39,7 +40,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class BackgroundModifierTest {
-    private lateinit var creationState: RemoteComposeCreationState
+    private lateinit var creationState: RemoteComposeCaptureState
     private lateinit var fakeBuffer: TestRemoteComposeBuffer
 
     private class MyRemoteComposeWriterAndroid(

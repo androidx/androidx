@@ -23,6 +23,7 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.ANIMATION
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCaptureState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.state.RemoteEasing
@@ -42,7 +43,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class AnimateSpecModifierTest {
-    private lateinit var creationState: RemoteComposeCreationState
+    private lateinit var creationState: RemoteComposeCaptureState
     private lateinit var fakeBuffer: TestRemoteComposeBuffer
 
     private class MyRemoteComposeWriterAndroid(

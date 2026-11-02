@@ -113,7 +113,7 @@ internal sealed class PendingOp {
  */
 internal sealed class CanvasOp {
     /** Flushes this operation (and its children, if any) to the [writer]. */
-    abstract fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState)
+    abstract fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState)
 
     /** Returns true if this operation modifies the canvas transform or clip state. */
     open fun hasTransformsOrClips(): Boolean = false
@@ -213,7 +213,7 @@ internal sealed class CanvasOp {
         CanvasOp() {
         constructor(action: (RemoteComposeWriter) -> Unit) : this(false, action)
 
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             action(writer)
         }
 
@@ -230,7 +230,7 @@ internal sealed class CanvasOp {
 
     /** Represents a clipping operation. */
     class Clip(val action: (RemoteComposeWriter) -> Unit) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             action(writer)
         }
 
@@ -251,7 +251,7 @@ internal sealed class CanvasOp {
      * @property op The underlying [PendingOp] transformation.
      */
     class Transform(val op: PendingOp) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             op.write(writer.buffer, creationState)
         }
 
@@ -415,7 +415,7 @@ internal sealed class CanvasOp {
             }
         }
 
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             when (elisionMode) {
                 ElisionMode.DISCARD -> {}
                 ElisionMode.INLINE -> {
@@ -438,7 +438,7 @@ internal sealed class CanvasOp {
 
     /** Represents an expression evaluation (hoisted variable assignment). */
     class Expression(val key: RemoteOperationCacheKey, val state: BaseRemoteState<*>) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             creationState.getOrPutVariableId(key) { state.writeToDocument(creationState) }
         }
 
@@ -462,9 +462,9 @@ internal sealed class CanvasOp {
     class DrawConditionally(
         val condition: RemoteBoolean,
         val childSpan: CanvasOperationBuffer.Span,
-        val action: (RemoteComposeWriter, RemoteComposeCreationState) -> Unit,
+        val action: (RemoteComposeWriter, RemoteComposeCaptureState) -> Unit,
     ) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             action(writer, creationState)
         }
 
@@ -503,7 +503,7 @@ internal sealed class CanvasOp {
         val properties: List<CustomPropertyEntry>,
         val childSpan: CanvasOperationBuffer.Span?,
     ) : CanvasOp() {
-        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        override fun write(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             val corePropList = ArrayList<CustomProperty>(properties.size)
             for (i in properties.indices) {
                 corePropList.add(properties[i].toCustomProperty(creationState))
@@ -641,7 +641,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
             }
         }
 
-        fun record(writer: RemoteComposeWriter, creationState: RemoteComposeCreationState) {
+        fun record(writer: RemoteComposeWriter, creationState: RemoteComposeCaptureState) {
             for (i in 0 until operations.size) {
                 operations[i].op.write(writer, creationState)
             }
@@ -950,7 +950,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
      * @param creationState The state used to write operations to the document and allocate variable
      *   IDs.
      */
-    public fun flush(creationState: RemoteComposeCreationState) {
+    public fun flush(creationState: RemoteComposeCaptureState) {
         commonSubExpressionElimination(creationState)
 
         // Run optimizations on the span tree

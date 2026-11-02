@@ -19,12 +19,12 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.util.fastMap
 
 /** Represents an array of remote integers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteIntArray
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public override val constantValueOrNull: List<RemoteInt>?,
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<List<RemoteInt>>(cacheKey) {
@@ -43,7 +43,7 @@ internal constructor(
 
     internal enum class OperationKey : RemoteOperation {
         Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "arrayOf(${args.joinToDebugString()})"
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
@@ -53,7 +53,7 @@ internal constructor(
             override val precedence: Int
                 get() = 100
 
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 args.formatArrayAccess(precedence)
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {

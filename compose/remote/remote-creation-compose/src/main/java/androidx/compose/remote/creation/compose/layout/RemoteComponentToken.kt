@@ -16,9 +16,8 @@
 
 package androidx.compose.remote.creation.compose.layout
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ComponentValue
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 
 /**
  * Identity token representing a specific layout component node in a RemoteCompose composition tree.
@@ -26,7 +25,8 @@ import androidx.compose.runtime.compositionLocalOf
  * Tracks which [ComponentValue] properties have been requested by expressions scoped to this
  * component so they can be emitted directly into the component's body during rendering.
  */
-internal class RemoteComponentToken {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComponentToken public constructor() {
     internal var requestedMask: Int = 0
         private set
 
@@ -57,8 +57,3 @@ internal class RemoteComponentToken {
             }
     }
 }
-
-internal val LocalRemoteComponentToken: ProvidableCompositionLocal<RemoteComponentToken?> =
-    compositionLocalOf {
-        null
-    }

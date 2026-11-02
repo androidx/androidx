@@ -19,13 +19,12 @@ package androidx.compose.remote.creation.compose.state
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.util.fastForEach
-import androidx.compose.remote.creation.compose.util.fastMap
 
 /** Represents an array of remote strings. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteStringArray
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public constructor(
     public override val constantValueOrNull: List<RemoteString>?,
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<List<RemoteString>>(cacheKey) {
@@ -42,7 +41,7 @@ internal constructor(
 
     internal enum class OperationKey : RemoteOperation {
         Create {
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 "arrayOf(${args.joinToDebugString()})"
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
@@ -52,7 +51,7 @@ internal constructor(
             override val precedence: Int
                 get() = 100
 
-            override fun toDebugString(args: List<RemoteStateCacheKey>) =
+            override fun toDebugString(args: List<RemoteStateCacheKey>): String =
                 args.formatArrayAccess(precedence)
 
             override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
@@ -105,13 +104,12 @@ private class StringArrayDerefImpl(val array: RemoteStringArray, val index: Remo
         if (constIndex != null && array.constantValueOrNull != null) {
             return array.constantValueOrNull[constIndex].computeRequiredCodePointSet(creationState)
         }
-        if (array.constantValueOrNull != null) {
-            var merged: Set<String>? = HashSet()
-            array.constantValueOrNull.fastForEach { str ->
-                merged = mergeSets(merged, str.computeRequiredCodePointSet(creationState))
+        val strings = array.constantValueOrNull ?: return null
+        return buildSet {
+            strings.fastForEach {
+                val codePointSet = it.computeRequiredCodePointSet(creationState) ?: return null
+                addAll(codePointSet)
             }
-            return merged
         }
-        return null
     }
 }

@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.capture.DefaultTrimPathEnd
 import androidx.compose.remote.creation.compose.capture.DefaultTrimPathOffset
 import androidx.compose.remote.creation.compose.capture.DefaultTrimPathStart
 import androidx.compose.remote.creation.compose.capture.EmptyPath
+import androidx.compose.remote.creation.compose.capture.profile
 import androidx.compose.remote.creation.compose.capture.toRemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -129,10 +130,10 @@ internal class RemotePathComponent : RemoteVNode() {
         viewportSize: RemoteSize,
     ) {
         // The call below resets the path
-        pathData.toRemotePath(path, this.remoteCanvas.creationState)
+        pathData.toRemotePath(path, this.remoteCanvas)
         val hasTween = targetPathData != null && targetPathData!!.isNotEmpty()
         if (hasTween) {
-            targetPathData!!.toRemotePath(targetPath, this.remoteCanvas.creationState)
+            targetPathData!!.toRemotePath(targetPath, this.remoteCanvas)
         }
 
         val isTrimmed =
@@ -280,7 +281,7 @@ internal class RemoteGroupComponent : RemoteVNode() {
                     translate(-pivotX, -pivotY)
                 }
                 if (hasClip) {
-                    clipPathData.toRemotePath(clipPath, this@draw.remoteCanvas.creationState)
+                    clipPathData.toRemotePath(clipPath, this@draw.remoteCanvas)
                     clipPath(clipPath)
                 }
             }) {

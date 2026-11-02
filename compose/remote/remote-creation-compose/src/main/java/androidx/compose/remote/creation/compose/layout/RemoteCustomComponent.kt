@@ -36,7 +36,7 @@ internal class RemoteCustomComponentNode : RemoteComposeNode() {
     var properties: RemoteCustomPropertiesScope.() -> Unit = {}
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
-        val scope = overriddenScope(creationState)
+        val scope = overriddenScope(remoteCanvas)
         val recordingModifier = scope.toRecordingModifier(modifier)
         if (recordingModifier.componentId == -1) {
             recordingModifier.componentId(creationState.document.nextId())
