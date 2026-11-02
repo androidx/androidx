@@ -180,10 +180,21 @@ class AudioVideoSyncTest(private val implName: String, private val cameraConfig:
         inOrder
             .verify(videoRecordEventListener, Mockito.timeout(15000L).atLeast(5))
             .accept(ArgumentMatchers.any(VideoRecordEvent.Status::class.java))
+        inOrder
+            .verify(videoRecordEventListener, Mockito.timeout(15000L).atLeastOnce())
+            .accept(
+                ArgumentMatchers.argThat { event: VideoRecordEvent ->
+                    event is VideoRecordEvent.Status &&
+                        event.recordingStats.recordedDurationNanos > 0L &&
+                        event.recordingStats.audioStats.audioBytesRecorded > 0L
+                }
+            )
 
         // check if the time difference between the first video and audio data is within a threshold
         val firstAudioTime = recorder.mFirstRecordingAudioDataTimeUs
         val firstVideoTime = recorder.mFirstRecordingVideoDataTimeUs
+        assertThat(firstAudioTime).isNotEqualTo(Long.MAX_VALUE)
+        assertThat(firstVideoTime).isNotEqualTo(Long.MAX_VALUE)
         val timeDiff = abs(firstAudioTime - firstVideoTime)
         assertThat(timeDiff).isLessThan(diffThresholdUs)
 

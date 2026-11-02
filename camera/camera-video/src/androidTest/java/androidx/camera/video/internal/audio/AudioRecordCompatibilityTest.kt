@@ -210,8 +210,8 @@ class AudioRecordCompatibilityTest {
                         val timestampDiffNs = abs(readTimestampNs - System.nanoTime())
 
                         assertThat(timestampDiffNs).isLessThan(DIFF_LIMIT_FROM_SYSTEM_TIME_NS)
-                        totalFramesRead += sizeToFrameCount(readSizeInBytes.toLong(), bytesPerFrame)
                     }
+                    totalFramesRead += sizeToFrameCount(readSizeInBytes.toLong(), bytesPerFrame)
                 }
             }
         }
