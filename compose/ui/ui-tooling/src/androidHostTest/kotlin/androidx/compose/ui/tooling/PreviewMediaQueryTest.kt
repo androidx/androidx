@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -101,5 +102,20 @@ class PreviewMediaQueryTest {
             )
         assertEquals(500.dp, scope.windowWidth)
         assertEquals(900.dp, scope.windowHeight)
+    }
+
+    @Test
+    fun testParseDeviceSpecParams() {
+        assertNull(parseDeviceSpecParams(null))
+        assertNull(parseDeviceSpecParams(""))
+        assertNull(parseDeviceSpecParams("id:pixel_7"))
+        assertEquals(
+            mapOf("width" to "411dp", "height" to "891dp", "windowposture" to "tabletop"),
+            parseDeviceSpecParams("spec: Width = 411DP , height=891dp, windowPosture = Tabletop "),
+        )
+        assertEquals(
+            mapOf("width" to "411dp", "name" to "my=device"),
+            parseDeviceSpecParams("spec:width=411dp,,name=My=Device,invalid_no_equals"),
+        )
     }
 }

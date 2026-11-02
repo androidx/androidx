@@ -119,6 +119,25 @@ internal class PreviewUiMediaScope(
 }
 
 /**
+ * Parses the parameters of a preview device specification string (e.g.
+ * `spec:width=411dp,height=891dp,...`) into a map. Keys and values are trimmed and lowercase.
+ * Returns null if [deviceSpec] is null or not a `spec:` string.
+ */
+internal fun parseDeviceSpecParams(deviceSpec: String?): Map<String, String>? {
+    if (deviceSpec.isNullOrEmpty() || !deviceSpec.startsWith(SPEC_PREFIX)) return null
+    return deviceSpec
+        .removePrefix(SPEC_PREFIX)
+        .split(',')
+        .mapNotNull {
+            val parts = it.split('=', limit = 2)
+            if (parts.size == 2) {
+                parts[0].trim().lowercase() to parts[1].trim().lowercase()
+            } else null
+        }
+        .toMap()
+}
+
+/**
  * Parses a preview device specification string (e.g. `spec:width=411dp,height=891dp,...`) or
  * returns a default [UiMediaScope] for Phone / Default device if omitted or not a `spec:` string.
  *
@@ -130,21 +149,7 @@ internal fun createPreviewUiMediaScope(
     windowInfo: WindowInfo,
     deviceSpec: String? = null,
 ): UiMediaScope {
-    if (deviceSpec.isNullOrEmpty() || !deviceSpec.startsWith(SPEC_PREFIX)) {
-        return PreviewUiMediaScope(windowInfo)
-    }
-
-    val params =
-        deviceSpec
-            .removePrefix(SPEC_PREFIX)
-            .split(',')
-            .mapNotNull {
-                val parts = it.split('=', limit = 2)
-                if (parts.size == 2) {
-                    parts[0].trim().lowercase() to parts[1].trim().lowercase()
-                } else null
-            }
-            .toMap()
+    val params = parseDeviceSpecParams(deviceSpec) ?: return PreviewUiMediaScope(windowInfo)
 
     return PreviewUiMediaScope(
         windowInfo = windowInfo,
