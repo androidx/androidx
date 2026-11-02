@@ -22,11 +22,12 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
 /**
- * A spacer that takes up space as defined by the provided [modifier].
+ * A spacer that takes up space, as defined by the provided [modifier], but doesn't get drawn.
  *
- * This delegates to [RemoteBox] which handles the layout recording or foundation Box dispatching.
+ * This is the remote equivalent of [androidx.compose.foundation.layout.Spacer].
  *
- * @param modifier The [RemoteModifier] to be applied to this spacer.
+ * @param modifier the [RemoteModifier] applied to this spacer (for example, to set its width,
+ *   height, or weight)
  * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
  * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
  */

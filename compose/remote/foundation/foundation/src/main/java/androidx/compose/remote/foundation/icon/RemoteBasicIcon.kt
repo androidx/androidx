@@ -37,18 +37,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Composable function that displays an icon using an [RemoteImageVector].
+ * Displays a vector icon from a [RemoteImageVector] in a remote layout.
  *
- * This function provides a way to display icons consistently across both local and remote Compose
- * environments.
+ * Sizes the icon to [imageVector]'s intrinsic dimensions, or `24.dp` when unspecified. Unlike
+ * Material icon components (such as [androidx.wear.compose.remote.material3.RemoteIcon]) that read
+ * a theme content color, [RemoteBasicIcon] is a design-system-agnostic building block that defaults
+ * [tint] to [Color.White].
  *
- * @param imageVector The [RemoteImageVector] representing the icon to display.
- * @param contentDescription Text used by accessibility services to describe what this icon
- *   represents. This should always be provided unless this icon is used for decorative purposes,
- *   and does not represent a meaningful action that a user can take. This text should be localized,
- *   such as by using [androidx.compose.ui.res.stringResource] or similar.
- * @param modifier The [RemoteModifier] to apply to the icon.
- * @param tint The color to apply to the icon. Defaults to [Color.White].
+ * Provide a localized [contentDescription] (for example, via
+ * [androidx.compose.ui.res.stringResource]) whenever the icon conveys meaning or represents an
+ * action. Pass `null` only for purely decorative icons, which omits the accessibility content
+ * description so accessibility services ignore it.
+ *
+ * @param imageVector the [RemoteImageVector] to draw inside this icon
+ * @param contentDescription localized text used by accessibility services to describe this icon, or
+ *   `null` if the icon is purely decorative and has no accessibility description
+ * @param modifier the [RemoteModifier] applied to this icon
+ * @param tint color applied to [imageVector] using a color filter with the vector's tint blend mode
+ *   ([androidx.compose.ui.graphics.BlendMode.SrcIn] by default, which replaces the icon's RGB
+ *   colors with [tint] while preserving alpha rather than multiplying RGBA). Defaults to
+ *   [Color.White]
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicIconSample
  */
 @RemoteComposable

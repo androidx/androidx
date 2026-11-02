@@ -27,16 +27,22 @@ import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
 
 /**
- * A composable that lays out and draws a given [RemoteImageBitmap]. This is the remote equivalent
- * of [androidx.compose.foundation.Image].
+ * Lays out and draws a given [RemoteImageBitmap] in a remote layout.
  *
- * @param bitmap the [RemoteImageBitmap] to be drawn.
- * @param contentDescription the Text used by accessibility services to describe what this image
- *   represents.
- * @param modifier the [RemoteModifier] to be applied to this layout node.
- * @param contentScale the rule to apply to scale the image when its size does not match the layout
- *   size, Defaults to [ContentScale.Fit].
- * @param alpha the Optional opacity to be applied to the [bitmap] when it is rendered.
+ * This is the remote equivalent of [androidx.compose.foundation.Image]. Provide a localized
+ * [contentDescription] (for example, via [androidx.compose.ui.res.stringResource]) whenever the
+ * image conveys meaning; pass `null` only for purely decorative images so accessibility services
+ * ignore them.
+ *
+ * @param bitmap the [RemoteImageBitmap] to draw
+ * @param contentDescription localized text used by accessibility services to describe what this
+ *   image represents, or `null` if the image is purely decorative and should be ignored by
+ *   accessibility services
+ * @param modifier the [RemoteModifier] applied to this layout node
+ * @param contentScale rule applied to scale the image when its layout bounds differ from the
+ *   intrinsic size of [bitmap]. Defaults to [ContentScale.Fit]
+ * @param alpha opacity applied to [bitmap] when rendered, from `0.0f` (transparent) to `1.0f`
+ *   (opaque). Defaults to [DefaultAlpha]
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageSample
  * @sample androidx.compose.remote.foundation.samples.RemoteBasicImageFitSample
  */
