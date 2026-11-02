@@ -38,7 +38,7 @@ public object AppWidgetSurfaceDetector {
                 (category and AppWidgetProviderInfo.WIDGET_CATEGORY_NOT_KEYGUARD) == 0 -> {
                 AppWidgetSurface.MOBILE_LOCK_SCREEN
             }
-            else -> resolveHomeScreenSurface()
+            else -> AppWidgetSurface.MOBILE_HOME_SCREEN
         }
     }
 
@@ -49,7 +49,7 @@ public object AppWidgetSurfaceDetector {
      * @return Resolved [AppWidgetSurface].
      */
     public fun fromAppWidgetOptions(options: Bundle?): AppWidgetSurface {
-        if (options == null) return resolveHomeScreenSurface()
+        if (options == null) return AppWidgetSurface.MOBILE_HOME_SCREEN
         val category =
             options.getInt(
                 AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
@@ -79,12 +79,14 @@ public object AppWidgetSurfaceDetector {
 
         if ((categories and AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN) != 0) {
             results.add(
-                resolveHomeScreenSurface() to AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
             )
         }
         if ((categories and AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX) != 0) {
             results.add(
-                resolveHomeScreenSurface() to AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
+                AppWidgetSurface.MOBILE_HOME_SCREEN to
+                    AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
             )
         }
         if (!isNotKeyguard && (isKeyguard || isHomeScreen)) {
@@ -103,11 +105,5 @@ public object AppWidgetSurfaceDetector {
             results.add(fromHostCategory(categories) to fallbackCategory)
         }
         return results
-    }
-
-    private fun resolveHomeScreenSurface(): AppWidgetSurface {
-        // TODO(b/573924109): Return a legacy RemoteViews surface (homescreen_remote_views) below
-        //  API 37 (CINNAMON_BUN) once RemoteCompose renderers are registered on MOBILE_HOME_SCREEN.
-        return AppWidgetSurface.MOBILE_HOME_SCREEN
     }
 }
