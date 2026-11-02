@@ -116,6 +116,12 @@ object Camera2ExtensionsUtil {
         "Samsung".equals(Build.BRAND, ignoreCase = true) &&
             "SM-A528B".equals(Build.MODEL, ignoreCase = true)
 
+    /** Returns true if the device is a Samsung Galaxy S24 (SM-S921U). */
+    @JvmStatic
+    fun isSamsungGalaxyS24(): Boolean =
+        "Samsung".equals(Build.BRAND, ignoreCase = true) &&
+            "SM-S921U".equals(Build.MODEL, ignoreCase = true)
+
     /**
      * Returns true if the extension mode is known to be broken on the device.
      *
@@ -129,8 +135,9 @@ object Camera2ExtensionsUtil {
             return false
         }
         // Extension modes Bokeh, Face Retouch, and HDR fail on Camera 0 for Samsung Galaxy
-        // A52s (SM-A528B) due to HAL requesting 0 max buffers or crashing in
-        // CamX::ImageBuffer::Import (b/532825627, b/570911697, b/579703647).
+        // A52s (SM-A528B) due to HAL requesting 0 max buffers or HDR crashing in still capture
+        // (CamX::ImageBuffer::Import or the MFNR post filter) (b/532825627, b/570911697,
+        // b/579702852, b/579703647, b/583485704).
         if ("SM-A528B".equals(Build.MODEL, ignoreCase = true) && cameraId == "0") {
             return extensionMode == CameraExtensionCharacteristics.EXTENSION_BOKEH ||
                 extensionMode == CameraExtensionCharacteristics.EXTENSION_BEAUTY ||
@@ -146,7 +153,7 @@ object Camera2ExtensionsUtil {
             return true
         }
         // Extension mode Auto fails on Cameras 1 and 3 for Samsung Galaxy Z Fold5 (SM-F946U1)
-        // (b/579700310, b/579703647).
+        // (b/579700310, b/579703647, b/583327945).
         if (
             "SM-F946U1".equals(Build.MODEL, ignoreCase = true) &&
                 (cameraId == "1" || cameraId == "3")

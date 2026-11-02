@@ -18,6 +18,7 @@ package androidx.camera.integration.extensions.camera2extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
@@ -31,6 +32,7 @@ import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.ope
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.openExtensionSession
 import androidx.camera.integration.extensions.util.Camera2ExtensionsTestUtil.takePicture
 import androidx.camera.integration.extensions.util.assertImageIsValid
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isSamsungGalaxyS24
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.StressTestRule
@@ -40,6 +42,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.ClassRule
@@ -84,6 +87,22 @@ class Camera2ExtensionsImageCaptureStressTest(private val config: CameraIdExtens
         assumeTrue(Camera2ExtensionsTestUtil.isTargetDeviceExcludedForExtensionsTest())
 
         val (cameraId, extensionMode) = config
+
+        // On Samsung Galaxy S24 (SM-S921U) camera 0, raw Camera2 EXTENSION_NIGHT
+        // (cx/SuperNightExt) in a capture-only (preview = null) CameraExtensionSession falls back
+        // to a single-picture path (dsCondition: 0x0 -> createSinglePicture) that fails with
+        // onCaptureFailed (CamX CSL frame error type 4) on camera 0 (b/581244809). CameraX
+        // ExtensionMode.NIGHT is unaffected because CameraX enforces
+        // REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE and awaits repeating preview
+        // TotalCaptureResults (via FlashControl.awaitFlashModeUpdate and
+        // CapturePipeline.getFrameMetadata) before submitting still captures.
+        assumeFalse(
+            "Capture-only Night extension session fails without repeating preview on SM-S921U " +
+                "camera 0 (b/581244809)",
+            isSamsungGalaxyS24() &&
+                cameraId == "0" &&
+                extensionMode == CameraExtensionCharacteristics.EXTENSION_NIGHT,
+        )
 
         val extensionsCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
         assumeCameraExtensionSupported(cameraManager, cameraId, extensionMode)

@@ -19,6 +19,7 @@ package androidx.camera.integration.extensions.camera2extensions
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.hardware.camera2.CameraExtensionCharacteristics
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.Camera2ExtensionsActivity
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
@@ -31,6 +32,7 @@ import androidx.camera.integration.extensions.util.waitForCaptureSessionConfigur
 import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
+import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isSamsungGalaxyS24
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -45,6 +47,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.ClassRule
 import org.junit.Rule
@@ -97,6 +100,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureSingleImage() {
         assumePcsSupportedForImageCapture(context)
+        assumeNoKnownCaptureFailure()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -128,6 +132,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureImage_afterPauseResume() {
         assumePcsSupportedForImageCapture(context)
+        assumeNoKnownCaptureFailure()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -147,6 +152,28 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         }
     }
 
+    /**
+     * Skips image capture tests for the camera and extension mode combinations where the vendor
+     * Camera2 extension implementation is known to fail when capture() is called immediately after
+     * session configuration before the first repeating preview TotalCaptureResult completes.
+     */
+    private fun assumeNoKnownCaptureFailure() {
+        // On Samsung Galaxy S24 (SM-S921U) camera 0, raw Camera2 EXTENSION_NIGHT
+        // (cx/SuperNightExt) falls back to createSinglePicture (dsCondition: 0x0) and fails with
+        // onCaptureFailed (CamX CSL frame error type 4) when capture() is called before repeating
+        // preview TotalCaptureResults initialize scene state (b/581244809). CameraX
+        // ExtensionMode.NIGHT is unaffected because CameraX attaches a coexisting repeating Preview
+        // stream and awaits repeating TotalCaptureResults (via FlashControl.awaitFlashModeUpdate
+        // and CapturePipeline.getFrameMetadata) before submitting still captures.
+        assumeFalse(
+            "Night extension capture fails before repeating preview TotalCaptureResults on " +
+                "SM-S921U camera 0 (b/581244809)",
+            isSamsungGalaxyS24() &&
+                config.cameraId == "0" &&
+                config.extensionMode == CameraExtensionCharacteristics.EXTENSION_NIGHT,
+        )
+    }
+
     private fun launchAutoClosedForegroundActivity(
         activityScenario: ActivityScenario<Camera2ExtensionsActivity>
     ) {
@@ -162,6 +189,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
     @Test
     fun canCaptureMultipleImages() {
         assumePcsSupportedForImageCapture(context)
+        assumeNoKnownCaptureFailure()
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity

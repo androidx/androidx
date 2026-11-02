@@ -128,13 +128,17 @@ class ExtensionSessionConfigTest(
 
     @After
     fun teardown(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-        }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+        // Always shuts down ExtensionsManager even if the CameraX shutdown fails or times out
+        // (e.g. after a camera provider crash), so that it does not leak into the next test.
+        try {
+            if (::cameraProvider.isInitialized) {
+                withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
+        } finally {
+            if (::extensionsManager.isInitialized) {
+                extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
+            }
         }
     }
 

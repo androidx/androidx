@@ -64,6 +64,15 @@ class ExtensionDisabledQuirkTest {
     }
 
     @Test
+    fun samsungA52s_keepsNightAndAutoEnabledOnCamera0() {
+        setDevice(brand = "samsung", model = "SM-A528B")
+        val quirk = ExtensionDisabledQuirk()
+
+        assertThat(quirk.shouldDisableExtension("0", ExtensionMode.NIGHT)).isFalse()
+        assertThat(quirk.shouldDisableExtension("0", ExtensionMode.AUTO)).isFalse()
+    }
+
+    @Test
     fun samsungS22_disablesAllModesOnCamera3() {
         setDevice(brand = "samsung", model = "SM-S901U")
         assertThat(ExtensionDisabledQuirk.load()).isTrue()
@@ -92,6 +101,21 @@ class ExtensionDisabledQuirkTest {
         assertThat(disabledModes("3")).containsExactly(ExtensionMode.AUTO)
         assertThat(disabledModes("0")).isEmpty()
         assertThat(disabledModes("2")).isEmpty()
+    }
+
+    @Test
+    fun samsungZFold5_disablesOnlyAutoOnCamera3() {
+        setDevice(brand = "samsung", model = "SM-F946U1")
+        val quirk = ExtensionDisabledQuirk()
+
+        assertThat(quirk.shouldDisableExtension("3", ExtensionMode.AUTO)).isTrue()
+        listOf(
+                ExtensionMode.BOKEH,
+                ExtensionMode.HDR,
+                ExtensionMode.NIGHT,
+                ExtensionMode.FACE_RETOUCH,
+            )
+            .forEach { mode -> assertThat(quirk.shouldDisableExtension("3", mode)).isFalse() }
     }
 
     @Test
