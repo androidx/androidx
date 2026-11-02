@@ -407,7 +407,13 @@ final class GapWorker implements Runnable {
                 return;
             }
 
-            long nextFrameNs = TimeUnit.MILLISECONDS.toNanos(latestFrameVsyncMs) + mFrameIntervalNs;
+            // Clamp to System.nanoTime() in case getDrawingTime() returns a future timestamp
+            // (e.g. when Client-Side Render-Ahead is active), so the prefetch deadline never
+            // exceeds one frame interval from now.
+            long latestFrameVsyncNs = Math.min(
+                    TimeUnit.MILLISECONDS.toNanos(latestFrameVsyncMs),
+                    System.nanoTime());
+            long nextFrameNs = latestFrameVsyncNs + mFrameIntervalNs;
 
             prefetch(nextFrameNs);
 
