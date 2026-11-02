@@ -56,6 +56,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,6 +65,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -232,7 +234,14 @@ class VideoRecordingEffectTest(
                 lifecycleOwner.startAndResume()
                 try {
                     // Wait for a capture result with the test image
-                    testPatternModeFlow.first { it == SENSOR_TEST_PATTERN_MODE_SOLID_COLOR }
+                    assertThat(
+                            withTimeoutOrNull(15.seconds) {
+                                testPatternModeFlow.first {
+                                    it == SENSOR_TEST_PATTERN_MODE_SOLID_COLOR
+                                }
+                            }
+                        )
+                        .isNotNull()
 
                     with(
                         doTempRecording(
