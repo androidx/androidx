@@ -841,7 +841,6 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         multiplatformExtension.iosArm64()
         multiplatformExtension.iosSimulatorArm64()
 
-        multiplatformExtension.watchosArm32()
         multiplatformExtension.watchosArm64()
         multiplatformExtension.watchosDeviceArm64()
         multiplatformExtension.watchosSimulatorArm64()

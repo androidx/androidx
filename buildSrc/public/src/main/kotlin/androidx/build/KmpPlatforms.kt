@@ -72,7 +72,6 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
     WATCHOS_SIMULATOR_ARM_64("watchossimulatorarm64", PlatformGroup.MAC),
-    WATCHOS_ARM_32("watchosarm32", PlatformGroup.MAC),
     WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
     WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
     TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),

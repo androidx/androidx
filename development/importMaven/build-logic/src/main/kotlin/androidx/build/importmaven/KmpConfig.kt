@@ -35,7 +35,6 @@ internal object KmpConfig {
             KonanTarget.IOS_ARM64,
             KonanTarget.IOS_SIMULATOR_ARM64,
             KonanTarget.IOS_X64,
-            KonanTarget.WATCHOS_ARM32,
             KonanTarget.WATCHOS_ARM64,
             KonanTarget.WATCHOS_SIMULATOR_ARM64,
             KonanTarget.WATCHOS_X64,

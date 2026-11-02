@@ -7,7 +7,7 @@
 [mingwX64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
 [tvosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
 [tvosSimulatorArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
-[watchosArm32]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
+[watchosArm32]: Target was removed
 [watchosArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
 [watchosDeviceArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
 [watchosSimulatorArm64]: Removed declaration savedStateProvider() from androidx.lifecycle/SavedStateHandle
