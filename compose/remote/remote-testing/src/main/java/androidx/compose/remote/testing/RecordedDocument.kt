@@ -35,7 +35,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 
 /**
  * A Remote Compose document recorded by a [RemoteBaseContentTestRule.Creation] and played by a
- * [RemoteBaseContentTestRule.Player].
+ * [RemoteBaseContentTestRule.Player], or captured by
+ * [RemoteCaptureTestRule.captureRecordedDocument].
  *
  * [CoreDocument] does not retain its serialized bytes, and re-serializing its inflated operations
  * does not round-trip, so players that render from the serialized document should use [bytes].

@@ -25,6 +25,8 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -55,17 +57,59 @@ class RemoteCaptureTestRuleTest {
     }
 
     @Test
-    fun captureDocumentBytes_returnsBytesThatDecodeToTheDocument(): Unit = runTest {
+    fun captureRecordedDocument_returnsBytesAndTheirDecodedDocument(): Unit = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val bytes =
-            captureRule.captureDocumentBytes(context) {
+        val document =
+            captureRule.captureRecordedDocument(context) {
                 RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc)) {}
             }
 
-        assertThat(bytes).isNotEmpty()
+        assertThat(document.bytes).isNotEmpty()
+        assertThat(document.profile).isSameInstanceAs(RcPlatformProfiles.ANDROIDX)
+        assertThat(document.coreDocument.operations).isNotEmpty()
+    }
+
+    @Test
+    fun captureRecordedDocument_capturesWithTheGivenClock(): Unit = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val clock = RecordingClock()
+
         val document =
-            decodeDocument(bytes, profile = RcPlatformProfiles.ANDROIDX, clock = RemoteClock.SYSTEM)
-        assertThat(document.operations).isNotEmpty()
+            captureRule.captureRecordedDocument(context, clock = clock) {
+                LaunchedEffect(Unit) { withFrameNanos {} }
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc)) {}
+            }
+
+        assertThat(clock.nanoTimeCalls).isGreaterThan(0)
+        assertThat(document.coreDocument.clock).isSameInstanceAs(clock)
+    }
+
+    @Test
+    fun captureDocument_capturesWithTheGivenClock(): Unit = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val clock = RecordingClock()
+
+        val document =
+            captureRule.captureDocument(context, clock = clock) {
+                LaunchedEffect(Unit) { withFrameNanos {} }
+                RemoteBox(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc)) {}
+            }
+
+        assertThat(clock.nanoTimeCalls).isGreaterThan(0)
+        assertThat(document.clock).isSameInstanceAs(clock)
+    }
+
+    /**
+     * Delegates to [RemoteClock.SYSTEM] and counts the [nanoTime] calls. A capture reads its clock
+     * to stamp frames, so content under test awaits a frame.
+     */
+    private class RecordingClock : RemoteClock by RemoteClock.SYSTEM {
+        var nanoTimeCalls = 0
+
+        override fun nanoTime(): Long {
+            nanoTimeCalls++
+            return RemoteClock.SYSTEM.nanoTime()
+        }
     }
 }
