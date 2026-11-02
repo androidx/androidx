@@ -69,6 +69,7 @@ import androidx.wear.compose.material3.samples.OneHandedGestureHorizontalPagerSa
 import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnSample
 import androidx.wear.compose.material3.samples.OneHandedGestureScalingLazyColumnScrollToNextItemSample
 import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnSample
+import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollFractionSample
 import androidx.wear.compose.material3.samples.OneHandedGestureTransformingLazyColumnScrollToNextItemSample
 import androidx.wear.compose.material3.samples.OneHandedGestureVerticalPagerSample
 import androidx.wear.compose.material3.samples.OneHandedGestureVisibilitySample
@@ -101,6 +102,9 @@ val OneHandedGestureDemos =
         },
         ComposableDemo("TLC with Button visibility threshold") {
             OneHandedGestureVisibilitySample()
+        },
+        ComposableDemo("TLC scrollDown by 80%") {
+            OneHandedGestureTransformingLazyColumnScrollFractionSample()
         },
         ComposableDemo("Horizontal Pager") { OneHandedGestureHorizontalPagerSample() },
         ComposableDemo("Vertical Pager") { OneHandedGestureVerticalPagerSample() },

@@ -1700,6 +1700,131 @@ class OneHandedGestureTest {
     }
 
     @Test
+    fun test_slc_scroll_down_with_scroll_fraction() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        val listState = ScalingLazyListState()
+        val gestureConfig =
+            OneHandedGestureConfiguration(
+                action = OneHandedGestureAction.Primary,
+                gestureId = "GestureId",
+            )
+        val scrollFraction = 0.25f
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    ScalingLazyColumn(
+                        state = listState,
+                        modifier =
+                            Modifier.background(Color.Black)
+                                .fillMaxSize()
+                                .oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = "scroll",
+                                    onGesture = {
+                                        OneHandedGestureDefaults.scrollDown(
+                                            listState,
+                                            scrollFraction = scrollFraction,
+                                        )
+                                    },
+                                ),
+                    ) {
+                        items(20) { Text("Item $it") }
+                    }
+                }
+            }
+        }
+
+        var trackedItemIndex = 0
+        var offsetBefore = 0
+        var expectedScroll = 0f
+        rule.runOnIdle {
+            val trackedItem =
+                listState.layoutInfo.visibleItemsInfo.first { it.unadjustedOffset >= 0 }
+            trackedItemIndex = trackedItem.index
+            offsetBefore = trackedItem.unadjustedOffset
+            expectedScroll = listState.layoutInfo.viewportSize.height * scrollFraction
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+        }
+
+        rule.runOnIdle {
+            val trackedItem =
+                assertNotNull(
+                    listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                        it.index == trackedItemIndex
+                    },
+                    "Item $trackedItemIndex is no longer visible after scrolling",
+                )
+            assertThat((offsetBefore - trackedItem.unadjustedOffset).toFloat())
+                .isWithin(1f)
+                .of(expectedScroll)
+        }
+    }
+
+    @Test
+    fun test_tlc_scroll_down_with_scroll_fraction() {
+        val sdkGestureInputManager = SdkGestureInputManagerMock(false)
+        val listState = TransformingLazyColumnState()
+        val gestureConfig =
+            OneHandedGestureConfiguration(
+                action = OneHandedGestureAction.Primary,
+                gestureId = "GestureId",
+            )
+        val scrollFraction = 0.25f
+
+        rule.setContentWithTheme {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                MockSdkGestureInputManager(sdkGestureInputManager) {
+                    TransformingLazyColumn(
+                        state = listState,
+                        modifier =
+                            Modifier.background(Color.Black)
+                                .fillMaxSize()
+                                .oneHandedGesture(
+                                    gestureConfiguration = gestureConfig,
+                                    onGestureLabel = "scroll",
+                                    onGesture = {
+                                        OneHandedGestureDefaults.scrollDown(
+                                            listState,
+                                            scrollFraction = scrollFraction,
+                                        )
+                                    },
+                                ),
+                    ) {
+                        items(20) { Text("Item $it") }
+                    }
+                }
+            }
+        }
+
+        var trackedItemIndex = 0
+        var offsetBefore = 0
+        var expectedScroll = 0f
+        rule.runOnIdle {
+            val viewportHeight = listState.layoutInfo.viewportSize.height
+            val trackedItem =
+                listState.layoutInfo.visibleItems.first { it.offset >= viewportHeight / 2 }
+            trackedItemIndex = trackedItem.index
+            offsetBefore = trackedItem.offset
+            expectedScroll = viewportHeight * scrollFraction
+            sdkGestureInputManager.performGesture(sdkActionPrimary)
+        }
+
+        rule.runOnIdle {
+            val trackedItem =
+                assertNotNull(
+                    listState.layoutInfo.visibleItems.firstOrNull {
+                        it.index == trackedItemIndex
+                    },
+                    "Item $trackedItemIndex is no longer visible after scrolling",
+                )
+            assertThat((offsetBefore - trackedItem.offset).toFloat())
+                .isWithin(1f)
+                .of(expectedScroll)
+        }
+    }
+
+    @Test
     fun test_tlc_scroll_next_item(@TestParameter wrap: Boolean) {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
         val listState = TransformingLazyColumnState()
