@@ -38,7 +38,7 @@ android {
 
 androidx {
     name = "Remote Compose Glimmer"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.INTERNAL_LIBRARY_WITH_API_TASKS
     inceptionYear = "2026"
     description = "Remote Compose Glimmer, the UI library for augmented Android XR experiences"
     samples(project(":xr:glimmer:glimmer-remote:glimmer-remote-samples"))
