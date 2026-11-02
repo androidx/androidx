@@ -16,10 +16,14 @@
 
 package androidx.test.backup.host
 
+import java.io.File
+import java.nio.file.Files
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -164,6 +168,66 @@ class BackupReportCaptureTest {
     }
 
     @Test
+    fun closeUnregistersCollectorCaptureAndDeletesTempArchiveWhenHookThrows() {
+        val rawSource = Files.createTempFile("source-archive-", ".zip")
+        val tempDir = File(System.getProperty("java.io.tmpdir"))
+        val tempBefore =
+            tempDir
+                .listFiles { _, name ->
+                    name.startsWith("backup_raw_archive_") && name.endsWith("_hook_throw.zip")
+                }
+                .orEmpty()
+                .toSet()
+
+        val firstCapture =
+            TestExecutionCapture(
+                start = java.time.Instant.now(),
+                isShared = false,
+                testClassName = BackupReportCaptureTest::class.java.name,
+                testMethodName = "throwingClose",
+            )
+        val secondCapture =
+            TestExecutionCapture(
+                start = java.time.Instant.now(),
+                isShared = false,
+                testClassName = BackupReportCaptureTest::class.java.name,
+                testMethodName = "subsequentLeaf",
+            )
+        try {
+            Files.write(rawSource, ByteArray(32) { 1 })
+            ActiveCaptureContext.pushCurrentThread(firstCapture)
+            firstCapture.recordArchive(
+                fileName = "hook_throw.zip",
+                summaryValues = mapOf("app_backup" to "32 B"),
+                rawSourceFile = rawSource,
+                includeRawCopy = true,
+            )
+            firstCapture.onUnfinalizedClose = { throw IllegalStateException("finalize failed") }
+
+            val err = assertFailsWith<IllegalStateException> { firstCapture.close() }
+            assertEquals("finalize failed", err.message)
+            assertTrue(firstCapture.isClosed)
+            assertNull(ActiveCaptureContext.currentThreadBound())
+            assertEquals(secondCapture, ActiveCaptureContext.current())
+
+            val tempAfter =
+                tempDir
+                    .listFiles { _, name ->
+                        name.startsWith("backup_raw_archive_") && name.endsWith("_hook_throw.zip")
+                    }
+                    .orEmpty()
+                    .toSet()
+            assertEquals(tempBefore, tempAfter)
+        } finally {
+            runCatching { firstCapture.close() }
+            secondCapture.close()
+            Files.deleteIfExists(rawSource)
+        }
+        assertEquals(0, HostLogManager.activeCollectorCountForTesting())
+        assertFalse(HostLogManager.hasAttachedHandlersForTesting())
+    }
+
+    @Test
     fun capsUtf8TextAtTailBoundaryWithoutSplittingMultiByteCharacters() {
         val shortText = "line1\nline2\n"
         val unchanged = capUtf8TailBounded(shortText, maxBytes = 64)
@@ -231,19 +295,68 @@ class BackupReportCaptureTest {
         assertEquals("CLOUD_ENCRYPTED", attrs.first { it.key == "transport" }.value)
         assertContains(attrs.first { it.key == "devices" }.displayValue, "Pixel 8 (API 34)")
 
-        val collector = HostLogCollector()
-        HostLogManager.register(collector)
-        try {
-            java.util.logging.Logger.getLogger("androidx.test.backup.host.Test")
-                .info("captured host log line")
-            assertContains(collector.snapshotText(), "captured host log line")
-        } finally {
-            HostLogManager.unregister(collector)
-        }
+        TestExecutionCapture(
+                start = java.time.Instant.now(),
+                isShared = false,
+                testClassName = BackupReportCaptureTest::class.java.name,
+                testMethodName = "readsDeviceFactsAndCapturesHostLogs",
+            )
+            .use { capture ->
+                ActiveCaptureContext.pushCurrentThread(capture)
+                try {
+                    java.util.logging.Logger.getLogger("androidx.test.backup.host.Test")
+                        .info("captured host log line")
+                    assertContains(
+                        capture.hostLogCollector.snapshotText(),
+                        "captured host log line",
+                    )
+                } finally {
+                    ActiveCaptureContext.unbindCurrentThread(capture)
+                }
+            }
     }
 
     private companion object {
         const val SERIAL_SOURCE = "emulator-5554"
+    }
+
+    @Test
+    fun recordsStepsDerivesPhasesAndUnwrapsAsyncExceptions() {
+        val capture =
+            TestExecutionCapture(
+                start = java.time.Instant.now(),
+                isShared = false,
+                testClassName = BackupReportCaptureTest::class.java.name,
+                testMethodName = "recordsStepsDerivesPhasesAndUnwrapsAsyncExceptions",
+            )
+        capture.use {
+            ActiveCaptureContext.pushCurrentThread(capture)
+            try {
+                assertEquals(capture, ActiveCaptureContext.current())
+                assertEquals("Setup", capture.deriveStepPhase(isClearLike = false))
+                capture.markBackupStarted("emulator-5554", BackupTransportMode.CLOUD_ENCRYPTED)
+                assertEquals("Clear", capture.deriveStepPhase(isClearLike = true))
+                assertEquals("Mutate", capture.deriveStepPhase(isClearLike = false))
+                capture.markRestoreStarted("emulator-5556")
+                assertEquals("Verify", capture.deriveStepPhase(isClearLike = false))
+                capture.addStep(
+                    isNumbered = true,
+                    kind = TestExecutionCapture.StepKind.BACKUP,
+                    name = "Backup",
+                    controller = null,
+                    call = "performBackup()",
+                    durationMs = 42L,
+                    status = TestDetailRecord.STATUS_PASSED,
+                )
+                assertEquals(1, capture.ownSteps.size)
+                assertEquals("Backup", capture.ownSteps.single().name)
+            } finally {
+                ActiveCaptureContext.unbindCurrentThread(capture)
+            }
+        }
+        val root = IllegalStateException("root cause")
+        val wrapped = java.util.concurrent.ExecutionException(root)
+        assertEquals(root, TestExecutionCapture.unwrapAsyncFailure(wrapped))
     }
 }
 

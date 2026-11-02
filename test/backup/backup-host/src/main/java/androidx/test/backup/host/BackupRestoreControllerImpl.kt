@@ -58,6 +58,10 @@ internal class BackupRestoreControllerImpl(
     internal var lastExecutionSummary: BackupExecutionSummary? = null
         private set
 
+    internal var explicitRole: String = ""
+
+    internal var cachedDeviceFacts: DeviceFacts? = null
+
     private val logger = Logger.getLogger(BackupRestoreControllerImpl::class.java.name)
 
     private val shell = BackupDeviceShell(adbSession, serialNumber)

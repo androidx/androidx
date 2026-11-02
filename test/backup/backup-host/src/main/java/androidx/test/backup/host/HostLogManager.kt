@@ -152,8 +152,7 @@ internal object HostLogManager {
 
             override fun publish(record: LogRecord?) {
                 if (record == null) return
-                synchronized(lock) { registeredCollectors.toList() }
-                    .forEach { it.appendRecord(record) }
+                ActiveCaptureContext.current()?.hostLogCollector?.appendRecord(record)
             }
 
             override fun flush() {}
