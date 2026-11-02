@@ -553,21 +553,10 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun watchos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
         return listOfNotNull(
-            watchosArm32(block),
             watchosArm64(block),
             watchosDeviceArm64(block),
             watchosSimulatorArm64(block),
         )
-    }
-
-    @JvmOverloads
-    fun watchosArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_32)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosArm32 { block?.execute(this) }
-        } else {
-            null
-        }
     }
 
     @JvmOverloads
