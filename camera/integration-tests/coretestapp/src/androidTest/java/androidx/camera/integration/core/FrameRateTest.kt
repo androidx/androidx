@@ -35,6 +35,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.integration.core.util.StressTestUtil.assumeNotRedfin64BitOnly
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -163,6 +164,7 @@ class FrameRateTest(
     // Scenario: UHD video recording (by SessionConfig)
     @Test
     fun setFrameRateOnSessionConfig_previewAndVideoUhd() = runBlocking {
+        assumeNotRedfin64BitOnly()
         testSupportedFrameRates(setFpsOnSessionConfig = true) {
             SessionConfig.Builder(
                 createPreview(),
@@ -174,6 +176,7 @@ class FrameRateTest(
     // Scenario: UHD video recording (by UseCase)
     @Test
     fun setFrameRateOnUseCase_previewAndVideoUhd() = runBlocking {
+        assumeNotRedfin64BitOnly()
         testSupportedFrameRates(setFpsOnSessionConfig = false) { targetFps ->
             SessionConfig.Builder(
                 createPreview(),

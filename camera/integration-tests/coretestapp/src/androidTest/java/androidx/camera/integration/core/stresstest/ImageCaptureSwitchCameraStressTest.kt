@@ -24,6 +24,7 @@ import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.assumeCameraSupportUseCaseCombination
+import androidx.camera.integration.core.util.StressTestUtil.assumeNotRedfin64BitOnly
 import androidx.camera.testing.impl.LabTestRule
 import androidx.test.filters.LargeTest
 import androidx.testutils.RepeatRule
@@ -65,6 +66,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
     @Test
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun switchCamera_checkImageCaptureInEachTime_withPreviewVideoCaptureImageCapture() {
+        assumeNotRedfin64BitOnly()
         val useCaseCombination = BIND_PREVIEW or BIND_VIDEO_CAPTURE or BIND_IMAGE_CAPTURE
         assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_checkOutput_repeatedly(
@@ -103,6 +105,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
     @Test
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterSwitchCameraRepeatedly_withPreviewVideoCaptureImageCapture() {
+        assumeNotRedfin64BitOnly()
         val useCaseCombination = BIND_PREVIEW or BIND_VIDEO_CAPTURE or BIND_IMAGE_CAPTURE
         assumeBothLensFacingCamerasSupportUseCaseCombination(camera, useCaseCombination)
         switchCamera_repeatedly_thenCheckOutput(
