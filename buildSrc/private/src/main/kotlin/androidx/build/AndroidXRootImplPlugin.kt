@@ -82,7 +82,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         project.validateAllAndroidxArgumentsAreRecognized()
         tasks.register("listAndroidXProperties", ListAndroidXPropertiesTask::class.java)
         tasks.register("createProject", ProjectCreatorTask::class.java)
-        configureKtfmtCheckFile()
         maybeRegisterFilterableTask()
         registerListAffectedProjectsTask()
 
