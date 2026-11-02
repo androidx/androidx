@@ -25,12 +25,21 @@ import androidx.build.ide.IdePlugin
 import androidx.build.ide.ManagedIdeTask
 import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
+import androidx.build.ide.registerWriteIdeaPropertiesTask
 import androidx.build.ide.writeAndroidSdkPath
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.WriteProperties
 
-fun Project.configureASWBTask(task: ManagedIdeTask) {
+/** Folder in your home dir for ASwB's config and system files. */
+private const val ASWB_DIR_NAME = ".AndroidStudioWithBlazeAndroidX"
+
+fun Project.configureASWBTask(
+    task: ManagedIdeTask,
+    writeIdeaProperties: TaskProvider<WriteProperties>,
+) {
     task.ideName.convention("ASwB")
 
     // We don't want people to have to accept the terms of service for ASwB (b/574544210)
@@ -61,9 +70,7 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
             set(layout.projectDirectory.file("development/aswb/studio.vmoptions"))
         }
     val ideaPropertiesFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/aswb/idea.properties"))
-        }
+        objects.fileProperty().apply { set(writeIdeaProperties.flatMap { it.destinationFile }) }
 
     task.configureIntellijLikeIde(
         envPrefix = "STUDIO",
@@ -72,11 +79,7 @@ fun Project.configureASWBTask(task: ManagedIdeTask) {
     )
 
     val configBaseDir =
-        layout.dir(
-            providers.environmentVariable("HOME").map {
-                File(it, ".AndroidStudioWithBlazeAndroidX/config")
-            }
-        )
+        layout.dir(providers.environmentVariable("HOME").map { File(it, "$ASWB_DIR_NAME/config") })
     val relativeSdkPath = getSdkPath().relativeTo(project.getSupportRootFolder())
 
     val studioKtfmtPluginVersion = getVersionByName("ktfmtIdeaPlugin")
@@ -122,5 +125,8 @@ private fun ManagedIdeTask.checkIntellijExtInstalled() {
 
 fun Project.registerASWBTask() {
     if (ProjectLayoutType.from(this) == ProjectLayoutType.PLAYGROUND) return
-    tasks.register("aswb", ManagedIdeTask::class.java) { task -> configureASWBTask(task) }
+    val writeIdeaProperties = registerWriteIdeaPropertiesTask("Aswb", provider { ASWB_DIR_NAME })
+    tasks.register("aswb", ManagedIdeTask::class.java) { task ->
+        configureASWBTask(task, writeIdeaProperties)
+    }
 }

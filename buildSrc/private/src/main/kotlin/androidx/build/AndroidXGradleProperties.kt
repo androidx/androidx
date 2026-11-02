@@ -51,7 +51,10 @@ const val SUMMARIZE_STANDARD_ERROR = "androidx.summarizeStderr"
  */
 const val USE_MAX_DEP_VERSIONS = "androidx.useMaxDepVersions"
 
-/** Setting this property enables writing versioned API files */
+/**
+ * Key in `androidx-branch.properties` that turns on writing versioned API files. See
+ * [branchProperty].
+ */
 const val WRITE_VERSIONED_API_FILES = "androidx.writeVersionedApiFiles"
 
 /**
@@ -129,7 +132,6 @@ val ALL_ANDROIDX_PROPERTIES =
         USE_MAX_DEP_VERSIONS,
         VALIDATE_NO_UNRECOGNIZED_MESSAGES,
         VERIFY_UP_TO_DATE,
-        WRITE_VERSIONED_API_FILES,
         AffectedModuleDetector.ENABLE_ARG,
         AffectedModuleDetector.BASE_COMMIT_ARG,
         PLAYGROUND_SNAPSHOT_BUILD_ID,
@@ -199,12 +201,25 @@ fun Project.isDisplayTestOutput(): Boolean = findBooleanProperty(DISPLAY_TEST_OU
  * Returns whether the project should write versioned API files, e.g. `1.1.0-alpha01.txt`.
  *
  * <p>
- * When set to `true`, the `updateApi` task will write the current API surface to both `current.txt`
- * and `<version>.txt`. When set to `false`, only `current.txt` will be written. The default value
- * is `true`.
+ * When `true`, the `updateApi` task will write the current API surface to both `current.txt` and
+ * `<version>.txt`. When `false`, only `current.txt` will be written. The value comes from
+ * [branchProperty], or is `true`.
  */
 fun Project.isWriteVersionedApiFilesEnabled(): Boolean =
-    findBooleanProperty(WRITE_VERSIONED_API_FILES) ?: true
+    branchProperty(WRITE_VERSIONED_API_FILES, "true").toBoolean()
+
+/**
+ * Returns [name] from `androidx-branch.properties`, or [default] if the file or the key is missing.
+ *
+ * Each branch's repo manifest links that file in the checkout root to a file in
+ * `development/branch-config`. settings.gradle reads it and gives every project its settings as
+ * extra properties. This lets build settings differ per branch while every branch has the same
+ * text.
+ */
+internal fun Project.branchProperty(name: String, default: String): String {
+    val extra = extensions.extraProperties
+    return if (extra.has(name)) extra.get(name) as String else default
+}
 
 /** Returns whether the build is for checking forward compatibility across projects */
 fun Project.usingMaxDepVersions(): Provider<Boolean> {
