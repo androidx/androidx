@@ -59,7 +59,6 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
         remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         profile: Profile = RcPlatformProfiles.ANDROIDX,
         writerEvents: RemoteWriterEvents = RemoteWriterEvents(),
-        onCreate: ((CoreDocument) -> Unit)? = null,
         clock: RemoteClock = RemoteClock.SYSTEM,
         creationComposableWrapper: (@Composable (composable: @Composable () -> Unit) -> Unit) = {
             it()
@@ -77,7 +76,6 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
                     remoteCreationDisplayInfo = remoteCreationDisplayInfo,
                     profile = profile,
                     writerEvents = writerEvents,
-                    onCreate = onCreate,
                     clock = clock,
                 ),
             creationComposableWrapper = creationComposableWrapper,
@@ -93,7 +91,6 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
         private val remoteCreationDisplayInfo: RemoteCreationDisplayInfo,
         private val profile: Profile,
         private val writerEvents: RemoteWriterEvents,
-        private val onCreate: ((CoreDocument) -> Unit)?,
         private val clock: RemoteClock,
     ) : Creation {
         @Composable
@@ -104,7 +101,6 @@ public class RemoteContentTestRule(private val _composeTestRule: ComposeContentT
                 creationDisplayInfo = remoteCreationDisplayInfo,
                 profile = profile,
                 writerEvents = writerEvents,
-                onCreate = { document -> onCreate?.invoke(document.coreDocument) },
                 clock = clock,
                 content = composable,
             )

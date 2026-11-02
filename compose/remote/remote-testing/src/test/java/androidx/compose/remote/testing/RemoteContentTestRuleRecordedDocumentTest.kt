@@ -59,15 +59,13 @@ class RemoteContentTestRuleRecordedDocumentTest {
     }
 
     @Test
-    fun remoteContentTestRule_setContent_passesCapturedDocumentToPlayerAndCallbacks() {
-        var onCreateDocument: CoreDocument? = null
+    fun remoteContentTestRule_setContent_passesCapturedDocumentToPlayerAndCallback() {
         var onCoreDocumentCreatedDocument: CoreDocument? = null
         val player = RecordingPlayer()
 
         remoteContentTestRule.setContent(
             remoteCreationDisplayInfo =
                 RemoteCreationDisplayInfo(width = 100, height = 100, densityDpi = 160),
-            onCreate = { onCreateDocument = it },
             onCoreDocumentCreated = { onCoreDocumentCreatedDocument = it },
             player = player,
         ) {
@@ -78,7 +76,6 @@ class RemoteContentTestRuleRecordedDocumentTest {
         val playedDocument = checkNotNull(player.playedDocument)
         assertThat(playedDocument.bytes).isNotEmpty()
         assertThat(playedDocument.coreDocument.operations).isNotEmpty()
-        assertThat(onCreateDocument).isSameInstanceAs(playedDocument.coreDocument)
         assertThat(onCoreDocumentCreatedDocument).isSameInstanceAs(playedDocument.coreDocument)
     }
 

@@ -54,37 +54,39 @@ public class RemoteCaptureTestRule : TestRule {
         clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
     ): CoreDocument =
-        decodeDocument(
-            bytes = captureDocumentBytes(context, creationDisplayInfo, profile, content),
-            profile = profile,
-            clock = clock,
-        )
+        captureRecordedDocument(context, creationDisplayInfo, profile, clock, content).coreDocument
 
     /**
      * Capture a RemoteCompose document by rendering the specified [content] Composable and
-     * returning its serialized bytes.
+     * returning it as a [RecordedDocument].
      *
-     * Use this instead of [captureDocument] when the document bytes are needed, for example to play
-     * the document or to measure its size: [CoreDocument] does not retain its serialized bytes, and
-     * re-serializing its inflated operations does not round-trip.
+     * Use this instead of [captureDocument] when the serialized document is needed, for example to
+     * play the document or to measure its size: [CoreDocument] does not retain its serialized
+     * bytes, and re-serializing its inflated operations does not round-trip.
      *
      * @param context the Android [Context] to use for the capture.
+     * @param clock the [RemoteClock] used for the capture and by the decoded document.
      * @param content the Composable content to render and capture.
-     * @return the serialized RemoteCompose document.
+     * @return the captured document, as serialized bytes and decoded on demand.
      */
-    public suspend fun captureDocumentBytes(
+    public suspend fun captureRecordedDocument(
         context: Context,
         creationDisplayInfo: RemoteCreationDisplayInfo = createCreationDisplayInfo(context),
         profile: Profile = RcPlatformProfiles.ANDROIDX,
+        clock: RemoteClock = RemoteClock.SYSTEM,
         content: @Composable @RemoteComposable () -> Unit,
-    ): ByteArray =
-        captureSingleRemoteDocument(
-                context = context,
-                creationDisplayInfo = creationDisplayInfo,
-                profile = profile,
-                content = content,
-            )
-            .bytes
+    ): RecordedDocument {
+        val bytes =
+            captureSingleRemoteDocument(
+                    context = context,
+                    creationDisplayInfo = creationDisplayInfo,
+                    clock = clock,
+                    profile = profile,
+                    content = content,
+                )
+                .bytes
+        return RecordedDocument(bytes = bytes, profile = profile, clock = clock)
+    }
 }
 
 /** Decodes the serialized document [bytes] into a [CoreDocument] for the given [profile]. */
