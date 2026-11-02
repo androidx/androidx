@@ -24,6 +24,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -1160,10 +1162,7 @@ class DatePickerTest {
 
     @Test
     fun yearGrid_keyboardNavigation() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
             val datePickerState =
@@ -1176,14 +1175,11 @@ class DatePickerTest {
                 confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                 dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
             ) {
+                registerInputModeManager(LocalInputModeManager.current)
                 DatePicker(state = datePickerState)
             }
         }
 
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
-        }
         // Focus on year picker button and open year picker.
         rule.onNodeWithText("January 2010").requestFocus()
         rule.onNodeWithText("January 2010").performKeyInput { pressKey(Key.Enter) }
@@ -1215,10 +1211,7 @@ class DatePickerTest {
 
     @Test
     fun firstDayOfMonth_keyboardBehavior() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
             val datePickerState =
@@ -1231,13 +1224,9 @@ class DatePickerTest {
                 confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                 dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
             ) {
+                registerInputModeManager(LocalInputModeManager.current)
                 DatePicker(state = datePickerState)
             }
-        }
-
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on first day of the month.
@@ -1267,10 +1256,7 @@ class DatePickerTest {
 
     @Test
     fun firstDayOfMonth_keyboardBehavior_rtl() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 val initialDateMillis =
                     dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
@@ -1285,13 +1271,10 @@ class DatePickerTest {
                     confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                     dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
                 ) {
+                    registerInputModeManager(LocalInputModeManager.current)
                     DatePicker(state = datePickerState)
                 }
             }
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on first day of the month.
@@ -1321,10 +1304,7 @@ class DatePickerTest {
 
     @Test
     fun lastDayOfMonth_keyboardBehavior() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
             val datePickerState =
@@ -1337,12 +1317,9 @@ class DatePickerTest {
                 confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                 dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
             ) {
+                registerInputModeManager(LocalInputModeManager.current)
                 DatePicker(state = datePickerState)
             }
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on last day of the month.
@@ -1372,10 +1349,7 @@ class DatePickerTest {
 
     @Test
     fun lastDayOfMonth_keyboardBehavior_rtl() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 val initialDateMillis =
                     dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
@@ -1390,13 +1364,10 @@ class DatePickerTest {
                     confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                     dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
                 ) {
+                    registerInputModeManager(LocalInputModeManager.current)
                     DatePicker(state = datePickerState)
                 }
             }
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on last day of the month.
@@ -1426,10 +1397,7 @@ class DatePickerTest {
 
     @Test
     fun cancelAndOkButtons_keyboardBehavior() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
             val datePickerState =
@@ -1442,12 +1410,9 @@ class DatePickerTest {
                 confirmButton = { TextButton(onClick = {}) { Text("OK") } },
                 dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
             ) {
+                registerInputModeManager(LocalInputModeManager.current)
                 DatePicker(state = datePickerState)
             }
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on last day of the month.
@@ -1478,10 +1443,8 @@ class DatePickerTest {
 
     @Test
     fun calendar_keyboardBehavior() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
+            registerInputModeManager(LocalInputModeManager.current)
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 1)
             DatePicker(
@@ -1491,10 +1454,6 @@ class DatePickerTest {
                         initialDisplayedMonthMillis = monthInUtcMillis,
                     )
             )
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on first day of the month.
@@ -1513,10 +1472,8 @@ class DatePickerTest {
 
     @Test
     fun calendar_keyboardBehavior_rtl() {
-        rule.setMaterialContent(lightColorScheme()) {
-            if (SDK_INT <= Build.VERSION_CODES.R) {
-                LocalInputModeManager.current.requestInputMode(InputMode.Keyboard)
-            }
+        setMaterialContentInKeyboardMode { registerInputModeManager ->
+            registerInputModeManager(LocalInputModeManager.current)
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 val initialDateMillis =
                     dayInUtcMilliseconds(year = 2010, month = 1, dayOfMonth = 11)
@@ -1529,10 +1486,6 @@ class DatePickerTest {
                         )
                 )
             }
-        }
-        rule.waitForIdle()
-        if (SDK_INT > Build.VERSION_CODES.R) {
-            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
         }
 
         // Focus on first day of the month.
@@ -1547,6 +1500,23 @@ class DatePickerTest {
             day++
             rule.onNodeWithText("January $day, 2010", substring = true).assertIsFocused()
         }
+    }
+
+    private fun setMaterialContentInKeyboardMode(
+        content: @Composable (registerInputModeManager: (InputModeManager) -> Unit) -> Unit
+    ) {
+        var inputModeManager: InputModeManager? = null
+        if (SDK_INT > Build.VERSION_CODES.R) {
+            InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
+        }
+        rule.setMaterialContent(lightColorScheme()) {
+            content { manager -> inputModeManager = manager }
+        }
+        if (SDK_INT <= Build.VERSION_CODES.R) {
+            rule.runOnIdle { checkNotNull(inputModeManager).requestInputMode(InputMode.Keyboard) }
+        }
+        rule.waitUntil { inputModeManager?.inputMode == InputMode.Keyboard }
+        rule.waitForIdle()
     }
 
     // Returns the given date's day as milliseconds from epoch. The returned value is for the day's
