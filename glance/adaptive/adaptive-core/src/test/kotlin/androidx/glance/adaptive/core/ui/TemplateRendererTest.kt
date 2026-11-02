@@ -28,33 +28,23 @@ class TemplateRendererTest {
 
     private class TestSurface(tag: String, dimensions: Dimensions) : GlanceSurface(tag, dimensions)
 
-    private enum class TestArchetype {
-        COMPACT
-    }
-
     private val testSurface = TestSurface("test_surface", Dimensions(200, 100))
 
     @Test
-    fun render_receivesTemplateArchetypeAndSurface() {
+    fun render_receivesTemplateAndSurface() {
         var observedTemplate: TestTemplate? = null
-        var observedArchetype: TestArchetype? = null
         var observedSurface: TestSurface? = null
 
         val renderer =
-            TemplateRenderer<TestTemplate, TestSurface, TestArchetype, Unit> {
-                template,
-                archetype,
-                surface ->
+            TemplateRenderer<TestTemplate, TestSurface, Unit> { template, surface ->
                 observedTemplate = template
-                observedArchetype = archetype
                 observedSurface = surface
             }
 
         val template = TestTemplate("Morning Run")
-        renderer.render(template, TestArchetype.COMPACT, testSurface)
+        renderer.render(template, testSurface)
 
         assertThat(observedTemplate).isSameInstanceAs(template)
-        assertThat(observedArchetype).isEqualTo(TestArchetype.COMPACT)
         assertThat(observedSurface).isSameInstanceAs(testSurface)
     }
 
@@ -66,45 +56,39 @@ class TemplateRendererTest {
     @Test
     fun render_hostChoosesOutputType() {
         val textRenderer =
-            TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> {
-                template,
-                archetype,
-                surface ->
-                "${template.title}@${surface.dimensions.widthDp}/${archetype.name}"
+            TemplateRenderer<TestTemplate, TestSurface, String> { template, surface ->
+                "${template.title}@${surface.dimensions.widthDp}"
             }
 
-        assertThat(
-                textRenderer.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface)
-            )
-            .isEqualTo("Morning Run@200/COMPACT")
+        assertThat(textRenderer.render(TestTemplate("Morning Run"), testSurface))
+            .isEqualTo("Morning Run@200")
     }
 
     @Test
     fun render_outputTypeIsCovariant() {
-        val renderer: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> =
-            TemplateRenderer { template, _, _ ->
+        val renderer: TemplateRenderer<TestTemplate, TestSurface, String> =
+            TemplateRenderer { template, _ ->
                 template.title
             }
 
         // Compiles only because R is declared `out`.
-        val widened: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, CharSequence> =
-            renderer
+        val widened: TemplateRenderer<TestTemplate, TestSurface, CharSequence> = renderer
 
-        assertThat(widened.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface))
+        assertThat(widened.render(TestTemplate("Morning Run"), testSurface))
             .isEqualTo("Morning Run")
     }
 
     @Test
-    fun render_templateSurfaceAndArchetypeAreContravariant() {
-        val renderer: TemplateRenderer<GlanceAdaptiveTemplate, GlanceSurface, Any, String> =
-            TemplateRenderer { _, _, surface ->
+    fun render_templateAndSurfaceAreContravariant() {
+        val renderer: TemplateRenderer<GlanceAdaptiveTemplate, GlanceSurface, String> =
+            TemplateRenderer { _, surface ->
                 surface.tag
             }
 
-        // Compiles only because T, S and A are declared `in`.
-        val narrowed: TemplateRenderer<TestTemplate, TestSurface, TestArchetype, String> = renderer
+        // Compiles only because T and S are declared `in`.
+        val narrowed: TemplateRenderer<TestTemplate, TestSurface, String> = renderer
 
-        assertThat(narrowed.render(TestTemplate("Morning Run"), TestArchetype.COMPACT, testSurface))
+        assertThat(narrowed.render(TestTemplate("Morning Run"), testSurface))
             .isEqualTo("test_surface")
     }
 }

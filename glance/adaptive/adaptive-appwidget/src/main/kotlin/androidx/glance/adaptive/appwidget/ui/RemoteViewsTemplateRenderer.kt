@@ -18,7 +18,7 @@ package androidx.glance.adaptive.appwidget.ui
 
 import android.content.Context
 import android.widget.RemoteViews
-import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.core.ui.ArchetypeRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
@@ -27,10 +27,10 @@ import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 /**
  * Render output backed directly by a [RemoteViews] instance or provider.
  *
- * Building a [RemoteViews] needs a [Context] (for its package name and resources), but a
- * [TemplateRenderer] only receives the template, archetype, and surface. The output therefore
- * carries a [provider] that the composer invokes with the application [Context] once it is ready to
- * deliver the widget. Use the secondary constructor when the [RemoteViews] has already been built.
+ * Building a [RemoteViews] needs a [Context] (for its package name and resources), but a renderer
+ * doesn't receive one. The output therefore carries a [provider] that the composer invokes with the
+ * application [Context] once it is ready to deliver the widget. Use the secondary constructor when
+ * the [RemoteViews] has already been built.
  *
  * @property provider Factory invoked with the application [Context] to construct the [RemoteViews]
  *   for the target widget placement.
@@ -52,19 +52,20 @@ internal class RemoteViewsRenderOutput(val provider: (Context) -> RemoteViews) :
 }
 
 /**
- * A [TemplateRenderer] that produces [RemoteViews] directly for a template [T], archetype [A], and
- * surface [S].
+ * An [ArchetypeRenderer] that produces [RemoteViews] directly for a template [T], archetype [A],
+ * and surface [S].
+ *
+ * Used by the library's built-in templates; developers implement [TemplateRenderer] instead.
  *
  * @param T The type of [GlanceAdaptiveTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemoteViewsTemplateRenderer<
+internal fun interface RemoteViewsTemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
-> : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
+> : ArchetypeRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
      * Builds the [RemoteViews] representation of [template] for [archetype] on [surface] using
@@ -77,12 +78,7 @@ public fun interface RemoteViewsTemplateRenderer<
      *   [GlanceSurface.dimensions].
      * @return The [RemoteViews] to deliver to the host.
      */
-    public fun renderRemoteViews(
-        context: Context,
-        template: T,
-        archetype: A,
-        surface: S,
-    ): RemoteViews
+    fun renderRemoteViews(context: Context, template: T, archetype: A, surface: S): RemoteViews
 
     override fun render(template: T, archetype: A, surface: S): AppWidgetRenderOutput =
         RemoteViewsRenderOutput { context ->

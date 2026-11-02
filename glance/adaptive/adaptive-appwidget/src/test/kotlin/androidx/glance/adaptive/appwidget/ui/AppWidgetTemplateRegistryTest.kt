@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
@@ -65,14 +66,16 @@ class AppWidgetTemplateRegistryTest {
         var observedSurface: AppWidgetSurface? = null
         var rendered = false
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { template, _, placedSurface ->
-                observedTemplate = template
-                observedSurface = placedSurface
-                { rendered = true }
-            },
+            TemplateRenderer(
+                noArchetype,
+                GlanceTemplateRenderer { template, _, placedSurface ->
+                    observedTemplate = template
+                    observedSurface = placedSurface
+                    { rendered = true }
+                },
+            ),
         )
 
         val dummy = DummyTemplate("Test")
@@ -91,16 +94,18 @@ class AppWidgetTemplateRegistryTest {
     @Test
     fun render_passesSelectedArchetypeToRenderer() {
         var observedArchetype: DummyArchetype? = null
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            ArchetypeSelector { _, placedSurface ->
-                if (placedSurface.dimensions.widthDp >= 250) DummyArchetype.ROW
-                else DummyArchetype.CARD
-            },
-            RemoteComposeTemplateRenderer { _, archetype, _ ->
-                observedArchetype = archetype
-                {}
-            },
+            TemplateRenderer(
+                ArchetypeSelector { _, placedSurface ->
+                    if (placedSurface.dimensions.widthDp >= 250) DummyArchetype.ROW
+                    else DummyArchetype.CARD
+                },
+                GlanceTemplateRenderer { _, archetype, _ ->
+                    observedArchetype = archetype
+                    {}
+                },
+            ),
         )
 
         AppWidgetTemplateRegistry.render(
@@ -116,10 +121,9 @@ class AppWidgetTemplateRegistryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            RemoteViewsTemplateRenderer { _, _, _, _ -> expectedRemoteViews },
+            remoteViewsRenderer { _, _, _ -> expectedRemoteViews },
         )
 
         val output =
@@ -136,10 +140,9 @@ class AppWidgetTemplateRegistryTest {
     @Test
     fun render_remoteComposeRenderer_returnsRemoteComposeOutput() {
         val expectedContent: @RemoteComposable @Composable () -> Unit = {}
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, _ -> expectedContent },
+            remoteComposeRenderer { _, _ -> expectedContent },
         )
 
         val output =
@@ -158,21 +161,25 @@ class AppWidgetTemplateRegistryTest {
         var firstCalls = 0
         var secondCalls = 0
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { _, _, _ ->
-                firstCalls++
-                {}
-            },
+            TemplateRenderer(
+                noArchetype,
+                GlanceTemplateRenderer { _, _, _ ->
+                    firstCalls++
+                    {}
+                },
+            ),
         )
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { _, _, _ ->
-                secondCalls++
-                {}
-            },
+            TemplateRenderer(
+                noArchetype,
+                GlanceTemplateRenderer { _, _, _ ->
+                    secondCalls++
+                    {}
+                },
+            ),
         )
 
         AppWidgetTemplateRegistry.render(
@@ -197,15 +204,13 @@ class AppWidgetTemplateRegistryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val lockScreenRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, _ -> {} },
+            remoteComposeRenderer { _, _ -> {} },
         )
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            RemoteViewsTemplateRenderer { _, _, _, _ -> lockScreenRemoteViews },
+            remoteViewsRenderer { _, _, _ -> lockScreenRemoteViews },
             surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
         )
 
@@ -229,21 +234,18 @@ class AppWidgetTemplateRegistryTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val customRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_1)
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             DummyTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, _ -> {} },
+            remoteComposeRenderer { _, _ -> {} },
         )
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             OtherTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { _, _, _ -> {} },
+            TemplateRenderer(noArchetype, GlanceTemplateRenderer { _, _, _ -> {} }),
         )
         AppWidgetTemplateRegistry.register(
             widgetName = "custom_widget",
             templateClass = DummyTemplate::class.java,
-            selector = noArchetype,
-            renderer = RemoteViewsTemplateRenderer { _, _, _, _ -> customRemoteViews },
+            renderer = remoteViewsRenderer { _, _, _ -> customRemoteViews },
             surface = AppWidgetSurface.MOBILE_LOCK_SCREEN,
         )
 

@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
@@ -28,6 +27,7 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.glance.adaptive.core.ui.ArchetypeRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
@@ -103,19 +103,20 @@ internal class RemoteComposeRenderOutput(val content: @RemoteComposable @Composa
 }
 
 /**
- * A [TemplateRenderer] that produces [@RemoteComposable][RemoteComposable] `@Composable` content
+ * An [ArchetypeRenderer] that produces [@RemoteComposable][RemoteComposable] `@Composable` content
  * for a template [T], archetype [A], and surface [S].
+ *
+ * Used by the library's built-in templates; developers implement [TemplateRenderer] instead.
  *
  * @param T The type of [GlanceAdaptiveTemplate] data payload this renderer consumes.
  * @param S The type of [GlanceSurface] this renderer targets.
  * @param A The layout archetype resolved for this render pass.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun interface RemoteComposeTemplateRenderer<
+internal fun interface RemoteComposeTemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
-> : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
+> : ArchetypeRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
      * Produces the [@RemoteComposable][RemoteComposable] `@Composable` content representation of
@@ -128,7 +129,7 @@ public fun interface RemoteComposeTemplateRenderer<
      * @return The `@RemoteComposable @Composable` content lambda to capture into a RemoteCompose
      *   document.
      */
-    public fun renderRemoteCompose(
+    fun renderRemoteCompose(
         template: T,
         archetype: A,
         surface: S,

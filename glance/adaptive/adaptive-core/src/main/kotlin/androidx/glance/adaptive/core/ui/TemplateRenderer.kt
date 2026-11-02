@@ -17,16 +17,15 @@
 package androidx.glance.adaptive.core.ui
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 
 /**
- * Rendering contract turning a template of type [T], laid out as archetype [A] on a surface of type
- * [S], into host content of type [R].
+ * Rendering contract turning a template of type [T] on a surface of type [S] into host content of
+ * type [R].
  *
- * The archetype is resolved by an [ArchetypeSelector] and handed in, not recomputed here: the
- * selector decides *what* to show, the renderer only decides *how* to draw it.
+ * This is the contract developers implement to draw a template themselves. The library's built-in
+ * templates implement it by pairing an internal archetype selector with an [ArchetypeRenderer].
  *
  * The output type is a parameter because this module deliberately carries no UI dependency: it
  * cannot name `@Composable`, `RemoteViews`, or any other host effect type. Leaving [R] open lets
@@ -41,25 +40,22 @@ import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
  *
  * @param T The template type implementing [GlanceAdaptiveTemplate].
  * @param S The surface type implementing [GlanceSurface].
- * @param A The archetype type produced by the paired [ArchetypeSelector].
  * @param R The host content type produced by [render].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun interface TemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
-    in A : Any,
     out R,
 > {
 
     /**
-     * Produces host content for [template], laid out as [archetype], on [surface].
+     * Produces host content for [template] on [surface].
      *
      * @param template Declarative template data payload.
-     * @param archetype Layout archetype resolved for [template] on [surface].
      * @param surface Target placement: the host surface, carrying its container size as
      *   [GlanceSurface.dimensions].
      * @return Host content of type [R].
      */
-    public fun render(template: T, archetype: A, surface: S): R
+    public fun render(template: T, surface: S): R
 }

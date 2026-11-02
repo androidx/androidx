@@ -21,25 +21,16 @@ import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackSizeSelector
 import androidx.glance.adaptive.appwidget.ui.templates.track.TrackTemplateRenderer
 import androidx.glance.adaptive.core.ui.TemplateRenderer
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
 import androidx.glance.adaptive.core.ui.templates.TrackTemplate
 
-/**
- * Assembles template data into [AppWidgetRenderOutput] by running an [ArchetypeSelector] and
- * handing its archetype to the paired [TemplateRenderer]. The archetype type is erased so
- * assemblers for different templates can share a map.
- */
-private fun interface TemplateAssembler {
-    fun assemble(
-        data: GlanceAdaptiveTemplate,
-        surface: AppWidgetSurface,
-    ): AppWidgetRenderOutput
-}
+/** A [TemplateRenderer] with its template type erased, so renderers can share a map. */
+private typealias AnyTemplateRenderer =
+    TemplateRenderer<GlanceAdaptiveTemplate, AppWidgetSurface, AppWidgetRenderOutput>
 
 /**
- * Registry mapping each `(templateClass, surface)` pair to the [ArchetypeSelector] and
- * [TemplateRenderer] that produce its [AppWidgetRenderOutput].
+ * Registry mapping each `(templateClass, surface)` pair to the [TemplateRenderer] that produces its
+ * [AppWidgetRenderOutput].
  *
  * Built-in defaults live in one map and per-widget overrides in another, both keyed the same way.
  * [render] checks the override for the widget first and falls back to the default. Within each map,
@@ -55,17 +46,20 @@ internal object AppWidgetTemplateRegistry {
     )
 
     /** Built-in defaults, registered by the library. */
-    private val defaultMap = mutableMapOf<Key, TemplateAssembler>()
+    private val defaultMap = mutableMapOf<Key, AnyTemplateRenderer>()
 
     /** Per-widget overrides keyed by `widgetName`, empty unless a widget registers one. */
-    private val overrideMap = mutableMapOf<Pair<String, Key>, TemplateAssembler>()
+    private val overrideMap = mutableMapOf<Pair<String, Key>, AnyTemplateRenderer>()
 
     init {
         synchronized(lock) { registerDefaultTemplates() }
     }
 
-    internal fun registerDefaultTemplates() {
-        register(TrackTemplate::class.java, TrackSizeSelector, TrackTemplateRenderer)
+    private fun registerDefaultTemplates() {
+        registerDefault(
+            TrackTemplate::class.java,
+            TemplateRenderer(TrackSizeSelector, TrackTemplateRenderer),
+        )
     }
 
     @VisibleForTesting
@@ -78,47 +72,42 @@ internal object AppWidgetTemplateRegistry {
     }
 
     /**
-     * Registers the built-in default [selector] and [renderer] for [templateClass] on [surface], or
-     * on every [AppWidgetSurface] when [surface] is `null`.
+     * Registers the built-in default [renderer] for [templateClass] on [surface], or on every
+     * [AppWidgetSurface] when [surface] is `null`.
      */
-    internal fun <T : GlanceAdaptiveTemplate, A : Any> register(
+    fun <T : GlanceAdaptiveTemplate> registerDefault(
         templateClass: Class<T>,
-        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
+        renderer: TemplateRenderer<T, AppWidgetSurface, AppWidgetRenderOutput>,
         surface: AppWidgetSurface? = null,
     ) {
-        val assembler = assembler(selector, renderer)
-        synchronized(lock) { forEachKey(templateClass, surface) { defaultMap[it] = assembler } }
+        val untyped = renderer.asUntyped()
+        synchronized(lock) { forEachKey(templateClass, surface) { defaultMap[it] = untyped } }
     }
 
     /**
-     * Registers a [selector] and [renderer] override for [widgetName], taking precedence over the
-     * built-in default for [templateClass] on [surface], or on every [AppWidgetSurface] when
-     * [surface] is `null`. Apps reach it through
-     * [androidx.glance.adaptive.appwidget.registerRenderer].
+     * Registers a [renderer] override for [widgetName], taking precedence over the built-in default
+     * for [templateClass] on [surface], or on every [AppWidgetSurface] when [surface] is `null`.
+     * Apps reach it through [androidx.glance.adaptive.appwidget.registerRenderer].
      *
      * @param T The template type implementing [GlanceAdaptiveTemplate].
-     * @param A The archetype type produced by [selector] and drawn by [renderer].
      * @param widgetName Developer widget identifier matching
      *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
      * @param templateClass The runtime class of the [GlanceAdaptiveTemplate] data payload.
-     * @param selector Resolves the layout archetype for [widgetName]. Note that the
-     *   [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions] of the surface it
+     * @param renderer Draws [templateClass] for [widgetName] as [AppWidgetRenderOutput]. Note that
+     *   the [androidx.glance.adaptive.core.ui.selection.GlanceSurface.dimensions] of the surface it
      *   receives may be `(0, 0)` when the host has not reported a positive size or during widget
-     *   picker preview rendering, so selectors must handle zero dimensions gracefully.
-     * @param renderer Draws the archetype chosen by [selector] as [AppWidgetRenderOutput].
+     *   picker preview rendering, so renderers must handle zero dimensions gracefully.
      * @param surface Optional [AppWidgetSurface] to target, or `null` for all surfaces.
      */
-    fun <T : GlanceAdaptiveTemplate, A : Any> register(
+    fun <T : GlanceAdaptiveTemplate> register(
         widgetName: String,
         templateClass: Class<T>,
-        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
+        renderer: TemplateRenderer<T, AppWidgetSurface, AppWidgetRenderOutput>,
         surface: AppWidgetSurface? = null,
     ) {
-        val assembler = assembler(selector, renderer)
+        val untyped = renderer.asUntyped()
         synchronized(lock) {
-            forEachKey(templateClass, surface) { overrideMap[widgetName to it] = assembler }
+            forEachKey(templateClass, surface) { overrideMap[widgetName to it] = untyped }
         }
     }
 
@@ -136,17 +125,17 @@ internal object AppWidgetTemplateRegistry {
         for (i in surfaces.indices) action(Key(templateClass, surfaces[i]))
     }
 
-    private fun <T : GlanceAdaptiveTemplate, A : Any> assembler(
-        selector: ArchetypeSelector<T, AppWidgetSurface, A>,
-        renderer: TemplateRenderer<T, AppWidgetSurface, A, AppWidgetRenderOutput>,
-    ): TemplateAssembler = TemplateAssembler { data, surface ->
-        @Suppress("UNCHECKED_CAST") val typed = data as T
-        renderer.render(typed, selector.select(typed, surface), surface)
-    }
+    /**
+     * Casts to an untyped [AnyTemplateRenderer] so renderers for different templates can share a
+     * map. Safe because [render] only hands a renderer data of the class it was registered for.
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun TemplateRenderer<*, AppWidgetSurface, AppWidgetRenderOutput>.asUntyped():
+        AnyTemplateRenderer = this as AnyTemplateRenderer
 
     /**
      * Resolves the override for [widgetName] (if any) or the default for the runtime class of
-     * [data] on [surface], runs its selector, and hands the resulting archetype to its renderer.
+     * [data] on [surface] and renders [data] with it.
      *
      * @param data Declarative template data payload.
      * @param surface Target AppWidget surface, carrying the container size of the placement as
@@ -162,13 +151,13 @@ internal object AppWidgetTemplateRegistry {
         widgetName: String? = null,
     ): AppWidgetRenderOutput {
         val key = Key(data.javaClass, surface)
-        val assembler =
+        val renderer =
             synchronized(lock) {
                 requireNotNull(widgetName?.let { overrideMap[it to key] } ?: defaultMap[key]) {
                     "No renderer registered for template: ${data.javaClass.name} on surface: " +
                         "$surface"
                 }
             }
-        return assembler.assemble(data, surface)
+        return renderer.render(data, surface)
     }
 }

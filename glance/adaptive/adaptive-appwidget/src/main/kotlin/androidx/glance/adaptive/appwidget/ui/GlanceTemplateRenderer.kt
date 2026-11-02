@@ -20,7 +20,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import androidx.compose.runtime.Composable
 import androidx.glance.adaptive.appwidget.GlanceRemoteViewsComposer
-import androidx.glance.adaptive.core.ui.TemplateRenderer
+import androidx.glance.adaptive.core.ui.ArchetypeRenderer
 import androidx.glance.adaptive.core.ui.selection.Dimensions
 import androidx.glance.adaptive.core.ui.selection.GlanceSurface
 import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
@@ -41,7 +41,7 @@ internal class GlanceRenderOutput(val content: @Composable () -> Unit) : AppWidg
 }
 
 /**
- * A [TemplateRenderer] that produces Glance `@Composable` content for a template [T], archetype
+ * An [ArchetypeRenderer] that produces Glance `@Composable` content for a template [T], archetype
  * [A], and surface [S].
  *
  * @param T The type of [GlanceAdaptiveTemplate] data payload this renderer consumes.
@@ -55,7 +55,7 @@ internal fun interface GlanceTemplateRenderer<
     in T : GlanceAdaptiveTemplate,
     in S : GlanceSurface,
     in A : Any,
-> : TemplateRenderer<T, S, A, AppWidgetRenderOutput> {
+> : ArchetypeRenderer<T, S, A, AppWidgetRenderOutput> {
 
     /**
      * Produces the Glance `@Composable` content representation of [template] for [archetype] on

@@ -32,9 +32,9 @@ import androidx.glance.LocalSize
 import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
 import androidx.glance.adaptive.appwidget.ui.GlanceAppWidgetProfiles
 import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
-import androidx.glance.adaptive.appwidget.ui.RemoteComposeTemplateRenderer
 import androidx.glance.adaptive.appwidget.ui.RemoteViewsRenderOutput
-import androidx.glance.adaptive.appwidget.ui.RemoteViewsTemplateRenderer
+import androidx.glance.adaptive.appwidget.ui.remoteComposeRenderer
+import androidx.glance.adaptive.appwidget.ui.remoteViewsRenderer
 import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
 import androidx.glance.adaptive.core.ui.TemplateRenderer
 import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
@@ -79,13 +79,15 @@ class GlanceRemoteViewsComposerTest {
         recordedLocalSizes.clear()
         GlanceRemoteViewsComposer.resetForTesting()
         AppWidgetTemplateRegistry.resetForTesting()
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { _, _, surface ->
-                recordedSurfaces += surface
-                { recordedLocalSizes += LocalSize.current }
-            },
+            TemplateRenderer(
+                noArchetype,
+                GlanceTemplateRenderer { _, _, surface ->
+                    recordedSurfaces += surface
+                    { recordedLocalSizes += LocalSize.current }
+                },
+            ),
         )
         composer = GlanceRemoteViewsComposer(context, appWidgetManager)
     }
@@ -382,18 +384,20 @@ class GlanceRemoteViewsComposerTest {
 
     @Test
     fun compose_acrossComposerInstances_preservesAndRotatesLayoutIdOnStructureChange() = runTest {
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            GlanceTemplateRenderer { _, _, surface ->
-                {
-                    if (surface.dimensions.widthDp >= 200) {
-                        Row { Text("wide") }
-                    } else {
-                        Box { Text("compact") }
+            TemplateRenderer(
+                noArchetype,
+                GlanceTemplateRenderer { _, _, surface ->
+                    {
+                        if (surface.dimensions.widthDp >= 200) {
+                            Row { Text("wide") }
+                        } else {
+                            Box { Text("compact") }
+                        }
                     }
-                }
-            },
+                },
+            ),
         )
         val compact = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(88, 88))
         val wide = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(348, 88))
@@ -417,10 +421,9 @@ class GlanceRemoteViewsComposerTest {
         var observedContext: Context? = null
         var observedSurface: AppWidgetSurface? = null
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            RemoteViewsTemplateRenderer { ctx, _, _, surface ->
+            remoteViewsRenderer { ctx, _, surface ->
                 observedContext = ctx
                 observedSurface = surface
                 expectedRemoteViews
@@ -442,10 +445,9 @@ class GlanceRemoteViewsComposerTest {
         val expectedRemoteViews =
             RemoteViews(context.packageName, android.R.layout.simple_list_item_2)
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            TemplateRenderer { _, _, _ -> RemoteViewsRenderOutput(expectedRemoteViews) },
+            TemplateRenderer { _, _ -> RemoteViewsRenderOutput(expectedRemoteViews) },
         )
         val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
 
@@ -462,10 +464,9 @@ class GlanceRemoteViewsComposerTest {
         var capturedDisplaySize: Size? = null
         var capturedProfile: Profile? = null
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, surface ->
+            remoteComposeRenderer { _, surface ->
                 observedSurface = surface
                 {
                     remoteComposableInvoked = true
@@ -500,10 +501,9 @@ class GlanceRemoteViewsComposerTest {
     fun compose_remoteComposeRenderer_unspecifiedDimensions_fallsBackToDisplaySize() = runTest {
         var capturedDisplaySize: Size? = null
 
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, _ ->
+            remoteComposeRenderer { _, _ ->
                 {
                     capturedDisplaySize =
                         LocalRemoteComposeCreationState.current.creationDisplayInfo.size
@@ -526,10 +526,9 @@ class GlanceRemoteViewsComposerTest {
     @Test(expected = IllegalStateException::class)
     @Config(sdk = [36])
     fun compose_remoteComposePreSdk37_throwsIllegalStateException() = runTest {
-        AppWidgetTemplateRegistry.register(
+        AppWidgetTemplateRegistry.registerDefault(
             TestTemplate::class.java,
-            noArchetype,
-            RemoteComposeTemplateRenderer { _, _, _ -> {} },
+            remoteComposeRenderer { _, _ -> {} },
         )
         val target = RenderTarget(AppWidgetSurface.MOBILE_HOME_SCREEN, Dimensions(200, 100))
 
