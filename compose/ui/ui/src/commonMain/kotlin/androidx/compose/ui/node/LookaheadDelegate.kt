@@ -148,8 +148,8 @@ internal abstract class LookaheadCapablePlaceable :
     /** [PlacementScope] used to place children. */
     val placementScope = PlacementScope(this)
 
-    protected fun NodeCoordinator.invalidateAlignmentLinesFromPositionChange() {
-        if (wrapped?.layoutNode != layoutNode) {
+    protected fun invalidateAlignmentLinesFromPositionChange() {
+        if (parent?.layoutNode == layoutNode) {
             alignmentLinesOwner.alignmentLines.onAlignmentsChanged()
         } else {
             alignmentLinesOwner.parentAlignmentLinesOwner?.alignmentLines?.onAlignmentsChanged()
@@ -706,7 +706,7 @@ internal abstract class LookaheadDelegate(val coordinator: NodeCoordinator) :
             this.position = position
             layoutNode.layoutDelegate.lookaheadPassDelegate
                 ?.notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
-            coordinator.invalidateAlignmentLinesFromPositionChange()
+            invalidateAlignmentLinesFromPositionChange()
         }
         if (!isPlacingForAlignment) {
             captureRulersIfNeeded(measureResult)
