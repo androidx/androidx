@@ -35,6 +35,7 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.text.TextUtils;
 import android.view.View;
@@ -47,8 +48,10 @@ import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompatActivity;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.PublicationInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.StructuredDataInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -176,7 +179,6 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(collectionItemInfoCompat.isHeading()).isTrue();
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     @Test
     public void testStructuredDataInfoCompatEquals() {
         MathInfoCompat division = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
@@ -196,9 +198,9 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(division).isNotEqualTo(sqrt);
         assertThat(division).isNotEqualTo(anotherSqrt);
         assertThat(sqrt).isEqualTo(anotherSqrt);
+        assertThat(sqrt.hashCode()).isEqualTo(anotherSqrt.hashCode());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     @Test
     public void testGetSetMathInfo() {
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
@@ -206,18 +208,190 @@ public class AccessibilityNodeInfoCompatTest extends
         // Verify the values are correct for a node with valid math info.
         MathInfoCompat mathInfoCompat = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
         mathInfoCompat.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "division");
+        mathInfoCompat.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG, "1");
         nodeCompat.setStructuredDataInfo(mathInfoCompat);
+
         MathInfoCompat retrievedMathInfoCompat =
                 (MathInfoCompat) nodeCompat.getStructuredDataInfo();
         assertThat(retrievedMathInfoCompat).isNotNull();
         assertThat(retrievedMathInfoCompat.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_FRACTION);
-        assertThat(retrievedMathInfoCompat.getAttributes().size()).isEqualTo(1);
+        assertThat(retrievedMathInfoCompat.getAttributes().size()).isEqualTo(2);
         assertThat(retrievedMathInfoCompat.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
                 .isEqualTo("division");
+        assertThat(retrievedMathInfoCompat.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG))
+                .isEqualTo("1");
 
         // Verify the behavior for a node without math info.
         nodeCompat.setStructuredDataInfo(null);
         assertThat(nodeCompat.getStructuredDataInfo()).isNull();
+    }
+
+    @Test
+    public void testMathInfoTags() {
+        String[] standardTags = {
+                MathInfoCompat.MATH_TAG_MATH,
+                MathInfoCompat.MATH_TAG_FRACTION,
+                MathInfoCompat.MATH_TAG_IDENTIFIER,
+                MathInfoCompat.MATH_TAG_MULTISCRIPTS,
+                MathInfoCompat.MATH_TAG_NONE_SCRIPT,
+                MathInfoCompat.MATH_TAG_NUMBER,
+                MathInfoCompat.MATH_TAG_OPERATOR,
+                MathInfoCompat.MATH_TAG_OVER,
+                MathInfoCompat.MATH_TAG_PRESCRIPT_DELIMITER,
+                MathInfoCompat.MATH_TAG_ROOT,
+                MathInfoCompat.MATH_TAG_ROW,
+                MathInfoCompat.MATH_TAG_SQUARE_ROOT,
+                MathInfoCompat.MATH_TAG_STRING_LITERAL,
+                MathInfoCompat.MATH_TAG_SUB,
+                MathInfoCompat.MATH_TAG_SUB_SUP,
+                MathInfoCompat.MATH_TAG_SUP,
+                MathInfoCompat.MATH_TAG_TABLE,
+                MathInfoCompat.MATH_TAG_TABLE_CELL,
+                MathInfoCompat.MATH_TAG_TABLE_ROW,
+                MathInfoCompat.MATH_TAG_TEXT,
+                MathInfoCompat.MATH_TAG_UNDER,
+                MathInfoCompat.MATH_TAG_UNDER_OVER,
+        };
+
+        for (String tag : standardTags) {
+            MathInfoCompat mathInfo = new MathInfoCompat(tag);
+            assertThat(mathInfo.getTag()).isEqualTo(tag);
+        }
+
+        // Verify out-of-range / custom tags are also accepted and preserved across API levels.
+        String[] customTags = {"custom-tag", "unknown_math_tag", "mathml:semantics"};
+        for (String tag : customTags) {
+            //noinspection WrongConstant
+            MathInfoCompat mathInfo = new MathInfoCompat(tag);
+            assertThat(mathInfo.getTag()).isEqualTo(tag);
+        }
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testMathInfoPreviewTags() {
+        // Tag values are MathML element names and must match the platform MathInfo tag values.
+        assertThat(MathInfoCompat.MATH_TAG_ANNOTATION).isEqualTo("annotation");
+        assertThat(MathInfoCompat.MATH_TAG_ANNOTATION_XML).isEqualTo("annotation-xml");
+        assertThat(MathInfoCompat.MATH_TAG_ERROR).isEqualTo("merror");
+        assertThat(MathInfoCompat.MATH_TAG_PHANTOM).isEqualTo("mphantom");
+        assertThat(MathInfoCompat.MATH_TAG_SEMANTICS).isEqualTo("semantics");
+        assertThat(MathInfoCompat.MATH_TAG_SPACE).isEqualTo("mspace");
+
+        String[] previewTags = {
+                MathInfoCompat.MATH_TAG_ANNOTATION,
+                MathInfoCompat.MATH_TAG_ANNOTATION_XML,
+                MathInfoCompat.MATH_TAG_ERROR,
+                MathInfoCompat.MATH_TAG_PHANTOM,
+                MathInfoCompat.MATH_TAG_SEMANTICS,
+                MathInfoCompat.MATH_TAG_SPACE,
+        };
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        for (String tag : previewTags) {
+            nodeCompat.setStructuredDataInfo(new MathInfoCompat(tag));
+
+            MathInfoCompat retrieved = (MathInfoCompat) nodeCompat.getStructuredDataInfo();
+            assertThat(retrieved).isNotNull();
+            assertThat(retrieved.getTag()).isEqualTo(tag);
+        }
+    }
+
+    @Test
+    public void testMathInfoGetAttributes_isUnmodifiable() {
+        MathInfoCompat mathInfo = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
+        mathInfo.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "divide($a, $b)");
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> mathInfo.getAttributes().put("test_key", "test_value"));
+    }
+
+    @Test
+    public void testMathInfoAttributeMutations() {
+        MathInfoCompat mathInfo = new MathInfoCompat(MathInfoCompat.MATH_TAG_ROW);
+        mathInfo.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "row-intent");
+        mathInfo.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG, "2");
+
+        assertThat(mathInfo.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
+                .isEqualTo("row-intent");
+        assertThat(mathInfo.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG)).isEqualTo("2");
+
+        mathInfo.removeAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG);
+        assertThat(mathInfo.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_ARG)).isNull();
+        assertThat(mathInfo.getAttributes().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void testMathInfoExtrasPersistence() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        MathInfoCompat mathInfo = new MathInfoCompat(MathInfoCompat.MATH_TAG_SQUARE_ROOT);
+        mathInfo.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "square-root($x)");
+        nodeCompat.setStructuredDataInfo(mathInfo);
+
+        // Simulate parceling across processes (IPC transfer to an accessibility service)
+        Parcel parcel = Parcel.obtain();
+        nodeCompat.unwrap().writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        AccessibilityNodeInfo parceledNode = AccessibilityNodeInfo.CREATOR.createFromParcel(parcel);
+        parcel.recycle();
+
+        AccessibilityNodeInfoCompat wrappedNode = AccessibilityNodeInfoCompat.wrap(parceledNode);
+        MathInfoCompat retrieved = (MathInfoCompat) wrappedNode.getStructuredDataInfo();
+
+        assertThat(retrieved).isNotNull();
+        assertThat(retrieved.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_SQUARE_ROOT);
+        assertThat(retrieved.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
+                .isEqualTo("square-root($x)");
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testPublicationInfoSurvivesParceling() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        PublicationInfoCompat footnote =
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+        footnote.putAttribute("attribute", "value");
+        nodeCompat.setStructuredDataInfo(footnote);
+
+        Parcel parcel = Parcel.obtain();
+        nodeCompat.unwrap().writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+        AccessibilityNodeInfo parceledNode = AccessibilityNodeInfo.CREATOR.createFromParcel(parcel);
+        parcel.recycle();
+
+        StructuredDataInfoCompat retrieved =
+                AccessibilityNodeInfoCompat.wrap(parceledNode).getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(PublicationInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+        assertThat(retrieved.getAttribute("attribute")).isEqualTo("value");
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testPublicationInfoReplacesMathInfo() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION));
+
+        nodeCompat.setStructuredDataInfo(
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE));
+
+        StructuredDataInfoCompat retrieved = nodeCompat.getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(PublicationInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE);
+    }
+
+    @OptIn(markerClass = PreviewAccessibilityApi.class)
+    @Test
+    public void testMathInfoReplacesPublicationInfo() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setStructuredDataInfo(
+                new PublicationInfoCompat(PublicationInfoCompat.PUBLICATION_TAG_FOOTNOTE));
+
+        nodeCompat.setStructuredDataInfo(new MathInfoCompat(MathInfoCompat.MATH_TAG_ROW));
+
+        StructuredDataInfoCompat retrieved = nodeCompat.getStructuredDataInfo();
+        assertThat(retrieved).isInstanceOf(MathInfoCompat.class);
+        assertThat(retrieved.getTag()).isEqualTo(MathInfoCompat.MATH_TAG_ROW);
     }
 
     @Test

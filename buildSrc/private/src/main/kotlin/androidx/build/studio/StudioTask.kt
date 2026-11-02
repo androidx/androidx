@@ -18,6 +18,7 @@ package androidx.build.studio
 
 import androidx.build.BuildEnvironment
 import androidx.build.ProjectLayoutType
+import androidx.build.branchProperty
 import androidx.build.getSdkPath
 import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
@@ -25,11 +26,23 @@ import androidx.build.ide.IdePlugin
 import androidx.build.ide.ManagedIdeTask
 import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
+import androidx.build.ide.registerWriteIdeaPropertiesTask
 import androidx.build.ide.writeAndroidSdkPath
 import java.io.File
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.WriteProperties
 
-private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
+/** Folder in your home dir for Studio's config and system files. */
+private fun Project.studioDirName(): Provider<String> = provider {
+    branchProperty("androidx.studio.dir", ".AndroidStudioAndroidX")
+}
+
+private fun Project.configureCommonStudioTask(
+    task: ManagedIdeTask,
+    studioDirName: Provider<String>,
+) {
     task.ideName.convention("Studio")
 
     val studioNameVersion = getVersionByName("androidStudioName")
@@ -66,7 +79,9 @@ private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
 
     val configBaseDir =
         layout.dir(
-            providers.environmentVariable("HOME").map { File(it, ".AndroidStudioAndroidX/config") }
+            providers.environmentVariable("HOME").zip(studioDirName) { home, dirName ->
+                File(home, "$dirName/config")
+            }
         )
     val relativeSdkPath = getSdkPath().relativeTo(project.getSupportRootFolder())
 
@@ -78,16 +93,18 @@ private fun Project.configureCommonStudioTask(task: ManagedIdeTask) {
     }
 }
 
-fun Project.configureRootStudioTask(task: ManagedIdeTask) {
-    configureCommonStudioTask(task)
+fun Project.configureRootStudioTask(
+    task: ManagedIdeTask,
+    studioDirName: Provider<String>,
+    writeIdeaProperties: TaskProvider<WriteProperties>,
+) {
+    configureCommonStudioTask(task, studioDirName)
     val vmOptionsFile =
         objects.fileProperty().apply {
             set(layout.projectDirectory.file("development/studio/studio.vmoptions"))
         }
     val ideaPropertiesFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/studio/idea.properties"))
-        }
+        objects.fileProperty().apply { set(writeIdeaProperties.flatMap { it.destinationFile }) }
 
     task.configureIntellijLikeIde(
         envPrefix = "STUDIO",
@@ -97,7 +114,7 @@ fun Project.configureRootStudioTask(task: ManagedIdeTask) {
 }
 
 fun Project.configurePlaygroundStudioTask(task: ManagedIdeTask) {
-    configureCommonStudioTask(task)
+    configureCommonStudioTask(task, provider { ".AndroidStudioAndroidX" })
     val supportRootFolder = rootProject.extensions.extraProperties.get("supportRootFolder") as File
 
     task.requiresProjectList.convention(false)
@@ -121,10 +138,17 @@ fun Project.configurePlaygroundStudioTask(task: ManagedIdeTask) {
 }
 
 fun Project.registerStudioTask() {
-    tasks.register("studio", ManagedIdeTask::class.java) { task ->
-        when (ProjectLayoutType.from(this)) {
-            ProjectLayoutType.ANDROIDX -> configureRootStudioTask(task)
-            ProjectLayoutType.PLAYGROUND -> configurePlaygroundStudioTask(task)
+    when (ProjectLayoutType.from(this)) {
+        ProjectLayoutType.ANDROIDX -> {
+            val studioDirName = studioDirName()
+            val writeIdeaProperties = registerWriteIdeaPropertiesTask("Studio", studioDirName)
+            tasks.register("studio", ManagedIdeTask::class.java) { task ->
+                configureRootStudioTask(task, studioDirName, writeIdeaProperties)
+            }
         }
+        ProjectLayoutType.PLAYGROUND ->
+            tasks.register("studio", ManagedIdeTask::class.java) { task ->
+                configurePlaygroundStudioTask(task)
+            }
     }
 }
