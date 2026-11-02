@@ -17,6 +17,7 @@
 package androidx.people.internal.platform
 
 import android.net.Uri
+import android.os.Bundle
 import androidx.core.os.BundleCompat
 import androidx.people.Capability
 import androidx.people.Criterion
@@ -118,6 +119,362 @@ class QueryArgsTest {
     fun criteriaByPackage_nullBundle_returnsEmpty() {
         assertThat(null.personCriteriaByPackage()).isEmpty()
         assertThat(null.groupCriteriaByPackage()).isEmpty()
+    }
+
+    @Test
+    fun criteriaByPackage_ignoresSubQueriesWithoutPackage() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+2"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.personCriteriaByPackage())
+            .containsExactly(VOIP, setOf(Criterion.Phone("+1")))
+    }
+
+    @Test
+    fun personCriteriaFor_returnsOnlyTheDirectoryCriteria() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, CHAT)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_EMAIL,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("a@example.com"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.personCriteriaFor(VOIP)).containsExactly(Criterion.Phone("+1"))
+        assertThat(args.personCriteriaFor(CHAT)).containsExactly(Criterion.Email("a@example.com"))
+    }
+
+    @Test
+    fun personCriteriaFor_byDefault_includesSubQueriesWithoutPackage() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("p1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, CHAT)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_EMAIL,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("a@example.com"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.personCriteriaFor(VOIP))
+            .containsExactly(Criterion.PersonLookupKey("p1"), Criterion.Phone("+1"))
+    }
+
+    @Test
+    fun personCriteriaFor_nullImplicitPackage_ignoresSubQueriesWithoutPackage() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("p1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.personCriteriaFor(VOIP, implicitPackage = null))
+            .containsExactly(Criterion.PersonLookupKey("p1"))
+    }
+
+    @Test
+    fun personCriteriaFor_otherImplicitPackage_addressesSubQueriesWithoutPackageToIt() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("p1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.personCriteriaFor(VOIP, implicitPackage = CHAT))
+            .containsExactly(Criterion.PersonLookupKey("p1"))
+        assertThat(args.personCriteriaFor(CHAT, implicitPackage = CHAT))
+            .containsExactly(Criterion.Phone("+1"))
+    }
+
+    @Test
+    fun personCriteriaFor_noCriteriaForTheDirectory_returnsNull() {
+        val chatPhoneArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, CHAT)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        }
+                    ),
+                )
+            }
+        val unpackagedPhoneArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        }
+                    ),
+                )
+            }
+
+        assertThat(chatPhoneArgs.personCriteriaFor(VOIP)).isNull()
+        assertThat(unpackagedPhoneArgs.personCriteriaFor(VOIP, implicitPackage = null)).isNull()
+        assertThat(null.personCriteriaFor(VOIP)).isNull()
+    }
+
+    @Test
+    fun groupCriteriaFor_byDefault_includesSubQueriesWithoutPackage() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, CHAT)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g2"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.groupCriteriaFor(CHAT))
+            .containsExactly(Criterion.GroupLookupKey("g1"), Criterion.GroupLookupKey("g2"))
+    }
+
+    @Test
+    fun groupCriteriaFor_nullImplicitPackage_ignoresSubQueriesWithoutPackage() {
+        val args =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, CHAT)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g2"),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        assertThat(args.groupCriteriaFor(CHAT, implicitPackage = null))
+            .containsExactly(Criterion.GroupLookupKey("g1"))
+    }
+
+    @Test
+    fun groupCriteriaFor_noCriteriaForTheDirectory_returnsNull() {
+        val voipGroupArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, VOIP)
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g1"),
+                            )
+                        }
+                    ),
+                )
+            }
+        val unpackagedPhoneArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        }
+                    ),
+                )
+            }
+
+        assertThat(voipGroupArgs.groupCriteriaFor(CHAT)).isNull()
+        assertThat(unpackagedPhoneArgs.groupCriteriaFor(CHAT)).isNull()
+        assertThat(null.groupCriteriaFor(CHAT)).isNull()
     }
 
     @Test

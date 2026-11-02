@@ -18,6 +18,7 @@
 
 package androidx.people
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.RestrictTo
@@ -25,7 +26,7 @@ import androidx.core.content.IntentCompat
 import androidx.people.internal.directoryPersonQuery
 import androidx.people.internal.platform.PeopleContractCompat
 import androidx.people.internal.platform.capabilityFromInteractionType
-import androidx.people.internal.platform.personCriteriaByPackage
+import androidx.people.internal.platform.personCriteriaFor
 
 /**
  * A request to start a voice call, video call, or messaging session in one People Directory
@@ -36,7 +37,7 @@ import androidx.people.internal.platform.personCriteriaByPackage
  * system launches the directory application's Activity matching [ACTION_START_INTERACTION], which
  * uses [parse] in `Activity.onCreate` or `Activity.onNewIntent` to read the request:
  * ```kotlin
- * val interaction = PeopleInteraction.parse(intent) ?: return
+ * val interaction = PeopleInteraction.parse(context, intent) ?: return
  * val recipient = interaction.targetPersonId ?: findRecipient(interaction.targetCriteria)
  * when (interaction.capability) {
  *     Capability.VOICE -> startVoiceCall(recipient)
@@ -130,13 +131,16 @@ internal constructor(
         /**
          * Parses an incoming [Intent] delivered with [ACTION_START_INTERACTION].
          *
+         * Only the criteria addressed to this application are read. Sub-queries without a package
+         * count as addressed to this application, and sub-queries for other packages are ignored.
+         *
+         * @param context A context of the People Directory application receiving [intent].
          * @param intent The intent delivered to the Activity.
          * @return The parsed [PeopleInteraction], or `null` if the intent is not a valid people
-         *   interaction request, including when it does not address exactly one People Directory
-         *   application.
+         *   interaction request or contains no criteria addressed to this application.
          */
         @JvmStatic
-        public fun parse(intent: Intent): PeopleInteraction? {
+        public fun parse(context: Context, intent: Intent): PeopleInteraction? {
             if (intent.action != ACTION_START_INTERACTION) return null
             val interactionType =
                 intent.getStringExtra(PeopleContractCompat.Intents.EXTRA_PEOPLE_INTERACTION_TYPE)
@@ -150,9 +154,8 @@ internal constructor(
                     Bundle::class.java,
                 ) ?: return null
 
-            // An interaction targets exactly one People Directory application.
-            val (directoryPackage, criteria) =
-                queryArgs.personCriteriaByPackage().entries.singleOrNull() ?: return null
+            val directoryPackage = context.packageName
+            val criteria = queryArgs.personCriteriaFor(directoryPackage) ?: return null
             return PeopleInteraction(directoryPackage, criteria, capability)
         }
     }

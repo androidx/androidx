@@ -406,7 +406,7 @@ class PeopleDirectoryContentProviderTest {
     }
 
     @Test
-    fun query_criterionWithoutDirectoryPackage_throws() {
+    fun queryPersons_subQueryWithoutPackage_isAddressedToItself() {
         val queryArgs =
             Bundle().apply {
                 putParcelableArrayList(
@@ -426,10 +426,85 @@ class PeopleDirectoryContentProviderTest {
                 )
             }
 
-        assertThrows(IllegalArgumentException::class.java) {
-            directory.query(PERSONS_URI, null, queryArgs, null)
-        }
-        assertThat(directory.lastPersonQuery).isNull()
+        directory.query(PERSONS_URI, null, queryArgs, null)?.close()
+
+        assertThat(directory.lastPersonQuery?.criteria).containsExactly(PHONE)
+    }
+
+    @Test
+    fun queryGroups_subQueryWithoutPackage_isAddressedToItself() {
+        val queryArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Groups.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("g1"),
+                            )
+                        }
+                    ),
+                )
+            }
+
+        directory.query(GROUPS_URI, null, queryArgs, null)?.close()
+
+        assertThat(directory.lastGroupQuery?.criteria)
+            .containsExactly(Criterion.GroupLookupKey("g1"))
+    }
+
+    @Test
+    fun queryPersons_subQueriesWithAndWithoutPackage_answersOnlyItsOwn() {
+        val queryArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, "com.other.app")
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_EMAIL,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf(EMAIL.address),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, packageName())
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("p1"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf(PHONE.number),
+                            )
+                        },
+                    ),
+                )
+            }
+
+        directory.query(PERSONS_URI, null, queryArgs, null)?.close()
+
+        assertThat(directory.lastPersonQuery?.criteria)
+            .containsExactly(Criterion.PersonLookupKey("p1"), PHONE)
     }
 
     @Test

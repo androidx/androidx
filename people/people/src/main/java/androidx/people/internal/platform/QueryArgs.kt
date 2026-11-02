@@ -67,6 +67,32 @@ internal fun Bundle?.groupCriteriaByPackage(): Map<String, Set<Criterion>> = cri
     it.toGroupCriterion()
 }
 
+/**
+ * Parses the person criteria in these query arguments addressed to [directoryPackage], or returns
+ * `null` if there are none.
+ *
+ * @param directoryPackage The package whose criteria to return.
+ * @param implicitPackage The package that sub-queries without a package are addressed to. By
+ *   default they count as addressed to [directoryPackage]; pass `null` to ignore them.
+ */
+internal fun Bundle?.personCriteriaFor(
+    directoryPackage: String,
+    implicitPackage: String? = directoryPackage,
+): Set<Criterion>? = criteriaByPackage(implicitPackage) { it.toPersonCriterion() }[directoryPackage]
+
+/**
+ * Parses the group criteria in these query arguments addressed to [directoryPackage], or returns
+ * `null` if there are none.
+ *
+ * @param directoryPackage The package whose criteria to return.
+ * @param implicitPackage The package that sub-queries without a package are addressed to. By
+ *   default they count as addressed to [directoryPackage]; pass `null` to ignore them.
+ */
+internal fun Bundle?.groupCriteriaFor(
+    directoryPackage: String,
+    implicitPackage: String? = directoryPackage,
+): Set<Criterion>? = criteriaByPackage(implicitPackage) { it.toGroupCriterion() }[directoryPackage]
+
 /** Serializes this interaction's target criteria into an interaction query arguments [Bundle]. */
 internal fun PeopleInteraction.toInteractionQueryArgs(): Bundle =
     personQueryArgsOf(mapOf(directoryPackage to targetCriteria)).apply {
@@ -77,9 +103,10 @@ internal fun PeopleInteraction.toInteractionQueryArgs(): Bundle =
     }
 
 private inline fun Bundle?.criteriaByPackage(
-    toCriterion: (Selection) -> Criterion?
+    implicitPackage: String? = null,
+    toCriterion: (Selection) -> Criterion?,
 ): Map<String, Set<Criterion>> = buildMap {
-    for ((directoryPackage, subQueries) in subQueriesByPackage()) {
+    for ((directoryPackage, subQueries) in subQueriesByPackage(implicitPackage)) {
         val criteria = subQueries.selections().mapNotNullTo(mutableSetOf(), toCriterion)
         if (criteria.isNotEmpty()) put(directoryPackage, criteria)
     }
@@ -107,8 +134,14 @@ private fun subQueriesOf(directoryPackage: String, selections: List<Selection>):
         }
     }
 
-/** Returns the sub-queries in these query arguments, grouped by non-empty package in order. */
-private fun Bundle?.subQueriesByPackage(): Map<String, List<Bundle>> {
+/**
+ * Returns the sub-queries in these query arguments, grouped by package in order.
+ *
+ * Sub-queries without a package are grouped under [implicitPackage], or omitted if it is `null`.
+ */
+private fun Bundle?.subQueriesByPackage(
+    implicitPackage: String? = null
+): Map<String, List<Bundle>> {
     val subQueries =
         this?.let {
             BundleCompat.getParcelableArrayList(
@@ -118,8 +151,13 @@ private fun Bundle?.subQueriesByPackage(): Map<String, List<Bundle>> {
             )
         } ?: return emptyMap()
     return subQueries
-        .groupBy { it.getString(PeopleContractCompat.QUERY_ARG_PACKAGE).orEmpty() }
-        .filterKeys { it.isNotEmpty() }
+        .mapNotNull { subQuery ->
+            val directoryPackage =
+                subQuery.getString(PeopleContractCompat.QUERY_ARG_PACKAGE)?.ifEmpty { null }
+                    ?: implicitPackage
+            directoryPackage?.let { it to subQuery }
+        }
+        .groupBy({ it.first }, { it.second })
 }
 
 /** Returns every [Selection] across these sub-queries, in order. */
