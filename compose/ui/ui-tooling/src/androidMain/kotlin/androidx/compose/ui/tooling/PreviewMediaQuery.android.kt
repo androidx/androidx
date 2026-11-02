@@ -34,6 +34,8 @@ private const val PARAM_HAS_MICROPHONE = "hasmicrophone"
 private const val PARAM_VIEWING_DISTANCE = "viewingdistance"
 private const val PARAM_WIDTH = "width"
 private const val PARAM_HEIGHT = "height"
+private const val PARAM_DPI = "dpi"
+private const val PARAM_ORIENTATION = "orientation"
 
 // Spec parameter values
 private const val POSTURE_TABLETOP = "tabletop"
@@ -48,6 +50,23 @@ private const val KEYBOARD_KIND_NONE = "none"
 
 private const val VIEWING_DISTANCE_FAR = "far"
 private const val VIEWING_DISTANCE_MEDIUM = "medium"
+
+private const val ORIENTATION_LANDSCAPE = "landscape"
+private const val ORIENTATION_PORTRAIT = "portrait"
+
+/**
+ * Default preview spec density when `dpi` is omitted, matching Studio's `DeviceSpec.DEFAULT_DPI`.
+ */
+private const val DEFAULT_SPEC_DPI = 420
+
+/** Android medium density baseline (`1dp == 1px` at 160 dpi). */
+private const val BASELINE_DPI = 160
+
+/** Default preview window width, matching `Devices.PHONE` (`spec:width=411dp,height=891dp`). */
+internal val DEFAULT_PREVIEW_WIDTH = 411.dp
+
+/** Default preview window height, matching `Devices.PHONE` (`spec:width=411dp,height=891dp`). */
+internal val DEFAULT_PREVIEW_HEIGHT = 891.dp
 
 /** Standard flat posture without active folding features intersecting the window. */
 @OptIn(ExperimentalMediaQueryApi::class)
@@ -85,14 +104,46 @@ private val BookPosture =
         )
     )
 
-private fun parseDp(value: String?): Dp? = value?.removeSuffix(DP_SUFFIX)?.toFloatOrNull()?.dp
+/**
+ * Resolves the preview spec density from [params]: defaults to [DEFAULT_SPEC_DPI] (`420`) when
+ * `dpi` is omitted, or returns null when an explicit `dpi` key is not a positive integer.
+ */
+private fun parseDpi(params: Map<String, String>): Int? =
+    if (PARAM_DPI in params) {
+        params[PARAM_DPI]?.toIntOrNull()?.takeIf { it > 0 }
+    } else {
+        DEFAULT_SPEC_DPI
+    }
+
+/**
+ * Parses a dimension value with a required `dp` or `px` suffix into a positive [Dp]. `px` values
+ * are converted directly via `px * 160 / dpi` when [dpi] is valid.
+ */
+private fun parseDimensionDp(value: String?, dpi: Int?): Dp? {
+    val dpValue =
+        when {
+            value == null -> null
+            value.endsWith(DP_SUFFIX) -> value.removeSuffix(DP_SUFFIX).toFloatOrNull()
+            value.endsWith(PX_SUFFIX) ->
+                dpi?.let {
+                    value.removeSuffix(PX_SUFFIX).toFloatOrNull()?.let { px ->
+                        (px.toDouble() * BASELINE_DPI / it).toFloat()
+                    }
+                }
+            else -> null
+        }
+    return dpValue?.takeIf { it.isFinite() && it > 0f }?.dp
+}
 
 /**
  * Preview-specific implementation of [UiMediaScope].
  *
  * Supplies parsed media query properties and resolves [windowWidth] and [windowHeight] dynamically
- * from `WindowInfo.containerDpSize` when positive, falling back to the configured default
- * dimensions.
+ * from `WindowInfo.containerDpSize` when positive, falling back to [deviceWidth] and
+ * [deviceHeight]. When [reportDeviceWidth] or [reportDeviceHeight] is true, [deviceWidth] or
+ * [deviceHeight] is reported directly instead of the container size: this is used on the axis along
+ * which a preview is expanded (see [PreviewExpandSettings]), so that media queries see the size of
+ * the device rather than the size of the expanded preview.
  */
 @OptIn(ExperimentalMediaQueryApi::class)
 internal class PreviewUiMediaScope(
@@ -104,16 +155,28 @@ internal class PreviewUiMediaScope(
     override val hasCamera: Boolean = true,
     override val hasMicrophone: Boolean = true,
     override val viewingDistance: UiMediaScope.ViewingDistance = UiMediaScope.ViewingDistance.Near,
-    private val defaultWidth: Dp = 411.dp,
-    private val defaultHeight: Dp = 891.dp,
+    private val deviceWidth: Dp = DEFAULT_PREVIEW_WIDTH,
+    private val deviceHeight: Dp = DEFAULT_PREVIEW_HEIGHT,
+    private val reportDeviceWidth: Boolean = false,
+    private val reportDeviceHeight: Boolean = false,
 ) : UiMediaScope {
     @get:FrequentlyChangingValue
     override val windowWidth: Dp
-        get() = windowInfo.containerDpSize.width.takeIf { it > 0.dp } ?: defaultWidth
+        get() =
+            if (reportDeviceWidth) {
+                deviceWidth
+            } else {
+                windowInfo.containerDpSize.width.takeIf { it > 0.dp } ?: deviceWidth
+            }
 
     @get:FrequentlyChangingValue
     override val windowHeight: Dp
-        get() = windowInfo.containerDpSize.height.takeIf { it > 0.dp } ?: defaultHeight
+        get() =
+            if (reportDeviceHeight) {
+                deviceHeight
+            } else {
+                windowInfo.containerDpSize.height.takeIf { it > 0.dp } ?: deviceHeight
+            }
 }
 
 /**
@@ -141,14 +204,42 @@ internal fun parseDeviceSpecParams(deviceSpec: String?): Map<String, String>? {
  *
  * Uses full [UiMediaScope] property names: `windowPosture`, `pointerPrecision`, `keyboardKind`,
  * `hasCamera`, `hasMicrophone`, and `viewingDistance`.
+ *
+ * The device window dimensions come from the `width` and `height` keys in [deviceSpec] when present
+ * (`dp` or `px`, with `px` converted directly via `dpi` or `420` when omitted, without snapping
+ * arbitrary DPI values to Android density buckets), or from [fallbackWidth] and [fallbackHeight]
+ * otherwise, swapping axes when `orientation` (`landscape` or `portrait`) disagrees with the raw
+ * aspect ratio. When [reportDeviceWidth] or [reportDeviceHeight] is true, that device dimension is
+ * reported as the window size instead of the size of the container.
  */
 @OptIn(ExperimentalMediaQueryApi::class)
 internal fun createPreviewUiMediaScope(
     windowInfo: WindowInfo,
     deviceSpec: String? = null,
+    fallbackWidth: Dp = DEFAULT_PREVIEW_WIDTH,
+    fallbackHeight: Dp = DEFAULT_PREVIEW_HEIGHT,
+    reportDeviceWidth: Boolean = false,
+    reportDeviceHeight: Boolean = false,
 ): UiMediaScope {
-    val params = parseDeviceSpecParams(deviceSpec) ?: return PreviewUiMediaScope(windowInfo)
+    val params =
+        parseDeviceSpecParams(deviceSpec)
+            ?: return PreviewUiMediaScope(
+                windowInfo = windowInfo,
+                deviceWidth = fallbackWidth,
+                deviceHeight = fallbackHeight,
+                reportDeviceWidth = reportDeviceWidth,
+                reportDeviceHeight = reportDeviceHeight,
+            )
 
+    val dpi = parseDpi(params)
+    val rawWidth = parseDimensionDp(params[PARAM_WIDTH], dpi) ?: fallbackWidth
+    val rawHeight = parseDimensionDp(params[PARAM_HEIGHT], dpi) ?: fallbackHeight
+    val swapDimensions =
+        when (params[PARAM_ORIENTATION]) {
+            ORIENTATION_LANDSCAPE -> rawWidth < rawHeight
+            ORIENTATION_PORTRAIT -> rawWidth > rawHeight
+            else -> false
+        }
     return PreviewUiMediaScope(
         windowInfo = windowInfo,
         windowPosture =
@@ -178,7 +269,9 @@ internal fun createPreviewUiMediaScope(
                 VIEWING_DISTANCE_MEDIUM -> UiMediaScope.ViewingDistance.Medium
                 else -> UiMediaScope.ViewingDistance.Near
             },
-        defaultWidth = parseDp(params[PARAM_WIDTH]) ?: 411.dp,
-        defaultHeight = parseDp(params[PARAM_HEIGHT]) ?: 891.dp,
+        deviceWidth = if (swapDimensions) rawHeight else rawWidth,
+        deviceHeight = if (swapDimensions) rawWidth else rawHeight,
+        reportDeviceWidth = reportDeviceWidth,
+        reportDeviceHeight = reportDeviceHeight,
     )
 }
