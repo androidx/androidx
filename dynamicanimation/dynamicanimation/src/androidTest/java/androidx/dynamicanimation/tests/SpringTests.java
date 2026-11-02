@@ -38,7 +38,9 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.AndroidRuntimeException;
+import android.view.Choreographer;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
@@ -934,6 +936,68 @@ public class SpringTests {
 
         assertTrue(scheduler.mCallback);
         assertEquals(scheduler, anim.getScheduler());
+    }
+
+    /**
+     * Verifies that AnimationHandler uses AnimationUtils.currentAnimationTimeMillis() rather than
+     * SystemClock.uptimeMillis() when dispatching animation frames, so that animations use the
+     * Choreographer-locked frame timestamp even when wall-clock uptimeMillis diverges.
+     */
+    @SdkSuppress(minSdkVersion = 26) // Choreographer locks AnimationUtils starting in API 26
+    @Test
+    public void testAnimationFrameUsesAnimationTimeMillis() throws InterruptedException {
+        final FloatValueHolder actualHolder = new FloatValueHolder(0f);
+        final FloatValueHolder expectedHolder = new FloatValueHolder(0f);
+        final SpringAnimation actualAnim = new SpringAnimation(actualHolder).setSpring(
+                new SpringForce(1000f).setStiffness(SpringForce.STIFFNESS_VERY_LOW));
+        final SpringAnimation expectedAnim = new SpringAnimation(expectedHolder).setSpring(
+                new SpringForce(1000f).setStiffness(SpringForce.STIFFNESS_VERY_LOW));
+        final CountDownLatch latch = new CountDownLatch(1);
+        final int[] frameCount = new int[1];
+
+        FrameCallbackScheduler scheduler = new FrameCallbackScheduler() {
+            @Override
+            public void postFrameCallback(@NonNull Runnable frameCallback) {
+                Choreographer.getInstance().postFrameCallback(frameTimeNanos -> {
+                    long animationTimeMillis = AnimationUtils.currentAnimationTimeMillis();
+                    frameCount[0]++;
+                    if (frameCount[0] == 2) {
+                        // Advance wall-clock uptimeMillis while Choreographer keeps
+                        // AnimationUtils.currentAnimationTimeMillis() locked to the frame VSYNC.
+                        long startUptime = SystemClock.uptimeMillis();
+                        while (SystemClock.uptimeMillis() - startUptime < 20) {
+                            // Busy-wait until uptimeMillis advances by at least 20ms.
+                        }
+                    }
+                    frameCallback.run();
+                    expectedAnim.doAnimationFrame(animationTimeMillis);
+                    if (frameCount[0] == 2) {
+                        actualAnim.cancel();
+                        expectedAnim.cancel();
+                        latch.countDown();
+                    }
+                });
+            }
+
+            @Override
+            public boolean isCurrentThread() {
+                return Looper.myLooper() == Looper.getMainLooper();
+            }
+        };
+
+        actualAnim.setScheduler(scheduler);
+        expectedAnim.setScheduler(new MyAnimationFrameCallbackScheduler());
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            expectedAnim.setStartValue(0f).start();
+            expectedAnim.getAnimationHandler().mDurationScale = 1.0f;
+            actualAnim.setStartValue(0f).start();
+            actualAnim.getAnimationHandler().mDurationScale = 1.0f;
+        });
+
+        assertTrue(latch.await(1000, TimeUnit.MILLISECONDS));
+        assertTrue(actualHolder.getValue() > 0f);
+        assertEquals(expectedHolder.getValue(), actualHolder.getValue(), 0f);
     }
 
     static class MyAnimationFrameCallbackScheduler implements FrameCallbackScheduler {

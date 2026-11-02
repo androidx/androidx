@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Choreographer;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -66,7 +67,7 @@ public class AnimationHandler {
          * Notifies all the on-going animations of the new frame.
          */
         void dispatchAnimationFrame() {
-            mCurrentFrameTime = SystemClock.uptimeMillis();
+            mCurrentFrameTime = AnimationUtils.currentAnimationTimeMillis();
             AnimationHandler.this.doAnimationFrame(mCurrentFrameTime);
             if (mAnimationCallbacks.size() > 0) {
                 mScheduler.postFrameCallback(mRunnable);
