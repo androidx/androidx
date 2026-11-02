@@ -23,13 +23,15 @@ import androidx.camera.camera2.compat.quirk.Device.isItelDevice
 import androidx.camera.camera2.compat.quirk.Device.isMotorolaDevice
 import androidx.camera.camera2.compat.quirk.Device.isPositivoDevice
 import androidx.camera.camera2.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.compat.quirk.Device.isTecnoDevice
 import androidx.camera.camera2.compat.quirk.Device.isUniSocChipsetDevice
 import androidx.camera.camera2.compat.quirk.Device.isVivoDevice
 import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
 
 /**
  * QuirkSummary
- * - Bug Id: b/239369953, b/331754902, b/338869048, b/339555742, b/336925549, b/380802479
+ * - Bug Id: b/239369953, b/331754902, b/338869048, b/339555742, b/336925549, b/380802479,
+ *   b/579150219
  * - Description: When taking image with VideoCapture is bound, the capture result is returned but
  *   the resulting image can not be obtained. On Pixel 4XL API29, taking image with VideoCapture UHD
  *   is bound, camera HAL returns error. Pixel 4XL starts from API29 and API30+ work fine. On Moto
@@ -37,9 +39,11 @@ import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
  *   On Samsung Tab A8, apps can't take pictures successfully when ImageCapture selects 1920x1080
  *   under Preview + VideoCapture + ImageCapture UseCase combination. On UniSoc chipset devices,
  *   apps can't take pictures successfully when the combination is VideoCapture + Preview +
- *   ImageCapture and all streams use 1280x720 resolution surfaces.
- * - Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto E13,
- *   Samsung Tab A8, UniSoc chipset devices
+ *   ImageCapture and all streams use 1280x720 resolution surfaces. On Tecno Mobile BF6, taking
+ *   picture times out when VideoCapture is bound unless StreamSharing is enabled and repeating
+ *   requests use CONTROL_CAPTURE_INTENT_PREVIEW instead of TEMPLATE_RECORD.
+ * - Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, Vivo 1805, Pixel 4XL API29, Moto E13,
+ *   Samsung Tab A8, Samsung A53, Tecno Mobile BF6, UniSoc chipset devices
  */
 @SuppressLint("CameraXQuirksClassDetector")
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
@@ -55,6 +59,7 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
                 isMotoE13 ||
                 isSamsungTabA8 ||
                 isSamsungA53 ||
+                isTecnoBf6 ||
                 isUniSocChipsetDevice()
         }
 
@@ -85,21 +90,20 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
 
         private val isSamsungA53: Boolean
             get() = isSamsungDevice() && Build.MODEL.startsWith("SM-A536")
+
+        private val isTecnoBf6: Boolean
+            get() =
+                isTecnoDevice() &&
+                    ("tecno mobile bf6".equals(Build.MODEL, ignoreCase = true) ||
+                        "tecno bf6".equals(Build.MODEL, ignoreCase = true) ||
+                        "tecno-bf6".equals(Build.DEVICE, ignoreCase = true))
     }
 
     override fun workaroundByCaptureIntentPreview(): Boolean {
-        return isBluStudioX10 || isItelW6004 || isVivo1805 || isPositivoTwist2Pro
+        return isBluStudioX10 || isItelW6004 || isVivo1805 || isPositivoTwist2Pro || isTecnoBf6
     }
 
     override fun workaroundBySurfaceProcessing(): Boolean {
-        return isBluStudioX10 ||
-            isItelW6004 ||
-            isVivo1805 ||
-            isPositivoTwist2Pro ||
-            isPixel4XLApi29 ||
-            isMotoE13 ||
-            isSamsungTabA8 ||
-            isSamsungA53 ||
-            isUniSocChipsetDevice()
+        return isEnabled()
     }
 }
