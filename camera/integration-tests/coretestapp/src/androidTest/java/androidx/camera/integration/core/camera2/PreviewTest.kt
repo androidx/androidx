@@ -887,9 +887,10 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                     .setTargetRotation(Surface.ROTATION_90)
                     .setTargetResolution(DEFAULT_RESOLUTION)
                     .build()
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
             assertThat(preview.resolutionInfo!!.resolution).isEqualTo(DEFAULT_RESOLUTION)
-            assertThat(preview.resolutionInfo!!.rotationDegrees).isEqualTo(0)
+            assertThat(preview.resolutionInfo!!.rotationDegrees)
+                .isEqualTo(camera.cameraInfo.getSensorRotationDegrees(Surface.ROTATION_90))
         }
 
     @Test
@@ -907,25 +908,29 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                 request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
                     transformationInfoDeferred.complete(it)
                 }
-                val surface = Surface(SurfaceTexture(0))
+                val surfaceTexture = SurfaceTexture(0)
+                val surface = Surface(surfaceTexture)
                 request.provideSurface(surface, CameraXExecutors.directExecutor()) {
                     surface.release()
+                    surfaceTexture.release()
                 }
                 surfaceProvidedDeferred.complete(request)
             }
 
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
             surfaceProvidedDeferred.await()
             var transformationInfo = withTimeoutOrNull(5000) { transformationInfoDeferred.await() }
             assertThat(transformationInfo).isNotNull()
-            assertThat(transformationInfo!!.rotationDegrees).isEqualTo(90)
+            assertThat(transformationInfo!!.rotationDegrees)
+                .isEqualTo(camera.cameraInfo.getSensorRotationDegrees(Surface.ROTATION_0))
 
             transformationInfoDeferred = CompletableDeferred()
             preview.targetRotation = Surface.ROTATION_90
 
             transformationInfo = withTimeoutOrNull(5000) { transformationInfoDeferred.await() }
             assertThat(transformationInfo).isNotNull()
-            assertThat(transformationInfo!!.rotationDegrees).isEqualTo(0)
+            assertThat(transformationInfo!!.rotationDegrees)
+                .isEqualTo(camera.cameraInfo.getSensorRotationDegrees(Surface.ROTATION_90))
         }
 
     @Test
