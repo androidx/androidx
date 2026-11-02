@@ -22,8 +22,10 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.runtime.Stable
 
 /** Dynamic layout measurements of a RemoteCompose component in pixels. */
+@Stable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComponent private constructor(private val context: RemoteFloatContext) {
     internal constructor(scope: RemoteStateScope) : this(RemoteFloatContext(scope))
@@ -65,6 +67,14 @@ public class RemoteComponent private constructor(private val context: RemoteFloa
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val rootY: RemoteFloat
         get() = context.componentRootY()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteComponent) return false
+        return context == other.context
+    }
+
+    override fun hashCode(): Int = context.hashCode()
 }
 
 /**

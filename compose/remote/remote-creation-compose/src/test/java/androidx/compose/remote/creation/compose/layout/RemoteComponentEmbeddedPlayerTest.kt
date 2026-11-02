@@ -699,4 +699,38 @@ class RemoteComponentEmbeddedPlayerTest {
         assertThat(recordedPx["canvasW"]).isWithin(0.5f).of(86f * density)
         assertThat(recordedPx["canvasH"]).isWithin(0.5f).of(52f * density)
     }
+
+    @Test
+    fun remoteComponent_equalsAndHashCode_matchAcrossCompositionAndModifierScopes() {
+        var outerComp1: RemoteComponent? = null
+        var outerComp2: RemoteComponent? = null
+        var outerDrawComp: RemoteComponent? = null
+        var innerComp: RemoteComponent? = null
+
+        rule.setRemoteContent(remoteCreationDisplayInfo = displayInfo()) {
+            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.size(120.rdp, 60.rdp).drawWithContent {
+                            outerDrawComp = remoteComponent()
+                            drawContent()
+                        }
+                ) {
+                    outerComp1 = remoteComponent()
+                    outerComp2 = remoteComponent()
+                    RemoteBox(modifier = RemoteModifier.size(40.rdp, 20.rdp)) {
+                        innerComp = remoteComponent()
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        assertThat(outerComp1).isNotNull()
+        assertThat(outerComp1).isEqualTo(outerComp2)
+        assertThat(outerComp1.hashCode()).isEqualTo(outerComp2.hashCode())
+        assertThat(outerComp1).isEqualTo(outerDrawComp)
+        assertThat(outerComp1.hashCode()).isEqualTo(outerDrawComp.hashCode())
+        assertThat(outerComp1).isNotEqualTo(innerComp)
+    }
 }
