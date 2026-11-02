@@ -18,14 +18,14 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AE
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraIdentifier
@@ -40,11 +40,14 @@ import androidx.camera.core.RetryPolicy
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.QuirkSettings
 import androidx.camera.core.impl.QuirkSettingsHolder
+import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
@@ -545,13 +548,6 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
             CameraUtil.getBackwardCompatibleCameraIdListOrThrow().firstOrNull { it != cameraId }
         assumeTrue(otherCameraId != null)
 
-        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
-        assumeTrue(characteristics != null)
-        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
-        val maxSize = sizes.maxByOrNull { it.width * it.height }
-        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
-
         // 1. Set combination restricted to DIFFERENT camera ID. Should be capped at 1080p.
         val configWithWrongId =
             CameraXConfig.Builder.fromConfig(baseConfig)
@@ -562,6 +558,7 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
                 .build()
 
         initializeProviderWithConfig(configWithWrongId)
+        assumeSupportsPrivResolutionOver1080p(selector)
 
         val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
             supportedSizes.sortedByDescending { it.width * it.height }
@@ -632,13 +629,6 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
     fun extraSupportedSurfaceCombinations_ignoresInvalidCameraId() = runTest {
         val selector = CameraUtil.assumeFirstAvailableCameraSelector()
 
-        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
-        assumeTrue(characteristics != null)
-        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
-        val maxSize = sizes.maxByOrNull { it.width * it.height }
-        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
-
         // Set combination with INVALID camera ID. Should be ignored and preview should be capped.
         val customConfig =
             CameraXConfig.Builder.fromConfig(baseConfig)
@@ -647,6 +637,7 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
                 .build()
 
         initializeProviderWithConfig(customConfig)
+        assumeSupportsPrivResolutionOver1080p(selector)
 
         val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
             supportedSizes.sortedByDescending { it.width * it.height }
@@ -682,15 +673,9 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         val selector = CameraUtil.assumeFirstAvailableCameraSelector()
         assumeTrue(selector.lensFacing != null)
 
-        val characteristics = CameraUtil.getCameraCharacteristics(selector.lensFacing!!)
-        assumeTrue(characteristics != null)
-        val map = characteristics!!.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val sizes = map?.getOutputSizes(SurfaceTexture::class.java) ?: emptyArray()
-        val maxSize = sizes.maxByOrNull { it.width * it.height }
-        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
-
         // 1. Without bypass, preview should be capped at 1080p
         initializeProviderWithConfig(baseConfig)
+        assumeSupportsPrivResolutionOver1080p(selector)
 
         val resolutionFilter = ResolutionFilter { supportedSizes, _ ->
             supportedSizes.sortedByDescending { it.width * it.height }
@@ -1116,5 +1101,22 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
             assertThat(frameReceivedSemaphore.tryAcquire(5, timeoutSeconds, TimeUnit.SECONDS))
                 .isTrue()
         }
+    }
+
+    private fun assumeSupportsPrivResolutionOver1080p(selector: CameraSelector) {
+        val verifiedPrivSize =
+            DeviceQuirks.get(ExtraCroppingQuirk::class.java)
+                ?.getVerifiedResolution(SurfaceConfig.ConfigType.PRIV)
+        assumeTrue(
+            verifiedPrivSize == null ||
+                verifiedPrivSize.width * verifiedPrivSize.height > 1920 * 1080
+        )
+        val cameraInfo = cameraProvider!!.getCameraInfo(selector) as CameraInfoInternal
+        val sizes =
+            cameraInfo.getSupportedResolutions(
+                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+            )
+        val maxSize = sizes.maxByOrNull { it.width * it.height }
+        assumeTrue(maxSize != null && maxSize.width * maxSize.height > 1920 * 1080)
     }
 }
