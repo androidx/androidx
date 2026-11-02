@@ -18,3 +18,12 @@ package androidx.compose.remote.foundation.image {
 
 }
 
+package androidx.compose.remote.foundation.layout {
+
+  public final class RemoteSpacerKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteSpacer(optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteSpacer(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

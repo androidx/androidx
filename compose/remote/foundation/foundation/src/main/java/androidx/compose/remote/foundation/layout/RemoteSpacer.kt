@@ -16,13 +16,21 @@
 
 package androidx.compose.remote.foundation.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.runtime.Composable
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * A spacer that takes up space, as defined by the provided [modifier], but doesn't get drawn.
+ *
+ * This is the remote equivalent of [androidx.compose.foundation.layout.Spacer].
+ *
+ * @param modifier the [RemoteModifier] applied to this spacer (for example, to set its width,
+ *   height, or weight)
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerSample
+ * @sample androidx.compose.remote.foundation.samples.RemoteSpacerWeightSample
+ */
 @RemoteComposable
 @Composable
 public fun RemoteSpacer(modifier: RemoteModifier = RemoteModifier) {
