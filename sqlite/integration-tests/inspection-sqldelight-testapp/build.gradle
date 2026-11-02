@@ -46,3 +46,9 @@ androidComponents {
         variant.sources.java.addStaticSourceDirectory("src/main/generated")
     })
 }
+
+androidx {
+    deviceTests {
+        maxShardCount = 1
+    }
+}
