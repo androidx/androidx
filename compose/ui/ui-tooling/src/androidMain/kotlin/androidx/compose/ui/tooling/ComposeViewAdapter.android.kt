@@ -374,6 +374,7 @@ internal class ComposeViewAdapter : FrameLayout {
             expandedSizePx =
                 findExpandedHeight(
                     composeView = composeView,
+                    slotTableRecord = slotTableRecord,
                     minHeight = viewportHeight,
                     maxHeight = boundedHeight,
                     measureExactly = { height -> measureExactly(widthMeasureSpec, height) },

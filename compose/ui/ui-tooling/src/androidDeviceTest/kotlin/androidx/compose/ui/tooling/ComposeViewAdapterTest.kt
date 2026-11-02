@@ -44,6 +44,7 @@ import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,6 +72,9 @@ class ComposeViewAdapterTest {
     fun tearDown() {
         isAnimationPreviewEnabled = false
         AnimateXAsStateComposeAnimation.testOverrideAvailability(true)
+        observedWearReduceMotion = null
+        observedWrapperWearReduceMotion = null
+        expandAutoCenteringScalingLazyListState = null
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
@@ -1186,6 +1190,104 @@ class ComposeViewAdapterTest {
         assertEquals(null, findWearLocalReduceMotion(bootstrapClassLoader))
     }
 
+    @Test
+    fun findWearScalingLazyListStateClass_returnsNullWithoutWear() {
+        // A class loader that can't load anything besides the bootstrap classes.
+        val bootstrapClassLoader = ClassLoader.getSystemClassLoader().parent
+        assertNull(findWearScalingLazyListStateClass(bootstrapClassLoader))
+    }
+
+    @Test
+    fun expandVertical_scalingLazyColumn_growsToFitAllItems() {
+        val height =
+            measureExpanded(
+                "ExpandScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        // All the items, unscaled, must fit.
+        assertTrue(
+            "height=$height",
+            height >= EXPAND_ITEM_HEIGHT.toPx() * EXPAND_LONG_LIST_ITEM_COUNT,
+        )
+        assertTrue("height=$height", height < DEFAULT_EXPAND_MAX_SIZE_PX)
+    }
+
+    @Test
+    fun expandVertical_autoCenteringScalingLazyColumn_collapsesAutoCenteringSpacers() {
+        // With auto centering, a ScalingLazyColumn adds top and bottom spacers that grow with the
+        // viewport (~half the viewport each). Expanding vertically collapses those spacers to 0px
+        // so the list neither grows to the max height nor leaves the top half of the preview empty:
+        // its height matches the same list without auto-centering, plus the two 4.dp item gaps
+        // adjacent to the 0px spacer items.
+        val noAutoCenteringHeight =
+            measureExpanded(
+                "ExpandScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val autoCenteringHeight =
+            measureExpanded(
+                "ExpandAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = noAutoCenteringHeight + 2 * 4.dp.toPx()
+        assertTrue(
+            "autoCenteringHeight=$autoCenteringHeight expected=$expectedHeight",
+            abs(autoCenteringHeight - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+
+        // Even when maxHeight is no larger than the viewport (minHeight >= maxHeight), the
+        // auto-centering spacers are still collapsed so the first item starts at the top.
+        // expandAutoCenteringScalingLazyListState is not reset here: re-initializing the same
+        // preview method reuses the existing composition, which skips the preview's body, so the
+        // remembered state set by the previous measurement is the one being collapsed.
+        val cappedHeight =
+            measureExpanded(
+                "ExpandAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 300,
+                device = "$EXPAND_VERTICAL_DEVICE,maxHeight=300px",
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertEquals(300, cappedHeight)
+        activityTestRule.runOnUiThread {
+            val layoutInfo = expandAutoCenteringScalingLazyListState!!.layoutInfo
+            val firstItem = layoutInfo.visibleItemsInfo.first()
+            assertEquals(0, firstItem.index)
+            // ScalingLazyListItemInfo.offset is the item's center relative to the viewport center.
+            val firstItemTop =
+                layoutInfo.viewportSize.height / 2 + firstItem.offset - firstItem.unadjustedSize / 2
+            assertTrue(
+                "firstItemTop=$firstItemTop",
+                abs(firstItemTop - 4.dp.toPx()) <= EXPAND_ROUNDING_TOLERANCE_PX,
+            )
+        }
+
+        // A 2-item auto-centering list does not overflow at maxHeight even with its spacers intact
+        // (topSpacer + items + bottomSpacer == viewportHeight); its spacers must still be collapsed
+        // so the first item is positioned at the top.
+        expandAutoCenteringScalingLazyListState = null
+        val shortHeight =
+            measureExpanded(
+                "ExpandShortAutoCenteringScalingLazyColumnPreview",
+                viewportHeightPx = 300,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        assertEquals(300, shortHeight)
+        activityTestRule.runOnUiThread {
+            val layoutInfo = expandAutoCenteringScalingLazyListState!!.layoutInfo
+            val firstItem = layoutInfo.visibleItemsInfo.first()
+            assertEquals(0, firstItem.index)
+            val firstItemTop =
+                layoutInfo.viewportSize.height / 2 + firstItem.offset - firstItem.unadjustedSize / 2
+            assertTrue(
+                "firstItemTop=$firstItemTop",
+                abs(firstItemTop - 4.dp.toPx()) <= EXPAND_ROUNDING_TOLERANCE_PX,
+            )
+        }
+    }
+
     /** Height of [ExpandTransformingLazyColumnWithPaddingPreview]'s content, padding included. */
     private fun transformingLazyColumnWithPaddingHeight(): Int =
         EXPAND_LIST_TOP_PADDING.toPx() +
@@ -1200,6 +1302,24 @@ class ComposeViewAdapterTest {
         val height =
             measureExpanded(
                 "ExpandTransformingLazyColumnWithPaddingPreview",
+                viewportHeightPx = 100,
+                className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            )
+        val expectedHeight = transformingLazyColumnWithPaddingHeight()
+        assertTrue(
+            "height=$height expected=$expectedHeight",
+            abs(height - expectedHeight) <= EXPAND_ROUNDING_TOLERANCE_PX,
+        )
+    }
+
+    @Test
+    fun expandVertical_autoCenteringListNextToTransformingLazyColumn_fitsBoth() {
+        // Collapsing the auto-centering spacers of the ScalingLazyColumn must not prevent the
+        // taller TransformingLazyColumn next to it from expanding until its bottom content padding
+        // is visible.
+        val height =
+            measureExpanded(
+                "ExpandAutoCenteringAndTransformingLazyColumnsPreview",
                 viewportHeightPx = 100,
                 className = "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
             )

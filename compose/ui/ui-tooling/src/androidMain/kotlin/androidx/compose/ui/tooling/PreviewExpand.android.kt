@@ -18,13 +18,20 @@ package androidx.compose.ui.tooling
 
 import android.view.View
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.State
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.tooling.data.Group
+import androidx.compose.ui.tooling.data.UiToolingDataApi
+import androidx.compose.ui.tooling.data.asTree
+import java.lang.reflect.Field
 import kotlin.math.roundToInt
 
 // Spec parameter keys (normalized lowercase for lookup)
@@ -77,6 +84,139 @@ internal fun findWearLocalReduceMotion(
  */
 internal val wearLocalReduceMotion: ProvidableCompositionLocal<Boolean>? by lazy {
     findWearLocalReduceMotion(ComposeViewAdapter::class.java.classLoader)
+}
+
+/** Fully qualified name of Wear Compose's `ScalingLazyListState`. */
+private const val WEAR_SCALING_LAZY_LIST_STATE_CLASS =
+    "androidx.wear.compose.foundation.lazy.ScalingLazyListState"
+
+/**
+ * Returns Wear Compose's `ScalingLazyListState` class if it can be loaded from [classLoader], or
+ * null otherwise.
+ */
+@VisibleForTesting
+internal fun findWearScalingLazyListStateClass(classLoader: ClassLoader?): Class<*>? =
+    try {
+        Class.forName(WEAR_SCALING_LAZY_LIST_STATE_CLASS, false, classLoader)
+    } catch (_: ReflectiveOperationException) {
+        null
+    } catch (_: LinkageError) {
+        null
+    } catch (_: SecurityException) {
+        null
+    }
+
+/** Wear Compose's `ScalingLazyListState` class, or null if Wear Compose is not in the classpath. */
+private val wearScalingLazyListStateClass: Class<*>? by lazy {
+    findWearScalingLazyListStateClass(ComposeViewAdapter::class.java.classLoader)
+}
+
+/**
+ * Reflective field handles for `ScalingLazyListState`, resolved lazily only when a
+ * `ScalingLazyListState` instance is actually encountered in a vertically expanded preview.
+ */
+private val wearScalingLazyListStateSupport: WearScalingLazyListStateSupport? by lazy {
+    wearScalingLazyListStateClass?.let(WearScalingLazyListStateSupport::forClass)
+}
+
+/**
+ * Reflective handles used to collapse the auto-centering spacers of Wear Compose's
+ * `ScalingLazyListState` when expanding a preview vertically.
+ *
+ * By default, `ScalingLazyColumn` enables `autoCentering`: it inserts a top and a bottom `Spacer`
+ * whose heights (`topAutoCenteringItemSizePx` and `bottomAutoCenteringItemSizePx`) are ~half the
+ * viewport height so the anchor item sits at the vertical center of a watch face. When a preview is
+ * expanded vertically, `constraints.maxHeight` is the expanded canvas height, so those spacers
+ * would leave the top half of the tall preview empty. Replacing the two spacer-height `State`
+ * delegates with a constant `0` state and marking the state `initialized` collapses both spacers to
+ * 0px while keeping `config.autoCentering` non-null (so `ScalingLazyListState.layoutInfo` still
+ * excludes the spacer items from `visibleItemsInfo` and `totalItemsCount`).
+ */
+@VisibleForTesting
+internal class WearScalingLazyListStateSupport
+private constructor(
+    private val topSpacerDelegateField: Field,
+    private val bottomSpacerDelegateField: Field,
+    private val initializedField: Field,
+    private val configField: Field,
+    private val configAutoCenteringField: Field,
+) {
+    private val zeroState: State<Int> =
+        object : State<Int> {
+            override val value: Int
+                get() = 0
+        }
+
+    /**
+     * Collapses the auto-centering spacers of [state] (`ScalingLazyListState`). Returns true if
+     * [state] was updated.
+     */
+    @Suppress("BanUncheckedReflection")
+    fun disableAutoCentering(state: Any): Boolean =
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val configState = configField.get(state) as? MutableState<Any?>
+            val currentConfig = configState?.value ?: return false
+            val oldAutoCentering = configAutoCenteringField.get(currentConfig) ?: return false
+            topSpacerDelegateField.set(state, zeroState)
+            bottomSpacerDelegateField.set(state, zeroState)
+            configAutoCenteringField.set(currentConfig, null)
+            @Suppress("UNCHECKED_CAST")
+            val initializedState = initializedField.get(state) as? MutableState<Boolean>
+            if (initializedState != null) {
+                // Flipping `initialized` invalidates `layoutInfo` and the original spacer-height
+                // `derivedStateOf` instances (which now see `config.autoCentering == null` and
+                // evaluate to 0), marking both spacer layout nodes for re-measurement without ever
+                // setting `config.value` to null.
+                initializedState.value = !initializedState.value
+                Snapshot.sendApplyNotifications()
+                initializedState.value = true
+            }
+            // Restore `config.autoCentering` so `ScalingLazyListState.layoutInfo` still
+            // excludes the two 0px spacer items from `visibleItemsInfo` and `totalItemsCount`.
+            configAutoCenteringField.set(currentConfig, oldAutoCentering)
+            true
+        } catch (_: ReflectiveOperationException) {
+            false
+        } catch (_: LinkageError) {
+            false
+        } catch (_: SecurityException) {
+            false
+        }
+
+    companion object {
+        fun forClass(stateClass: Class<*>): WearScalingLazyListStateSupport? =
+            try {
+                val configClass =
+                    Class.forName(
+                        "$WEAR_SCALING_LAZY_LIST_STATE_CLASS\$Configuration",
+                        false,
+                        stateClass.classLoader,
+                    )
+                WearScalingLazyListStateSupport(
+                    topSpacerDelegateField =
+                        stateClass.getDeclaredField("topAutoCenteringItemSizePx\$delegate").apply {
+                            isAccessible = true
+                        },
+                    bottomSpacerDelegateField =
+                        stateClass
+                            .getDeclaredField("bottomAutoCenteringItemSizePx\$delegate")
+                            .apply { isAccessible = true },
+                    initializedField =
+                        stateClass.getDeclaredField("initialized").apply { isAccessible = true },
+                    configField =
+                        stateClass.getDeclaredField("config").apply { isAccessible = true },
+                    configAutoCenteringField =
+                        configClass.getDeclaredField("autoCentering").apply { isAccessible = true },
+                )
+            } catch (_: ReflectiveOperationException) {
+                null
+            } catch (_: LinkageError) {
+                null
+            } catch (_: SecurityException) {
+                null
+            }
+    }
 }
 
 /** Axis along which a preview grows to display all its scrollable content. */
@@ -190,23 +330,33 @@ internal fun layoutComposeView(composeView: ComposeView) {
  */
 private fun composeAndLayoutAt(
     composeView: ComposeView,
+    slotTableRecord: CompositionDataRecord,
     height: Int,
     measureExactly: (Int) -> Unit,
     recreateComposition: () -> Unit,
+    disableScalingLazyColumnAutoCentering: Boolean = false,
 ) {
     recreateComposition()
     measureExactly(height)
     layoutComposeView(composeView)
+    if (disableScalingLazyColumnAutoCentering) {
+        disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
+            measureExactly(height)
+            layoutComposeView(composeView)
+        }
+    }
 }
 
 /**
  * Returns the smallest height in `[minHeight, maxHeight]` at which the content of every vertically
  * scrollable container in the composition is visible, leaving the preview freshly composed,
- * measured at that exact height and laid out. If the content still overflows at [maxHeight],
- * [maxHeight] is returned. If everything fits at [minHeight], [minHeight] is returned.
+ * measured at that exact height and laid out (with any Wear `ScalingLazyColumn` auto-centering
+ * spacers collapsed). If the content still overflows at [maxHeight], [maxHeight] is returned. If
+ * everything fits at [minHeight], [minHeight] is returned.
  */
 internal fun findExpandedHeight(
     composeView: ComposeView,
+    slotTableRecord: CompositionDataRecord,
     minHeight: Int,
     maxHeight: Int,
     measureExactly: (Int) -> Unit,
@@ -214,9 +364,28 @@ internal fun findExpandedHeight(
 ): Int {
     measureExactly(maxHeight)
     layoutComposeView(composeView)
+    // A Wear `ScalingLazyColumn` with auto-centering adds top and bottom spacers that grow with
+    // the viewport (~half the viewport each), so it would either still scroll at `maxHeight` or
+    // (for 1- or 2-item lists whose spacers + items equal `maxHeight`) render with the top half
+    // of the expanded preview empty. `disableWearScalingLazyColumnAutoCentering` only uses
+    // reflection when a `ScalingLazyListState` instance is present in `slotTableRecord`, and is
+    // checked once at `maxHeight` to avoid walking the slot table on every binary-search probe
+    // when no `ScalingLazyColumn` is present.
+    val hasScalingLazyColumn =
+        disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
+            measureExactly(maxHeight)
+            layoutComposeView(composeView)
+        }
     if (minHeight >= maxHeight || hasVerticalScrollOverflow(composeView)) return maxHeight
 
-    composeAndLayoutAt(composeView, minHeight, measureExactly, recreateComposition)
+    composeAndLayoutAt(
+        composeView,
+        slotTableRecord,
+        minHeight,
+        measureExactly,
+        recreateComposition,
+        hasScalingLazyColumn,
+    )
     if (!hasVerticalScrollOverflow(composeView)) return minHeight
 
     // Invariant: overflow at lo, no overflow at hi.
@@ -225,12 +394,26 @@ internal fun findExpandedHeight(
     var lastProbedHeight = minHeight
     while (hi - lo > 1) {
         val mid = lo + (hi - lo) / 2
-        composeAndLayoutAt(composeView, mid, measureExactly, recreateComposition)
+        composeAndLayoutAt(
+            composeView,
+            slotTableRecord,
+            mid,
+            measureExactly,
+            recreateComposition,
+            hasScalingLazyColumn,
+        )
         lastProbedHeight = mid
         if (hasVerticalScrollOverflow(composeView)) lo = mid else hi = mid
     }
     if (lastProbedHeight != hi) {
-        composeAndLayoutAt(composeView, hi, measureExactly, recreateComposition)
+        composeAndLayoutAt(
+            composeView,
+            slotTableRecord,
+            hi,
+            measureExactly,
+            recreateComposition,
+            hasScalingLazyColumn,
+        )
     }
     return hi
 }
@@ -250,4 +433,44 @@ private fun hasVerticalScrollOverflow(composeView: ComposeView): Boolean {
     return root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = false).any {
         it.canScrollForward()
     }
+}
+
+/**
+ * Collapses the auto-centering spacers of every Wear `ScalingLazyListState` in the current
+ * composition, and runs [remeasure] so the `ScalingLazyColumn` re-measures with 0px spacers.
+ * Returns true if at least one `ScalingLazyListState` was found and updated.
+ *
+ * Reflection (`getDeclaredField` / `Field.set`) only runs once a `ScalingLazyListState` instance is
+ * actually found in [slotTableRecord].
+ */
+@OptIn(UiToolingDataApi::class)
+private fun disableWearScalingLazyColumnAutoCentering(
+    composeView: ComposeView,
+    slotTableRecord: CompositionDataRecord,
+    remeasure: () -> Unit,
+): Boolean {
+    val stateClass = wearScalingLazyListStateClass ?: return false
+    val states = mutableSetOf<Any>()
+    fun visit(group: Group) {
+        for (item in group.data) {
+            if (item != null && stateClass.isInstance(item)) {
+                states.add(item)
+            }
+        }
+        group.children.forEach(::visit)
+    }
+    slotTableRecord.store.forEach { visit(it.asTree()) }
+    if (states.isEmpty()) return false
+    val support = wearScalingLazyListStateSupport ?: return false
+    var updated = false
+    for (state in states) {
+        if (support.disableAutoCentering(state)) updated = true
+    }
+    if (updated) {
+        Snapshot.sendApplyNotifications()
+        composeView.forceLayout()
+        composeView.getChildAt(0)?.forceLayout()
+        remeasure()
+    }
+    return updated
 }
