@@ -100,7 +100,7 @@ object VideoButtonColors {
     val DefaultButton = Color(0xFF42A5F5) // Blue 400
 }
 
-@SuppressLint("RestrictedApiAndroidX") // using primaryAlphaMaskTexture & create with blendingMode
+@SuppressLint("RestrictedApiAndroidX") // using primaryAlphaMaskTexture
 class SurfaceEntityImageActivity : ComponentActivity() {
     private val activity = this
 
@@ -415,12 +415,12 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     }
 
     /**
-     * Checks if the runtime supports rounded corners on [SurfaceEntity.Shape.Quad], which require
-     * Spatial API [SpatialApiVersions.SPATIAL_API_V4], either as a stable API or as a preview API
-     * on top of [SpatialApiVersions.SPATIAL_API_V3]. The latter is what the Aura emulator ADS
-     * release reports.
+     * Checks if the runtime supports Spatial API [SpatialApiVersions.SPATIAL_API_V4], either as a
+     * stable API or as a preview API on top of [SpatialApiVersions.SPATIAL_API_V3]. The latter is
+     * what the Aura emulator ADS release reports. Rounded corners on [SurfaceEntity.Shape.Quad] and
+     * setting [SurfaceEntity.BlendingMode] require it.
      */
-    private fun isCornerRadiusSupported(): Boolean {
+    private fun isSpatialApiV4Supported(): Boolean {
         val apiVersion = SpatialApiVersionHelper.spatialApiVersion
         return apiVersion >= SpatialApiVersions.SPATIAL_API_V4 ||
             (apiVersion == SpatialApiVersions.SPATIAL_API_V3 &&
@@ -436,7 +436,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
         var isQuadShape by remember {
             mutableStateOf(surfaceEntity?.shape is SurfaceEntity.Shape.Quad)
         }
-        val isCornerRadiusSupported = remember { isCornerRadiusSupported() }
+        val isCornerRadiusSupported = remember { isSpatialApiV4Supported() }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -679,16 +679,14 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                     movieParent!!.setPose(actualPose)
 
                     surfaceEntity =
-                        SurfaceEntity.create(
-                            session = session,
-                            pose = Pose.Identity,
-                            shape = canvasShape,
-                            stereoMode = stereoMode,
-                            blendingMode = SurfaceEntity.BlendingMode.TRANSPARENT,
-                            superSampling = superSamplingMode,
-                            surfaceProtection = surfaceContentLevel,
-                            parent = session.scene.activitySpace,
-                        )
+                        SurfaceEntity.Builder(session)
+                            .setPose(Pose.Identity)
+                            .setShape(canvasShape)
+                            .setStereoMode(stereoMode)
+                            .setSuperSampling(superSamplingMode)
+                            .setSurfaceProtection(surfaceContentLevel)
+                            .setParent(session.scene.activitySpace)
+                            .build()
 
                     surfaceEntity?.parent = movieParent!!
                     surfaceEntity?.setPose(Pose.Identity)
@@ -820,6 +818,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     ) {
         remember { mutableStateOf(false) }
         val alphaMaskEnabled = remember { mutableStateOf(false) }
+        val isBlendingModeSupported = remember { isSpatialApiV4Supported() }
 
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Column(
@@ -881,24 +880,30 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                         ) {
                             Text(text = "Toggle Alpha Mask", fontSize = 18.sp)
                         }
-                        val isTransparent = remember { mutableStateOf(true) }
-                        Button(
-                            onClick = {
-                                if (isTransparent.value) {
-                                    surfaceEntity!!.blendingMode = SurfaceEntity.BlendingMode.OPAQUE
-                                    isTransparent.value = false
-                                } else {
-                                    surfaceEntity!!.blendingMode =
-                                        SurfaceEntity.BlendingMode.TRANSPARENT
-                                    isTransparent.value = true
+                        // Blending modes need Spatial API v4, so hide the control outright rather
+                        // than showing a button that can never do anything on this device.
+                        if (isBlendingModeSupported) {
+                            val isTransparent = remember { mutableStateOf(true) }
+                            Button(
+                                onClick = {
+                                    if (isTransparent.value) {
+                                        surfaceEntity!!.blendingMode =
+                                            SurfaceEntity.BlendingMode.OPAQUE
+                                        isTransparent.value = false
+                                    } else {
+                                        surfaceEntity!!.blendingMode =
+                                            SurfaceEntity.BlendingMode.TRANSPARENT
+                                        isTransparent.value = true
+                                    }
                                 }
+                            ) {
+                                Text(
+                                    text =
+                                        if (isTransparent.value) "Make Opaque"
+                                        else "Make Transparent",
+                                    fontSize = 18.sp,
+                                )
                             }
-                        ) {
-                            Text(
-                                text =
-                                    if (isTransparent.value) "Make Opaque" else "Make Transparent",
-                                fontSize = 18.sp,
-                            )
                         }
                     }
                 }
