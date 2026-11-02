@@ -27,7 +27,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.integration.a2ui.model.UiComponent
 import androidx.compose.material3.integration.a2ui.ui.ComponentDetailScreen
-import androidx.compose.material3.integration.a2ui.ui.ComponentListScreen
+import androidx.compose.material3.integration.a2ui.ui.ExampleDetailScreen
+import androidx.compose.material3.integration.a2ui.ui.HomeScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.ComposeUiFlags
@@ -53,22 +54,35 @@ class DemoActivity : ComponentActivity() {
 
 @Composable
 fun A2uiDemoApp(viewModel: DemoViewModel = viewModel()) {
+    val examples by viewModel.examples.collectAsStateWithLifecycle()
     val activeSurfaces by viewModel.activeSurfaces.collectAsStateWithLifecycle()
     val backStack = rememberNavBackStack(HomeKey)
 
     NavDisplay(
         backStack = backStack,
+        onBack = {
+            viewModel.clearSelectedExample()
+            backStack.removeLastOrNull()
+        },
         transitionSpec = { ForwardTransitionSpec },
         popTransitionSpec = { BackwardTransitionSpec },
         predictivePopTransitionSpec = { BackwardTransitionSpec },
         entryProvider =
             entryProvider {
                 entry<HomeKey> {
-                    ComponentListScreen(
+                    HomeScreen(
+                        examples = examples,
                         onComponentSelected = { component ->
                             val key = ComponentDetailKey(component)
                             if (backStack.lastOrNull() != key) backStack.add(key)
-                        }
+                        },
+                        onExampleSelected = { example ->
+                            val key = ExampleDetailKey(example.fileName)
+                            if (backStack.lastOrNull() != key) {
+                                viewModel.selectExample(example)
+                                backStack.add(key)
+                            }
+                        },
                     )
                 }
                 entry<ComponentDetailKey> { key ->
@@ -89,6 +103,20 @@ fun A2uiDemoApp(viewModel: DemoViewModel = viewModel()) {
                         onBack = { backStack.removeLastOrNull() },
                     )
                 }
+                entry<ExampleDetailKey> {
+                    val selectedExample by viewModel.selectedExample.collectAsStateWithLifecycle()
+                    selectedExample?.let { (example, surfaceModel) ->
+                        ExampleDetailScreen(
+                            example = example,
+                            surfaceModel = surfaceModel,
+                            snackbarMessages = viewModel.snackbarMessages,
+                            onBack = {
+                                viewModel.clearSelectedExample()
+                                backStack.removeLastOrNull()
+                            },
+                        )
+                    }
+                }
             },
     )
 }
@@ -96,6 +124,8 @@ fun A2uiDemoApp(viewModel: DemoViewModel = viewModel()) {
 @Serializable private data object HomeKey : NavKey
 
 @Serializable private data class ComponentDetailKey(val component: UiComponent) : NavKey
+
+@Serializable private data class ExampleDetailKey(val fileName: String) : NavKey
 
 private const val SlideTransitionDuration = 350
 

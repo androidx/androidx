@@ -21,12 +21,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -34,19 +33,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.integration.a2ui.icons.ChevronForwardIcon
 import androidx.compose.material3.integration.a2ui.model.ComponentCategory
 import androidx.compose.material3.integration.a2ui.model.UiComponent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 
@@ -54,46 +49,31 @@ import androidx.compose.ui.util.fastForEachIndexed
 fun ComponentListScreen(
     onComponentSelected: (UiComponent) -> Unit,
     modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    bottomFadeOffset: Dp = 0.dp,
 ) {
-    val lazyListState = rememberLazyListState()
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                modifier = Modifier.semantics { heading() },
-                title = { Text("A2UI Components") },
-            )
-        },
-    ) { innerPadding ->
-        val layoutDirection = LocalLayoutDirection.current
-        LazyColumn(
-            state = lazyListState,
-            modifier =
-                Modifier.fillMaxSize()
-                    .padding(top = innerPadding.calculateTopPadding())
-                    .verticalFadingEdge(
-                        lazyListState = lazyListState,
-                        fadeHeight = 32.dp,
-                        bottomOffset = innerPadding.calculateBottomPadding(),
-                    ),
-            contentPadding =
-                PaddingValues(
-                    start = innerPadding.calculateStartPadding(layoutDirection),
-                    end = innerPadding.calculateEndPadding(layoutDirection),
-                    bottom = innerPadding.calculateBottomPadding() + 24.dp,
+    LazyColumn(
+        state = state,
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalFadingEdge(
+                    lazyListState = state,
+                    fadeHeight = 32.dp,
+                    bottomOffset = bottomFadeOffset,
                 ),
-        ) {
-            ComponentCategory.entries.forEach { category ->
-                val components = UiComponent.byCategory[category] ?: emptyList()
-                item(key = category.name) {
-                    ComponentCategorySection(
-                        category = category,
-                        components = components,
-                        onComponentSelected = onComponentSelected,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    )
-                }
+        contentPadding = contentPadding,
+    ) {
+        ComponentCategory.entries.forEach { category ->
+            val components = UiComponent.byCategory[category] ?: emptyList()
+            item(key = category.name) {
+                ComponentCategorySection(
+                    category = category,
+                    components = components,
+                    onComponentSelected = onComponentSelected,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                )
             }
         }
     }

@@ -17,9 +17,11 @@
 package androidx.compose.material3.integration.a2ui
 
 import android.app.Application
+import androidx.a2ui.compose.runtime.A2uiMessageParser
 import androidx.a2ui.compose.runtime.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
+import androidx.a2ui.model.processor.processInput
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
@@ -28,16 +30,26 @@ import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiFunctionCallAction
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
+import androidx.compose.material3.integration.a2ui.model.CanonicalExample
+import androidx.compose.material3.integration.a2ui.model.loadCanonicalExamples
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class DemoViewModel(application: Application) : AndroidViewModel(application) {
+class DemoViewModel(private val application: Application) : AndroidViewModel(application) {
     private val catalog = createBasicCatalog(application)
 
     private val _snackbarMessages = MutableSharedFlow<String>(extraBufferCapacity = 16)
@@ -59,9 +71,27 @@ class DemoViewModel(application: Application) : AndroidViewModel(application) {
             interceptors = listOf(actionInterceptor),
         )
 
+    private val messageParser = A2uiMessageParser()
+
     val activeSurfaces: StateFlow<List<A2uiSurfaceModel>> = processor.activeSurfaces
 
+    private val _examples = MutableStateFlow<List<CanonicalExample>>(emptyList())
+    val examples: StateFlow<List<CanonicalExample>> = _examples.asStateFlow()
+
+    private val selectedCanonicalExample = MutableStateFlow<CanonicalExample?>(null)
+    val selectedExample: StateFlow<SelectedExample?> =
+        combine(selectedCanonicalExample, processor.activeSurfaces) { example, surfaces ->
+                example?.let {
+                    SelectedExample(
+                        example = example,
+                        surfaceModel = surfaces.firstOrNull { it.id == example.surfaceId },
+                    )
+                }
+            }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     private val lastDataModels = mutableMapOf<String, Map<String, Any?>>()
+    private var exampleLoadingJob: Job? = null
 
     init {
         viewModelScope.launch(Dispatchers.Default) { processor.collectMessages() }
@@ -72,6 +102,7 @@ class DemoViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        viewModelScope.launch { _examples.value = loadCanonicalExamples(application) }
     }
 
     fun updateComponentSurface(
@@ -110,4 +141,33 @@ class DemoViewModel(application: Application) : AndroidViewModel(application) {
             )
         )
     }
+
+    fun selectExample(example: CanonicalExample) {
+        selectedCanonicalExample.value = example
+        exampleLoadingJob?.cancel()
+        exampleLoadingJob =
+            viewModelScope.launch(Dispatchers.Default) {
+                processor.processMessage(A2uiDeleteSurfaceMessage(surfaceId = example.surfaceId))
+                example.messages.forEachIndexed { index, messageJson ->
+                    if (index > 0) {
+                        // Simulating response delay between incremental messages
+                        delay(250.milliseconds)
+                    }
+                    processor.processInput(messageParser, messageJson)
+                }
+            }
+    }
+
+    fun clearSelectedExample() {
+        exampleLoadingJob?.cancel()
+        selectedCanonicalExample.value = null
+    }
 }
+
+/**
+ * The selected [CanonicalExample] together with its surface.
+ *
+ * @property example The selected example.
+ * @property surfaceModel The surface of [example], or null until the processor creates it.
+ */
+data class SelectedExample(val example: CanonicalExample, val surfaceModel: A2uiSurfaceModel?)
