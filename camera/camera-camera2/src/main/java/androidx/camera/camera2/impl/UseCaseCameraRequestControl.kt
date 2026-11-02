@@ -50,6 +50,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import dagger.Binds
 import dagger.Module
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.CancellationException
@@ -57,6 +58,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -599,18 +601,36 @@ constructor(
         runIfNotClosed {
             runOnSequential {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#startFocusAndMeteringAsync" }
-                useGraphSessionOrFailed {
-                    it.lock3A(
-                        aeRegions = aeRegions,
-                        afRegions = afRegions,
-                        awbRegions = awbRegions,
-                        aeLockBehavior = aeLockBehavior,
-                        afLockBehavior = afLockBehavior,
-                        awbLockBehavior = awbLockBehavior,
-                        afTriggerStartAeMode = afTriggerStartAeMode,
-                        convergedTimeLimitNs = timeLimitNs,
-                        lockedTimeLimitNs = timeLimitNs,
-                        convergedCondition = convergedCondition,
+                // CameraPipe evaluates 3A timeLimitNs reactively via CaptureResult.SENSOR_TIMESTAMP
+                // when frames arrive, and Listener3A only cancels tasks on stopRepeating or
+                // CameraGraph stop/close. Wrap both Stage 1 (pre-trigger AE/AWB convergence inside
+                // useGraphSessionOrFailed) and Stage 2 (post-trigger AF lockDeferred.await()
+                // outside the session lock) in wall-clock timeouts so a stalled HAL while the
+                // camera stays open cannot deadlock CameraGraph.Session or block sequentialScope.
+                val timeoutMillis =
+                    TimeUnit.NANOSECONDS.toMillis(timeLimitNs) + CHECK_3A_TIMEOUT_BUFFER_IN_MS
+                val lockDeferred = useGraphSessionOrFailed {
+                    withTimeoutOrNull(timeoutMillis) {
+                        it.lock3A(
+                            aeRegions = aeRegions,
+                            afRegions = afRegions,
+                            awbRegions = awbRegions,
+                            aeLockBehavior = aeLockBehavior,
+                            afLockBehavior = afLockBehavior,
+                            awbLockBehavior = awbLockBehavior,
+                            afTriggerStartAeMode = afTriggerStartAeMode,
+                            convergedTimeLimitNs = timeLimitNs,
+                            lockedTimeLimitNs = timeLimitNs,
+                            convergedCondition = convergedCondition,
+                        )
+                    } ?: timeLimitReachedResult
+                }
+                if (lockDeferred.isCompleted) {
+                    lockDeferred
+                } else {
+                    CompletableDeferred(
+                        withTimeoutOrNull(timeoutMillis) { lockDeferred.await() }
+                            ?: Result3A(Result3A.Status.TIME_LIMIT_REACHED)
                     )
                 }
             }
@@ -623,7 +643,16 @@ constructor(
                     "UseCaseCameraRequestControlImpl#cancelFocusAndMeteringAsync"
                 }
 
-                useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }.await()
+                // Bound unlock3A with a wall-clock timeout in case the HAL stops delivering frames
+                // while the CameraGraph remains open, ensuring update3A still runs to reset
+                // metering regions.
+                withTimeoutOrNull(
+                    TimeUnit.NANOSECONDS.toMillis(CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS) +
+                        CHECK_3A_TIMEOUT_BUFFER_IN_MS
+                ) {
+                    useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }
+                        .await()
+                }
 
                 useGraphSessionOrFailed {
                     it.update3A(
@@ -645,8 +674,16 @@ constructor(
             threads.confineDeferredListSuspend(captureSequence.size) {
                 Camera2Logger.debug { "UseCaseCameraRequestControlImpl#issueSingleCaptureAsync" }
 
+                if (closed) {
+                    return@confineDeferredListSuspend failedResults(
+                        captureSequence.size,
+                        "Capture request is cancelled on closed CameraGraph",
+                        ImageCapture.ERROR_CAMERA_CLOSED,
+                    )
+                }
+
                 if (captureSequence.hasInvalidSurface()) {
-                    failedResults(
+                    return@confineDeferredListSuspend failedResults(
                         captureSequence.size,
                         "Capture request failed due to invalid surface",
                     )
@@ -842,6 +879,8 @@ constructor(
     public companion object {
         private val submitFailedResult =
             CompletableDeferred(Result3A(Result3A.Status.SUBMIT_FAILED))
+        private val timeLimitReachedResult =
+            CompletableDeferred(Result3A(Result3A.Status.TIME_LIMIT_REACHED))
         private val canceledResult = CompletableDeferred<Unit>().apply { cancel() }
 
         public fun SessionConfig.extractCamera2ImplConfigBuilder(): Camera2ImplConfig.Builder {

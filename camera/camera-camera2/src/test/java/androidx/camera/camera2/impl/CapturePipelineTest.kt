@@ -162,6 +162,7 @@ class CapturePipelineTest {
             var waitForAwbAtLock3AForCapture: Boolean = false
 
             var cancelAfAtUnlock3AForCapture: Boolean = false
+            var lock3AForCaptureResult: Deferred<Result3A>? = null
 
             override suspend fun lock3A(
                 aeMode: AeMode?,
@@ -215,7 +216,7 @@ class CapturePipelineTest {
                 triggerAfAtLock3AForCapture = triggerAf
                 waitForAwbAtLock3AForCapture = waitForAwb
                 lock3AForCaptureSemaphore.release()
-                return CompletableDeferred(Result3A(Result3A.Status.OK))
+                return lock3AForCaptureResult ?: CompletableDeferred(Result3A(Result3A.Status.OK))
             }
 
             override fun submit(requests: List<Request>) {
@@ -1016,6 +1017,92 @@ class CapturePipelineTest {
         Assert.assertTrue(exception.cause is ImageCaptureException)
         assertThat((exception.cause as ImageCaptureException).imageCaptureError)
             .isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
+    }
+
+    @Test
+    fun captureRequestSequenceAborted_taskShouldFailWithCAMERA_CLOSED(): Unit = runTest {
+        // Arrange.
+        fakeCameraGraphSession.requestHandler = { requests ->
+            requests.forEach { request ->
+                val requestMetadata = FakeRequestMetadata()
+                request.listeners.forEach { it.onRequestSequenceAborted(requestMetadata) }
+            }
+        }
+
+        // Act.
+        val resultDeferredList =
+            capturePipeline.submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_OFF,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            )
+
+        // Assert.
+        advanceUntilIdle()
+        val exception =
+            assertFailsWith(ImageCaptureException::class) {
+                resultDeferredList.awaitAllWithTimeout()
+            }
+        assertThat(exception.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
+    }
+
+    @Test
+    fun lock3AForCaptureStalled_timesOutAndReleasesSessionToSubmitCapture(): Unit = runTest {
+        // Arrange: simulate a stalled HAL where lock3AForCapture never completes.
+        fakeCameraGraphSession.lock3AForCaptureResult = CompletableDeferred()
+
+        // Act.
+        val resultDeferredList =
+            capturePipeline.submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_ON,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            )
+
+        // Assert: timeout unblocks pre-capture, submits the request, and closes the session.
+        advanceUntilIdle()
+        resultDeferredList.awaitAllWithTimeout()
+        assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)).isTrue()
+        assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
+        assertThat(fakeCameraGraph.activeSessionCount).isEqualTo(0)
+    }
+
+    @Test
+    fun waitForResultTimeout_removesListenerAndClosesSignal(): Unit = runTest {
+        // Act: FLASH_MODE_AUTO awaits getFrameMetadata() -> waitForResult() when no frames arrive.
+        val resultDeferredList =
+            capturePipeline.submitStillCaptures(
+                configs = listOf(singleConfig),
+                requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+                sessionConfigOptions = MutableOptionsBundle.create(),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashMode = ImageCapture.FLASH_MODE_AUTO,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+            )
+
+        advanceUntilIdle()
+        resultDeferredList.awaitAllWithTimeout()
+
+        // Assert: ResultListener was removed from comboRequestListener after timeout and no active
+        // child jobs remain in sequentialScope.
+        assertThat(comboRequestListener.listenerHolders).isEmpty()
+        assertThat(fakeUseCaseThreads.sequentialScope.coroutineContext[Job]!!.children.count())
+            .isEqualTo(0)
+
+        // Verify ResultListener#close completes result with null and ignores subsequent frames.
+        val listener = ResultListener(timeLimitNs = 0L) { true }
+        assertThat(listener.result.isCompleted).isFalse()
+        listener.close()
+        assertThat(listener.result.isCompleted).isTrue()
+        assertThat(listener.result.await()).isNull()
+        listener.onTotalCaptureResult(FakeRequestMetadata(), CameraFrameNumber(1), FakeFrameInfo())
+        assertThat(listener.result.await()).isNull()
     }
 
     @Test
