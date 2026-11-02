@@ -57,7 +57,7 @@ android {
 
 androidx {
     name = "Remote Compose Glimmer"
-    type = SoftwareType.INTERNAL_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Remote Compose Glimmer, the UI library for augmented Android XR experiences"
     enableRobolectric()
