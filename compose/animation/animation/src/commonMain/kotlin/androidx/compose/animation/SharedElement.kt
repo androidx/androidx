@@ -164,7 +164,6 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         if (state.boundsAnimation.target && matchState.activeMatchFound) {
             with(placementScope) {
                 coordinates?.let {
-                    val lookaheadSize = it.size.toSize()
                     val topLeft =
                         with(state.sharedElement.scope) {
                             state.sharedElement.scope.lookaheadRoot.localLookaheadPositionOf(it)
@@ -176,8 +175,30 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
                                 includeMotionFrameOfReference = false,
                             )
                         }
-
-                    stateMachine.configureActiveMatch(lookaheadSize, topLeft, structuralOffset)
+                    if (!state.renderTarget) {
+                        // During the deferred phase, `state` is the outgoing entry (!renderTarget).
+                        // Initialize the match once from its pre-transition bounds on screen (the
+                        // same source non-deferred transitions use for the outgoing entry's
+                        // starting bounds) rather than re-reading the outgoing entry's lookahead
+                        // size and structural offset during the transition. MFR offset changes
+                        // (e.g. scrolling of the outgoing content) are still tracked, but only
+                        // take effect while a transition is active.
+                        val mfrOffset = topLeft - structuralOffset
+                        if (!matchState.matchIsOrHasBeenConfigured) {
+                            matchState.initializeCurrentBounds(this@SharedElement)?.let { bounds ->
+                                stateMachine.configureActiveMatch(
+                                    bounds.size,
+                                    bounds.topLeft,
+                                    bounds.topLeft - mfrOffset,
+                                )
+                            }
+                        } else {
+                            matchState.targetData?.currentMfrOffset = mfrOffset
+                        }
+                    } else {
+                        val lookaheadSize = it.size.toSize()
+                        stateMachine.configureActiveMatch(lookaheadSize, topLeft, structuralOffset)
+                    }
                 }
             }
         }

@@ -444,7 +444,8 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
     override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
         return sharedElementEntry.isEnabled &&
             sharedElement.foundMatch &&
-            sharedElement.scope.isTransitionActive
+            (sharedElement.scope.isTransitionActive ||
+                sharedElementEntry.target != sharedElementEntry.renderTarget)
     }
 
     override fun ApproachMeasureScope.approachMeasure(
@@ -479,7 +480,7 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
     }
 
     private fun updateDeferredHandoffValues() {
-        if (sharedElement.state.targetData == null) return
+        val targetData = sharedElement.state.targetData ?: return
         val currentBounds = sharedElement.state.currentBounds ?: return
 
         val mutableState = sharedElementEntry.activeMutableTransformState
@@ -491,6 +492,8 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
         if (sharedElementEntry.hasHandoffOccurred) {
             return
         }
+
+        val mfrDelta = targetData.currentMfrOffset - targetData.initialMfrOffset
 
         val parentCoords = mutableState.parentLayoutCoordinates
         if (parentCoords == null || !parentCoords.isAttached || !rootCoords.isAttached) {
@@ -513,7 +516,8 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
         val newRight = newTopLeft.x + currentBounds.width * scale
         val newBottom = newTopLeft.y + currentBounds.height * scale
 
-        forcedHandoffBounds = Rect(newTopLeft.x, newTopLeft.y, newRight, newBottom)
+        forcedHandoffBounds =
+            Rect(newTopLeft.x, newTopLeft.y, newRight, newBottom).translate(-mfrDelta)
 
         if (!containerAppliesTransforms) {
             val scaleVelocity = mutableState.scaleHandoffVelocity?.value ?: 0f

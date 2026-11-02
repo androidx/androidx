@@ -101,17 +101,11 @@ internal class SharedElementEntry(
             if (transformState.isHandoffActive && deferredTransformState != null) {
                 return deferredTransformState
             }
-            // During a deferred phase, the underlying transition state is held back at the original
-            // state. This means the `target` property is temporarily inverted (exiting=true,
-            // incoming=false).
-            val isIncoming = if (isMutating) !target else target
 
             val resolvedState =
-                if (isIncoming) {
+                if (renderTarget) {
                     val exitingEntry =
-                        sharedElement.enabledEntries.fastFirstOrNull {
-                            if (it.isMutating) it.target else !it.target
-                        }
+                        sharedElement.enabledEntries.fastFirstOrNull { !it.renderTarget }
                     exitingEntry?.boundsProvider?.modifierLocalTransformState ?: transformState
                 } else {
                     transformState
@@ -234,6 +228,14 @@ internal class SharedElementEntry(
     val target: Boolean
         get() = boundsAnimation.target
 
+    /**
+     * Whether this entry is the one to render: the pending target during the deferred phase of a
+     * [DeferredTransition], otherwise the same as [target].
+     */
+    val renderTarget: Boolean
+        get() =
+            boundsAnimation.transition.pendingTargetState ?: boundsAnimation.transition.targetState
+
     var boundsProvider: BoundsProvider? = null
 
     // Delegate the property to a mutable state, so that when layer is updated, the rendering
@@ -243,7 +245,7 @@ internal class SharedElementEntry(
     // Do not need to render the content of an outgoing `sharedElement`.
     private val shouldRenderAtAll: Boolean
         get() =
-            boundsAnimation.target ||
+            renderTarget ||
                 // This && only evaluates to true when the active match is removed during
                 // transition
                 (sharedElement.state.matchIsOrHasBeenConfigured &&
@@ -258,7 +260,7 @@ internal class SharedElementEntry(
                 // Render in overlay during transition only takes effect during transition (i.e.
                 // when transition is active)
                 renderInOverlayDuringTransition &&
-                (sharedElement.scope.isTransitionActive || isMutating)
+                (sharedElement.scope.isTransitionActive || target != renderTarget)
 
     val shouldRenderInPlace: Boolean
         get() =
@@ -280,6 +282,7 @@ internal class SharedElementEntry(
         // Here we are observing strictly the states that would affect match and transition
         // activeness for the node. The match is the result of this observation, not the input.
         target
+        renderTarget
         isEnabled
         boundsAnimation.isRunning
         activeMutableTransformState?.isMutating
