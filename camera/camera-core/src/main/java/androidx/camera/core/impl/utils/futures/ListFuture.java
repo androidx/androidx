@@ -51,8 +51,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * completes.
  */
 class ListFuture<V> implements ListenableFuture<List<V>> {
-    @Nullable List<? extends ListenableFuture<? extends V>> mFutures;
-    @Nullable List<V> mValues;
+    volatile @Nullable List<? extends ListenableFuture<? extends V>> mFutures;
+    volatile @Nullable List<V> mValues;
     private final boolean mAllMustSucceed;
     private final @NonNull AtomicInteger mRemaining;
     private final @NonNull ListenableFuture<List<V>> mResult;
@@ -143,8 +143,8 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
         if (isDone() || localValues == null) {
             // Some other future failed or has been cancelled, causing this one to
             // also be cancelled or have an exception set. This should only happen
-            // if mAllMustSucceed is true.
-            checkState(mAllMustSucceed,
+            // if mAllMustSucceed is true or if this future was cancelled externally.
+            checkState(mAllMustSucceed || isCancelled(),
                     "Future was done before all dependencies completed");
             return;
         }
@@ -195,13 +195,17 @@ class ListFuture<V> implements ListenableFuture<List<V>> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        if (mFutures != null) {
-            for (ListenableFuture<? extends V> f : mFutures) {
+        List<? extends ListenableFuture<? extends V>> localFutures = mFutures;
+        if (!mResult.cancel(mayInterruptIfRunning)) {
+            return false;
+        }
+        if (localFutures != null) {
+            for (ListenableFuture<? extends V> f : localFutures) {
                 f.cancel(mayInterruptIfRunning);
             }
         }
 
-        return mResult.cancel(mayInterruptIfRunning);
+        return true;
     }
 
     @Override
