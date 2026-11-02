@@ -63,7 +63,6 @@ import kotlinx.coroutines.coroutineScope
  * Callbacks to the underlying session are exposed here to push Compose state into the remote view.
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@ExperimentalPhotoPickerComposeApi
 public interface EmbeddedPhotoPickerState {
 
     /**
@@ -250,7 +249,6 @@ internal interface ClientCallbacks {
  */
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
-@OptIn(ExperimentalPhotoPickerComposeApi::class)
 internal class EmbeddedPhotoPickerStateImpl(
     isInitiallyExpanded: Boolean = false,
     initialMediaSelection: Set<Uri> = emptySet(),
@@ -555,7 +553,6 @@ internal class EmbeddedPhotoPickerStateImpl(
  *   collapse or close the PhotoPicker.
  * @return state object for interacting with an EmbeddedPhotoPickerSession.
  */
-@ExperimentalPhotoPickerComposeApi
 @Composable
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
