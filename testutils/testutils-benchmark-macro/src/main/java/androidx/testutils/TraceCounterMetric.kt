@@ -141,7 +141,7 @@ class TraceCounterMetric(
                 .toList()
 
         if (windowSliceName == null) {
-            val values = samples.map { it.value }
+            val values = DoubleArray(samples.size) { samples[it].value }
             return buildMeasurementsForValues(label, values)
         }
 
@@ -158,13 +158,11 @@ class TraceCounterMetric(
                 .toList()
 
         return windowSlices.flatMapIndexed { index, windowSlice ->
-            val windowValues =
-                samples
-                    .filter { sample ->
-                        sample.timestampNanos in
-                            windowSlice.startTimestampNanos..windowSlice.endTimestampNanos
-                    }
-                    .map { it.value }
+            val windowSamples = samples.filter { sample ->
+                sample.timestampNanos in
+                    windowSlice.startTimestampNanos..windowSlice.endTimestampNanos
+            }
+            val windowValues = DoubleArray(windowSamples.size) { windowSamples[it].value }
             buildMeasurementsForValues(
                 metricPrefix = "${label}Window${index + 1}",
                 values = windowValues,
@@ -174,7 +172,7 @@ class TraceCounterMetric(
 
     private fun buildMeasurementsForValues(
         metricPrefix: String,
-        values: List<Double>,
+        values: DoubleArray,
     ): List<Measurement> = buildList {
         for (mode in modes) {
             when (mode) {
@@ -205,9 +203,9 @@ class TraceCounterMetric(
         }
     }
 
-    private fun List<Double>.median(): Double {
+    private fun DoubleArray.median(): Double {
         require(isNotEmpty()) { "Cannot compute median of an empty list." }
-        val sorted = sorted()
+        val sorted = sortedArray()
         val middle = size / 2
         return if (size % 2 == 1) {
             sorted[middle]

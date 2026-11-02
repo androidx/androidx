@@ -32,6 +32,8 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.tracing.trace
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -82,12 +84,16 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
                 intent.putExtra(BenchmarkConfig.WordLength, 8)
                 tryFreeTextLayoutCache()
                 startActivityAndWait(intent)
+                device.waitForIdle()
             },
         ) {
-            val content = device.findObject(By.res("android", "content"))
+            val content = device.findObjectOrThrow(By.res("android", "content"))
             content.setGestureMargin(device.displayWidth / 5)
             for (i in 1..5) {
-                content.fling(Direction.DOWN)
+                trace("TextListScroll#fling_$i") {
+                    content.fling(Direction.DOWN)
+                    device.waitForIdle()
+                }
             }
         }
     }

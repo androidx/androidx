@@ -26,6 +26,7 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.tracing.trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,8 +74,10 @@ class FrameExperimentBenchmark {
                 startActivityAndWait(intent)
             },
         ) {
-            device.click(device.displayWidth / 2, device.displayHeight / 2)
-            Thread.sleep(4_000) // empirically enough to produce expected frames
+            trace("FrameExperiment#clickAndSettle") {
+                device.click(device.displayWidth / 2, device.displayHeight / 2)
+                Thread.sleep(4_000) // empirically enough to produce expected frames
+            }
         }
     }
 

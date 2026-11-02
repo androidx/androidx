@@ -20,10 +20,12 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
+import androidx.tracing.trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,11 +46,14 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
             repeat(2) {
-                device.findObject(By.desc(ToggleCrossfadeDescription)).click()
-                device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
+                trace("Crossfade#initialComposition_$it") {
+                    device.findObjectOrThrow(By.desc(ToggleCrossfadeDescription)).click()
+                    device.waitForComposeIdleOrThrow()
+                }
             }
         }
     }
@@ -63,11 +68,14 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
             repeat(2) {
-                device.findObject(By.desc(ToggleTargetStateDescription)).click()
-                device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
+                trace("Crossfade#targetStateChange_$it") {
+                    device.findObjectOrThrow(By.desc(ToggleTargetStateDescription)).click()
+                    device.waitForComposeIdleOrThrow()
+                }
             }
         }
     }
@@ -78,7 +86,6 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
             "androidx.compose.integration.macrobenchmark.target.CROSSFADE_ACTIVITY"
         const val ToggleCrossfadeDescription = "toggle-crossfade"
         const val ToggleTargetStateDescription = "toggle-target"
-        const val ComposeIdle = "COMPOSE-IDLE"
 
         @Parameterized.Parameters(name = "compilationMode={0}")
         @JvmStatic

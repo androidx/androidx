@@ -28,7 +28,6 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.waitOrThrow
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
@@ -37,6 +36,7 @@ import androidx.testutils.CpuFrequencyChangeMetric
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.getStartupMetrics
 import androidx.testutils.measureStartup
+import androidx.testutils.waitOrThrow
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized

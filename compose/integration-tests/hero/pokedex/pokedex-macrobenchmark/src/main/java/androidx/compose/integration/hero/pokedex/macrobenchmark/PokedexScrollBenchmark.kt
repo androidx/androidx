@@ -35,8 +35,6 @@ import androidx.benchmark.macro.Metric
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.findObjectOrThrow
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.waitOrThrow
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
@@ -47,6 +45,8 @@ import androidx.testutils.TraceCounterMetric
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitOrThrow
 import androidx.tracing.Trace
 import kotlin.math.roundToInt
 import org.junit.Test
