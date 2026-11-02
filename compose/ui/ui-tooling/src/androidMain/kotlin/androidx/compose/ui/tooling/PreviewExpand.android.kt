@@ -24,8 +24,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.tooling.data.Group
@@ -225,6 +227,14 @@ internal enum class PreviewExpandAxis {
     HORIZONTAL,
 }
 
+/** The semantics property exposing the scroll range of containers scrollable along this axis. */
+private val PreviewExpandAxis.scrollAxisRange: SemanticsPropertyKey<ScrollAxisRange>
+    get() =
+        when (this) {
+            PreviewExpandAxis.VERTICAL -> SemanticsProperties.VerticalScrollAxisRange
+            PreviewExpandAxis.HORIZONTAL -> SemanticsProperties.HorizontalScrollAxisRange
+        }
+
 /**
  * Expansion settings of a preview, read from its device spec.
  *
@@ -319,10 +329,10 @@ internal fun layoutComposeView(composeView: ComposeView) {
 }
 
 /**
- * Composes the preview from scratch, then measures and lays it out at exactly [height], so the
- * positions and scroll ranges of its content are those of a device that is [height] tall.
+ * Composes the preview from scratch, then measures it with [measureExactly] at [size] and lays it
+ * out, so the positions and scroll ranges of its content are those of a device of that size.
  *
- * Re-composing is needed since measuring the same composition at different heights leaves state
+ * Re-composing is needed since measuring the same composition at different sizes leaves state
  * behind. For example, a lazy list measured at a small height and scrolled to its end stays
  * scrolled when measured again at a larger height: it reports it can not scroll forward although
  * the start of its content is not visible anymore, and the end of its content padding (e.g. the
@@ -331,67 +341,70 @@ internal fun layoutComposeView(composeView: ComposeView) {
 private fun composeAndLayoutAt(
     composeView: ComposeView,
     slotTableRecord: CompositionDataRecord,
-    height: Int,
+    size: Int,
     measureExactly: (Int) -> Unit,
     recreateComposition: () -> Unit,
     disableScalingLazyColumnAutoCentering: Boolean = false,
 ) {
     recreateComposition()
-    measureExactly(height)
+    measureExactly(size)
     layoutComposeView(composeView)
     if (disableScalingLazyColumnAutoCentering) {
         disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
-            measureExactly(height)
+            measureExactly(size)
             layoutComposeView(composeView)
         }
     }
 }
 
 /**
- * Returns the smallest height in `[minHeight, maxHeight]` at which the content of every vertically
- * scrollable container in the composition is visible, leaving the preview freshly composed,
- * measured at that exact height and laid out (with any Wear `ScalingLazyColumn` auto-centering
- * spacers collapsed). If the content still overflows at [maxHeight], [maxHeight] is returned. If
- * everything fits at [minHeight], [minHeight] is returned.
+ * Returns the smallest size along [axis] in `[minSize, maxSize]` at which the content of every
+ * container in the composition scrollable along [axis] is visible, leaving the preview freshly
+ * composed, measured at that exact size with [measureExactly] and laid out (with any Wear
+ * `ScalingLazyColumn` auto-centering spacers collapsed when expanding vertically). If the content
+ * still overflows at [maxSize], [maxSize] is returned. If everything fits at [minSize], [minSize]
+ * is returned.
  */
-internal fun findExpandedHeight(
+internal fun findExpandedSize(
     composeView: ComposeView,
     slotTableRecord: CompositionDataRecord,
-    minHeight: Int,
-    maxHeight: Int,
+    axis: PreviewExpandAxis,
+    minSize: Int,
+    maxSize: Int,
     measureExactly: (Int) -> Unit,
     recreateComposition: () -> Unit,
 ): Int {
-    measureExactly(maxHeight)
+    measureExactly(maxSize)
     layoutComposeView(composeView)
     // A Wear `ScalingLazyColumn` with auto-centering adds top and bottom spacers that grow with
-    // the viewport (~half the viewport each), so it would either still scroll at `maxHeight` or
-    // (for 1- or 2-item lists whose spacers + items equal `maxHeight`) render with the top half
+    // the viewport (~half the viewport each), so it would either still scroll at `maxSize` or
+    // (for 1- or 2-item lists whose spacers + items equal `maxSize`) render with the top half
     // of the expanded preview empty. `disableWearScalingLazyColumnAutoCentering` only uses
     // reflection when a `ScalingLazyListState` instance is present in `slotTableRecord`, and is
-    // checked once at `maxHeight` to avoid walking the slot table on every binary-search probe
+    // checked once at `maxSize` to avoid walking the slot table on every binary-search probe
     // when no `ScalingLazyColumn` is present.
     val hasScalingLazyColumn =
-        disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
-            measureExactly(maxHeight)
-            layoutComposeView(composeView)
-        }
-    if (minHeight >= maxHeight || hasVerticalScrollOverflow(composeView)) return maxHeight
+        axis == PreviewExpandAxis.VERTICAL &&
+            disableWearScalingLazyColumnAutoCentering(composeView, slotTableRecord) {
+                measureExactly(maxSize)
+                layoutComposeView(composeView)
+            }
+    if (minSize >= maxSize || hasScrollOverflow(composeView, axis)) return maxSize
 
     composeAndLayoutAt(
         composeView,
         slotTableRecord,
-        minHeight,
+        minSize,
         measureExactly,
         recreateComposition,
         hasScalingLazyColumn,
     )
-    if (!hasVerticalScrollOverflow(composeView)) return minHeight
+    if (!hasScrollOverflow(composeView, axis)) return minSize
 
     // Invariant: overflow at lo, no overflow at hi.
-    var lo = minHeight
-    var hi = maxHeight
-    var lastProbedHeight = minHeight
+    var lo = minSize
+    var hi = maxSize
+    var lastProbedSize = minSize
     while (hi - lo > 1) {
         val mid = lo + (hi - lo) / 2
         composeAndLayoutAt(
@@ -402,10 +415,10 @@ internal fun findExpandedHeight(
             recreateComposition,
             hasScalingLazyColumn,
         )
-        lastProbedHeight = mid
-        if (hasVerticalScrollOverflow(composeView)) lo = mid else hi = mid
+        lastProbedSize = mid
+        if (hasScrollOverflow(composeView, axis)) lo = mid else hi = mid
     }
-    if (lastProbedHeight != hi) {
+    if (lastProbedSize != hi) {
         composeAndLayoutAt(
             composeView,
             slotTableRecord,
@@ -418,20 +431,22 @@ internal fun findExpandedHeight(
     return hi
 }
 
-private fun SemanticsNode.canScrollForward(): Boolean {
-    val range = config.getOrNull(SemanticsProperties.VerticalScrollAxisRange) ?: return false
+/** Returns true if this node, scrollable along [axis], can scroll forward along [axis]. */
+private fun SemanticsNode.canScrollForward(axis: PreviewExpandAxis): Boolean {
+    val range = config.getOrNull(axis.scrollAxisRange) ?: return false
     return range.maxValue() - range.value() > SCROLL_OVERFLOW_TOLERANCE_PX
 }
 
 /**
- * Returns true if any vertically scrollable container in the composition can still scroll forward
+ * Returns true if any container in the composition scrollable along [axis] can still scroll forward
  * according to its [SemanticsProperties.VerticalScrollAxisRange] (exposed by `verticalScroll`,
- * `LazyColumn`, Wear `ScalingLazyColumn` and `TransformingLazyColumn`).
+ * `LazyColumn`, Wear `ScalingLazyColumn` and `TransformingLazyColumn`) or
+ * [SemanticsProperties.HorizontalScrollAxisRange] (exposed by `horizontalScroll` and `LazyRow`).
  */
-private fun hasVerticalScrollOverflow(composeView: ComposeView): Boolean {
+private fun hasScrollOverflow(composeView: ComposeView, axis: PreviewExpandAxis): Boolean {
     val root = composeView.getChildAt(0) as? RootForTest ?: return false
     return root.semanticsOwner.getAllSemanticsNodes(mergingEnabled = false).any {
-        it.canScrollForward()
+        it.canScrollForward(axis)
     }
 }
 

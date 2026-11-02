@@ -37,6 +37,7 @@ class PreviewDeviceSpecTest {
                 "viewingDistance",
                 "expand",
                 "maxHeight",
+                "maxWidth",
             ),
             supportedParameters.split(',').toSet(),
         )

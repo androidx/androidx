@@ -1081,6 +1081,146 @@ class ComposeViewAdapterTest {
         }
     }
 
+    /**
+     * Initializes [methodName] with the given [device] spec (by default, one that expands
+     * horizontally) and returns the size of the adapter when measured with a width spec of size
+     * [viewportWidthPx] and mode [widthMode] (UNSPECIFIED by default, as LayoutLib does in H_SCROLL
+     * rendering mode) and an EXACTLY height spec of size [heightPx].
+     */
+    private fun measureExpandedHorizontally(
+        methodName: String,
+        viewportWidthPx: Int,
+        device: String = EXPAND_HORIZONTAL_DEVICE,
+        widthMode: Int = View.MeasureSpec.UNSPECIFIED,
+        heightPx: Int = 400,
+    ): Pair<Int, Int> {
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandListsPreviewKt",
+            methodName,
+            device = device,
+        )
+        var measuredSize = -1 to -1
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.measure(
+                View.MeasureSpec.makeMeasureSpec(viewportWidthPx, widthMode),
+                View.MeasureSpec.makeMeasureSpec(heightPx, View.MeasureSpec.EXACTLY),
+            )
+            measuredSize = composeViewAdapter.measuredWidth to composeViewAdapter.measuredHeight
+        }
+        return measuredSize
+    }
+
+    @Test
+    fun expandHorizontal_longLazyRow_growsToFitAllItems() {
+        val (width, height) =
+            measureExpandedHorizontally("ExpandLongLazyRowPreview", viewportWidthPx = 100)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+        // The height is not expanded.
+        assertEquals(400, height)
+    }
+
+    @Test
+    fun expandHorizontal_shortLazyRow_shrinksToContent() {
+        // With a viewport of 0, a fillMaxSize() LazyRow must not expand to the max width.
+        val (width, _) =
+            measureExpandedHorizontally("ExpandShortLazyRowPreview", viewportWidthPx = 0)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_SHORT_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_shortLazyRow_neverSmallerThanViewport() {
+        val viewportWidth = EXPAND_ITEM_WIDTH.toPx() * (EXPAND_SHORT_LIST_ITEM_COUNT + 5)
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandShortLazyRowPreview",
+                viewportWidthPx = viewportWidth,
+            )
+        assertEquals(viewportWidth, width)
+    }
+
+    @Test
+    fun expandHorizontal_horizontalScrollRow_growsToFitAllItems() {
+        val (width, _) =
+            measureExpandedHorizontally("ExpandHorizontalScrollRowPreview", viewportWidthPx = 100)
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_widthIsCappedAtMaxWidth() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxWidth=300px",
+            )
+        assertEquals(300, width)
+        val (widthDp, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxWidth=150dp",
+            )
+        assertEquals(150.dp.toPx(), widthDp)
+    }
+
+    @Test
+    fun expandHorizontal_maxHeightIsIgnored() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 100,
+                device = "$EXPAND_HORIZONTAL_DEVICE,maxHeight=300px",
+            )
+        assertEquals(EXPAND_ITEM_WIDTH.toPx() * EXPAND_LONG_LIST_ITEM_COUNT, width)
+    }
+
+    @Test
+    fun expandHorizontal_exactlySpecIsHonored() {
+        val (width, _) =
+            measureExpandedHorizontally(
+                "ExpandLongLazyRowPreview",
+                viewportWidthPx = 250,
+                widthMode = View.MeasureSpec.EXACTLY,
+            )
+        assertEquals(250, width)
+    }
+
+    @Test
+    fun expandHorizontal_doesNotProvideWearReduceMotion() {
+        initAndWaitForDraw(
+            "androidx.compose.ui.tooling.ExpandWearListsPreviewKt",
+            "WearReduceMotionPreview",
+            device = EXPAND_HORIZONTAL_DEVICE,
+        )
+        // The system "remove animations" setting is off on test devices.
+        activityTestRule.runOnUiThread { assertEquals(false, observedWearReduceMotion) }
+    }
+
+    @Test
+    fun expandHorizontal_mediaQueriesSeeTheScreenWidth() {
+        // Without an explicit width in the spec, media queries fall back to the device screen
+        // width instead of the expanded window width.
+        val expectedScreenWidth = activityTestRule.activity.resources.configuration.screenWidthDp.dp
+        observedMediaQueryWindowWidth = null
+        measureExpandedHorizontally(
+            "MediaQueryWidthPreview",
+            viewportWidthPx = 100,
+            device = "spec:parent=pixel_7,expand=horizontal",
+        )
+        activityTestRule.runOnUiThread {
+            assertEquals(expectedScreenWidth, observedMediaQueryWindowWidth)
+        }
+
+        // With an explicit width in the spec, media queries see that width.
+        observedMediaQueryWindowWidth = null
+        measureExpandedHorizontally(
+            "MediaQueryWidthPreview",
+            viewportWidthPx = 100,
+            device = "spec:width=500dp,height=891dp,expand=horizontal",
+        )
+        activityTestRule.runOnUiThread { assertEquals(500.dp, observedMediaQueryWindowWidth) }
+    }
+
     @Test
     fun expandVertical_exactlySpecIsHonored() {
         val height =

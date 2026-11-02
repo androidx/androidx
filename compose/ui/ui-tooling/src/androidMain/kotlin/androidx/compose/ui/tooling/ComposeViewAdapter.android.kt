@@ -144,7 +144,8 @@ internal data class ViewInfo(
  *   the media query values, it can ask the adapter to expand: with `expand=vertical`, when the
  *   adapter is measured with an unbounded height, it grows vertically so that vertically scrollable
  *   containers display all their content, up to `maxHeight` (e.g. `maxHeight=1200dp`, defaults to
- *   [DEFAULT_EXPAND_MAX_SIZE_PX] pixels). See [parsePreviewExpandSettings].
+ *   [DEFAULT_EXPAND_MAX_SIZE_PX] pixels). Likewise, with `expand=horizontal`, when measured with an
+ *   unbounded width, it grows horizontally up to `maxWidth`. See [parsePreviewExpandSettings].
  */
 @Suppress("unused")
 @OptIn(UiToolingDataApi::class)
@@ -228,22 +229,22 @@ internal class ComposeViewAdapter : FrameLayout {
         get() = expandSettings?.axis == PreviewExpandAxis.VERTICAL
 
     /**
-     * Expanded height, in pixels, computed when this adapter is first measured with an
-     * [MeasureSpec.UNSPECIFIED] height. Reused on subsequent measurements with the same
-     * [expandedWidthMeasureSpec] so LayoutLib's repeated `RenderSession.render()` passes keep the
-     * same height instead of re-running the binary search or adding the height delta again (Fast
-     * Preview re-inflates [ComposeViewAdapter] or calls [init], which resets this to `-1`; in-place
-     * recompositions within the same `RenderSession` retain this height). `-1` until the adapter
-     * has been expanded.
+     * Expanded size along [PreviewExpandSettings.axis], in pixels, computed when this adapter is
+     * first measured with an [MeasureSpec.UNSPECIFIED] spec along that axis. Reused on subsequent
+     * measurements with the same [expandedCrossAxisMeasureSpec] so LayoutLib's repeated
+     * `RenderSession.render()` passes keep the same size instead of re-running the binary search or
+     * adding the size delta again (Fast Preview re-inflates [ComposeViewAdapter] or calls [init],
+     * which resets this to `-1`; in-place recompositions within the same `RenderSession` retain
+     * this size). `-1` until the adapter has been expanded.
      */
     private var expandedSizePx: Int = -1
 
     /**
-     * `widthMeasureSpec` for which [expandedSizePx] was computed. If the adapter is later measured
-     * with a different width spec, [expandedSizePx] is invalidated so the expanded height is
-     * recomputed for the new width.
+     * Measure spec along the non-expanded axis for which [expandedSizePx] was computed. If the
+     * adapter is later measured with a different cross-axis spec, [expandedSizePx] is invalidated
+     * so the expanded size is recomputed for the new cross-axis dimension.
      */
-    private var expandedWidthMeasureSpec: Int = 0
+    private var expandedCrossAxisMeasureSpec: Int = 0
 
     private val debugBoundsPaint =
         Paint().apply {
@@ -341,53 +342,76 @@ internal class ComposeViewAdapter : FrameLayout {
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        // Only expand when the device spec asks for it and the parent lets us pick our own height
-        // (e.g. LayoutLib V_SCROLL rendering mode). EXACTLY/AT_MOST specs are always honored when
-        // the adapter has not been expanded.
+        // Only expand when the device spec asks for it and the parent lets us pick our own size
+        // along the expanded axis (e.g. LayoutLib V_SCROLL or H_SCROLL rendering modes).
+        // EXACTLY/AT_MOST specs are always honored when the adapter has not been expanded.
         val settings = expandSettings
-        if (settings?.axis != PreviewExpandAxis.VERTICAL) {
+        val axisMeasureSpec =
+            when (settings?.axis) {
+                PreviewExpandAxis.VERTICAL -> heightMeasureSpec
+                PreviewExpandAxis.HORIZONTAL -> widthMeasureSpec
+                null -> null
+            }
+        if (settings == null || axisMeasureSpec == null) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             return
         }
-        if (expandedWidthMeasureSpec != 0 && widthMeasureSpec != expandedWidthMeasureSpec) {
+        val axis = settings.axis
+        val crossAxisMeasureSpec =
+            when (axis) {
+                PreviewExpandAxis.VERTICAL -> widthMeasureSpec
+                PreviewExpandAxis.HORIZONTAL -> heightMeasureSpec
+            }
+        if (
+            expandedCrossAxisMeasureSpec != 0 &&
+                crossAxisMeasureSpec != expandedCrossAxisMeasureSpec
+        ) {
             expandedSizePx = -1
-            expandedWidthMeasureSpec = 0
+            expandedCrossAxisMeasureSpec = 0
             recreateComposition()
         }
 
-        if (
-            expandedSizePx < 0 && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED
-        ) {
-            // Pass 1: measure with a finite AT_MOST bound. Passing UNSPECIFIED down to Compose
-            // would translate into Constraints.Infinity which crashes vertically scrollable
-            // containers (and overflows the Constraints bitfield in Scaffold-like layouts).
-            super.onMeasure(
-                widthMeasureSpec,
-                MeasureSpec.makeMeasureSpec(settings.maxSizePx, MeasureSpec.AT_MOST),
-            )
-            val boundedHeight = measuredHeight
+        // Measures the adapter with the given spec along the expanded axis, and the spec of the
+        // parent along the other axis.
+        val measureAlongAxis = { spec: Int ->
+            when (axis) {
+                PreviewExpandAxis.VERTICAL -> super.onMeasure(widthMeasureSpec, spec)
+                PreviewExpandAxis.HORIZONTAL -> super.onMeasure(spec, heightMeasureSpec)
+            }
+        }
+        val measureExactly = { size: Int ->
+            measureAlongAxis(MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY))
+        }
 
-            // Pass 2: find the smallest height at which all the scrollable content is visible,
-            // leaving the preview freshly composed, measured at that exact height (so root
-            // containers using fillMaxSize() do not leave trailing space) and laid out.
-            val viewportHeight = MeasureSpec.getSize(heightMeasureSpec).coerceIn(0, boundedHeight)
+        if (expandedSizePx < 0 && MeasureSpec.getMode(axisMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+            // Pass 1: measure with a finite AT_MOST bound. Passing UNSPECIFIED down to Compose
+            // would translate into infinite Constraints which crash scrollable containers (and
+            // overflow the Constraints bitfield in Scaffold-like layouts).
+            measureAlongAxis(MeasureSpec.makeMeasureSpec(settings.maxSizePx, MeasureSpec.AT_MOST))
+            val boundedSize = measuredSize(axis)
+
+            // Pass 2: find the smallest size at which all the scrollable content is visible,
+            // leaving the preview freshly composed, measured at that exact size (so root containers
+            // using fillMaxSize() do not leave trailing space) and laid out.
+            val viewportSize = MeasureSpec.getSize(axisMeasureSpec).coerceIn(0, boundedSize)
             expandedSizePx =
-                findExpandedHeight(
+                findExpandedSize(
                     composeView = composeView,
                     slotTableRecord = slotTableRecord,
-                    minHeight = viewportHeight,
-                    maxHeight = boundedHeight,
-                    measureExactly = { height -> measureExactly(widthMeasureSpec, height) },
+                    axis = axis,
+                    minSize = viewportSize,
+                    maxSize = boundedSize,
+                    measureExactly = measureExactly,
                     recreateComposition = ::recreateComposition,
                 )
-            expandedWidthMeasureSpec = widthMeasureSpec
+            expandedCrossAxisMeasureSpec = crossAxisMeasureSpec
         } else if (expandedSizePx >= 0) {
             // Once expanded, keep measuring at expandedSizePx even when LayoutLib's
             // RenderSessionImpl.measureLayout probes the root view with EXACTLY before measuring
-            // the content root with UNSPECIFIED: returning the same height on both passes prevents
-            // calcSize from adding (childHeight - rootHeight) to mMeasuredScreenHeight on every
-            // render() call and avoids re-running the binary search.
-            measureExactly(widthMeasureSpec, expandedSizePx)
+            // the content root with UNSPECIFIED: returning the same size on both passes prevents
+            // calcSize from adding (childSize - rootSize) to the measured screen dimension on
+            // every render() call and avoids re-running the binary search.
+            measureExactly(expandedSizePx)
             layoutComposeView(composeView)
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -396,19 +420,18 @@ internal class ComposeViewAdapter : FrameLayout {
 
         if (expandedSizePx > 0) {
             updateWindowConfigurationBounds(this, measuredWidth, measuredHeight)
-            if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+            if (MeasureSpec.getMode(axisMeasureSpec) == MeasureSpec.UNSPECIFIED) {
                 forceAncestorLayouts(this)
             }
         }
     }
 
-    @SuppressLint("WrongCall")
-    private fun measureExactly(widthMeasureSpec: Int, height: Int) {
-        super.onMeasure(
-            widthMeasureSpec,
-            MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY),
-        )
-    }
+    /** Returns the measured size of the adapter along [axis]. */
+    private fun measuredSize(axis: PreviewExpandAxis): Int =
+        when (axis) {
+            PreviewExpandAxis.VERTICAL -> measuredHeight
+            PreviewExpandAxis.HORIZONTAL -> measuredWidth
+        }
 
     /** Disposes the current preview composition and composes it again from scratch. */
     private fun recreateComposition() {
@@ -562,21 +585,32 @@ internal class ComposeViewAdapter : FrameLayout {
     @Composable
     private fun WrapPreview(content: @Composable () -> Unit) {
         val windowInfo = LocalWindowInfo.current
-        // When expanding vertically, the window is as tall as the content. Media queries see the
-        // height of the device screen (or the explicit height in the device spec) instead.
+        // When expanding, the window is as large as the content along the expanded axis. Media
+        // queries see the size of the device screen (or the explicit size in the device spec)
+        // instead.
         val configuration = LocalConfiguration.current
+        val expandAxis = expandSettings?.axis
         val fallbackWidth =
             configuration.screenWidthDp.takeIf { it > 0 }?.dp ?: DEFAULT_PREVIEW_WIDTH
         val fallbackHeight =
             configuration.screenHeightDp.takeIf { it > 0 }?.dp ?: DEFAULT_PREVIEW_HEIGHT
-        val reportDeviceHeight = isVerticalExpansionEnabled
+        val reportDeviceWidth = expandAxis == PreviewExpandAxis.HORIZONTAL
+        val reportDeviceHeight = expandAxis == PreviewExpandAxis.VERTICAL
         val previewUiMediaScope =
-            remember(windowInfo, device, fallbackWidth, fallbackHeight, reportDeviceHeight) {
+            remember(
+                windowInfo,
+                device,
+                fallbackWidth,
+                fallbackHeight,
+                reportDeviceWidth,
+                reportDeviceHeight,
+            ) {
                 createPreviewUiMediaScope(
                     windowInfo,
                     device,
                     fallbackWidth = fallbackWidth,
                     fallbackHeight = fallbackHeight,
+                    reportDeviceWidth = reportDeviceWidth,
                     reportDeviceHeight = reportDeviceHeight,
                 )
             }
@@ -733,7 +767,7 @@ internal class ComposeViewAdapter : FrameLayout {
         this.onDraw = onDraw
         this.expandSettings = parsePreviewExpandSettings(device, resources.displayMetrics.density)
         this.expandedSizePx = -1
-        this.expandedWidthMeasureSpec = 0
+        this.expandedCrossAxisMeasureSpec = 0
         previewComposition =
             @Composable {
                 SideEffect(onCommit)
@@ -769,7 +803,7 @@ internal class ComposeViewAdapter : FrameLayout {
             clock.dispose()
         }
         expandedSizePx = -1
-        expandedWidthMeasureSpec = 0
+        expandedCrossAxisMeasureSpec = 0
         FakeSavedStateRegistryOwner.lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         FakeViewModelStoreOwner.viewModelStore.clear()
     }
