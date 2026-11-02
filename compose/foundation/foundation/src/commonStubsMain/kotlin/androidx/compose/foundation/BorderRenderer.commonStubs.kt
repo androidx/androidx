@@ -16,6 +16,6 @@
 
 package androidx.compose.foundation
 
-// TODO: b/570069301 currently disabled due to Android also disabling this.
-//  Investigate making this enabled again.
-internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean = false
+@OptIn(ExperimentalFoundationApi::class)
+internal actual fun shouldUseGraphicsLayerForGenericBorder(): Boolean =
+    ComposeFoundationFlags.isBorderUsesGraphicsLayerForGenericShapesEnabled

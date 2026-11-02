@@ -413,6 +413,18 @@ public object ComposeFoundationFlags {
     public var isBorderMatchesOutlineBoundsFixEnabled: Boolean = true
 
     /**
+     * Controls whether the new [border] implementation uses a more efficient rendering path for
+     * generic shapes / outlines (such as when using a polygon shape). When this flag is true there
+     * may be minor antialiasing differences around the edges of the border.
+     *
+     * This flag has no effect on rectangular or rounded borders, or on Android API levels below 28.
+     */
+    // TODO: Remove this flag once it has soaked (b/580078347)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isBorderUsesGraphicsLayerForGenericShapesEnabled: Boolean = false
+
+    /**
      * Controls whether [androidx.compose.foundation.text.BasicTextField] and
      * [androidx.compose.foundation.text.BasicSecureTextField] use only
      * [androidx.compose.foundation.text.input.OutputTransformation] internally for single-line line

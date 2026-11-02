@@ -294,6 +294,8 @@ constructor(private val onProvideGraphicsLayer: () -> GraphicsLayer) {
             }
         }
 
+        // TODO: b/580078347 remove when removing flag - RuntimeShaders are only supported on API
+        //  levels where we default to the graphics layer implementation.
         // RuntimeShaders can't be drawn in a software bitmap. Special case known types that don't
         // need a runtime shader so we can render in software, and avoid minor visual regressions
         // for Modifier.border b/570069301.
@@ -363,7 +365,6 @@ constructor(private val onProvideGraphicsLayer: () -> GraphicsLayer) {
             }
             layer.compositingStrategy = Offscreen
             translate(pathBounds.left, pathBounds.top) {
-                // TODO: if we use colorfilter we can skip re-recording for colors, for solid color
                 if (lastStrokeWidth != strokeWidth) {
                     layer.record(pathBoundsSize) {
                         // Paths can have offsets, so translate to keep the drawn path
