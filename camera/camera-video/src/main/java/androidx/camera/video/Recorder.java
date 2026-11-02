@@ -2214,7 +2214,15 @@ public final class Recorder implements VideoOutput {
                             // If the muxer doesn't yet exist, we may need to create and
                             // start it. Otherwise we can write the data.
                             if (mMuxer == null) {
-                                if (!mInProgressRecordingStopping) {
+                                if (mVideoEncoder == null) {
+                                    // The video encoder has been released, e.g. the camera is
+                                    // unbound during a persistent recording. Drop its data so
+                                    // that the encoder can be released, and wait for the next
+                                    // video encoder to provide a keyframe.
+                                    Logger.d(TAG, "Drop video data since the video encoder has "
+                                            + "been released.");
+                                    encodedData.close();
+                                } else if (!mInProgressRecordingStopping) {
                                     // Clear any previously pending video data since we now
                                     // have newer data.
                                     boolean cachedDataDropped = false;
@@ -2761,6 +2769,13 @@ public final class Recorder implements VideoOutput {
                     mVideoEncoderSessionToRelease.getVideoEncoder() == mVideoEncoder);
 
             Logger.d(TAG, "Releasing video encoder: " + mVideoEncoder);
+            // The video encoder waits for its encoded data to be returned before it is released,
+            // so return the cached keyframe of the encoder. A retained recording gets a new
+            // keyframe from the next video encoder.
+            if (mPendingFirstVideoData != null) {
+                mPendingFirstVideoData.close();
+                mPendingFirstVideoData = null;
+            }
             mVideoEncoderSessionToRelease.terminateNow();
             mVideoEncoderSessionToRelease = null;
             mVideoEncoder = null;

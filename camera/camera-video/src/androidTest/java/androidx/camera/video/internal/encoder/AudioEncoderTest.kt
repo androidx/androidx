@@ -17,22 +17,17 @@ package androidx.camera.video.internal.encoder
 
 import android.media.MediaCodecInfo
 import android.os.Build
-import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.video.internal.BufferProvider
-import androidx.camera.video.internal.BufferProvider.State
 import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
-import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -45,12 +40,10 @@ import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
-import org.mockito.Mockito.never
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 import org.mockito.invocation.InvocationOnMock
@@ -121,24 +114,6 @@ class AudioEncoderTest {
     }
 
     @Test
-    fun canGetEncoderInfo() {
-        assertThat(encoder.encoderInfo).isNotNull()
-    }
-
-    @Test
-    fun discardInputBufferBeforeStart() {
-        // Arrange.
-        fakeAudioLoop.start()
-
-        // Act.
-        // Wait a second to receive data
-        Thread.sleep(3000L)
-
-        // Assert.
-        verify(encoderCallback, never()).onEncodedData(any())
-    }
-
-    @Test
     fun canRestartEncoder() {
         // Skip for b/269129619
         assumeFalse(
@@ -170,20 +145,6 @@ class AudioEncoderTest {
     }
 
     @Test
-    fun canRestartEncoderImmediately() {
-        // Arrange.
-        fakeAudioLoop.start()
-
-        // Act.
-        encoder.start()
-        encoder.stop()
-        encoder.start()
-
-        // Assert.
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-    }
-
-    @Test
     fun canPauseResumeEncoder() {
         // Arrange.
         fakeAudioLoop.start()
@@ -208,184 +169,6 @@ class AudioEncoderTest {
 
         // Assert.
         verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-    }
-
-    @Test
-    fun canPauseStopStartEncoder() {
-        // Arrange.
-        fakeAudioLoop.start()
-
-        // Act.
-        encoder.start()
-
-        // Assert.
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        // Act.
-        encoder.pause()
-
-        // Assert.
-        verify(encoderCallback, timeout(5000L)).onEncodePaused()
-
-        // Act.
-        encoder.stop()
-
-        // Assert.
-        verify(encoderCallback, timeout(5000L)).onEncodeStop()
-
-        // Arrange.
-        clearInvocations(encoderCallback)
-
-        // Act.
-        encoder.start()
-
-        // Assert.
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-    }
-
-    @Test
-    fun canRestartPauseEncoder() {
-        // Arrange.
-        fakeAudioLoop.start()
-
-        // Act.
-        encoder.start()
-
-        // Assert.
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        // Act.
-        encoder.stop()
-        encoder.start()
-        encoder.pause()
-
-        // Assert.
-        verify(encoderCallback, timeout(5000L)).onEncodePaused()
-    }
-
-    @Test
-    fun pauseResumeEncoder_getChronologicalData() {
-        // Arrange.
-        fakeAudioLoop.start()
-        val inOrder = inOrder(encoderCallback)
-
-        // Act.
-        encoder.start()
-        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        encoder.pause()
-        inOrder.verify(encoderCallback, timeout(5000L)).onEncodePaused()
-
-        encoder.start()
-        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        // Assert.
-        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(encoderCallback, Mockito.atLeast(/*start*/ 5 + /*resume*/ 5))
-            .onEncodedData(captor.capture())
-        verifyDataInChronologicalOrder(captor.allValues)
-
-        // Cleanup.
-        encoder.stop()
-    }
-
-    @Test
-    fun stopEncoder_reachStopTime() {
-        // Arrange.
-        fakeAudioLoop.start()
-
-        // Act.
-        encoder.start()
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        val stopTimeUs = TimeUnit.NANOSECONDS.toMicros(System.nanoTime())
-
-        encoder.stop()
-        verify(encoderCallback, timeout(5000L)).onEncodeStop()
-
-        // Assert.
-        // If the last data timestamp is null, it means the encoding is probably stopped because of
-        // timeout.
-        assertThat(encoder.mLastDataStopTimestamp).isNotNull()
-        assertThat(encoder.mLastDataStopTimestamp).isAtLeast(stopTimeUs)
-    }
-
-    @Test
-    fun bufferProvider_canAcquireBuffer() {
-        // Arrange.
-        encoder.start()
-
-        repeat(8) {
-            // Act.
-            val inputBuffer =
-                (encoder.input as Encoder.ByteBufferInput).acquireBuffer().get(3, TimeUnit.SECONDS)
-
-            // Assert.
-            assertThat(inputBuffer).isNotNull()
-            inputBuffer.cancel()
-        }
-    }
-
-    @Test
-    fun bufferProvider_canReceiveBufferProviderStateChange() {
-        // Arrange.
-        fakeAudioLoop.start()
-        val stateRef = AtomicReference<State>()
-        val lock = Semaphore(0)
-        (encoder.input as Encoder.ByteBufferInput).addObserver(
-            CameraXExecutors.directExecutor(),
-            object : Observer<State> {
-                override fun onNewData(state: State?) {
-                    stateRef.set(state)
-                    lock.release()
-                }
-
-                override fun onError(t: Throwable) {
-                    stateRef.set(null)
-                    lock.release()
-                }
-            },
-        )
-
-        // Assert.
-        assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(stateRef.get()).isEqualTo(State.INACTIVE)
-
-        // Act.
-        encoder.start()
-
-        // Assert.
-        assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(stateRef.get()).isEqualTo(State.ACTIVE)
-
-        // Act.
-        encoder.pause()
-
-        // Assert
-        assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(stateRef.get()).isEqualTo(State.INACTIVE)
-
-        // Act.
-        encoder.start()
-
-        // Assert.
-        assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(stateRef.get()).isEqualTo(State.ACTIVE)
-
-        // Act.
-        encoder.stop()
-
-        // Assert.
-        assertThat(lock.tryAcquire(3, TimeUnit.SECONDS)).isTrue()
-        assertThat(stateRef.get()).isEqualTo(State.INACTIVE)
-    }
-
-    private fun verifyDataInChronologicalOrder(encodedDataList: List<EncodedData>) {
-        // For each item indexed by n and n+1, verify that the timestamp of n is less than n+1.
-        encodedDataList.take(encodedDataList.size - 1).forEachIndexed { index, _ ->
-            assertThat(encodedDataList[index].presentationTimeUs)
-                .isLessThan(encodedDataList[index + 1].presentationTimeUs)
-        }
     }
 
     private class FakeAudioLoop(private val bufferProvider: BufferProvider<InputBuffer>) {

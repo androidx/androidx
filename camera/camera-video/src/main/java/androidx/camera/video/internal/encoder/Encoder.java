@@ -142,6 +142,11 @@ public interface Encoder {
      *
      * <p>If this encoder takes {@link SurfaceInput}, this method will release the {@link Surface}.
      * So this method should only be called when the frame producer is finished with the surface.
+     *
+     * <p>Releasing the encoder while it is encoding, i.e. without calling {@link #stop()},
+     * aborts the encoding: {@link EncoderCallback#onEncodeStop()} and
+     * {@link EncoderCallback#onEncodeError(EncodeException)} are not notified. Use
+     * {@link #getReleasedFuture()} to know when the encoder is released.
      */
     void release();
 

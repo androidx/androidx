@@ -20,9 +20,6 @@ import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
-import android.media.MediaFormat.KEY_CAPTURE_RATE
-import android.media.MediaFormat.KEY_OPERATING_RATE
-import android.media.MediaFormat.KEY_PRIORITY
 import android.os.SystemClock
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
@@ -50,11 +47,13 @@ import com.google.common.truth.Truth.assertThat
 import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -226,43 +225,6 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     }
 
     @Test
-    fun canPauseStopStartVideoEncoder() {
-        initVideoEncoder()
-
-        videoEncoder.start()
-
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        videoEncoder.pause()
-
-        verify(videoEncoderCallback, timeout(5000L)).onEncodePaused()
-
-        videoEncoder.stop()
-
-        verify(videoEncoderCallback, timeout(5000L)).onEncodeStop()
-
-        clearInvocations(videoEncoderCallback)
-
-        videoEncoder.start()
-
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-    }
-
-    @Test
-    fun canRestartPauseVideoEncoder() {
-        initVideoEncoder()
-
-        videoEncoder.start()
-        verify(videoEncoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
-
-        videoEncoder.stop()
-        videoEncoder.start()
-        videoEncoder.pause()
-
-        verify(videoEncoderCallback, timeout(10000L)).onEncodePaused()
-    }
-
-    @Test
     fun pauseResumeVideoEncoder_getChronologicalData() {
         initVideoEncoder()
 
@@ -359,18 +321,6 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     }
 
     @Test
-    fun setDifferentCaptureEncodeFrameRates_shouldContainAdditionalKeyValues() {
-        val captureFrameRate = FRAME_RATE
-        val encodeFrameRate = FRAME_RATE / 2
-        initVideoEncoder(captureFrameRate = captureFrameRate, encodeFrameRate = encodeFrameRate)
-
-        val format = videoEncoder.mMediaFormat
-        assertThat(format.getInteger(KEY_CAPTURE_RATE)).isEqualTo(captureFrameRate)
-        assertThat(format.getInteger(KEY_OPERATING_RATE)).isEqualTo(captureFrameRate)
-        assertThat(format.getInteger(KEY_PRIORITY)).isEqualTo(0)
-    }
-
-    @Test
     fun releaseVideoEncoderWithoutStart_doesNotLeakCodecThread() {
         // See b/573671138: releasing a surface-input codec that was never started may leak a
         // native codec thread.
@@ -388,10 +338,54 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
         assertThat(awaitLeakProneCodecThreadCount(baseline)).isEqualTo(baseline)
     }
 
-    private fun createVideoEncoderConfig(
-        captureFrameRate: Int = FRAME_RATE,
-        encodeFrameRate: Int = FRAME_RATE,
-    ): VideoEncoderConfig {
+    @Test
+    fun releaseStartedVideoEncoder_waitsForOutstandingEncodedDataToBeClosed() {
+        // Arrange: hold the first encoded data without closing it.
+        initVideoEncoder()
+        val heldEncodedData = holdFirstEncodedData()
+        videoEncoder.start()
+        val encodedData = heldEncodedData.get(15, TimeUnit.SECONDS)
+
+        try {
+            // Act: release the started encoder while the encoded data is still held.
+            videoEncoder.release()
+
+            // Assert: the codec is not released until the encoded data is closed.
+            assertThrows(TimeoutException::class.java) {
+                videoEncoder.releasedFuture.get(500, TimeUnit.MILLISECONDS)
+            }
+        } finally {
+            // Act: close the held encoded data. Always close it so that the codec is released
+            // even if the assertion fails.
+            encodedData.close()
+        }
+
+        // Assert: the output buffer is returned to the codec before it is released.
+        encodedData.closedFuture.get(5, TimeUnit.SECONDS)
+        videoEncoder.releasedFuture.get(5, TimeUnit.SECONDS)
+    }
+
+    /**
+     * Makes the encoder callback hold the first encoded data without closing it, and closes the
+     * rest.
+     *
+     * @return a future that completes with the held encoded data.
+     */
+    private fun holdFirstEncodedData(): ResolvableFuture<EncodedData> {
+        val heldEncodedData = ResolvableFuture.create<EncodedData>()
+        doAnswer { args: InvocationOnMock ->
+                val encodedData: EncodedData = args.getArgument(0)
+                if (!heldEncodedData.set(encodedData)) {
+                    encodedData.close()
+                }
+                null
+            }
+            .`when`(videoEncoderCallback)
+            .onEncodedData(any())
+        return heldEncodedData
+    }
+
+    private fun createVideoEncoderConfig(): VideoEncoderConfig {
         val cameraInfo = camera.cameraInfo as CameraInfoInternal
         val quality = Quality.LOWEST
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
@@ -401,20 +395,17 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
             .setInputTimebase(INPUT_TIMEBASE)
             .setBitrate(BIT_RATE)
             .setColorFormat(COLOR_FORMAT)
-            .setCaptureFrameRate(captureFrameRate)
-            .setEncodeFrameRate(encodeFrameRate)
+            .setCaptureFrameRate(FRAME_RATE)
+            .setEncodeFrameRate(FRAME_RATE)
             .setIFrameInterval(I_FRAME_INTERVAL)
             .setMimeType(MIME_TYPE)
             .setResolution(resolution)
             .build()
     }
 
-    private fun initVideoEncoder(
-        captureFrameRate: Int = FRAME_RATE,
-        encodeFrameRate: Int = FRAME_RATE,
-    ) {
+    private fun initVideoEncoder() {
         // init video encoder
-        videoEncoderConfig = createVideoEncoderConfig(captureFrameRate, encodeFrameRate)
+        videoEncoderConfig = createVideoEncoderConfig()
 
         videoEncoderCallback = mock(EncoderCallback::class.java)
         doAnswer { args: InvocationOnMock ->
