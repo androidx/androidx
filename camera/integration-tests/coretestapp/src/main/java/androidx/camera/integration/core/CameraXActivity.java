@@ -465,6 +465,7 @@ public class CameraXActivity extends AppCompatActivity {
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
+    private @Nullable CameraPresenceListener mCameraPresenceListener;
     private RecordUi mRecordUi;
     private DynamicRangeUi mDynamicRangeUi;
     private Quality mVideoQuality;
@@ -1738,13 +1739,22 @@ public class CameraXActivity extends AppCompatActivity {
             mCameraProviderResult = cameraProviderResult;
             folderFuture.addListener(() -> {
                 mInitializationIdlingLatch.countDown();
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
                 if (cameraProviderResult.hasProvider()) {
 
                     mCameraProvider = cameraProviderResult.getProvider();
+                    if (mCameraPresenceListener != null) {
+                        requireNonNull(mCameraProvider)
+                                .removeCameraPresenceListener(mCameraPresenceListener);
+                    }
+                    mCameraPresenceListener =
+                            new CameraPresenceChangeListener(CameraXActivity.this,
+                                    mCameraIterateButton);
                     requireNonNull(mCameraProvider).addCameraPresenceListener(
                             ContextCompat.getMainExecutor(CameraXActivity.this),
-                            new CameraPresenceChangeListener(CameraXActivity.this,
-                                    mCameraIterateButton));
+                            mCameraPresenceListener);
 
                     // Initialize CameraSelectorList
                     mCameraSwitcher.updateCameraInfos(
@@ -1780,6 +1790,9 @@ public class CameraXActivity extends AppCompatActivity {
 
         @Override
         public void onCamerasAdded(@NonNull Set<CameraIdentifier> cameraIdentifiers) {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
             // The Set contains all cameras that were just made available.
             // This includes the full list on initial registration.
             String message = cameraIdentifiers.size() + " camera(s) now available.";
@@ -1792,6 +1805,9 @@ public class CameraXActivity extends AppCompatActivity {
 
         @Override
         public void onCamerasRemoved(@NonNull Set<CameraIdentifier> removedIdentifiers) {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
             String message = removedIdentifiers.size() + " camera(s) removed.";
             Log.w(TAG, message + " IDs: " + removedIdentifiers);
 
@@ -1922,6 +1938,10 @@ public class CameraXActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mCameraProvider != null && mCameraPresenceListener != null) {
+            mCameraProvider.removeCameraPresenceListener(mCameraPresenceListener);
+            mCameraPresenceListener = null;
+        }
         mFpsHandler.removeCallbacks(mFpsRunnable);
         DisplayManager dpyMgr =
                 requireNonNull(ContextCompat.getSystemService(this, DisplayManager.class));
