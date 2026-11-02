@@ -21,7 +21,6 @@ import androidx.build.ProjectLayoutType
 import androidx.build.getSdkPath
 import androidx.build.getVersionByName
 import androidx.build.ide.ManagedIdeTask
-import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.writeAndroidSdkPath
 import java.io.File
 import org.gradle.api.Project
@@ -48,19 +47,13 @@ fun Project.configureIntelliJTask(task: ManagedIdeTask) {
         if (task.osName == "linux") "bin/idea" else "Contents/MacOS/idea"
     )
 
-    val vmOptionsFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/intellij/idea.vmoptions"))
-        }
-    val ideaPropertiesFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/intellij/idea.properties"))
-        }
-
-    task.configureIntellijLikeIde(
-        envPrefix = "IDEA",
-        ideaPropertiesFile = ideaPropertiesFile,
-        vmOptionsFile = vmOptionsFile,
+    task.environmentFiles.put(
+        "IDEA_PROPERTIES",
+        layout.projectDirectory.file("development/intellij/idea.properties"),
+    )
+    task.environmentFiles.put(
+        "IDEA_VM_OPTIONS",
+        layout.projectDirectory.file("development/intellij/idea.vmoptions"),
     )
 
     val configBaseDir =

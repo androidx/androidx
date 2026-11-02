@@ -23,7 +23,6 @@ import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
 import androidx.build.ide.IdePlugin
 import androidx.build.ide.ManagedIdeTask
-import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
 import androidx.build.ide.registerWriteIdeaPropertiesTask
 import androidx.build.ide.writeAndroidSdkPath
@@ -65,17 +64,13 @@ fun Project.configureASWBTask(
         "android-studio-with-blaze-canary-$aswbVersion.$packageExtension"
     )
 
-    val vmOptionsFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/aswb/studio.vmoptions"))
-        }
-    val ideaPropertiesFile =
-        objects.fileProperty().apply { set(writeIdeaProperties.flatMap { it.destinationFile }) }
-
-    task.configureIntellijLikeIde(
-        envPrefix = "STUDIO",
-        ideaPropertiesFile = ideaPropertiesFile,
-        vmOptionsFile = vmOptionsFile,
+    task.environmentFiles.put(
+        "STUDIO_PROPERTIES",
+        writeIdeaProperties.flatMap { it.destinationFile },
+    )
+    task.environmentFiles.put(
+        "STUDIO_VM_OPTIONS",
+        layout.projectDirectory.file("development/aswb/studio.vmoptions"),
     )
 
     val configBaseDir =
