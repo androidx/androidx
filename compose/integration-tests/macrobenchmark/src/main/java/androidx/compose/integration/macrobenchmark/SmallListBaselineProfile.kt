@@ -22,7 +22,8 @@ import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,13 +44,14 @@ class SmallListBaselineProfile {
                 putExtra("ITEM_COUNT", 200)
             }
             startActivityAndWait(intent)
-            val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
+            device.waitForComposeIdleOrThrow()
+            val lazyColumn = device.findObjectOrThrow(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             lazyColumn.setGestureMargin(device.displayWidth / 5)
             for (i in 1..10) {
                 // From center we scroll 2/3 of it which is 1/3 of the screen.
                 lazyColumn.drag(Point(0, lazyColumn.visibleCenter.y / 3))
-                device.wait(Until.findObject(By.desc(COMPOSE_IDLE)), 3000)
+                device.waitForComposeIdleOrThrow()
             }
         }
     }
@@ -57,6 +59,5 @@ class SmallListBaselineProfile {
     companion object {
         private const val PACKAGE_NAME = "androidx.compose.integration.macrobenchmark.target"
         private const val CONTENT_DESCRIPTION = "IamLazy"
-        private const val COMPOSE_IDLE = "COMPOSE-IDLE"
     }
 }

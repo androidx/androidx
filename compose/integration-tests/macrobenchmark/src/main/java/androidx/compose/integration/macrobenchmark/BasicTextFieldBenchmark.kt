@@ -19,10 +19,14 @@ package androidx.compose.integration.macrobenchmark
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.test.filters.LargeTest
+import androidx.test.uiautomator.By
+import androidx.testutils.findObjectOrThrow
 import androidx.testutils.measureStartup
 import org.junit.Rule
 import org.junit.Test
 
+@LargeTest
 class BasicTextFieldBenchmark {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -35,7 +39,7 @@ class BasicTextFieldBenchmark {
             setupIntent = { action = ACTION },
             waitForContent = {
                 device.waitForIdle()
-                onElement { contentDescription == "IME_ANIMATION_DONE" }
+                device.findObjectOrThrow(By.desc("IME_ANIMATION_DONE"), timeoutMillis = 10_000L)
             },
         )
     }
@@ -52,7 +56,7 @@ class BasicTextFieldBenchmark {
             },
             waitForContent = {
                 device.waitForIdle()
-                onElement { contentDescription == "IME_ANIMATION_DONE" }
+                device.findObjectOrThrow(By.desc("IME_ANIMATION_DONE"), timeoutMillis = 10_000L)
             },
         )
     }

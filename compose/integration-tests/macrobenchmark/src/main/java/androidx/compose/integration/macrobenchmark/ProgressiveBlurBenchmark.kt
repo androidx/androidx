@@ -20,16 +20,20 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitForComposeIdleOrThrow
+import androidx.tracing.trace
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@LargeTest
 @OptIn(ExperimentalMetricApi::class)
 @RunWith(Parameterized::class)
 class ProgressiveBlurBenchmark(private val compilationMode: CompilationMode) {
@@ -46,28 +50,15 @@ class ProgressiveBlurBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
-                device.wait(Until.hasObject(By.desc(ToggleAnimationDescription)), 5000)
+                device.waitForComposeIdleOrThrow()
             },
         ) {
-            // Wait for the button to appear and click it to start the animation
-            val toggleBtn =
-                checkNotNull(
-                    device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
-                ) {
-                    "Unable to find toggle animation button"
+            repeat(2) {
+                trace("ProgressiveBlur#animation_$it") {
+                    device.findObjectOrThrow(By.desc(ToggleAnimationDescription)).click()
+                    device.waitForComposeIdleOrThrow()
                 }
-            toggleBtn.click()
-            device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
-
-            // Click again to animate progressive blur back to zero
-            val toggleBtnBack =
-                checkNotNull(
-                    device.wait(Until.findObject(By.desc(ToggleAnimationDescription)), 5000)
-                ) {
-                    "Unable to find toggle animation button"
-                }
-            toggleBtnBack.click()
-            device.wait(Until.findObject(By.desc(ComposeIdle)), 3000)
+            }
         }
     }
 
@@ -76,7 +67,6 @@ class ProgressiveBlurBenchmark(private val compilationMode: CompilationMode) {
         private const val Action =
             "androidx.compose.integration.macrobenchmark.target.PROGRESSIVE_BLUR_ACTIVITY"
         const val ToggleAnimationDescription = "toggle-animation"
-        const val ComposeIdle = "COMPOSE-IDLE"
 
         @Parameterized.Parameters(name = "compilationMode={0}")
         @JvmStatic
