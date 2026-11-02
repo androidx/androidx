@@ -23,6 +23,7 @@ import android.app.permissionui.LocationButtonRequest
 import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
@@ -847,6 +848,110 @@ public class LocationButtonTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    public fun testChangesWhileSessionOpensAreSentWhenItOpens() {
+        var pendingClient: LocationButtonClient? = null
+        var pendingRequest: LocationButtonRequest? = null
+        val provider =
+            object : TestLocationButtonProvider(instrumentation.targetContext) {
+                override fun openSession(
+                    activity: Activity,
+                    hostToken: IBinder,
+                    displayId: Int,
+                    request: LocationButtonRequest,
+                    executor: Executor,
+                    client: LocationButtonClient,
+                ) {
+                    // The session stays pending, as if the system were slow to open it.
+                    pendingClient = client
+                    pendingRequest = request
+                }
+            }
+        lateinit var button: LocationButton
+        activityRule.scenario.onActivity { activity ->
+            button = LocationButton(activity).apply { setLocationButtonProvider(provider) }
+            activity.setContentView(FrameLayout(activity).apply { addView(button) })
+        }
+        instrumentation.waitForIdleSync()
+        assertThat(pendingClient).isNotNull()
+
+        activityRule.scenario.onActivity { _ ->
+            button.layoutParams = FrameLayout.LayoutParams(CHANGED_WIDTH_PX, CHANGED_HEIGHT_PX)
+            // The button keeps its padding within a safe range, so the change is to the maximum.
+            button.setPadding(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+            button.setTextColor(Color.RED)
+            // Square corners, from the unset default, which the request reads back as 0 too.
+            button.setCornerRadius(0f)
+            button.locales = LocaleList.forLanguageTags("fr-FR")
+        }
+        instrumentation.waitForIdleSync()
+
+        val sizes = mutableListOf<List<Int>>()
+        val paddings = mutableListOf<List<Int>>()
+        val textColors = mutableListOf<Int>()
+        val cornerRadii = mutableListOf<Float>()
+        val configurationLocales = mutableListOf<LocaleList>()
+        val backgroundColors = mutableListOf<Int>()
+        activityRule.scenario.onActivity { activity ->
+            val recordingSession =
+                RecordingLocationButtonSession(activity, checkNotNull(activity.display))
+            checkNotNull(pendingClient)
+                .onSessionOpened(
+                    object : LocationButtonSession by recordingSession {
+                        override fun resize(width: Int, height: Int) {
+                            sizes.add(listOf(width, height))
+                        }
+
+                        override fun setPadding(left: Int, top: Int, right: Int, bottom: Int) {
+                            paddings.add(listOf(left, top, right, bottom))
+                        }
+
+                        override fun setTextColor(color: Int) {
+                            textColors.add(color)
+                        }
+
+                        override fun setCornerRadius(radius: Float) {
+                            cornerRadii.add(radius)
+                        }
+
+                        override fun changeConfiguration(configuration: Configuration) {
+                            configurationLocales.add(configuration.locales)
+                        }
+
+                        override fun setBackgroundColor(color: Int) {
+                            backgroundColors.add(color)
+                        }
+                    }
+                )
+        }
+        instrumentation.waitForIdleSync()
+
+        // The button may cap its size, so the expected size is the one it was laid out with.
+        val changedSize = listOf(button.width, button.height)
+        val requestedSize = checkNotNull(pendingRequest).let { listOf(it.width, it.height) }
+        assertThat(changedSize).isNotEqualTo(requestedSize)
+        assertThat(sizes).containsExactly(changedSize)
+        val changedPadding =
+            listOf(
+                button.safePaddingLeft,
+                button.safePaddingTop,
+                button.safePaddingRight,
+                button.safePaddingBottom,
+            )
+        val requestedPadding =
+            checkNotNull(pendingRequest).let {
+                listOf(it.paddingLeft, it.paddingTop, it.paddingRight, it.paddingBottom)
+            }
+        assertThat(changedPadding).isNotEqualTo(requestedPadding)
+        assertThat(paddings).containsExactly(changedPadding)
+        assertThat(textColors).containsExactly(Color.RED)
+        assertThat(cornerRadii).containsExactly(0f)
+        assertThat(configurationLocales).containsExactly(LocaleList.forLanguageTags("fr-FR"))
+        // Properties that didn't change aren't sent again.
+        assertThat(backgroundColors).isEmpty()
+    }
+
+    @Test
     public fun testSafePaddingEnforcesMinimum() {
         activityRule.scenario.onActivity { activity ->
             val button = LocationButton(activity)
@@ -884,6 +989,8 @@ public class LocationButtonTest {
         private const val VIRTUAL_DISPLAY_DENSITY_DPI = 160
         private const val TIMEOUT_MILLIS = 5_000L
         private const val POLL_INTERVAL_MILLIS = 100L
+        private const val CHANGED_WIDTH_PX = 600
+        private const val CHANGED_HEIGHT_PX = 200
     }
 }
 

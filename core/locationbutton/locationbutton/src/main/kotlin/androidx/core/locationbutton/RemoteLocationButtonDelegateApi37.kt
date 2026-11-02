@@ -25,6 +25,7 @@ import android.app.permissionui.LocationButtonSession
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.os.LocaleList
 import android.view.Display
 import android.view.SurfaceView
 import android.view.View
@@ -141,6 +142,11 @@ internal class RemoteLocationButtonDelegateApi37(
         val activeProvider = provider ?: return
 
         val request = createButtonRequest()
+        // SystemUI only uses the locales from the configuration.
+        val requestedLocales = request.configuration.locales
+        // The request can't tell an unset corner radius (-1) from 0, so the view's values are kept.
+        val requestedCornerRadius = view.cornerRadius
+        val requestedPressedCornerRadius = view.pressedCornerRadius
 
         val clientCallback =
             object : LocationButtonClient {
@@ -163,6 +169,14 @@ internal class RemoteLocationButtonDelegateApi37(
                     }
 
                     session = openedSession
+                    // Before the surface is shown, so that it doesn't show the old state first.
+                    applyChangesSinceRequest(
+                        openedSession,
+                        request,
+                        requestedLocales,
+                        requestedCornerRadius,
+                        requestedPressedCornerRadius,
+                    )
                     surfaceView.apply {
                         visibility = View.VISIBLE
                         setChildSurfacePackage(openedSession.surfacePackage)
@@ -185,6 +199,72 @@ internal class RemoteLocationButtonDelegateApi37(
             view.handler::post, // Force all client callbacks to the UI thread
             clientCallback,
         )
+    }
+
+    /**
+     * Sends the changes made to the button while its session was opening, since the setters only
+     * reach a session that's already open.
+     */
+    private fun applyChangesSinceRequest(
+        session: LocationButtonSession,
+        request: LocationButtonRequest,
+        requestedLocales: LocaleList,
+        requestedCornerRadius: Float,
+        requestedPressedCornerRadius: Float,
+    ) {
+        val current = createButtonRequest()
+        if (current.configuration.locales != requestedLocales) {
+            session.changeConfiguration(current.configuration)
+        }
+        // A view that's gone or not laid out has a size of 0, which onSizeChanged doesn't send.
+        if (
+            current.width > 0 &&
+                current.height > 0 &&
+                (current.width != request.width || current.height != request.height)
+        ) {
+            session.resize(current.width, current.height)
+        }
+        if (
+            current.paddingLeft != request.paddingLeft ||
+                current.paddingTop != request.paddingTop ||
+                current.paddingRight != request.paddingRight ||
+                current.paddingBottom != request.paddingBottom
+        ) {
+            session.setPadding(
+                current.paddingLeft,
+                current.paddingTop,
+                current.paddingRight,
+                current.paddingBottom,
+            )
+        }
+        if (current.backgroundColor != request.backgroundColor) {
+            session.setBackgroundColor(current.backgroundColor)
+        }
+        if (current.strokeColor != request.strokeColor) {
+            session.setStrokeColor(current.strokeColor)
+        }
+        if (current.strokeWidth != request.strokeWidth) {
+            session.setStrokeWidth(current.strokeWidth)
+        }
+        if (current.iconTint != request.iconTint) {
+            session.setIconTint(current.iconTint)
+        }
+        if (current.textType != request.textType) {
+            session.setTextType(current.textType)
+        }
+        if (current.textColor != request.textColor) {
+            session.setTextColor(current.textColor)
+        }
+        // Compared with the view's values, since the request reads an unset radius back as 0.
+        if (view.cornerRadius >= 0f && view.cornerRadius != requestedCornerRadius) {
+            session.setCornerRadius(view.cornerRadius)
+        }
+        if (
+            view.pressedCornerRadius >= 0f &&
+                view.pressedCornerRadius != requestedPressedCornerRadius
+        ) {
+            session.setPressedCornerRadius(view.pressedCornerRadius)
+        }
     }
 
     override fun setCompositionOrder(order: Int) {
