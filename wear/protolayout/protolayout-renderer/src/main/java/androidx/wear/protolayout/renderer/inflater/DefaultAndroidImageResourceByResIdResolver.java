@@ -27,6 +27,8 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAcc
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.IOException;
+
 /** Resource resolver for Android resources. */
 public class DefaultAndroidImageResourceByResIdResolver
         implements AndroidImageResourceByResIdResolver {
@@ -52,8 +54,8 @@ public class DefaultAndroidImageResourceByResIdResolver
             } else {
                 return mAndroidResources.getDrawable(resource.getResourceId(), /* theme= */ null);
             }
-        } catch (NotFoundException ex) {
-            throw new ResourceAccessException("ResId is not found in the resources", ex);
+        } catch (NotFoundException | IOException ex) {
+            throw new ResourceAccessException("Failed to load drawable for ResId", ex);
         }
     }
 }

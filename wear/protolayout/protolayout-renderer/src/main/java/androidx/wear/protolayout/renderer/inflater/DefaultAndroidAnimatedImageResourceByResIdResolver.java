@@ -27,6 +27,8 @@ import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAcc
 
 import org.jspecify.annotations.NonNull;
 
+import java.io.IOException;
+
 /** Resource resolver for Android animated resources. */
 public class DefaultAndroidAnimatedImageResourceByResIdResolver
         implements AndroidAnimatedImageResourceByResIdResolver {
@@ -48,8 +50,15 @@ public class DefaultAndroidAnimatedImageResourceByResIdResolver
             @NonNull AndroidAnimatedImageResourceByResId resource) throws ResourceAccessException {
         if (resource.getAnimatedImageFormat() == AnimatedImageFormat.ANIMATED_IMAGE_FORMAT_AVD) {
             if (Build.VERSION.SDK_INT >= 28) {
-                return ConstrainedImageDecoder.decodeDrawable(
-                        mAndroidResources, resource.getResourceId());
+                try {
+                    return ConstrainedImageDecoder.decodeDrawable(
+                            mAndroidResources, resource.getResourceId());
+                } catch (IOException ex) {
+                    throw new ResourceAccessException(
+                            "Failed to decode animated drawable for resourceId "
+                                    + resource.getResourceId(),
+                            ex);
+                }
             }
             return mAndroidResources.getDrawable(resource.getResourceId(), /* theme= */ null);
         }
