@@ -424,6 +424,40 @@ class BackupReportCaptureTest {
             assertEquals("source", report.record.steps[0].on)
         }
     }
+
+    @Test
+    fun formatsControllerCallLabelsAndDetectsArchiveTransportMode() {
+        assertEquals(
+            "runOnDevice(\"\u2026SeedNotesAction\")",
+            BackupRestoreControllerImpl.formatRunOnDeviceCall("com.example.app.SeedNotesAction"),
+        )
+        assertEquals(
+            "PopulateStorageAction Preference(\"user_prefs\")",
+            BackupRestoreControllerImpl.formatFlowDomainCall(
+                "PopulateStorageAction",
+                listOf(StorageDomain.Preference("user_prefs", "k", "v")),
+            ),
+        )
+        val tmpZip = java.nio.file.Files.createTempFile("test_backup_", ".backup")
+        try {
+            java.util.zip.ZipOutputStream(java.nio.file.Files.newOutputStream(tmpZip)).use { zos ->
+                zos.putNextEntry(java.util.zip.ZipEntry("metadata.txt"))
+                zos.write("application-id=com.example.app\nbackup-type=CLOUD\n".toByteArray())
+                zos.closeEntry()
+                zos.putNextEntry(java.util.zip.ZipEntry("app_backup"))
+                zos.write(ByteArray(128))
+                zos.closeEntry()
+            }
+            assertEquals(
+                BackupTransportMode.CLOUD_ENCRYPTED,
+                BackupRestoreControllerImpl.detectTransportModeFromArchive(tmpZip),
+            )
+            val entries = BackupRestoreControllerImpl.inspectBackupArchive(tmpZip.toFile())
+            assertEquals("128 B", entries["app_backup"])
+        } finally {
+            java.nio.file.Files.deleteIfExists(tmpZip)
+        }
+    }
 }
 
 /** Parses a [TestDetailRecord] from JSON text in tests. */
