@@ -24,7 +24,6 @@ import androidx.build.getSupportRootFolder
 import androidx.build.getVersionByName
 import androidx.build.ide.IdePlugin
 import androidx.build.ide.ManagedIdeTask
-import androidx.build.ide.configureIntellijLikeIde
 import androidx.build.ide.installIntellijPlugins
 import androidx.build.ide.registerWriteIdeaPropertiesTask
 import androidx.build.ide.writeAndroidSdkPath
@@ -99,41 +98,31 @@ fun Project.configureRootStudioTask(
     writeIdeaProperties: TaskProvider<WriteProperties>,
 ) {
     configureCommonStudioTask(task, studioDirName)
-    val vmOptionsFile =
-        objects.fileProperty().apply {
-            set(layout.projectDirectory.file("development/studio/studio.vmoptions"))
-        }
-    val ideaPropertiesFile =
-        objects.fileProperty().apply { set(writeIdeaProperties.flatMap { it.destinationFile }) }
-
-    task.configureIntellijLikeIde(
-        envPrefix = "STUDIO",
-        ideaPropertiesFile = ideaPropertiesFile,
-        vmOptionsFile = vmOptionsFile,
+    task.environmentFiles.put(
+        "STUDIO_PROPERTIES",
+        writeIdeaProperties.flatMap { it.destinationFile },
+    )
+    task.environmentFiles.put(
+        "STUDIO_VM_OPTIONS",
+        layout.projectDirectory.file("development/studio/studio.vmoptions"),
     )
 }
 
 fun Project.configurePlaygroundStudioTask(task: ManagedIdeTask) {
     configureCommonStudioTask(task, provider { ".AndroidStudioAndroidX" })
     val supportRootFolder = rootProject.extensions.extraProperties.get("supportRootFolder") as File
+    val supportRoot = layout.projectDirectory.dir(supportRootFolder.absolutePath)
 
     task.requiresProjectList.convention(false)
-    task.installParentDir.convention(layout.projectDirectory.dir(supportRootFolder.absolutePath))
+    task.installParentDir.convention(supportRoot)
     task.additionalEnvironmentProperties.put("ALLOW_PUBLIC_REPOS", "true")
-
-    val vmOptionsFile =
-        objects
-            .fileProperty()
-            .fileValue(supportRootFolder.resolve("playground-common/studio.vmoptions"))
-    val ideaPropertiesFile =
-        objects
-            .fileProperty()
-            .fileValue(supportRootFolder.resolve("playground-common/idea.properties"))
-
-    task.configureIntellijLikeIde(
-        envPrefix = "STUDIO",
-        ideaPropertiesFile = ideaPropertiesFile,
-        vmOptionsFile = vmOptionsFile,
+    task.environmentFiles.put(
+        "STUDIO_PROPERTIES",
+        supportRoot.file("playground-common/idea.properties"),
+    )
+    task.environmentFiles.put(
+        "STUDIO_VM_OPTIONS",
+        supportRoot.file("playground-common/studio.vmoptions"),
     )
 }
 

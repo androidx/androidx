@@ -28,16 +28,20 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
@@ -70,6 +74,13 @@ abstract class ManagedIdeTask : DefaultTask() {
 
     @get:Input abstract val licenseAgreementPath: Property<String>
     @get:Input abstract val additionalEnvironmentProperties: MapProperty<String, String>
+
+    @get:Internal abstract val environmentFiles: MapProperty<String, RegularFile>
+
+    @get:[InputFiles PathSensitive(PathSensitivity.NONE)]
+    val environmentFileInputs: FileCollection
+        get() = layout.files(environmentFiles.map { it.values })
+
     @get:Input abstract val requiresProjectList: Property<Boolean>
     @get:Input abstract val launchArguments: ListProperty<String>
     @get:Input abstract val ideBinaryRelativePath: Property<String>
@@ -423,6 +434,11 @@ abstract class ManagedIdeTask : DefaultTask() {
 
             // Append to the existing environment variables set by gradlew and the user.
             environment().putAll(additionalIdeEnvironmentProperties)
+            environmentFiles.get().forEach { (name, location) ->
+                val file = location.asFile
+                check(file.exists()) { "$name points to a missing file: ${file.canonicalPath}" }
+                environment()[name] = file.canonicalPath
+            }
             start()
         }
     }
@@ -482,29 +498,6 @@ fun ManagedIdeTask.writeAndroidSdkPath(configBaseDir: File, sdkPath: File) {
             </application>
                     """
             .trimIndent()
-    )
-}
-
-fun ManagedIdeTask.configureIntellijLikeIde(
-    envPrefix: String,
-    ideaPropertiesFile: RegularFileProperty,
-    vmOptionsFile: RegularFileProperty,
-) {
-    additionalEnvironmentProperties.put(
-        "${envPrefix}_PROPERTIES",
-        ideaPropertiesFile.map { file ->
-            val asFile = file.asFile
-            check(asFile.exists()) { "Invalid properties file: ${asFile.canonicalPath}" }
-            asFile.canonicalPath
-        },
-    )
-    additionalEnvironmentProperties.put(
-        "${envPrefix}_VM_OPTIONS",
-        vmOptionsFile.map { file ->
-            val asFile = file.asFile
-            check(asFile.exists()) { "Invalid vm options file: ${asFile.canonicalPath}" }
-            asFile.canonicalPath
-        },
     )
 }
 
