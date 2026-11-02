@@ -38,6 +38,13 @@ fun ScaffoldDesignInfoProvider() {
     Scaffold { padding -> DesignInfoProviderA(padding) }
 }
 
+@Preview
+@Composable
+fun AnimatedDesignInfoProvider() {
+    DesignInfoProviderB()
+    TransitionPreview()
+}
+
 @Composable
 private fun designInfoWithCustomArgument(expectedArgumentValue: String, response: String) =
     remember {
