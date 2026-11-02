@@ -18,16 +18,21 @@ package androidx.camera.camera2.compat.workaround
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.compat.quirk.StillCaptureFlashStopRepeatingQuirk
 import androidx.camera.camera2.pipe.Request
 
 /** Returns whether or not repeating should be stopped before submitting capture request. */
-public fun List<Request>.shouldStopRepeatingBeforeCapture(): Boolean {
-    DeviceQuirks[StillCaptureFlashStopRepeatingQuirk::class.java] ?: return false
+public fun List<Request>.shouldStopRepeatingBeforeCapture(
+    cameraId: String? = null,
+    hasMultipleRepeatingStreams: Boolean = false,
+): Boolean {
+    val quirk = DeviceQuirks[StillCaptureFlashStopRepeatingQuirk::class.java] ?: return false
 
     var isStillCapture = false
     var isFlashEnabled = false
+    var isZoomed = false
 
     forEach { request ->
         if (request.template?.value == CameraDevice.TEMPLATE_STILL_CAPTURE) {
@@ -40,7 +45,24 @@ public fun List<Request>.shouldStopRepeatingBeforeCapture(): Boolean {
                 CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH -> true
                 else -> isFlashEnabled
             }
+
+        if (
+            request[CaptureRequest.SCALER_CROP_REGION] != null ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                    (request[CaptureRequest.CONTROL_ZOOM_RATIO] ?: 1.0f) > 1.0f)
+        ) {
+            isZoomed = true
+        }
     }
 
-    return isStillCapture && isFlashEnabled
+    if (!isStillCapture) {
+        return false
+    }
+
+    return (quirk.shouldStopRepeatingForFlash() && isFlashEnabled) ||
+        quirk.shouldStopRepeatingForFrontCameraZoom(
+            cameraId = cameraId,
+            hasMultipleRepeatingStreams = hasMultipleRepeatingStreams,
+            isZoomed = isZoomed,
+        )
 }

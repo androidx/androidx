@@ -931,7 +931,11 @@ constructor(
             return Pair(deferredList, false)
         }
 
-        val requiresStopRepeating = requests.shouldStopRepeatingBeforeCapture()
+        val requiresStopRepeating =
+            requests.shouldStopRepeatingBeforeCapture(
+                cameraId = cameraProperties.cameraId.value,
+                hasMultipleRepeatingStreams = useCaseCameraContext.surfaceToStreamMap.size > 2,
+            )
         if (requiresStopRepeating) {
             session.stopRepeating()
         }
