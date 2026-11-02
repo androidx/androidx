@@ -17,12 +17,9 @@
 package androidx.compose.foundation.lazy.list
 
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.keyframes
@@ -35,36 +32,17 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.animateItemWithTransitions
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutAnimationParityTest
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutAnimationParityTest.Companion.DurationMillis
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutAnimationParityTest.Companion.delayedSpec
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutAnimationParityTest.Companion.easedSpec
+import androidx.compose.foundation.lazy.layout.BaseLazyLayoutAnimationParityTest.Companion.linearSpec
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toPixelMap
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -72,25 +50,11 @@ import androidx.compose.ui.unit.lerp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assume.assumeTrue
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class LazyLayoutSlideAnimationParityTest {
-
-    @get:Rule val rule = createComposeRule()
-
-    private var visible by mutableStateOf(false)
-
-    @OptIn(ExperimentalFoundationApi::class)
-    @Before
-    fun before() {
-        rule.mainClock.autoAdvance = false
-        assumeTrue(ComposeFoundationFlags.isLazyLayoutItemAnimationEnterExitTransitionsEnabled)
-    }
+class LazyLayoutSlideAnimationParityTest : BaseLazyLayoutAnimationParityTest(DefaultItemSize) {
 
     @Test
     fun slideInHorizontally_default() {
@@ -352,7 +316,7 @@ class LazyLayoutSlideAnimationParityTest {
             exit = slideOutHorizontally(LinearSpec) { -it },
         )
 
-        val offsets = recordInterruptedOffsets(InterruptFrame, InterruptFrame + TotalFrames)
+        val offsets = recordInterruptedOffsets()
 
         assertParityUntilInterruption(offsets)
         val start = offsets[InterruptFrame].lazy!!
@@ -382,7 +346,7 @@ class LazyLayoutSlideAnimationParityTest {
             exit = slideOutHorizontally(LinearSpec) { it },
         )
 
-        val offsets = recordInterruptedOffsets(InterruptFrame, InterruptFrame + TotalFrames)
+        val offsets = recordInterruptedOffsets()
 
         assertParityUntilInterruption(offsets)
         val start = offsets[InterruptFrame].lazy!!
@@ -437,29 +401,22 @@ class LazyLayoutSlideAnimationParityTest {
         runFramesAndAssertParity(TotalFrames)
     }
 
-    private class FrameOffsets(val lazy: IntOffset?, val animatedVisibility: IntOffset?)
-
-    private fun recordInterruptedOffsets(interruptFrame: Int, frames: Int): List<FrameOffsets> {
-        val offsets = mutableListOf<FrameOffsets>()
-        for (frame in 0..frames) {
-            rule.runOnUiThread { if (frame == 0 || frame == interruptFrame) visible = !visible }
-            rule.mainClock.advanceTimeByFrame()
-            rule.waitForIdle()
-            offsets += FrameOffsets(itemOffset(LazyTag), itemOffset(AnimatedVisibilityTag))
-        }
-        return offsets
-    }
-
-    private fun assertParityUntilInterruption(offsets: List<FrameOffsets>) {
-        for (frame in 0..InterruptFrame) {
-            assertWithMessage("Frame $frame before interruption")
-                .that(offsets[frame].lazy)
-                .isEqualTo(offsets[frame].animatedVisibility)
+    @Composable
+    override fun LazyLayoutUnderTest(
+        visible: Boolean,
+        contentPadding: PaddingValues,
+        itemContent: @Composable () -> Unit,
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = contentPadding) {
+            if (visible) item(key = ItemKey) { itemContent() }
         }
     }
+
+    private fun recordInterruptedOffsets() =
+        recordInterruptedFrames(InterruptFrame, InterruptFrame + TotalFrames, ::itemOffset)
 
     private fun itemOffset(tag: String): IntOffset? {
-        val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
+        val map = capture(tag)
         for (y in 0 until map.height) {
             for (x in 0 until map.width) {
                 if (map[x, y] == Color.Red) {
@@ -469,222 +426,13 @@ class LazyLayoutSlideAnimationParityTest {
         }
         return null
     }
-
-    private fun isBlank(tag: String): Boolean {
-        val map = rule.onNodeWithTag(tag).captureToImage().toPixelMap()
-        for (y in 0 until map.height) {
-            for (x in 0 until map.width) {
-                if (map[x, y] != Color.White) return false
-            }
-        }
-        return true
-    }
-
-    private fun assertEnterParity(
-        enter: EnterTransition,
-        itemSize: IntSize = DefaultItemSize,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        frames: Int = TotalFrames,
-    ) {
-        setParityContent(
-            initiallyVisible = false,
-            enter = enter,
-            exit = ExitTransition.None,
-            itemSize = itemSize,
-            layoutDirection = layoutDirection,
-        )
-
-        toggleAndAssertParity(frames)
-    }
-
-    private fun assertExitParity(
-        exit: ExitTransition,
-        itemSize: IntSize = DefaultItemSize,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        frames: Int = TotalFrames,
-    ) {
-        setParityContent(
-            initiallyVisible = true,
-            enter = EnterTransition.None,
-            exit = exit,
-            itemSize = itemSize,
-            layoutDirection = layoutDirection,
-        )
-
-        toggleAndAssertParity(frames)
-    }
-
-    private fun setParityContent(
-        initiallyVisible: Boolean,
-        enter: EnterTransition,
-        exit: ExitTransition,
-        itemSize: IntSize = DefaultItemSize,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    ) {
-        visible = initiallyVisible
-        rule.setContent {
-            val isVisible = visible
-            val density = rule.density
-            val itemWidth = with(density) { itemSize.width.toDp() }
-            val itemHeight = with(density) { itemSize.height.toDp() }
-            val containerModifier =
-                Modifier.requiredSize(itemWidth * ContainerScale, itemHeight * ContainerScale)
-                    .clipToBounds()
-                    .background(Color.White)
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                Column {
-                    Box(containerModifier.testTag(LazyTag)) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding =
-                                PaddingValues(horizontal = itemWidth, vertical = itemHeight),
-                        ) {
-                            if (isVisible) {
-                                item(key = ItemKey) {
-                                    ParityItem(
-                                        itemSize = itemSize,
-                                        modifier =
-                                            Modifier.animateItemWithTransitions(
-                                                enterTransition = enter,
-                                                exitTransition = exit,
-                                                placementSpec = null,
-                                            ),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer(Modifier.requiredHeight(itemHeight * ContainerScale))
-                    AnimatedVisibilityContainer(
-                        modifier = containerModifier.testTag(AnimatedVisibilityTag),
-                        itemSize = itemSize,
-                        enter = enter,
-                        exit = exit,
-                    )
-                }
-            }
-        }
-        rule.waitForIdle()
-        assertFrameParity(-1)
-    }
-
-    @Composable
-    private fun AnimatedVisibilityContainer(
-        modifier: Modifier,
-        itemSize: IntSize,
-        enter: EnterTransition,
-        exit: ExitTransition,
-    ) {
-        val density = rule.density
-        Box(modifier) {
-            Box(
-                Modifier.fillMaxSize()
-                    .padding(
-                        horizontal = with(density) { itemSize.width.toDp() },
-                        vertical = with(density) { itemSize.height.toDp() },
-                    )
-            ) {
-                AnimatedVisibility(visible = visible, enter = enter, exit = exit) {
-                    ParityItem(itemSize = itemSize)
-                }
-            }
-        }
-    }
-
-    @Composable
-    private fun ParityItem(itemSize: IntSize, modifier: Modifier = Modifier) {
-        val density = rule.density
-        Column(
-            modifier.requiredSize(
-                with(density) { itemSize.width.toDp() },
-                with(density) { itemSize.height.toDp() },
-            )
-        ) {
-            Row(Modifier.weight(1f).fillMaxWidth()) {
-                Box(Modifier.weight(1f).fillMaxHeight().background(Color.Red))
-                Box(Modifier.weight(1f).fillMaxHeight().background(Color.Green))
-            }
-            Row(Modifier.weight(1f).fillMaxWidth()) {
-                Box(Modifier.weight(1f).fillMaxHeight().background(Color.Blue))
-                Box(Modifier.weight(1f).fillMaxHeight().background(Color.Black))
-            }
-        }
-    }
-
-    private fun toggleAndAssertParity(frames: Int, onFrame: (frame: Int) -> Unit = {}) {
-        runFramesAndAssertParity(frames) { frame ->
-            if (frame == 0) visible = !visible
-            onFrame(frame)
-        }
-    }
-
-    private fun runFramesAndAssertParity(frames: Int, onFrame: (frame: Int) -> Unit = {}) {
-        for (frame in 0..frames) {
-            rule.runOnUiThread { onFrame(frame) }
-            rule.mainClock.advanceTimeByFrame()
-            rule.waitForIdle()
-            assertFrameParity(frame)
-        }
-    }
-
-    private fun assertFrameParity(frame: Int) {
-        val lazy = rule.onNodeWithTag(LazyTag).captureToImage().toPixelMap()
-        val animatedVisibility =
-            rule.onNodeWithTag(AnimatedVisibilityTag).captureToImage().toPixelMap()
-
-        assertWithMessage("Frame $frame: captured image sizes differ")
-            .that(IntSize(lazy.width, lazy.height))
-            .isEqualTo(IntSize(animatedVisibility.width, animatedVisibility.height))
-
-        var mismatches = 0
-        var firstMismatch: String? = null
-        for (y in 0 until lazy.height) {
-            for (x in 0 until lazy.width) {
-                val lazyColor = lazy[x, y]
-                val animatedVisibilityColor = animatedVisibility[x, y]
-                if (lazyColor != animatedVisibilityColor) {
-                    mismatches++
-                    if (firstMismatch == null) {
-                        firstMismatch =
-                            "($x, $y) lazy=$lazyColor animatedVisibility=$animatedVisibilityColor"
-                    }
-                }
-            }
-        }
-
-        assertWithMessage(
-                "Frame $frame: $mismatches of ${lazy.width * lazy.height} pixels differ, " +
-                    "first mismatch at $firstMismatch"
-            )
-            .that(mismatches)
-            .isEqualTo(0)
-    }
 }
 
-private const val FrameDurationMillis = 16
-private const val DurationFrames = 10
-private const val InterruptFrame = DurationFrames / 2
-private const val DurationMillis = FrameDurationMillis * DurationFrames
-private const val TotalFrames = DurationFrames + 4
-private const val DelayFrames = 4
-private const val DelayedFrames = TotalFrames + DelayFrames
-private const val SpringFrames = 60
-private const val ContainerScale = 3
-private const val ItemKey = 0
-private const val LazyTag = "lazy"
-private const val AnimatedVisibilityTag = "animatedVisibility"
 private val DefaultItemSize = IntSize(20, 12)
 private val OddItemSize = IntSize(21, 13)
-private val LinearSpec: FiniteAnimationSpec<IntOffset> =
-    tween(DurationMillis, easing = LinearEasing)
-private val EasedSpec: FiniteAnimationSpec<IntOffset> =
-    tween(DurationMillis, easing = FastOutSlowInEasing)
-private val DelayedSpec: FiniteAnimationSpec<IntOffset> =
-    tween(
-        DurationMillis,
-        delayMillis = FrameDurationMillis * DelayFrames,
-        easing = LinearEasing,
-    )
+private val LinearSpec: FiniteAnimationSpec<IntOffset> = linearSpec()
+private val EasedSpec: FiniteAnimationSpec<IntOffset> = easedSpec()
+private val DelayedSpec: FiniteAnimationSpec<IntOffset> = delayedSpec()
 private val SpringSpec: FiniteAnimationSpec<IntOffset> =
     spring(
         dampingRatio = Spring.DampingRatioMediumBouncy,
