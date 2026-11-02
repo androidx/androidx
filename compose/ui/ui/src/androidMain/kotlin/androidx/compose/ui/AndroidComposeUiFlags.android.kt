@@ -97,15 +97,6 @@ public object AndroidComposeUiFlags {
     public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
 
     /**
-     * This flag enables performance improvements in accessibility, such as caching accessibility
-     * state and deferring listener registration.
-     */
-    // TODO: remove me b/529420099
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isAccessibilityPerformanceEnabled: Boolean = true
-
-    /**
      * With this flag on, a node that gains input focus while it is outside the accessibility tree
      * (for example a lazy list item composed by BeyondBoundsLayout for keyboard navigation) or
      * while it is not visible to the user dispatches TYPE_VIEW_FOCUSED once it becomes visible,
