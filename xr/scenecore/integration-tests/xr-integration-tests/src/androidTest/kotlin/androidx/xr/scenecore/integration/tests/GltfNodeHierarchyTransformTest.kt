@@ -21,9 +21,11 @@ import androidx.test.filters.LargeTest
 import androidx.xr.runtime.RequiresSpatialApi
 import androidx.xr.runtime.SpatialApiVersions
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.scene
 import androidx.xr.testutils.XrDeviceTest
 import com.google.common.truth.Truth.assertThat
@@ -38,9 +40,9 @@ class GltfNodeHierarchyTransformTest {
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun nodeHierarchy_inspection_matchesGltfAssetSchema() = runTestWithSession { session ->
-        val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
+        val gltfModel = GltfModel.create(session, Paths.get("models", DRAGON_MODEL_ASSET))
         val entity =
             GltfModelEntity.create(
                 session = session,
@@ -48,23 +50,29 @@ class GltfNodeHierarchyTransformTest {
                 parent = session.scene.activitySpace,
             )
 
-        val nodes = entity.nodes
-        assertThat(nodes).isNotEmpty()
+        try {
+            val nodes = entity.nodes
 
-        nodes.forEachIndexed { idx, node -> assertThat(node.index).isEqualTo(idx) }
-
-        val namedNode = nodes.firstOrNull { it.name != null }
-        assertThat(namedNode).isNotNull()
-
-        entity.parent = null
+            // The flattened list must match the source asset's `nodes` array in size and order.
+            assertThat(nodes).hasSize(DRAGON_NODE_COUNT)
+            assertThat(nodes[HEAD_NODE_INDEX].name).isEqualTo(HEAD_NODE_NAME)
+            assertThat(nodes[NECK_NODE_INDEX].name).isEqualTo(NECK_NODE_NAME)
+            assertThat(nodes[TORSO_NODE_INDEX].name).isEqualTo(TORSO_NODE_NAME)
+            assertThat(nodes[ROOT_NODE_INDEX].name).isEqualTo(ROOT_NODE_NAME)
+            assertThat(nodes[DRAGON_NODE_INDEX].name).isEqualTo(DRAGON_NODE_NAME)
+            assertThat(nodes[ARMATURE_NODE_INDEX].name).isEqualTo(ARMATURE_NODE_NAME)
+        } finally {
+            entity.parent = null
+            gltfModel.close()
+        }
     }
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun nodeTransforms_localVsModelAccumulation_computesCorrectly() =
         runTestWithSession { session ->
-            val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
+            val gltfModel = GltfModel.create(session, Paths.get("models", DRAGON_MODEL_ASSET))
             val entity =
                 GltfModelEntity.create(
                     session = session,
@@ -72,37 +80,49 @@ class GltfNodeHierarchyTransformTest {
                     parent = session.scene.activitySpace,
                 )
 
-            val node = entity.nodes.first()
+            try {
+                // `Head` is a child of `Neck` in the source asset, so its local and model
+                // transforms differ and the model transform accumulates the parent chain.
+                val head = entity.nodes[HEAD_NODE_INDEX]
+                val neck = entity.nodes[NECK_NODE_INDEX]
+                assertThat(head.name).isEqualTo(HEAD_NODE_NAME)
+                assertThat(neck.name).isEqualTo(NECK_NODE_NAME)
 
-            val initialLocalRotation = node.localPose.rotation
-            val targetLocalPose =
-                Pose(translation = Vector3(0.5f, 0.2f, -0.3f), rotation = initialLocalRotation)
-            node.localPose = targetLocalPose
-            assertPose(node.localPose, targetLocalPose, 1e-4f)
+                val initialLocalRotation = head.localPose.rotation
+                val targetLocalPose =
+                    Pose(translation = Vector3(0.5f, 0.2f, -0.3f), rotation = initialLocalRotation)
+                head.localPose = targetLocalPose
+                assertPose(head.localPose, targetLocalPose, 1e-4f)
+                // Changing the local pose must be reflected in the accumulated model pose.
+                assertModelPoseAccumulatesFromParent(child = head, parent = neck)
 
-            val targetLocalScale = Vector3(1.2f, 1.2f, 1.2f)
-            node.localScale = targetLocalScale
-            assertVector3(node.localScale, targetLocalScale, 1e-4f)
+                val targetLocalScale = Vector3(1.2f, 1.2f, 1.2f)
+                head.localScale = targetLocalScale
+                assertVector3(head.localScale, targetLocalScale, 1e-4f)
 
-            val initialModelRotation = node.modelPose.rotation
-            val targetModelPose =
-                Pose(translation = Vector3(1.0f, 0.0f, -2.0f), rotation = initialModelRotation)
-            node.modelPose = targetModelPose
-            assertPose(node.modelPose, targetModelPose, 1e-4f)
+                val initialModelRotation = head.modelPose.rotation
+                val targetModelPose =
+                    Pose(translation = Vector3(1.0f, 0.0f, -2.0f), rotation = initialModelRotation)
+                head.modelPose = targetModelPose
+                assertPose(head.modelPose, targetModelPose, 1e-4f)
+                // Setting the model pose must recompute the local pose relative to `Neck`.
+                assertModelPoseAccumulatesFromParent(child = head, parent = neck)
 
-            val targetModelScale = Vector3(2.0f, 2.0f, 2.0f)
-            node.modelScale = targetModelScale
-            assertVector3(node.modelScale, targetModelScale, 1e-4f)
-
-            entity.parent = null
+                val targetModelScale = Vector3(2.0f, 2.0f, 2.0f)
+                head.modelScale = targetModelScale
+                assertVector3(head.modelScale, targetModelScale, 1e-4f)
+            } finally {
+                entity.parent = null
+                gltfModel.close()
+            }
         }
 
     @Test
     @XrDeviceTest
-    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V4)
+    @RequiresSpatialApi(SpatialApiVersions.SPATIAL_API_V2)
     fun nodeTransforms_modifiedWhileEntityDisabled_persistsWhenEnabled() =
         runTestWithSession { session ->
-            val gltfModel = GltfModel.create(session, Paths.get("models", "Dragon_Evolved.gltf"))
+            val gltfModel = GltfModel.create(session, Paths.get("models", DRAGON_MODEL_ASSET))
             val entity =
                 GltfModelEntity.create(
                     session = session,
@@ -110,22 +130,82 @@ class GltfNodeHierarchyTransformTest {
                     parent = session.scene.activitySpace,
                 )
 
-            entity.setEnabled(false)
+            try {
+                entity.setEnabled(false)
 
-            val node = entity.nodes.first()
-            val initialRotation = node.localPose.rotation
-            val hiddenPose =
-                Pose(translation = Vector3(0.3f, 0.4f, 0.5f), rotation = initialRotation)
-            node.localPose = hiddenPose
+                // `Head` is a non-root node (child of `Neck`).
+                val node = entity.nodes[HEAD_NODE_INDEX]
+                assertThat(node.name).isEqualTo(HEAD_NODE_NAME)
+                val initialRotation = node.localPose.rotation
+                val hiddenPose =
+                    Pose(translation = Vector3(0.3f, 0.4f, 0.5f), rotation = initialRotation)
+                node.localPose = hiddenPose
+                val hiddenModelPose = node.modelPose
 
-            val entityNewPose = Pose(translation = Vector3(1f, 2f, 3f))
-            entity.setPose(entityNewPose)
+                val entityNewPose = Pose(translation = Vector3(1f, 2f, 3f))
+                entity.setPose(entityNewPose)
 
-            entity.setEnabled(true)
+                entity.setEnabled(true)
+                assertThat(entity.isEnabled(includeParents = false)).isTrue()
 
-            assertPose(node.localPose, hiddenPose, 1e-4f)
-            assertPose(entity.getPose(), entityNewPose, 1e-4f)
-
-            entity.parent = null
+                assertPose(node.localPose, hiddenPose, 1e-4f)
+                assertPose(node.modelPose, hiddenModelPose, 1e-4f)
+                assertPose(entity.getPose(), entityNewPose, 1e-4f)
+            } finally {
+                entity.parent = null
+                gltfModel.close()
+            }
         }
+
+    /**
+     * Asserts that [child]'s model pose equals [parent]'s model transform applied to [child]'s
+     * local pose. The parent's model scale is applied to the child's local translation (TRS order),
+     * and rotations are compared up to quaternion sign since both are decomposed from Impress
+     * matrices.
+     */
+    private fun assertModelPoseAccumulatesFromParent(child: GltfModelNode, parent: GltfModelNode) {
+        val parentModelPose = parent.modelPose
+        val parentModelScale = parent.modelScale
+        val childLocalPose = child.localPose
+
+        val expectedTranslation =
+            parentModelPose.translation +
+                parentModelPose.rotation * childLocalPose.translation.scale(parentModelScale)
+        val expectedRotation = parentModelPose.rotation * childLocalPose.rotation
+
+        val actualModelPose = child.modelPose
+        assertVector3(actualModelPose.translation, expectedTranslation, ACCUMULATION_EPSILON)
+        assertRotationEquivalent(actualModelPose.rotation, expectedRotation, ACCUMULATION_EPSILON)
+    }
+
+    /** Asserts that [actual] and [expected] are the same rotation (`q` and `-q` are equivalent). */
+    private fun assertRotationEquivalent(actual: Quaternion, expected: Quaternion, epsilon: Float) {
+        val aligned = if ((actual dot expected) < 0f) -expected else expected
+        assertThat(actual.x).isWithin(epsilon).of(aligned.x)
+        assertThat(actual.y).isWithin(epsilon).of(aligned.y)
+        assertThat(actual.z).isWithin(epsilon).of(aligned.z)
+        assertThat(actual.w).isWithin(epsilon).of(aligned.w)
+    }
+
+    private companion object {
+        const val DRAGON_MODEL_ASSET = "Dragon_Evolved.gltf"
+
+        // Node layout of `models/Dragon_Evolved.gltf` (`nodes` array of the source asset).
+        const val DRAGON_NODE_COUNT = 48
+        const val HEAD_NODE_INDEX = 0
+        const val HEAD_NODE_NAME = "Head"
+        const val NECK_NODE_INDEX = 1 // Parent of `Head`.
+        const val NECK_NODE_NAME = "Neck"
+        const val TORSO_NODE_INDEX = 40
+        const val TORSO_NODE_NAME = "Torso"
+        const val ROOT_NODE_INDEX = 45
+        const val ROOT_NODE_NAME = "Root"
+        const val DRAGON_NODE_INDEX = 46
+        const val DRAGON_NODE_NAME = "Dragon"
+        const val ARMATURE_NODE_INDEX = 47 // Scene root node.
+        const val ARMATURE_NODE_NAME = "CharacterArmature"
+
+        /** Tolerance for comparisons that compose several decomposed Impress matrices. */
+        const val ACCUMULATION_EPSILON = 1e-3f
+    }
 }
