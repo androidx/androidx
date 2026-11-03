@@ -45,6 +45,9 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == "r
 
 dependencies {
     // Compose
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
+    implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-graphics"))
     implementation(project(":compose:ui:ui-tooling-preview"))

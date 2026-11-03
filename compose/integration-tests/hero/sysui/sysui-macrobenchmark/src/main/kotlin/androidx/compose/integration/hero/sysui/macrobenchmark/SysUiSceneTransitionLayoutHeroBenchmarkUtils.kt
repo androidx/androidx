@@ -25,7 +25,8 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.Until
+import androidx.testutils.findObjectOrThrow
+import androidx.testutils.waitUntilGoneOrThrow
 import com.android.compose.animation.scene.demo.calculateWindowSizeClass
 import com.android.compose.animation.scene.demo.shouldUseSplitScenes
 import kotlin.math.roundToInt
@@ -68,7 +69,7 @@ fun SceneTransitionLayoutBenchmarkScope.startDemoActivity(
     val device = device()
     device.pressHome()
     startActivity(intent)
-    device.waitForObject(sceneSelector(initialScene))
+    device.findObjectOrThrow(sceneSelector(initialScene))
 }
 
 fun SceneTransitionLayoutBenchmarkScope.setupSwipeFromScene(
@@ -81,10 +82,10 @@ fun SceneTransitionLayoutBenchmarkScope.setupSwipeFromScene(
     // Wait for the root SceneTransitionLayout to be there. Note that startDemoActivity already
     // waited for fromScene, so we know it's there.
     val device = device()
-    device.waitForObject(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
+    device.findObjectOrThrow(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
 
     // Verify that toScene is not there yet.
-    device.waitUntilGone(sceneSelector(toScene))
+    device.waitUntilGoneOrThrow(sceneSelector(toScene))
 }
 
 fun swipeFromScene(
@@ -101,21 +102,20 @@ fun swipeFromScene(
     val device = device()
 
     val swipeOn = swipeOn ?: StlDemoConstants.ROOT_STL_SELECTOR_IDLE
-    device.waitForObject(swipeOn)
     device
-        .findObject(swipeOn)
+        .findObjectOrThrow(swipeOn)
         .swipe(direction, /* percent= */ 0.9f, /* speed= */ (swipeSpeed * density).roundToInt())
 
     if (!toContentIsOverlay) {
         // Wait for fromScene to disappear.
-        device.waitUntilGone(sceneSelector(fromScene))
+        device.waitUntilGoneOrThrow(sceneSelector(fromScene))
     }
 
     // Check that we are at toContent.
-    device.waitForObject(contentSelector(toContent, toContentIsOverlay))
+    device.findObjectOrThrow(contentSelector(toContent, toContentIsOverlay))
 
     // Wait for the layout to be idle.
-    device.waitForObject(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
+    device.findObjectOrThrow(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
 }
 
 /**
@@ -129,13 +129,13 @@ fun navigateBackToPreviousScene(
 ) {
     val device = device()
     val currentContentSelector = contentSelector(currentContent, currentContentIsOverlay)
-    device.waitUntilGone(sceneSelector(previousScene))
-    device.waitForObject(currentContentSelector)
+    device.waitUntilGoneOrThrow(sceneSelector(previousScene))
+    device.findObjectOrThrow(currentContentSelector)
 
     device.pressBack()
-    device.waitUntilGone(currentContentSelector)
-    device.waitForObject(sceneSelector(previousScene))
-    device.waitForObject(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
+    device.waitUntilGoneOrThrow(currentContentSelector)
+    device.findObjectOrThrow(sceneSelector(previousScene))
+    device.findObjectOrThrow(StlDemoConstants.ROOT_STL_SELECTOR_IDLE)
 }
 
 private fun instrumentation() = InstrumentationRegistry.getInstrumentation()
@@ -143,18 +143,6 @@ private fun instrumentation() = InstrumentationRegistry.getInstrumentation()
 private fun context() = instrumentation().targetContext
 
 private fun device() = UiDevice.getInstance(instrumentation())
-
-private fun UiDevice.waitForObject(selector: BySelector, timeout: Long = 5_000) {
-    if (!wait(Until.hasObject(selector), timeout)) {
-        error("Did not find $selector within $timeout ms")
-    }
-}
-
-private fun UiDevice.waitUntilGone(selector: BySelector, timeout: Long = 5_000) {
-    if (!wait(Until.gone(selector), timeout)) {
-        error("$selector is still there after waiting $timeout ms")
-    }
-}
 
 private fun sceneSelector(scene: String) = By.res("scene:$scene")
 
