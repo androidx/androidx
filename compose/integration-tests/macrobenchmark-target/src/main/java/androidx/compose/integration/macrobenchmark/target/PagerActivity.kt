@@ -17,6 +17,7 @@
 package androidx.compose.integration.macrobenchmark.target
 
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
@@ -126,7 +127,7 @@ class PagerActivity : ComponentActivity() {
 
     @Composable
     fun BenchmarkPagerOfWebViews(pagerState: PagerState) {
-        FullSizePager(pagerState) {
+        FullSizePager(pagerState) { page ->
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { context ->
@@ -139,7 +140,12 @@ class PagerActivity : ComponentActivity() {
                         settings.setSupportZoom(true)
                     }
                 },
-                update = { webView -> webView.loadUrl("https://www.google.com/") },
+                update = { webView ->
+                    // WebView's AccessibilityNodeProvider ignores View.contentDescription, so set
+                    // it on the parent AndroidViewHolder instead.
+                    (webView.parent as View).contentDescription = "Page $page"
+                    webView.loadUrl("https://www.google.com/")
+                },
             )
         }
     }

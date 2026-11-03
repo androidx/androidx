@@ -34,6 +34,7 @@ import androidx.testutils.defaultMemoryMetrics
 import androidx.testutils.findObjectOrThrow
 import androidx.testutils.waitForComposeIdleOrThrow
 import androidx.tracing.trace
+import java.util.regex.Pattern
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -181,14 +182,22 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
                 device.waitForComposeIdleOrThrow()
             },
         ) {
-            val pager = device.findObjectOrThrow(By.desc(ContentDescription))
-            // Setting a gesture margin is important otherwise gesture nav is triggered.
-            pager.setGestureMargin(device.displayWidth / 5)
+            var previousPage = visibleWebViewPageIndex()
             for (i in 1..EventRepeatCount) {
                 trace("Pager#webviews_gesture_$i") {
+                    // Re-query the pager before each swipe because loading WebView pages can
+                    // refresh the accessibility tree and make a cached UiObject2 stale.
+                    val pager = device.findObjectOrThrow(By.desc(ContentDescription))
+                    // Setting a gesture margin is important otherwise gesture nav is triggered.
+                    pager.setGestureMargin(device.displayWidth / 5)
                     // From center we scroll 2/3 of it which is 1/3 of the screen.
                     pager.swipe(Direction.LEFT, 1.0f)
                     device.waitForComposeIdleOrThrow()
+                    val currentPage = visibleWebViewPageIndex()
+                    check(currentPage > previousPage) {
+                        "Swipe $i did not advance the pager: page was $previousPage before and $currentPage after"
+                    }
+                    previousPage = currentPage
                 }
             }
         }
@@ -356,6 +365,18 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
         }
     }
 
+    private fun visibleWebViewPageIndex(): Int {
+        val pager = device.findObjectOrThrow(By.desc(ContentDescription))
+        val pages = pager.findObjects(By.desc(PageDescriptionPattern))
+        check(pages.isNotEmpty()) { "No WebView page visible in $ContentDescription" }
+        return pages.maxOf { page ->
+            val desc = page.contentDescription.orEmpty()
+            checkNotNull(PageDescriptionRegex.matchEntire(desc)?.groupValues?.get(1)?.toInt()) {
+                "Unexpected page contentDescription: '$desc'"
+            }
+        }
+    }
+
     companion object {
         private const val PackageName = "androidx.compose.integration.macrobenchmark.target"
         private const val Action =
@@ -363,6 +384,8 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
         private const val ContentDescription = "Pager"
         private const val NextDescription = "Next"
         private const val EventRepeatCount = 10
+        private val PageDescriptionPattern = Pattern.compile("""Page \d+""")
+        private val PageDescriptionRegex = Regex("""Page (\d+)""")
 
         object BenchmarkType {
             val Key = "BenchmarkType"
