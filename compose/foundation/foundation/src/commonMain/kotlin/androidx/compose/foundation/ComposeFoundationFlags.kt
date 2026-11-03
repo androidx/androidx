@@ -445,7 +445,7 @@ public object ComposeFoundationFlags {
     // TODO: b/573996017
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isNewTextFieldModifierImplementationEnabled: Boolean = false
+    public var isNewTextFieldModifierImplementationEnabled: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
