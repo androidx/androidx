@@ -26,7 +26,6 @@ import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
@@ -83,68 +82,6 @@ private fun Project.configureAndroidMultiplatformProjectForLint(
         tasks.register("lintAnalyze") { task -> task.enabled = false }
         configureLint(extension.lint, isLibrary = true)
     }
-    // TODO (b/442881540): remove this workaround
-    mergeMultiplatformBaselines()
-}
-
-/**
- * For KMP projects with multiple lint tasks, the baseline files from each task overwrite each
- * other, so the last one to run will be the final baseline, meaning issues from the other tasks
- * won't end up in the final baseline.
- *
- * This sets up the overall `updateLintBaseline` task to merge the contents of the individual
- * `updateLintBaseline*` tasks.
- */
-private fun Project.mergeMultiplatformBaselines() {
-    // The final output baseline
-    val baseline = project.lintBaseline.get().asFile
-    // Baseline outputs for each `updateLintBaseline*` task
-    val tmpBaselines = mutableSetOf<File>()
-    tasks
-        .named { it.startsWith("updateLintBaseline") }
-        .configureEach { task ->
-            if (task.name != "updateLintBaseline") {
-                // Create a temporary baseline for this task (e.g. `updateLintBaselineAndroidMain`)
-                val tmpBaseline = File(task.temporaryDir, "lint-baseline.xml")
-                tmpBaselines.add(tmpBaseline)
-                task.doLast {
-                    // This task will have written its baseline to the final baseline file. Copy it
-                    // to the tmpBaseline because the final file may be overwritten by another task.
-                    tmpBaseline.delete()
-                    if (baseline.exists()) {
-                        baseline.copyTo(tmpBaseline)
-                    }
-                }
-            } else {
-                task.doLast {
-                    // In the `updateLintBaseline` task, merge the contents of the baselines from
-                    // the `updateLintBaseline*` tasks
-                    val tmpBaselines = tmpBaselines.filter { it.exists() }
-                    when (tmpBaselines.size) {
-                        0 -> return@doLast
-                        // Just one baseline, be sure the final baseline reflects it
-                        1 -> tmpBaselines.single().copyTo(baseline, overwrite = true)
-                        else -> {
-                            // Copy the contents of all the baselines to the final baseline file
-                            if (baseline.exists()) baseline.delete()
-                            for ((i, tmpBaseline) in tmpBaselines.withIndex()) {
-                                val contents = tmpBaseline.readLines().toMutableList()
-                                // Only include `<?xml>` and `<issues>` lines from the first file
-                                if (i != 0) {
-                                    contents.removeFirst()
-                                    contents.removeFirst()
-                                }
-                                // Only include `</issues>` line from the last file
-                                if (i != tmpBaselines.size - 1) {
-                                    contents.removeLast()
-                                }
-                                baseline.appendText(contents.joinToString("\n"))
-                            }
-                        }
-                    }
-                }
-            }
-        }
 }
 
 /** Android Lint configuration entry point for non-Android projects. */
@@ -353,7 +290,6 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
         // suppress warnings more specifically than issue-wide severity (regexes)
         // Currently suppresses warnings from baseline files working as intended
         lintConfig = File(project.getSupportRootFolder(), lintXmlPath)
-        baseline = lintBaseline.get().asFile
     }
     project.buildOnServerDependsOnLint()
 }
@@ -363,6 +299,3 @@ private fun Project.buildOnServerDependsOnLint() {
         project.addToBuildOnServer("lint")
     }
 }
-
-private val Project.lintBaseline: RegularFileProperty
-    get() = project.objects.fileProperty().fileValue(File(projectDir, "lint-baseline.xml"))
