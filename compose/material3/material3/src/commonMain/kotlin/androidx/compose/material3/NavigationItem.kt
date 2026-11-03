@@ -749,6 +749,28 @@ private class TopIconOrIconOnlyMeasurePolicy(
         }
     }
 
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurables: List<IntrinsicMeasurable>,
+        height: Int,
+    ): Int {
+        val iconWidth =
+            measurables.fastFirst { it.layoutId == IconLayoutIdTag }.maxIntrinsicWidth(height)
+        val labelWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == LabelLayoutIdTag }
+                ?.maxIntrinsicWidth(height) ?: 0
+        val indicatorHorizontalPadding =
+            (indicatorPadding.calculateStartPadding(layoutDirection) +
+                    indicatorPadding.calculateEndPadding(layoutDirection))
+                .roundToPx()
+        val itemHorizontalPadding =
+            (topIconItemPadding.calculateStartPadding(layoutDirection) +
+                    topIconItemPadding.calculateEndPadding(layoutDirection))
+                .roundToPx()
+
+        return maxOf(labelWidth, iconWidth + indicatorHorizontalPadding) + itemHorizontalPadding
+    }
+
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int,
