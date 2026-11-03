@@ -20,11 +20,15 @@ package androidx.xr.testutils
 
 import android.app.Activity
 import android.app.UiAutomation
+import android.graphics.Bitmap
 import android.graphics.Rect
+import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector2
@@ -102,6 +106,58 @@ public object SpatialSceneHelper {
             }
             delay(pollInterval)
         }
+    }
+
+    /**
+     * Captures the 3D XR compositor output via [UiAutomation.takeScreenshot], waits for consecutive
+     * compositor frames to stabilize, converts hardware-backed bitmaps to
+     * [Bitmap.Config.ARGB_8888], optionally crops to [cropBounds], and returns the resulting
+     * [Bitmap] for assertion with `androidx.test.screenshot.assertAgainstGolden`.
+     *
+     * The caller owns the returned [Bitmap] and is responsible for calling [Bitmap.recycle] when
+     * finished (or letting higher-level test scopes manage its lifecycle).
+     *
+     * Standard Android 2D `View.drawToBitmap()` or `SemanticsNodeInteraction.captureToImage()` only
+     * captures flat 2D window surfaces and does not include 3D `GltfModelEntity`, `SurfaceEntity`,
+     * `SpatialEnvironment` skyboxes, or 3D spatial relationships rendered by SpaceFlinger/Impress.
+     * Use this helper after awaiting [awaitSpatialScene] for the scene graph to settle.
+     *
+     * @param cropBounds Optional [Rect] in screen pixel coordinates to crop the compositor
+     *   screenshot. Bounds that extend past the screenshot are clamped to it.
+     * @param timeout Maximum duration to wait for consecutive frames to stabilize. If frames have
+     *   not stabilized by then, the latest frame is returned and a warning is logged.
+     * @param pollInterval Delay between successive compositor captures.
+     * @param uiAutomation The [UiAutomation] instance used to capture the compositor frame.
+     * @return A software-backed [Bitmap.Config.ARGB_8888] [Bitmap] owned by the caller.
+     * @throws IllegalArgumentException if [cropBounds] does not overlap the screenshot.
+     * @throws AssertionError if no screenshot could be captured within [timeout].
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun captureSceneToBitmap(
+        cropBounds: Rect? = null,
+        timeout: Duration = 5.seconds,
+        pollInterval: Duration = 100.milliseconds,
+        uiAutomation: UiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation,
+    ): Bitmap {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        captureSpatialScene(uiAutomation = uiAutomation)
+        val settledBitmap = awaitSettledSoftwareScreenshot(uiAutomation, timeout, pollInterval)
+        if (cropBounds == null) {
+            return settledBitmap
+        }
+        val cropped =
+            try {
+                settledBitmap.crop(cropBounds)
+            } catch (t: Throwable) {
+                settledBitmap.recycle()
+                throw t
+            }
+        // createBitmap returns the source itself when the crop covers the whole bitmap.
+        if (cropped !== settledBitmap) {
+            settledBitmap.recycle()
+        }
+        return cropped
     }
 
     private fun captureSceneWithPolling(uiAutomation: UiAutomation): SpatialScene {
@@ -1131,5 +1187,153 @@ constructor(
         private val REFORM_ENABLE_REGEX = Regex("enable=(\\d+)")
         private val SYS_UI_SPECIAL_NODE_REGEX = Regex("specialNode=(\\d+)")
         private val TASK_WINDOW_NODE_REGEX = Regex("^task-\\d+-window$")
+    }
+}
+
+private const val SCENE_CAPTURE_TAG = "SpatialSceneHelper"
+private const val FRAME_STABILITY_MSSIM_THRESHOLD: Double = 0.999
+
+private fun Bitmap.crop(cropBounds: Rect): Bitmap {
+    val clamped = Rect(cropBounds)
+    require(clamped.intersect(0, 0, width, height)) {
+        "cropBounds $cropBounds does not overlap the ${width}x$height screenshot"
+    }
+    if (clamped != cropBounds) {
+        Log.w(
+            SCENE_CAPTURE_TAG,
+            "cropBounds $cropBounds clamped to $clamped to fit the ${width}x$height screenshot",
+        )
+    }
+    return Bitmap.createBitmap(this, clamped.left, clamped.top, clamped.width(), clamped.height())
+}
+
+internal val Bitmap.isHardwareBitmap: Boolean
+    get() = Build.VERSION.SDK_INT >= 26 && config == Bitmap.Config.HARDWARE
+
+internal fun Bitmap.toSoftwareBitmap(): Bitmap =
+    if (isHardwareBitmap) {
+        checkNotNull(copy(Bitmap.Config.ARGB_8888, false)) {
+            "Failed to copy HARDWARE screenshot bitmap to ARGB_8888"
+        }
+    } else {
+        this
+    }
+
+private fun Bitmap.toPixelArray(destination: IntArray? = null): IntArray {
+    val pixelCount = width * height
+    val pixels =
+        if (destination != null && destination.size == pixelCount) {
+            destination
+        } else {
+            IntArray(pixelCount)
+        }
+    getPixels(pixels, 0, width, 0, 0, width, height)
+    return pixels
+}
+
+private fun logUnsettledTimeout(timeout: Duration) {
+    Log.w(
+        SCENE_CAPTURE_TAG,
+        "Compositor frames did not stabilize within $timeout; returning the latest frame. " +
+            "The screenshot may contain in-flight animation or rendering.",
+    )
+}
+
+/**
+ * Polls [UiAutomation.takeScreenshot] until two consecutive compositor frames match within
+ * [FRAME_STABILITY_MSSIM_THRESHOLD] (ensuring newly registered SpaceFlinger/Impress buffers have
+ * finished latching), or returns the latest non-null frame (logging a warning) if the timeout
+ * elapses. All intermediate bitmaps are recycled before returning.
+ */
+private fun awaitSettledSoftwareScreenshot(
+    uiAutomation: UiAutomation,
+    timeout: Duration,
+    pollInterval: Duration,
+): Bitmap {
+    val start = TimeSource.Monotonic.markNow()
+    val stabilityMatcher = MSSIMMatcher(threshold = FRAME_STABILITY_MSSIM_THRESHOLD)
+    var previousBitmap: Bitmap? = null
+    var previousPixels: IntArray? = null
+    var currentPixels: IntArray? = null
+    var currentBitmap: Bitmap? = null
+
+    try {
+        while (true) {
+            val raw = uiAutomation.takeScreenshot()
+            if (raw != null) {
+                val softwareBitmap =
+                    try {
+                        raw.toSoftwareBitmap()
+                    } finally {
+                        if (raw.isHardwareBitmap && !raw.isRecycled) {
+                            raw.recycle()
+                        }
+                    }
+                currentBitmap = softwareBitmap
+                currentPixels = softwareBitmap.toPixelArray(currentPixels)
+                val prev = previousBitmap
+                val prevPix = previousPixels
+
+                if (
+                    prev != null &&
+                        prevPix != null &&
+                        prev.width == softwareBitmap.width &&
+                        prev.height == softwareBitmap.height
+                ) {
+                    val matchResult =
+                        stabilityMatcher.compareBitmaps(
+                            expected = prevPix,
+                            given = currentPixels,
+                            width = softwareBitmap.width,
+                            height = softwareBitmap.height,
+                        )
+                    prev.recycle()
+                    previousBitmap = null
+                    matchResult.diff?.recycle()
+                    if (matchResult.matches) {
+                        currentBitmap = null
+                        return softwareBitmap
+                    }
+                    if (start.elapsedNow() >= timeout) {
+                        logUnsettledTimeout(timeout)
+                        currentBitmap = null
+                        return softwareBitmap
+                    }
+                } else {
+                    prev?.recycle()
+                    previousBitmap = null
+                    if (start.elapsedNow() >= timeout) {
+                        logUnsettledTimeout(timeout)
+                        currentBitmap = null
+                        return softwareBitmap
+                    }
+                }
+
+                previousBitmap = softwareBitmap
+                val temp = previousPixels
+                previousPixels = currentPixels
+                currentPixels = temp
+                currentBitmap = null
+            } else if (start.elapsedNow() >= timeout) {
+                previousBitmap?.let {
+                    logUnsettledTimeout(timeout)
+                    previousBitmap = null
+                    return it
+                }
+                throw AssertionError(
+                    "Timed out after $timeout waiting for UiAutomation.takeScreenshot() to " +
+                        "return a non-null Bitmap"
+                )
+            }
+            SystemClock.sleep(pollInterval.inWholeMilliseconds)
+        }
+    } catch (t: Throwable) {
+        currentBitmap?.let {
+            if (!it.isRecycled) it.recycle()
+        }
+        previousBitmap?.let {
+            if (!it.isRecycled) it.recycle()
+        }
+        throw t
     }
 }

@@ -34,6 +34,7 @@ dependencies {
     api(project(":xr:runtime:runtime"))
     api(project(":xr:runtime:runtime-manifest"))
 
+    api(project(":test:screenshot:screenshot"))
     implementation("androidx.compose.runtime:runtime:1.7.5")
 
     androidTestImplementation(project(":compose:foundation:foundation"))
@@ -48,6 +49,8 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testUiautomator)
+
+    testImplementation(libs.testExtJunit)
 }
 
 android {
@@ -71,6 +74,7 @@ androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2026"
     description = "Internal test utilities for XR libraries."
+    enableRobolectric()
     deviceTests {
         enabled = false
     }

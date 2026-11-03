@@ -78,7 +78,7 @@ private fun isEmulator(): Boolean =
         Build.HARDWARE.contains("ranchu") ||
         Build.HARDWARE.contains("gce_x86")
 
-private fun isXrDevice(): Boolean {
+internal fun isXrDevice(): Boolean {
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     return context.packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)
 }
