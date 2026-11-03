@@ -22,7 +22,9 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.camera.core.CameraFilter
+import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraXConfig
@@ -197,6 +199,26 @@ class ProcessCameraProviderTest {
 
         val cameraInfo = cameraInfos.first() as FakeCameraInfoInternal
         assertThat(cameraInfo.lensFacing).isEqualTo(LENS_FACING_BACK)
+    }
+
+    @Test
+    fun cameraPresenceListenerAndAvailableCameraInfos_afterShutdown_doNotThrowNpe() = runBlocking {
+        ProcessCameraProvider.configureInstance(
+            FakeAppConfig.create(CameraSelector.DEFAULT_BACK_CAMERA)
+        )
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val listener =
+            object : CameraPresenceListener {
+                override fun onCamerasAdded(cameraIdentifiers: Set<CameraIdentifier>) {}
+
+                override fun onCamerasRemoved(cameraIdentifiers: Set<CameraIdentifier>) {}
+            }
+
+        provider.shutdownAsync().await()
+
+        provider.addCameraPresenceListener(handlerExecutor, listener)
+        provider.removeCameraPresenceListener(listener)
+        assertThat(provider.availableCameraInfos).isEmpty()
     }
 
     @Test

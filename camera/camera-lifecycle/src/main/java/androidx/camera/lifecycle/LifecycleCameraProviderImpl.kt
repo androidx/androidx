@@ -80,7 +80,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
     internal var cameraXConfigProvider: CameraXConfig.Provider? = null
     @GuardedBy("lock") private var cameraXInitializeFuture: ListenableFuture<Void>? = null
     @GuardedBy("lock") private var cameraXShutdownFuture = Futures.immediateFuture<Void>(null)
-    private var cameraX: CameraX? = null
+    @Volatile private var cameraX: CameraX? = null
     private val isInitialized
         get() = cameraX != null
 
@@ -631,12 +631,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
     override val availableCameraInfos: List<CameraInfo>
         get() =
             trace("CX:getAvailableCameraInfos") {
-                val availableCameraInfos: MutableList<CameraInfo> = ArrayList()
-                val cameras: Set<CameraInternal> = cameraX!!.cameraRepository.cameras
-                for (camera: CameraInternal in cameras) {
-                    availableCameraInfos.add(camera.cameraInfo)
-                }
-                return@trace availableCameraInfos
+                cameraX?.cameraRepository?.cameras?.map { it.cameraInfo } ?: emptyList()
             }
 
     override val availableConcurrentCameraInfos: List<List<CameraInfo>>
@@ -921,11 +916,13 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
         } ?: getCameraInfo(cameraSelector)
     }
 
-    override fun addCameraPresenceListener(executor: Executor, listener: CameraPresenceListener) =
-        cameraX!!.cameraAvailabilityProvider.addCameraPresenceListener(listener, executor)
+    override fun addCameraPresenceListener(executor: Executor, listener: CameraPresenceListener) {
+        cameraX?.cameraAvailabilityProvider?.addCameraPresenceListener(listener, executor)
+    }
 
-    override fun removeCameraPresenceListener(listener: CameraPresenceListener) =
-        cameraX!!.cameraAvailabilityProvider.removeCameraPresenceListener(listener)
+    override fun removeCameraPresenceListener(listener: CameraPresenceListener) {
+        cameraX?.cameraAvailabilityProvider?.removeCameraPresenceListener(listener)
+    }
 
     @MainThread
     override fun onCamerasAdded(addedCameraIds: Set<CameraIdentifier>) {
