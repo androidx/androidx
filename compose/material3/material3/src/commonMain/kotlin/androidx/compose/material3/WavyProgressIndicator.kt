@@ -17,13 +17,9 @@
 package androidx.compose.material3
 
 import androidx.annotation.FloatRange
-import androidx.compose.animation.core.AnimationScope
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -38,9 +34,7 @@ import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.ProgressIndicatorTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -52,10 +46,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.first
 
 // TODO Update the docs images to point to the expressive (wavy) versions of the progress indicators
 /**
@@ -75,11 +65,7 @@ import kotlinx.coroutines.flow.first
  * when animating progress, such as in the following example:
  *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
- *   represents full progress. Values outside of this range are coerced into the range. Return a
- *   non-finite value (such as [Float.NaN] or [Float.POSITIVE_INFINITY]) while the progress is
- *   unknown to display an indeterminate indicator. When the progress becomes known, the
- *   indeterminate lines leave the track and the indicator then animates from no progress to the
- *   returned value.
+ *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color the progress indicator color
  * @param trackColor the indicator's track color, visible when the progress has not reached the area
@@ -93,25 +79,18 @@ import kotlinx.coroutines.flow.first
  * @param amplitude a lambda that provides an amplitude for the wave path as a function of the
  *   indicator's progress. 0.0 represents no amplitude, and 1.0 represents an amplitude that will
  *   take the full height of the progress indicator. Values outside of this range are coerced into
- *   the range. The lambda receives [Float.NaN] while the indicator is indeterminate.
+ *   the range.
  * @param wavelength the length of a wave. Will be applied in case the path has an [amplitude] that
- *   is greater than zero and represents a wave. While the indicator is indeterminate, the
- *   [WavyProgressIndicatorDefaults.LinearIndeterminateWavelength] is used instead.
+ *   is greater than zero and represents a wave.
  * @param waveSpeed the speed in which the wave will move when the [amplitude] is greater than zero.
  *   The value here represents a DP per seconds, and by default it's matched to the [wavelength] to
- *   render an animation that moves the wave by one wave length per second. While the indicator is
- *   indeterminate, the wave moves by one indeterminate wave length per second.
+ *   render an animation that moves the wave by one wave length per second.
  * @sample androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
  *
  * You may also follow the Material guidelines to create a thicker version of this indicator, like
  * in this example:
  *
  * @sample androidx.compose.material3.samples.LinearThickWavyProgressIndicatorSample
- *
- * To display an indeterminate indicator until the progress is known, return [Float.NaN] from the
- * [progress] lambda until then:
- *
- * @sample androidx.compose.material3.samples.IndeterminateToDeterminateWavyProgressIndicatorSample
  *
  * @material3expressive
  */
@@ -134,13 +113,10 @@ public fun LinearWavyProgressIndicator(
             modifier
                 .then(IncreaseVerticalSemanticsBounds)
                 .semantics(mergeDescendants = true) {
-                    val currentProgress = progress()
+                    // Ensure progress lambda is accessed safely for semantics
+                    val currentProgress = progress().takeUnless { it.isNaN() } ?: 0f
                     progressBarRangeInfo =
-                        if (!currentProgress.isFinite()) {
-                            ProgressBarRangeInfo.Indeterminate
-                        } else {
-                            ProgressBarRangeInfo(currentProgress.fastCoerceIn(0f, 1f), 0f..1f)
-                        }
+                        ProgressBarRangeInfo(currentProgress.fastCoerceIn(0f, 1f), 0f..1f)
                 }
                 .size(
                     width = WavyProgressIndicatorDefaults.LinearContainerWidth,
@@ -202,6 +178,36 @@ public fun LinearWavyProgressIndicator(
     wavelength: Dp = WavyProgressIndicatorDefaults.LinearIndeterminateWavelength,
     waveSpeed: Dp = wavelength, // Match to 1 wavelength per second
 ) {
+    val infiniteTransition = rememberInfiniteTransition("LinearWavyProgressIndicatorProgress")
+    val firstLineHead =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = linearIndeterminateFirstLineHeadAnimationSpec,
+            label = "LinearWavyProgressIndicatorFirstHead",
+        )
+    val firstLineTail =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = linearIndeterminateFirstLineTailAnimationSpec,
+            label = "LinearWavyProgressIndicatorFirstTail",
+        )
+    val secondLineHead =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = linearIndeterminateSecondLineHeadAnimationSpec,
+            label = "LinearWavyProgressIndicatorSecondHead",
+        )
+    val secondLineTail =
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = linearIndeterminateSecondLineTailAnimationSpec,
+            label = "LinearWavyProgressIndicatorSecondTail",
+        )
+
     Spacer(
         modifier =
             modifier
@@ -213,18 +219,18 @@ public fun LinearWavyProgressIndicator(
                 )
                 .clipToBounds()
                 .linearWavyProgressIndicator(
-                    progress = { Float.NaN },
+                    firstLineHeadProgress = { firstLineHead.value },
+                    firstLineTailProgress = { firstLineTail.value },
+                    secondLineHeadProgress = { secondLineHead.value },
+                    secondLineTailProgress = { secondLineTail.value },
                     color = color,
                     trackColor = trackColor,
                     stroke = stroke,
                     trackStroke = trackStroke,
                     gapSize = gapSize,
-                    stopSize = 0.dp,
-                    amplitude = { amplitude },
+                    amplitude = amplitude.fastCoerceIn(0f, 1f),
                     wavelength = wavelength,
                     waveSpeed = waveSpeed,
-                    indeterminateWavelength = wavelength,
-                    indeterminateWaveSpeed = waveSpeed,
                 )
     )
 }
@@ -244,10 +250,7 @@ public fun LinearWavyProgressIndicator(
  * animating progress, such as in the following example:
  *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
- *   represents full progress. Values outside of this range are coerced into the range. Return a
- *   non-finite value (such as [Float.NaN] or [Float.POSITIVE_INFINITY]) while the progress is
- *   unknown to display an indeterminate indicator. When the progress becomes known, the indicator
- *   rotates to the start of the track while animating to the returned value.
+ *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color the progress indicator color
  * @param trackColor the indicator's track color, visible when the progress has not reached the area
@@ -257,8 +260,7 @@ public fun LinearWavyProgressIndicator(
  * @param gapSize the gap between the track and the progress parts of the indicator
  * @param amplitude a lambda that provides an amplitude for the wave path as a function of the
  *   indicator's progress. 0.0 represents no amplitude, and 1.0 represents a max amplitude. Values
- *   outside of this range are coerced into the range. The lambda receives [Float.NaN] while the
- *   indicator is indeterminate.
+ *   outside of this range are coerced into the range.
  * @param wavelength the length of a wave in this circular indicator. Note that the actual
  *   wavelength may be different to ensure a continuous wave shape.
  * @param waveSpeed the speed in which the wave will move when the [amplitude] is greater than zero.
@@ -272,11 +274,6 @@ public fun LinearWavyProgressIndicator(
  * in this example:
  *
  * @sample androidx.compose.material3.samples.CircularThickWavyProgressIndicatorSample
- *
- * To display an indeterminate indicator until the progress is known, return [Float.NaN] from the
- * [progress] lambda until then:
- *
- * @sample androidx.compose.material3.samples.IndeterminateToDeterminateWavyProgressIndicatorSample
  *
  * @material3expressive
  */
@@ -309,13 +306,14 @@ public fun CircularWavyProgressIndicator(
                     waveSpeed = waveSpeed,
                 )
                 .semantics(mergeDescendants = true) {
-                    val currentProgress = progress()
+                    val progressValue = progress()
+                    // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                    val clampedProgress = progressValue.coerceIn(0f, 1f)
                     progressBarRangeInfo =
-                        if (!currentProgress.isFinite()) {
-                            ProgressBarRangeInfo.Indeterminate
-                        } else {
-                            ProgressBarRangeInfo(currentProgress.fastCoerceIn(0f, 1f), 0f..1f)
-                        }
+                        ProgressBarRangeInfo(
+                            current = if (clampedProgress.isNaN()) 0f else clampedProgress,
+                            range = 0f..1f,
+                        )
                 }
     )
 }
@@ -372,13 +370,12 @@ public fun CircularWavyProgressIndicator(
         Spacer(
             Modifier.fillMaxSize()
                 .circularWavyProgressIndicator(
-                    progress = { Float.NaN },
                     color = color,
                     trackColor = trackColor,
                     stroke = stroke,
                     trackStroke = trackStroke,
                     gapSize = gapSize,
-                    amplitude = { amplitude },
+                    amplitude = amplitude,
                     wavelength = wavelength,
                     waveSpeed = waveSpeed,
                 )
@@ -513,43 +510,3 @@ internal val DecreasingAmplitudeAnimationSpec: AnimationSpec<Float> =
         durationMillis = MotionTokens.DurationLong2.toInt(),
         easing = MotionTokens.EasingEmphasizedAccelerateCubicBezier,
     )
-
-/**
- * Advances this clock by one unit per millisecond, calling [onFrame] on every frame, until
- * [isIndeterminate] returns false. The clock follows [MotionDurationScale]. Its value modulo
- * [cycleDurationMillis] is the play time in the indeterminate cycle.
- */
-internal suspend fun AnimationState<Float, AnimationVector1D>.animateIndeterminateCycle(
-    cycleDurationMillis: Int,
-    isIndeterminate: () -> Boolean,
-    onFrame: AnimationScope<Float, AnimationVector1D>.() -> Unit,
-) {
-    var sequentialAnimation = true
-    while (isIndeterminate()) {
-        var stoppedByPolicy = false
-        try {
-            animateTo(
-                targetValue = value + cycleDurationMillis,
-                animationSpec =
-                    infiniteRepeatable(tween(cycleDurationMillis, easing = LinearEasing)),
-                sequentialAnimation = sequentialAnimation,
-            ) {
-                onFrame()
-                if (!isIndeterminate()) cancelAnimation()
-            }
-        } catch (e: CancellationException) {
-            // An InfiniteAnimationPolicy, such as the one in tests, stops infinite animations
-            // without cancelling the coroutine.
-            currentCoroutineContext().ensureActive()
-            stoppedByPolicy = true
-        }
-        // An infinite animation also ends when animations are disabled.
-        val motionDurationScale = currentCoroutineContext()[MotionDurationScale]
-        snapshotFlow {
-            !isIndeterminate() ||
-                (!stoppedByPolicy && (motionDurationScale?.scaleFactor ?: 1f) > 0f)
-        }
-            .first { it }
-        sequentialAnimation = false
-    }
-}
