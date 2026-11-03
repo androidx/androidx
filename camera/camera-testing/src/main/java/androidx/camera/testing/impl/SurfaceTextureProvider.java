@@ -328,6 +328,7 @@ public final class SurfaceTextureProvider {
             glExecutor.execute(() -> {
                 Object lock = new Object();
                 AtomicBoolean surfaceTextureReleased = new AtomicBoolean(false);
+                AtomicBoolean updateTexImageFailedLogged = new AtomicBoolean(false);
                 EGLContextParams contextParams = createDummyEGLContext();
                 EGL14.eglMakeCurrent(contextParams.display, contextParams.outputSurface,
                         contextParams.outputSurface, contextParams.context);
@@ -342,7 +343,16 @@ public final class SurfaceTextureProvider {
                                 if (surfaceTextureReleased.get()) {
                                     return;
                                 }
-                                it.updateTexImage();
+                                try {
+                                    it.updateTexImage();
+                                } catch (RuntimeException e) {
+                                    if (updateTexImageFailedLogged.compareAndSet(false, true)) {
+                                        Logger.w(TAG, "Failed to updateTexImage", e);
+                                    } else {
+                                        Logger.d(TAG, "Failed to updateTexImage: "
+                                                + e.getMessage());
+                                    }
+                                }
                                 if (frameAvailableListener != null) {
                                     frameAvailableListener.onFrameAvailable(surfaceTexture);
                                 }
