@@ -32,7 +32,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.After
@@ -109,15 +110,21 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
     @Test
     fun coordinatesTransformationSameSizeNoRotation(): Unit = runBlocking {
         val coordinateTransformer = MutableCoordinateTransformer()
+        val surfaceSessionInitialized = CompletableDeferred<Unit>()
 
         rule.setContent {
             with(LocalDensity.current) {
                 TestViewfinder(
-                    modifier = Modifier.size(540.toDp(), 960.toDp()),
+                    modifier = Modifier.requiredSize(540.toDp(), 960.toDp()),
                     coordinateTransformer = coordinateTransformer,
-                ) {}
+                ) {
+                    onSurfaceSession { surfaceSessionInitialized.complete(Unit) }
+                }
             }
         }
+
+        withTimeout(5.seconds) { surfaceSessionInitialized.await() }
+        rule.awaitIdle()
 
         val expectedMatrix =
             Matrix(
@@ -135,11 +142,12 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
         // Crop rect size: 540x960
 
         val coordinateTransformer = MutableCoordinateTransformer()
+        val surfaceSessionInitialized = CompletableDeferred<Unit>()
 
         rule.setContent {
             with(LocalDensity.current) {
                 TestViewfinder(
-                    modifier = Modifier.size(540.toDp(), 960.toDp()),
+                    modifier = Modifier.requiredSize(540.toDp(), 960.toDp()),
                     transformationInfo =
                         TransformationInfo(
                             sourceRotation = 0,
@@ -151,9 +159,14 @@ class ViewfinderTest(private val implementationMode: ImplementationMode) {
                             cropRectBottom = 480f,
                         ),
                     coordinateTransformer = coordinateTransformer,
-                ) {}
+                ) {
+                    onSurfaceSession { surfaceSessionInitialized.complete(Unit) }
+                }
             }
         }
+
+        withTimeout(5.seconds) { surfaceSessionInitialized.await() }
+        rule.awaitIdle()
 
         val expectedMatrix =
             Matrix(
