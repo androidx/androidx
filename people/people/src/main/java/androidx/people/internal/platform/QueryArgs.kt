@@ -151,6 +151,7 @@ private fun Bundle?.subQueriesByPackage(
             )
         } ?: return emptyMap()
     return subQueries
+        .filterIsInstance<Bundle>()
         .mapNotNull { subQuery ->
             val directoryPackage =
                 subQuery.getString(PeopleContractCompat.QUERY_ARG_PACKAGE)?.ifEmpty { null }

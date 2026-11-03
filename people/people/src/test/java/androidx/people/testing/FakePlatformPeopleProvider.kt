@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.database.MatrixCursor
@@ -286,13 +287,24 @@ class FakePlatformPeopleProvider : ContentProvider() {
          */
         fun install(
             context: Context = RuntimeEnvironment.getApplication(),
+            isSystemApp: Boolean = true,
             block: FakePlatformPeopleProvider.() -> Unit = {},
         ): FakePlatformPeopleProvider {
+            if (isSystemApp) {
+                context.applicationInfo.flags =
+                    context.applicationInfo.flags or ApplicationInfo.FLAG_SYSTEM
+            } else {
+                context.applicationInfo.flags =
+                    context.applicationInfo.flags and
+                        ApplicationInfo.FLAG_SYSTEM.inv() and
+                        ApplicationInfo.FLAG_UPDATED_SYSTEM_APP.inv()
+            }
             val providerInfo =
                 ProviderInfo().apply {
                     authority = PeopleContractCompat.AUTHORITY
                     packageName = context.packageName
                     name = FakePlatformPeopleProvider::class.java.name
+                    applicationInfo = context.applicationInfo
                 }
             shadowOf(context.packageManager).addOrUpdateProvider(providerInfo)
             return Robolectric.buildContentProvider(FakePlatformPeopleProvider::class.java)
