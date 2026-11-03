@@ -82,15 +82,18 @@ constructor(
      * has on each host surface through [WidgetInstanceInfo.placementsPerSurface].
      *
      * Placements that have not yet been assigned a widget instance String identifier are omitted,
-     * as they cannot be targeted by [pushUpdate].
+     * as they cannot be targeted by [pushUpdate]. They are still updated by [pushUpdate] calls that
+     * do not target identifiers, and are returned as soon as `GlanceAdaptiveWidgetReceiver` assigns
+     * them one.
      *
      * @param widgetName Developer widget definition String identifier matching
      *   `GlanceAdaptiveWidgetReceiver.widgetName`.
-     * @return Active instances for [widgetName], or an empty list if none are placed.
+     * @return Active instances for [widgetName], or an empty list if none are placed or have an
+     *   assigned identifier yet.
      * @throws IllegalArgumentException if [widgetName] does not identify exactly one widget of the
      *   app.
      * @throws IllegalStateException if a widget of the app cannot be read to resolve [widgetName].
-     * @throws RuntimeException if the options of any placement cannot be read, rather than
+     * @throws RuntimeException if the placements or their options cannot be read, rather than
      *   returning a partial result.
      */
     public suspend fun getActiveInstances(widgetName: String): List<WidgetInstanceInfo> =

@@ -211,4 +211,42 @@ class BaseWidgetDelegateActiveInstancesTest {
         assertThat(error).isInstanceOf(RuntimeException::class.java)
         assertThat(error).hasMessageThat().isEqualTo("IPC failure")
     }
+
+    @Test
+    fun getActiveInstances_whenListingPlacementsFails_propagatesException() = runTest {
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        val mockManager =
+            mock<AppWidgetManager> {
+                on { getAppWidgetIds(any()) }.thenThrow(RuntimeException("IPC failure"))
+            }
+        val delegate =
+            BaseWidgetDelegate(
+                context = rule.context,
+                repository = WidgetInstanceRepository(rule.context, mockManager),
+                appWidgetManager = mockManager,
+            )
+
+        val error = runCatching { delegate.getActiveInstances("test_widget") }.exceptionOrNull()
+
+        assertThat(error).isInstanceOf(RuntimeException::class.java)
+        assertThat(error).hasMessageThat().isEqualTo("IPC failure")
+    }
+
+    @Test
+    fun getActiveInstances_returnsPlacementOnceReceiverAssignsItsWidgetId() = runTest {
+        rule.setupBoundWidget(671, TestReceiver::class.java.name, widgetId = null)
+        rule.registerReceiverInManifest(TestReceiver::class.java.name)
+        assertThat(rule.delegate().getActiveInstances("test_widget")).isEmpty()
+
+        val realManager = AppWidgetManager.getInstance(rule.context)
+        TestReceiver().onUpdate(rule.context, realManager, intArrayOf(671))
+
+        val assignedWidgetId =
+            realManager
+                .getAppWidgetOptions(671)
+                .getString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID)
+        assertThat(assignedWidgetId).isNotNull()
+        assertThat(rule.delegate().getActiveInstances("test_widget").map { it.widgetId })
+            .containsExactly(assignedWidgetId)
+    }
 }
