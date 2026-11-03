@@ -21,7 +21,7 @@ import android.app.PendingIntent
 import android.os.Bundle
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
 /**
  * A [GlanceAdaptiveWidgetDelegate] for AppWidget hosts, adding the operations that only AppWidget

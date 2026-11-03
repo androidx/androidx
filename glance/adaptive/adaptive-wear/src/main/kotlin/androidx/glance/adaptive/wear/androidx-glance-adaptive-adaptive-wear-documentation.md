@@ -4,7 +4,7 @@
 
 Provides Wear OS service and compilation implementations for Glance Adaptive widgets.
 
-# Package androidx.glance.adaptive.wear.ui.selection
+# Package androidx.glance.adaptive.wear.selection
 
 Provides Wear OS-specific surfaces and size tiers.
 

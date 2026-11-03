@@ -18,7 +18,7 @@
     <application>
         <!-- Dispatches GlanceWidgetAction.Callback triggers to GlanceAdaptiveActionCallback. -->
         <receiver
-            android:name=".ui.action.ActionCallbackBroadcastReceiver"
+            android:name=".action.ActionCallbackBroadcastReceiver"
             android:exported="false"
             android:enabled="true" />
     </application>

@@ -30,13 +30,12 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
-import androidx.glance.adaptive.appwidget.ui.AppWidgetTemplateRegistry
-import androidx.glance.adaptive.appwidget.ui.GlanceTemplateRenderer
-import androidx.glance.adaptive.appwidget.ui.selection.AppWidgetSurface
-import androidx.glance.adaptive.core.ui.TemplateRenderer
-import androidx.glance.adaptive.core.ui.selection.ArchetypeSelector
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.appwidget.renderer.GlanceTemplateRenderer
+import androidx.glance.adaptive.appwidget.selection.AppWidgetSurface
+import androidx.glance.adaptive.core.renderer.TemplateRenderer
+import androidx.glance.adaptive.core.selection.ArchetypeSelector
+import androidx.glance.adaptive.core.selection.GlanceSurface
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -817,9 +816,9 @@ class BaseWidgetDelegateTest {
         assertThat(instances.map { it.widgetId }).containsExactly("instance_1", "instance_2")
         assertThat(instances.map { it.widgetName }).containsExactly("test_widget", "test_widget")
         instances.forEach { instance ->
-            assertThat(instance.surfacePlacements.size).isEqualTo(1)
+            assertThat(instance.placementsPerSurface.size).isEqualTo(1)
             assertThat(
-                    instance.surfacePlacements.getOrDefault(
+                    instance.placementsPerSurface.getOrDefault(
                         AppWidgetSurface.MOBILE_HOME_SCREEN,
                         0,
                     )
@@ -839,9 +838,9 @@ class BaseWidgetDelegateTest {
         assertThat(instances).hasSize(1)
         val instance = instances.single()
         assertThat(instance.widgetId).isEqualTo("shared")
-        assertThat(instance.surfacePlacements.size).isEqualTo(1)
+        assertThat(instance.placementsPerSurface.size).isEqualTo(1)
         assertThat(
-                instance.surfacePlacements.getOrDefault(
+                instance.placementsPerSurface.getOrDefault(
                     AppWidgetSurface.MOBILE_HOME_SCREEN,
                     0,
                 )
@@ -868,11 +867,11 @@ class BaseWidgetDelegateTest {
         val instances = delegate().getActiveInstances("test_widget")
 
         assertThat(instances).hasSize(1)
-        val surfacePlacements = instances.single().surfacePlacements
-        assertThat(surfacePlacements.size).isEqualTo(2)
-        assertThat(surfacePlacements.getOrDefault(AppWidgetSurface.MOBILE_HOME_SCREEN, 0))
+        val placementsPerSurface = instances.single().placementsPerSurface
+        assertThat(placementsPerSurface.size).isEqualTo(2)
+        assertThat(placementsPerSurface.getOrDefault(AppWidgetSurface.MOBILE_HOME_SCREEN, 0))
             .isEqualTo(1)
-        assertThat(surfacePlacements.getOrDefault(AppWidgetSurface.MOBILE_LOCK_SCREEN, 0))
+        assertThat(placementsPerSurface.getOrDefault(AppWidgetSurface.MOBILE_LOCK_SCREEN, 0))
             .isEqualTo(1)
     }
 

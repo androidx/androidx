@@ -17,37 +17,45 @@
 package androidx.glance.adaptive.core
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.ObjectIntMap
 import androidx.collection.emptyObjectIntMap
-import androidx.glance.adaptive.core.ui.selection.GlanceSurface
+import androidx.glance.adaptive.core.selection.GlanceSurface
 import androidx.glance.adaptive.core.util.BundleUtils
 
 /**
  * Information representing an active placed widget instance across host display surfaces.
  *
- * @property widgetName Developer-defined identifier of the widget definition matching the receiver.
- * @property widgetId Target widget instance identifier (developer-defined custom tag or
- *   auto-generated UUID).
+ * Each widget definition is identified by [widgetName] (shared across all instances of a
+ * `GlanceAdaptiveWidgetReceiver`, e.g. `"weather_forecast"`), while [widgetId] identifies the
+ * logical widget instance configuration (either a developer-defined custom tag, e.g.
+ * `"bucharest_weather"`, or an auto-generated UUID).
+ *
+ * Multiple placements on the same surface or across different host surfaces (e.g. two placements on
+ * the home screen, or one on the home screen and one on the lock screen) can share the same
+ * [widgetId]. [placementsPerSurface] maps each active [GlanceSurface] to the number of placements
+ * currently showing this [widgetId] on that surface.
+ *
+ * @property widgetName Identifier of the widget definition.
+ * @property widgetId Identifier for this logical widget instance, which may be shared across
+ *   multiple placements.
  * @property options User configuration options and metadata stored for this widget instance.
- * @property surfacePlacements Map of host surfaces to active placement counts for this instance.
+ * @property placementsPerSurface Map of host [GlanceSurface] to active placement count.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidgetInstanceInfo(
     public val widgetName: String,
     public val widgetId: String,
     options: Bundle = Bundle(),
-    surfacePlacements: ObjectIntMap<GlanceSurface> = emptyObjectIntMap(),
+    placementsPerSurface: ObjectIntMap<GlanceSurface> = emptyObjectIntMap(),
 ) {
     public val options: Bundle = Bundle(options)
-    public val surfacePlacements: ObjectIntMap<GlanceSurface> =
-        if (surfacePlacements is MutableObjectIntMap) {
-            MutableObjectIntMap<GlanceSurface>(surfacePlacements.size).apply {
-                putAll(surfacePlacements)
+    public val placementsPerSurface: ObjectIntMap<GlanceSurface> =
+        if (placementsPerSurface is MutableObjectIntMap) {
+            MutableObjectIntMap<GlanceSurface>(placementsPerSurface.size).apply {
+                putAll(placementsPerSurface)
             }
         } else {
-            surfacePlacements
+            placementsPerSurface
         }
 
     override fun equals(other: Any?): Boolean {
@@ -56,13 +64,13 @@ public class WidgetInstanceInfo(
 
         if (widgetName != other.widgetName) return false
         if (widgetId != other.widgetId) return false
-        if (!areSurfacePlacementsEqual(surfacePlacements, other.surfacePlacements)) return false
+        if (!arePlacementsEqual(placementsPerSurface, other.placementsPerSurface)) return false
         if (!BundleUtils.areBundlesEqual(options, other.options)) return false
 
         return true
     }
 
-    private fun areSurfacePlacementsEqual(
+    private fun arePlacementsEqual(
         a: ObjectIntMap<GlanceSurface>,
         b: ObjectIntMap<GlanceSurface>,
     ): Boolean {
@@ -80,11 +88,11 @@ public class WidgetInstanceInfo(
         var result = widgetName.hashCode()
         result = 31 * result + widgetId.hashCode()
         result = 31 * result + BundleUtils.bundleHashCode(options)
-        result = 31 * result + surfacePlacementsHashCode(surfacePlacements)
+        result = 31 * result + placementsHashCode(placementsPerSurface)
         return result
     }
 
-    private fun surfacePlacementsHashCode(map: ObjectIntMap<GlanceSurface>): Int {
+    private fun placementsHashCode(map: ObjectIntMap<GlanceSurface>): Int {
         var hash = 0
         map.forEach { key, value ->
             hash += (key.hashCode() xor value)
@@ -97,7 +105,7 @@ public class WidgetInstanceInfo(
             "widgetName='$widgetName', " +
             "widgetId='$widgetId', " +
             "options=$options, " +
-            "surfacePlacements=$surfacePlacements" +
+            "placementsPerSurface=$placementsPerSurface" +
             ")"
     }
 }

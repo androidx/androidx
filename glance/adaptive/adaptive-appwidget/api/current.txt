@@ -21,3 +21,18 @@ package androidx.glance.adaptive.appwidget {
 
 }
 
+package androidx.glance.adaptive.appwidget.selection {
+
+  public final class AppWidgetSurface extends androidx.glance.adaptive.core.selection.GlanceSurface {
+    field public static final androidx.glance.adaptive.appwidget.selection.AppWidgetSurface.Companion Companion;
+    field public static final androidx.glance.adaptive.appwidget.selection.AppWidgetSurface MOBILE_HOME_SCREEN;
+    field public static final androidx.glance.adaptive.appwidget.selection.AppWidgetSurface MOBILE_LOCK_SCREEN;
+  }
+
+  public static final class AppWidgetSurface.Companion {
+    property public androidx.glance.adaptive.appwidget.selection.AppWidgetSurface MOBILE_HOME_SCREEN;
+    property public androidx.glance.adaptive.appwidget.selection.AppWidgetSurface MOBILE_LOCK_SCREEN;
+  }
+
+}
+

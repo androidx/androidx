@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.ui.templates.GlanceAdaptiveTemplate
+import androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate
 
 /**
  * Entry point for managing Glance Adaptive widgets.
@@ -95,7 +95,7 @@ constructor(
      *
      * Instances are keyed by their widget instance String identifier. A single identifier can be
      * placed more than once, so each returned [WidgetInstanceInfo] reports how many placements it
-     * has on each host surface through [WidgetInstanceInfo.surfacePlacements].
+     * has on each host surface through [WidgetInstanceInfo.placementsPerSurface].
      *
      * Placements that have not yet been assigned a widget instance String identifier are omitted,
      * as they cannot be targeted by [pushUpdate].
