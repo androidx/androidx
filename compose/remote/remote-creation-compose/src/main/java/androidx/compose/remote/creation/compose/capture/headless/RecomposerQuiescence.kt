@@ -76,6 +76,20 @@ internal fun Recomposer.refreshStateIfIdle(recomposerDispatcher: CoroutineContex
 internal val APPLY_NOTIFICATION_WAIT: Duration = 50.milliseconds
 
 /**
+ * Upper bound on timed-out [awaitApplyObserverNotifications] waits within one
+ * [awaitRecomposerQuiescence] call before it gives up with
+ * [QuiescenceResult.ApplyNotificationsTimedOut].
+ *
+ * [Snapshot.isApplyObserverNotificationPending] is process-wide, so a single wait can time out
+ * without any observer being slow: notifications from several threads (e.g. concurrent captures and
+ * busy writers) can overlap so the count is never seen at zero within [APPLY_NOTIFICATION_WAIT], or
+ * the notifying thread can be descheduled on a loaded host. Retrying rides out such transient
+ * overlap, while still bounding how long a genuinely blocked foreign observer can stall a capture
+ * (about `MAX_APPLY_NOTIFICATION_TIMEOUTS * APPLY_NOTIFICATION_WAIT`).
+ */
+internal const val MAX_APPLY_NOTIFICATION_TIMEOUTS = 10
+
+/**
  * Upper bound on polls in a single [awaitApplyObserverNotifications] call. This is a second bound
  * that does not depend on the time source, so the wait terminates even if the monotonic clock does
  * not advance as expected on some host.
@@ -119,9 +133,10 @@ internal enum class QuiescenceResult {
     ContinuousFrames,
 
     /**
-     * Another thread's apply observer notifications did not complete within
-     * [APPLY_NOTIFICATION_WAIT]. Waiting is abandoned immediately rather than retried, so that a
-     * slow or blocked foreign observer cannot stall the capture for [MAX_IDLE_ITERATIONS] waits.
+     * Apply observer notifications on other threads were still in flight after
+     * [MAX_APPLY_NOTIFICATION_TIMEOUTS] waits of [APPLY_NOTIFICATION_WAIT] each, e.g. a foreign
+     * observer that is slow or blocked. A timed-out wait is retried up to that bound, rather than
+     * for [MAX_IDLE_ITERATIONS] waits, so such an observer stalls the capture for a bounded time.
      */
     ApplyNotificationsTimedOut,
 }
@@ -140,7 +155,8 @@ internal enum class QuiescenceResult {
  *    global writes while its apply observer notifications are still in flight (tracked by
  *    [Snapshot.isApplyObserverNotificationPending]). Until they complete,
  *    [Recomposer.hasPendingWork] cannot yet reflect those writes, so this waits for them to drain
- *    via [awaitApplyObserverNotifications] before sampling.
+ *    via [awaitApplyObserverNotifications] before sampling. A wait that times out is retried as a
+ *    new iteration, up to [maxApplyNotificationTimeouts] times.
  *
  * Limitation of (3): a `MutableSnapshot.apply()` on another thread also claims pending global
  * writes and notifies observers after releasing the global lock, but the runtime does not count
@@ -172,6 +188,9 @@ internal enum class QuiescenceResult {
  *   long-lived host that limits its frame rate wants. Requires the pump to be running
  *   ([HeadlessFrameClock.runClock]). Frames count towards [maxFrames] either way.
  * @param maxFrames the frame budget for this call, see [MAX_FRAMES].
+ * @param maxApplyNotificationTimeouts how many timed-out waits for other threads' apply observer
+ *   notifications this call tolerates before giving up with
+ *   [QuiescenceResult.ApplyNotificationsTimedOut], see [MAX_APPLY_NOTIFICATION_TIMEOUTS].
  */
 internal suspend fun awaitRecomposerQuiescence(
     recomposer: Recomposer,
@@ -181,6 +200,7 @@ internal suspend fun awaitRecomposerQuiescence(
     maxIterations: Int = MAX_IDLE_ITERATIONS,
     pacedFrames: Boolean = false,
     maxFrames: Int = MAX_FRAMES,
+    maxApplyNotificationTimeouts: Int = MAX_APPLY_NOTIFICATION_TIMEOUTS,
 ): QuiescenceResult =
     withContext(recomposerDispatcher) {
         // Yield so continuations queued on recomposerDispatcher (effects started by the last
@@ -198,6 +218,7 @@ internal suspend fun awaitRecomposerQuiescence(
         // animates forever would get MAX_FRAMES frames for every one of maxIterations iterations.
         frameClock.withFrameBudget(maxFrames) {
             var idleIterations = 0
+            var applyNotificationTimeouts = 0
             while (idleIterations < maxIterations) {
                 recomposer.refreshStateIfIdle()
                 awaitIdle(recomposer, frameClock, recomposerDispatcher, shouldYield, pacedFrames)
@@ -215,7 +236,14 @@ internal suspend fun awaitRecomposerQuiescence(
                 }
                 Snapshot.sendApplyNotifications()
                 if (!awaitApplyObserverNotifications(canYield = shouldYield)) {
-                    return@withFrameBudget QuiescenceResult.ApplyNotificationsTimedOut
+                    // Quiescence cannot be sampled while notifications are in flight. Usually
+                    // they are just overlapping notifications from busy threads, so start a new
+                    // iteration (which also re-drains work they may have caused) and wait again.
+                    // Timeouts have their own bound and do not count as unstable iterations.
+                    if (++applyNotificationTimeouts >= maxApplyNotificationTimeouts) {
+                        return@withFrameBudget QuiescenceResult.ApplyNotificationsTimedOut
+                    }
+                    continue
                 }
                 writeTracker.awaitDelivery(canYield = shouldYield)
                 recomposer.refreshStateIfIdle()

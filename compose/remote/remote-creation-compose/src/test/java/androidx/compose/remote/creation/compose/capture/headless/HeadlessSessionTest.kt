@@ -598,4 +598,84 @@ class HeadlessSessionTest {
                 delayingObserver.dispose()
             }
         }
+
+    @Test
+    fun awaitQuiescence_notificationInFlightAcrossSeveralWaits_retriesUntilQuiescent() = runTest {
+        // Released at the start of the third wait, so the first two waits time out.
+        val result = awaitQuiescenceWithNotificationHeldFor(waits = 3)
+
+        assertThat(result.quiescence).isEqualTo(QuiescenceResult.Quiescent)
+        assertThat(result.seen).isEqualTo("delivered")
+        assertThat(result.waits).isEqualTo(3)
+    }
+
+    @Test
+    fun awaitQuiescence_notificationBlockedIndefinitely_timesOutAfterBoundedRetries() = runTest {
+        val result = awaitQuiescenceWithNotificationHeldFor(waits = Int.MAX_VALUE)
+
+        assertThat(result.quiescence).isEqualTo(QuiescenceResult.ApplyNotificationsTimedOut)
+        assertThat(result.waits).isEqualTo(MAX_APPLY_NOTIFICATION_TIMEOUTS)
+    }
+
+    private class HeldNotificationResult(
+        val quiescence: QuiescenceResult,
+        val seen: String,
+        val waits: Int,
+    )
+
+    /**
+     * Settles a session while another thread is inside [Snapshot.sendApplyNotifications], held by
+     * an apply observer until the session starts its [waits]th wait for that notification.
+     */
+    private suspend fun TestScope.awaitQuiescenceWithNotificationHeldFor(
+        waits: Int
+    ): HeldNotificationResult {
+        val text = mutableStateOf("init")
+        val notificationInFlight = CountDownLatch(1)
+        val releaseNotification = CountDownLatch(1)
+        val waitCount = AtomicInteger(0)
+        val notifyingThreadName = "HeadlessSessionTest-HeldNotifier"
+        var notifier: Thread? = null
+        val holdingObserver = Snapshot.registerApplyObserver { changed, _ ->
+            if (text in changed && Thread.currentThread().name == notifyingThreadName) {
+                notificationInFlight.countDown()
+                releaseNotification.await(10, TimeUnit.SECONDS)
+            }
+        }
+        onAwaitingApplyObserverNotifications = {
+            if (notificationInFlight.count == 0L && waitCount.incrementAndGet() >= waits) {
+                releaseNotification.countDown()
+            }
+        }
+        val session = newSession()
+        try {
+            return coroutineScope {
+                session.start(this)
+                session.awaitRunning()
+                var seen = ""
+                val composition = session.setContent {
+                    seen = text.value
+                    LaunchedEffect(Unit) {
+                        text.value = "delivered"
+                        notifier =
+                            Thread({ Snapshot.sendApplyNotifications() }, notifyingThreadName)
+                                .also { it.start() }
+                        assertThat(notificationInFlight.await(5, TimeUnit.SECONDS)).isTrue()
+                    }
+                }
+
+                val quiescence = session.awaitQuiescence()
+
+                session.close()
+                composition.dispose()
+                HeldNotificationResult(quiescence, seen, waitCount.get())
+            }
+        } finally {
+            onAwaitingApplyObserverNotifications = null
+            releaseNotification.countDown()
+            session.close()
+            notifier?.join(5_000)
+            holdingObserver.dispose()
+        }
+    }
 }
