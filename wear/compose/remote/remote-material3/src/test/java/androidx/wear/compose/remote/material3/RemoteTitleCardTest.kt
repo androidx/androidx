@@ -50,7 +50,7 @@ class RemoteTitleCardTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteButton(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     modifier = RemoteModifier.drawWithContent { drawContent() },
                     colors = RemoteButtonDefaults.buttonColors(containerColor = Color.Red.rc),
                 ) {
@@ -74,7 +74,7 @@ class RemoteTitleCardTest {
                 contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteTitleCard(
-                    onClick = RemoteAction.Empty,
+                    onClick = RemoteAction.None,
                     title = { RemoteText("Title".rs) },
                     modifier =
                         RemoteModifier.drawWithContent {

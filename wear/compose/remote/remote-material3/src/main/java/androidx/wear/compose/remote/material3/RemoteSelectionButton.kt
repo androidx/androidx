@@ -124,7 +124,7 @@ internal fun RemoteSelectionButtonImpl(
             // the player's generic click haptic.
             .clickable(
                 onClick = onClick,
-                enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.Empty,
+                enabled = (enabled.constantValueOrNull ?: false) && onClick != RemoteAction.None,
             )
             .padding(contentPadding)
             .semantics(mergeDescendants = true) { this.role = role }

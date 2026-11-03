@@ -77,7 +77,7 @@ fun RemoteOneHandedGestureDemos(modifier: Modifier = Modifier) {
                 RemotePrimaryGestureIndicator(progress = loopingProgress)
             }
             remoteDemoItem("On RemoteButton") {
-                RemoteButton(onClick = RemoteAction.Empty) {
+                RemoteButton(onClick = RemoteAction.None) {
                     RemotePrimaryGestureIndicator(progress = loopingProgress)
                 }
             }

@@ -78,8 +78,8 @@ public fun RemoteStepper(
         RemoteStepperDefaults.IncreaseIcon()
     },
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: RemoteAction = RemoteAction.Empty,
-    increaseAction: RemoteAction = RemoteAction.Empty,
+    decreaseAction: RemoteAction = RemoteAction.None,
+    increaseAction: RemoteAction = RemoteAction.None,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     colors: RemoteStepperColors = RemoteStepperDefaults.stepperColors(),
@@ -194,8 +194,8 @@ public fun RemoteStepper(
         RemoteStepperDefaults.IncreaseIcon()
     },
     modifier: RemoteModifier = RemoteModifier,
-    decreaseAction: RemoteAction = RemoteAction.Empty,
-    increaseAction: RemoteAction = RemoteAction.Empty,
+    decreaseAction: RemoteAction = RemoteAction.None,
+    increaseAction: RemoteAction = RemoteAction.None,
     enabled: RemoteBoolean = true.rb,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     colors: RemoteStepperColors = RemoteStepperDefaults.stepperColors(),

@@ -72,7 +72,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun titleCard_withExplicitWidth_emitsSingleWidthModifier() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteTitleCard(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 title = { RemoteText("Title".rs) },
                 modifier =
                     RemoteModifier.width(172.rdp).semantics {
@@ -91,7 +91,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun appCard_withExplicitWidth_emitsSingleWidthModifier() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteAppCard(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 appName = { RemoteText("App".rs) },
                 title = { RemoteText("Title".rs) },
                 modifier =
@@ -112,7 +112,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun cardAndOutlinedCard_withExplicitSize_emitSingleWidthAndHeightModifiers() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteCard(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 modifier =
                     RemoteModifier.size(172.rdp, 100.rdp).semantics {
                         contentDescription = "card".rs
@@ -121,7 +121,7 @@ class RemoteModifierNonRepeatableModifiersTest {
                 RemoteText("Card".rs)
             }
             RemoteOutlinedCard(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 modifier =
                     RemoteModifier.size(172.rdp, 100.rdp).semantics {
                         contentDescription = "outlinedCard".rs
@@ -146,7 +146,7 @@ class RemoteModifierNonRepeatableModifiersTest {
     fun iconButtonAndSlider_withExplicitSize_emitSingleWidthAndHeightModifiers() {
         val doc = setRemoteContentWithDisplaySize {
             RemoteIconButton(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 modifier =
                     RemoteModifier.size(60.rdp).semantics {
                         contentDescription = "iconButton".rs

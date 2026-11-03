@@ -16,7 +16,7 @@
 //
 // package androidx.compose.remote.integration.view.demos.blog
 // import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-// import androidx.compose.remote.creation.compose.action.RemoteAction.Companion.Empty
+// import androidx.compose.remote.creation.compose.action.RemoteAction
 // import androidx.compose.remote.creation.compose.action.hostAction
 // import androidx.compose.remote.creation.compose.action.valueChangeAction
 // import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -60,7 +60,8 @@
 //
 //    RemoteBox(
 //        modifier =
-//            RemoteModifier.fillMaxSize().background(RemoteColor(Color.White)).onTouchDown(Empty),
+//
+// RemoteModifier.fillMaxSize().background(RemoteColor(Color.White)).onTouchDown(RemoteAction.None),
 //        contentAlignment = RemoteAlignment.Center,
 //    ) {
 //
@@ -280,7 +281,7 @@
 //            RemoteModifier.fillMaxSize().background(RemoteColor(Color.White))
 //    ) {
 //        RemoteCanvas(
-//            modifier = RemoteModifier.fillMaxSize().onTouchDown(Empty)
+//            modifier = RemoteModifier.fillMaxSize().onTouchDown(RemoteAction.None)
 //        ) {
 //            val doc = remoteComposeCreationState.document as RemoteComposeWriterAndroid
 //

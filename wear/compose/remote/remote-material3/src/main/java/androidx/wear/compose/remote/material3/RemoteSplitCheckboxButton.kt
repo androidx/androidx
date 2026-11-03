@@ -143,7 +143,7 @@ public fun RemoteSplitCheckboxButton(
                         onClick = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != RemoteAction.Empty,
+                                onContainerClick != RemoteAction.None,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -201,7 +201,7 @@ public fun RemoteSplitCheckboxButton(
                         onClick = onCheckedChange,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onCheckedChange != RemoteAction.Empty,
+                                onCheckedChange != RemoteAction.None,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

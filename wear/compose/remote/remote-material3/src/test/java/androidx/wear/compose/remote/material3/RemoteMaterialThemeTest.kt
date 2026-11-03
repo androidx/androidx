@@ -91,7 +91,7 @@ class RemoteMaterialThemeTest {
 
         runTest(colorOverrides = mapOf("WearM3.primary" to Color.Yellow)) {
             RemoteMaterialTheme(colorScheme = RemoteColorScheme(ColorScheme())) {
-                RemoteButton(onClick = RemoteAction.Empty) { RemoteText("button_enabled".rs) }
+                RemoteButton(onClick = RemoteAction.None) { RemoteText("button_enabled".rs) }
             }
         }
 

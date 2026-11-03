@@ -118,7 +118,7 @@ class RemoteIconButtonComparisonTest {
                     contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteIconButton(
-                        onClick = RemoteAction.Empty,
+                        onClick = RemoteAction.None,
                         enabled = true.rb,
                         colors = RemoteIconButtonDefaults.filledIconButtonColors(),
                     ) {

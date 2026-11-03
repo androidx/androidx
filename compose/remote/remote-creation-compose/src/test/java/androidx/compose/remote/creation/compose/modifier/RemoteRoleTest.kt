@@ -63,18 +63,18 @@ class RemoteRoleTest {
     @Test
     fun clickableAndCombinedClickable_acceptRemoteRole() {
         val clickableModifier =
-            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = RemoteRole.Checkbox)
+            RemoteModifier.clickable(onClick = RemoteAction.None, role = RemoteRole.Checkbox)
         val clickableComposeRole =
-            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = Role.Checkbox)
+            RemoteModifier.clickable(onClick = RemoteAction.None, role = Role.Checkbox)
         val clickableNullRole =
-            RemoteModifier.clickable(onClick = RemoteAction.Empty, role = null as Role?)
+            RemoteModifier.clickable(onClick = RemoteAction.None, role = null as Role?)
         val combinedModifier =
             RemoteModifier.combinedClickable(
-                onClick = RemoteAction.Empty,
+                onClick = RemoteAction.None,
                 role = RemoteRole.Switch,
             )
         val combinedNullRole =
-            RemoteModifier.combinedClickable(onClick = RemoteAction.Empty, role = null)
+            RemoteModifier.combinedClickable(onClick = RemoteAction.None, role = null)
         assertThat(clickableModifier).isNotEqualTo(RemoteModifier)
         assertThat(clickableComposeRole).isEqualTo(clickableModifier)
         assertThat(clickableNullRole).isEqualTo(RemoteModifier)
@@ -107,9 +107,9 @@ class RemoteRoleTest {
 
         for ((composeRole, remoteRole, accessibleRole) in mappings) {
             val modWithRemoteRole =
-                RemoteModifier.clickable(onClick = RemoteAction.Empty, role = remoteRole)
+                RemoteModifier.clickable(onClick = RemoteAction.None, role = remoteRole)
             val modWithComposeRole =
-                RemoteModifier.clickable(onClick = RemoteAction.Empty, role = composeRole)
+                RemoteModifier.clickable(onClick = RemoteAction.None, role = composeRole)
             assertThat(modWithComposeRole).isEqualTo(modWithRemoteRole)
             assertThat(remoteRole.toAccessibleRole()).isEqualTo(accessibleRole)
         }

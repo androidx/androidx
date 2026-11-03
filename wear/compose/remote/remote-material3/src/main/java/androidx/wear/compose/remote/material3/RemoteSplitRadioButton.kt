@@ -140,7 +140,7 @@ public fun RemoteSplitRadioButton(
                         onClick = onContainerClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onContainerClick != RemoteAction.Empty,
+                                onContainerClick != RemoteAction.None,
                     )
                     .drawWithContent {
                         drawSolidColorShape(startSectionShape, containerColor)
@@ -198,7 +198,7 @@ public fun RemoteSplitRadioButton(
                         onClick = onSelectionClick,
                         enabled =
                             (enabled.constantValueOrNull ?: false) &&
-                                onSelectionClick != RemoteAction.Empty,
+                                onSelectionClick != RemoteAction.None,
                     )
                     .drawWithContent {
                         drawSolidColorShape(

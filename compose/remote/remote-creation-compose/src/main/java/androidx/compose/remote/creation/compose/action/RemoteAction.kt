@@ -27,8 +27,7 @@ public interface RemoteAction {
     public fun RemoteStateScope.toRemoteAction(): CreationAction
 
     public companion object {
-        /** A placeholder empty action. */
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public val Empty: RemoteAction = combinedAction()
+        /** A [RemoteAction] that performs no operation when invoked. */
+        public val None: RemoteAction = combinedAction()
     }
 }

@@ -65,4 +65,20 @@ class CombinedActionTest {
 
         assertThat(recordedWrites).containsExactly("action1", "action2").inOrder()
     }
+
+    @Test
+    fun none_writesWithoutActions() {
+        val remoteAction = with(RemoteAction.None) { testStateScope.toRemoteAction() }
+        val writer =
+            RemoteComposeWriter(
+                CreationDisplayInfo(100, 100, 160),
+                null,
+                RcPlatformProfiles.ANDROIDX,
+                null,
+            )
+
+        remoteAction.write(writer)
+
+        assertThat(RemoteAction.None).isSameInstanceAs(RemoteAction.None)
+    }
 }
