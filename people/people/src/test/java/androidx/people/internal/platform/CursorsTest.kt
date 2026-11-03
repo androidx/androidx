@@ -55,7 +55,7 @@ class CursorsTest {
                 personRow("p1", PKG, "Alice", EMAIL, "a@example.com"),
             )
 
-        val match = cursor.toPersonMatches().single()
+        val match = cursor.use { it.toPersonMatches().single() }
         assertThat(match.person.id).isEqualTo(PersonId("p1", PKG))
         assertThat(match.criteria).containsExactly(phone1, email).inOrder()
     }
@@ -68,7 +68,7 @@ class CursorsTest {
                 personRow("p1", OTHER_PKG, "Alice", PHONE, "+1"),
             )
 
-        val matches = cursor.toPersonMatches()
+        val matches = cursor.use { it.toPersonMatches() }
 
         assertThat(matches.map { it.person.id })
             .containsExactly(PersonId("p1", PKG), PersonId("p1", OTHER_PKG))
@@ -83,7 +83,7 @@ class CursorsTest {
                 personRow("p2", PKG, "Bob", EMAIL, "b@example.com"),
             )
 
-        val matches = cursor.toPersonMatches().toList()
+        val matches = cursor.use { it.toPersonMatches().toList() }
 
         assertThat(matches.map { it.person.id.lookupKey }).containsExactly("p2", "p1").inOrder()
         assertThat(matches[0].criteria)
@@ -102,17 +102,17 @@ class CursorsTest {
                 extras = unhandledExtras(unhandled)
             }
 
-        assertThat(cursor.unhandledPersonQuery()).isEqualTo(unhandled)
+        cursor.use { assertThat(it.unhandledPersonQuery()).isEqualTo(unhandled) }
     }
 
     @Test
     fun unhandledPersonQuery_withoutExtras_isEmpty() {
-        assertThat(personsCursor().unhandledPersonQuery().isEmpty()).isTrue()
+        personsCursor().use { assertThat(it.unhandledPersonQuery().isEmpty()).isTrue() }
     }
 
     @Test
     fun toPersonMatches_emptyCursor_returnsNoMatches() {
-        assertThat(personsCursor().toPersonMatches()).isEmpty()
+        personsCursor().use { assertThat(it.toPersonMatches()).isEmpty() }
     }
 
     @Test
@@ -134,11 +134,12 @@ class CursorsTest {
                 addGroupLookupKeys("g1")
             }
 
-        val cursor = original.toCursor(PKG, projection = null, query.criteriaFor(PKG))
-
-        assertThat(cursor.toPersonMatches())
-            .containsExactly(PersonMatch(alice, criteria), PersonMatch(bob, setOf(phone2)))
-        assertThat(cursor.unhandledPersonQuery()).isEqualTo(personQuery(PKG) { addPhones("+3") })
+        original.toCursor(PKG, projection = null, query.criteriaFor(PKG)).use { cursor ->
+            assertThat(cursor.toPersonMatches())
+                .containsExactly(PersonMatch(alice, criteria), PersonMatch(bob, setOf(phone2)))
+            assertThat(cursor.unhandledPersonQuery())
+                .isEqualTo(personQuery(PKG) { addPhones("+3") })
+        }
     }
 
     @Test
@@ -150,13 +151,15 @@ class CursorsTest {
 
         val cursor = original.toCursor(PKG, projection = null, askedCriteria = setOf(phone1, email))
 
-        assertThat(cursor.count).isEqualTo(1)
-        assertThat(
-                cursor.extras
-                    .getBundle(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES)
-                    .personCriteriaByPackage()
-            )
-            .containsExactly(PKG, setOf(email))
+        cursor.use {
+            assertThat(it.count).isEqualTo(1)
+            assertThat(
+                    it.extras
+                        .getBundle(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES)
+                        .personCriteriaByPackage()
+                )
+                .containsExactly(PKG, setOf(email))
+        }
     }
 
     @Test
@@ -166,8 +169,10 @@ class CursorsTest {
         }
             .toCursor(PKG, projection = null, askedCriteria = setOf(phone1))
 
-        assertThat(cursor.extras.containsKey(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES))
-            .isFalse()
+        cursor.use {
+            assertThat(it.extras.containsKey(PeopleContractCompat.EXTRA_UNHANDLED_QUERIES))
+                .isFalse()
+        }
     }
 
     @Test
@@ -178,13 +183,15 @@ class CursorsTest {
                 addRow(arrayOf("g1", "Family", GROUP_LOOKUP_KEY, "G1", PKG))
             }
 
-        assertThat(cursor.toGroupMatches())
-            .containsExactly(
-                GroupMatch(
-                    Group(id = GroupId("g1", PKG), displayName = "Family"),
-                    setOf(Criterion.GroupLookupKey("g1"), Criterion.GroupLookupKey("G1")),
+        cursor.use {
+            assertThat(it.toGroupMatches())
+                .containsExactly(
+                    GroupMatch(
+                        Group(id = GroupId("g1", PKG), displayName = "Family"),
+                        setOf(Criterion.GroupLookupKey("g1"), Criterion.GroupLookupKey("G1")),
+                    )
                 )
-            )
+        }
     }
 
     @Test
@@ -198,10 +205,11 @@ class CursorsTest {
         }
         val query = groupQuery(PKG) { addLookupKeys("g1", "g2") }
 
-        val cursor = original.toCursor(PKG, projection = null, query.criteriaFor(PKG))
-
-        assertThat(cursor.toGroupMatches()).containsExactly(GroupMatch(family, setOf(g1)))
-        assertThat(cursor.unhandledGroupQuery()).isEqualTo(groupQuery(PKG) { addLookupKeys("g2") })
+        original.toCursor(PKG, projection = null, query.criteriaFor(PKG)).use { cursor ->
+            assertThat(cursor.toGroupMatches()).containsExactly(GroupMatch(family, setOf(g1)))
+            assertThat(cursor.unhandledGroupQuery())
+                .isEqualTo(groupQuery(PKG) { addLookupKeys("g2") })
+        }
     }
 
     @Test
@@ -245,36 +253,38 @@ class CursorsTest {
             )
         )
 
-        assertThat(cursor.toPersonMatches())
-            .containsExactly(
-                PersonMatch(
-                    Person(
-                        id = PersonId("lookup_1", PKG),
-                        displayName = "Alice",
-                        photoUri = Uri.parse("https://example.com/alice.jpg"),
-                        capabilities = setOf(Capability.VOICE, Capability.VIDEO),
-                        isKnown = true,
+        cursor.use {
+            assertThat(it.toPersonMatches())
+                .containsExactly(
+                    PersonMatch(
+                        Person(
+                            id = PersonId("lookup_1", PKG),
+                            displayName = "Alice",
+                            photoUri = Uri.parse("https://example.com/alice.jpg"),
+                            capabilities = setOf(Capability.VOICE, Capability.VIDEO),
+                            isKnown = true,
+                        ),
+                        setOf(phone1),
                     ),
-                    setOf(phone1),
-                ),
-                PersonMatch(
-                    Person(
-                        id = PersonId("lookup_2", OTHER_PKG),
-                        displayName = "Bob",
-                        photoUri = null,
-                        capabilities = setOf(Capability.MESSAGE),
-                        isKnown = false,
+                    PersonMatch(
+                        Person(
+                            id = PersonId("lookup_2", OTHER_PKG),
+                            displayName = "Bob",
+                            photoUri = null,
+                            capabilities = setOf(Capability.MESSAGE),
+                            isKnown = false,
+                        ),
+                        setOf(Criterion.Email("bob@example.com")),
                     ),
-                    setOf(Criterion.Email("bob@example.com")),
-                ),
-            )
+                )
+        }
     }
 
     @Test
     fun toPersonMatches_missingAContractColumn_throws() {
         val cursor = MatrixCursor(arrayOf(PeopleContractCompat.Persons.LOOKUP_KEY))
 
-        assertThrows(IllegalArgumentException::class.java) { cursor.toPersonMatches() }
+        cursor.use { assertThrows(IllegalArgumentException::class.java) { it.toPersonMatches() } }
     }
 
     @Test
@@ -289,7 +299,7 @@ class CursorsTest {
         cursor.addRow(arrayOf<Any?>("com.example.voip", "com.example.voip.people"))
         cursor.addRow(arrayOf<Any?>("com.example.chat", "com.example.chat.people"))
 
-        val result = cursor.toDirectories()
+        val result = cursor.use { it.toDirectories() }
 
         assertThat(result.map { it.packageName })
             .containsExactly("com.example.voip", "com.example.chat")
