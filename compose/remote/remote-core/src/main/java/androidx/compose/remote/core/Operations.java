@@ -173,6 +173,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.RippleModifierOp
 import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.RunActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatChangeActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueFloatExpressionChangeActionOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ValueIntegerChangeActionOperation;
@@ -683,6 +684,8 @@ public class Operations {
         customMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation2::read);
         customMap.remove(Operations.TOUCH_EXPRESSION);
         customMap.put(Operations.TOUCH_EXPRESSION, TouchExpressionOperation2::read);
+        customMap.remove(Operations.MODIFIER_SCROLL);
+        customMap.put(Operations.MODIFIER_SCROLL, ScrollModifierOperation2::read);
         return customMap;
     }
 

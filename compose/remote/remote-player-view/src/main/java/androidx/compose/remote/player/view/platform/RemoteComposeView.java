@@ -904,12 +904,18 @@ public class RemoteComposeView extends FrameLayout
         }
 
         int eventStatus = mPointerInputManager.dispatchTouchEvent(mARContext, mDocument, event);
-        if ((eventStatus & PointerInputRouter.POINTER_STATUS_CONSUMED) != 0) {
+        // Like Compose, claim the stream whenever it reached a pointer handler, even if nothing
+        // consumed it yet: a scroll container observes the down without consuming it and would
+        // otherwise never see the subsequent moves.
+        boolean handled =
+                (eventStatus
+                                & (PointerInputRouter.POINTER_STATUS_CONSUMED
+                                        | PointerInputRouter.POINTER_STATUS_DISPATCHED))
+                        != 0;
+        if (handled) {
             invalidate();
-            return true;
-        } else {
-            return false;
         }
+        return handled;
     }
 
     @Override

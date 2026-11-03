@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,14 @@ package androidx.compose.remote.core.operations.layout.modifiers;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.input.PointerInputRouter.EVENT_TYPE_POINTER;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_PASS_MAIN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_STATUS_NOT_CONSUMED;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_CANCEL;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_DOWN;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_MOVE;
+import static androidx.compose.remote.core.input.PointerInputRouter.POINTER_SUBTYPE_UP;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
@@ -31,15 +39,15 @@ import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
-import androidx.compose.remote.core.operations.TouchExpression;
+import androidx.compose.remote.core.events.Event;
+import androidx.compose.remote.core.events.EventHandler;
+import androidx.compose.remote.core.input.MetadataUtil;
+import androidx.compose.remote.core.operations.TouchExpressionOperation2;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
-import androidx.compose.remote.core.operations.layout.DecoratorComponent;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.ListActionsOperation;
 import androidx.compose.remote.core.operations.layout.ScrollDelegate;
-import androidx.compose.remote.core.operations.layout.TouchHandler;
-import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -50,72 +58,100 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-/** Represents a scroll modifier. */
+/**
+ * Scroll modifier dispatched through the unified pointer input router.
+ *
+ * <p>Shares the opcode and wire format of {@link ScrollModifierOperation} and offers the same
+ * layout-facing API (scroll dimensions, {@link ScrollDelegate}) and accessibility semantics
+ * ({@link ScrollableComponent}), but detects the drag through the {@link EventHandler} interface
+ * and drives a nested {@link TouchExpressionOperation2}.
+ *
+ * <p>Gesture detection follows {@code Modifier.scrollable} in Compose and runs in the <em>main</em>
+ * (bubbling) pass:
+ *
+ * <ul>
+ *   <li>{@code DOWN} is tracked whether or not a child consumed it, and is never consumed by the
+ *       scroll modifier itself.
+ *   <li>{@code MOVE} is consumed once the pointer travels beyond the touch slop along the scroll
+ *       axis. Because children run before their parent in the main pass, they observe this
+ *       consumption in the <em>final</em> pass of the same event and cancel their gesture (see
+ *       {@code ClickModifierOperation2}). A move that reaches the modifier already consumed (by a
+ *       child slider, an inner scroll container, or an ancestor in the initial pass) cancels the
+ *       scroll instead, so the innermost scrollable wins.
+ *   <li>{@code UP} / {@code CANCEL} are consumed only if a scroll was in progress.
+ * </ul>
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ScrollModifierOperation2 extends ListActionsOperation
-        implements TouchHandler,
-                DecoratorComponent,
-                ScrollDelegate,
-                VariableSupport,
-                ScrollableComponent {
+        implements ScrollDelegate, VariableSupport, EventHandler, ScrollableComponent {
     private static final int OP_CODE = Operations.MODIFIER_SCROLL;
     public static final String CLASS_NAME = "ScrollModifierOperation";
 
-    private float mPositionExpression;
-    private float mMax;
-    private float mNotchMax;
+    private static final int NO_POINTER = -1;
 
-    int mDirection;
+    /** Wire value of {@code direction} for a vertical scroll (anything else is horizontal). */
+    private static final int DIRECTION_VERTICAL_VALUE = 0;
 
-    boolean mTouchDown;
-    float mTouchDownX;
-    float mTouchDownY;
+    // ---------------------------------------------------------------------------------------
+    // Wire format
+    // ---------------------------------------------------------------------------------------
+    private final int mDirection;
+    private final float mPositionExpression;
+    private final float mMax;
+    private final float mNotchMax;
 
-    float mLastTouchX;
-    float mLastTouchY;
+    // ---------------------------------------------------------------------------------------
+    // Layout state
+    // ---------------------------------------------------------------------------------------
+    private float mScrollX;
+    private float mScrollY;
+    private float mMaxScrollX;
+    private float mMaxScrollY;
+    private float mHostDimension;
+    private float mContentDimension;
 
-    float mInitialScrollX;
-    float mInitialScrollY;
+    private @Nullable TouchExpressionOperation2 mTouchExpression;
+    private @Nullable Component mComponent;
+    private @Nullable ScrollingEdgeEffect mEdgeEffectA;
+    private @Nullable ScrollingEdgeEffect mEdgeEffectB;
 
-    float mScrollX;
-    float mScrollY;
-
-    float mMaxScrollX;
-    float mMaxScrollY;
-
-    float mHostDimension;
-    float mContentDimension;
-
-    private TouchExpression mTouchExpression;
-    private ScrollingEdgeEffect mEdgeEffectA;
-    private ScrollingEdgeEffect mEdgeEffectB;
+    // ---------------------------------------------------------------------------------------
+    // Gesture state
+    // ---------------------------------------------------------------------------------------
+    private int mPointerId = NO_POINTER;
+    private boolean mScrolling;
+    private float mDownX;
+    private float mDownY;
+    private float mLastX;
+    private float mLastY;
+    private float mInitialScrollX;
+    private float mInitialScrollY;
 
     public ScrollModifierOperation2(int direction, float position, float max, float notchMax) {
         super("SCROLL_MODIFIER");
-        this.mDirection = direction;
-        this.mPositionExpression = position;
-        this.mMax = max;
-        this.mNotchMax = notchMax;
+        mDirection = direction;
+        mPositionExpression = position;
+        mMax = max;
+        mNotchMax = notchMax;
     }
 
     /**
-     * Inflate the operation
+     * Inflate the operation: binds the hosting component and finds the nested touch expression.
      *
-     * @param component
+     * @param component the component this modifier is attached to
      */
     public void inflate(@NonNull Component component) {
+        mComponent = component;
         for (Operation op : mList) {
-            if (op instanceof TouchExpression) {
-                mTouchExpression = (TouchExpression) op;
-                mTouchExpression.setComponent(component);
+            if (op instanceof TouchExpressionOperation2) {
+                mTouchExpression = (TouchExpressionOperation2) op;
             }
         }
     }
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
-        // We do not need to call mTouchExpression.registerListening here,
-        // as it's already in the component's mList and will be registered there.
+        // The nested touch expression is registered through the container recursion.
     }
 
     @Override
@@ -125,18 +161,22 @@ public class ScrollModifierOperation2 extends ListActionsOperation
         }
     }
 
+    /** Returns true if this modifier scrolls vertically. */
     public boolean isVerticalScroll() {
-        return mDirection == 0;
+        return mDirection == DIRECTION_VERTICAL_VALUE;
     }
 
+    /** Returns true if this modifier scrolls horizontally. */
     public boolean isHorizontalScroll() {
-        return mDirection != 0;
+        return mDirection != DIRECTION_VERTICAL_VALUE;
     }
 
+    /** Returns the current horizontal scroll offset (negative when scrolled right). */
     public float getScrollX() {
         return mScrollX;
     }
 
+    /** Returns the current vertical scroll offset (negative when scrolled down). */
     public float getScrollY() {
         return mScrollY;
     }
@@ -146,12 +186,6 @@ public class ScrollModifierOperation2 extends ListActionsOperation
         apply(buffer, mDirection, mPositionExpression, mMax, mNotchMax);
     }
 
-    /**
-     * Serialize the string
-     *
-     * @param indent padding to display
-     * @param serializer append the string
-     */
     @Override
     public void serializeToString(int indent, @NonNull StringSerializer serializer) {
         serializer.append(indent, "SCROLL = [" + mDirection + "]");
@@ -172,8 +206,7 @@ public class ScrollModifierOperation2 extends ListActionsOperation
             return;
         }
         float position = context.getContext().getFloat(Utils.idFromNan(mPositionExpression));
-
-        if (mDirection == 0) {
+        if (isVerticalScroll()) {
             mScrollY = -Math.min(mMaxScrollY, position);
         } else {
             mScrollX = -Math.min(mMaxScrollX, position);
@@ -182,7 +215,7 @@ public class ScrollModifierOperation2 extends ListActionsOperation
 
     @Override
     public String toString() {
-        return "ScrollModifierOperation(" + mDirection + ")";
+        return "ScrollModifierOperation2(" + mDirection + ")";
     }
 
     /**
@@ -205,7 +238,8 @@ public class ScrollModifierOperation2 extends ListActionsOperation
     }
 
     /**
-     * Write the operation to the buffer
+     * Write the operation to the buffer. The wire format is identical to {@link
+     * ScrollModifierOperation}.
      *
      * @param buffer a WireBuffer
      * @param direction direction of the scroll (HORIZONTAL, VERTICAL)
@@ -251,17 +285,12 @@ public class ScrollModifierOperation2 extends ListActionsOperation
                 .field(FLOAT, "notchMax", "The maximum notch position");
     }
 
-    private float getMaxScrollPosition(@NonNull Component component, int direction) {
+    private float getMaxScrollPosition(@NonNull Component component) {
         if (component instanceof LayoutComponent) {
-            LayoutComponent layoutComponent = (LayoutComponent) component;
-            int numChildren = layoutComponent.getChildrenComponents().size();
-            if (numChildren > 0) {
-                Component lastChild = layoutComponent.getChildrenComponents().get(numChildren - 1);
-                if (direction == 0) { // VERTICAL
-                    return lastChild.getY();
-                } else {
-                    return lastChild.getX();
-                }
+            List<Component> children = ((LayoutComponent) component).getChildrenComponents();
+            if (!children.isEmpty()) {
+                Component lastChild = children.get(children.size() - 1);
+                return isVerticalScroll() ? lastChild.getY() : lastChild.getX();
             }
         }
         return 0f;
@@ -273,14 +302,12 @@ public class ScrollModifierOperation2 extends ListActionsOperation
             @NonNull Component component,
             float width,
             float height) {
+        mComponent = component;
         mWidth = width;
         mHeight = height;
-        float max = mMaxScrollY;
-        if (mDirection != 0) { // HORIZONTAL
-            max = mMaxScrollX;
-        }
+        float max = isVerticalScroll() ? mMaxScrollY : mMaxScrollX;
         if (mTouchExpression != null) {
-            float maxScrollPosition = getMaxScrollPosition(component, mDirection);
+            float maxScrollPosition = getMaxScrollPosition(component);
             if (maxScrollPosition > 0) {
                 max = Math.min(maxScrollPosition, max);
             }
@@ -295,101 +322,176 @@ public class ScrollModifierOperation2 extends ListActionsOperation
         }
     }
 
+    /**
+     * Returns whether this handler matches the given event type.
+     *
+     * @param eventType event type identifier
+     * @return true if event is a pointer event
+     */
     @Override
-    public boolean onTouchDown(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        mTouchDown = true;
-        mTouchDownX = x;
-        mTouchDownY = y;
+    public boolean matchesEvent(int eventType) {
+        return eventType == EVENT_TYPE_POINTER;
+    }
+
+    /**
+     * Handles a pointer event in the main pass and scrolls once the touch slop is exceeded.
+     *
+     * <p>Event data layout: {@code [pointerId, localX, localY, velocityX, velocityY]}.
+     *
+     * @param context current remote context
+     * @param document document containing this component
+     * @param event pointer event being dispatched
+     * @return status indicating whether the event was consumed
+     */
+    @Override
+    public int onEvent(
+            @NonNull RemoteContext context, @NonNull CoreDocument document, @NonNull Event event) {
+        int metadata = event.getMetadata();
+        if (MetadataUtil.unpackPass(metadata) != POINTER_PASS_MAIN) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        float[] data = event.getData();
+        Component component = mComponent;
+        if (data == null || data.length < 3 || component == null) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        int pointerId = (int) data[0];
+        float x = data[1];
+        float y = data[2];
+        boolean consumed = MetadataUtil.unpackConsumed(metadata) == POINTER_STATUS_CONSUMED;
+
+        switch (MetadataUtil.unpackSubtype(metadata)) {
+            case POINTER_SUBTYPE_DOWN:
+                return onDown(context, pointerId, x, y);
+            case POINTER_SUBTYPE_MOVE:
+                return onMove(context, component, pointerId, x, y, consumed);
+            case POINTER_SUBTYPE_UP:
+                float velocityX = data.length > 4 ? data[3] : 0f;
+                float velocityY = data.length > 4 ? data[4] : 0f;
+                return onUp(context, component, pointerId, x, y, velocityX, velocityY);
+            case POINTER_SUBTYPE_CANCEL:
+                return onCancel(context, pointerId, x, y);
+            default:
+                return POINTER_STATUS_NOT_CONSUMED;
+        }
+    }
+
+    private int onDown(@NonNull RemoteContext context, int pointerId, float x, float y) {
+        if (isTracking()) {
+            // Second pointer: ignore.
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        // Track the pointer even if a child consumed the down (Compose: requireUnconsumed =
+        // false), so that a drag starting on a button still scrolls the list.
+        mPointerId = pointerId;
+        mScrolling = false;
+        mDownX = mLastX = x;
+        mDownY = mLastY = y;
         mInitialScrollX = mScrollX;
         mInitialScrollY = mScrollY;
-        if (mTouchExpression != null) {
-            mTouchExpression.updateVariables(context);
-            if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-                mTouchExpression.touchDown(context, x, y);
-            } else {
-                mTouchExpression.touchDown(context, x + mScrollX, y + mScrollY);
-            }
-        }
-        mLastTouchX = x;
-        mLastTouchY = y;
-        document.appliedTouchOperation(component);
         if (mEdgeEffectA != null) {
             mEdgeEffectA.reset();
         }
         if (mEdgeEffectB != null) {
             mEdgeEffectB.reset();
         }
-        return true;
+        if (mTouchExpression != null) {
+            // Stops any in-flight fling immediately, like Views and Compose.
+            mTouchExpression.onPointerDown(context, x, y);
+        }
+        // Never consume the down: it is not ours until the slop is crossed.
+        return POINTER_STATUS_NOT_CONSUMED;
     }
 
-    @Override
-    public boolean onTouchUp(
+    private int onMove(
             @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
             @NonNull Component component,
+            int pointerId,
             float x,
             float y,
-            float dx,
-            float dy) {
-        boolean handled = mTouchDown;
-        mTouchDown = false;
-        if (mTouchExpression != null) {
-            mTouchExpression.updateVariables(context);
-            if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-                mTouchExpression.touchUp(context, x, y, dx, dy);
-            } else {
-                mTouchExpression.touchUp(context, x + mScrollX, y + mScrollY, dx, dy);
+            boolean consumed) {
+        if (!isTracking(pointerId)) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        if (consumed) {
+            // A child (slider, inner scroll container) or an ancestor in the initial pass owns
+            // the drag now.
+            cancelGesture(context, x, y);
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        if (!mScrolling) {
+            float mainAxisDelta = isVerticalScroll() ? y - mDownY : x - mDownX;
+            if (Math.abs(mainAxisDelta) <= context.getTouchSlop()) {
+                return POINTER_STATUS_NOT_CONSUMED;
             }
+            mScrolling = true;
+            // Re-anchor the drag at the current position so the content doesn't jump by the
+            // slop distance on the first scrolled frame.
+            mDownX = mLastX = x;
+            mDownY = mLastY = y;
+            mInitialScrollX = mScrollX;
+            mInitialScrollY = mScrollY;
+            if (mTouchExpression != null) {
+                mTouchExpression.onPointerDown(context, x, y);
+            }
+            return POINTER_STATUS_CONSUMED;
         }
-        if (mEdgeEffectA != null) {
-            mEdgeEffectA.release();
-        }
-        if (mEdgeEffectB != null) {
-            mEdgeEffectB.release();
-        }
-        component.invalidateMeasure();
-        return handled;
+        drag(context, component, x, y);
+        return POINTER_STATUS_CONSUMED;
     }
 
-    @Override
-    public boolean onTouchDrag(
+    private int onUp(
             @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
             @NonNull Component component,
+            int pointerId,
             float x,
-            float y) {
-        mTouchDown = true;
-        if (mTouchExpression != null) {
-            mTouchExpression.updateVariables(context);
-            if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
-                mTouchExpression.touchDrag(context, x, y);
-            } else {
-                mTouchExpression.touchDrag(context, x + mScrollX, y + mScrollY);
-            }
+            float y,
+            float velocityX,
+            float velocityY) {
+        if (!isTracking(pointerId)) {
+            return POINTER_STATUS_NOT_CONSUMED;
         }
-        float dx = x - mTouchDownX;
-        float dy = y - mTouchDownY;
+        boolean wasScrolling = mScrolling;
+        if (mTouchExpression != null) {
+            mTouchExpression.onPointerUp(context, x, y, velocityX, velocityY);
+        }
+        releaseEdgeEffects(context);
+        component.invalidateMeasure();
+        endGesture();
+        return wasScrolling ? POINTER_STATUS_CONSUMED : POINTER_STATUS_NOT_CONSUMED;
+    }
 
-        float edx = x - mLastTouchX;
-        float edy = y - mLastTouchY;
+    private int onCancel(@NonNull RemoteContext context, int pointerId, float x, float y) {
+        if (!isTracking(pointerId)) {
+            return POINTER_STATUS_NOT_CONSUMED;
+        }
+        boolean wasScrolling = mScrolling;
+        cancelGesture(context, x, y);
+        return wasScrolling ? POINTER_STATUS_CONSUMED : POINTER_STATUS_NOT_CONSUMED;
+    }
 
-        mLastTouchX = x;
-        mLastTouchY = y;
+    private void drag(
+            @NonNull RemoteContext context, @NonNull Component component, float x, float y) {
+        if (mTouchExpression != null) {
+            mTouchExpression.onPointerMove(context, x, y);
+        }
+        float dx = x - mDownX;
+        float dy = y - mDownY;
+        float edx = x - mLastX;
+        float edy = y - mLastY;
+        mLastX = x;
+        mLastY = y;
 
         if (!Utils.isVariable(mPositionExpression)) {
-            if (mDirection == 0) {
+            // No touch expression drives the position: scroll directly.
+            if (isVerticalScroll()) {
                 mScrollY = Math.max(-mMaxScrollY, Math.min(0, mInitialScrollY + dy));
             } else {
                 mScrollX = Math.max(-mMaxScrollX, Math.min(0, mInitialScrollX + dx));
             }
         }
 
-        if (mDirection == 0) {
+        if (isVerticalScroll()) {
             if (mEdgeEffectA != null && mScrollY == 0 && edy > 0) {
                 mEdgeEffectA.pull(edy, component.getHeight());
             }
@@ -405,18 +507,17 @@ public class ScrollModifierOperation2 extends ListActionsOperation
             }
         }
         component.invalidateMeasure();
-        return true;
     }
 
-    @Override
-    public boolean onTouchCancel(
-            @NonNull RemoteContext context,
-            @NonNull CoreDocument document,
-            @NonNull Component component,
-            float x,
-            float y) {
-        boolean handled = mTouchDown;
-        mTouchDown = false;
+    private void cancelGesture(@NonNull RemoteContext context, float x, float y) {
+        if (mTouchExpression != null) {
+            mTouchExpression.onPointerCancel(context, x, y);
+        }
+        releaseEdgeEffects(context);
+        endGesture();
+    }
+
+    private void releaseEdgeEffects(@NonNull RemoteContext context) {
         if (mEdgeEffectA != null) {
             mEdgeEffectA.release();
             context.needsRepaint();
@@ -425,7 +526,28 @@ public class ScrollModifierOperation2 extends ListActionsOperation
             mEdgeEffectB.release();
             context.needsRepaint();
         }
-        return handled;
+    }
+
+    private void endGesture() {
+        mPointerId = NO_POINTER;
+        mScrolling = false;
+    }
+
+    private boolean isTracking() {
+        return mPointerId != NO_POINTER;
+    }
+
+    private boolean isTracking(int pointerId) {
+        return isTracking() && mPointerId == pointerId;
+    }
+
+    /**
+     * Returns whether a scroll drag is currently in progress.
+     *
+     * @return true once the pointer has moved beyond the touch slop and until it is lifted
+     */
+    public boolean isScrolling() {
+        return mScrolling;
     }
 
     /**
@@ -452,34 +574,29 @@ public class ScrollModifierOperation2 extends ListActionsOperation
         mMaxScrollY = Math.max(0, contentDimension - hostDimension);
     }
 
+    /** Returns the content dimension along the scroll axis. */
     public float getContentDimension() {
         return mContentDimension;
     }
 
     @Override
     public float getScrollX(float currentValue) {
-        if (mDirection == 1) {
-            return mScrollX;
-        }
-        return 0f;
+        return isHorizontalScroll() ? mScrollX : 0f;
     }
 
     @Override
     public float getScrollY(float currentValue) {
-        if (mDirection == 0) {
-            return mScrollY;
-        }
-        return 0f;
+        return isVerticalScroll() ? mScrollY : 0f;
     }
 
     @Override
     public boolean handlesHorizontalScroll() {
-        return mDirection == 1;
+        return isHorizontalScroll();
     }
 
     @Override
     public boolean handlesVerticalScroll() {
-        return mDirection == 0;
+        return isVerticalScroll();
     }
 
     @Override
@@ -491,20 +608,20 @@ public class ScrollModifierOperation2 extends ListActionsOperation
     public void applyEdgeEffect(
             @NonNull PaintContext context, @NonNull Component component, int phase) {
         if (mEdgeEffectA == null) {
-            if (mDirection == 0) {
+            if (isVerticalScroll()) {
                 mEdgeEffectA = context.getContext().createEdgeEffect(ScrollingEdgeEffect.TOP);
                 if (mEdgeEffectA != null) {
                     mEdgeEffectA.setSize(mWidth, mContentDimension);
                 }
             } else {
                 mEdgeEffectA = context.getContext().createEdgeEffect(ScrollingEdgeEffect.LEFT);
-                if (mEdgeEffectB != null) {
+                if (mEdgeEffectA != null) {
                     mEdgeEffectA.setSize(mContentDimension, mHeight);
                 }
             }
         }
         if (mEdgeEffectB == null) {
-            if (mDirection == 0) {
+            if (isVerticalScroll()) {
                 mEdgeEffectB = context.getContext().createEdgeEffect(ScrollingEdgeEffect.BOTTOM);
                 if (mEdgeEffectB != null) {
                     mEdgeEffectB.setSize(mWidth, mContentDimension);
@@ -526,25 +643,19 @@ public class ScrollModifierOperation2 extends ListActionsOperation
 
     @Override
     public float contentWidth() {
-        if (mDirection == 1) {
-            return mContentDimension;
-        }
-        return mWidth;
+        return isHorizontalScroll() ? mContentDimension : mWidth;
     }
 
     @Override
     public float contentHeight() {
-        if (mDirection == 0) {
-            return mContentDimension;
-        }
-        return mHeight;
+        return isVerticalScroll() ? mContentDimension : mHeight;
     }
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
         serializer
                 .addTags(SerializeTags.MODIFIER)
-                .addType("ScrollModifierOperation")
+                .addType(CLASS_NAME)
                 .add("direction", mDirection)
                 .add("max", mMax)
                 .add("notchMax", mNotchMax)
@@ -556,19 +667,17 @@ public class ScrollModifierOperation2 extends ListActionsOperation
 
     @Override
     public int scrollDirection() {
-        if (handlesVerticalScroll()) {
-            return ScrollableComponent.SCROLL_VERTICAL;
-        } else {
-            return ScrollableComponent.SCROLL_HORIZONTAL;
-        }
+        return isVerticalScroll()
+                ? ScrollableComponent.SCROLL_VERTICAL
+                : ScrollableComponent.SCROLL_HORIZONTAL;
     }
 
     @Override
     public int scrollByOffset(@NonNull RemoteContext context, int offset) {
-        // Set the scroll position through an override so the TouchExpression driving the
+        // Set the scroll position through an override so the touch expression driving the
         // position adopts it (and the list stays draggable), rather than disabling touch.
         // mScrollX/mScrollY are stored negated: paint() does mScrollY = -position.
-        if (handlesVerticalScroll()) {
+        if (isVerticalScroll()) {
             mScrollY = Math.max(-mMaxScrollY, Math.min(0, mScrollY + offset));
             context.overrideFloat(Utils.idFromNan(mPositionExpression), 0f - mScrollY);
         } else {
@@ -582,13 +691,11 @@ public class ScrollModifierOperation2 extends ListActionsOperation
     public boolean scrollDirection(
             @NonNull RemoteContext context, @NonNull ScrollDirection direction) {
         float offset = mHostDimension * 0.7f;
-
         if (direction == ScrollDirection.FORWARD
                 || direction == ScrollDirection.DOWN
                 || direction == ScrollDirection.RIGHT) {
             offset *= -1;
         }
-
         return scrollByOffset(context, (int) offset) != 0;
     }
 
@@ -597,28 +704,20 @@ public class ScrollModifierOperation2 extends ListActionsOperation
         float[] locationInWindow = new float[2];
         child.getLocationInWindow(context, locationInWindow);
 
-        int offset = 0;
-        if (handlesVerticalScroll()) {
-            offset = (int) -locationInWindow[1];
-        } else {
-            offset = (int) -locationInWindow[0];
-        }
-
+        int offset = (int) -(isVerticalScroll() ? locationInWindow[1] : locationInWindow[0]);
         if (offset == 0) {
             return true;
-        } else {
-            return scrollByOffset(context, offset) != 0;
         }
+        return scrollByOffset(context, offset) != 0;
     }
 
     @Nullable
     @Override
     public ScrollAxisRange getScrollAxisRange() {
-        if (handlesVerticalScroll()) {
+        if (isVerticalScroll()) {
             return new ScrollAxisRange(mScrollY, mMaxScrollY, true, true);
-        } else {
-            return new ScrollAxisRange(mScrollX, mMaxScrollX, true, true);
         }
+        return new ScrollAxisRange(mScrollX, mMaxScrollX, true, true);
     }
 
     /** Returns {@code mPositionExpression}. */

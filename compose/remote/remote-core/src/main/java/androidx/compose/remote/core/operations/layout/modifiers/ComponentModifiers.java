@@ -427,6 +427,12 @@ public class ComponentModifiers extends PaintOperation
                     return true;
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -440,6 +446,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    return true;
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     return true;
                 }
@@ -462,6 +474,12 @@ public class ComponentModifiers extends PaintOperation
                     scrollModifier.setHorizontalScrollDimension(hostDimension, contentDimension);
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    scrollModifier.setHorizontalScrollDimension(hostDimension, contentDimension);
+                }
+            }
         }
     }
 
@@ -475,6 +493,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    scrollModifier.setVerticalScrollDimension(hostDimension, contentDimension);
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     scrollModifier.setVerticalScrollDimension(hostDimension, contentDimension);
                 }
@@ -495,6 +519,12 @@ public class ComponentModifiers extends PaintOperation
                     return scrollModifier.getContentDimension();
                 }
             }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
+                if (scrollModifier.isHorizontalScroll()) {
+                    return scrollModifier.getContentDimension();
+                }
+            }
         }
         return 0f;
     }
@@ -508,6 +538,12 @@ public class ComponentModifiers extends PaintOperation
         for (ModifierOperation op : mList) {
             if (op instanceof ScrollModifierOperation) {
                 ScrollModifierOperation scrollModifier = (ScrollModifierOperation) op;
+                if (scrollModifier.isVerticalScroll()) {
+                    return scrollModifier.getContentDimension();
+                }
+            }
+            if (op instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 scrollModifier = (ScrollModifierOperation2) op;
                 if (scrollModifier.isVerticalScroll()) {
                     return scrollModifier.getContentDimension();
                 }

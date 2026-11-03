@@ -52,6 +52,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOpe
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ZIndexModifierOperation;
@@ -301,6 +302,9 @@ public class LayoutComponent extends Component {
                 if (op instanceof ScrollModifierOperation) {
                     ((ScrollModifierOperation) op).inflate(this);
                 }
+                if (op instanceof ScrollModifierOperation2) {
+                    ((ScrollModifierOperation2) op).inflate(this);
+                }
                 mComponentModifiers.add((ModifierOperation) op);
             } else if (op instanceof ComponentModifiers) {
                 ComponentModifiers collapsedModifiers = (ComponentModifiers) op;
@@ -320,6 +324,9 @@ public class LayoutComponent extends Component {
                     }
                     if (modifier instanceof ScrollModifierOperation) {
                         ((ScrollModifierOperation) modifier).inflate(this);
+                    }
+                    if (modifier instanceof ScrollModifierOperation2) {
+                        ((ScrollModifierOperation2) modifier).inflate(this);
                     }
                     mComponentModifiers.add(modifier);
                 }

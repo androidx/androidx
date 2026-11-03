@@ -53,6 +53,7 @@ import androidx.compose.remote.core.operations.layout.managers.RcDocLayout;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.loom.LoomManager;
 import androidx.compose.remote.core.operations.loom.PatternCallback;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
@@ -1933,6 +1934,10 @@ public class CoreDocument implements Serializable {
                     && ((ScrollModifierOperation) op).isVerticalScroll()) {
                 return true;
             }
+            if (op instanceof ScrollModifierOperation2
+                    && ((ScrollModifierOperation2) op).isVerticalScroll()) {
+                return true;
+            }
             if (op instanceof ComponentModifiers
                     && ((ComponentModifiers) op).hasVerticalScroll()) {
                 return true;
@@ -1981,6 +1986,10 @@ public class CoreDocument implements Serializable {
             }
             if (op instanceof ScrollModifierOperation
                     && ((ScrollModifierOperation) op).isHorizontalScroll()) {
+                return true;
+            }
+            if (op instanceof ScrollModifierOperation2
+                    && ((ScrollModifierOperation2) op).isHorizontalScroll()) {
                 return true;
             }
             if (op instanceof ComponentModifiers

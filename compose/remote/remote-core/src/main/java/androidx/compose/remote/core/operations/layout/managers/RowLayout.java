@@ -34,6 +34,7 @@ import androidx.compose.remote.core.operations.layout.measure.Size;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionInModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation;
+import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation2;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -570,6 +571,12 @@ public class RowLayout extends LayoutManager {
         if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
             if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
                 ScrollModifierOperation smo = (ScrollModifierOperation) mHorizontalScrollDelegate;
+
+                value[0] += smo.getScrollX();
+            }
+            if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation2) {
+                ScrollModifierOperation2 smo =
+                        (ScrollModifierOperation2) mHorizontalScrollDelegate;
 
                 value[0] += smo.getScrollX();
             }
