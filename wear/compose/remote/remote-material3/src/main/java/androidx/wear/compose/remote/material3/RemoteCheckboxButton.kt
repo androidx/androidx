@@ -55,9 +55,11 @@ import androidx.compose.ui.semantics.Role
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param border Optional [RemoteBorderStroke] for the button.
- * @param icon An optional slot for providing an icon to indicate the purpose of the button.
- * @param secondaryLabel A slot for providing the button's secondary label.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
  * @param label A slot for providing the button's main label.
  */
 @Composable
@@ -155,30 +157,50 @@ public object RemoteCheckboxButtonDefaults {
     /**
      * Creates a [RemoteCheckboxButtonColors] with customized colors for [RemoteCheckboxButton].
      *
-     * @param checkedContainerColor Container color when checked and enabled.
-     * @param checkedContentColor Content color when checked and enabled.
-     * @param checkedSecondaryContentColor Secondary content color when checked and enabled.
-     * @param checkedIconColor Icon color when checked and enabled.
-     * @param checkedBoxColor Box color when checked and enabled.
-     * @param checkedCheckmarkColor Checkmark color when checked and enabled.
-     * @param uncheckedContainerColor Container color when unchecked and enabled.
-     * @param uncheckedContentColor Content color when unchecked and enabled.
-     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled.
-     * @param uncheckedIconColor Icon color when unchecked and enabled.
-     * @param uncheckedBoxColor Box color when unchecked and enabled.
-     * @param disabledCheckedContainerColor Container color when checked and disabled.
-     * @param disabledCheckedContentColor Content color when checked and disabled.
+     * @param checkedContainerColor Container color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedContentColor Content color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedSecondaryContentColor Secondary content color when checked and enabled, or
+     *   `null` to use the theme default.
+     * @param checkedIconColor Icon color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedBoxColor Box color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedCheckmarkColor Checkmark color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedContainerColor Container color when unchecked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContentColor Content color when unchecked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled, or
+     *   `null` to use the theme default.
+     * @param uncheckedIconColor Icon color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedBoxColor Box color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param disabledCheckedContainerColor Container color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContentColor Content color when checked and disabled, or `null` to use
+     *   the theme default.
      * @param disabledCheckedSecondaryContentColor Secondary content color when checked and
-     *   disabled.
-     * @param disabledCheckedIconColor Icon color when checked and disabled.
-     * @param disabledCheckedBoxColor Box color when checked and disabled.
-     * @param disabledCheckedCheckmarkColor Checkmark color when checked and disabled.
-     * @param disabledUncheckedContainerColor Container color when unchecked and disabled.
-     * @param disabledUncheckedContentColor Content color when unchecked and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledCheckedIconColor Icon color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedBoxColor Box color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedCheckmarkColor Checkmark color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledUncheckedContainerColor Container color when unchecked and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledUncheckedContentColor Content color when unchecked and disabled, or `null` to
+     *   use the theme default.
      * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
-     *   disabled.
-     * @param disabledUncheckedIconColor Icon color when unchecked and disabled.
-     * @param disabledUncheckedBoxColor Box color when unchecked and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUncheckedIconColor Icon color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedBoxColor Box color when unchecked and disabled, or `null` to use the
+     *   theme default.
      */
     @Composable
     @RemoteComposable

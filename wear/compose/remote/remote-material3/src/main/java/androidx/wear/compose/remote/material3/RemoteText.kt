@@ -37,34 +37,46 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.LocalTextConfiguration
 
 /**
- * High level element that displays text and provides semantics / accessibility information.
+ * Displays Material Design text and provides accessibility semantics in a remote layout.
  *
- * For ease of use, commonly used parameters from [androidx.compose.ui.text.TextStyle] are also
- * present here. The order of precedence is as follows:
- * - If a parameter is explicitly set here (i.e., it is _not_ `null` or
- *   [androidx.compose.ui.unit.TextUnit.Unspecified]), then this parameter will always be used.
- * - If a parameter is _not_ set, (`null` or [androidx.compose.ui.unit.TextUnit.Unspecified]), then
- *   the corresponding value from [style] will be used instead.
+ * This is the Wear Material 3 counterpart to [RemoteBasicText] and the remote equivalent of
+ * [androidx.wear.compose.material3.Text], integrating with theme colors, typography, and
+ * [LocalTextConfiguration] provided by surrounding Wear Material 3 components.
+ *
+ * Commonly used properties from [RemoteTextStyle] are also exposed directly as parameters for
+ * convenience:
+ * - When a styling parameter is non-`null`, it overrides the corresponding property in [style].
+ * - When `null`, the value from [style] is used instead, falling back to a default value if also
+ *   unset in [style].
  *
  * Example of styling [RemoteText] with [RemoteMaterialTheme.typography] and theme colors:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteTextSample
- * @param text The text to be displayed.
- * @param modifier [RemoteModifier] to apply to this layout node.
- * @param color [RemoteColor] to apply to the text.
- * @param fontSize The size of glyphs to use when painting the text. See
- *   [androidx.compose.ui.text.TextStyle.fontSize].
- * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic). See
- *   [androidx.compose.ui.text.TextStyle.fontStyle].
- * @param fontWeight The typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
- * @param fontFamily The font family to be used when rendering the text. See
- *   [androidx.compose.ui.text.TextStyle.fontFamily].
- * @param textAlign The alignment of the text within the lines of the paragraph. See
- *   [androidx.compose.ui.text.TextStyle.textAlign].
- * @param overflow How visual overflow should be handled.
- * @param maxLines An optional maximum number of lines for the text to span.
- * @param fontVariationSettings The font variation settings to be applied to the text.
- * @param style Style configuration for the text such as color, font, line height etc.
+ * @param text text to display
+ * @param modifier the [RemoteModifier] applied to this text layout
+ * @param color text color. If `null`, uses [RemoteTextStyle.color] from [style], or the ambient
+ *   content color if also `null` in [style]
+ * @param fontSize glyph size. If `null`, uses [RemoteTextStyle.fontSize] from [style], or `12.sp`
+ *   if also `null` in [style]
+ * @param fontStyle typeface slope (such as [FontStyle.Italic]). If `null`, uses
+ *   [RemoteTextStyle.fontStyle] from [style], or [FontStyle.Normal] if also `null` in [style]
+ * @param fontWeight typeface thickness (such as [FontWeight.Bold]). If `null`, uses
+ *   [RemoteTextStyle.fontWeight] from [style], or [FontWeight.Normal] if also `null` in [style]
+ * @param fontFamily font family used to render the text. If `null`, uses
+ *   [RemoteTextStyle.fontFamily] from [style], or the platform default typeface if also `null` in
+ *   [style]
+ * @param textAlign horizontal alignment of the text within its container. Defaults to
+ *   [LocalTextConfiguration]'s alignment; if `null`, uses [RemoteTextStyle.textAlign] from [style],
+ *   or [TextAlign.Start] if also unset in [style]
+ * @param overflow how visual overflow is handled. Defaults to [LocalTextConfiguration]'s overflow
+ * @param maxLines maximum number of visible lines (must be greater than zero). Defaults to
+ *   [LocalTextConfiguration]'s `maxLines`
+ * @param fontVariationSettings OpenType variable font axis settings. If `null`, uses
+ *   [RemoteTextStyle.fontVariationSettings] from [style], or applies no custom variation settings
+ *   if also `null` in [style]
+ * @param style base [RemoteTextStyle] configuration for properties such as color, font, letter
+ *   spacing, and line height. Defaults to the ambient text style provided by surrounding Wear
+ *   Material 3 components
  */
 @Composable
 @RemoteComposable

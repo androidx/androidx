@@ -45,16 +45,19 @@ import androidx.compose.runtime.CompositionLocalProvider
  * @param onClick Will be called when the user clicks the card
  * @param title A slot for displaying the title of the card
  * @param modifier Modifier to be applied to the card
- * @param time An optional slot for displaying the time relevant to the contents of the card
- * @param subtitle An optional slot for displaying the subtitle of the card
+ * @param time An optional slot for displaying the time relevant to the contents of the card, or
+ *   `null` to omit the time.
+ * @param subtitle An optional slot for displaying the subtitle of the card, or `null` to omit the
+ *   subtitle.
  * @param enabled Controls the enabled state of the card. When false, this component will not
  *   respond to user input
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
- * @param border A [RemoteBorderStroke] used for drawing the card's outline border
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content The optional body content of the card.
+ * @param content The optional body content of the card, or `null` to omit body content.
  */
 @RemoteComposable
 @Composable
@@ -151,16 +154,19 @@ public fun RemoteTitleCard(
  *   [RemoteTitleCard], such as returned by [RemoteCardDefaults.containerPainter].
  * @param title A slot for displaying the title of the card
  * @param modifier Modifier to be applied to the card
- * @param time An optional slot for displaying the time relevant to the contents of the card
- * @param subtitle An optional slot for displaying the subtitle of the card
+ * @param time An optional slot for displaying the time relevant to the contents of the card, or
+ *   `null` to omit the time.
+ * @param subtitle An optional slot for displaying the subtitle of the card, or `null` to omit the
+ *   subtitle.
  * @param enabled Controls the enabled state of the card. When false, this component will not
  *   respond to user input
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card.
- * @param border A [RemoteBorderStroke] used for drawing the card's outline border
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
- * @param content The optional body content of the card.
+ * @param content The optional body content of the card, or `null` to omit body content.
  */
 @RemoteComposable
 @Composable

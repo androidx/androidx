@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
@@ -37,7 +35,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteCompactButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
     val tapCount = remember { MutableRemoteInt(0) }
-    val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
+    val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)".rs
 
     RemoteCompactButton(
         valueChangeAction(tapCount, tapCount + 1),

@@ -64,21 +64,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
 
 /**
- * The Wear Material SplitCheckboxButton offers two slots and shows the current toggle state via a
- * checkbox.
+ * The Wear Material [RemoteSplitCheckboxButton] offers two slots and shows the current toggle state
+ * via a checkbox.
  *
  * The [RemoteSplitCheckboxButton] is essentially a [RemoteRow] with two split areas. The first area
  * containing [label] and optional [secondaryLabel] is clickable and triggers [onContainerClick].
  * The second area contains a checkbox toggle control and triggers [onCheckedChange].
  *
+ * For accessibility, provide a localized [toggleContentDescription] describing what the checkbox
+ * toggle control represents when its meaning is not already clear from surrounding context, or pass
+ * `null` if no extra description is needed beyond its role and checked state.
+ *
  * Example of a [RemoteSplitCheckboxButton] with separate container and checkbox actions:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitCheckboxButtonSample
  * @param checked [RemoteBoolean] flag indicating whether this button is currently checked.
- * @param onCheckedChange RemoteAction to be invoked when the toggle control is clicked.
+ * @param onCheckedChange [RemoteAction] to be invoked when the toggle control is clicked.
  * @param toggleContentDescription Text used by accessibility services to describe what this toggle
- *   control represents.
- * @param onContainerClick RemoteAction to be invoked when the container area is clicked.
+ *   control represents, or `null` if no separate accessibility description is needed.
+ * @param onContainerClick [RemoteAction] to be invoked when the container area is clicked.
  * @param modifier [RemoteModifier] to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will appear
  *   visually disabled and will not be clickable. Note that only constant values are currently
@@ -88,7 +92,8 @@ import androidx.wear.compose.material3.TextConfiguration
  *   content colors for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param secondaryLabel A slot for a secondary label, displayed below the [label].
+ * @param secondaryLabel A slot for a secondary label displayed below the [label], or `null` if
+ *   there is no secondary label.
  * @param label A slot for the main label content.
  */
 @RemoteComposable
@@ -256,49 +261,54 @@ public object RemoteSplitCheckboxButtonDefaults {
      * colors used in a [RemoteSplitCheckboxButton].
      *
      * @param checkedContainerColor The container color of the [RemoteSplitCheckboxButton] when
-     *   enabled and checked.
+     *   enabled and checked, or `null` to use the theme default.
      * @param checkedContentColor The content color of the [RemoteSplitCheckboxButton] when enabled
-     *   and checked.
+     *   and checked, or `null` to use the theme default.
      * @param checkedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitCheckboxButton] when enabled and checked, used for secondaryLabel content.
+     *   [RemoteSplitCheckboxButton] when enabled and checked, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param checkedSplitContainerColor The split container color of the
-     *   [RemoteSplitCheckboxButton] when enabled and checked.
+     *   [RemoteSplitCheckboxButton] when enabled and checked, or `null` to use the theme default.
      * @param checkedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and
-     *   checked.
+     *   checked, or `null` to use the theme default.
      * @param checkedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton] when
-     *   enabled and checked.
+     *   enabled and checked, or `null` to use the theme default.
      * @param uncheckedContainerColor The container color of the [RemoteSplitCheckboxButton] when
-     *   enabled and unchecked.
+     *   enabled and unchecked, or `null` to use the theme default.
      * @param uncheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
-     *   enabled and unchecked.
+     *   enabled and unchecked, or `null` to use the theme default.
      * @param uncheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitCheckboxButton] when enabled and unchecked, used for secondaryLabel content.
+     *   [RemoteSplitCheckboxButton] when enabled and unchecked, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param uncheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitCheckboxButton] when enabled and unchecked.
+     *   [RemoteSplitCheckboxButton] when enabled and unchecked, or `null` to use the theme default.
      * @param uncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when enabled and
-     *   unchecked.
+     *   unchecked, or `null` to use the theme default.
      * @param disabledCheckedContainerColor The container color of the [RemoteSplitCheckboxButton]
-     *   when disabled and checked.
+     *   when disabled and checked, or `null` to use the theme default.
      * @param disabledCheckedContentColor The content color of the [RemoteSplitCheckboxButton] when
-     *   disabled and checked.
+     *   disabled and checked, or `null` to use the theme default.
      * @param disabledCheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitCheckboxButton] when disabled and checked, used for secondaryLabel content.
+     *   [RemoteSplitCheckboxButton] when disabled and checked, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param disabledCheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitCheckboxButton] when disabled and checked.
+     *   [RemoteSplitCheckboxButton] when disabled and checked, or `null` to use the theme default.
      * @param disabledCheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when disabled
-     *   and checked.
+     *   and checked, or `null` to use the theme default.
      * @param disabledCheckedCheckmarkColor The checkmark color of the [RemoteSplitCheckboxButton]
-     *   when disabled and checked.
+     *   when disabled and checked, or `null` to use the theme default.
      * @param disabledUncheckedContainerColor The container color of the [RemoteSplitCheckboxButton]
-     *   when disabled and unchecked.
+     *   when disabled and unchecked, or `null` to use the theme default.
      * @param disabledUncheckedContentColor The content color of the [RemoteSplitCheckboxButton]
-     *   when disabled and unchecked.
+     *   when disabled and unchecked, or `null` to use the theme default.
      * @param disabledUncheckedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitCheckboxButton] when disabled and unchecked, used for secondaryLabel content.
+     *   [RemoteSplitCheckboxButton] when disabled and unchecked, used for secondaryLabel content,
+     *   or `null` to use the theme default.
      * @param disabledUncheckedSplitContainerColor The split container color of the
-     *   [RemoteSplitCheckboxButton] when disabled and unchecked.
+     *   [RemoteSplitCheckboxButton] when disabled and unchecked, or `null` to use the theme
+     *   default.
      * @param disabledUncheckedBoxColor The box color of the [RemoteSplitCheckboxButton] when
-     *   disabled and unchecked.
+     *   disabled and unchecked, or `null` to use the theme default.
      */
     @Composable
     @RemoteComposable

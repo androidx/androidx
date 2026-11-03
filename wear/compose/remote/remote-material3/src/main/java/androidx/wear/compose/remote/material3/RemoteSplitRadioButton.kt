@@ -58,21 +58,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.TextConfiguration
 
 /**
- * The Wear Material SplitRadioButton offers two slots and shows the current selection state via a
- * radio control.
+ * The Wear Material [RemoteSplitRadioButton] offers two slots and shows the current selection state
+ * via a radio control.
  *
  * The [RemoteSplitRadioButton] is essentially a [RemoteRow] with two split areas. The first area
  * containing [label] and optional [secondaryLabel] is clickable and triggers [onContainerClick].
  * The second area contains a radio selection control and triggers [onSelectionClick].
  *
+ * For accessibility, provide a localized [selectionContentDescription] describing what the radio
+ * selection control represents when its meaning is not already clear from surrounding context, or
+ * pass `null` if no extra description is needed beyond its role and selected state.
+ *
  * Example of a [RemoteSplitRadioButton] with separate container and radio selection actions:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteSplitRadioButtonSample
  * @param selected [RemoteBoolean] flag indicating whether this button is currently selected.
- * @param onSelectionClick RemoteAction to be invoked when the selection control is clicked.
+ * @param onSelectionClick [RemoteAction] to be invoked when the selection control is clicked.
  * @param selectionContentDescription Text used by accessibility services to describe what this
- *   selection control represents.
- * @param onContainerClick RemoteAction to be invoked when the container area is clicked.
+ *   selection control represents, or `null` if no separate accessibility description is needed.
+ * @param onContainerClick [RemoteAction] to be invoked when the container area is clicked.
  * @param modifier [RemoteModifier] to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will appear
  *   visually disabled and will not be clickable. Note that only constant values are currently
@@ -82,7 +86,8 @@ import androidx.wear.compose.material3.TextConfiguration
  *   content colors for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param secondaryLabel A slot for a secondary label, displayed below the [label].
+ * @param secondaryLabel A slot for a secondary label displayed below the [label], or `null` if
+ *   there is no secondary label.
  * @param label A slot for the main label content.
  */
 @RemoteComposable
@@ -251,41 +256,50 @@ public object RemoteSplitRadioButtonDefaults {
      * colors used in a [RemoteSplitRadioButton].
      *
      * @param selectedContainerColor The container color of the [RemoteSplitRadioButton] when
-     *   enabled and selected.
+     *   enabled and selected, or `null` to use the theme default.
      * @param selectedContentColor The content color of the [RemoteSplitRadioButton] when enabled
-     *   and selected.
+     *   and selected, or `null` to use the theme default.
      * @param selectedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitRadioButton] when enabled and selected, used for secondaryLabel content.
+     *   [RemoteSplitRadioButton] when enabled and selected, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param selectedSplitContainerColor The split container color of the [RemoteSplitRadioButton]
-     *   when enabled and selected.
-     * @param selectedControlColor The color of the radio control when selected.
+     *   when enabled and selected, or `null` to use the theme default.
+     * @param selectedControlColor The color of the radio control when selected, or `null` to use
+     *   the theme default.
      * @param unselectedContainerColor The container color of the [RemoteSplitRadioButton] when
-     *   enabled and not selected.
+     *   enabled and not selected, or `null` to use the theme default.
      * @param unselectedContentColor The content color of the [RemoteSplitRadioButton] when enabled
-     *   and not selected.
+     *   and not selected, or `null` to use the theme default.
      * @param unselectedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitRadioButton] when enabled and not selected, used for secondaryLabel content.
+     *   [RemoteSplitRadioButton] when enabled and not selected, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param unselectedSplitContainerColor The split container color of the
-     *   [RemoteSplitRadioButton] when enabled and not selected.
-     * @param unselectedControlColor The color of the radio control when unselected.
+     *   [RemoteSplitRadioButton] when enabled and not selected, or `null` to use the theme default.
+     * @param unselectedControlColor The color of the radio control when unselected, or `null` to
+     *   use the theme default.
      * @param disabledSelectedContainerColor The container color of the [RemoteSplitRadioButton]
-     *   when disabled and selected.
+     *   when disabled and selected, or `null` to use the theme default.
      * @param disabledSelectedContentColor The content color of the [RemoteSplitRadioButton] when
-     *   disabled and selected.
+     *   disabled and selected, or `null` to use the theme default.
      * @param disabledSelectedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitRadioButton] when disabled and selected, used for secondaryLabel content.
+     *   [RemoteSplitRadioButton] when disabled and selected, used for secondaryLabel content, or
+     *   `null` to use the theme default.
      * @param disabledSelectedSplitContainerColor The split container color of the
-     *   [RemoteSplitRadioButton] when disabled and selected.
-     * @param disabledSelectedControlColor The radio control color when disabled and selected.
+     *   [RemoteSplitRadioButton] when disabled and selected, or `null` to use the theme default.
+     * @param disabledSelectedControlColor The radio control color when disabled and selected, or
+     *   `null` to use the theme default.
      * @param disabledUnselectedContainerColor The container color of the [RemoteSplitRadioButton]
-     *   when disabled and not selected.
+     *   when disabled and not selected, or `null` to use the theme default.
      * @param disabledUnselectedContentColor The content color of the [RemoteSplitRadioButton] when
-     *   disabled and not selected.
+     *   disabled and not selected, or `null` to use the theme default.
      * @param disabledUnselectedSecondaryContentColor The secondary content color of the
-     *   [RemoteSplitRadioButton] when disabled and not selected, used for secondaryLabel content.
+     *   [RemoteSplitRadioButton] when disabled and not selected, used for secondaryLabel content,
+     *   or `null` to use the theme default.
      * @param disabledUnselectedSplitContainerColor The split container color of the
-     *   [RemoteSplitRadioButton] when disabled and not selected.
-     * @param disabledUnselectedControlColor The radio control color when disabled and unselected.
+     *   [RemoteSplitRadioButton] when disabled and not selected, or `null` to use the theme
+     *   default.
+     * @param disabledUnselectedControlColor The radio control color when disabled and unselected,
+     *   or `null` to use the theme default.
      */
     @Composable
     @RemoteComposable

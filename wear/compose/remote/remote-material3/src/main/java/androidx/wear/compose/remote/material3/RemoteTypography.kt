@@ -46,9 +46,6 @@ import androidx.wear.compose.material3.Typography
  * take on more expressive properties at the larger display sizes. They give flexibility to expand
  * width axis with minimal localization and font scaling concerns.
  *
- * Arc text styles are used for curved text making up the signposting on the UI such as time text
- * and curved labels, a tailored font axis that specifically optimizes type along a curve.
- *
  * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text on the
  *   screen, reserved for short, important text or numerals.
  * @property displayMedium DisplayMedium is the second largest headline. Displays are the largest

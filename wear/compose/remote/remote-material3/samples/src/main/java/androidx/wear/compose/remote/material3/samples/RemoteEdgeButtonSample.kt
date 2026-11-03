@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("RestrictedApiAndroidX")
-
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
@@ -42,7 +40,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteEdgeButtonSample(modifier: RemoteModifier = RemoteModifier) {
     val tapCount = remember { MutableRemoteInt(0) }
-    val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)"
+    val countSuffix = " (".rs + tapCount.toRemoteString() + " taps)".rs
 
     RemoteEdgeButton(
         onClick = valueChangeAction(tapCount, tapCount + 1),

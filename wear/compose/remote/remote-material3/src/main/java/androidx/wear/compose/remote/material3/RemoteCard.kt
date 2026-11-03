@@ -69,7 +69,8 @@ import androidx.compose.ui.layout.ContentScale
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
  *   [RemoteCardDefaults.cardColors].
- * @param border A [RemoteBorderStroke] used for drawing the card's outline border
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The main slot for the content of this card
@@ -122,7 +123,8 @@ public fun RemoteCard(
  * @param shape Defines the card's shape.
  * @param colors [RemoteCardColors] that will be used to resolve the colors used for this card. See
  *   [RemoteCardDefaults.cardWithContainerPainterColors].
- * @param border A [RemoteBorderStroke] used for drawing the card's outline border
+ * @param border A [RemoteBorderStroke] used for drawing the card's outline border, or `null` for no
+ *   border.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param content The main slot for the content of this card
@@ -215,12 +217,18 @@ public object RemoteCardDefaults {
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteCard], [RemoteAppCard] or [RemoteTitleCard].
      *
-     * @param containerColor the container color of this [RemoteCard].
-     * @param contentColor the content color of this [RemoteCard].
-     * @param appNameColor the color used for appName, only applies to [RemoteAppCard].
-     * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
+     * @param containerColor The container color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param contentColor The content color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -256,11 +264,16 @@ public object RemoteCardDefaults {
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteOutlinedCard], outlined [RemoteAppCard] or [RemoteTitleCard].
      *
-     * @param contentColor the content color of this [RemoteOutlinedCard].
-     * @param appNameColor the color used for appName, only applies to [RemoteAppCard].
-     * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
+     * @param contentColor The content color of this [RemoteOutlinedCard], or `null` to use the
+     *   theme default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable
@@ -332,8 +345,10 @@ public object RemoteCardDefaults {
      * @param image The [RemoteImageBitmap] to use to draw the container background of the
      *   [RemoteCard] or [RemoteTitleCard]
      * @param scrim The [RemoteBrush] to use to paint a scrim over the container image to ensure
-     *   that any text drawn over the image is legible
-     * @param alpha Opacity of the container image painter and scrim.
+     *   that any text drawn over the image is legible, or `null` if no scrim should be drawn over
+     *   the image.
+     * @param alpha Opacity of the container image painter and scrim, from 0.0 (completely
+     *   transparent) to 1.0 (completely opaque).
      * @param shape Define the container shape.
      * @param contentScale Strategy for scaling the painter if its size does not match the
      *   container.
@@ -383,11 +398,16 @@ public object RemoteCardDefaults {
      * Creates a [RemoteCardColors] that represents the default container and content colors used in
      * a [RemoteCard] or [RemoteTitleCard] with Image set as a background.
      *
-     * @param contentColor the content color of this [RemoteCard].
-     * @param appNameColor the color used for appName, only applies to [RemoteAppCard].
-     * @param timeColor the color used for time, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param titleColor the color used for title, applies to [RemoteAppCard] and [RemoteTitleCard].
-     * @param subtitleColor the color used for subtitle, applies to [RemoteTitleCard].
+     * @param contentColor The content color of this [RemoteCard], or `null` to use the theme
+     *   default.
+     * @param appNameColor The color used for appName, only applies to [RemoteAppCard], or `null` to
+     *   use the theme default.
+     * @param timeColor The color used for time, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param titleColor The color used for title, applies to [RemoteAppCard] and [RemoteTitleCard],
+     *   or `null` to use the theme default.
+     * @param subtitleColor The color used for subtitle, applies to [RemoteTitleCard], or `null` to
+     *   use the theme default.
      */
     @Composable
     @RemoteComposable

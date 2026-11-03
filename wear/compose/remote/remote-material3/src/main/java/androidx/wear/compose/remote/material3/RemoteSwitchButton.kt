@@ -58,9 +58,11 @@ import androidx.compose.ui.semantics.Role
  *   button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
- * @param border Optional [RemoteBorderStroke] for the button.
- * @param icon An optional slot for providing an icon to indicate the purpose of the button.
- * @param secondaryLabel A slot for providing the button's secondary label.
+ * @param border Optional [RemoteBorderStroke] for the button, or `null` for no border.
+ * @param icon An optional slot for providing an icon to indicate the purpose of the button, or
+ *   `null` if there is no icon.
+ * @param secondaryLabel A slot for providing the button's secondary label, or `null` if there is no
+ *   secondary label.
  * @param label A slot for providing the button's main label.
  */
 @Composable
@@ -177,37 +179,64 @@ public object RemoteSwitchButtonDefaults {
     /**
      * Creates a [RemoteSwitchButtonColors] with customized colors for [RemoteSwitchButton].
      *
-     * @param checkedContainerColor Container color when checked and enabled.
-     * @param checkedContentColor Content color when checked and enabled.
-     * @param checkedSecondaryContentColor Secondary content color when checked and enabled.
-     * @param checkedIconColor Icon color when checked and enabled.
-     * @param checkedThumbColor Thumb color when checked and enabled.
-     * @param checkedThumbIconColor Thumb icon color when checked and enabled.
-     * @param checkedTrackColor Track color when checked and enabled.
-     * @param checkedTrackBorderColor Track border color when checked and enabled.
-     * @param uncheckedContainerColor Container color when unchecked and enabled.
-     * @param uncheckedContentColor Content color when unchecked and enabled.
-     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled.
-     * @param uncheckedIconColor Icon color when unchecked and enabled.
-     * @param uncheckedThumbColor Thumb color when unchecked and enabled.
-     * @param uncheckedTrackColor Track color when unchecked and enabled.
-     * @param uncheckedTrackBorderColor Track border color when unchecked and enabled.
-     * @param disabledCheckedContainerColor Container color when checked and disabled.
-     * @param disabledCheckedContentColor Content color when checked and disabled.
+     * @param checkedContainerColor Container color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedContentColor Content color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedSecondaryContentColor Secondary content color when checked and enabled, or
+     *   `null` to use the theme default.
+     * @param checkedIconColor Icon color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedThumbColor Thumb color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedThumbIconColor Thumb icon color when checked and enabled, or `null` to use the
+     *   theme default.
+     * @param checkedTrackColor Track color when checked and enabled, or `null` to use the theme
+     *   default.
+     * @param checkedTrackBorderColor Track border color when checked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContainerColor Container color when unchecked and enabled, or `null` to use
+     *   the theme default.
+     * @param uncheckedContentColor Content color when unchecked and enabled, or `null` to use the
+     *   theme default.
+     * @param uncheckedSecondaryContentColor Secondary content color when unchecked and enabled, or
+     *   `null` to use the theme default.
+     * @param uncheckedIconColor Icon color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedThumbColor Thumb color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedTrackColor Track color when unchecked and enabled, or `null` to use the theme
+     *   default.
+     * @param uncheckedTrackBorderColor Track border color when unchecked and enabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContainerColor Container color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedContentColor Content color when checked and disabled, or `null` to use
+     *   the theme default.
      * @param disabledCheckedSecondaryContentColor Secondary content color when checked and
-     *   disabled.
-     * @param disabledCheckedIconColor Icon color when checked and disabled.
-     * @param disabledCheckedThumbColor Thumb color when checked and disabled.
-     * @param disabledCheckedThumbIconColor Thumb icon color when checked and disabled.
-     * @param disabledCheckedTrackColor Track color when checked and disabled.
-     * @param disabledCheckedTrackBorderColor Track border color when checked and disabled.
-     * @param disabledUncheckedContainerColor Container color when unchecked and disabled.
-     * @param disabledUncheckedContentColor Content color when unchecked and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledCheckedIconColor Icon color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedThumbColor Thumb color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedThumbIconColor Thumb icon color when checked and disabled, or `null` to
+     *   use the theme default.
+     * @param disabledCheckedTrackColor Track color when checked and disabled, or `null` to use the
+     *   theme default.
+     * @param disabledCheckedTrackBorderColor Track border color when checked and disabled, or
+     *   `null` to use the theme default.
+     * @param disabledUncheckedContainerColor Container color when unchecked and disabled, or `null`
+     *   to use the theme default.
+     * @param disabledUncheckedContentColor Content color when unchecked and disabled, or `null` to
+     *   use the theme default.
      * @param disabledUncheckedSecondaryContentColor Secondary content color when unchecked and
-     *   disabled.
-     * @param disabledUncheckedIconColor Icon color when unchecked and disabled.
-     * @param disabledUncheckedThumbColor Thumb color when unchecked and disabled.
-     * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled.
+     *   disabled, or `null` to use the theme default.
+     * @param disabledUncheckedIconColor Icon color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedThumbColor Thumb color when unchecked and disabled, or `null` to use
+     *   the theme default.
+     * @param disabledUncheckedTrackBorderColor Track border color when unchecked and disabled, or
+     *   `null` to use the theme default.
      */
     @Composable
     @RemoteComposable
