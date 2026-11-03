@@ -4,8 +4,8 @@ package androidx.glance.adaptive.appwidget {
 
   public final class GlanceAdaptiveAppWidgetManagerKt {
     method public static androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager GlanceAdaptiveWidgetManager(android.content.Context context);
-    method public static suspend Object? requestPin(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, optional String? widgetId, optional androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate? initialData, optional android.os.Bundle options, optional android.app.PendingIntent? successCallback, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method @BytecodeOnly public static Object! requestPin$default(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager!, String!, String!, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate!, android.os.Bundle!, android.app.PendingIntent!, kotlin.coroutines.Continuation!, int, Object!);
+    method public static suspend Object? requestPin(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, optional String? widgetId, optional androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate? initialData, optional android.os.Bundle options, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
+    method @BytecodeOnly public static Object! requestPin$default(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager!, String!, String!, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate!, android.os.Bundle!, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend Object? setPreview(androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager, String widgetName, androidx.glance.adaptive.core.templates.GlanceAdaptiveTemplate previewData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
