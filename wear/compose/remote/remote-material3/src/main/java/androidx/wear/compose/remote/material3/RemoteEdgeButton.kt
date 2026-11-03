@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteRowScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
@@ -43,7 +44,6 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.clamp
 import androidx.compose.remote.creation.compose.state.max
@@ -55,7 +55,6 @@ import androidx.compose.remote.creation.compose.state.sqrt
 import androidx.compose.remote.creation.compose.state.toRemoteDp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -155,7 +154,7 @@ public fun RemoteEdgeButton(
                 },
         contentAlignment = RemoteAlignment.Center,
     ) {
-        val buttonWidthDp = remember { RemoteFloatExpression { componentWidth() } }.toRemoteDp()
+        val buttonWidthDp = remoteComponent().width.toRemoteDp()
         val contentWidth =
             calculateEdgeButtonContentWidth(
                 actualButtonWidth = buttonWidthDp,

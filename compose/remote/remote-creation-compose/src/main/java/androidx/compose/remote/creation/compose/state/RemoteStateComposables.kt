@@ -23,9 +23,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteComposeNode
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
@@ -149,23 +148,22 @@ public fun <T : Enum<T>> rememberNamedRemoteEnum(
 // ==============================================================================================
 
 /**
- * Remembers a named remote float expression.
+ * Remembers a named [RemoteFloat] initialized with [defaultValue].
  *
- * @param name A unique name to identify this state within its [domain].
- * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
- * @param value A lambda that provides the [RemoteFloat] expression.
- * @return A [RemoteFloat] instance representing the named expression.
+ * @sample androidx.compose.remote.creation.compose.samples.RemoteTextDynamicFontSizeSample
+ * @param name unique name identifying this state within its [domain]
+ * @param defaultValue initial [RemoteFloat] constant or expression
+ * @param domain domain for the named state, defaulting to [RemoteState.Domain.User]
+ * @return [RemoteFloat] bound to the named float state
  */
 @Composable
 @RemoteComposable
 public fun rememberNamedRemoteFloat(
     name: String,
+    defaultValue: RemoteFloat,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    value: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
-    return remember(name, domain) {
-        createNamedRemoteFloatExpression(name, domain, expression = value)
-    }
+    return remember(name, domain) { createNamedRemoteFloat(name, defaultValue, domain) }
 }
 
 // ==============================================================================================

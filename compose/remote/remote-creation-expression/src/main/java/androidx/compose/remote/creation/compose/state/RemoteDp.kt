@@ -21,7 +21,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.runtime.Stable
 
 /**
@@ -291,7 +290,13 @@ public constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val va
             value: () -> RemoteDp,
         ): RemoteDp {
             val remoteDp = value()
-            return RemoteDp(createNamedRemoteFloatExpression(name, domain) { remoteDp.value })
+            return RemoteDp(
+                createNamedRemoteFloat(
+                    name = name,
+                    defaultValue = remoteDp.value,
+                    domain = domain,
+                )
+            )
         }
     }
 }

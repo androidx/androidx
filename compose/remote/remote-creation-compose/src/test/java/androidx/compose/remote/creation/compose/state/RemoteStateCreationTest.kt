@@ -525,7 +525,7 @@ class RemoteStateCreationTest {
             val state = LocalRemoteComposeCreationState.current
 
             // Taking expression values
-            rememberNamedRemoteFloat("f") { 1f.rf }.writeToDocument(state)
+            rememberNamedRemoteFloat("f", 1f.rf).writeToDocument(state)
             rememberNamedRemoteColor("c", Color.Red).writeToDocument(state)
             rememberNamedRemoteDp("d") { 1.rdp }.writeToDocument(state)
 

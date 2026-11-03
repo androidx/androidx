@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.remember
@@ -822,8 +821,7 @@ class RemoteFloatTest {
 
     @Test
     fun namedRemoteFloatExpression_smokeTest() {
-        val namedExpr =
-            createNamedRemoteFloatExpression("testExpr") { RemoteFloat(10f) + RemoteFloat(5f) }
+        val namedExpr = createNamedRemoteFloat("testExpr", RemoteFloat(10f) + RemoteFloat(5f))
         val result = namedExpr * RemoteFloat(2f)
         val resultId = result.getIdForCreationState(creationState)
 
@@ -1881,7 +1879,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloatFromConstant = remember { createNamedRemoteFloat("C", 5f) }
+                val myFloatFromConstant = rememberNamedRemoteFloat("C", 5.rf)
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
 
@@ -1903,11 +1901,8 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloatFromConstant = remember {
-                    createNamedRemoteFloatExpression("E") {
-                        RemoteTimeVariables.continuousSeconds
-                    }
-                }
+                val myFloatFromConstant =
+                    rememberNamedRemoteFloat("E", RemoteTimeVariables.continuousSeconds)
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
 
@@ -1930,7 +1925,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloatFromConstant = remember { MutableRemoteFloat { 5.rf } }
+                val myFloatFromConstant = remember { MutableRemoteFloat(5.rf) }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
 
@@ -1958,9 +1953,7 @@ class RemoteFloatTest {
                 context = applicationContext,
             ) {
                 val myFloatFromConstant = remember {
-                    MutableRemoteFloat {
-                        RemoteTimeVariables.continuousSeconds
-                    }
+                    MutableRemoteFloat(RemoteTimeVariables.continuousSeconds)
                 }
                 RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
             }
@@ -2219,7 +2212,7 @@ class RemoteFloatTest {
                 creationDisplayInfo = displayInfo,
                 context = applicationContext,
             ) {
-                val myFloat = remember { MutableRemoteFloat(5f) }
+                val myFloat = remember { MutableRemoteFloat(5.rf) }
                 RemoteBox(modifier = RemoteModifier.size(myFloat.asRemoteDp()))
             }
 

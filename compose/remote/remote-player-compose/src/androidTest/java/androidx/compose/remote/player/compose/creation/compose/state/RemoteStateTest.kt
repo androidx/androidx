@@ -22,10 +22,10 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreati
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.layout.remoteComponent
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloatExpression
-import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.rdp
@@ -75,14 +75,14 @@ class RemoteStateTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val creationState = LocalRemoteComposeCreationState.current
 
-                val width = remember { RemoteFloatExpression { componentWidth() } }
+                val width = remoteComponent().width
 
                 val configurableWidth = remember {
-                    createNamedRemoteFloatExpression(name = "configurableWidth") { width }
+                    createNamedRemoteFloat(name = "configurableWidth", defaultValue = width)
                 }
 
                 val configurableWidth2 = remember {
-                    createNamedRemoteFloatExpression(name = "configurableWidth2") { width }
+                    createNamedRemoteFloat(name = "configurableWidth2", defaultValue = width)
                 }
 
                 RemoteText(RemoteString("Width: ") + width.toRemoteString(DecimalFormat("###0")))

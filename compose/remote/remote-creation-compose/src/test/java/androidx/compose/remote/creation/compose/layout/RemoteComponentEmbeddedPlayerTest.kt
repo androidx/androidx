@@ -139,7 +139,7 @@ class RemoteComponentEmbeddedPlayerTest {
 
                 val parent = remoteComponent()
                 val namedQuarterHeight =
-                    rememberNamedRemoteFloat("parent_quarter_h") { parent.height * 0.25f }
+                    rememberNamedRemoteFloat("parent_quarter_h", parent.height * 0.25f)
 
                 RemoteBox(
                     modifier =
@@ -386,7 +386,7 @@ class RemoteComponentEmbeddedPlayerTest {
     private fun IndependentlyRecomposingChild(show: Boolean) {
         if (show) {
             val parent = remoteComponent()
-            val namedWidth = rememberNamedRemoteFloat("recomposed_w") { parent.width }
+            val namedWidth = rememberNamedRemoteFloat("recomposed_w", parent.width)
             RemoteBox(
                 modifier =
                     RemoteModifier.width((namedWidth * 0.5f).toRemoteDp())
@@ -402,16 +402,17 @@ class RemoteComponentEmbeddedPlayerTest {
         runTest {
             val context = ApplicationProvider.getApplicationContext<Context>()
 
-            // Non-component expressions created outside composition continue to work.
+            // Expressions created outside composition continue to work with normal forms.
             val base = MutableRemoteFloat(20f)
-            val outsideNamed = createNamedRemoteFloat("outside_named", 50f)
+            val outsideMutable = MutableRemoteFloat(base + 20f)
+            val outsideNamed = createNamedRemoteFloat("outside_named", base + 30f)
 
             rule.setRemoteContent(remoteCreationDisplayInfo = displayInfo()) {
-                val rootNamed = rememberNamedRemoteFloat("root_named") { 30f.rf }
+                val rootNamed = rememberNamedRemoteFloat("root_named", 30f.rf)
                 RemoteColumn(modifier = RemoteModifier.fillMaxWidth()) {
                     RemoteBox(
                         modifier =
-                            RemoteModifier.size((base + 20f).asRemoteDp(), rootNamed.asRemoteDp())
+                            RemoteModifier.size(outsideMutable.asRemoteDp(), rootNamed.asRemoteDp())
                                 .semantics { contentDescription = "OutsideMutableBox".rs }
                     )
                     RemoteBox(

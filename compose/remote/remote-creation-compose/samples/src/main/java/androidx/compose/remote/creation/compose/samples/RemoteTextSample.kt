@@ -44,7 +44,7 @@ fun RemoteTextSample() {
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 @Composable
 fun RemoteTextDynamicFontSizeSample() {
-    val fontScale = rememberNamedRemoteFloat("fontScale") { 1.2f.rf }
+    val fontScale = rememberNamedRemoteFloat("fontScale", 1.2f.rf)
     val dynamicSize = (16f.rf * fontScale).rsp
     RemoteText(text = "Dynamic Size Text".rs, fontSize = dynamicSize)
 }

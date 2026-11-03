@@ -17,20 +17,28 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.action.RemoteAction
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.drawWithContent
+import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Stable
 
 /** Dynamic layout measurements of a RemoteCompose component in pixels. */
 @Stable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComponent private constructor(private val context: RemoteFloatContext) {
-    internal constructor(scope: RemoteStateScope) : this(RemoteFloatContext(scope))
+    /**
+     * Creates a [RemoteComponent] backed by [scope].
+     *
+     * @param scope [RemoteDocumentScope] providing the active component or target document
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(scope: RemoteDocumentScope) : this(RemoteFloatContext(scope))
 
-    internal constructor(token: RemoteComponentToken) : this(RemoteFloatContext(token))
+    /**
+     * Creates a [RemoteComponent] bound to [token].
+     *
+     * @param token identity token of the target layout component
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(token: RemoteComponentToken) : this(RemoteFloatContext(token))
 
     /** Width of this component in pixels. */
     public val width: RemoteFloat
@@ -75,20 +83,4 @@ public class RemoteComponent private constructor(private val context: RemoteFloa
     }
 
     override fun hashCode(): Int = context.hashCode()
-}
-
-/**
- * Returns a [RemoteComponent] bound to this [RemoteStateScope]'s active component.
- *
- * * Resolves to the target layout component when called from a [RemoteModifier] or [RemoteAction]
- *   scope (such as [drawWithContent]).
- * * Resolves to the component currently being drawn when called from a [RemoteDrawScope] or
- *   [RemoteCanvas].
- *
- * @return [RemoteComponent] bound to the active component in this [RemoteStateScope]
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteStateScope.remoteComponent(): RemoteComponent {
-    val token = resolveComponentToken()
-    return if (token != null) RemoteComponent(token) else RemoteComponent(this)
 }

@@ -482,9 +482,9 @@ private fun NamedExpressionSiblingCell() {
     ) {
         RemoteBox(modifier = RemoteModifier.size(20.rdp, 12.rdp).background(Color(0xFFE53935).rc))
         val comp = remoteComponent()
-        val namedW = rememberNamedRemoteFloat("cell9_w") { comp.width }
-        val namedH = rememberNamedRemoteFloat("cell9_h") { comp.height }
-        val namedCx = rememberNamedRemoteFloat("cell9_cx") { comp.centerX }
+        val namedW = rememberNamedRemoteFloat("cell9_w", comp.width)
+        val namedH = rememberNamedRemoteFloat("cell9_h", comp.height)
+        val namedCx = rememberNamedRemoteFloat("cell9_cx", comp.centerX)
         RemoteBox(
             modifier =
                 RemoteModifier.width((namedW * 0.5f).toRemoteDp())

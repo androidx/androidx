@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.compose.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.capture.RemoteDocumentScope
@@ -24,7 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 
 /** Exposes component-relative [RemoteFloat] bounds for remote float expressions. */
-public class RemoteFloatContext
+internal class RemoteFloatContext
 private constructor(
     internal val scope: RemoteDocumentScope?,
     internal val token: RemoteComponentToken?,
@@ -34,16 +33,14 @@ private constructor(
      *
      * @param scope scope providing the target [RemoteComposeWriter]
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(scope: RemoteDocumentScope) : this(scope = scope, token = null)
+    internal constructor(scope: RemoteDocumentScope) : this(scope = scope, token = null)
 
     /**
      * Creates a [RemoteFloatContext] bound to [token].
      *
      * @param token identity token of the target layout component
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(token: RemoteComponentToken?) : this(scope = null, token = token)
+    internal constructor(token: RemoteComponentToken?) : this(scope = null, token = token)
 
     internal val document: RemoteComposeWriter
         get() = requireDocument("unknown")
@@ -73,7 +70,7 @@ private constructor(
     }
 
     /** Returns the width of the current component in pixels as a [RemoteFloat]. */
-    public fun componentWidth(): RemoteFloat {
+    internal fun componentWidth(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_WIDTH, "width")
@@ -88,7 +85,7 @@ private constructor(
     }
 
     /** Returns the height of the current component in pixels as a [RemoteFloat]. */
-    public fun componentHeight(): RemoteFloat {
+    internal fun componentHeight(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_HEIGHT, "height")
@@ -107,7 +104,7 @@ private constructor(
      *
      * @return horizontal center offset as a [RemoteFloat]
      */
-    public fun componentCenterX(): RemoteFloat {
+    internal fun componentCenterX(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             capturedToken.markRequested(RemoteComponentToken.PROP_WIDTH)
@@ -145,7 +142,7 @@ private constructor(
      *
      * @return vertical center offset as a [RemoteFloat]
      */
-    public fun componentCenterY(): RemoteFloat {
+    internal fun componentCenterY(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             capturedToken.markRequested(RemoteComponentToken.PROP_HEIGHT)
@@ -179,8 +176,7 @@ private constructor(
     }
 
     /** Returns the parent-relative X coordinate of the current component in pixels. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun componentX(): RemoteFloat {
+    internal fun componentX(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_X, "x")
@@ -195,8 +191,7 @@ private constructor(
     }
 
     /** Returns the parent-relative Y coordinate of the current component in pixels. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun componentY(): RemoteFloat {
+    internal fun componentY(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_Y, "y")
@@ -211,8 +206,7 @@ private constructor(
     }
 
     /** Returns the root-relative X coordinate of the current component in pixels. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun componentRootX(): RemoteFloat {
+    internal fun componentRootX(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_X, "rootX")
@@ -227,8 +221,7 @@ private constructor(
     }
 
     /** Returns the root-relative Y coordinate of the current component in pixels. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun componentRootY(): RemoteFloat {
+    internal fun componentRootY(): RemoteFloat {
         val capturedToken = activeToken()
         if (capturedToken != null) {
             return tokenComponentFloat(capturedToken, RemoteComponentToken.PROP_ROOT_Y, "rootY")
