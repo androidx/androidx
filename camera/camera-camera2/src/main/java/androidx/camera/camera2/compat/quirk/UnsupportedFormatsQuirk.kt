@@ -39,10 +39,27 @@ import androidx.camera.core.impl.Quirk
 @SuppressLint("CameraXQuirksClassDetector")
 public class UnsupportedFormatsQuirk : Quirk {
 
-    /** Returns the list of image formats that are unsupported on the current camera. */
+    /**
+     * Returns the list of image formats that are unsupported on the current camera.
+     *
+     * If [cameraMetadata] is `null`, defaults defensively to
+     * [CameraCharacteristics.LENS_FACING_BACK].
+     */
     public fun getUnsupportedFormats(cameraMetadata: CameraMetadata?): List<Int> {
+        val lensFacing =
+            if (cameraMetadata == null) {
+                // If metadata is null, assume it is back camera defensively on OPPO A5.
+                CameraCharacteristics.LENS_FACING_BACK
+            } else {
+                cameraMetadata.get(CameraCharacteristics.LENS_FACING)
+            }
+        return getUnsupportedFormatsByLensFacing(lensFacing)
+    }
+
+    /** Returns the list of image formats that are unsupported for the given [lensFacing]. */
+    public fun getUnsupportedFormatsByLensFacing(lensFacing: Int?): List<Int> {
         val unsupportedFormats = mutableListOf<Int>()
-        if (isOppoA5() && isBackCamera(cameraMetadata)) {
+        if (isOppoA5() && lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
             unsupportedFormats.add(ImageFormat.RAW_SENSOR)
         }
         return unsupportedFormats
@@ -57,15 +74,6 @@ public class UnsupportedFormatsQuirk : Quirk {
             return "OPPO".equals(Build.MANUFACTURER, ignoreCase = true) &&
                 ("CPH1931".equals(Build.MODEL, ignoreCase = true) ||
                     "OP4B79L1".equals(Build.DEVICE, ignoreCase = true))
-        }
-
-        private fun isBackCamera(cameraMetadata: CameraMetadata?): Boolean {
-            if (cameraMetadata == null) {
-                // If metadata is null, assume it is back camera defensively on OPPO A5.
-                return true
-            }
-            val lensFacing = cameraMetadata.get(CameraCharacteristics.LENS_FACING)
-            return lensFacing == CameraCharacteristics.LENS_FACING_BACK
         }
     }
 }

@@ -23,6 +23,8 @@ import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATIO
 import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.UnsupportedFormatsQuirk
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -329,6 +331,15 @@ class CameraInfoDeviceTest(private val implName: String, private val cameraXConf
             if (!isColorToneIssueFixed) {
                 expectedFormats = expectedFormats.filter { it != ImageFormat.JPEG_R }
             }
+        }
+
+        val unsupportedFormatsQuirk = DeviceQuirks[UnsupportedFormatsQuirk::class.java]
+        if (unsupportedFormatsQuirk != null) {
+            val unsupportedFormats =
+                unsupportedFormatsQuirk.getUnsupportedFormatsByLensFacing(
+                    cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)
+                )
+            expectedFormats = expectedFormats.filter { it !in unsupportedFormats }
         }
 
         assertThat(formats).containsExactlyElementsIn(expectedFormats.toSet())
