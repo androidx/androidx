@@ -28,6 +28,8 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
+import androidx.compose.remote.creation.compose.state.nanIdContentEquals
+import androidx.compose.remote.creation.compose.state.nanIdContentHashCode
 
 /**
  * Represents a pending matrix transformation operation that can potentially be optimized.
@@ -612,6 +614,19 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
         /** Link to the next sibling span sharing the same [parent] scope. */
         var next: Span? = null
         var optimized = false
+
+        /** Wire IDs of the path data written in this span, keyed by content and winding. */
+        private val pathDataIds = MutableObjectIntMap<PathDataKey>()
+
+        /**
+         * Returns the wire ID of [pathData] with [winding] in this span. The path data is written
+         * to [writer] on first use, and later uses with identical path data and winding reuse its
+         * ID.
+         */
+        fun getOrPutPathData(writer: RemoteComposeWriter, pathData: FloatArray, winding: Int): Int =
+            pathDataIds.getOrPut(PathDataKey(pathData, winding)) {
+                writer.addPathData(pathData, winding)
+            }
 
         fun createChildSpan(): Span {
             val childSpan = Span(this, depth + 1)
@@ -1582,6 +1597,23 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
                 }
             }
         }
+    }
+
+    /**
+     * Identical path data and winding recorded into the same [Span]. Each span is written into
+     * exactly one wire container, so a DATA_PATH id is never referenced outside the container that
+     * defines it. Path data holds NaN-encoded commands and variable ids, so equality uses
+     * [nanIdContentEquals].
+     */
+    private class PathDataKey(val pathData: FloatArray, val winding: Int) {
+        private val hashCode: Int = 31 * winding + pathData.nanIdContentHashCode()
+
+        override fun equals(other: Any?): Boolean =
+            other is PathDataKey &&
+                winding == other.winding &&
+                pathData.nanIdContentEquals(other.pathData)
+
+        override fun hashCode(): Int = hashCode
     }
 
     internal companion object {

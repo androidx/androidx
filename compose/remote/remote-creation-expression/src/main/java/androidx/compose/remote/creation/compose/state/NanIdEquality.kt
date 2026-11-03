@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 
 // RemoteCompose encodes variable ids and RPN operators as NaN payloads. FloatArray.contentEquals
@@ -42,7 +43,8 @@ private fun nanIdHashCode(value: Float): Int =
  * RemoteCompose value. NaN-encoded ids are compared by [Utils.idFromNan]. Two null arrays are
  * equal.
  */
-internal fun FloatArray?.nanIdContentEquals(other: FloatArray?): Boolean {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun FloatArray?.nanIdContentEquals(other: FloatArray?): Boolean {
     if (this === other) return true
     if (this == null || other == null) return false
     if (size != other.size) return false
@@ -53,7 +55,8 @@ internal fun FloatArray?.nanIdContentEquals(other: FloatArray?): Boolean {
 }
 
 /** Returns a hash code for this array that is consistent with [nanIdContentEquals]. */
-internal fun FloatArray?.nanIdContentHashCode(): Int {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun FloatArray?.nanIdContentHashCode(): Int {
     if (this == null) return 0
     var result = 1
     for (value in this) {

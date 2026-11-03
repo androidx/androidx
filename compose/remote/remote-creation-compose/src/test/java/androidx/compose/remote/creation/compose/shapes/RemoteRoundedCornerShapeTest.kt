@@ -296,7 +296,7 @@ class RemoteRoundedCornerShapeTest {
         remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
-            .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
+            .containsExactly("addPaint", "addPathData(42, 0)", "addDrawPath(42)")
     }
 
     @Test
@@ -313,7 +313,7 @@ class RemoteRoundedCornerShapeTest {
         remoteCanvas.flush()
 
         assertThat(fakeBuffer.calls)
-            .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
+            .containsExactly("addPaint", "addPathData(42, 0)", "addDrawPath(42)")
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
