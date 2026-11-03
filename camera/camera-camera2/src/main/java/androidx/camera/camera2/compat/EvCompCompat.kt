@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
 import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Rational
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.CameraProperties
@@ -85,11 +86,21 @@ constructor(
             cameraProperties.metadata[CONTROL_AE_COMPENSATION_STEP]!!
         }
 
-    private var updateSignal: CompletableDeferred<Int>? = null
-    private var updateListener: Request.Listener? = null
+    private val lock = Any()
+    @GuardedBy("lock") private var updateSignal: CompletableDeferred<Int>? = null
+    @GuardedBy("lock") private var updateListener: Request.Listener? = null
 
     override fun stopRunningTask(throwable: Throwable) {
-        updateSignal?.completeExceptionally(throwable)
+        val listenerToRemove: Request.Listener?
+        val signalToFail: CompletableDeferred<Int>?
+        synchronized(lock) {
+            listenerToRemove = updateListener
+            updateListener = null
+            signalToFail = updateSignal
+            updateSignal = null
+        }
+        listenerToRemove?.let { comboRequestListener.removeListener(it) }
+        signalToFail?.completeExceptionally(throwable)
     }
 
     override fun applyAsync(
@@ -98,8 +109,45 @@ constructor(
         cancelPreviousTask: Boolean,
     ): Deferred<Int> {
         val signal = CompletableDeferred<Int>()
+        val previousSignal: CompletableDeferred<Int>?
+        val previousListener: Request.Listener?
 
-        updateSignal?.let { previousUpdateSignal ->
+        val requestListener =
+            object : Request.Listener {
+                override fun onComplete(
+                    requestMetadata: RequestMetadata,
+                    frameNumber: CameraFrameNumber,
+                    result: FrameInfo,
+                ) {
+                    val state = result.metadata[CaptureResult.CONTROL_AE_STATE]
+                    val evResult = result.metadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]
+                    if (state != null && evResult != null) {
+                        when (state) {
+                            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
+                            CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                            CaptureResult.CONTROL_AE_STATE_LOCKED ->
+                                if (evResult == evCompIndex) {
+                                    signal.complete(evCompIndex)
+                                }
+                            else -> {}
+                        }
+                    } else if (evResult != null && evResult == evCompIndex) {
+                        // If AE state is null, only wait for the exposure result to the desired
+                        // value.
+                        signal.complete(evCompIndex)
+                    }
+                }
+            }
+
+        synchronized(lock) {
+            previousSignal = updateSignal
+            updateSignal = signal
+            previousListener = updateListener
+            updateListener = requestListener
+        }
+
+        previousListener?.let { comboRequestListener.removeListener(it) }
+        previousSignal?.let { previousUpdateSignal ->
             if (cancelPreviousTask) {
                 // Cancel the previous request signal if exist.
                 previousUpdateSignal.completeExceptionally(
@@ -112,51 +160,24 @@ constructor(
                 signal.propagateTo(previousUpdateSignal)
             }
         }
-        updateSignal = signal
-        updateListener?.let {
-            comboRequestListener.removeListener(it)
-            updateListener = null
-        }
 
         requestControl.setParametersAsync(
             values = mapOf(CONTROL_AE_EXPOSURE_COMPENSATION to evCompIndex)
         )
 
         // Prepare the listener to wait for the exposure value to reach the target.
-        updateListener =
-            object : Request.Listener {
-                    override fun onComplete(
-                        requestMetadata: RequestMetadata,
-                        frameNumber: CameraFrameNumber,
-                        result: FrameInfo,
-                    ) {
-                        val state = result.metadata[CaptureResult.CONTROL_AE_STATE]
-                        val evResult =
-                            result.metadata[CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION]
-                        if (state != null && evResult != null) {
-                            when (state) {
-                                CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
-                                CaptureResult.CONTROL_AE_STATE_LOCKED ->
-                                    if (evResult == evCompIndex) {
-                                        signal.complete(evCompIndex)
-                                    }
-                                else -> {}
-                            }
-                        } else if (evResult != null && evResult == evCompIndex) {
-                            // If AE state is null, only wait for the exposure result to the
-                            // desired
-                            // value.
-                            signal.complete(evCompIndex)
-                        }
-                    }
+        comboRequestListener.addListener(requestListener, threads.sequentialExecutor)
+        signal.invokeOnCompletion {
+            synchronized(lock) {
+                if (updateListener === requestListener) {
+                    updateListener = null
                 }
-                .also { requestListener ->
-                    comboRequestListener.addListener(requestListener, threads.sequentialExecutor)
-                    signal.invokeOnCompletion {
-                        comboRequestListener.removeListener(requestListener)
-                    }
+                if (updateSignal === signal) {
+                    updateSignal = null
                 }
+            }
+            comboRequestListener.removeListener(requestListener)
+        }
 
         return signal
     }

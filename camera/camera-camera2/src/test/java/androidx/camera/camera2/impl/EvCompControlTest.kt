@@ -103,6 +103,7 @@ class EvCompControlTest {
 
         // Assert. The exposure control has been set to inactive. It should throw an exception.
         assertThrows<CameraControl.OperationCanceledException> { deferred.awaitWithTimeout() }
+        assertThat(comboRequestListener.listenerHolders).isEmpty()
     }
 
     @Test

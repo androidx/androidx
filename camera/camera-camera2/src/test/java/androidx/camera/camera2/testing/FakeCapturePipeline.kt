@@ -30,6 +30,8 @@ import kotlinx.coroutines.Deferred
 class FakeCapturePipeline(override var template: Int = CameraDevice.TEMPLATE_PREVIEW) :
     CapturePipeline {
 
+    var submitStillCapturesCallCount = 0
+
     override suspend fun submitStillCaptures(
         configs: List<CaptureConfig>,
         requestTemplate: RequestTemplate,
@@ -38,6 +40,7 @@ class FakeCapturePipeline(override var template: Int = CameraDevice.TEMPLATE_PRE
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
+        submitStillCapturesCallCount++
         return configs.map { CompletableDeferred<Void?>(null).apply { complete(null) } }
     }
 

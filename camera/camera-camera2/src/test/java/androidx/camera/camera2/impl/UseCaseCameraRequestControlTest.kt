@@ -18,6 +18,7 @@ package androidx.camera.camera2.impl
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.MeteringRectangle
 import android.util.Range
 import androidx.camera.camera2.adapter.CameraSessionLifecycleAdapter
 import androidx.camera.camera2.adapter.CameraStateAdapter
@@ -26,18 +27,30 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
+import androidx.camera.camera2.pipe.ControlMode
+import androidx.camera.camera2.pipe.FlashMode
+import androidx.camera.camera2.pipe.FrameMetadata
+import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.testing.FakeCameraGraph
+import androidx.camera.camera2.testing.FakeCameraGraphSession
 import androidx.camera.camera2.testing.FakeCapturePipeline
 import androidx.camera.camera2.testing.FakeSurface
 import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
 import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureResult
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
@@ -46,12 +59,18 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.collections.removeLast as removeLastKt
+import kotlin.test.assertFailsWith
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -450,21 +469,265 @@ class UseCaseCameraRequestControlTest {
 
         val results =
             requestControl.issueSingleCaptureAsync(
-                captureSequence = listOf(androidx.camera.core.impl.CaptureConfig.Builder().build()),
-                captureMode = androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-                flashType = androidx.camera.core.ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
-                flashMode = androidx.camera.core.ImageCapture.FLASH_MODE_OFF,
+                captureSequence = listOf(CaptureConfig.Builder().build()),
+                captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+                flashMode = ImageCapture.FLASH_MODE_OFF,
             )
 
         assertThat(results.size).isEqualTo(1)
-        var caughtException: androidx.camera.core.ImageCaptureException? = null
-        try {
-            results[0].await()
-        } catch (e: androidx.camera.core.ImageCaptureException) {
-            caughtException = e
+        val exception = assertFailsWith<ImageCaptureException> { results[0].await() }
+        assertThat(exception.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED)
+    }
+
+    @Test
+    fun issueSingleCaptureAsync_withInvalidSurface_failsWithoutSubmittingToPipeline(): Unit =
+        runBlocking {
+            val fakeCapturePipeline = FakeCapturePipeline()
+            val localRequestControl =
+                UseCaseCameraRequestControlImpl(
+                    capturePipelineProvider = { fakeCapturePipeline },
+                    useCaseCameraStateProvider = { fakeUseCaseCameraState },
+                    useCaseCameraContext = fakeUseCaseCameraContext,
+                    useCaseSurfaceManagerProvider = {
+                        FakeUseCaseSurfaceManager(threads = useCaseThreads)
+                    },
+                    threads = useCaseThreads,
+                )
+            val closedSurface = FakeSurface().apply { close() }
+            val captureConfig = CaptureConfig.Builder().apply { addSurface(closedSurface) }.build()
+
+            val results =
+                localRequestControl.issueSingleCaptureAsync(
+                    captureSequence = listOf(captureConfig),
+                    captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+                    flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+                    flashMode = ImageCapture.FLASH_MODE_OFF,
+                )
+
+            assertThat(results.size).isEqualTo(1)
+            val exception = assertFailsWith<ImageCaptureException> { results[0].await() }
+            assertThat(exception.imageCaptureError).isEqualTo(ImageCapture.ERROR_CAPTURE_FAILED)
+            assertThat(fakeCapturePipeline.submitStillCapturesCallCount).isEqualTo(0)
         }
-        assertThat(caughtException?.imageCaptureError)
-            .isEqualTo(androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun startFocusAndMeteringAsync_whenLock3AStalled_timesOutAndReleasesSession(): Unit = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testThreads =
+            UseCaseThreads(this, testDispatcher.asExecutor(), testDispatcher).apply {
+                sequentialScope = this@runTest
+            }
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override suspend fun lock3A(
+                    aeMode: AeMode?,
+                    afMode: AfMode?,
+                    awbMode: AwbMode?,
+                    aeRegions: List<MeteringRectangle>?,
+                    afRegions: List<MeteringRectangle>?,
+                    awbRegions: List<MeteringRectangle>?,
+                    aeLockBehavior: Lock3ABehavior?,
+                    afLockBehavior: Lock3ABehavior?,
+                    awbLockBehavior: Lock3ABehavior?,
+                    afTriggerStartAeMode: AeMode?,
+                    convergedCondition: ((FrameMetadata) -> Boolean)?,
+                    lockedCondition: ((FrameMetadata) -> Boolean)?,
+                    frameLimit: Int,
+                    convergedTimeLimitNs: Long,
+                    lockedTimeLimitNs: Long,
+                ): Deferred<Result3A> {
+                    // Simulate Controller3A.lock3A suspending forever waiting for 3A convergence
+                    CompletableDeferred<Result3A>().await()
+                    return CompletableDeferred(Result3A(Result3A.Status.OK))
+                }
+            }
+        val stalledGraph = FakeCameraGraph(fakeCameraGraphSession = stalledSession)
+        val stalledContext =
+            UseCaseCameraContext(
+                cameraGraphProvider = { stalledGraph },
+                cameraStateAdapter = cameraStateAdapter,
+                graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
+                streamConfigMapProvider = { emptyMap() },
+                defaultSurfaceToStreamMap = surfaceToStreamMap,
+            )
+        val localRequestControl =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = {
+                    UseCaseCameraState(
+                        useCaseCameraContext = stalledContext,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
+                    )
+                },
+                useCaseCameraContext = stalledContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+
+        val resultDeferred =
+            localRequestControl.startFocusAndMeteringAsync(
+                aeRegions = null,
+                afRegions = null,
+                awbRegions = null,
+                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                afLockBehavior = null,
+                awbLockBehavior = null,
+                afTriggerStartAeMode = null,
+                timeLimitNs = TimeUnit.MILLISECONDS.toNanos(1000L),
+            )
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun startFocusAndMeteringAsync_whenLock3ADeferredStalled_releasesSessionImmediatelyAndTimesOut():
+        Unit = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testThreads =
+            UseCaseThreads(this, testDispatcher.asExecutor(), testDispatcher).apply {
+                sequentialScope = this@runTest
+            }
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override suspend fun lock3A(
+                    aeMode: AeMode?,
+                    afMode: AfMode?,
+                    awbMode: AwbMode?,
+                    aeRegions: List<MeteringRectangle>?,
+                    afRegions: List<MeteringRectangle>?,
+                    awbRegions: List<MeteringRectangle>?,
+                    aeLockBehavior: Lock3ABehavior?,
+                    afLockBehavior: Lock3ABehavior?,
+                    awbLockBehavior: Lock3ABehavior?,
+                    afTriggerStartAeMode: AeMode?,
+                    convergedCondition: ((FrameMetadata) -> Boolean)?,
+                    lockedCondition: ((FrameMetadata) -> Boolean)?,
+                    frameLimit: Int,
+                    convergedTimeLimitNs: Long,
+                    lockedTimeLimitNs: Long,
+                ): Deferred<Result3A> {
+                    // Simulate Controller3A.lock3ANow returning an uncompleted Deferred
+                    return CompletableDeferred()
+                }
+            }
+        val stalledGraph = FakeCameraGraph(fakeCameraGraphSession = stalledSession)
+        val stalledContext =
+            UseCaseCameraContext(
+                cameraGraphProvider = { stalledGraph },
+                cameraStateAdapter = cameraStateAdapter,
+                graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
+                streamConfigMapProvider = { emptyMap() },
+                defaultSurfaceToStreamMap = surfaceToStreamMap,
+            )
+        val localRequestControl =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = {
+                    UseCaseCameraState(
+                        useCaseCameraContext = stalledContext,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
+                    )
+                },
+                useCaseCameraContext = stalledContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+
+        val resultDeferred =
+            localRequestControl.startFocusAndMeteringAsync(
+                aeRegions = null,
+                afRegions = null,
+                awbRegions = null,
+                aeLockBehavior = null,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                awbLockBehavior = null,
+                afTriggerStartAeMode = null,
+                timeLimitNs = TimeUnit.MILLISECONDS.toNanos(1000L),
+            )
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.TIME_LIMIT_REACHED)
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun cancelFocusAndMeteringAsync_whenUnlock3AStalled_timesOutAndUpdates3A(): Unit = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val testThreads =
+            UseCaseThreads(this, testDispatcher.asExecutor(), testDispatcher).apply {
+                sequentialScope = this@runTest
+            }
+        var update3ACalled = false
+        val stalledSession =
+            object : FakeCameraGraphSession() {
+                override suspend fun unlock3A(
+                    ae: Boolean?,
+                    af: Boolean?,
+                    awb: Boolean?,
+                    unlockedCondition: ((FrameMetadata) -> Boolean)?,
+                    frameLimit: Int,
+                    timeLimitNs: Long,
+                ): Deferred<Result3A> {
+                    // Simulate Result3AStateListenerImpl never receiving a frame
+                    return CompletableDeferred()
+                }
+
+                override fun update3A(
+                    aeMode: AeMode?,
+                    afMode: AfMode?,
+                    awbMode: AwbMode?,
+                    controlMode: ControlMode?,
+                    flashMode: FlashMode?,
+                    aeRegions: List<MeteringRectangle>?,
+                    afRegions: List<MeteringRectangle>?,
+                    awbRegions: List<MeteringRectangle>?,
+                    retainLocks: Boolean,
+                ): Deferred<Result3A> {
+                    update3ACalled = true
+                    return CompletableDeferred(Result3A(Result3A.Status.OK))
+                }
+            }
+        val stalledGraph = FakeCameraGraph(fakeCameraGraphSession = stalledSession)
+        val stalledContext =
+            UseCaseCameraContext(
+                cameraGraphProvider = { stalledGraph },
+                cameraStateAdapter = cameraStateAdapter,
+                graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
+                streamConfigMapProvider = { emptyMap() },
+                defaultSurfaceToStreamMap = surfaceToStreamMap,
+            )
+        val localRequestControl =
+            UseCaseCameraRequestControlImpl(
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = {
+                    UseCaseCameraState(
+                        useCaseCameraContext = stalledContext,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
+                    )
+                },
+                useCaseCameraContext = stalledContext,
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = testThreads)
+                },
+                threads = testThreads,
+            )
+
+        val resultDeferred = localRequestControl.cancelFocusAndMeteringAsync()
+
+        advanceUntilIdle()
+        assertThat(resultDeferred.await().status).isEqualTo(Result3A.Status.OK)
+        assertThat(update3ACalled).isTrue()
+        assertThat(stalledGraph.activeSessionCount).isEqualTo(0)
     }
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
