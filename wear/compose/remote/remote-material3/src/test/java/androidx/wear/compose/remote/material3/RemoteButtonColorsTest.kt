@@ -230,4 +230,49 @@ class RemoteButtonColorsTest {
 
         assertEquals(expectedPrimary.constantValue, colors.contentColor.constantValue)
     }
+
+    @Test
+    fun filledTonalTextButtonColors_defaultsToSurfaceContainerAndOnSurface() {
+        lateinit var colors: RemoteTextButtonColors
+        val expectedContainer = Color.Cyan.rc
+        val expectedContent = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme()
+                        .copy(
+                            surfaceContainer = expectedContainer,
+                            onSurface = expectedContent,
+                            primary = Color.Red.rc,
+                        )
+            ) {
+                colors = RemoteTextButtonDefaults.filledTonalTextButtonColors()
+            }
+        }
+
+        assertEquals(expectedContainer.constantValue, colors.containerColor.constantValue)
+        assertEquals(expectedContent.constantValue, colors.contentColor.constantValue)
+    }
+
+    @Test
+    fun filledTonalTextButtonColors_overridesColors() {
+        lateinit var customized: RemoteTextButtonColors
+        val defaultContainer = Color.Cyan.rc
+        val defaultContent = Color.Yellow.rc
+        composeTestRule.setContent {
+            RemoteMaterialTheme(
+                colorScheme =
+                    RemoteColorScheme()
+                        .copy(surfaceContainer = defaultContainer, onSurface = defaultContent)
+            ) {
+                customized =
+                    RemoteTextButtonDefaults.filledTonalTextButtonColors(
+                        contentColor = Color.Magenta.rc
+                    )
+            }
+        }
+
+        assertEquals(defaultContainer.constantValue, customized.containerColor.constantValue)
+        assertEquals(Color.Magenta, customized.contentColor.asConstantColor())
+    }
 }
