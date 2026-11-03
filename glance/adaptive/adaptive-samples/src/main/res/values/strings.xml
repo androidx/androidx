@@ -22,4 +22,5 @@
 
     <string name="track_widget_name">Track Activity Widget</string>
     <string name="track_widget_description">Adaptive Track template widget for fitness metrics</string>
+    <string name="track_remoteviews_widget_name">Track Activity Widget (RemoteViews)</string>
 </resources>

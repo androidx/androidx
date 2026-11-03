@@ -85,7 +85,12 @@ private val DemoWidgets =
             label = R.string.track_widget_name,
             widgetName = TrackWidgetReceiver.WIDGET_NAME,
             previewData = TrackWidgetReceiver.SampleData,
-        )
+        ),
+        DemoWidget(
+            label = R.string.track_remoteviews_widget_name,
+            widgetName = TrackRemoteViewsWidgetReceiver.WIDGET_NAME,
+            previewData = TrackWidgetReceiver.SampleData,
+        ),
     )
 
 /**
