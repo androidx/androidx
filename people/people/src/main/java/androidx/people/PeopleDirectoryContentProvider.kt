@@ -31,8 +31,8 @@ import androidx.people.internal.PeopleBackendResolver
 import androidx.people.internal.directoryGroupQuery
 import androidx.people.internal.directoryPersonQuery
 import androidx.people.internal.platform.PeopleContractCompat
-import androidx.people.internal.platform.groupCriteriaByPackage
-import androidx.people.internal.platform.personCriteriaByPackage
+import androidx.people.internal.platform.groupCriteriaFor
+import androidx.people.internal.platform.personCriteriaFor
 import androidx.people.internal.platform.toCursor
 
 /**
@@ -111,6 +111,9 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
      * Answers the sub-query of [queryArgs] addressed to this application through [queryPersons] or
      * [queryGroups], and returns the result in the People Directory cursor format.
      *
+     * Sub-queries without a package are addressed to this application, since a People Directory
+     * only receives queries for itself.
+     *
      * @throws IllegalArgumentException if [queryArgs] contain no criteria addressed to this
      *   application.
      */
@@ -126,7 +129,7 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
             MATCH_PERSONS -> {
                 // Answer only the sub-query addressed to this application.
                 val criteria =
-                    requireNotNull(queryArgs.personCriteriaByPackage()[directoryPackage]) {
+                    requireNotNull(queryArgs.personCriteriaFor(directoryPackage)) {
                         "The query arguments contain no person criteria for $directoryPackage"
                     }
                 val query = DirectoryPersonQuery(criteria)
@@ -135,7 +138,7 @@ public abstract class PeopleDirectoryContentProvider : ContentProvider() {
             }
             MATCH_GROUPS -> {
                 val criteria =
-                    requireNotNull(queryArgs.groupCriteriaByPackage()[directoryPackage]) {
+                    requireNotNull(queryArgs.groupCriteriaFor(directoryPackage)) {
                         "The query arguments contain no group criteria for $directoryPackage"
                     }
                 val query = DirectoryGroupQuery(criteria)

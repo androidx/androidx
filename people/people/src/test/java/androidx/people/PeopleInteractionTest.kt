@@ -16,6 +16,7 @@
 
 package androidx.people
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.people.internal.platform.PeopleContractCompat
@@ -26,6 +27,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -34,19 +36,19 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_validPersonInteraction_returnsParsedInteraction() {
-        val personId = PersonId("alice_123", "com.example.voip")
+        val personId = PersonId("alice_123", directoryPackage())
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
                 peopleInteraction(personId, Capability.VOICE).toInteractionQueryArgs(),
             )
 
-        val interaction = PeopleInteraction.parse(intent)
+        val interaction = PeopleInteraction.parse(context(), intent)
 
         assertThat(interaction).isNotNull()
         assertThat(interaction!!.targetPersonId).isEqualTo(personId)
         assertThat(interaction.targetGroupId).isNull()
-        assertThat(interaction.directoryPackage).isEqualTo("com.example.voip")
+        assertThat(interaction.directoryPackage).isEqualTo(directoryPackage())
         assertThat(interaction.targetCriteria)
             .containsExactly(Criterion.PersonLookupKey("alice_123"))
         assertThat(interaction.capability).isEqualTo(Capability.VOICE)
@@ -54,14 +56,14 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_validGroupInteraction_returnsParsedInteraction() {
-        val groupId = GroupId("group_xyz", "com.example.chat")
+        val groupId = GroupId("group_xyz", directoryPackage())
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_MESSAGE,
                 peopleInteraction(groupId, Capability.MESSAGE).toInteractionQueryArgs(),
             )
 
-        val interaction = PeopleInteraction.parse(intent)
+        val interaction = PeopleInteraction.parse(context(), intent)
 
         assertThat(interaction).isNotNull()
         assertThat(interaction!!.targetGroupId).isEqualTo(groupId)
@@ -71,7 +73,7 @@ class PeopleInteractionTest {
 
     @Test
     fun parse_wrongAction_returnsNull() {
-        val personId = PersonId("alice_123", "com.example.voip")
+        val personId = PersonId("alice_123", directoryPackage())
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
@@ -79,7 +81,7 @@ class PeopleInteractionTest {
                 action = "com.example.CUSTOM_ACTION",
             )
 
-        val interaction = PeopleInteraction.parse(intent)
+        val interaction = PeopleInteraction.parse(context(), intent)
 
         assertThat(interaction).isNull()
     }
@@ -88,7 +90,7 @@ class PeopleInteractionTest {
     fun parse_missingExtras_returnsNull() {
         val intent = Intent(PeopleInteraction.ACTION_START_INTERACTION)
 
-        val interaction = PeopleInteraction.parse(intent)
+        val interaction = PeopleInteraction.parse(context(), intent)
 
         assertThat(interaction).isNull()
     }
@@ -98,11 +100,11 @@ class PeopleInteractionTest {
         val intent =
             interactionIntent(
                 "unknown",
-                peopleInteraction(PersonId("p1", "com.example.voip"), Capability.VOICE)
+                peopleInteraction(PersonId("p1", directoryPackage()), Capability.VOICE)
                     .toInteractionQueryArgs(),
             )
 
-        assertThat(PeopleInteraction.parse(intent)).isNull()
+        assertThat(PeopleInteraction.parse(context(), intent)).isNull()
     }
 
     @Test
@@ -110,20 +112,20 @@ class PeopleInteractionTest {
         val intent =
             interactionIntent(PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE, Bundle())
 
-        assertThat(PeopleInteraction.parse(intent)).isNull()
+        assertThat(PeopleInteraction.parse(context(), intent)).isNull()
     }
 
     @Test
     fun parse_criterionTarget_returnsParsedInteraction() {
         val expected =
-            peopleInteraction("com.example.voip", Capability.VOICE) { addPhones("+15551234567") }
+            peopleInteraction(directoryPackage(), Capability.VOICE) { addPhones("+15551234567") }
         val intent =
             interactionIntent(
                 PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
-                queryArgsFor(personQuery("com.example.voip") { addPhones("+15551234567") }),
+                queryArgsFor(personQuery(directoryPackage()) { addPhones("+15551234567") }),
             )
 
-        val interaction = PeopleInteraction.parse(intent)
+        val interaction = PeopleInteraction.parse(context(), intent)
 
         assertThat(interaction).isEqualTo(expected)
         assertThat(interaction!!.targetPersonId).isNull()
@@ -140,21 +142,21 @@ class PeopleInteractionTest {
                 { addGroupLookupKeys("g1") },
             )
         for (target in targets) {
-            val interaction = peopleInteraction("com.example.voip", Capability.VIDEO, target)
+            val interaction = peopleInteraction(directoryPackage(), Capability.VIDEO, target)
             val intent =
                 interactionIntent(
                     PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VIDEO,
                     interaction.toInteractionQueryArgs(),
                 )
 
-            assertThat(PeopleInteraction.parse(intent)).isEqualTo(interaction)
+            assertThat(PeopleInteraction.parse(context(), intent)).isEqualTo(interaction)
         }
     }
 
     @Test
     fun parse_multipleCriteria_roundTripsEveryCriterion() {
         val interaction =
-            peopleInteraction("com.example.voip", Capability.VOICE) {
+            peopleInteraction(directoryPackage(), Capability.VOICE) {
                 addLookupKeys("p1")
                 addPhones("+15551234567")
                 addEmails("alice@example.com")
@@ -166,31 +168,117 @@ class PeopleInteractionTest {
                 interaction.toInteractionQueryArgs(),
             )
 
-        val parsed = PeopleInteraction.parse(intent)
+        val parsed = PeopleInteraction.parse(context(), intent)
 
         assertThat(parsed).isEqualTo(interaction)
-        assertThat(parsed!!.targetPersonId).isEqualTo(PersonId("p1", "com.example.voip"))
-        assertThat(parsed.targetGroupId).isEqualTo(GroupId("g1", "com.example.voip"))
+        assertThat(parsed!!.targetPersonId).isEqualTo(PersonId("p1", directoryPackage()))
+        assertThat(parsed.targetGroupId).isEqualTo(GroupId("g1", directoryPackage()))
     }
 
     @Test
-    fun parse_multiplePackages_returnsNull() {
+    fun parse_subQueriesForOtherPackages_areIgnored() {
         val queryArgs =
             queryArgsFor(
                 personQuery {
-                    directory("com.example.voip") {
+                    directory("com.other.app") { addPhones("+2") }
+                    directory(directoryPackage()) {
                         addPhones("+1")
                         addEmails("a@b")
                     }
-                    directory("com.example.chat") { addPhones("+2") }
                 }
             )
         val intent =
             interactionIntent(PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE, queryArgs)
 
-        val parsed = PeopleInteraction.parse(intent)
+        val parsed = PeopleInteraction.parse(context(), intent)
 
-        assertThat(parsed).isNull()
+        assertThat(parsed)
+            .isEqualTo(
+                peopleInteraction(directoryPackage(), Capability.VOICE) {
+                    addPhones("+1")
+                    addEmails("a@b")
+                }
+            )
+    }
+
+    @Test
+    fun parse_onlySubQueriesForOtherPackages_returnsNull() {
+        val intent =
+            interactionIntent(
+                PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE,
+                queryArgsFor(personQuery("com.other.app") { addPhones("+1") }),
+            )
+
+        assertThat(PeopleInteraction.parse(context(), intent)).isNull()
+    }
+
+    @Test
+    fun parse_subQueryWithoutPackage_isAddressedToItsOwnApplication() {
+        val queryArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("alice"),
+                            )
+                        }
+                    ),
+                )
+            }
+        val intent =
+            interactionIntent(PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VIDEO, queryArgs)
+
+        val parsed = PeopleInteraction.parse(context(), intent)
+
+        assertThat(parsed)
+            .isEqualTo(peopleInteraction(PersonId("alice", directoryPackage()), Capability.VIDEO))
+    }
+
+    @Test
+    fun parse_subQueriesWithAndWithoutPackage_mergesItsOwn() {
+        val queryArgs =
+            Bundle().apply {
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, directoryPackage())
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_LOOKUP_KEY,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("alice"),
+                            )
+                        },
+                        Bundle().apply {
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                    ),
+                )
+            }
+        val intent =
+            interactionIntent(PeopleContractCompat.Intents.PEOPLE_INTERACTION_TYPE_VOICE, queryArgs)
+
+        val parsed = PeopleInteraction.parse(context(), intent)
+
+        assertThat(parsed?.targetCriteria)
+            .containsExactly(Criterion.PersonLookupKey("alice"), Criterion.Phone("+1"))
     }
 
     @Test
@@ -247,6 +335,11 @@ class PeopleInteractionTest {
     /** Serializes [query] the way the system People Provider forwards it in an intent. */
     private fun queryArgsFor(query: PersonQuery): Bundle =
         query.directoryQueries.toPersonQueryArgs()
+
+    private fun context(): Context = RuntimeEnvironment.getApplication()
+
+    /** The package of the application under test, which receives the interaction intents. */
+    private fun directoryPackage(): String = context().packageName
 
     private fun interactionIntent(
         interactionType: String,
