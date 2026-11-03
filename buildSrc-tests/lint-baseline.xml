@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.6.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.6.0-alpha01)" variant="all" version="9.6.0-alpha01">
 
     <issue
         id="EagerGradleConfiguration"
@@ -85,7 +85,7 @@
     <issue
         id="EagerGradleConfiguration"
         message="Use register instead of create"
-        errorLine1="            .create(&quot;ReleaseApiDependencies&quot;) {"
+        errorLine1="            .create(&quot;ReleaseApiDependencies&quot;) { it.setResolveReleaseApi(project) }"
         errorLine2="             ~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/checkapi/ApiTasks.kt"/>
@@ -346,8 +346,8 @@
     <issue
         id="GradlePerformance"
         message="Avoid using method mustRunAfter"
-        errorLine1="        ignoreApiChanges?.configure { it.mustRunAfter(regenerateOldApis) }"
-        errorLine2="                                         ~~~~~~~~~~~~">
+        errorLine1="                ignoreApiChanges.configure { it.mustRunAfter(regenerateCompatApi!!) }"
+        errorLine2="                                                ~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/MetalavaTasks.kt"/>
     </issue>
@@ -355,8 +355,8 @@
     <issue
         id="GradlePerformance"
         message="Avoid using method mustRunAfter"
-        errorLine1="        checkApiRelease?.configure { it.mustRunAfter(regenerateOldApis) }"
-        errorLine2="                                        ~~~~~~~~~~~~">
+        errorLine1="                checkApiRelease.configure { it.mustRunAfter(regenerateCompatApi!!) }"
+        errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/MetalavaTasks.kt"/>
     </issue>
@@ -580,24 +580,6 @@
     <issue
         id="GradleProjectIsolation"
         message="Use isolated.rootProject instead of getRootProject"
-        errorLine1="                regenerate(project.rootProject, groupId, artifactId, artifactVersion, location)"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/RegenerateOldApisTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use isolated.rootProject instead of getRootProject"
-        errorLine1="            regenerate(project.rootProject, groupId, artifactId, version, location)"
-        errorLine2="                               ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/RegenerateOldApisTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use isolated.rootProject instead of getRootProject"
         errorLine1="        val localPropsFile = rootProject.projectDir.resolve(&quot;local.properties&quot;)"
         errorLine2="                             ~~~~~~~~~~~">
         <location
@@ -773,15 +755,6 @@
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/dackka/GenerateMetadataTask.kt"/>
-    </issue>
-
-    <issue
-        id="InternalGradleApiUsage"
-        message="Avoid using internal Gradle APIs"
-        errorLine1="import org.gradle.api.internal.artifacts.ivyservice.TypedResolveException"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/RegenerateOldApisTask.kt"/>
     </issue>
 
     <issue
