@@ -481,6 +481,7 @@ internal class RectManager(
             rects.removeAt(layoutNode.indexInRectList())
             layoutNode.rectListIndex = NotFound
             layoutNode.rectInParentDirty = true
+            layoutNode.outerToInnerOffsetDirty = true
             invalidate()
             isFragmented = true
         }
