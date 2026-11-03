@@ -19,15 +19,11 @@ package androidx.camera.integration.macrobenchmark
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.GROUPABLE_FEATURE_DISABLING_ACTIVITY
-import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.grantCameraPermission
 import androidx.camera.integration.macrobenchmark.CameraBenchmarkUtils.measureStartupDefault
 import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,16 +37,6 @@ class GroupableFeatureDisablingBenchmark(
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
-    private lateinit var device: UiDevice
-
-    @Before
-    fun setUp() {
-        grantCameraPermission()
-
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        device = UiDevice.getInstance(instrumentation)
-    }
-
     @Test
     fun measureStartupForDisablingUnsupportedGroupableFeatures() =
         benchmarkRule.measureStartupDefault(
@@ -59,7 +45,12 @@ class GroupableFeatureDisablingBenchmark(
                 putExtra("camerax_config", cameraXConfigName)
                 putExtra("lens", lens)
             },
-            measureBlock = { device.wait(Until.findObject(By.text("HdrButton")), 5_000).click() },
+            measureBlock = {
+                requireNotNull(device.wait(Until.findObject(By.text("HdrButton")), 15_000)) {
+                        "Timed out waiting for HdrButton"
+                    }
+                    .click()
+            },
         )
 
     companion object {

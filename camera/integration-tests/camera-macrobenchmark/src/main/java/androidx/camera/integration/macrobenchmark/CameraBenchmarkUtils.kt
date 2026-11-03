@@ -26,7 +26,7 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 
 object CameraBenchmarkUtils {
     private const val TARGET_PACKAGE = "androidx.camera.integration.macrobenchmark.target"
@@ -37,17 +37,17 @@ object CameraBenchmarkUtils {
         "androidx.camera.integration.macrobenchmark.target.GROUPABLE_FEATURE_DISABLING_ACTIVITY"
 
     /**
-     * Grants the CAMERA permission to the app under test.
+     * Wakes the device, dismisses any non-secure keyguard, and grants the CAMERA permission to the
+     * app under test.
      *
      * The more usual GrantPermissionRule approach doesn't work here as that's designed for tests
      * that run within the same process as the app being tested, which is not the case for
      * macro-benchmarks.
      */
-    fun grantCameraPermission() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.uiAutomation.executeShellCommand(
-            "pm grant $TARGET_PACKAGE android.permission.CAMERA"
-        )
+    fun grantCameraPermission(device: UiDevice) {
+        device.wakeUp()
+        device.executeShellCommand("wm dismiss-keyguard")
+        device.executeShellCommand("pm grant $TARGET_PACKAGE android.permission.CAMERA")
     }
 
     @OptIn(ExperimentalBenchmarkConfigApi::class, ExperimentalPerfettoCaptureApi::class)
@@ -64,7 +64,10 @@ object CameraBenchmarkUtils {
             iterations = 10,
             experimentalConfig =
                 ExperimentalConfig(startupInsightsConfig = StartupInsightsConfig(true)),
-            setupBlock = { pressHome() },
+            setupBlock = {
+                grantCameraPermission(device)
+                pressHome()
+            },
         ) {
             val intent = Intent()
             intent.setPackage(TARGET_PACKAGE)
