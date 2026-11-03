@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.app.UiAutomation
 import android.os.Build
 import android.view.Surface
 import android.view.View
@@ -72,6 +73,7 @@ class ImageCaptureOrientationConfigChangesTest(
                     "redmi note 9s",
                     "redmi note 8",
                     "m2003j15sc", // Redmi Note 9
+                    "m2004j19c", // Redmi 9
                     "m2006c3lg", // Redmi 9A
                     "m2006c3mg", // Redmi 9C
                 )
@@ -83,7 +85,13 @@ class ImageCaptureOrientationConfigChangesTest(
 
     @After
     fun after() {
-        tearDown()
+        try {
+            val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            uiAutomation.setRotation(UiAutomation.ROTATION_FREEZE_0)
+            uiAutomation.setRotation(UiAutomation.ROTATION_UNFREEZE)
+        } finally {
+            tearDown()
+        }
     }
 
     @Test
