@@ -34,10 +34,12 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.R;
+import androidx.camera.testing.impl.ActivityScreenUtil;
 import androidx.core.util.Preconditions;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
@@ -57,21 +59,43 @@ public class Camera2TestActivity extends Activity {
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     public static final String EXTRA_CAMERA_ID = "androidx.camera.cameraId";
-    private static final int MAX_RETRIES = 5;
+    private static final int MAX_RETRIES = 3;
     private static final long RETRY_DELAY_MS = 500;
+    private static final long ATTEMPT_TIMEOUT_MS = 5000;
 
     final Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    final Object mResourcesLock = new Object();
+    @GuardedBy("mResourcesLock")
     @Nullable CameraDevice mCameraDevice;
+    @GuardedBy("mResourcesLock")
     @Nullable CameraCaptureSession mCaptureSession;
-    @Nullable Handler mBackgroundHandler;
+    @GuardedBy("mResourcesLock")
+    @Nullable Surface mPreviewSurface;
+    volatile @Nullable Handler mBackgroundHandler;
     CaptureRequest.@Nullable Builder mPreviewRequestBuilder;
     private TextureView mTextureView;
     private @Nullable String mCameraId;
     private @Nullable HandlerThread mBackgroundThread;
     private int mFailedRetries = 0;
     private final AtomicInteger mFrameCount = new AtomicInteger(0);
+    private final AtomicInteger mAttemptToken = new AtomicInteger(0);
     private final AtomicBoolean mIsOpening = new AtomicBoolean(false);
     private final AtomicBoolean mIsHandlingFailure = new AtomicBoolean(false);
+
+    private final Runnable mWatchdogRunnable = () -> {
+        if (mFrameCount.get() < FRAMES_UNTIL_VIEW_IS_READY) {
+            Logger.w(TAG, "Camera open/preview attempt timed out for token "
+                    + mAttemptToken.get() + ". Retrying.");
+            if (mIsOpening.compareAndSet(true, false)) {
+                mCameraOpenCloseLock.release();
+            }
+            CameraDevice device;
+            synchronized (mResourcesLock) {
+                device = mCameraDevice;
+            }
+            handleCameraFailure(device);
+        }
+    };
 
     @VisibleForTesting
     public final CountingIdlingResource completionIdlingResource =
@@ -104,6 +128,10 @@ public class Camera2TestActivity extends Activity {
                 @Override
                 public void onSurfaceTextureUpdated(@NonNull SurfaceTexture texture) {
                     if (mFrameCount.incrementAndGet() >= FRAMES_UNTIL_VIEW_IS_READY) {
+                        Handler handler = mBackgroundHandler;
+                        if (handler != null) {
+                            handler.removeCallbacks(mWatchdogRunnable);
+                        }
                         if (!previewStartedIdlingResource.isIdleNow()) {
                             previewStartedIdlingResource.decrement();
                         }
@@ -114,12 +142,10 @@ public class Camera2TestActivity extends Activity {
                 }
             };
 
-    private final CameraDevice.StateCallback mDeviceStateCallback =
-            new DeviceStateCallbackImpl();
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityScreenUtil.turnScreenOnAndShowWhenLocked(this, true);
         setContentView(R.layout.activity_camera_main);
 
         mTextureView = findViewById(R.id.textureView);
@@ -143,13 +169,13 @@ public class Camera2TestActivity extends Activity {
         super.onResume();
         startBackgroundThread();
 
+        mFrameCount.set(0);
         completionIdlingResource.increment();
         previewStartedIdlingResource.increment();
 
+        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         if (mTextureView.isAvailable()) {
             openCamera();
-        } else {
-            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
     }
 
@@ -184,15 +210,24 @@ public class Camera2TestActivity extends Activity {
                 return;
             }
 
-            if (mCameraDevice != null) {
-                Logger.d(TAG, "Camera was opened while we waited for the lock. Skipping.");
-                mCameraOpenCloseLock.release(); // We acquired the lock, so we must release it.
-                return;
+            synchronized (mResourcesLock) {
+                if (mCameraDevice != null) {
+                    Logger.d(TAG, "Camera was opened while we waited for the lock. Skipping.");
+                    mCameraOpenCloseLock.release();
+                    return;
+                }
             }
 
             CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+            mFrameCount.set(0);
             mIsOpening.set(true);
-            manager.openCamera(mCameraId, mDeviceStateCallback, mBackgroundHandler);
+            final int token = mAttemptToken.incrementAndGet();
+            Handler handler = mBackgroundHandler;
+            if (handler != null) {
+                handler.removeCallbacks(mWatchdogRunnable);
+                handler.postDelayed(mWatchdogRunnable, ATTEMPT_TIMEOUT_MS);
+            }
+            manager.openCamera(mCameraId, new DeviceStateCallbackImpl(token), handler);
 
         } catch (InterruptedException e) {
             // This is the new, correct handling for interruption.
@@ -208,50 +243,96 @@ public class Camera2TestActivity extends Activity {
     }
 
     void closeCamera() {
+        mAttemptToken.incrementAndGet();
+        Handler handler = mBackgroundHandler;
+        if (handler != null) {
+            handler.removeCallbacks(mWatchdogRunnable);
+        }
         boolean lockAcquired = false;
         try {
             lockAcquired = mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS);
-            if (lockAcquired) {
-                if (null != mCaptureSession) {
-                    mCaptureSession.close();
-                    mCaptureSession = null;
-                }
-                if (null != mCameraDevice) {
-                    mCameraDevice.close();
-                    mCameraDevice = null;
-                }
-            } else {
+            if (!lockAcquired) {
                 Logger.w(TAG, "Timed out trying to acquire lock for closing camera.");
             }
+            releaseCameraResources(null);
         } catch (InterruptedException e) {
             Logger.w(TAG, "Interrupted while trying to lock camera closing.", e);
             Thread.currentThread().interrupt();
         } finally {
-            if (lockAcquired) {
+            if (lockAcquired || mIsOpening.compareAndSet(true, false)) {
                 mCameraOpenCloseLock.release();
             }
         }
     }
 
+    private void releaseCameraResources(@Nullable CameraDevice extraDeviceToClose) {
+        CameraCaptureSession sessionToClose;
+        CameraDevice deviceToClose;
+        Surface surfaceToRelease;
+        synchronized (mResourcesLock) {
+            sessionToClose = mCaptureSession;
+            mCaptureSession = null;
+            deviceToClose = mCameraDevice;
+            mCameraDevice = null;
+            surfaceToRelease = mPreviewSurface;
+            mPreviewSurface = null;
+        }
+        if (sessionToClose != null) {
+            sessionToClose.close();
+        }
+        if (deviceToClose != null) {
+            deviceToClose.close();
+        }
+        if (extraDeviceToClose != null && extraDeviceToClose != deviceToClose) {
+            extraDeviceToClose.close();
+        }
+        if (surfaceToRelease != null) {
+            surfaceToRelease.release();
+        }
+    }
+
     /* createCaptureSession */
     @SuppressWarnings("deprecation")
-    void createCameraPreviewSession() {
+    void createCameraPreviewSession(int token) {
         mFrameCount.set(0);
-        Preconditions.checkNotNull(mCameraDevice);
+        CameraDevice device;
+        Surface previewSurface = null;
+        Surface oldSurfaceToRelease = null;
+        boolean failed = false;
+        synchronized (mResourcesLock) {
+            if (mAttemptToken.get() != token || mCameraDevice == null) {
+                return;
+            }
+            device = mCameraDevice;
+            try {
+                SurfaceTexture texture = mTextureView.getSurfaceTexture();
+                Preconditions.checkNotNull(texture);
+                texture.setDefaultBufferSize(GUARANTEED_RESOLUTION.getWidth(),
+                        GUARANTEED_RESOLUTION.getHeight());
+                oldSurfaceToRelease = mPreviewSurface;
+                mPreviewSurface = new Surface(texture);
+                previewSurface = mPreviewSurface;
+                mPreviewRequestBuilder = device.createCaptureRequest(
+                        CameraDevice.TEMPLATE_PREVIEW);
+                mPreviewRequestBuilder.addTarget(previewSurface);
+            } catch (CameraAccessException | IllegalStateException e) {
+                Logger.w(TAG, "Failed to prepare capture request. Camera was likely closed.", e);
+                failed = true;
+            }
+        }
+        if (oldSurfaceToRelease != null) {
+            oldSurfaceToRelease.release();
+        }
+        if (failed) {
+            handleCameraFailure(device);
+            return;
+        }
         try {
-            SurfaceTexture texture = mTextureView.getSurfaceTexture();
-            Preconditions.checkNotNull(texture);
-            texture.setDefaultBufferSize(GUARANTEED_RESOLUTION.getWidth(),
-                    GUARANTEED_RESOLUTION.getHeight());
-            Surface surface = new Surface(texture);
-            mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(
-                    CameraDevice.TEMPLATE_PREVIEW);
-            mPreviewRequestBuilder.addTarget(surface);
-            mCameraDevice.createCaptureSession(Collections.singletonList(surface),
-                    new SessionStateCallbackImpl(), mBackgroundHandler);
+            device.createCaptureSession(Collections.singletonList(previewSurface),
+                    new SessionStateCallbackImpl(token), mBackgroundHandler);
         } catch (CameraAccessException | IllegalStateException e) {
             Logger.w(TAG, "Failed to create capture session. Camera was likely closed.", e);
-            handleCameraFailure(mCameraDevice);
+            handleCameraFailure(device);
         }
     }
 
@@ -279,17 +360,19 @@ public class Camera2TestActivity extends Activity {
             Logger.d(TAG, "Failure already being handled. Ignoring duplicate call.");
             return;
         }
-
-        if (cameraDevice != null) {
-            cameraDevice.close();
+        mAttemptToken.incrementAndGet();
+        Handler handler = mBackgroundHandler;
+        if (handler != null) {
+            handler.removeCallbacks(mWatchdogRunnable);
         }
-        mCameraDevice = null;
+
+        releaseCameraResources(cameraDevice);
 
         if (mFailedRetries < MAX_RETRIES) {
             mFailedRetries++;
             Logger.d(TAG, "Scheduling retry to open camera. Attempt " + (mFailedRetries + 1));
-            if (mBackgroundHandler != null) {
-                mBackgroundHandler.postDelayed(this::tryOpenCamera, RETRY_DELAY_MS);
+            if (handler != null) {
+                handler.postDelayed(this::tryOpenCamera, RETRY_DELAY_MS);
             }
         } else {
             Logger.e(TAG, "Failed to open camera after " + MAX_RETRIES + " retries.");
@@ -300,57 +383,113 @@ public class Camera2TestActivity extends Activity {
     }
 
     final class DeviceStateCallbackImpl extends CameraDevice.StateCallback {
+        private final int mToken;
+
+        DeviceStateCallbackImpl(int token) {
+            mToken = token;
+        }
+
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
-            Logger.d(TAG, "Camera onOpened: " + cameraDevice.getId());
             if (mIsOpening.compareAndSet(true, false)) {
                 mCameraOpenCloseLock.release();
             }
+            boolean isStale = false;
+            synchronized (mResourcesLock) {
+                if (mAttemptToken.get() != mToken) {
+                    isStale = true;
+                } else {
+                    mCameraDevice = cameraDevice;
+                }
+            }
+            if (isStale) {
+                Logger.w(TAG, "Ignoring stale onOpened for token " + mToken);
+                cameraDevice.close();
+                return;
+            }
+            Logger.d(TAG, "Camera onOpened: " + cameraDevice.getId());
             mIsHandlingFailure.set(false);
-            mCameraDevice = cameraDevice;
-            createCameraPreviewSession();
+            createCameraPreviewSession(mToken);
         }
 
         @Override
         public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-            Logger.w(TAG, "Camera onDisconnected: " + cameraDevice.getId());
             if (mIsOpening.compareAndSet(true, false)) {
                 mCameraOpenCloseLock.release();
             }
+            if (mAttemptToken.get() != mToken) {
+                cameraDevice.close();
+                return;
+            }
+            Logger.w(TAG, "Camera onDisconnected: " + cameraDevice.getId());
             handleCameraFailure(cameraDevice);
         }
 
         @Override
         public void onError(@NonNull CameraDevice cameraDevice, int error) {
-            Logger.e(TAG, "Camera onError: " + cameraDevice.getId() + ", error: " + error);
             if (mIsOpening.compareAndSet(true, false)) {
                 mCameraOpenCloseLock.release();
             }
+            if (mAttemptToken.get() != mToken) {
+                cameraDevice.close();
+                return;
+            }
+            Logger.e(TAG, "Camera onError: " + cameraDevice.getId() + ", error: " + error);
             handleCameraFailure(cameraDevice);
         }
     }
 
     final class SessionStateCallbackImpl extends CameraCaptureSession.StateCallback {
+        private final int mToken;
+
+        SessionStateCallbackImpl(int token) {
+            mToken = token;
+        }
+
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-            if (null == mCameraDevice) return;
-            mCaptureSession = cameraCaptureSession;
-            try {
-                mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-                mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
-                        new CameraCaptureSession.CaptureCallback() {}, mBackgroundHandler);
-                Logger.d(TAG, "Camera session configured successfully.");
-            } catch (CameraAccessException | IllegalStateException e) {
-                Logger.w(TAG, "Failed to start preview, treating as camera failure.", e);
-                handleCameraFailure(mCameraDevice);
+            CameraDevice device = null;
+            boolean isStale = false;
+            synchronized (mResourcesLock) {
+                if (mAttemptToken.get() != mToken || mCameraDevice == null) {
+                    isStale = true;
+                } else {
+                    device = mCameraDevice;
+                    mCaptureSession = cameraCaptureSession;
+                    try {
+                        mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE,
+                                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                        Handler handler = mBackgroundHandler;
+                        if (handler != null) {
+                            mCaptureSession.setRepeatingRequest(mPreviewRequestBuilder.build(),
+                                    new CameraCaptureSession.CaptureCallback() {}, handler);
+                        }
+                        Logger.d(TAG, "Camera session configured successfully.");
+                        return;
+                    } catch (CameraAccessException | IllegalStateException e) {
+                        Logger.w(TAG, "Failed to start preview, treating as camera failure.", e);
+                    }
+                }
             }
+            if (isStale) {
+                cameraCaptureSession.close();
+                return;
+            }
+            handleCameraFailure(device);
         }
 
         @Override
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+            if (mAttemptToken.get() != mToken) {
+                cameraCaptureSession.close();
+                return;
+            }
             Logger.e(TAG, "Camera session configuration failed, treating as camera failure.");
-            handleCameraFailure(mCameraDevice);
+            CameraDevice device;
+            synchronized (mResourcesLock) {
+                device = mCameraDevice;
+            }
+            handleCameraFailure(device);
         }
     }
 }
