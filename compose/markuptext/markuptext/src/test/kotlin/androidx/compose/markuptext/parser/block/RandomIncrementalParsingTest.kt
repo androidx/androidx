@@ -99,6 +99,16 @@ class RandomIncrementalParsingTest {
                     .append(" '")
                     .append(block.content)
                     .append("'")
+            is IndentedCodeBlockParseBlock ->
+                append(" '").append(block.getCodeContent()).append("'")
+            is FencedCodeBlockParseBlock ->
+                append(" closed=")
+                    .append(block.isClosed)
+                    .append(" language=")
+                    .append(block.language)
+                    .append(" '")
+                    .append(block.getCodeContent())
+                    .append("'")
             else -> {}
         }
         append('\n')
@@ -139,7 +149,9 @@ class RandomIncrementalParsingTest {
                 "_ _ _",
                 "    code",
                 "      deeper code",
+                "      ",
                 "```",
+                "  ```",
                 "```kotlin",
                 "~~~",
                 "> quote",
