@@ -280,7 +280,7 @@ internal class SharedElementEntry(
     // Do not need to render the content of an outgoing `sharedElement`.
     private val shouldRenderAtAll: Boolean
         get() =
-            (pendingTarget ?: target) ||
+            (sharedElement.pendingTargetEntry?.let { it === this } ?: target) ||
                 // This && only evaluates to true when the active match is removed during
                 // transition
                 (sharedElement.state.matchIsOrHasBeenConfigured &&
