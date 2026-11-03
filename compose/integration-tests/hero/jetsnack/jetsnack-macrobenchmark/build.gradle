@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":internal-testutils-benchmark-macro"))
     implementation(project(":compose:integration-tests:hero:hero-common:hero-common-macrobenchmark"))
+    implementation(project(":tracing:tracing-ktx"))
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
