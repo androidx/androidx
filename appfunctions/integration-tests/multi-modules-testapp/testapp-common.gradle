@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 android {
     namespace = "androidx.appfunctions.integration.testapp"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 2 } }
     defaultConfig {
         minSdk { version = release(33) }
     }
