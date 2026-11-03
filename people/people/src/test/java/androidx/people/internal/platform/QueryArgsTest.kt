@@ -64,6 +64,37 @@ class QueryArgsTest {
     }
 
     @Test
+    fun criteriaByPackage_malformedBundleWithNullOrNonBundleItems_safelyIgnoresThem() {
+        val bundle =
+            Bundle().apply {
+                val list =
+                    arrayListOf<Any?>(
+                        null,
+                        "not a bundle",
+                        Bundle().apply {
+                            putString(PeopleContractCompat.QUERY_ARG_PACKAGE, "com.example.voip")
+                            putString(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_TYPE,
+                                PeopleContractCompat.Persons.Query.SELECTION_TYPE_PHONE,
+                            )
+                            putStringArray(
+                                PeopleContractCompat.QUERY_ARG_SELECTION_VALUE,
+                                arrayOf("+1"),
+                            )
+                        },
+                    )
+                @Suppress("UNCHECKED_CAST")
+                putParcelableArrayList(
+                    PeopleContractCompat.QUERY_ARG_QUERIES,
+                    list as ArrayList<Bundle>,
+                )
+            }
+
+        val parsed = bundle.personCriteriaByPackage()
+        assertThat(parsed).containsExactly(VOIP, setOf(Criterion.Phone("+1")))
+    }
+
+    @Test
     fun personQueryArgs_roundTripPerDirectory() {
         val query = personQuery {
             directory(VOIP) { addPhones("+1") }

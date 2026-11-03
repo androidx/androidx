@@ -18,6 +18,7 @@ package androidx.people.internal.platform
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
@@ -266,8 +267,9 @@ internal class PlatformPeopleBackend(
     companion object {
         /**
          * Returns the platform backend if the platform People Provider serves this device: Android
-         * 37.2 or higher with `com.android.people` installed. Returns `null` otherwise, including
-         * on devices on Android 37.2 or higher without the provider.
+         * 37.2 or higher with `com.android.people` installed as a system application. Returns
+         * `null` otherwise, including on devices on Android 37.2 or higher without the platform
+         * People Provider.
          *
          * Main-safe. The version is checked first so that the package manager is only queried on
          * devices that can have the platform People Provider at all.
@@ -275,14 +277,23 @@ internal class PlatformPeopleBackend(
         suspend fun createIfSupported(
             context: Context,
             coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+            isSupportedApiLevel: () -> Boolean = ::isAtLeastPeopleContract,
         ): PlatformPeopleBackend? {
-            if (!isAtLeastPeopleContract()) return null
+            if (!isSupportedApiLevel()) return null
             val installed =
                 withContext(coroutineDispatcher) {
-                    context.packageManager.resolveContentProvider(
-                        PeopleContractCompat.AUTHORITY,
-                        0,
-                    ) != null
+                    val providerInfo =
+                        context.packageManager.resolveContentProvider(
+                            PeopleContractCompat.AUTHORITY,
+                            0,
+                        )
+                    // Checking that the provider is a system app to prevent
+                    // spoofing com.android.people by a third-party app
+                    val appInfo = providerInfo?.applicationInfo
+                    appInfo != null &&
+                        (appInfo.flags and
+                            (ApplicationInfo.FLAG_SYSTEM or
+                                ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)) != 0
                 }
             return if (installed) PlatformPeopleBackend(context, coroutineDispatcher) else null
         }

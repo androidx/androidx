@@ -58,8 +58,9 @@ class PlatformPeopleBackendTest {
     }
 
     private fun setupPlatformPeopleProvider(
-        block: FakePlatformPeopleProvider.() -> Unit = {}
-    ): FakePlatformPeopleProvider = FakePlatformPeopleProvider.install(context, block)
+        isSystemApp: Boolean = true,
+        block: FakePlatformPeopleProvider.() -> Unit = {},
+    ): FakePlatformPeopleProvider = FakePlatformPeopleProvider.install(context, isSystemApp, block)
 
     @Test
     fun createIfSupported_withoutThePlatformProvider_returnsNull() = runTest {
@@ -82,6 +83,34 @@ class PlatformPeopleBackendTest {
 
             assertThat(result).isNull()
         }
+
+    @Test
+    fun createIfSupported_whenSupportedApiLevel_withSystemAppProvider_returnsBackend() = runTest {
+        setupPlatformPeopleProvider(isSystemApp = true)
+
+        val result =
+            PlatformPeopleBackend.createIfSupported(
+                context,
+                StandardTestDispatcher(testScheduler),
+                isSupportedApiLevel = { true },
+            )
+
+        assertThat(result).isNotNull()
+    }
+
+    @Test
+    fun createIfSupported_whenSupportedApiLevel_withNonSystemAppProvider_returnsNull() = runTest {
+        setupPlatformPeopleProvider(isSystemApp = false)
+
+        val result =
+            PlatformPeopleBackend.createIfSupported(
+                context,
+                StandardTestDispatcher(testScheduler),
+                isSupportedApiLevel = { true },
+            )
+
+        assertThat(result).isNull()
+    }
 
     @Test
     fun createInteractionRequest_withoutThePlatformProvider_returnsNull() = runTest {
